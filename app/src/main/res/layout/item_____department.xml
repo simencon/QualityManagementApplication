@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <import type="android.text.format.DateUtils" />
+
+        <variable
+            name="recordNum"
+            type="String" />
+
+        <variable
+            name="department"
+            type="com.simenko.qmapp.domain.DomainDepartment" />
+
+        <variable
+            name="departmentCallback"
+            type="com.simenko.qmapp.fragments.DepartmentClick" />/>
+    </data>
+
+    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/text_dep_abbr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:hint="depAbbr"
+                android:padding="@dimen/padding_insight_item"
+                android:text="@{department.depAbbr}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+            <TextView
+                android:id="@+id/text_dep_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/text_dep_abbr"
+                android:ellipsize="end"
+                android:hint="depName"
+                android:maxLines="1"
+                android:padding="@dimen/padding_insight_item"
+                android:text="@{department.depName}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+            <TextView
+                android:id="@+id/text_dep_organization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_dep_name"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@id/text_dep_manager"
+                android:hint="depOrganization"
+                android:padding="@dimen/padding_insight_item"
+                android:text="@{department.depOrganization}" />
+
+            <TextView
+                android:id="@+id/text_dep_manager"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_dep_name"
+                android:layout_toStartOf="@id/text_dep_oder"
+                android:hint="depManager"
+                android:padding="@dimen/padding_insight_item"
+                android:text="@{Integer.toString(department.depManager)}" />
+
+            <TextView
+                android:id="@+id/text_dep_oder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_dep_name"
+                android:layout_alignEnd="@id/text_dep_abbr"
+                android:hint="depOrder"
+                android:padding="@dimen/padding_insight_item"
+                android:text="@{Integer.toString(department.depOrder)}" />
+
+            <View
+                android:id="@+id/clickableOverlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignBottom="@id/text_dep_organization"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:background="?attr/selectableItemBackground"
+                android:onClick="@{() -> departmentCallback.onClick(department)}" />
+
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
