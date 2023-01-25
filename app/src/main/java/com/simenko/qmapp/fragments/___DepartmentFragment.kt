@@ -1,11 +1,7 @@
 package com.simenko.qmapp.fragments
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -15,13 +11,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
+import com.simenko.qmapp.Target
 import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartment
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 public class ___DepartmentFragment : Fragment() {
-
+    /**
+     * Used lazy init due to the fact - is not possible to get the activity,
+     * until the moment the view is created
+     */
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
 
@@ -31,6 +31,8 @@ public class ___DepartmentFragment : Fragment() {
         ).get(QualityManagementViewModel::class.java)
     }
 
+    lateinit var targetList: String
+
     private var viewModelAdapter: DepartmentAdapter? = null
 
     override fun onCreateView(
@@ -38,6 +40,7 @@ public class ___DepartmentFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        targetList = arguments?.getString(Target.cKey).toString()
         val binding: FragmentDepartmentsBinding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment___departments,
@@ -52,17 +55,6 @@ public class ___DepartmentFragment : Fragment() {
         viewModelAdapter = DepartmentAdapter(DepartmentClick {
             val packageManager = context?.packageManager ?: return@DepartmentClick
             Toast.makeText(context, it.selectedRecord, Toast.LENGTH_LONG).show()
-            /**
-             * In case to start new activity use this (probably should be [com.simenko.qmapp.____AddEditOrder])
-             */
-            /*// Try to generate a direct intent to the YouTube app
-            var intent = Intent(Intent.ACTION_VIEW, it.launchUri)
-            if (intent.resolveActivity(packageManager) == null) {
-                // YouTube app isn't found, use the web url
-                intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.url))
-            }
-
-            startActivity(intent)*/
         })
 
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).apply {
@@ -70,7 +62,9 @@ public class ___DepartmentFragment : Fragment() {
             adapter = viewModelAdapter
         }
 
-        viewModel.eventNetworkError.observe( viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
+        viewModel.eventNetworkError.observe(
+            viewLifecycleOwner,
+            Observer<Boolean> { isNetworkError ->
                 if (isNetworkError) onNetworkError()
             })
 
@@ -118,12 +112,13 @@ class DepartmentAdapter(val callback: DepartmentClick) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
 
-        val withDataBinding: ItemDepartmentBinding = DataBindingUtil.inflate(
-            LayoutInflater.from(parent.context),
-            DepartmentViewHolder.LAYOUT,
-            parent,
-            false
-        )
+        val withDataBinding: ItemDepartmentBinding = DataBindingUtil
+            .inflate(
+                LayoutInflater.from(parent.context),
+                DepartmentViewHolder.LAYOUT,
+                parent,
+                false
+            )
         return DepartmentViewHolder(withDataBinding)
     }
 
