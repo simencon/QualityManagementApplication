@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <variable
-            name="department"
-            type="com.simenko.qmapp.domain.DomainDepartment" />
+
+        <import type="com.simenko.qmapp.utils.StringUtils"/>
 
         <variable
-            name="departmentCallback"
-            type="com.simenko.qmapp.fragments.DepartmentClick" />
+            name="teamMember"
+            type="com.simenko.qmapp.domain.DomainTeamMembers" />
+
+        <variable
+            name="teamMemberCallback"
+            type="com.simenko.qmapp.fragments.TeamMemberClick" />
     </data>
 
-    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -27,22 +30,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:hint="depAbbr"
+                android:layout_alignParentStart="true"
+                android:hint="Full name"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depAbbr}"
+                android:text="@{teamMember.fullName}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
                 android:id="@+id/text_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/text_full_name"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/text_full_name"
+                android:layout_alignParentEnd="true"
                 android:ellipsize="end"
-                android:hint="depName"
+                android:hint="email"
+                android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depName}"
+                android:text="@{StringUtils.getMail(teamMember.email)}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
             <TextView
@@ -51,41 +57,42 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_email"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/text_job_role"
-                android:hint="depOrganization"
+                android:layout_toStartOf="@id/text_id"
+                android:hint="Department"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depOrganization}" />
+                android:text="@{teamMember.department}" />
 
             <TextView
                 android:id="@+id/text_job_role"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/text_email"
+                android:layout_below="@id/text_department"
+                android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/text_id"
-                android:hint="depManager"
+                android:hint="Job role"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{Integer.toString(department.depManager)}" />
+                android:text="@{teamMember.jobRole}" />
 
             <TextView
                 android:id="@+id/text_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_email"
-                android:layout_alignEnd="@id/text_full_name"
-                android:hint="depOrder"
+                android:layout_alignParentEnd="true"
+                android:hint="member ID"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{Integer.toString(department.depOrder)}" />
+                android:text="@{Integer.toString(teamMember.id)}" />
 
             <View
                 android:id="@+id/clickableOverlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@id/text_department"
+                android:layout_alignBottom="@id/text_job_role"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> departmentCallback.onClick(department)}" />
+                android:onClick="@{() -> teamMemberCallback.onClick(teamMember)}" />
 
 
         </RelativeLayout>

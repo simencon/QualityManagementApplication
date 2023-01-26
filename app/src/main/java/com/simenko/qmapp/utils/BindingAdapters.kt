@@ -12,7 +12,19 @@ import androidx.databinding.BindingAdapter
 fun hideIfNetworkError(view: View, isNetWorkError: Boolean, departments: Any?) {
     view.visibility = if (departments != null) View.GONE else View.VISIBLE
 
-    if(isNetWorkError) {
+    if (isNetWorkError) {
         view.visibility = View.GONE
+    }
+}
+
+object StringUtils {
+
+    @JvmStatic
+    fun getMail(original: String?): String {
+        return if(original != null) {
+            original.split("#mailto:").toTypedArray()[0]
+        } else {
+            "has no mail"
+        }
     }
 }
