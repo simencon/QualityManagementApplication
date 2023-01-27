@@ -4,7 +4,7 @@
     <data>
         <variable
             name="department"
-            type="com.simenko.qmapp.domain.DomainDepartment" />
+            type="com.simenko.qmapp.room.DatabaseDepartmentsDetailed" />
 
         <variable
             name="departmentCallback"
@@ -29,7 +29,7 @@
                 android:layout_alignParentEnd="true"
                 android:hint="depAbbr"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depAbbr}"
+                android:text="@{department.departments.depAbbr}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
@@ -42,7 +42,7 @@
                 android:hint="depName"
                 android:maxLines="1"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depName}"
+                android:text="@{department.departments.depName}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
             <TextView
@@ -54,7 +54,7 @@
                 android:layout_toStartOf="@id/text_job_role"
                 android:hint="depOrganization"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depOrganization}" />
+                android:text="@{department.departments.depOrganization}" />
 
             <TextView
                 android:id="@+id/text_job_role"
@@ -64,7 +64,7 @@
                 android:layout_toStartOf="@id/text_id"
                 android:hint="depManager"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{Integer.toString(department.depManager)}" />
+                android:text="@{department.depManagerDetails.get(0).fullName}" />
 
             <TextView
                 android:id="@+id/text_id"
@@ -72,9 +72,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_email"
                 android:layout_alignEnd="@id/text_full_name"
-                android:hint="depOrder"
+                android:hint="Company name"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{Integer.toString(department.depOrder)}" />
+                android:text="@{department.companies.get(0).companyName}" />
 
             <View
                 android:id="@+id/clickableOverlay"

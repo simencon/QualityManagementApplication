@@ -5,6 +5,8 @@ import androidx.lifecycle.*
 import com.simenko.qmapp.repository.QualityManagementRepository
 import com.simenko.qmapp.room.getDatabase
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.IOException
 
 class QualityManagementViewModel(application: Application) : AndroidViewModel(application) {
@@ -12,20 +14,25 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
      * Gets data from [QualityManagementRepository.departments] - which is live data with list
      */
     private val qualityManagementRepository = QualityManagementRepository(getDatabase(application))
+
     val departments = qualityManagementRepository.departments
     val teamMembers = qualityManagementRepository.teamMembers
+    val departmentsDetailed = qualityManagementRepository.departmentsDetailed
+
     /**
      *
      */
     private var _eventNetworkError = MutableLiveData<Boolean>(false)
     val eventNetworkError: LiveData<Boolean>
         get() = _eventNetworkError
+
     /**
      *
      */
     private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
     val isNetworkErrorShown: LiveData<Boolean>
         get() = _isNetworkErrorShown
+
     /**
      *
      */
@@ -58,11 +65,16 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     /**
      * Runs every time when ViewModel in initializing process
      */
+
+
     private fun refreshDataFromRepository() {
+        val lock = Mutex()
         viewModelScope.launch {
             try {
-                qualityManagementRepository.refreshDepartments()
+                qualityManagementRepository.refreshCompanies()
                 qualityManagementRepository.refreshTeamMembers()
+                qualityManagementRepository.refreshDepartments()
+
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
 

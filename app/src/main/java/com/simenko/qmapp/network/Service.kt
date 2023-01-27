@@ -11,6 +11,9 @@ interface QualityManagementService {
 
     @GET("api/_8TeamMember")
     suspend fun getTeamMembers(): List<NetworkTeamMembers>
+
+    @GET("api/_0Company")
+    suspend fun getCompanies(): List<NetworkCompanies>
 }
 
 object QualityManagementNetwork {

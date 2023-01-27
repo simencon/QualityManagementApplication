@@ -7,7 +7,7 @@
 
         <variable
             name="teamMember"
-            type="com.simenko.qmapp.domain.DomainTeamMembers" />
+            type="com.simenko.qmapp.domain.DomainTeamMember" />
 
         <variable
             name="teamMemberCallback"

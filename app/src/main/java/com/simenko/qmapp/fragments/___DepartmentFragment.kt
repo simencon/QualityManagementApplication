@@ -3,7 +3,6 @@ package com.simenko.qmapp.fragments
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -13,10 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.Target
 import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
-import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainTeamMembers
-import com.simenko.qmapp.domain.ListOfItems
+import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.room.DatabaseDepartmentsDetailed
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 public class ___DepartmentFragment : Fragment() {
@@ -98,9 +96,9 @@ public class ___DepartmentFragment : Fragment() {
 
         when(targetList) {
             Target.DEPARTMENTS.tList -> {
-                viewModel.departments.observe(
+                viewModel.departmentsDetailed.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainDepartment>> { items ->
+                    Observer<List<DatabaseDepartmentsDetailed>> { items ->
                         items?.apply {
                             (viewModelAdapter as DepartmentAdapter).itemsList = items
                         }
@@ -109,7 +107,7 @@ public class ___DepartmentFragment : Fragment() {
             Target.TEAM_MEMBERS.tList -> {
                 viewModel.teamMembers.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainTeamMembers>> { items ->
+                    Observer<List<DomainTeamMember>> { items ->
                         items?.apply {
                             (viewModelAdapter as TeamMemberAdapter).itemsList = items
                         }

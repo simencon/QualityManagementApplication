@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.database.DatabaseDepartment
+
 interface ListOfItems {
     fun  selectedRecord (): String
 }
@@ -18,7 +20,7 @@ data class DomainDepartment(
     }
 }
 
-data class DomainTeamMembers (
+data class DomainTeamMember (
     var id: Int,
     var departmentId: Int,
     var department: String,
@@ -33,3 +35,8 @@ data class DomainTeamMembers (
         return "$fullName ($department)"
     }
 }
+
+data class DomainDepartmentsDetailed(
+    val teamMembers: DomainTeamMember,
+    val departments: List<DomainDepartment>
+)

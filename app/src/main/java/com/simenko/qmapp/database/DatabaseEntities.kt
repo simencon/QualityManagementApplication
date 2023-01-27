@@ -1,25 +1,46 @@
 package com.simenko.qmapp.database
 
-import android.provider.ContactsContract.CommonDataKinds.Email
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainTeamMembers
+import com.simenko.qmapp.domain.DomainTeamMember
 
-@Entity(tableName = "10_departments")
+@Entity(
+    tableName = "10_departments",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseTeamMember::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("depManager"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseCompanies::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("companyId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )
+    ]
+)
 data class DatabaseDepartment constructor(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val depAbbr: String?,
     val depName: String?,
+    @ColumnInfo(index = true)
     val depManager: Int?,
     val depOrganization: String?,
     val depOrder: Int?,
+    @ColumnInfo(index = true)
     val companyId: Int?
 )
 
 @Entity(tableName = "8_team_members")
-data class DatabaseTeamMembers constructor(
+data class DatabaseTeamMember constructor(
     @PrimaryKey
     var id: Int,
     var departmentId: Int,
@@ -30,6 +51,22 @@ data class DatabaseTeamMembers constructor(
     var roleLevelId: Int,
     var passWord: String? = null,
     var companyId: Int
+)
+
+@Entity(tableName = "0_companies")
+data class DatabaseCompanies constructor(
+    @PrimaryKey
+    var id: Int,
+    var companyName: String? = null,
+    var companyCountry: String? = null,
+    var companyCity: String? = null,
+    var companyAddress: String? = null,
+    var companyPhoneNo: String? = null,
+    var companyPostCode: String? = null,
+    var companyRegion: String? = null,
+    var companyOrder: Int,
+    var companyIndustrialClassification: String? = null,
+    var companyManagerId: Int
 )
 
 fun List<DatabaseDepartment>.asDomainModel(): List<DomainDepartment> {
@@ -46,9 +83,9 @@ fun List<DatabaseDepartment>.asDomainModel(): List<DomainDepartment> {
     }
 }
 
-fun List<DatabaseTeamMembers>.asDomainModelTm(): List<DomainTeamMembers> {
+fun List<DatabaseTeamMember>.asDomainModelTm(): List<DomainTeamMember> {
     return map {
-        DomainTeamMembers(
+        DomainTeamMember(
             id = it.id,
             departmentId = it.departmentId,
             department = it.department,

@@ -7,10 +7,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemTeamMemberBinding
-import com.simenko.qmapp.domain.DomainTeamMembers
+import com.simenko.qmapp.domain.DomainTeamMember
 
-class TeamMemberClick(val block: (DomainTeamMembers) -> Unit) {
-    fun onClick(teamMember: DomainTeamMembers): Unit {
+class TeamMemberClick(val block: (DomainTeamMember) -> Unit) {
+    fun onClick(teamMember: DomainTeamMember): Unit {
         return block(teamMember)
     }
 }
@@ -26,7 +26,7 @@ class TeamMemberViewHolder(val viewDataBinding: ItemTeamMemberBinding) :
 class TeamMemberAdapter(val callback: TeamMemberClick) :
     RecyclerView.Adapter<TeamMemberViewHolder>() {
 
-    var itemsList: List<DomainTeamMembers> = emptyList()
+    var itemsList: List<DomainTeamMember> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()

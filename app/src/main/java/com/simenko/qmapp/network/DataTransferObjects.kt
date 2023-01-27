@@ -1,9 +1,12 @@
 package com.simenko.qmapp.network
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.simenko.qmapp.database.DatabaseCompanies
 import com.simenko.qmapp.database.DatabaseDepartment
-import com.simenko.qmapp.database.DatabaseTeamMembers
+import com.simenko.qmapp.database.DatabaseTeamMember
 import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainTeamMembers
+import com.simenko.qmapp.domain.DomainTeamMember
 import com.squareup.moshi.JsonClass
 
 //@JsonClass(generateAdapter = true)
@@ -33,19 +36,21 @@ data class NetworkTeamMembers(
     var companyId: Int
 )
 
-fun List<NetworkDepartment>.asDomainModel(): List<DomainDepartment> {
-    return map {
-        DomainDepartment(
-            id = it.id,
-            depAbbr = it.depAbbr,
-            depName = it.depName,
-            depManager = it.depManager,
-            depOrganization = it.depOrganization,
-            depOrder = it.depOrder,
-            companyId = it.companyId
-        )
-    }
-}
+@JsonClass(generateAdapter = true)
+data class NetworkCompanies constructor(
+    var id: Int,
+    var companyName: String? = null,
+    var companyCountry: String? = null,
+    var companyCity: String? = null,
+    var companyAddress: String? = null,
+    var companyPhoneNo: String? = null,
+    var companyPostCode: String? = null,
+    var companyRegion: String? = null,
+    var companyOrder: Int,
+    var companyIndustrialClassification: String? = null,
+    var companyManagerId: Int
+)
+
 
 fun List<NetworkDepartment>.asDatabaseModel(): List<DatabaseDepartment> {
     return map {
@@ -61,9 +66,9 @@ fun List<NetworkDepartment>.asDatabaseModel(): List<DatabaseDepartment> {
     }
 }
 
-fun List<NetworkTeamMembers>.asDomainModelTm(): List<DomainTeamMembers> {
+fun List<NetworkTeamMembers>.asDatabaseModelTm(): List<DatabaseTeamMember> {
     return map {
-        DomainTeamMembers(
+        DatabaseTeamMember(
             id = it.id,
             departmentId = it.departmentId,
             department = it.department,
@@ -77,9 +82,41 @@ fun List<NetworkTeamMembers>.asDomainModelTm(): List<DomainTeamMembers> {
     }
 }
 
-fun List<NetworkTeamMembers>.asDatabaseModelTm(): List<DatabaseTeamMembers> {
+fun List<NetworkCompanies>.asDatabaseModelCm(): List<DatabaseCompanies> {
     return map {
-        DatabaseTeamMembers(
+        DatabaseCompanies(
+            id = it.id,
+            companyName = it.companyName,
+            companyCountry = it.companyCountry,
+            companyCity = it.companyCity,
+            companyAddress = it.companyAddress,
+            companyPhoneNo = it.companyPhoneNo,
+            companyPostCode = it.companyPostCode,
+            companyRegion = it.companyRegion,
+            companyOrder = it.companyOrder,
+            companyIndustrialClassification = it.companyIndustrialClassification,
+            companyManagerId = it.companyManagerId
+        )
+    }
+}
+
+fun List<NetworkDepartment>.asDomainModel(): List<DomainDepartment> {
+    return map {
+        DomainDepartment(
+            id = it.id,
+            depAbbr = it.depAbbr,
+            depName = it.depName,
+            depManager = it.depManager,
+            depOrganization = it.depOrganization,
+            depOrder = it.depOrder,
+            companyId = it.companyId
+        )
+    }
+}
+
+fun List<NetworkTeamMembers>.asDomainModelTm(): List<DomainTeamMember> {
+    return map {
+        DomainTeamMember(
             id = it.id,
             departmentId = it.departmentId,
             department = it.department,
