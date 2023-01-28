@@ -1,11 +1,6 @@
-package com.simenko.qmapp.database
+package com.simenko.qmapp.room_entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
-import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainTeamMember
+import androidx.room.*
 
 @Entity(
     tableName = "10_departments",
@@ -69,32 +64,19 @@ data class DatabaseCompanies constructor(
     var companyManagerId: Int
 )
 
-fun List<DatabaseDepartment>.asDomainModel(): List<DomainDepartment> {
-    return map {
-        DomainDepartment(
-            id = it.id,
-            depAbbr = it.depAbbr,
-            depName = it.depName,
-            depManager = it.depManager,
-            depOrganization = it.depOrganization,
-            depOrder = it.depOrder,
-            companyId = it.companyId
-        )
-    }
-}
-
-fun List<DatabaseTeamMember>.asDomainModelTm(): List<DomainTeamMember> {
-    return map {
-        DomainTeamMember(
-            id = it.id,
-            departmentId = it.departmentId,
-            department = it.department,
-            email = it.email,
-            fullName = it.fullName,
-            jobRole = it.jobRole,
-            roleLevelId = it.roleLevelId,
-            passWord = it.passWord,
-            companyId = it.companyId
-        )
-    }
-}
+data class DatabaseDepartmentsDetailed(
+    @Embedded
+    val departments: DatabaseDepartment,
+    @Relation(
+        entity = DatabaseTeamMember::class,
+        parentColumn = "depManager",
+        entityColumn = "id"
+    )
+    val depManagerDetails: List<DatabaseTeamMember>,
+    @Relation(
+        entity = DatabaseCompanies::class,
+        parentColumn = "companyId",
+        entityColumn = "id"
+    )
+    val companies: List<DatabaseCompanies>
+)

@@ -4,7 +4,7 @@
     <data>
         <variable
             name="department"
-            type="com.simenko.qmapp.room.DatabaseDepartmentsDetailed" />
+            type="com.simenko.qmapp.domain.DomainDepartmentsDetailed" />
 
         <variable
             name="departmentCallback"

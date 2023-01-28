@@ -1,9 +1,13 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.database.DatabaseDepartment
+import com.simenko.qmapp.room_entities.DatabaseCompanies
+import com.simenko.qmapp.room_entities.DatabaseDepartment
+import com.simenko.qmapp.room_entities.DatabaseDepartmentsDetailed
+import com.simenko.qmapp.room_entities.DatabaseTeamMember
+import com.simenko.qmapp.utils.ListTransformer
 
 interface ListOfItems {
-    fun  selectedRecord (): String
+    fun selectedRecord(): String
 }
 
 data class DomainDepartment(
@@ -14,13 +18,13 @@ data class DomainDepartment(
     val depOrganization: String?,
     val depOrder: Int?,
     val companyId: Int?
-): ListOfItems {
+) : ListOfItems {
     override fun selectedRecord(): String {
         return "$depName ($depAbbr)"
     }
 }
 
-data class DomainTeamMember (
+data class DomainTeamMember(
     var id: Int,
     var departmentId: Int,
     var department: String,
@@ -36,7 +40,47 @@ data class DomainTeamMember (
     }
 }
 
-data class DomainDepartmentsDetailed(
-    val teamMembers: DomainTeamMember,
-    val departments: List<DomainDepartment>
+data class DomainCompanies(
+    var id: Int,
+    var companyName: String? = null,
+    var companyCountry: String? = null,
+    var companyCity: String? = null,
+    var companyAddress: String? = null,
+    var companyPhoneNo: String? = null,
+    var companyPostCode: String? = null,
+    var companyRegion: String? = null,
+    var companyOrder: Int,
+    var companyIndustrialClassification: String? = null,
+    var companyManagerId: Int
 )
+
+data class DomainDepartmentsDetailed(
+    val departments: DomainDepartment,
+    val depManagerDetails: List<DomainTeamMember>,
+    val companies: List<DomainCompanies>
+): ListOfItems {
+    override fun selectedRecord(): String {
+        return "${depManagerDetails[0].fullName} (${departments.depName})"
+    }
+}
+
+fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<DomainDepartmentsDetailed> {
+    return map {
+        DomainDepartmentsDetailed(
+            departments = ListTransformer(
+                DatabaseDepartment::class,
+                DomainDepartment::class
+            ).transform(it.departments),
+            depManagerDetails = ListTransformer(
+                it.depManagerDetails,
+                DatabaseTeamMember::class,
+                DomainTeamMember::class
+            ).generateList(),
+            companies = ListTransformer(
+                it.companies,
+                DatabaseCompanies::class,
+                DomainCompanies::class
+            ).generateList()
+        )
+    }
+}

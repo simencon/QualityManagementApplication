@@ -3,10 +3,9 @@ package com.simenko.qmapp.viewmodels
 import android.app.Application
 import androidx.lifecycle.*
 import com.simenko.qmapp.repository.QualityManagementRepository
-import com.simenko.qmapp.room.getDatabase
+import com.simenko.qmapp.room_implementation.getDatabase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.io.IOException
 
 class QualityManagementViewModel(application: Application) : AndroidViewModel(application) {

@@ -1,33 +1,12 @@
-package com.simenko.qmapp.room
+package com.simenko.qmapp.room_implementation
 
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.simenko.qmapp.database.DatabaseCompanies
-import com.simenko.qmapp.database.DatabaseDepartment
-import com.simenko.qmapp.database.DatabaseTeamMember
-import com.simenko.qmapp.domain.ListOfItems
-
-data class DatabaseDepartmentsDetailed(
-    @Embedded
-    val departments: DatabaseDepartment,
-    @Relation(
-        entity = DatabaseTeamMember::class,
-        parentColumn = "depManager",
-        entityColumn = "id"
-    )
-    val depManagerDetails: List<DatabaseTeamMember>,
-    @Relation(
-        entity = DatabaseCompanies::class,
-        parentColumn = "companyId",
-        entityColumn = "id"
-    )
-    val companies: List<DatabaseCompanies>
-) : ListOfItems {
-    override fun selectedRecord(): String {
-        return "${depManagerDetails[0].fullName} (${departments.depName})"
-    }
-}
+import com.simenko.qmapp.room_entities.DatabaseCompanies
+import com.simenko.qmapp.room_entities.DatabaseDepartment
+import com.simenko.qmapp.room_entities.DatabaseDepartmentsDetailed
+import com.simenko.qmapp.room_entities.DatabaseTeamMember
 
 @Dao
 interface QualityManagementDao {

@@ -1,8 +1,7 @@
-package com.simenko.qmapp.network
+package com.simenko.qmapp.retrofit_entities
 
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.create
 import retrofit2.http.GET
 
 interface QualityManagementService {

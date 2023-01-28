@@ -12,9 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.Target
 import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
-import com.simenko.qmapp.domain.DomainDepartment
+import com.simenko.qmapp.domain.DomainDepartmentsDetailed
 import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.room.DatabaseDepartmentsDetailed
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 public class ___DepartmentFragment : Fragment() {
@@ -98,7 +97,7 @@ public class ___DepartmentFragment : Fragment() {
             Target.DEPARTMENTS.tList -> {
                 viewModel.departmentsDetailed.observe(
                     viewLifecycleOwner,
-                    Observer<List<DatabaseDepartmentsDetailed>> { items ->
+                    Observer<List<DomainDepartmentsDetailed>> { items ->
                         items?.apply {
                             (viewModelAdapter as DepartmentAdapter).itemsList = items
                         }

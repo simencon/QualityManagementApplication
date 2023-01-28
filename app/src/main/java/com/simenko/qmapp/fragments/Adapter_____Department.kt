@@ -7,19 +7,16 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
-import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.ListOfItems
-import com.simenko.qmapp.room.DatabaseDepartmentsDetailed
+import com.simenko.qmapp.domain.DomainDepartmentsDetailed
 
-// ToDO: 6. - WTF, how it works and how it used
-class DepartmentClick(val block: (DatabaseDepartmentsDetailed) -> Unit) {
-    fun onClick(department: DatabaseDepartmentsDetailed) = block(department)
+class DepartmentClick(val block: (DomainDepartmentsDetailed) -> Unit) {
+    fun onClick(department: DomainDepartmentsDetailed) = block(department)
 }
 
 class DepartmentAdapter(val callback: DepartmentClick) :
     RecyclerView.Adapter<DepartmentViewHolder>()
     {
-    var itemsList: List<DatabaseDepartmentsDetailed> = emptyList()
+    var itemsList: List<DomainDepartmentsDetailed> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
