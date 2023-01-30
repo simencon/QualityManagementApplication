@@ -13,6 +13,9 @@ interface QualityManagementService {
 
     @GET("api/_0Company")
     suspend fun getCompanies(): List<NetworkCompanies>
+
+    @GET("api/orderinput")
+    suspend fun getInputForOrder(): List<NetworkInputForOrder>
 }
 
 object QualityManagementNetwork {

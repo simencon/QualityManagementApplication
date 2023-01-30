@@ -73,6 +73,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
                 qualityManagementRepository.refreshCompanies()
                 qualityManagementRepository.refreshTeamMembers()
                 qualityManagementRepository.refreshDepartments()
+                qualityManagementRepository.refreshInputForOrder()
 
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false

@@ -10,6 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.fragments.___DepartmentFragment
+import com.simenko.qmapp.fragments._____OrderFragment
 
 class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -78,6 +79,7 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         val selectedFragment =
             when (item.getItemId()) {
                 R.id.nav_profile -> ___DepartmentFragment()
+                R.id.nav_message -> _____OrderFragment()
                 else -> ___DepartmentFragment()
             }
         getSupportFragmentManager().beginTransaction()

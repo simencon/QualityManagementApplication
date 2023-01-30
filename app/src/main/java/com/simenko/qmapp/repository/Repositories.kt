@@ -43,6 +43,15 @@ class QualityManagementRepository(private val database: QualityManagementDB){
         }
     }
 
+    suspend fun refreshInputForOrder() {
+        withContext(Dispatchers.IO) {
+            val inputForOrder = QualityManagementNetwork.serviceholder.getInputForOrder();
+            database.qualityManagementDao.insertInputForOrderAll(
+                ListTransformer(inputForOrder,NetworkInputForOrder::class,DatabaseInputForOrder::class).generateList()
+            )
+        }
+    }
+
     val teamMembers: LiveData<List<DomainTeamMember>> = Transformations.map(database.qualityManagementDao.getTeamMembers()) {
         ListTransformer(it,DatabaseTeamMember::class,DomainTeamMember::class).generateList()
     }

@@ -3,10 +3,7 @@ package com.simenko.qmapp.room_implementation
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.simenko.qmapp.room_entities.DatabaseCompanies
-import com.simenko.qmapp.room_entities.DatabaseDepartment
-import com.simenko.qmapp.room_entities.DatabaseDepartmentsDetailed
-import com.simenko.qmapp.room_entities.DatabaseTeamMember
+import com.simenko.qmapp.room_entities.*
 
 @Dao
 interface QualityManagementDao {
@@ -32,13 +29,18 @@ interface QualityManagementDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCompaniesAll(company: List<DatabaseCompanies>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertInputForOrderAll(company: List<DatabaseInputForOrder>)
 }
 
 @Database(
     entities = [
-        DatabaseDepartment::class,
         DatabaseTeamMember::class,
-        DatabaseCompanies::class
+        DatabaseCompanies::class,
+        DatabaseDepartment::class,
+
+        DatabaseInputForOrder::class
     ],
     version = 1
 )
