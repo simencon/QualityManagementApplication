@@ -2,11 +2,8 @@ package com.simenko.qmapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.room_entities.*
-import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainDepartmentsDetailed
-import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.domain.asDepartmentsDetailedDomainModel
 import com.simenko.qmapp.retrofit_entities.*
 import com.simenko.qmapp.room_implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer
@@ -62,6 +59,10 @@ class QualityManagementRepository(private val database: QualityManagementDB){
 
     val departmentsDetailed: LiveData<List<DomainDepartmentsDetailed>> = Transformations.map(database.qualityManagementDao.getDepartmentsDetailed()) {
         it.asDepartmentsDetailedDomainModel()
+    }
+
+    val inputForOrder: LiveData<List<DomainInputForOrder>> = Transformations.map(database.qualityManagementDao.getInputForOrder()) {
+        ListTransformer(it,DatabaseInputForOrder::class,DomainInputForOrder::class).generateList()
     }
 
 }

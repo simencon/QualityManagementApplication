@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="orderDialogTitles">
+        <item>Виберіть тип деталі</item>
+    </string-array>
+</resources>

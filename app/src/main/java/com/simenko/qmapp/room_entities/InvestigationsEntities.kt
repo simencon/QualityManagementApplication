@@ -2,6 +2,7 @@ package com.simenko.qmapp.room_entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
 
 @Entity(tableName = "1_1_inputForMeasurementRegister")
 data class DatabaseInputForOrder constructor(
@@ -23,7 +24,7 @@ data class DatabaseInputForOrder constructor(
     var itemId: Int,
     var itemVersionId: Int,
     var isDefault: Boolean,
-    var itemKey: Int,
+    var itemKey: String,
     var itemDesignation: String,
     var operationId: Int,
     var operationAbbr: String,
@@ -33,6 +34,6 @@ data class DatabaseInputForOrder constructor(
     var ishCharId: Int,
     var ishSubChar: Int,
     var charDescription: String,
-    var charDesignation: Boolean? = null,
+    var charDesignation: String?=null,
     var charOrder: Int
 )

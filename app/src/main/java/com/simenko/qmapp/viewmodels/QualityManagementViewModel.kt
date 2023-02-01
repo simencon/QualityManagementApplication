@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.simenko.qmapp.repository.QualityManagementRepository
 import com.simenko.qmapp.room_implementation.getDatabase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import java.io.IOException
 
@@ -17,6 +19,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     val departments = qualityManagementRepository.departments
     val teamMembers = qualityManagementRepository.teamMembers
     val departmentsDetailed = qualityManagementRepository.departmentsDetailed
+    val inputForOrder = qualityManagementRepository.inputForOrder
 
     /**
      *
@@ -68,13 +71,15 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
 
     private fun refreshDataFromRepository() {
         val lock = Mutex()
+        var job: Job? = null
         viewModelScope.launch {
             try {
-                qualityManagementRepository.refreshCompanies()
-                qualityManagementRepository.refreshTeamMembers()
-                qualityManagementRepository.refreshDepartments()
-                qualityManagementRepository.refreshInputForOrder()
-
+//                runBlocking {
+                    qualityManagementRepository.refreshCompanies()
+                    qualityManagementRepository.refreshTeamMembers()
+                    qualityManagementRepository.refreshDepartments()
+                    qualityManagementRepository.refreshInputForOrder()
+//                }
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
 

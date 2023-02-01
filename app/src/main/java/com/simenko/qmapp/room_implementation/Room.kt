@@ -32,6 +32,9 @@ interface QualityManagementDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertInputForOrderAll(company: List<DatabaseInputForOrder>)
+
+    @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY recordId ASC")
+    fun getInputForOrder(): LiveData<List<DatabaseInputForOrder>>
 }
 
 @Database(

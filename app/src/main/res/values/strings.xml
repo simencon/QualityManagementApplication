@@ -3,4 +3,8 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="label_template">Test string</string>
+    <string name="select_item_type"><i>Виберіть тип деталі</i></string>
+    <string name="select_department"><i>Виберіть виробничий підрозділ</i></string>
+    <string name="select_sub_department"><i>Виберіть виробничу дільницю</i></string>
+    <string name="select_channel"><i>Виберіть виробничий канал</i></string>
 </resources>

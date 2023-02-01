@@ -1,10 +1,8 @@
-package com.simenko.qmapp.retrofit_entities
+package com.simenko.qmapp.domain
 
 import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 
-@JsonClass(generateAdapter = true)
-data class NetworkInputForOrder constructor(
+data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
     var depOrder: Int,
@@ -18,7 +16,6 @@ data class NetworkInputForOrder constructor(
     var lineAbbr: String,
     var lineOrder: Int,
     var recordId: String,
-    @Json(name ="itemPreffix")
     var itemPrefix: String,
     var itemId: Int,
     var itemVersionId: Int,

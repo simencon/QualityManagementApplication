@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="4dp"
+    android:weightSum="100">
+
+    <TextView
+        android:id="@+id/text_item_short_name"
+        style="?android:attr/spinnerItemStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="30"
+        android:ellipsize="middle"
+        android:hint="Short name"
+        android:maxLines="1"
+        android:padding="@dimen/padding_insight_item"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+        android:id="@+id/text_item_long_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="70"
+        android:ellipsize="middle"
+        android:hint="Long name"
+        android:maxLines="1"
+        android:padding="@dimen/padding_insight_item"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+</LinearLayout>
