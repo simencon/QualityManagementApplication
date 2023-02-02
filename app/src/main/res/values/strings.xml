@@ -3,8 +3,17 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="label_template">Test string</string>
-    <string name="select_item_type"><i>Виберіть тип деталі</i></string>
-    <string name="select_department"><i>Виберіть виробничий підрозділ</i></string>
-    <string name="select_sub_department"><i>Виберіть виробничу дільницю</i></string>
-    <string name="select_channel"><i>Виберіть виробничий канал</i></string>
+
+    <string name="order_title"><b><i>Заявка на дослідження мікрогеометрії</i></b></string>
+    <string name="select_reason"><i>Причина дослідження</i></string>
+    <string name="select_department"><i>Виробничий підрозділ</i></string>
+    <string name="select_sub_department"><i>Виробнича дільниця</i></string>
+    <string name="select_ordered_by"><i>Замовлення розмістив</i></string>
+    <string name="select_channel"><i>Виробничий канал</i></string>
+    <string name="select_line"><i>Виробнича лінія</i></string>
+    <string name="select_item_type"><i>Позначення деталі</i></string>
+    <string name="select_operation"><i>Операція (етап обробки)</i></string>
+    <string name="select_quantity"><i>Кількість деталей</i></string>
+    <string name="select_characteristics"><i>Параметри</i></string>
+
 </resources>

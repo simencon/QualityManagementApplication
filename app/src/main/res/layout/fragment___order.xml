@@ -4,150 +4,268 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".fragments._____OrderFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/thread_simple_btn_color"
-        android:padding="4dp">
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/step_2"
+        <TextView
+            android:id="@+id/text_order_title"
+            style="@style/order_title_text_font"
+            android:text="@string/order_title"
+            />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.05">
+            android:background="@color/white"
+            android:padding="4dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/background_order_step"
-                android:gravity="center"
-                android:text="2"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+            <LinearLayout
+                android:id="@+id/step_1"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/text_department_spinner"
-                style="@style/buttons_text_font"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/background_manufacturing"
-                android:ellipsize="end"
-                android:hint="@string/select_department"
-                android:maxLines="1"
-                android:padding="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:drawableEndCompat="@drawable/ic_arrow_down" />
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="1" />
 
-        </LinearLayout>
+                <LinearLayout style="@style/spinner_layout_style">
 
-        <LinearLayout
-            android:id="@+id/step_3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/step_2">
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_reason" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/background_order_step"
-                android:gravity="center"
-                android:text="3"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                    <TextView
+                        android:id="@+id/text_reason_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_reason" />
+                </LinearLayout>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/text_sub_dep_spinner"
-                style="@style/buttons_text_font"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/background_manufacturing"
-                android:ellipsize="end"
-                android:hint="@string/select_sub_department"
-                android:maxLines="1"
-                android:padding="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:drawableEndCompat="@drawable/ic_arrow_down" />
+            <LinearLayout
+                android:id="@+id/step_2"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_1">
 
-        </LinearLayout>
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="2" />
 
-        <LinearLayout
-            android:id="@+id/step_5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/step_3">
+                <LinearLayout style="@style/spinner_layout_style">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/background_order_step"
-                android:gravity="center"
-                android:text="5"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_department" />
 
-            <TextView
-                android:id="@+id/text_channel_spinner"
-                style="@style/buttons_text_font"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/background_manufacturing"
-                android:ellipsize="end"
-                android:hint="@string/select_channel"
-                android:maxLines="1"
-                android:padding="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:drawableEndCompat="@drawable/ic_arrow_down" />
+                    <TextView
+                        android:id="@+id/text_department_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_department" />
+                </LinearLayout>
+            </LinearLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/step_3"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_2">
 
-        <LinearLayout
-            android:id="@+id/step_7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/step_5">
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="3" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/background_order_step"
-                android:gravity="center"
-                android:text="7"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                <LinearLayout style="@style/spinner_layout_style">
 
-            <TextView
-                android:id="@+id/text_item_type_spinner"
-                style="@style/buttons_text_font"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/background_manufacturing"
-                android:ellipsize="end"
-                android:hint="@string/select_item_type"
-                android:maxLines="1"
-                android:padding="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:drawableEndCompat="@drawable/ic_arrow_down" />
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_sub_department" />
 
-        </LinearLayout>
+                    <TextView
+                        android:id="@+id/text_sub_dep_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_sub_department" />
+                </LinearLayout>
+            </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:id="@+id/step_4"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_3">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="4" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_ordered_by" />
+
+                    <TextView
+                        android:id="@+id/text_ordered_by_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_ordered_by" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step_5"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_4">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="5" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_channel" />
+
+                    <TextView
+                        android:id="@+id/text_channel_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_channel" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step_6"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_5">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="6" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_line" />
+
+                    <TextView
+                        android:id="@+id/text_line_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_line" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step_7"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_6">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="7" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_item_type" />
+
+                    <TextView
+                        android:id="@+id/text_item_type_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_item_type" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step_8"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_7">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="8" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_operation" />
+
+                    <TextView
+                        android:id="@+id/text_operation_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_operation" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step_9"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_8">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="9" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_quantity" />
+
+                    <TextView
+                        android:id="@+id/text_quantity_spinner"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_quantity" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/step_10"
+                style="@style/step_layout_style"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/step_9">
+
+                <TextView
+                    style="@style/step_text_font"
+                    android:text="10" />
+
+                <LinearLayout style="@style/spinner_layout_style">
+
+                    <TextView
+                        style="@style/spinner_title_text_font"
+                        android:text="@string/select_characteristics" />
+
+                    <TextView
+                        android:id="@+id/text_to_design"
+                        style="@style/spinner_text_font"
+                        android:hint="@string/select_characteristics" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+    </LinearLayout>
 </layout>
