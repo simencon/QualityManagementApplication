@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
-        <variable
-            name="department"
-            type="com.simenko.qmapp.domain.DomainDepartmentsDetailed" />
+
+        <import type="com.simenko.qmapp.utils.StringUtils"/>
 
         <variable
-            name="departmentCallback"
-            type="com.simenko.qmapp.fragments.DepartmentClick" />
+            name="order"
+            type="com.simenko.qmapp.room_entities.DatabaseCompleteOrder" />
+
+        <variable
+            name="orderCallback"
+            type="com.simenko.qmapp.fragments.OrderClick" />
     </data>
 
-    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -27,22 +30,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:hint="depAbbr"
+                android:layout_alignParentStart="true"
+                android:hint="Order type"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.departments.depAbbr}"
+                android:text="@{order.orderType.typeDescription}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
                 android:id="@+id/order_reason"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/text_order_type"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/text_order_type"
+                android:layout_alignParentEnd="true"
                 android:ellipsize="end"
-                android:hint="depName"
+                android:hint="Order reason"
                 android:maxLines="1"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.departments.depName}"
+                android:text="@{order.orderReason.reasonDescription}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
             <TextView
@@ -51,41 +56,42 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/order_reason"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/text_sub_order_number"
-                android:hint="depOrganization"
+                android:layout_toStartOf="@id/text_order_number"
+                android:hint="Ordered by"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.departments.depOrganization}" />
+                android:text="@{order.orderPlacer.fullName}" />
 
             <TextView
                 android:id="@+id/text_sub_order_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/order_reason"
+                android:layout_below="@id/text_ordered_by"
+                android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/text_order_number"
-                android:hint="depManager"
+                android:hint="Sub_order_number"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.depManagerDetails.get(0).fullName}" />
+                android:text="@{Integer.toString(order.subOrders.get(0).subOrderNumber)}" />
 
             <TextView
                 android:id="@+id/text_order_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/order_reason"
-                android:layout_alignEnd="@id/text_order_type"
-                android:hint="Company name"
+                android:layout_alignParentEnd="true"
+                android:hint="member ID"
                 android:padding="@dimen/padding_insight_item"
-                android:text="@{department.companies.get(0).companyName}" />
+                android:text="@{Integer.toString(order.order.orderNumber)}" />
 
             <View
                 android:id="@+id/clickableOverlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@id/text_ordered_by"
+                android:layout_alignBottom="@id/text_sub_order_number"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> departmentCallback.onClick(department)}" />
+                android:onClick="@{() -> orderCallback.onClick(order)}" />
 
 
         </RelativeLayout>

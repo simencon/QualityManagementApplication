@@ -2,6 +2,40 @@ package com.simenko.qmapp.room_entities
 
 import androidx.room.*
 
+@Entity(tableName = "8_team_members")
+data class DatabaseTeamMember constructor(
+    @PrimaryKey
+    var id: Int,
+    var departmentId: Int,
+    var department: String,
+    var email: String? = null,
+    var fullName: String,
+    var jobRole: String,
+    var roleLevelId: Int,
+    var passWord: String? = null,
+    var companyId: Int
+)
+
+@Entity(
+    tableName = "0_companies"
+//ToDo - add companyManagerId as a PrimaryKey when necessary
+)
+data class DatabaseCompanies constructor(
+    @PrimaryKey
+    var id: Int,
+    var companyName: String? = null,
+    var companyCountry: String? = null,
+    var companyCity: String? = null,
+    var companyAddress: String? = null,
+    var companyPhoneNo: String? = null,
+    var companyPostCode: String? = null,
+    var companyRegion: String? = null,
+    var companyOrder: Int,
+    var companyIndustrialClassification: String? = null,
+//    ToDo add indexes everywhere for ForeignKeys
+    var companyManagerId: Int
+)
+
 @Entity(
     tableName = "10_departments",
     foreignKeys = [
@@ -32,36 +66,6 @@ data class DatabaseDepartment constructor(
     val depOrder: Int?,
     @ColumnInfo(index = true)
     val companyId: Int?
-)
-
-@Entity(tableName = "8_team_members")
-data class DatabaseTeamMember constructor(
-    @PrimaryKey
-    var id: Int,
-    var departmentId: Int,
-    var department: String,
-    var email: String? = null,
-    var fullName: String,
-    var jobRole: String,
-    var roleLevelId: Int,
-    var passWord: String? = null,
-    var companyId: Int
-)
-
-@Entity(tableName = "0_companies")
-data class DatabaseCompanies constructor(
-    @PrimaryKey
-    var id: Int,
-    var companyName: String? = null,
-    var companyCountry: String? = null,
-    var companyCity: String? = null,
-    var companyAddress: String? = null,
-    var companyPhoneNo: String? = null,
-    var companyPostCode: String? = null,
-    var companyRegion: String? = null,
-    var companyOrder: Int,
-    var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int
 )
 
 data class DatabaseDepartmentsDetailed(

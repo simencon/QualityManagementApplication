@@ -3,17 +3,6 @@ package com.simenko.qmapp.retrofit_entities
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkDepartment(
-    val id: Int,
-    val depAbbr: String?,
-    val depName: String?,
-    val depManager: Int?,
-    val depOrganization: String?,
-    val depOrder: Int?,
-    val companyId: Int?
-)
-
-@JsonClass(generateAdapter = true)
 data class NetworkTeamMembers(
     var id: Int,
     var departmentId: Int,
@@ -39,4 +28,15 @@ data class NetworkCompanies constructor(
     var companyOrder: Int,
     var companyIndustrialClassification: String? = null,
     var companyManagerId: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkDepartment(
+    val id: Int,
+    val depAbbr: String?,
+    val depName: String?,
+    val depManager: Int?,
+    val depOrganization: String?,
+    val depOrder: Int?,
+    val companyId: Int?
 )

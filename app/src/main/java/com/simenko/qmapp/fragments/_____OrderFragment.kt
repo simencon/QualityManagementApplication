@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,26 +19,36 @@ import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentOrderBinding
 import com.simenko.qmapp.domain.DomainInputForOrder
+import com.simenko.qmapp.domain.DomainMeasurementReason
+import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 import kotlin.collections.ArrayList
 
+var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
+var listDomainMeasurementReasons = arrayListOf<DomainMeasurementReason>()
+private const val TAG = "OrderFragment"
+
 class _____OrderFragment : Fragment() {
+
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
      * until the moment the view is created
      */
+//    Custom way to obtain view model instance -----------------------------------
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
 
         }
+        Log.d(TAG, "viewModel by lazy: $activity")
         ViewModelProvider(
             this, QualityManagementViewModel.Factory(activity.application)
         ).get(QualityManagementViewModel::class.java)
     }
+//    Simple way to obtain view model instance-----------------------------------
+//    private val viewModel: QualityManagementViewModel by viewModels()
 
     private lateinit var binding: FragmentOrderBinding
     private lateinit var dialog: Dialog
-    private var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
 
     override fun onCreateView(p0: LayoutInflater, p1: ViewGroup?, p2: Bundle?): View? {
 
@@ -47,23 +58,25 @@ class _____OrderFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
 
         binding.root.findViewById<TextView>(R.id.text_department_spinner)
-            .setOnClickListener(createOnClickListener(TargetSpinner.DEPARTMENTS))
+            .setOnClickListener(createOnClickListener<DomainInputForOrder>(TargetSpinner.DEPARTMENTS))
 
         binding.root.findViewById<TextView>(R.id.text_sub_dep_spinner)
-            .setOnClickListener(createOnClickListener(TargetSpinner.SUB_DEPARTMENTS))
+            .setOnClickListener(createOnClickListener<DomainInputForOrder>(TargetSpinner.SUB_DEPARTMENTS))
 
         binding.root.findViewById<TextView>(R.id.text_channel_spinner)
-            .setOnClickListener(createOnClickListener(TargetSpinner.CHANNELS))
+            .setOnClickListener(createOnClickListener<DomainInputForOrder>(TargetSpinner.CHANNELS))
 
         binding.root.findViewById<TextView>(R.id.text_item_type_spinner)
-            .setOnClickListener(createOnClickListener(TargetSpinner.PRODUCT_TYPES))
+            .setOnClickListener(createOnClickListener<DomainInputForOrder>(TargetSpinner.PRODUCT_TYPES))
 
+        Log.d(TAG, "onCreateView done")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.d(TAG, "viewModel set first observer: $viewModel")
         viewModel.inputForOrder.observe(
             viewLifecycleOwner,
             Observer<List<DomainInputForOrder>> { items ->
@@ -73,35 +86,63 @@ class _____OrderFragment : Fragment() {
                     }
                 }
             })
+        Log.d(TAG, "viewModel set first observer: ${listDomainInputForOrder.toString()}")
+
+        Log.d(TAG, "viewModel set second observer: $viewModel")
+
+        viewModel.measurementReasons.value?.forEach {
+            Log.d(TAG, "measurementReasons item: $it")
+        }
+
+        viewModel.measurementReasons.observe(
+            viewLifecycleOwner,
+            Observer<List<DomainMeasurementReason>> { items ->
+                items.apply {
+                    items.forEach {
+                        listDomainMeasurementReasons.add(it)
+                    }
+                }
+            }
+        )
+        Log.d(TAG, "viewModel set second observer: ${listDomainMeasurementReasons.toString()}")
+        Log.d(TAG, "onViewCreated done")
     }
 
-    private fun createOnClickListener(targetSpinner: TargetSpinner): View.OnClickListener {
-
-        lateinit var finalInputForOrder: List<DomainInputForOrder>
+    private fun <T> createOnClickListener(targetSpinner: TargetSpinner): View.OnClickListener {
+        val originalList = targetSpinner.originalList?.toList()
+        lateinit var finalList: List<DomainInputForOrder>
         var parentId: Int = 0
 
         return View.OnClickListener {
 
 //          First - get parent filter if exist
             if (targetSpinner.previousSpinnerId != 0) {
-                parentId = binding.root.findViewById<TextView>(targetSpinner.previousSpinnerId).run {
-                    if (tag == null) 0 else tag as Int
-                }
+                parentId =
+                    binding.root.findViewById<TextView>(targetSpinner.previousSpinnerId).run {
+                        if (tag == null) 0 else tag as Int
+                    }
             }
 //            First - create final list of originals
             if (parentId != 0) {
                 when (targetSpinner) {
+                    TargetSpinner.INVESTIGATION_REASON -> {
+
+                    }
                     TargetSpinner.DEPARTMENTS -> {}
                     TargetSpinner.SUB_DEPARTMENTS -> {
-                        finalInputForOrder = (listDomainInputForOrder.filter { it.id == parentId }).toList().sortedBy { it.subDepOrder }
+                        finalList =
+                            ((originalList as List<DomainInputForOrder>).filter { it.id == parentId }).toList()
+                                .sortedBy { it.subDepOrder }
                     }
                     TargetSpinner.CHANNELS -> {
-                        finalInputForOrder = (listDomainInputForOrder.filter { it.subDepId == parentId }).toList().sortedBy { it.channelOrder }
+                        finalList =
+                            (listDomainInputForOrder.filter { it.subDepId == parentId }).toList()
+                                .sortedBy { it.channelOrder }
                     }
                     else -> {}
                 }
             } else {
-                finalInputForOrder = listDomainInputForOrder.toList().sortedBy { it.depOrder }
+                finalList = listDomainInputForOrder.toList().sortedBy { it.depOrder }
             }
 
             dialog = Dialog(requireContext())
@@ -115,7 +156,7 @@ class _____OrderFragment : Fragment() {
 
             val itemsList = arrayListOf<OrderDialogItem>()
 
-            finalInputForOrder.forEach() { mainIterator ->
+            finalList.forEach() { mainIterator ->
 //                save currently interested id for decision if it needs to be added
                 val keyId = when (targetSpinner) {
                     TargetSpinner.DEPARTMENTS -> {
@@ -246,7 +287,7 @@ class CustomArrayAdapter(
 
         if (convertView == null) {
             resultConvertView = LayoutInflater.from(context).inflate(
-                R.layout.item___order_dialog_item, parent, false
+                R.layout.item__order_dialog_item, parent, false
             )
         } else {
             resultConvertView = convertView
@@ -306,24 +347,142 @@ class CustomArrayAdapter(
 }
 
 enum class TargetSpinner(
+    val originalList: List<Any>?,
     val spinnerOrder: Int,
     val dialogTitle: String,
     val targetSpinnerId: Int,
     val previousSpinnerId: Int,
     val nextSpinnerId: Int
 ) {
-    INVESTIGATION_REASON(1, "Причина дослідження", 0, 0, R.id.text_department_spinner),
-    DEPARTMENTS(2, "Виробничий підрозділ", R.id.text_department_spinner, 0, R.id.text_sub_dep_spinner),
-    SUB_DEPARTMENTS(3, "Дільниця", R.id.text_sub_dep_spinner, R.id.text_department_spinner, 0),
-    ORDER_PLACERS(4, "Замовник", 0, 0, 0),
-    CHANNELS(5, "Виробничий канал", R.id.text_channel_spinner, R.id.text_sub_dep_spinner, 0),
-    LINES(6, "Виробнича лінія", 0, 0, 0),
-    PRODUCT_TYPES(7, "Позначення деталі", R.id.text_item_type_spinner, 0, 0),
-    OPERATIONS(8, "Операція", 0, 0,0),
-    SAMPLES_QUANTITY(9, "Кількість", 0, 0,0),
-    CHARACTERISTICS(10, "Параметри", 0, 0,0);
+    INVESTIGATION_REASON(
+        listDomainMeasurementReasons,
+        1,
+        "Причина дослідження",
+        0,
+        0,
+        R.id.text_department_spinner
+    ),
+    DEPARTMENTS(
+        listDomainInputForOrder,
+        2,
+        "Виробничий підрозділ",
+        R.id.text_department_spinner,
+        0,
+        R.id.text_sub_dep_spinner
+    ),
+    SUB_DEPARTMENTS(
+        listDomainInputForOrder,
+        3,
+        "Дільниця",
+        R.id.text_sub_dep_spinner,
+        R.id.text_department_spinner,
+        0
+    ),
+    ORDER_PLACERS(null, 4, "Замовник", 0, 0, 0),
+    CHANNELS(
+        listDomainInputForOrder,
+        5,
+        "Виробничий канал",
+        R.id.text_channel_spinner,
+        R.id.text_sub_dep_spinner,
+        0
+    ),
+    LINES(listDomainInputForOrder, 6, "Виробнича лінія", 0, 0, 0),
+    PRODUCT_TYPES(
+        listDomainInputForOrder,
+        7,
+        "Позначення деталі",
+        R.id.text_item_type_spinner,
+        0,
+        0
+    ),
+    OPERATIONS(listDomainInputForOrder, 8, "Операція", 0, 0, 0),
+    SAMPLES_QUANTITY(null, 9, "Кількість", 0, 0, 0),
+    CHARACTERISTICS(listDomainInputForOrder, 10, "Параметри", 0, 0, 0);
 
     companion object {
         const val cKey: String = "TARGET_LIST"
     }
+}
+
+fun <T> generateOptionsList(
+    spinner: TargetSpinner,
+    binding: FragmentOrderBinding,
+    originList1: List<DomainMeasurementReason>,
+    originList2: List<DomainInputForOrder>,
+    originList3: List<DomainTeamMember>
+): List<OrderDialogItem> {
+
+    var parentId: Int = 0
+    var secondParentId: Int = 0
+
+    lateinit var finalList1: List<DomainMeasurementReason>
+    lateinit var finalList2: List<DomainInputForOrder>
+    lateinit var finalList3: List<DomainTeamMember>
+    lateinit var finalList4: List<Int>
+
+//    First - get parent filter if exist
+    if (spinner.previousSpinnerId != 0) {
+        parentId =
+            binding.root.findViewById<TextView>(spinner.previousSpinnerId).run {
+                if (tag == null) 0 else tag as Int
+            }
+        secondParentId = 1
+    }
+
+    if (parentId != 0) {
+        when (spinner) {
+            TargetSpinner.INVESTIGATION_REASON -> {
+                finalList1 = originList1.toList().sortedBy { it.reasonOrder }
+            }
+            TargetSpinner.DEPARTMENTS -> {
+                finalList2 = originList2.toList().sortedBy { it.depOrder }
+            }
+            TargetSpinner.SUB_DEPARTMENTS -> {
+                finalList2 =
+                    (originList2.filter { it.id == parentId }).toList()
+                        .sortedBy { it.subDepOrder }
+            }
+            TargetSpinner.ORDER_PLACERS -> {
+                finalList3 =
+                    (originList3.filter { it.departmentId == parentId }).toList()
+                        .sortedBy { it.fullName }
+            }
+            TargetSpinner.CHANNELS -> {
+                finalList2 =
+                    (originList2.filter { it.subDepId == parentId }).toList()
+                        .sortedBy { it.channelOrder }
+            }
+            TargetSpinner.LINES -> {
+                finalList2 =
+                    (originList2.filter { it.chId == parentId }).toList()
+                        .sortedBy { it.channelOrder }
+            }
+            TargetSpinner.PRODUCT_TYPES -> {
+                finalList2 =
+                    (originList2.filter { it.lineId == parentId }).toList()
+                        .sortedBy { it.channelOrder }
+            }
+            TargetSpinner.OPERATIONS -> {
+                finalList2 =
+                    (originList2.filter { it.itemVersionId == parentId && it.lineId == secondParentId }).toList()
+                        .sortedBy { it.channelOrder }
+            }
+            TargetSpinner.SAMPLES_QUANTITY -> {
+                finalList4 = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+            }
+            TargetSpinner.CHARACTERISTICS -> {
+                finalList2 =
+                    (originList2.filter { it.subDepId == parentId }).toList()
+                        .sortedBy { it.channelOrder }
+            }
+
+        }
+    } else {
+        finalList1 = originList1.toList().sortedBy { it.reasonOrder }
+        finalList2 = originList2.toList().sortedBy { it.depOrder }
+        finalList3 = originList3.toList().sortedBy { it.fullName }
+    }
+
+    return listOf()
 }

@@ -2,11 +2,13 @@ package com.simenko.qmapp.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
+import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
+import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.repository.QualityManagementRepository
 import com.simenko.qmapp.room_implementation.getDatabase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import java.io.IOException
 
@@ -14,12 +16,17 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     /**
      * Gets data from [QualityManagementRepository.departments] - which is live data with list
      */
-    private val qualityManagementRepository = QualityManagementRepository(getDatabase(application))
+    private val qualityManagementManufacturingRepository = QualityManagementManufacturingRepository(getDatabase(application))
+    private val qualityManagementProductsRepository = QualityManagementProductsRepository(getDatabase(application))
+    private val qualityManagementInvestigationsRepository = QualityManagementInvestigationsRepository(getDatabase(application))
 
-    val departments = qualityManagementRepository.departments
-    val teamMembers = qualityManagementRepository.teamMembers
-    val departmentsDetailed = qualityManagementRepository.departmentsDetailed
-    val inputForOrder = qualityManagementRepository.inputForOrder
+    val departments = qualityManagementManufacturingRepository.departments
+    val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    val departmentsDetailed = qualityManagementManufacturingRepository.departmentsDetailed
+    val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
+    val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
+
+    val completeOrders = qualityManagementInvestigationsRepository.completeOrders
 
     /**
      *
@@ -75,10 +82,25 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
         viewModelScope.launch {
             try {
 //                runBlocking {
-                    qualityManagementRepository.refreshCompanies()
-                    qualityManagementRepository.refreshTeamMembers()
-                    qualityManagementRepository.refreshDepartments()
-                    qualityManagementRepository.refreshInputForOrder()
+                qualityManagementManufacturingRepository.refreshCompanies()
+                qualityManagementManufacturingRepository.refreshTeamMembers()
+                qualityManagementManufacturingRepository.refreshDepartments()
+
+                qualityManagementProductsRepository.refreshElementIshModels()
+                qualityManagementProductsRepository.refreshIshSubCharacteristics()
+                qualityManagementProductsRepository.refreshCharacteristics()
+                qualityManagementProductsRepository.refreshMetrixes()
+
+                qualityManagementInvestigationsRepository.refreshInputForOrder()
+                qualityManagementInvestigationsRepository.refreshOrdersStatuses()
+                qualityManagementInvestigationsRepository.refreshMeasurementReasons()
+                qualityManagementInvestigationsRepository.refreshOrdersTypes()
+                qualityManagementInvestigationsRepository.refreshOrders()
+                qualityManagementInvestigationsRepository.refreshSubOrders()
+                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
+                qualityManagementInvestigationsRepository.refreshSamples()
+                qualityManagementInvestigationsRepository.refreshResultsDecryptions()
+                qualityManagementInvestigationsRepository.refreshResults()
 //                }
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false

@@ -60,6 +60,12 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
                 bundle.putString(Target.cKey, bData.tList)
                 nextFragment.arguments = bundle
             }
+            R.id.orders -> {
+                nextFragment = ___DepartmentFragment()
+                bData = Target.ORDERS
+                bundle.putString(Target.cKey, bData.tList)
+                nextFragment.arguments = bundle
+            }
             else -> {
                 nextFragment = ___DepartmentFragment()
                 bData = Target.DEPARTMENTS
@@ -91,7 +97,8 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
 enum class Target(val tList: String) {
     DEPARTMENTS("DEPARTMENTS"),
-    TEAM_MEMBERS("TEAM_MEMBERS");
+    TEAM_MEMBERS("TEAM_MEMBERS"),
+    ORDERS("ORDERS");
 
     companion object {
         const val cKey: String = "TARGET_LIST"

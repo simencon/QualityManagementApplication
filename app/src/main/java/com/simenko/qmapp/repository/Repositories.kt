@@ -1,5 +1,6 @@
 package com.simenko.qmapp.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.simenko.qmapp.domain.*
@@ -9,60 +10,226 @@ import com.simenko.qmapp.room_implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
-class QualityManagementRepository(private val database: QualityManagementDB){
+private const val TAG = "Repositories"
+
+class QualityManagementManufacturingRepository(private val database: QualityManagementDB){
     /**
-     * Update [departments] from the network
+     * Update Manufacturing from the network
      */
-    suspend fun refreshDepartments() {
-        withContext(Dispatchers.IO) {
-            val departments = QualityManagementNetwork.serviceholder.getDepartments();
-            database.qualityManagementDao.insertDepartmentsAll(
-                ListTransformer(departments,NetworkDepartment::class,DatabaseDepartment::class).generateList()
-            )
-        }
-    }
-
     suspend fun refreshTeamMembers() {
         withContext(Dispatchers.IO) {
-            val teamMembers = QualityManagementNetwork.serviceholder.getTeamMembers();
-            database.qualityManagementDao.insertTeamMembersAll(
+            val teamMembers = QualityManagementNetwork.serviceholderManufacturing.getTeamMembers();
+            database.qualityManagementManufacturingDao.insertTeamMembersAll(
                 ListTransformer(teamMembers,NetworkTeamMembers::class,DatabaseTeamMember::class).generateList()
             )
+            Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
+
     suspend fun refreshCompanies() {
         withContext(Dispatchers.IO) {
-            val companies = QualityManagementNetwork.serviceholder.getCompanies();
-            database.qualityManagementDao.insertCompaniesAll(
+            val companies = QualityManagementNetwork.serviceholderManufacturing.getCompanies();
+            database.qualityManagementManufacturingDao.insertCompaniesAll(
                 ListTransformer(companies,NetworkCompanies::class,DatabaseCompanies::class).generateList()
             )
+            Log.d(TAG, "refreshCompanies: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
-    suspend fun refreshInputForOrder() {
+    suspend fun refreshDepartments() {
         withContext(Dispatchers.IO) {
-            val inputForOrder = QualityManagementNetwork.serviceholder.getInputForOrder();
-            database.qualityManagementDao.insertInputForOrderAll(
-                ListTransformer(inputForOrder,NetworkInputForOrder::class,DatabaseInputForOrder::class).generateList()
+            val departments = QualityManagementNetwork.serviceholderManufacturing.getDepartments();
+            database.qualityManagementManufacturingDao.insertDepartmentsAll(
+                ListTransformer(departments,NetworkDepartment::class,DatabaseDepartment::class).generateList()
             )
+            Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
-
-    val teamMembers: LiveData<List<DomainTeamMember>> = Transformations.map(database.qualityManagementDao.getTeamMembers()) {
+    /**
+     * Connecting with LiveData for ViewModel
+     */
+    val teamMembers: LiveData<List<DomainTeamMember>> = Transformations.map(database.qualityManagementManufacturingDao.getTeamMembers()) {
         ListTransformer(it,DatabaseTeamMember::class,DomainTeamMember::class).generateList()
     }
 
-    val departments: LiveData<List<DomainDepartment>> = Transformations.map(database.qualityManagementDao.getDepartments()) {
+    val departments: LiveData<List<DomainDepartment>> = Transformations.map(database.qualityManagementManufacturingDao.getDepartments()) {
         ListTransformer(it,DatabaseDepartment::class,DomainDepartment::class).generateList()
     }
 
-    val departmentsDetailed: LiveData<List<DomainDepartmentsDetailed>> = Transformations.map(database.qualityManagementDao.getDepartmentsDetailed()) {
+    val departmentsDetailed: LiveData<List<DomainDepartmentsDetailed>> = Transformations.map(database.qualityManagementManufacturingDao.getDepartmentsDetailed()) {
         it.asDepartmentsDetailedDomainModel()
     }
+}
 
-    val inputForOrder: LiveData<List<DomainInputForOrder>> = Transformations.map(database.qualityManagementDao.getInputForOrder()) {
+class QualityManagementProductsRepository(private val database: QualityManagementDB){
+    /**
+     * Update Products from the network
+     */
+    suspend fun refreshElementIshModels() {
+        withContext(Dispatchers.IO) {
+            val elementIshModels = QualityManagementNetwork.serviceholderProducts.getElementIshModels();
+            database.qualityManagementProductsDao.insertElementIshModelsAll(
+                ListTransformer(elementIshModels,NetworkElementIshModel::class,DatabaseElementIshModel::class).generateList()
+            )
+            Log.d(TAG, "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshIshSubCharacteristics() {
+        withContext(Dispatchers.IO) {
+            val ishSubCharacteristics = QualityManagementNetwork.serviceholderProducts.getIshSubCharacteristics();
+            database.qualityManagementProductsDao.insertIshSubCharacteristicsAll(
+                ListTransformer(ishSubCharacteristics,NetworkIshSubCharacteristic::class,DatabaseIshSubCharacteristic::class).generateList()
+            )
+            Log.d(TAG, "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshCharacteristics() {
+        withContext(Dispatchers.IO) {
+            val characteristics = QualityManagementNetwork.serviceholderProducts.getCharacteristics();
+            database.qualityManagementProductsDao.insertCharacteristicsAll(
+                ListTransformer(characteristics,NetworkCharacteristic::class,DatabaseCharacteristic::class).generateList()
+            )
+            Log.d(TAG, "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshMetrixes() {
+        withContext(Dispatchers.IO) {
+            val metrixes = QualityManagementNetwork.serviceholderProducts.getMetrixes();
+            database.qualityManagementProductsDao.insertMetrixesAll(
+                ListTransformer(metrixes,NetworkMetrix::class,DatabaseMetrix::class).generateList()
+            )
+            Log.d(TAG, "refreshMetrixes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+}
+
+class QualityManagementInvestigationsRepository(private val database: QualityManagementDB){
+    /**
+     * Update Investigations from the network
+     */
+    suspend fun refreshInputForOrder() {
+        withContext(Dispatchers.IO) {
+            val inputForOrder = QualityManagementNetwork.serviceholderInvestigations.getInputForOrder();
+            database.qualityManagementInvestigationsDao.insertInputForOrderAll(
+                ListTransformer(inputForOrder,NetworkInputForOrder::class,DatabaseInputForOrder::class).generateList()
+            )
+            Log.d(TAG, "refreshInputForOrder: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshOrdersStatuses() {
+        withContext(Dispatchers.IO) {
+            val ordersStatuses = QualityManagementNetwork.serviceholderInvestigations.getOrdersStatuses();
+            database.qualityManagementInvestigationsDao.insertOrdersStatusesAll(
+                ListTransformer(ordersStatuses,NetworkOrdersStatus::class,DatabaseOrdersStatus::class).generateList()
+            )
+            Log.d(TAG, "refreshOrdersStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshMeasurementReasons() {
+        withContext(Dispatchers.IO) {
+            val measurementReasons = QualityManagementNetwork.serviceholderInvestigations.getMeasurementReasons();
+            database.qualityManagementInvestigationsDao.insertMeasurementReasonsAll(
+                ListTransformer(measurementReasons,NetworkMeasurementReason::class,DatabaseMeasurementReason::class).generateList()
+            )
+            Log.d(TAG, "refreshMeasurementReasons: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshOrdersTypes() {
+        withContext(Dispatchers.IO) {
+            val ordersTypes = QualityManagementNetwork.serviceholderInvestigations.getOrdersTypes();
+            database.qualityManagementInvestigationsDao.insertOrdersTypesAll(
+                ListTransformer(ordersTypes,NetworkOrdersType::class,DatabaseOrdersType::class).generateList()
+            )
+            Log.d(TAG, "refreshOrdersTypes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshOrders() {
+        withContext(Dispatchers.IO) {
+            val orders = QualityManagementNetwork.serviceholderInvestigations.getOrders();
+            database.qualityManagementInvestigationsDao.insertOrdersAll(
+                ListTransformer(orders,NetworkOrder::class,DatabaseOrder::class).generateList()
+            )
+            Log.d(TAG, "refreshOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshSubOrders() {
+        withContext(Dispatchers.IO) {
+            val subOrders = QualityManagementNetwork.serviceholderInvestigations.getSubOrders();
+            database.qualityManagementInvestigationsDao.insertSubOrdersAll(
+                ListTransformer(subOrders,NetworkSubOrder::class,DatabaseSubOrder::class).generateList()
+            )
+            Log.d(TAG, "refreshSubOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshSubOrderTasks() {
+        withContext(Dispatchers.IO) {
+            val subOrderTasks = QualityManagementNetwork.serviceholderInvestigations.getSubOrderTasks();
+            database.qualityManagementInvestigationsDao.insertSubOrderTasksAll(
+                ListTransformer(subOrderTasks,NetworkSubOrderTask::class,DatabaseSubOrderTask::class).generateList()
+            )
+            Log.d(TAG, "refreshSubOrderTasks: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshSamples() {
+        withContext(Dispatchers.IO) {
+            val samples = QualityManagementNetwork.serviceholderInvestigations.getSamples();
+            database.qualityManagementInvestigationsDao.insertSamplesAll(
+                ListTransformer(samples,NetworkSample::class,DatabaseSample::class).generateList()
+            )
+            Log.d(TAG, "refreshSamples: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshResultsDecryptions() {
+        withContext(Dispatchers.IO) {
+            val resultsDecryptions = QualityManagementNetwork.serviceholderInvestigations.getResultsDecryptions();
+            database.qualityManagementInvestigationsDao.insertResultsDecryptionsAll(
+                ListTransformer(resultsDecryptions,NetworkResultsDecryption::class,DatabaseResultsDecryption::class).generateList()
+            )
+            Log.d(TAG, "refreshResultsDecryptions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshResults() {
+        withContext(Dispatchers.IO) {
+            val results = QualityManagementNetwork.serviceholderInvestigations.getResults();
+            database.qualityManagementInvestigationsDao.insertResultsAll(
+                ListTransformer(results,NetworkResult::class,DatabaseResult::class).generateList()
+            )
+            Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+
+    val inputForOrder: LiveData<List<DomainInputForOrder>> = Transformations.map(database.qualityManagementInvestigationsDao.getInputForOrder()) {
         ListTransformer(it,DatabaseInputForOrder::class,DomainInputForOrder::class).generateList()
     }
+
+    val measurementReasons: LiveData<List<DomainMeasurementReason>> = Transformations.map(database.qualityManagementInvestigationsDao.getMeasurementReasons()) {
+        ListTransformer(it,DatabaseMeasurementReason::class,DomainMeasurementReason::class).generateList()
+    }
+
+    val completeOrders: LiveData<List<DatabaseCompleteOrder>> = Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
+        it
+    }
+//    {
+//        it.asDepartmentsDetailedDomainModel()
+//    }
+}
+
+class QualityManagementRepository(private val database: QualityManagementDB){
 
 }

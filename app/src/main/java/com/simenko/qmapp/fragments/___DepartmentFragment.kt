@@ -14,6 +14,7 @@ import com.simenko.qmapp.Target
 import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
 import com.simenko.qmapp.domain.DomainDepartmentsDetailed
 import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.room_entities.DatabaseCompleteOrder
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 public class ___DepartmentFragment : Fragment() {
@@ -44,6 +45,13 @@ public class ___DepartmentFragment : Fragment() {
             Target.TEAM_MEMBERS.tList -> {
                 TeamMemberAdapter(
                     TeamMemberClick {
+                        Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+            Target.ORDERS.tList -> {
+                OrderAdapter(
+                    OrderClick {
                         Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
                     }
                 )
@@ -109,6 +117,15 @@ public class ___DepartmentFragment : Fragment() {
                     Observer<List<DomainTeamMember>> { items ->
                         items?.apply {
                             (viewModelAdapter as TeamMemberAdapter).itemsList = items
+                        }
+                    })
+            }
+            Target.ORDERS.tList -> {
+                viewModel.completeOrders.observe(
+                    viewLifecycleOwner,
+                    Observer<List<DatabaseCompleteOrder>> { items ->
+                        items?.apply {
+                            (viewModelAdapter as OrderAdapter).itemsList = items
                         }
                     })
             }
