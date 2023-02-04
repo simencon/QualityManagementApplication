@@ -1,6 +1,6 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.room_entities.DatabaseCompanies
+import com.simenko.qmapp.room_entities.DatabaseCompany
 import com.simenko.qmapp.room_entities.DatabaseDepartment
 import com.simenko.qmapp.room_entities.DatabaseDepartmentsDetailed
 import com.simenko.qmapp.room_entities.DatabaseTeamMember
@@ -10,19 +10,10 @@ interface ListOfItems {
     fun selectedRecord(): String
 }
 
-data class DomainDepartment(
-    val id: Int,
-    val depAbbr: String?,
-    val depName: String?,
-    val depManager: Int?,
-    val depOrganization: String?,
-    val depOrder: Int?,
-    val companyId: Int?
-) : ListOfItems {
-    override fun selectedRecord(): String {
-        return "$depName ($depAbbr)"
-    }
-}
+data class DomainPositionLevel(
+    var id: Int,
+    var levelDescription: String
+)
 
 data class DomainTeamMember(
     var id: Int,
@@ -40,7 +31,7 @@ data class DomainTeamMember(
     }
 }
 
-data class DomainCompanies(
+data class DomainCompany(
     var id: Int,
     var companyName: String? = null,
     var companyCountry: String? = null,
@@ -54,10 +45,56 @@ data class DomainCompanies(
     var companyManagerId: Int
 )
 
+data class DomainDepartment(
+    val id: Int,
+    val depAbbr: String?,
+    val depName: String?,
+    val depManager: Int?,
+    val depOrganization: String?,
+    val depOrder: Int?,
+    val companyId: Int?
+) : ListOfItems {
+    override fun selectedRecord(): String {
+        return "$depName ($depAbbr)"
+    }
+}
+
+data class DomainSubDepartment(
+    var id: Int,
+    var depId: Int,
+    var subDepAbbr: String? = null,
+    var subDepDesignation: String? = null,
+    var subDepOrder: String? = null
+)
+
+data class DomainManufacturingChannel(
+    var id: Int,
+    var subDepId: Int,
+    var channelAbbr: String? = null,
+    var channelDesignation: String? = null,
+    var channelOrder: Int? = null
+)
+
+data class DomainManufacturingLine(
+    var id: Int,
+    var chId: Int,
+    var lineAbbr: String,
+    var lineDesignation: String,
+    var lineOrder: Int
+)
+
+data class DomainManufacturingOperation(
+    var id: Int,
+    var lineId: Int,
+    var operationAbbr: String,
+    var operationDesignation: String,
+    var operationOrder: Int
+)
+
 data class DomainDepartmentsDetailed(
     val departments: DomainDepartment,
     val depManagerDetails: List<DomainTeamMember>,
-    val companies: List<DomainCompanies>
+    val companies: List<DomainCompany>
 ): ListOfItems {
     override fun selectedRecord(): String {
         return "${depManagerDetails[0].fullName} (${departments.depName})"
@@ -78,8 +115,8 @@ fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<D
             ).generateList(),
             companies = ListTransformer(
                 it.companies,
-                DatabaseCompanies::class,
-                DomainCompanies::class
+                DatabaseCompany::class,
+                DomainCompany::class
             ).generateList()
         )
     }

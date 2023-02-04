@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.repository.QualityManagementRepository
 import com.simenko.qmapp.room_implementation.getDatabase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -14,11 +13,14 @@ import java.io.IOException
 
 class QualityManagementViewModel(application: Application) : AndroidViewModel(application) {
     /**
-     * Gets data from [QualityManagementRepository.departments] - which is live data with list
+     * Gets data from Repositories - which is live data with list
      */
-    private val qualityManagementManufacturingRepository = QualityManagementManufacturingRepository(getDatabase(application))
-    private val qualityManagementProductsRepository = QualityManagementProductsRepository(getDatabase(application))
-    private val qualityManagementInvestigationsRepository = QualityManagementInvestigationsRepository(getDatabase(application))
+    private val qualityManagementManufacturingRepository =
+        QualityManagementManufacturingRepository(getDatabase(application))
+    private val qualityManagementProductsRepository =
+        QualityManagementProductsRepository(getDatabase(application))
+    private val qualityManagementInvestigationsRepository =
+        QualityManagementInvestigationsRepository(getDatabase(application))
 
     val departments = qualityManagementManufacturingRepository.departments
     val teamMembers = qualityManagementManufacturingRepository.teamMembers
@@ -82,12 +84,18 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
         viewModelScope.launch {
             try {
 //                runBlocking {
-                qualityManagementManufacturingRepository.refreshCompanies()
+                qualityManagementManufacturingRepository.refreshPositionLevels()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
+                qualityManagementManufacturingRepository.refreshCompanies()
                 qualityManagementManufacturingRepository.refreshDepartments()
+                qualityManagementManufacturingRepository.refreshSubDepartments()
+                qualityManagementManufacturingRepository.refreshManufacturingChannels()
+                qualityManagementManufacturingRepository.refreshManufacturingLines()
+                qualityManagementManufacturingRepository.refreshManufacturingOperations()
 
                 qualityManagementProductsRepository.refreshElementIshModels()
                 qualityManagementProductsRepository.refreshIshSubCharacteristics()
+                qualityManagementProductsRepository.refreshManufacturingProjects()
                 qualityManagementProductsRepository.refreshCharacteristics()
                 qualityManagementProductsRepository.refreshMetrixes()
 

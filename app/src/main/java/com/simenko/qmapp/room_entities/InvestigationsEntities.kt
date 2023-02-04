@@ -1,9 +1,6 @@
 package com.simenko.qmapp.room_entities
 
 import androidx.room.*
-import com.simenko.qmapp.domain.CompleteSubOrder
-import com.simenko.qmapp.domain.DomainOrder
-import com.simenko.qmapp.domain.DomainSubOrderTask
 
 //    @ColumnInfo(name = "nameInTable")
 
@@ -151,24 +148,68 @@ data class DatabaseOrder constructor(
             childColumns = arrayOf("statusId"),
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("departmentId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseSubDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("subDepartmentId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseManufacturingChannel::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("channelId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseManufacturingLine::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("lineId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseManufacturingOperation::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("operationId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
         )
-        //    ToDo declare the rest of ForeignKeys when necessary
+//    ToDo Add item version with specifications (huge amount of job)
     ]
 )
 data class DatabaseSubOrder constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
+    @ColumnInfo(index = true)
     var orderId: Int,
     var subOrderNumber: Int,
+    @ColumnInfo(index = true)
     var orderedById: Int,
+    @ColumnInfo(index = true)
     var completedById: Int? = null,
+    @ColumnInfo(index = true)
     var statusId: Int,
     var createdDate: String,
     var completedDate: String? = null,
+    @ColumnInfo(index = true)
     var departmentId: Int,
+    @ColumnInfo(index = true)
     var subDepartmentId: Int,
+    @ColumnInfo(index = true)
     var channelId: Int,
+    @ColumnInfo(index = true)
     var lineId: Int,
+    @ColumnInfo(index = true)
     var operationId: Int,
     var itemPreffix: String,
     var itemTypeId: Int,
@@ -210,10 +251,13 @@ data class DatabaseSubOrder constructor(
 data class DatabaseSubOrderTask constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
+    @ColumnInfo(index = true)
     var statusId: Int,
     var createdDate: String? = null,
     var completedDate: String? = null,
+    @ColumnInfo(index = true)
     var subOrderId: Int,
+    @ColumnInfo(index = true)
     var charId: Int
 )
 
@@ -231,6 +275,7 @@ data class DatabaseSubOrderTask constructor(
 data class DatabaseSample constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
+    @ColumnInfo(index = true)
     var subOrderId: Int,
     var sampleNumber: Int? = null
 )
@@ -270,10 +315,13 @@ data class DatabaseResultsDecryption constructor(
 data class DatabaseResult constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
+    @ColumnInfo(index = true)
     var sampleId: Int,
+    @ColumnInfo(index = true)
     var metrixId: Int,
     var result: Double? = null,
     var isOk: Boolean? = null,
+    @ColumnInfo(index = true)
     var resultDecryptionId: Int
 )
 

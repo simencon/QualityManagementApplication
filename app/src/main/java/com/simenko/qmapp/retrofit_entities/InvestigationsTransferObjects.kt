@@ -1,10 +1,5 @@
 package com.simenko.qmapp.retrofit_entities
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import com.simenko.qmapp.room_entities.*
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 

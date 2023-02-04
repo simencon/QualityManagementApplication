@@ -19,6 +19,16 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
     /**
      * Update Manufacturing from the network
      */
+    suspend fun refreshPositionLevels() {
+        withContext(Dispatchers.IO) {
+            val positionLevels = QualityManagementNetwork.serviceholderManufacturing.getPositionLevels();
+            database.qualityManagementManufacturingDao.insertPositionLevelsAll(
+                ListTransformer(positionLevels,NetworkPositionLevel::class,DatabasePositionLevel::class).generateList()
+            )
+            Log.d(TAG, "refreshPositionLevels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
     suspend fun refreshTeamMembers() {
         withContext(Dispatchers.IO) {
             val teamMembers = QualityManagementNetwork.serviceholderManufacturing.getTeamMembers();
@@ -33,7 +43,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         withContext(Dispatchers.IO) {
             val companies = QualityManagementNetwork.serviceholderManufacturing.getCompanies();
             database.qualityManagementManufacturingDao.insertCompaniesAll(
-                ListTransformer(companies,NetworkCompanies::class,DatabaseCompanies::class).generateList()
+                ListTransformer(companies,NetworkCompany::class,DatabaseCompany::class).generateList()
             )
             Log.d(TAG, "refreshCompanies: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -48,6 +58,47 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
             Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
+
+    suspend fun refreshSubDepartments() {
+        withContext(Dispatchers.IO) {
+            val subDepartments = QualityManagementNetwork.serviceholderManufacturing.getSubDepartments();
+            database.qualityManagementManufacturingDao.insertSubDepartmentsAll(
+                ListTransformer(subDepartments,NetworkSubDepartment::class,DatabaseSubDepartment::class).generateList()
+            )
+            Log.d(TAG, "refreshSubDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshManufacturingChannels() {
+        withContext(Dispatchers.IO) {
+            val subDepartments = QualityManagementNetwork.serviceholderManufacturing.getManufacturingChannels();
+            database.qualityManagementManufacturingDao.insertManufacturingChannelsAll(
+                ListTransformer(subDepartments,NetworkManufacturingChannel::class,DatabaseManufacturingChannel::class).generateList()
+            )
+            Log.d(TAG, "refreshManufacturingChannels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshManufacturingLines() {
+        withContext(Dispatchers.IO) {
+            val manufacturingLines = QualityManagementNetwork.serviceholderManufacturing.getManufacturingLines();
+            database.qualityManagementManufacturingDao.insertManufacturingLinesAll(
+                ListTransformer(manufacturingLines,NetworkManufacturingLine::class,DatabaseManufacturingLine::class).generateList()
+            )
+            Log.d(TAG, "refreshManufacturingLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshManufacturingOperations() {
+        withContext(Dispatchers.IO) {
+            val manufacturingOperations = QualityManagementNetwork.serviceholderManufacturing.getManufacturingOperations();
+            database.qualityManagementManufacturingDao.insertManufacturingOperationsAll(
+                ListTransformer(manufacturingOperations,NetworkManufacturingOperation::class,DatabaseManufacturingOperation::class).generateList()
+            )
+            Log.d(TAG, "refreshManufacturingOperations: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
     /**
      * Connecting with LiveData for ViewModel
      */
@@ -68,6 +119,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     /**
      * Update Products from the network
      */
+
     suspend fun refreshElementIshModels() {
         withContext(Dispatchers.IO) {
             val elementIshModels = QualityManagementNetwork.serviceholderProducts.getElementIshModels();
@@ -85,6 +137,16 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                 ListTransformer(ishSubCharacteristics,NetworkIshSubCharacteristic::class,DatabaseIshSubCharacteristic::class).generateList()
             )
             Log.d(TAG, "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshManufacturingProjects() {
+        withContext(Dispatchers.IO) {
+            val manufacturingProjects = QualityManagementNetwork.serviceholderProducts.getManufacturingProjects();
+            database.qualityManagementProductsDao.insertManufacturingProjectsAll(
+                ListTransformer(manufacturingProjects,NetworkManufacturingProject::class,DatabaseManufacturingProject::class).generateList()
+            )
+            Log.d(TAG, "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -228,8 +290,4 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 //    {
 //        it.asDepartmentsDetailedDomainModel()
 //    }
-}
-
-class QualityManagementRepository(private val database: QualityManagementDB){
-
 }

@@ -9,12 +9,22 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 
 interface QualityManagementManufacturingService {
+    @GET("api/_0PositionLevel")
+    suspend fun getPositionLevels(): List<NetworkPositionLevel>
     @GET("api/_8TeamMember")
     suspend fun getTeamMembers(): List<NetworkTeamMembers>
     @GET("api/_0Company")
-    suspend fun getCompanies(): List<NetworkCompanies>
+    suspend fun getCompanies(): List<NetworkCompany>
     @GET("api/_10department")
     suspend fun getDepartments(): List<NetworkDepartment>
+    @GET("api/_11SubDepartment")
+    suspend fun getSubDepartments(): List<NetworkSubDepartment>
+    @GET("api/_12ManufacturingChannel")
+    suspend fun getManufacturingChannels(): List<NetworkManufacturingChannel>
+    @GET("api/_13ManufacturingLine")
+    suspend fun getManufacturingLines(): List<NetworkManufacturingLine>
+    @GET("api/_14ManufacturingOperation")
+    suspend fun getManufacturingOperations(): List<NetworkManufacturingOperation>
 }
 
 interface QualityManagementProductsService {
@@ -22,6 +32,8 @@ interface QualityManagementProductsService {
     suspend fun getElementIshModels(): List<NetworkElementIshModel>
     @GET("api/_0IshSubCharacteristic")
     suspend fun getIshSubCharacteristics(): List<NetworkIshSubCharacteristic>
+    @GET("api/_0ManufacturingProject")
+    suspend fun getManufacturingProjects(): List<NetworkManufacturingProject>
     @GET("api/_7Characteristic")
     suspend fun getCharacteristics(): List<NetworkCharacteristic>
     @GET("api/_8Metrix")
