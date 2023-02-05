@@ -80,12 +80,22 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         return true
     }
 
+    var mPreviousMenuItem: MenuItem? = null
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
+//        Make only one multiples menu items checked
+        item.setCheckable(true)
+        item.setChecked(true)
+        if(mPreviousMenuItem!=null&&mPreviousMenuItem!=item) {
+            mPreviousMenuItem?.setChecked(false)
+        }
+        mPreviousMenuItem = item
+
         val selectedFragment =
             when (item.getItemId()) {
-                R.id.nav_profile -> ___DepartmentFragment()
-                R.id.nav_message -> _____OrderFragment()
+                R.id.nav_structure -> ___DepartmentFragment()
+                R.id.nav_new_order -> _____OrderFragment()
                 else -> ___DepartmentFragment()
             }
         getSupportFragmentManager().beginTransaction()
