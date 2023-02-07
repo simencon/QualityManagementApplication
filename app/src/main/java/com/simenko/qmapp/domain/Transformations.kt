@@ -31,7 +31,8 @@ fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<Doma
 }
 
 fun List<DatabaseCompleteSubOrder>.asDomainSubOrderDetailed(parentId: Int): List<DomainSubOrderComplete> {
-    return map {
+
+    return filter { it.subOrder.orderId == parentId || parentId == -1 }. map {
         DomainSubOrderComplete(
             subOrder =  it.subOrder.toDomainSubOrder(),
             orderedBy = it.orderedBy.toDomainTeamMember(),

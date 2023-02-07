@@ -20,9 +20,13 @@ val tabTitles = arrayOf("Home", "Chat", "Notification", "Account")
 class OrderSectionPagerAdapter(private val fa: _____MainActivity) :
     FragmentStateAdapter(fa) {
 
+    init {
+    }
+
     private var parentId = 0
 
-    init {
+    fun setParentId(parentId: Int) {
+        this.parentId = parentId
     }
 
     override fun getItemCount(): Int {
@@ -36,11 +40,6 @@ class OrderSectionPagerAdapter(private val fa: _____MainActivity) :
             else -> Fragment____Investigations.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
         }
     }
-
-    fun setParentId(parentId: Int) {
-        this.parentId = parentId
-    }
-
 }
 
 private const val MIN_SCALE = 0.85f

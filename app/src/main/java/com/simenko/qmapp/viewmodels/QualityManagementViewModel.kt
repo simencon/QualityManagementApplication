@@ -29,7 +29,9 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
 
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
+
     val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
+    val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
 
     /**
      *

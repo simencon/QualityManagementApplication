@@ -2,25 +2,40 @@ package com.simenko.qmapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.simenko.qmapp.fragments.Fragment____Investigations
 import com.simenko.qmapp.fragments.Fragment_____Structure
 import com.simenko.qmapp.fragments.TargetInv
 import com.simenko.qmapp.fragments._____OrderFragment
 import com.simenko.qmapp.pagers.OrderSectionPagerAdapter
 import com.simenko.qmapp.pagers.ZoomOutPageTransformer
-import com.simenko.qmapp.pagers.tabTitles
+import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
-class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, SendMessage {
+class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
+    SendMessage {
+
+    private val TAG = "_____MainActivity"
+
+    val viewModel: QualityManagementViewModel by lazy {
+        val activity = requireNotNull(this) {
+
+        }
+        val model = ViewModelProvider(
+            this, QualityManagementViewModel.Factory(activity.application)
+        ).get(QualityManagementViewModel::class.java)
+
+        model
+    }
 
     private lateinit var drawer: DrawerLayout
 
@@ -52,7 +67,7 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         // Instantiate a ViewPager2 and a PagerAdapter.
         viewPager = findViewById(R.id.fragment_container)
 
-        val pagerAdapter = OrderSectionPagerAdapter( this)
+        val pagerAdapter = OrderSectionPagerAdapter(this)
         viewPager.adapter = pagerAdapter
         viewPager.setPageTransformer(ZoomOutPageTransformer())
 
@@ -134,17 +149,12 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     }
 
     override fun sendData(message: Int) {
-        var currentItem = getItem(+1)
+        val currentItem = getItem(+1)
         viewPager.currentItem = currentItem
-        (viewPager.adapter as OrderSectionPagerAdapter).setParentId(message)
-//        ToDo change livedata here!!!
-
-        val tag = "android:switcher:" + R.id.fragment_container.toString() + ":" + 0
-        val f = supportFragmentManager.findFragmentByTag(tag) as Fragment____Investigations?
-//        f!!.displayReceivedData(message!!)
+        viewModel.subOrderParentId.value = message
     }
 
-    fun getItem(i: Int) = viewPager.currentItem+i
+    private fun getItem(i: Int) = viewPager.currentItem + i
 }
 
 enum class Target(val tList: String) {

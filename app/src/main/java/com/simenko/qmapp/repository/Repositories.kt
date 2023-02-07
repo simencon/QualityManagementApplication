@@ -2,6 +2,7 @@ package com.simenko.qmapp.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.room_entities.*
@@ -285,11 +286,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     }
 
     val completeOrders: LiveData<List<DomainOrderComplete>> = Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
-        it.asDomainOrdersComplete(0)
+        it.asDomainOrdersComplete(-1)
     }
 
     val completeSubOrders: LiveData<List<DomainSubOrderComplete>> = Transformations.map(database.qualityManagementInvestigationsDao.getSubOrdersDetailed()) {
-        it.asDomainSubOrderDetailed(4)
+        it.asDomainSubOrderDetailed(-1)
     }
 
 }

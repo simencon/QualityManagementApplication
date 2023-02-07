@@ -1,6 +1,7 @@
 package com.simenko.qmapp.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +10,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
@@ -17,7 +17,6 @@ import com.simenko.qmapp._____MainActivity
 import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainSubOrderComplete
-import com.simenko.qmapp.room_entities.DatabaseOrderComplete
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 enum class TargetInv() {
@@ -42,18 +41,17 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
      * Used lazy init due to the fact - is not possible to get the activity,
      * until the moment the view is created
      */
+    private val TAG = "Fragment____Investigation"
+
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
-
         }
-        ViewModelProvider(
-            this, QualityManagementViewModel.Factory(activity.application)
-        ).get(QualityManagementViewModel::class.java)
+        val model = (activity as _____MainActivity).viewModel
+        model
     }
 
     private var param1: String? = null
     private var param2: Int? = null
-
     lateinit var textView: TextView
 
     /**
@@ -66,7 +64,7 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
 //        Start looking if all is fine with connection
         viewModel.eventNetworkError.observe(
             viewLifecycleOwner,
-            Observer<Boolean> { isNetworkError ->
+            Observer { isNetworkError ->
                 if (isNetworkError) onNetworkError()
             })
 
@@ -81,25 +79,22 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
                             OrderAdapter.lastCheckedView!!.setBackgroundResource(resolvedBackground.resourceId)
                         }
                         OrderAdapter.lastCheckedView = view
-
                         view.setBackgroundResource(R.drawable.background____selected_record)
-
                         OrderAdapter.lastCheckedPos = position
                     }
                 )
 //                Start looking for target live data
                 viewModel.completeOrders.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainOrderComplete>> { items ->
+                    Observer { items ->
                         items?.apply {
-                            (rv as OrderAdapter).itemsList = items
+                            rv.itemsList = items
                         }
                     })
 //                Assign adapter
                 rv
             }
             TargetInv.TASKS.name -> {
-//                Create adapter
                 val rv = SubOrderAdapter(requireActivity(), requireContext(),
                     SubOrderClick { position, view, subOrder ->
                         if (SubOrderAdapter.lastCheckedView != null) {
@@ -108,21 +103,17 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
                             )
                         }
                         SubOrderAdapter.lastCheckedView = view
-
                         view.setBackgroundResource(R.drawable.background____selected_record)
-
                         SubOrderAdapter.lastCheckedPos = position
                     }
                 )
-//                Start looking for target live data
                 viewModel.completeSubOrders.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainSubOrderComplete>> { items ->
+                    Observer { items ->
                         items?.apply {
-                            (rv as SubOrderAdapter).itemsList = items
+                            rv.itemsList = items
                         }
                     })
-//                Assign adapter
                 rv
             }
             TargetInv.ITEMS.name -> {
@@ -148,7 +139,6 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val binding: FragmentInvestigationsBinding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_____investigations,
@@ -168,6 +158,22 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
         }
         requireContext().theme
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        filterRecyclerView()
+    }
+
+    private fun filterRecyclerView() {
+        when (param1) {
+            TargetInv.TASKS.name -> {
+                if (viewModel.subOrderParentId.value != -1) {
+                    (rvAdapter as SubOrderAdapter).filter.filter(viewModel.subOrderParentId.value.toString())
+                }
+            }
+            else -> {}
+        }
     }
 
     companion object {
@@ -199,10 +205,6 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
             Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
             viewModel.onNetworkErrorShown()
         }
-    }
-
-    fun displayReceivedData(msg: Int) {
-        Toast.makeText(activity, "the message: $msg", Toast.LENGTH_SHORT).show()
     }
 
 }
