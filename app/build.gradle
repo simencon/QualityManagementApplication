@@ -59,6 +59,9 @@ dependencies {
     // constraint layout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
+    // pager
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+
     // navigation //is not Android X libraries!
 //    def nav_version = "1.0.0"
 //    implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"

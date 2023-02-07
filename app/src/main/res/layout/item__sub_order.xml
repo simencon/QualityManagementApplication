@@ -7,7 +7,7 @@
 
         <variable
             name="order"
-            type="com.simenko.qmapp.domain.DomainOrderComplete" />
+            type="com.simenko.qmapp.domain.DomainSubOrderComplete" />
 
         <variable
             name="currentView"
@@ -19,7 +19,7 @@
 
         <variable
             name="orderCallback"
-            type="com.simenko.qmapp.fragments.OrderClick" />
+            type="com.simenko.qmapp.fragments.SubOrderClick" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -49,7 +49,7 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Order type:"
+                    android:text="Dep./area:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="12sp" />
 
@@ -59,10 +59,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="53"
                     android:ellipsize="end"
-                    android:hint="Order type"
+                    android:hint="Dep./area:"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderType.typeDescription}"
+                    android:text="@{StringUtils.concatTwoStrings(order.department.depAbbr, order.subDepartment.subDepAbbr)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/primary_variant_color" />
 
@@ -86,7 +86,7 @@
                     android:maxLines="1"
                     android:hint="Num."
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{Integer.toString(order.order.orderNumber)}"
+                    android:text="@{Integer.toString(order.subOrder.subOrderNumber)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/primary_variant_color" />
             </LinearLayout>
@@ -108,7 +108,7 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Order reason:"
+                    android:text="Ch./Line/Op.:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="12sp" />
 
@@ -118,10 +118,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="75"
                     android:ellipsize="end"
-                    android:hint="Order reason"
+                    android:hint="Ch./Line/Op."
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderReason.reasonDescription}"
+                    android:text="@{StringUtils.concatThreeStrings(order.channel.channelAbbr, order.line.lineAbbr, order.operation.operationAbbr)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -156,7 +156,7 @@
                     android:layout_weight="75"
                     android:hint="Ordered by"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderPlacer.fullName}"
+                    android:text="@{order.orderedBy.fullName}"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
@@ -189,7 +189,7 @@
                     android:layout_weight="75"
                     android:hint="created date"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.order.createdDate}"
+                    android:text="@{order.subOrder.createdDate}"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>

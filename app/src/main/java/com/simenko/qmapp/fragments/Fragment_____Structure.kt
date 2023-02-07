@@ -2,6 +2,7 @@ package com.simenko.qmapp.fragments
 
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -12,12 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.Target
 import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
-import com.simenko.qmapp.domain.DomainDepartmentsDetailed
+import com.simenko.qmapp.domain.DomainDepartmentComplete
+import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.room_entities.DatabaseCompleteOrder
+import com.simenko.qmapp.room_entities.DatabaseOrderComplete
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
-public class ___DepartmentFragment : Fragment() {
+class Fragment_____Structure (val title: String) : Fragment() {
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
      * until the moment the view is created
@@ -33,7 +35,7 @@ public class ___DepartmentFragment : Fragment() {
 
     lateinit var targetList: String
 
-    private val viewModelAdapter by lazy {
+    private val rvAdapter by lazy {
         when (targetList) {
             Target.DEPARTMENTS.tList -> {
                 DepartmentAdapter(
@@ -45,13 +47,6 @@ public class ___DepartmentFragment : Fragment() {
             Target.TEAM_MEMBERS.tList -> {
                 TeamMemberAdapter(
                     TeamMemberClick {
-                        Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
-                    }
-                )
-            }
-            Target.ORDERS.tList -> {
-                OrderAdapter(
-                    OrderClick {
                         Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
                     }
                 )
@@ -73,13 +68,15 @@ public class ___DepartmentFragment : Fragment() {
             false
         )
 
+        binding.root.findViewById<TextView>(R.id.fragment_title).text = title
+
         binding.setLifecycleOwner(viewLifecycleOwner)
 
         binding.viewModel = viewModel
 
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = viewModelAdapter
+            adapter = rvAdapter
         }
 
         viewModel.eventNetworkError.observe(
@@ -105,9 +102,9 @@ public class ___DepartmentFragment : Fragment() {
             Target.DEPARTMENTS.tList -> {
                 viewModel.departmentsDetailed.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainDepartmentsDetailed>> { items ->
+                    Observer<List<DomainDepartmentComplete>> { items ->
                         items?.apply {
-                            (viewModelAdapter as DepartmentAdapter).itemsList = items
+                            (rvAdapter as DepartmentAdapter).itemsList = items
                         }
                     })
             }
@@ -116,16 +113,16 @@ public class ___DepartmentFragment : Fragment() {
                     viewLifecycleOwner,
                     Observer<List<DomainTeamMember>> { items ->
                         items?.apply {
-                            (viewModelAdapter as TeamMemberAdapter).itemsList = items
+                            (rvAdapter as TeamMemberAdapter).itemsList = items
                         }
                     })
             }
             Target.ORDERS.tList -> {
                 viewModel.completeOrders.observe(
                     viewLifecycleOwner,
-                    Observer<List<DatabaseCompleteOrder>> { items ->
+                    Observer<List<DomainOrderComplete>> { items ->
                         items?.apply {
-                            (viewModelAdapter as OrderAdapter).itemsList = items
+                            (rvAdapter as OrderAdapter).itemsList = items
                         }
                     })
             }

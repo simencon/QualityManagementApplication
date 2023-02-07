@@ -20,6 +20,6 @@
     <color name="primary_color">#03506F</color>
     <color name="thread_detailed_btn_color">#BBBBBB</color>
     <color name="thread_simple_btn_color">#FFE3D8</color>
-    <color name="thread_simple_btn_color_darker">#ffa480</color>
+    <color name="accent">#ffa480</color>
     <color name="hint_text_color">#757570</color>
 </resources>

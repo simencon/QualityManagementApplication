@@ -20,6 +20,16 @@
         <item name = "windowNoTitle">true</item>
     </style>
 
+    <style name="MySelectableItemTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorControlHighlight">@color/accent</item>
+    </style>
+
+    <style name="selectableItemBackgroundSelected">
+        <item name="android:theme">@style/MySelectableItemTheme</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+
     <style name="order_title_text_font" parent="@android:style/TextAppearance.Medium">
 
 

@@ -27,4 +27,14 @@ object StringUtils {
             "has no mail"
         }
     }
+
+    @JvmStatic
+    fun concatTwoStrings(str1: String, str2: String): String {
+        return "$str1 / $str2"
+    }
+
+    @JvmStatic
+    fun concatThreeStrings(str1: String, str2: String, str3: String): String {
+        return "$str1 / $str2 / $str3"
+    }
 }

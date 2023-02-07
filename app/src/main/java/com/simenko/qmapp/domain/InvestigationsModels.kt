@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.room_entities.*
+
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -108,6 +110,27 @@ data class DomainResult constructor(
     var result: Double? = null,
     var isOk: Boolean? = null,
     var resultDecryptionId: Int
+)
+
+data class DomainOrderComplete constructor(
+    var order: DomainOrder,
+    var orderType: DomainOrdersType,
+    var orderReason: DomainMeasurementReason,
+    var customer: DomainDepartment,
+    var orderPlacer: DomainTeamMember,
+    var orderStatus: DomainOrdersStatus
+)
+
+data class DomainSubOrderComplete constructor(
+    var subOrder: DomainSubOrder,
+    var orderedBy: DomainTeamMember,
+    var completedBy: DomainTeamMember?,
+    var status: DomainOrdersStatus,
+    var department: DomainDepartment,
+    var subDepartment: DomainSubDepartment,
+    var channel: DomainManufacturingChannel,
+    var line: DomainManufacturingLine,
+    var operation: DomainManufacturingOperation
 )
 
 //ToDo just to test

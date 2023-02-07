@@ -325,7 +325,7 @@ data class DatabaseResult constructor(
     var resultDecryptionId: Int
 )
 
-data class DatabaseCompleteOrder constructor(
+data class DatabaseOrderComplete constructor(
     @Embedded
     var order: DatabaseOrder,
 
@@ -362,17 +362,62 @@ data class DatabaseCompleteOrder constructor(
         parentColumn = "statusId",
         entityColumn = "id"
     )
-    var orderStatus: DatabaseOrdersStatus,
-
-    @Relation(
-        entity = DatabaseSubOrder::class,
-        parentColumn = "id",
-        entityColumn = "orderId"
-    )
-    var subOrders: List<DatabaseSubOrder>
-
+    var orderStatus: DatabaseOrdersStatus
 ){
     fun selectedRecord(): String {
         return "${orderReason.reasonDescription} (${order.orderNumber})"
     }
 }
+
+data class DatabaseCompleteSubOrder constructor(
+    @Embedded
+    var subOrder: DatabaseSubOrder,
+    @Relation(
+        entity = DatabaseTeamMember::class,
+        parentColumn = "orderedById",
+        entityColumn = "id"
+    )
+    var orderedBy: DatabaseTeamMember,
+    @Relation(
+        entity = DatabaseTeamMember::class,
+        parentColumn = "completedById",
+        entityColumn = "id"
+    )
+    var completedBy: DatabaseTeamMember?,
+    @Relation(
+        entity = DatabaseOrdersStatus::class,
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    var status: DatabaseOrdersStatus,
+    @Relation(
+        entity = DatabaseDepartment::class,
+        parentColumn = "departmentId",
+        entityColumn = "id"
+    )
+    var department: DatabaseDepartment,
+    @Relation(
+        entity = DatabaseSubDepartment::class,
+        parentColumn = "subDepartmentId",
+        entityColumn = "id"
+    )
+    var subDepartment: DatabaseSubDepartment,
+    @Relation(
+        entity = DatabaseManufacturingChannel::class,
+        parentColumn = "channelId",
+        entityColumn = "id"
+    )
+    var channel: DatabaseManufacturingChannel,
+    @Relation(
+        entity = DatabaseManufacturingLine::class,
+        parentColumn = "lineId",
+        entityColumn = "id"
+    )
+    var line: DatabaseManufacturingLine,
+    @Relation(
+        entity = DatabaseManufacturingOperation::class,
+        parentColumn = "operationId",
+        entityColumn = "id"
+    )
+    var operation: DatabaseManufacturingOperation
+)

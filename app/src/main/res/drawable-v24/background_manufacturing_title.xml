@@ -8,7 +8,7 @@
 
     <stroke
         android:width="2dp"
-        android:color="@color/thread_simple_btn_color_darker" >
+        android:color="@color/accent" >
     </stroke>
 
     <padding

@@ -1,11 +1,5 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.room_entities.DatabaseCompany
-import com.simenko.qmapp.room_entities.DatabaseDepartment
-import com.simenko.qmapp.room_entities.DatabaseDepartmentsDetailed
-import com.simenko.qmapp.room_entities.DatabaseTeamMember
-import com.simenko.qmapp.utils.ListTransformer
-
 interface ListOfItems {
     fun selectedRecord(): String
 }
@@ -91,33 +85,12 @@ data class DomainManufacturingOperation(
     var operationOrder: Int
 )
 
-data class DomainDepartmentsDetailed(
+data class DomainDepartmentComplete(
     val departments: DomainDepartment,
     val depManagerDetails: List<DomainTeamMember>,
     val companies: List<DomainCompany>
 ): ListOfItems {
     override fun selectedRecord(): String {
         return "${depManagerDetails[0].fullName} (${departments.depName})"
-    }
-}
-
-fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<DomainDepartmentsDetailed> {
-    return map {
-        DomainDepartmentsDetailed(
-            departments = ListTransformer(
-                DatabaseDepartment::class,
-                DomainDepartment::class
-            ).transform(it.departments),
-            depManagerDetails = ListTransformer(
-                it.depManagerDetails,
-                DatabaseTeamMember::class,
-                DomainTeamMember::class
-            ).generateList(),
-            companies = ListTransformer(
-                it.companies,
-                DatabaseCompany::class,
-                DomainCompany::class
-            ).generateList()
-        )
     }
 }

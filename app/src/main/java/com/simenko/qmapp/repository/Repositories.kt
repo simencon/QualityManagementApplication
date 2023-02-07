@@ -110,7 +110,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         ListTransformer(it,DatabaseDepartment::class,DomainDepartment::class).generateList()
     }
 
-    val departmentsDetailed: LiveData<List<DomainDepartmentsDetailed>> = Transformations.map(database.qualityManagementManufacturingDao.getDepartmentsDetailed()) {
+    val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> = Transformations.map(database.qualityManagementManufacturingDao.getDepartmentsDetailed()) {
         it.asDepartmentsDetailedDomainModel()
     }
 }
@@ -284,10 +284,12 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         ListTransformer(it,DatabaseMeasurementReason::class,DomainMeasurementReason::class).generateList()
     }
 
-    val completeOrders: LiveData<List<DatabaseCompleteOrder>> = Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
-        it
+    val completeOrders: LiveData<List<DomainOrderComplete>> = Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
+        it.asDomainOrdersComplete(0)
     }
-//    {
-//        it.asDepartmentsDetailedDomainModel()
-//    }
+
+    val completeSubOrders: LiveData<List<DomainSubOrderComplete>> = Transformations.map(database.qualityManagementInvestigationsDao.getSubOrdersDetailed()) {
+        it.asDomainSubOrderDetailed(4)
+    }
+
 }

@@ -2,6 +2,7 @@ package com.simenko.qmapp.room_implementation
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.simenko.qmapp.room_entities.*
 
@@ -166,10 +167,16 @@ interface QualityManagementInvestigationsDao {
     @Query(
         "SELECT orders.* " +
                 "FROM '12_orders' AS orders " +
-                "INNER JOIN '13_sub_orders' AS sub_orders " +
-                "ON orders.ID = sub_orders.orderID;"
+                "ORDER BY orderNumber;"
     )
-    fun getOrdersDetailed(): LiveData<List<DatabaseCompleteOrder>>
+    fun getOrdersDetailed(): LiveData<List<DatabaseOrderComplete>>
+    @Transaction
+    @Query(
+        "SELECT subOrders.* " +
+                "FROM `13_sub_orders` AS subOrders " +
+                "ORDER BY subOrderNumber;"
+    )
+    fun getSubOrdersDetailed(): LiveData<List<DatabaseCompleteSubOrder>>
 }
 
 @Database(

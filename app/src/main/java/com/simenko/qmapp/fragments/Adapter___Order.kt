@@ -1,19 +1,27 @@
 package com.simenko.qmapp.fragments
 
+import android.content.Context
+import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
+import com.simenko.qmapp.SendMessage
+import com.simenko.qmapp._____MainActivity
 import com.simenko.qmapp.databinding.ItemOrderBinding
-import com.simenko.qmapp.databinding.ItemTeamMemberBinding
-import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.room_entities.DatabaseCompleteOrder
+import com.simenko.qmapp.domain.DomainOrderComplete
+import com.simenko.qmapp.room_entities.DatabaseOrderComplete
 
-class OrderClick(val block: (DatabaseCompleteOrder) -> Unit) {
-    fun onClick(order: DatabaseCompleteOrder): Unit {
-        return block(order)
+
+private lateinit var sm: SendMessage
+
+class OrderClick(val block: (Int, View, DomainOrderComplete) -> Unit) {
+    fun onClick(position: Int, view: View, order: DomainOrderComplete): Unit {
+        sm.sendData(order.order.id)
+        return block(position, view, order)
     }
 }
 
@@ -25,10 +33,19 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
     }
 }
 
-class OrderAdapter(val callback: OrderClick) :
+class OrderAdapter(private val parentActivity: _____MainActivity, val callback: OrderClick) :
     RecyclerView.Adapter<OrderViewHolder>() {
 
-    var itemsList: List<DatabaseCompleteOrder> = emptyList()
+    init {
+        sm = parentActivity as SendMessage
+    }
+
+    companion object {
+        @JvmStatic var lastCheckedPos = -1
+        @JvmStatic var lastCheckedView: View? = null
+    }
+
+    var itemsList: List<DomainOrderComplete> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -48,7 +65,16 @@ class OrderAdapter(val callback: OrderClick) :
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         holder.viewDataBinding.also {
+            it.position = position
+            it.currentView = it.clickableOverlay
             it.order = itemsList[position]
+
+            if(OrderAdapter.lastCheckedPos == position) {
+                it.clickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
+            } else {
+                it.clickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(parentActivity).resourceId)
+            }
+
             it.orderCallback = callback
         }
     }
@@ -57,4 +83,18 @@ class OrderAdapter(val callback: OrderClick) :
         return itemsList.size
     }
 
+}
+
+object AdapterUtils {
+    fun getNormalBackground(context: Context): TypedValue {
+        val outValue = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+        return outValue
+    }
+
+    fun getSelectedBackground(context: Context): TypedValue {
+        val outValue = TypedValue()
+        context.theme.resolveAttribute(R.drawable.background____selected_record, outValue, true)
+        return outValue
+    }
 }

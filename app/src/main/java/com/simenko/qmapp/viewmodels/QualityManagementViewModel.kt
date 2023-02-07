@@ -29,6 +29,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
 
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
+    val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
 
     /**
      *
@@ -53,7 +54,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
 
     /**
      * Factory for constructing ViewModel with into specific application
-     * Used here [com.simenko.qmapp.fragments.___DepartmentFragment.viewModel]
+     * Used here [com.simenko.qmapp.fragments.Fragment_____Structure.viewModel]
      */
     class Factory(val app: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -66,7 +67,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     }
 
     /**
-     * Used in [com.simenko.qmapp.fragments.___DepartmentFragment.onNetworkError] to change trigger value
+     * Used in [com.simenko.qmapp.fragments.Fragment_____Structure.onNetworkError] to change trigger value
      */
 
     fun onNetworkErrorShown() {
@@ -76,7 +77,11 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     /**
      * Runs every time when ViewModel in initializing process
      */
+    companion object {
+        fun refreshSubOrderList(parentId: Int) {
 
+        }
+    }
 
     private fun refreshDataFromRepository() {
         val lock = Mutex()
