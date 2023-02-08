@@ -19,7 +19,7 @@ class TeamMemberViewHolder(val viewDataBinding: ItemTeamMemberBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {
     companion object {
         @LayoutRes
-        val LAYOUT = R.layout.item____team_member
+        val LAYOUT = R.layout.item______team_member
     }
 }
 

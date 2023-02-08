@@ -15,14 +15,14 @@
         android:theme="@style/Theme.QMApp"
         tools:targetApi="31">
         <activity
-            android:name=".____AddEditOrder"
+            android:name=".Activity____RecordEditor"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name="._____MainActivity"
+            android:name=".Activity_____Main"
             android:exported="true"
             android:theme="@style/Theme.QMApp.NoActionBar">
             <intent-filter>

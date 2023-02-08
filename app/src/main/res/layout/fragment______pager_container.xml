@@ -3,7 +3,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".fragments.Fragment______Inv">
+    tools:context=".fragments.Fragment______ViewPagerContainer">
 
     <FrameLayout
         android:layout_width="match_parent"

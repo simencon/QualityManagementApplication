@@ -28,7 +28,7 @@ var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
 var listDomainMeasurementReasons = arrayListOf<DomainMeasurementReason>()
 private const val TAG = "OrderFragment"
 
-class _____OrderFragment : Fragment() {
+class Fragment_____NewOrder : Fragment() {
 
     /**
      * Used lazy init due to the fact - is not possible to get the activity,

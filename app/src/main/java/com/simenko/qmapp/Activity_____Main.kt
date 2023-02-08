@@ -2,23 +2,26 @@ package com.simenko.qmapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.replace
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.databinding.ActivityMainBinding
-import com.simenko.qmapp.fragments.Fragment____Structure
-import com.simenko.qmapp.fragments.Fragment______Inv
-import com.simenko.qmapp.fragments._____OrderFragment
+import com.simenko.qmapp.fragments.Fragment____RecyclerViewForMainActivity
+import com.simenko.qmapp.fragments.Fragment______ViewPagerContainer
+import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
 
-class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class Activity_____Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val TAG = "_____MainActivity"
 
@@ -37,12 +40,6 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     private lateinit var drawer: DrawerLayout
 
-    /**
-     * The pager widget, which handles animation and allows swiping horizontally to access previous
-     * and next wizard steps.
-     */
-    private lateinit var viewPager: ViewPager2
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -57,11 +54,24 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
             this, drawer, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
+        drawer.addDrawerListener(toggle)
 
         toggle.syncState()
 
         val navigationView: NavigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
+
+        if(savedInstanceState == null) {
+            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+        }
+    }
+
+    override fun onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -104,15 +114,21 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         val selectedFragment =
             when (item.getItemId()) {
-                R.id.nav_structure -> Fragment____Structure.newInstance("Departments", Target.DEPARTMENTS)
-                R.id.nav_team -> Fragment____Structure.newInstance("Team", com.simenko.qmapp.fragments.Target.TEAM_MEMBERS)
-                R.id.nav_inv_orders_general -> Fragment______Inv()
-                R.id.nav_new_order -> _____OrderFragment()
-                else -> Fragment____Structure.newInstance("Departments", Target.DEPARTMENTS)
+                R.id.nav_structure -> Fragment____RecyclerViewForMainActivity.newInstance("Departments", Target.DEPARTMENTS)
+                R.id.nav_team -> Fragment____RecyclerViewForMainActivity.newInstance("Team", com.simenko.qmapp.fragments.Target.TEAM_MEMBERS)
+                R.id.nav_inv_orders_general -> Fragment______ViewPagerContainer()
+                R.id.nav_new_order -> Fragment_____NewOrder()
+                else -> Fragment____RecyclerViewForMainActivity.newInstance("Departments", Target.DEPARTMENTS)
             }
-        getSupportFragmentManager().beginTransaction()
-            .replace(R.id.fragment_container, selectedFragment).commit()
 
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, selectedFragment).commit()
+//        ToDo better to not replace but delete and add
+        val fragments: List<Fragment> = supportFragmentManager.fragments
+        fragments.forEach {
+            Log.d(TAG, "AlreadyCreatedFragment: $it")
+        }
+        drawer.closeDrawer(GravityCompat.START)
         return true
     }
 }

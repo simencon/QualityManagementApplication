@@ -5,12 +5,17 @@ import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Button
+import com.simenko.qmapp.databinding.ActivityRecordEditorBinding
 
-class ____AddEditOrder : AppCompatActivity() {
+class Activity____RecordEditor : AppCompatActivity() {
+    private lateinit var binding: ActivityRecordEditorBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_edit_order)
-        val button = findViewById<Button>(R.id.button_save)
+        binding = ActivityRecordEditorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val button = binding.buttonSave
         /**
          * One way to create anonymous inner class instance
          */

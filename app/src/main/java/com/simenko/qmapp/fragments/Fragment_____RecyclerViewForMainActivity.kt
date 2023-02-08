@@ -7,11 +7,11 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
+import com.simenko.qmapp.Activity_____Main
+import com.simenko.qmapp.databinding.FragmentRvForMainActivityBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainTeamMember
@@ -25,7 +25,7 @@ enum class Target {
 
 private const val ARG_PARAM1 = "TARGET_LIST"
 
-class Fragment____Structure (val title: String) : Fragment() {
+class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
     private var param1: String? = null
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
@@ -33,11 +33,9 @@ class Fragment____Structure (val title: String) : Fragment() {
      */
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
-
         }
-        ViewModelProvider(
-            this, QualityManagementViewModel.Factory(activity.application)
-        ).get(QualityManagementViewModel::class.java)
+        val model = (activity as Activity_____Main).viewModel
+        model
     }
 
     private val rvAdapter by lazy {
@@ -65,10 +63,10 @@ class Fragment____Structure (val title: String) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        param1 = arguments?.getString(param1).toString()
-        val binding: FragmentDepartmentsBinding = DataBindingUtil.inflate(
+        param1 = arguments?.getString(ARG_PARAM1).toString()
+        val binding: FragmentRvForMainActivityBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment___departments,
+            R.layout.fragment_____rv_for_main_activity,
             container,
             false
         )
@@ -102,6 +100,11 @@ class Fragment____Structure (val title: String) : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (param1 == null) {
+            param1 = arguments?.getString(ARG_PARAM1).toString()
+        }
+
 
         when(param1) {
             Target.DEPARTMENTS.name -> {
@@ -150,7 +153,7 @@ class Fragment____Structure (val title: String) : Fragment() {
             title: String,
             targetList: Target,
         ) =
-            Fragment____Structure(title).apply {
+            Fragment____RecyclerViewForMainActivity(title).apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, targetList.name)
                 }

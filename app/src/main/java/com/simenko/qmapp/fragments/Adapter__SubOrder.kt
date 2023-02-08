@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubOrderBinding
 import com.simenko.qmapp.domain.DomainSubOrderComplete
-import com.simenko.qmapp.room_entities.DatabaseCompleteSubOrder
 
 
 class SubOrderClick(val block: (Int, View, DomainSubOrderComplete) -> Unit) {
@@ -26,7 +25,7 @@ class SubOrderViewHolder(val viewDataBinding: ItemSubOrderBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {
     companion object {
         @LayoutRes
-        val LAYOUT = R.layout.item__sub_order
+        val LAYOUT = R.layout.item___sub_order
     }
 }
 

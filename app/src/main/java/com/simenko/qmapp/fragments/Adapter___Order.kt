@@ -1,6 +1,5 @@
 package com.simenko.qmapp.fragments
 
-import android.app.Application
 import android.content.Context
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -27,11 +26,11 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {
     companion object {
         @LayoutRes
-        val LAYOUT = R.layout.item___order
+        val LAYOUT = R.layout.item____order
     }
 }
 
-class OrderAdapter(private val callbackImplementedIn: Fragment______Inv, val callback: OrderClick) :
+class OrderAdapter(private val callbackImplementedIn: Fragment______ViewPagerContainer, val callback: OrderClick) :
     RecyclerView.Adapter<OrderViewHolder>() {
 
     init {

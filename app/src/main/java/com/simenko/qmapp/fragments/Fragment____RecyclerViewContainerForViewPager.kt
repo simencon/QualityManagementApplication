@@ -12,8 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp._____MainActivity
-import com.simenko.qmapp.databinding.FragmentInvListBinding
+import com.simenko.qmapp.Activity_____Main
+import com.simenko.qmapp.databinding.FragmentRvForViewPagerBinding
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 enum class TargetInv() {
@@ -29,10 +29,13 @@ private const val ARG_PARAM2 = "PARENT_ID"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [Fragment____InvList.newInstance] factory method to
+ * Use the [Fragment____RecyclerViewContainerForViewPager.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Fragment____InvList(val parentActivity: Fragment______Inv, var title: String) :
+class Fragment____RecyclerViewContainerForViewPager(
+    val parentActivity: Fragment______ViewPagerContainer,
+    var title: String
+) :
     Fragment() {
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
@@ -43,7 +46,7 @@ class Fragment____InvList(val parentActivity: Fragment______Inv, var title: Stri
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
-        val model = (activity as _____MainActivity).viewModel
+        val model = (activity as Activity_____Main).viewModel
         model
     }
 
@@ -104,13 +107,24 @@ class Fragment____InvList(val parentActivity: Fragment______Inv, var title: Stri
                         SubOrderAdapter.lastCheckedPos = position
                     }
                 )
-                viewModel.completeSubOrders.observe(
+//                viewModel.completeSubOrders.observe(
+//                    viewLifecycleOwner,
+//                    Observer { items ->
+//                        items?.apply {
+//                            rv.itemsList = items
+//                        }
+//                    })
+                viewModel.subOrderLiveData.observe(
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            rv.itemsList = items
+                            if (items.first != null) {
+                                rv.itemsList = items.first!!
+                                rv.filter.filter(items.second.toString())
+                            }
                         }
-                    })
+                    }
+                )
                 rv
             }
             TargetInv.ITEMS.name -> {
@@ -136,9 +150,9 @@ class Fragment____InvList(val parentActivity: Fragment______Inv, var title: Stri
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding: FragmentInvListBinding = DataBindingUtil.inflate(
+        val binding: FragmentRvForViewPagerBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_____inv_list,
+            R.layout.fragment____rv_for_view_pager,
             container,
             false
         )
@@ -159,7 +173,7 @@ class Fragment____InvList(val parentActivity: Fragment______Inv, var title: Stri
 
     override fun onResume() {
         super.onResume()
-        filterRecyclerView()
+//        filterRecyclerView()
     }
 
     private fun filterRecyclerView() {
@@ -184,12 +198,12 @@ class Fragment____InvList(val parentActivity: Fragment______Inv, var title: Stri
          */
         @JvmStatic
         fun newInstance(
-            parentActivity: Fragment______Inv,
+            parentActivity: Fragment______ViewPagerContainer,
             title: String,
             targetList: TargetInv,
             parentId: Int
         ) =
-            Fragment____InvList(parentActivity, title).apply {
+            Fragment____RecyclerViewContainerForViewPager(parentActivity, title).apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, targetList.name)
                     putInt(ARG_PARAM2, parentId)
