@@ -58,8 +58,14 @@ data class DomainSubDepartment(
     var depId: Int,
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
-    var subDepOrder: String? = null
-)
+    var subDepOrder: Int? = null,
+    var channelsVisibility: Boolean = false
+) : ListOfItems {
+    override fun selectedRecord(): String {
+        return "$subDepDesignation ($subDepAbbr)"
+    }
+
+}
 
 data class DomainManufacturingChannel(
     var id: Int,
@@ -88,7 +94,8 @@ data class DomainManufacturingOperation(
 data class DomainDepartmentComplete(
     val departments: DomainDepartment,
     val depManagerDetails: List<DomainTeamMember>,
-    val companies: List<DomainCompany>
+    val companies: List<DomainCompany>,
+    var departmentDetailsVisibility: Boolean = false
 ): ListOfItems {
     override fun selectedRecord(): String {
         return "${depManagerDetails[0].fullName} (${departments.depName})"

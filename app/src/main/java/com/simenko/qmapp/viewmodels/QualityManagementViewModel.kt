@@ -23,15 +23,17 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     private val qualityManagementInvestigationsRepository =
         QualityManagementInvestigationsRepository(getDatabase(application))
 
-    val departments = qualityManagementManufacturingRepository.departments
     val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    val departments = qualityManagementManufacturingRepository.departments
     val departmentsDetailed = qualityManagementManufacturingRepository.departmentsDetailed
+    val subDepartments = qualityManagementManufacturingRepository.subDepartments
+
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
     val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
 
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
 
-    val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
+    private val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
     val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
 
     val subOrderLiveData: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Int?>> =

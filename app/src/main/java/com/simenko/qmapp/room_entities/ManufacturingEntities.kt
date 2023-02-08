@@ -130,7 +130,7 @@ data class DatabaseSubDepartment(
     var depId: Int,
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
-    var subDepOrder: String? = null
+    var subDepOrder: Int? = null
 )
 
 @Entity(

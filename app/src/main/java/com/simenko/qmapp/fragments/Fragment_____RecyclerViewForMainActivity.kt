@@ -18,8 +18,9 @@ import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 enum class Target {
-    DEPARTMENTS,
     TEAM_MEMBERS,
+    DEPARTMENTS,
+    SUB_DEPARTMENTS,
     ORDERS;
 }
 
@@ -40,13 +41,6 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
 
     private val rvAdapter by lazy {
         when (param1) {
-            Target.DEPARTMENTS.name -> {
-                DepartmentAdapter(
-                    DepartmentClick {
-                        Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
-                    }
-                )
-            }
             Target.TEAM_MEMBERS.name -> {
                 TeamMemberAdapter(
                     TeamMemberClick {
@@ -54,8 +48,29 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
                     }
                 )
             }
+            Target.DEPARTMENTS.name -> {
+                Adapter_____Department(
+                    DepartmentClick {item, position ->
+                        item.departmentDetailsVisibility = !item.departmentDetailsVisibility
+                        updateOneRvItem(position)
+//                        Toast.makeText(context, item.selectedRecord(), Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
+            Target.SUB_DEPARTMENTS.name -> {
+                Adapter____SubDepartment(
+                    SubDepartmentClick {subDepartment, position ->
+                        subDepartment.channelsVisibility = !subDepartment.channelsVisibility
+                        Toast.makeText(context, subDepartment.selectedRecord(), Toast.LENGTH_LONG).show()
+                    }
+                )
+            }
             else -> null
         }
+    }
+
+    private fun updateOneRvItem(position: Int) {
+        rvAdapter?.notifyItemChanged(position)
     }
 
     override fun onCreateView(
@@ -107,21 +122,30 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
 
 
         when(param1) {
-            Target.DEPARTMENTS.name -> {
-                viewModel.departmentsDetailed.observe(
-                    viewLifecycleOwner,
-                    Observer<List<DomainDepartmentComplete>> { items ->
-                        items?.apply {
-                            (rvAdapter as DepartmentAdapter).itemsList = items
-                        }
-                    })
-            }
             Target.TEAM_MEMBERS.name -> {
                 viewModel.teamMembers.observe(
                     viewLifecycleOwner,
                     Observer<List<DomainTeamMember>> { items ->
                         items?.apply {
                             (rvAdapter as TeamMemberAdapter).itemsList = items
+                        }
+                    })
+            }
+            Target.DEPARTMENTS.name -> {
+                viewModel.departmentsDetailed.observe(
+                    viewLifecycleOwner,
+                    Observer<List<DomainDepartmentComplete>> { items ->
+                        items?.apply {
+                            (rvAdapter as Adapter_____Department).itemsList = items
+                        }
+                    })
+            }
+            Target.SUB_DEPARTMENTS.name -> {
+                viewModel.subDepartments.observe(
+                    viewLifecycleOwner,
+                    Observer{ items ->
+                        items?.apply {
+                            (rvAdapter as Adapter____SubDepartment).itemsList = items
                         }
                     })
             }

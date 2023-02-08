@@ -9,11 +9,11 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
 
-class DepartmentClick(val block: (DomainDepartmentComplete) -> Unit) {
-    fun onClick(department: DomainDepartmentComplete) = block(department)
+class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
+    fun onClick(department: DomainDepartmentComplete, position: Int) = block(department, position)
 }
 
-class DepartmentAdapter(val callback: DepartmentClick) :
+class Adapter_____Department(val callback: DepartmentClick) :
     RecyclerView.Adapter<DepartmentViewHolder>()
     {
     var itemsList: List<DomainDepartmentComplete> = emptyList()
@@ -37,6 +37,7 @@ class DepartmentAdapter(val callback: DepartmentClick) :
         holder.viewDataBinding.also {
             it.department = itemsList[position]
             it.departmentCallback = callback
+            it.position = position
         }
     }
 
@@ -49,6 +50,8 @@ class DepartmentViewHolder(val viewDataBinding: ItemDepartmentBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {
     companion object {
         @LayoutRes
-        val LAYOUT = R.layout.item_____department
+        val LAYOUT = R.layout.item______department
     }
+
+
 }

@@ -111,6 +111,10 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         ListTransformer(it,DatabaseDepartment::class,DomainDepartment::class).generateList()
     }
 
+    val subDepartments: LiveData<List<DomainSubDepartment>> = Transformations.map(database.qualityManagementManufacturingDao.getSubDepartments()) {
+        ListTransformer(it,DatabaseSubDepartment::class,DomainSubDepartment::class).generateList()
+    }
+
     val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> = Transformations.map(database.qualityManagementManufacturingDao.getDepartmentsDetailed()) {
         it.asDepartmentsDetailedDomainModel()
     }

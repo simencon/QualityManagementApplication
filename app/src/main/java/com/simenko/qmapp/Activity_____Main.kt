@@ -114,8 +114,9 @@ class Activity_____Main : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         val selectedFragment =
             when (item.getItemId()) {
+                R.id.nav_team -> Fragment____RecyclerViewForMainActivity.newInstance("Team", Target.TEAM_MEMBERS)
                 R.id.nav_structure -> Fragment____RecyclerViewForMainActivity.newInstance("Departments", Target.DEPARTMENTS)
-                R.id.nav_team -> Fragment____RecyclerViewForMainActivity.newInstance("Team", com.simenko.qmapp.fragments.Target.TEAM_MEMBERS)
+                R.id.nav_products -> Fragment____RecyclerViewForMainActivity.newInstance("Sub departments", Target.SUB_DEPARTMENTS)
                 R.id.nav_inv_orders_general -> Fragment______ViewPagerContainer()
                 R.id.nav_new_order -> Fragment_____NewOrder()
                 else -> Fragment____RecyclerViewForMainActivity.newInstance("Departments", Target.DEPARTMENTS)

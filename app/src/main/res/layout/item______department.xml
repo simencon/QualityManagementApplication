@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
         <variable
             name="department"
             type="com.simenko.qmapp.domain.DomainDepartmentComplete" />
@@ -19,6 +26,7 @@
         android:layout_marginEnd="8dp">
 
         <RelativeLayout
+            android:id="@+id/item_department"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
@@ -85,8 +93,27 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> departmentCallback.onClick(department)}" />
+                android:onClick="@{() -> departmentCallback.onClick(department, position)}" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/expanded_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/clickableOverlay"
+                android:layout_margin="6dp"
+                android:visibility="@{department.departmentDetailsVisibility?View.VISIBLE:View.GONE}">
+
+                <TextView
+                    android:id="@+id/item_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primary_variant_color"
+                    android:text="First implementation of the expanded layout."
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </RelativeLayout>
 
