@@ -1,7 +1,6 @@
 package com.simenko.qmapp.fragments
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp._____MainActivity
-import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
-import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.domain.DomainSubOrderComplete
+import com.simenko.qmapp.databinding.FragmentInvListBinding
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 enum class TargetInv() {
@@ -32,10 +29,10 @@ private const val ARG_PARAM2 = "PARENT_ID"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [Fragment____Investigations.newInstance] factory method to
+ * Use the [Fragment____InvList.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Fragment____Investigations(val parentActivity: _____MainActivity, var title: String) :
+class Fragment____InvList(val parentActivity: Fragment______Inv, var title: String) :
     Fragment() {
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
@@ -139,9 +136,9 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding: FragmentInvestigationsBinding = DataBindingUtil.inflate(
+        val binding: FragmentInvListBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_____investigations,
+            R.layout.fragment_____inv_list,
             container,
             false
         )
@@ -187,12 +184,12 @@ class Fragment____Investigations(val parentActivity: _____MainActivity, var titl
          */
         @JvmStatic
         fun newInstance(
-            parentActivity: _____MainActivity,
+            parentActivity: Fragment______Inv,
             title: String,
             targetList: TargetInv,
             parentId: Int
         ) =
-            Fragment____Investigations(parentActivity, title).apply {
+            Fragment____InvList(parentActivity, title).apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, targetList.name)
                     putInt(ARG_PARAM2, parentId)

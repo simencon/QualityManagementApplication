@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/ppap"
+        android:title="PPAP"
+        app:showAsAction = "never"/>
+    <item
+        android:id="@+id/incoming_inspection"
+        android:title="Incoming inspection"
+        app:showAsAction = "never"/>
+    <item
+        android:id="@+id/process_control"
+        android:title="Process control"
+        app:showAsAction = "never"/>
+    <item
+        android:id="@+id/product_audit"
+        android:title="Product audit"
+        app:showAsAction = "never"/>
+</menu>

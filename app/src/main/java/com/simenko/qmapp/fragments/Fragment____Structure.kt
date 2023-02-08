@@ -11,15 +11,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.Target
 import com.simenko.qmapp.databinding.FragmentDepartmentsBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.room_entities.DatabaseOrderComplete
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
-class Fragment_____Structure (val title: String) : Fragment() {
+enum class Target {
+    DEPARTMENTS,
+    TEAM_MEMBERS,
+    ORDERS;
+}
+
+private const val ARG_PARAM1 = "TARGET_LIST"
+
+class Fragment____Structure (val title: String) : Fragment() {
+    private var param1: String? = null
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
      * until the moment the view is created
@@ -33,18 +40,16 @@ class Fragment_____Structure (val title: String) : Fragment() {
         ).get(QualityManagementViewModel::class.java)
     }
 
-    lateinit var targetList: String
-
     private val rvAdapter by lazy {
-        when (targetList) {
-            Target.DEPARTMENTS.tList -> {
+        when (param1) {
+            Target.DEPARTMENTS.name -> {
                 DepartmentAdapter(
                     DepartmentClick {
                         Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
                     }
                 )
             }
-            Target.TEAM_MEMBERS.tList -> {
+            Target.TEAM_MEMBERS.name -> {
                 TeamMemberAdapter(
                     TeamMemberClick {
                         Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
@@ -60,7 +65,7 @@ class Fragment_____Structure (val title: String) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        targetList = arguments?.getString(Target.cKey).toString()
+        param1 = arguments?.getString(param1).toString()
         val binding: FragmentDepartmentsBinding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment___departments,
@@ -98,8 +103,8 @@ class Fragment_____Structure (val title: String) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        when(targetList) {
-            Target.DEPARTMENTS.tList -> {
+        when(param1) {
+            Target.DEPARTMENTS.name -> {
                 viewModel.departmentsDetailed.observe(
                     viewLifecycleOwner,
                     Observer<List<DomainDepartmentComplete>> { items ->
@@ -108,7 +113,7 @@ class Fragment_____Structure (val title: String) : Fragment() {
                         }
                     })
             }
-            Target.TEAM_MEMBERS.tList -> {
+            Target.TEAM_MEMBERS.name -> {
                 viewModel.teamMembers.observe(
                     viewLifecycleOwner,
                     Observer<List<DomainTeamMember>> { items ->
@@ -117,7 +122,7 @@ class Fragment_____Structure (val title: String) : Fragment() {
                         }
                     })
             }
-            Target.ORDERS.tList -> {
+            Target.ORDERS.name -> {
                 viewModel.completeOrders.observe(
                     viewLifecycleOwner,
                     Observer<List<DomainOrderComplete>> { items ->
@@ -130,6 +135,26 @@ class Fragment_____Structure (val title: String) : Fragment() {
 
             }
         }
+    }
+
+    companion object {
+        /**
+         * Use this factory method to create a new instance of
+         * this fragment using the provided parameters.
+         *
+         * @param targetList Parameter 1.
+         * @return A new instance of fragment Fragment____Structure.
+         */
+        @JvmStatic
+        fun newInstance(
+            title: String,
+            targetList: Target,
+        ) =
+            Fragment____Structure(title).apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, targetList.name)
+                }
+            }
     }
 }
 

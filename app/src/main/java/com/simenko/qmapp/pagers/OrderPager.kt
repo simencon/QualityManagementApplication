@@ -2,14 +2,12 @@ package com.simenko.qmapp.pagers
 
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.simenko.qmapp._____MainActivity
-import com.simenko.qmapp.fragments.Fragment____Investigations
-import com.simenko.qmapp.fragments.Fragment_____Structure
+import com.simenko.qmapp.fragments.Fragment____InvList
+import com.simenko.qmapp.fragments.Fragment______Inv
 import com.simenko.qmapp.fragments.TargetInv
 
 /**
@@ -17,7 +15,7 @@ import com.simenko.qmapp.fragments.TargetInv
  */
 val tabTitles = arrayOf("Home", "Chat", "Notification", "Account")
 
-class OrderSectionPagerAdapter(private val fa: _____MainActivity) :
+class OrderSectionPagerAdapter(private val fa: Fragment______Inv) :
     FragmentStateAdapter(fa) {
 
     init {
@@ -35,9 +33,9 @@ class OrderSectionPagerAdapter(private val fa: _____MainActivity) :
 
     override fun createFragment(position: Int): Fragment {
         return when(position){
-            0-> Fragment____Investigations.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
-            1-> Fragment____Investigations.newInstance(fa,"Title", TargetInv.TASKS, parentId)
-            else -> Fragment____Investigations.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
+            0-> Fragment____InvList.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
+            1-> Fragment____InvList.newInstance(fa,"Title", TargetInv.TASKS, parentId)
+            else -> Fragment____InvList.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
         }
     }
 }

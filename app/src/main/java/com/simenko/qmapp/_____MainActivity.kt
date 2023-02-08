@@ -2,27 +2,23 @@ package com.simenko.qmapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import com.simenko.qmapp.fragments.Fragment_____Structure
-import com.simenko.qmapp.fragments.TargetInv
+import com.simenko.qmapp.databinding.ActivityMainBinding
+import com.simenko.qmapp.fragments.Fragment____Structure
+import com.simenko.qmapp.fragments.Fragment______Inv
 import com.simenko.qmapp.fragments._____OrderFragment
-import com.simenko.qmapp.pagers.OrderSectionPagerAdapter
-import com.simenko.qmapp.pagers.ZoomOutPageTransformer
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.fragments.Target
 
-class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    SendMessage {
+class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val TAG = "_____MainActivity"
 
@@ -37,6 +33,8 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
         model
     }
 
+    private lateinit var binding: ActivityMainBinding
+
     private lateinit var drawer: DrawerLayout
 
     /**
@@ -47,12 +45,13 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val toolbar: Toolbar = findViewById(R.id.toolBar)
+        val toolbar: Toolbar = binding.toolBar
         setSupportActionBar(toolbar)
 
-        this.drawer = findViewById(R.id.drawer_layout)
+        this.drawer = binding.drawerLayout
 
         val toggle: ActionBarDrawerToggle = ActionBarDrawerToggle(
             this, drawer, toolbar,
@@ -61,65 +60,34 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         toggle.syncState()
 
-        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val navigationView: NavigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
-
-        // Instantiate a ViewPager2 and a PagerAdapter.
-        viewPager = findViewById(R.id.fragment_container)
-
-        val pagerAdapter = OrderSectionPagerAdapter(this)
-        viewPager.adapter = pagerAdapter
-        viewPager.setPageTransformer(ZoomOutPageTransformer())
-
-        val tabLayout = findViewById<TabLayout>(R.id.tabs)
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = TargetInv.values()[position].name
-        }.attach()
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu____company_structure_top, menu)
+        menuInflater.inflate(R.menu.menu____filter_top, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        lateinit var bData: Target
-        var bundle: Bundle = Bundle()
-        lateinit var nextFragment: Fragment
-
-        when (item.itemId) {
-            R.id.departments -> {
-                nextFragment = Fragment_____Structure("Fragment title")
-                bData = Target.DEPARTMENTS
-
-                bundle.putString(Target.cKey, bData.tList)
-                nextFragment.arguments = bundle
+        try {
+            when (item.itemId) {
+                R.id.incoming_inspection -> {
+                    TODO("Will filter accordingly")
+                }
+                R.id.ppap -> {
+                    TODO("Will filter accordingly")
+                }
+                R.id.process_control -> {
+                    TODO("Will filter accordingly")
+                }
+                else -> {
+                    TODO("Will filter accordingly")
+                }
             }
-            R.id.team_members -> {
-                nextFragment = Fragment_____Structure("Fragment title")
-                bData = Target.TEAM_MEMBERS
-                bundle.putString(Target.cKey, bData.tList)
-                nextFragment.arguments = bundle
-            }
-            R.id.orders -> {
-                nextFragment = Fragment_____Structure("Fragment title")
-                bData = Target.ORDERS
-                bundle.putString(Target.cKey, bData.tList)
-                nextFragment.arguments = bundle
-            }
-            else -> {
-                nextFragment = Fragment_____Structure("Fragment title")
-                bData = Target.DEPARTMENTS
-                bundle.putString(Target.cKey, bData.tList)
-                nextFragment.arguments = bundle
-            }
+        } catch (e: Error) {
+            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
         }
-
-        getSupportFragmentManager().beginTransaction()
-            .replace(R.id.fragment_container, nextFragment).commit()
 
         return true
     }
@@ -127,8 +95,6 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
     var mPreviousMenuItem: MenuItem? = null
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
-//        Make only one multiples menu items checked
         item.setCheckable(true)
         item.setChecked(true)
         if (mPreviousMenuItem != null && mPreviousMenuItem != item) {
@@ -138,35 +104,16 @@ class _____MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSe
 
         val selectedFragment =
             when (item.getItemId()) {
-                R.id.nav_structure -> Fragment_____Structure("Fragment title")
+                R.id.nav_structure -> Fragment____Structure.newInstance("Departments", Target.DEPARTMENTS)
+                R.id.nav_team -> Fragment____Structure.newInstance("Team", com.simenko.qmapp.fragments.Target.TEAM_MEMBERS)
+                R.id.nav_inv_orders_general -> Fragment______Inv()
                 R.id.nav_new_order -> _____OrderFragment()
-                else -> Fragment_____Structure("Fragment title")
+                else -> Fragment____Structure.newInstance("Departments", Target.DEPARTMENTS)
             }
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.fragment_container, selectedFragment).commit()
 
         return true
     }
-
-    override fun sendData(message: Int) {
-        val currentItem = getItem(+1)
-        viewPager.currentItem = currentItem
-        viewModel.subOrderParentId.value = message
-    }
-
-    private fun getItem(i: Int) = viewPager.currentItem + i
 }
 
-enum class Target(val tList: String) {
-    DEPARTMENTS("DEPARTMENTS"),
-    TEAM_MEMBERS("TEAM_MEMBERS"),
-    ORDERS("ORDERS");
-
-    companion object {
-        const val cKey: String = "TARGET_LIST"
-    }
-}
-
-interface SendMessage {
-    fun sendData(message: Int)
-}

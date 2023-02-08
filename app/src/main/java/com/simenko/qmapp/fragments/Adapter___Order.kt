@@ -1,5 +1,6 @@
 package com.simenko.qmapp.fragments
 
+import android.app.Application
 import android.content.Context
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -9,11 +10,8 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.SendMessage
-import com.simenko.qmapp._____MainActivity
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.room_entities.DatabaseOrderComplete
 
 
 private lateinit var sm: SendMessage
@@ -33,11 +31,11 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
     }
 }
 
-class OrderAdapter(private val parentActivity: _____MainActivity, val callback: OrderClick) :
+class OrderAdapter(private val callbackImplementedIn: Fragment______Inv, val callback: OrderClick) :
     RecyclerView.Adapter<OrderViewHolder>() {
 
     init {
-        sm = parentActivity as SendMessage
+        sm = callbackImplementedIn as SendMessage
     }
 
     companion object {
@@ -72,7 +70,7 @@ class OrderAdapter(private val parentActivity: _____MainActivity, val callback: 
             if(OrderAdapter.lastCheckedPos == position) {
                 it.clickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
             } else {
-                it.clickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(parentActivity).resourceId)
+                it.clickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(requireNotNull(callbackImplementedIn.context)).resourceId)
             }
 
             it.orderCallback = callback

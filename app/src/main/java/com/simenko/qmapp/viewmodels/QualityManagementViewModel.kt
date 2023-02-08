@@ -56,7 +56,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
 
     /**
      * Factory for constructing ViewModel with into specific application
-     * Used here [com.simenko.qmapp.fragments.Fragment_____Structure.viewModel]
+     * Used here [com.simenko.qmapp.fragments.Fragment____Structure.viewModel]
      */
     class Factory(val app: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -69,7 +69,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     }
 
     /**
-     * Used in [com.simenko.qmapp.fragments.Fragment_____Structure.onNetworkError] to change trigger value
+     * Used in [com.simenko.qmapp.fragments.Fragment____Structure.onNetworkError] to change trigger value
      */
 
     fun onNetworkErrorShown() {
