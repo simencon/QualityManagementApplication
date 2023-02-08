@@ -26,8 +26,9 @@ enum class Target {
 
 private const val ARG_PARAM1 = "TARGET_LIST"
 
-class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
+class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
     private var param1: String? = null
+
     /**
      * Used lazy init due to the fact - is not possible to get the activity,
      * until the moment the view is created
@@ -50,7 +51,7 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
             }
             Target.DEPARTMENTS.name -> {
                 Adapter_____Department(
-                    DepartmentClick {item, position ->
+                    DepartmentClick { item, position ->
                         item.departmentDetailsVisibility = !item.departmentDetailsVisibility
                         updateOneRvItem(position)
 //                        Toast.makeText(context, item.selectedRecord(), Toast.LENGTH_LONG).show()
@@ -59,9 +60,10 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
             }
             Target.SUB_DEPARTMENTS.name -> {
                 Adapter____SubDepartment(
-                    SubDepartmentClick {subDepartment, position ->
+                    SubDepartmentClick { subDepartment, position ->
                         subDepartment.channelsVisibility = !subDepartment.channelsVisibility
-                        Toast.makeText(context, subDepartment.selectedRecord(), Toast.LENGTH_LONG).show()
+//                        Toast.makeText(context, subDepartment.selectedRecord(), Toast.LENGTH_LONG).show()
+                        updateOneRvItem(position)
                     }
                 )
             }
@@ -121,11 +123,11 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
         }
 
 
-        when(param1) {
+        when (param1) {
             Target.TEAM_MEMBERS.name -> {
                 viewModel.teamMembers.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainTeamMember>> { items ->
+                    Observer { items ->
                         items?.apply {
                             (rvAdapter as TeamMemberAdapter).itemsList = items
                         }
@@ -134,7 +136,7 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
             Target.DEPARTMENTS.name -> {
                 viewModel.departmentsDetailed.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainDepartmentComplete>> { items ->
+                    Observer { items ->
                         items?.apply {
                             (rvAdapter as Adapter_____Department).itemsList = items
                         }
@@ -143,7 +145,7 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
             Target.SUB_DEPARTMENTS.name -> {
                 viewModel.subDepartments.observe(
                     viewLifecycleOwner,
-                    Observer{ items ->
+                    Observer { items ->
                         items?.apply {
                             (rvAdapter as Adapter____SubDepartment).itemsList = items
                         }
@@ -152,7 +154,7 @@ class Fragment____RecyclerViewForMainActivity (val title: String) : Fragment() {
             Target.ORDERS.name -> {
                 viewModel.completeOrders.observe(
                     viewLifecycleOwner,
-                    Observer<List<DomainOrderComplete>> { items ->
+                    Observer { items ->
                         items?.apply {
                             (rvAdapter as OrderAdapter).itemsList = items
                         }
