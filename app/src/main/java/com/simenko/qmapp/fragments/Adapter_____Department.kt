@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
+import com.simenko.qmapp.domain.DomainSubDepartment
 
 class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
     fun onClick(department: DomainDepartmentComplete, position: Int) = block(department, position)
@@ -38,6 +39,22 @@ class Adapter_____Department(val callback: DepartmentClick) :
             it.department = itemsList[position]
             it.departmentCallback = callback
             it.position = position
+            it.parentId = itemsList[position].departments.id
+
+            val subDepAdapter = Adapter____SubDepartment(SubDepartmentClick { subDepartment, position ->
+                subDepartment.channelsVisibility = !subDepartment.channelsVisibility
+                it.childAdapter?.notifyItemChanged(position)
+            })
+
+            it.childAdapter = subDepAdapter
+
+//            ToDo - how to bring here live data?
+            subDepAdapter.itemsList = listOf(
+                DomainSubDepartment(1,1,"testAbbr1","testName1",1,false),
+                DomainSubDepartment(1,1,"testAbbr2","testName2",2,false)
+            )
+
+            it.itemDetails.adapter = subDepAdapter
         }
     }
 

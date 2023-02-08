@@ -6,7 +6,15 @@
         <import type="android.view.View" />
 
         <variable
+            name="childAdapter"
+            type="com.simenko.qmapp.fragments.Adapter____SubDepartment" />
+
+        <variable
             name="position"
+            type="Integer" />
+
+        <variable
+            name="parentId"
             type="Integer" />
 
         <variable
@@ -103,12 +111,14 @@
                 android:layout_margin="6dp"
                 android:visibility="@{department.departmentDetailsVisibility?View.VISIBLE:View.GONE}">
 
-                <TextView
+
+                <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/item_details"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:textColor="@color/primary_variant_color"
-                    android:text="First implementation of the expanded layout."
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

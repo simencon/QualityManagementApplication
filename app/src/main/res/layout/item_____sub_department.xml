@@ -14,7 +14,7 @@
             type="com.simenko.qmapp.domain.DomainSubDepartment" />
 
         <variable
-            name="departmentCallback"
+            name="subDepartmentCallback"
             type="com.simenko.qmapp.fragments.SubDepartmentClick" />
     </data>
 
@@ -71,7 +71,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> departmentCallback.onClick(subDepartment, position)}" />
+                android:onClick="@{() -> subDepartmentCallback.onClick(subDepartment, position)}" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/expanded_layout"

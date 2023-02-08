@@ -38,7 +38,7 @@ class Adapter____SubDepartment(val callback: SubDepartmentClick) :
     override fun onBindViewHolder(holder: SubDepartmentViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.subDepartment = itemsList[position]
-            it.departmentCallback = callback
+            it.subDepartmentCallback = callback
             it.position = position
         }
     }
