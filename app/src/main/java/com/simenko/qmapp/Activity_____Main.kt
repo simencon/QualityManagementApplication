@@ -141,7 +141,7 @@ class Activity_____Main : AppCompatActivity(), NavigationView.OnNavigationItemSe
                     Fragment______ViewPagerContainer()
                 }
 
-                R.id.nav_new_order -> {
+                R.id.nav_inv_orders_status_monitoring -> {
                     target = Target.ORDERS
                     Fragment_____NewOrder()
                 }

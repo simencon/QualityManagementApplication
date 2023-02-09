@@ -66,11 +66,12 @@ class OrderAdapter(private val callbackImplementedIn: Fragment______ViewPagerCon
             it.currentView = it.orderClickableOverlay
             it.order = itemsList[position]
 
-            if(OrderAdapter.lastCheckedPos == position) {
+//            ToDo      To highlight latest item (later use for measurements results)
+            /*if(OrderAdapter.lastCheckedPos == position) {
                 it.orderClickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
             } else {
                 it.orderClickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(requireNotNull(callbackImplementedIn.context)).resourceId)
-            }
+            }*/
 
             it.orderCallback = callback
         }

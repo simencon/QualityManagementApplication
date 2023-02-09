@@ -46,10 +46,6 @@
                     android:icon="@drawable/ic_settings"
                     android:title="Settings" />
 
-                <item
-                    android:id="@+id/nav_new_order"
-                    android:icon="@drawable/ic_draft"
-                    android:title="New order (draft)" />
             </menu>
         </item>
     </group>

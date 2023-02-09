@@ -76,12 +76,16 @@ class Fragment____RecyclerViewContainerForViewPager(
 //                Create adapter
                 val rv = OrderAdapter(parentActivity,
                     OrderClick { position, view, order ->
-                        if (OrderAdapter.lastCheckedView != null) {
+//                  ToDo      To highlight latest item (later use for measurements results)
+                        /*if (OrderAdapter.lastCheckedView != null) {
                             OrderAdapter.lastCheckedView!!.setBackgroundResource(resolvedBackground.resourceId)
                         }
                         OrderAdapter.lastCheckedView = view
                         view.setBackgroundResource(R.drawable.background____selected_record)
-                        OrderAdapter.lastCheckedPos = position
+                        OrderAdapter.lastCheckedPos = position*/
+//                        To show/hide order details
+                        order.detailsVisibility = !order.detailsVisibility
+                        updateOneRvItem(position)
                     }
                 )
 //                Start looking for target live data
@@ -129,6 +133,10 @@ class Fragment____RecyclerViewContainerForViewPager(
             }
             else -> null
         }
+    }
+
+    private fun updateOneRvItem(position: Int) {
+        rvAdapter?.notifyItemChanged(position)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
