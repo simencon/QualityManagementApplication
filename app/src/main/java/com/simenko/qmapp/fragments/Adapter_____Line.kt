@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemChannelBinding
@@ -48,6 +49,26 @@ class Adapter______Line(
             it.manLine = itemsList[position]
             it.manLineCallback = callback
             it.position = position
+
+            val operationAdapter =
+                Adapter_____Operation(OperationClick() { operation, position ->
+                    operation.detailsVisibility = !operation.detailsVisibility
+                    it.childAdapter?.notifyItemChanged(position)
+                }, viewModel, lifecycleOwner)
+
+            it.childAdapter = operationAdapter
+
+            it.channelLines.adapter = it.childAdapter
+
+            this.viewModel.operations.observe(this.lifecycleOwner,
+                Observer { items ->
+                    items?.apply {
+                        operationAdapter.itemsList =
+                            items.filter { item -> item.lineId == itemsList[position].id }
+                                .toList()
+                    }
+                }
+            )
         }
     }
 

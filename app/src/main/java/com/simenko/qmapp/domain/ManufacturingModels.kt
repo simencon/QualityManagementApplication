@@ -90,7 +90,8 @@ data class DomainManufacturingOperation(
     var lineId: Int,
     var operationAbbr: String,
     var operationDesignation: String,
-    var operationOrder: Int
+    var operationOrder: Int,
+    var detailsVisibility: Boolean = false
 )
 
 data class DomainDepartmentComplete(

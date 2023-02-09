@@ -6,20 +6,16 @@
         <import type="android.view.View" />
 
         <variable
-            name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter_____Operation" />
-
-        <variable
             name="position"
             type="Integer" />
 
         <variable
-            name="manLine"
-            type="com.simenko.qmapp.domain.DomainManufacturingLine" />
+            name="manOperation"
+            type="com.simenko.qmapp.domain.DomainManufacturingOperation" />
 
         <variable
-            name="manLineCallback"
-            type="com.simenko.qmapp.fragments.LineClick" />
+            name="manOperationCallback"
+            type="com.simenko.qmapp.fragments.OperationClick" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -55,15 +51,15 @@
                     android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/line_abbr"
+                    android:id="@+id/operation_abbr"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="40"
                     android:ellipsize="end"
-                    android:hint="channelAbbr"
+                    android:hint="operationAbbr"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{manLine.lineAbbr}"
+                    android:text="@{manOperation.operationAbbr}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -79,15 +75,15 @@
                     android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/line_order_number"
+                    android:id="@+id/operation_order_number"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="20"
                     android:ellipsize="end"
-                    android:hint="channelOrder"
+                    android:hint="operationOrder"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{Integer.toString(manLine.lineOrder)}"
+                    android:text="@{Integer.toString(manOperation.operationOrder)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -110,27 +106,27 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Channel:"
+                    android:text="Line:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/line_name"
+                    android:id="@+id/operation_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="80"
                     android:ellipsize="end"
-                    android:hint="channelDesignation"
+                    android:hint="operationDesignation"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{manLine.lineDesignation}"
+                    android:text="@{manOperation.operationDesignation}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
 
             <View
-                android:id="@+id/line_clickable_overlay"
+                android:id="@+id/operation_clickable_overlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignBottom="@id/second_line"
@@ -138,18 +134,18 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> manLineCallback.onClick(manLine, position)}" />
+                android:onClick="@{() -> manOperationCallback.onClick(manOperation, position)}" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/line_expanded_layout"
+                android:id="@+id/operation_expanded_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/line_clickable_overlay"
+                android:layout_below="@id/operation_clickable_overlay"
                 android:layout_margin="6dp"
-                android:visibility="@{manLine.operationVisibility?View.VISIBLE:View.GONE}">
+                android:visibility="@{manOperation.detailsVisibility?View.VISIBLE:View.GONE}">
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/channel_lines"
+                    android:id="@+id/operation_details"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
