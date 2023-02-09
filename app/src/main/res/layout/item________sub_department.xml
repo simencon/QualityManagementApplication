@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="childAdapter"
+            type="com.simenko.qmapp.fragments.Adapter______Channel" />
+
+        <variable
+            name="position"
+            type="Integer" />
+
+        <variable
+            name="subDepartment"
+            type="com.simenko.qmapp.domain.DomainSubDepartment" />
+
+        <variable
+            name="subDepartmentCallback"
+            type="com.simenko.qmapp.fragments.SubDepartmentClick" />
+    </data>
+
+    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_margin="3dp">
+
+        <RelativeLayout
+            android:id="@+id/item_sub_department"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/first_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Abbr.:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/sub_department_abbr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="40"
+                    android:ellipsize="end"
+                    android:hint="subDepAbbr"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{subDepartment.subDepAbbr}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Order num.:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/sub_department_order_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:ellipsize="end"
+                    android:hint="subDepAbbr"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{Integer.toString(subDepartment.subDepOrder)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/second_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/first_line"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Sub dep.:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/sub_department_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="80"
+                    android:ellipsize="end"
+                    android:hint="subDepDesignation"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{subDepartment.subDepDesignation}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/sub_department_clickable_overlay"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignBottom="@id/second_line"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:background="?attr/selectableItemBackground"
+                android:onClick="@{() -> subDepartmentCallback.onClick(subDepartment, position)}" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/sub_department_expanded_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sub_department_clickable_overlay"
+                android:layout_margin="6dp"
+                android:visibility="@{subDepartment.channelsVisibility?View.VISIBLE:View.GONE}">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sub_department_channels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:textColor="@color/primary_variant_color"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

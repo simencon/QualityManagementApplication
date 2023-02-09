@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
-        <import type="com.simenko.qmapp.utils.StringUtils" />
+        <import type="android.view.View" />
+        <import type="com.simenko.qmapp.utils.StringUtils"/>
 
         <variable
-            name="order"
-            type="com.simenko.qmapp.domain.DomainOrderComplete" />
-
-        <variable
-            name="currentView"
-            type="android.view.View" />
+            name="childAdapter"
+            type="com.simenko.qmapp.fragments.Adapter_______SubDepartment" />
 
         <variable
             name="position"
             type="Integer" />
 
         <variable
-            name="orderCallback"
-            type="com.simenko.qmapp.fragments.OrderClick" />
+            name="department"
+            type="com.simenko.qmapp.domain.DomainDepartmentComplete" />
+
+        <variable
+            name="departmentCallback"
+            type="com.simenko.qmapp.fragments.DepartmentClick" />
     </data>
 
-    <androidx.cardview.widget.CardView
+    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -30,6 +31,7 @@
         android:layout_marginEnd="8dp">
 
         <RelativeLayout
+            android:id="@+id/item_department"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
@@ -37,8 +39,8 @@
                 android:id="@+id/first_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -46,58 +48,35 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="25"
+                    android:layout_weight="20"
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Order type:"
+                    android:text="Abbr./Comp.:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/department_abbr"
+                    android:id="@+id/department_company_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="53"
+                    android:layout_weight="80"
                     android:ellipsize="end"
-                    android:hint="Order type"
+                    android:hint="companyName"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderType.typeDescription}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/primary_variant_color" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="12"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:paddingStart="8dp"
-                    android:text="Num.:"
+                    android:text="@{StringUtils.concatTwoStrings(department.departments.depAbbr,department.companies.get(0).companyName)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/department_order_number"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="10"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:hint="Num."
-                    android:padding="@dimen/padding_insight_item"
-                    android:text="@{Integer.toString(order.order.orderNumber)}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/primary_variant_color" />
+
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/second_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/first_line"
                 android:layout_alignParentStart="true"
+                android:layout_below="@id/first_line"
                 android:layout_alignParentEnd="true"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -105,29 +84,28 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="25"
+                    android:layout_weight="20"
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Order reason:"
+                    android:text="Functions:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/department_name"
+                    android:id="@+id/functions"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="75"
+                    android:layout_weight="80"
                     android:ellipsize="end"
-                    android:hint="Order reason"
+                    android:hint="depOrganization"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderReason.reasonDescription}"
+                    android:text="@{department.departments.depOrganization}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:id="@+id/third_line"
@@ -142,28 +120,31 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="25"
+                    android:layout_weight="20"
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Ordered by:"
+                    android:text="Department:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/functions"
+                    android:id="@+id/department_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="75"
-                    android:hint="Ordered by"
+                    android:layout_weight="80"
+                    android:ellipsize="end"
+                    android:hint="depName"
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderPlacer.fullName}"
+                    android:text="@{department.departments.depName}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/fourth_line"
+                android:id="@+id/forth_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/third_line"
@@ -175,36 +156,64 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="25"
+                    android:layout_weight="20"
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Created:"
+                    android:text="Manager:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
+                    android:textSize="10sp" />
 
                 <TextView
                     android:id="@+id/department_manager"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="75"
-                    android:hint="created date"
+                    android:layout_weight="80"
+                    android:ellipsize="end"
+                    android:hint="depManager"
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.order.createdDate}"
+                    android:text="@{department.depManagerDetails.get(0).fullName}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
 
             <View
-                android:id="@+id/order_clickable_overlay"
+                android:id="@+id/department_clickable_overlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@id/fourth_line"
+                android:layout_alignBottom="@id/forth_line"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> orderCallback.onClick(position,currentView,order)}" />
+                android:onClick="@{() -> departmentCallback.onClick(department, position)}" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/department_expanded_layout"
+                android:background="#7B9EAC"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/department_clickable_overlay"
+                android:layout_margin="3dp"
+                android:padding="3dp"
+                android:visibility="@{department.departmentDetailsVisibility?View.VISIBLE:View.GONE}">
+
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/department_sub_departments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:textColor="@color/primary_variant_color"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         </RelativeLayout>
 

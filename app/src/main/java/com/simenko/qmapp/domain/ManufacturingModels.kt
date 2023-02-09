@@ -72,7 +72,8 @@ data class DomainManufacturingChannel(
     var subDepId: Int,
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
-    var channelOrder: Int? = null
+    var channelOrder: Int? = null,
+    var linesVisibility: Boolean = false
 )
 
 data class DomainManufacturingLine(
@@ -80,7 +81,8 @@ data class DomainManufacturingLine(
     var chId: Int,
     var lineAbbr: String,
     var lineDesignation: String,
-    var lineOrder: Int
+    var lineOrder: Int,
+    var operationVisibility: Boolean = false
 )
 
 data class DomainManufacturingOperation(

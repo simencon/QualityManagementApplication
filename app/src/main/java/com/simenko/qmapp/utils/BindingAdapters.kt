@@ -34,6 +34,11 @@ object StringUtils {
     }
 
     @JvmStatic
+    fun concatTwoStrings1(str1: String, str2: String): String {
+        return "$str1 ($str2)"
+    }
+
+    @JvmStatic
     fun concatThreeStrings(str1: String, str2: String, str3: String): String {
         return "$str1 / $str2 / $str3"
     }

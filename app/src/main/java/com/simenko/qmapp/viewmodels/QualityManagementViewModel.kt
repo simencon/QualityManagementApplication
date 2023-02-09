@@ -27,6 +27,9 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
     val departments = qualityManagementManufacturingRepository.departments
     val departmentsDetailed = qualityManagementManufacturingRepository.departmentsDetailed
     val subDepartments = qualityManagementManufacturingRepository.subDepartments
+    val channels = qualityManagementManufacturingRepository.channels
+    val lines = qualityManagementManufacturingRepository.lines
+    val operations = qualityManagementManufacturingRepository.operations
 
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
     val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons

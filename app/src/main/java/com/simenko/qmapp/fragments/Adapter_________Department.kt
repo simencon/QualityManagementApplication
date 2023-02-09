@@ -1,10 +1,8 @@
 package com.simenko.qmapp.fragments
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.constraintlayout.widget.ConstraintsChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
@@ -12,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
-import com.simenko.qmapp.domain.DomainSubDepartment
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
@@ -21,7 +18,7 @@ class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
 
 private const val TAG = "Adapter_____Department"
 
-class Adapter_____Department(
+class Adapter_________Department(
     val callback: DepartmentClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
@@ -53,10 +50,10 @@ class Adapter_____Department(
             it.position = position
 
             val subDepAdapter =
-                Adapter____SubDepartment(SubDepartmentClick { subDepartment, position ->
+                Adapter_______SubDepartment(SubDepartmentClick { subDepartment, position ->
                     subDepartment.channelsVisibility = !subDepartment.channelsVisibility
                     it.childAdapter?.notifyItemChanged(position)
-                })
+                }, viewModel, lifecycleOwner)
 
             it.childAdapter = subDepAdapter
 
@@ -83,7 +80,7 @@ class DepartmentViewHolder(val viewDataBinding: ItemDepartmentBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {
     companion object {
         @LayoutRes
-        val LAYOUT = R.layout.item______department
+        val LAYOUT = R.layout.item_________department
     }
 
 

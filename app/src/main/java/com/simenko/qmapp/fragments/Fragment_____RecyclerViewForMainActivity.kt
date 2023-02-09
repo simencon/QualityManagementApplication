@@ -12,14 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.Activity_____Main
 import com.simenko.qmapp.databinding.FragmentRvForMainActivityBinding
-import com.simenko.qmapp.domain.DomainDepartmentComplete
-import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 enum class Target {
     TEAM_MEMBERS,
@@ -47,14 +40,14 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
     private val rvAdapter by lazy {
         when (param1) {
             Target.TEAM_MEMBERS.name -> {
-                TeamMemberAdapter(
+                Adapter__________TeamMember(
                     TeamMemberClick {
                         Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
                     }
                 )
             }
             Target.DEPARTMENTS.name -> {
-                Adapter_____Department(
+                Adapter_________Department(
                     DepartmentClick { item, position ->
                         item.departmentDetailsVisibility = !item.departmentDetailsVisibility
                         updateOneRvItem(position)
@@ -62,12 +55,12 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                 )
             }
             Target.SUB_DEPARTMENTS.name -> {
-                Adapter____SubDepartment(
+                Adapter_______SubDepartment(
                     SubDepartmentClick { subDepartment, position ->
                         subDepartment.channelsVisibility = !subDepartment.channelsVisibility
 //                        Toast.makeText(context, subDepartment.selectedRecord(), Toast.LENGTH_LONG).show()
                         updateOneRvItem(position)
-                    }
+                    }, viewModel, viewLifecycleOwner
                 )
             }
             else -> null
@@ -132,7 +125,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as TeamMemberAdapter).itemsList = items
+                            (rvAdapter as Adapter__________TeamMember).itemsList = items
                         }
                     })
             }
@@ -141,7 +134,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as Adapter_____Department).itemsList = items
+                            (rvAdapter as Adapter_________Department).itemsList = items
                         }
                     })
             }
@@ -150,7 +143,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as Adapter____SubDepartment).itemsList = items
+                            (rvAdapter as Adapter_______SubDepartment).itemsList = items
                         }
                     })
             }

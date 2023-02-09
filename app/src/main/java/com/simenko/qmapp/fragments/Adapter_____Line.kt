@@ -1,0 +1,66 @@
+package com.simenko.qmapp.fragments
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.annotation.LayoutRes
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.RecyclerView
+import com.simenko.qmapp.R
+import com.simenko.qmapp.databinding.ItemChannelBinding
+import com.simenko.qmapp.databinding.ItemLineBinding
+import com.simenko.qmapp.databinding.ItemSubDepartmentBinding
+import com.simenko.qmapp.domain.DomainManufacturingChannel
+import com.simenko.qmapp.domain.DomainManufacturingLine
+import com.simenko.qmapp.domain.DomainSubDepartment
+import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+
+class LineClick(val block: (DomainManufacturingLine, Int) -> Unit) {
+    fun onClick(line: DomainManufacturingLine, position: Int) = block(line, position)
+}
+
+class Adapter______Line(
+    val callback: LineClick,
+    val viewModel: QualityManagementViewModel,
+    private val lifecycleOwner: LifecycleOwner
+) :
+    RecyclerView.Adapter<LineViewHolder>() {
+    var itemsList: List<DomainManufacturingLine> = emptyList()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LineViewHolder {
+
+        val withDataBinding: ItemLineBinding = DataBindingUtil
+            .inflate(
+                LayoutInflater.from(parent.context),
+                LineViewHolder.LAYOUT,
+                parent,
+                false
+            )
+        return LineViewHolder(withDataBinding)
+    }
+
+    override fun onBindViewHolder(holder: LineViewHolder, position: Int) {
+        holder.viewDataBinding.also {
+            it.manLine = itemsList[position]
+            it.manLineCallback = callback
+            it.position = position
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return itemsList.size
+    }
+}
+
+class LineViewHolder(val viewDataBinding: ItemLineBinding) :
+    RecyclerView.ViewHolder(viewDataBinding.root) {
+    companion object {
+        @LayoutRes
+        val LAYOUT = R.layout.item______line
+    }
+
+}

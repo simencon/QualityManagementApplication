@@ -19,11 +19,11 @@ class TeamMemberViewHolder(val viewDataBinding: ItemTeamMemberBinding) :
     RecyclerView.ViewHolder(viewDataBinding.root) {
     companion object {
         @LayoutRes
-        val LAYOUT = R.layout.item_______team_member
+        val LAYOUT = R.layout.item__________team_member
     }
 }
 
-class TeamMemberAdapter(val callback: TeamMemberClick) :
+class Adapter__________TeamMember(val callback: TeamMemberClick) :
     RecyclerView.Adapter<TeamMemberViewHolder>() {
 
     var itemsList: List<DomainTeamMember> = emptyList()
