@@ -12,7 +12,6 @@ import com.simenko.qmapp.fragments.TargetInv
 /**
  * The number of pages (wizard steps) to show in this demo = [tabTitles].size.
  */
-val tabTitles = arrayOf("Home", "Chat", "Notification", "Account")
 
 class OrderSectionPagerAdapter(private val fa: Fragment______ViewPagerContainer) :
     FragmentStateAdapter(fa) {
@@ -22,12 +21,8 @@ class OrderSectionPagerAdapter(private val fa: Fragment______ViewPagerContainer)
 
     private var parentId = 0
 
-    fun setParentId(parentId: Int) {
-        this.parentId = parentId
-    }
-
     override fun getItemCount(): Int {
-        return tabTitles.size
+        return TargetInv.values().size
     }
 
     override fun createFragment(position: Int): Fragment {

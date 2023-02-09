@@ -54,13 +54,16 @@ class Fragment______ViewPagerContainer : Fragment(), SendMessage {
     }
 
     override fun sendData(message: Int) {
-        val currentItem = getItem(+1)
-        viewPager.currentItem = currentItem
-        viewModel.subOrderParentId.value = message
+        var currentPage = viewPager.currentItem
+        when (currentPage) {
+            0 -> {
+                viewPager.currentItem = ++currentPage
+                viewModel.subOrderParentId.value = message
+            }
+            else -> {
+            }
+        }
     }
-
-    private fun getItem(i: Int) = viewPager.currentItem + i
-
 }
 
 interface SendMessage {

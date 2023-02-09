@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
+        <import type="android.view.View" />
 
         <import type="com.simenko.qmapp.utils.StringUtils" />
 
@@ -31,14 +34,15 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/level_1_record_color">
 
             <LinearLayout
                 android:id="@+id/first_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -58,7 +62,7 @@
                     android:id="@+id/department_abbr"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="53"
+                    android:layout_weight="50"
                     android:ellipsize="end"
                     android:hint="Order type"
                     android:maxLines="1"
@@ -67,29 +71,6 @@
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/primary_variant_color" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="12"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:paddingStart="8dp"
-                    android:text="Num.:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/department_order_number"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="10"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:hint="Num."
-                    android:padding="@dimen/padding_insight_item"
-                    android:text="@{Integer.toString(order.order.orderNumber)}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="@color/primary_variant_color" />
             </LinearLayout>
 
             <LinearLayout
@@ -109,7 +90,7 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Order reason:"
+                    android:text="Customer:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="12sp" />
 
@@ -117,13 +98,39 @@
                     android:id="@+id/department_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="75"
+                    android:layout_weight="38"
                     android:ellipsize="end"
-                    android:hint="Order reason"
+                    android:hint="depAbbr"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderReason.reasonDescription}"
+                    android:text="@{order.customer.depAbbr}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="12"
+                    android:ellipsize="middle"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Num.:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/department_order_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="25"
+                    android:ellipsize="middle"
+                    android:gravity="start"
+                    android:hint="Num."
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{Integer.toString(order.order.orderNumber)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
@@ -146,7 +153,7 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Ordered by:"
+                    android:text="Order reason:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="12sp" />
 
@@ -154,32 +161,21 @@
                     android:id="@+id/functions"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="75"
-                    android:hint="Ordered by"
+                    android:layout_weight="35"
+                    android:hint="reasonDescription"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.orderPlacer.fullName}"
+                    android:text="@{order.orderReason.reasonDescription}"
                     android:textColor="@color/primary_variant_color" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fourth_line"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/third_line"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:orientation="horizontal"
-                android:weightSum="100">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="25"
+                    android:layout_weight="15"
                     android:ellipsize="middle"
+                    android:gravity="end"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Created:"
+                    android:text="Status:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="12sp" />
 
@@ -187,10 +183,13 @@
                     android:id="@+id/department_manager"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="75"
-                    android:hint="created date"
+                    android:layout_weight="25"
+                    android:ellipsize="middle"
+                    android:gravity="start"
+                    android:hint="statusDescription"
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{order.order.createdDate}"
+                    android:text="@{order.orderStatus.statusDescription}"
                     android:textColor="@color/primary_variant_color" />
 
             </LinearLayout>
@@ -199,12 +198,198 @@
                 android:id="@+id/order_clickable_overlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@id/fourth_line"
+                android:layout_alignBottom="@id/third_line"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
                 android:onClick="@{() -> orderCallback.onClick(position,currentView,order)}" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/operation_expanded_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/order_clickable_overlay"
+                android:layout_margin="6dp"
+                android:visibility="@{order.detailsVisibility?View.VISIBLE:View.GONE}">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/accent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/fourth_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="35"
+                        android:ellipsize="middle"
+                        android:maxLines="1"
+                        android:paddingStart="8dp"
+                        android:text="Ordered by:"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/ordered_by"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="65"
+                        android:hint="fullName"
+                        android:padding="@dimen/padding_insight_item"
+                        android:text="@{order.orderPlacer.fullName}"
+                        android:textColor="@color/primary_variant_color" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/fifth_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fourth_line">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="35"
+                        android:ellipsize="middle"
+                        android:maxLines="1"
+                        android:paddingStart="8dp"
+                        android:text="Order date:"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/order_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="65"
+                        android:hint="createdDate"
+                        android:padding="@dimen/padding_insight_item"
+                        android:text="@{order.order.createdDate}"
+                        android:textColor="@color/primary_variant_color" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/sixth_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/fifth_line">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="35"
+                        android:ellipsize="middle"
+                        android:maxLines="1"
+                        android:paddingStart="8dp"
+                        android:text="Completion date:"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/completion_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="65"
+                        android:hint="completedDate"
+                        android:padding="@dimen/padding_insight_item"
+                        android:text="@{order.order.completedDate}"
+                        android:textColor="@color/primary_variant_color" />
+                </LinearLayout>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/delete_record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:contentDescription="@string/delete_btn"
+                    android:src="@drawable/ic_delete"
+                    app:backgroundTint="@color/accent"
+                    app:elevation="6dp"
+                    app:fabSize="mini"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/sixth_line" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/edit_record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:contentDescription="@string/edit_btn"
+                    android:src="@drawable/ic_edit"
+                    app:backgroundTint="@color/accent"
+                    app:elevation="6dp"
+                    app:fabSize="mini"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/delete_record"
+                    app:layout_constraintTop_toBottomOf="@id/sixth_line" />
+
+                <LinearLayout
+                    android:id="@+id/show_sub_order_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/background_____corner_radius"
+                    android:orientation="horizontal"
+                    android:padding="3dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/edit_record"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/sixth_line">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_menu" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Sub orders"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        android:textColor="@color/primary_variant_color"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/sub_orders_clickable_overlay"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{() -> orderCallback.onClick(position,currentView,order)}"
+                    app:layout_constraintBottom_toBottomOf="@id/show_sub_order_button"
+                    app:layout_constraintEnd_toEndOf="@id/show_sub_order_button"
+                    app:layout_constraintStart_toStartOf="@id/show_sub_order_button"
+                    app:layout_constraintTop_toTopOf="@id/show_sub_order_button" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </RelativeLayout>
 

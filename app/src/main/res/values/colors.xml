@@ -22,4 +22,11 @@
     <color name="thread_simple_btn_color">#FFE3D8</color>
     <color name="accent">#ffa480</color>
     <color name="hint_text_color">#757570</color>
+
+    <color name="level_1_record_color">#51BFCDD3</color>
+    <color name="level_2_record_color">#A8BFCDD3</color>
+    <color name="level_3_record_color">#FDBFCDD3</color>
+    <color name="level_4_record_color">#FDAEC9D5</color>
+    <color name="level_5_record_color">#FD8AB7CC</color>
+
 </resources>

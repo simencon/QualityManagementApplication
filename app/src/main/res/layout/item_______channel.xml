@@ -33,7 +33,7 @@
             android:id="@+id/item_sub_department"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#FDBFCDD3">
+            android:background="@color/level_3_record_color">
 
             <LinearLayout
                 android:id="@+id/first_line"

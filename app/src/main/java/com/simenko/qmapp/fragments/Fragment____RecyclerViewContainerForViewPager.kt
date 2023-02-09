@@ -20,7 +20,8 @@ enum class TargetInv() {
     ORDERS,
     TASKS,
     ITEMS,
-    RESULTS
+    RESULTS,
+    FOR_TESTING
 }
 
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -107,13 +108,6 @@ class Fragment____RecyclerViewContainerForViewPager(
                         SubOrderAdapter.lastCheckedPos = position
                     }
                 )
-//                viewModel.completeSubOrders.observe(
-//                    viewLifecycleOwner,
-//                    Observer { items ->
-//                        items?.apply {
-//                            rv.itemsList = items
-//                        }
-//                    })
                 viewModel.subOrderLiveData.observe(
                     viewLifecycleOwner,
                     Observer { items ->
@@ -169,22 +163,6 @@ class Fragment____RecyclerViewContainerForViewPager(
         }
         requireContext().theme
         return binding.root
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        filterRecyclerView()
-    }
-
-    private fun filterRecyclerView() {
-        when (param1) {
-            TargetInv.TASKS.name -> {
-                if (viewModel.subOrderParentId.value != -1) {
-                    (rvAdapter as SubOrderAdapter).filter.filter(viewModel.subOrderParentId.value.toString())
-                }
-            }
-            else -> {}
-        }
     }
 
     companion object {
