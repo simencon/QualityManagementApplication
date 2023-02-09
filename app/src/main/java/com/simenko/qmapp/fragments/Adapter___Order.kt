@@ -63,13 +63,13 @@ class OrderAdapter(private val callbackImplementedIn: Fragment______ViewPagerCon
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.position = position
-            it.currentView = it.clickableOverlay
+            it.currentView = it.orderClickableOverlay
             it.order = itemsList[position]
 
             if(OrderAdapter.lastCheckedPos == position) {
-                it.clickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
+                it.orderClickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
             } else {
-                it.clickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(requireNotNull(callbackImplementedIn.context)).resourceId)
+                it.orderClickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(requireNotNull(callbackImplementedIn.context)).resourceId)
             }
 
             it.orderCallback = callback

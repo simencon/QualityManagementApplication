@@ -14,10 +14,6 @@
             type="Integer" />
 
         <variable
-            name="parentId"
-            type="Integer" />
-
-        <variable
             name="department"
             type="com.simenko.qmapp.domain.DomainDepartmentComplete" />
 
@@ -39,7 +35,7 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/text_order_type"
+                android:id="@+id/department_abbr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -49,11 +45,11 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
             <TextView
-                android:id="@+id/order_reason"
+                android:id="@+id/department_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/text_order_type"
+                android:layout_toStartOf="@id/department_abbr"
                 android:ellipsize="end"
                 android:hint="depName"
                 android:maxLines="1"
@@ -62,41 +58,41 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
             <TextView
-                android:id="@+id/text_ordered_by"
+                android:id="@+id/functions"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/order_reason"
+                android:layout_below="@id/department_name"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/text_order_date"
+                android:layout_toStartOf="@id/department_manager"
                 android:hint="depOrganization"
                 android:padding="@dimen/padding_insight_item"
                 android:text="@{department.departments.depOrganization}" />
 
             <TextView
-                android:id="@+id/text_order_date"
+                android:id="@+id/department_manager"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/order_reason"
-                android:layout_toStartOf="@id/text_order_number"
+                android:layout_below="@id/department_name"
+                android:layout_toStartOf="@id/department_order_number"
                 android:hint="depManager"
                 android:padding="@dimen/padding_insight_item"
                 android:text="@{department.depManagerDetails.get(0).fullName}" />
 
             <TextView
-                android:id="@+id/text_order_number"
+                android:id="@+id/department_order_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/order_reason"
-                android:layout_alignEnd="@id/text_order_type"
+                android:layout_below="@id/department_name"
+                android:layout_alignEnd="@id/department_abbr"
                 android:hint="Company name"
                 android:padding="@dimen/padding_insight_item"
                 android:text="@{department.companies.get(0).companyName}" />
 
             <View
-                android:id="@+id/clickableOverlay"
+                android:id="@+id/department_clickable_overlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@id/text_ordered_by"
+                android:layout_alignBottom="@id/functions"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
@@ -104,16 +100,16 @@
                 android:onClick="@{() -> departmentCallback.onClick(department, position)}" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/expanded_layout"
+                android:id="@+id/department_expanded_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/clickableOverlay"
+                android:layout_below="@id/department_clickable_overlay"
                 android:layout_margin="6dp"
                 android:visibility="@{department.departmentDetailsVisibility?View.VISIBLE:View.GONE}">
 
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/item_details"
+                    android:id="@+id/department_sub_departments"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"

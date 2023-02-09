@@ -115,13 +115,13 @@ class SubOrderAdapter(
     override fun onBindViewHolder(holder: SubOrderViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.position = position
-            it.currentView = it.clickableOverlay
+            it.currentView = it.subOrderClickableOverlay
             it.order = itemsListFiltered[position]
 
             if (SubOrderAdapter.lastCheckedPos == position) {
-                it.clickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
+                it.subOrderClickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
             } else {
-                it.clickableOverlay.setBackgroundResource(
+                it.subOrderClickableOverlay.setBackgroundResource(
                     AdapterUtils.getNormalBackground(
                         fragmentContext
                     ).resourceId

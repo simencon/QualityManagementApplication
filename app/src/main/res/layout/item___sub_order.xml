@@ -54,7 +54,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/text_order_type"
+                    android:id="@+id/department_abbr"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="53"
@@ -78,7 +78,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/text_order_number"
+                    android:id="@+id/department_order_number"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="10"
@@ -113,7 +113,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/order_reason"
+                    android:id="@+id/department_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="75"
@@ -150,7 +150,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/text_ordered_by"
+                    android:id="@+id/functions"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="75"
@@ -183,7 +183,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/text_order_date"
+                    android:id="@+id/department_manager"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="75"
@@ -195,7 +195,7 @@
             </LinearLayout>
 
             <View
-                android:id="@+id/clickableOverlay"
+                android:id="@+id/sub_order_clickable_overlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignBottom="@id/fourth_line"

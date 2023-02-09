@@ -16,6 +16,10 @@ import com.simenko.qmapp.domain.DomainDepartmentComplete
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 enum class Target {
     TEAM_MEMBERS,
@@ -54,8 +58,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     DepartmentClick { item, position ->
                         item.departmentDetailsVisibility = !item.departmentDetailsVisibility
                         updateOneRvItem(position)
-//                        Toast.makeText(context, item.selectedRecord(), Toast.LENGTH_LONG).show()
-                    }
+                    }, viewModel, viewLifecycleOwner
                 )
             }
             Target.SUB_DEPARTMENTS.name -> {

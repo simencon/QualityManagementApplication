@@ -1,27 +1,39 @@
 package com.simenko.qmapp.fragments
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintsChangedListener
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
 import com.simenko.qmapp.domain.DomainSubDepartment
+import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
     fun onClick(department: DomainDepartmentComplete, position: Int) = block(department, position)
 }
 
-class Adapter_____Department(val callback: DepartmentClick) :
-    RecyclerView.Adapter<DepartmentViewHolder>()
-    {
+private const val TAG = "Adapter_____Department"
+
+class Adapter_____Department(
+    val callback: DepartmentClick,
+    val viewModel: QualityManagementViewModel,
+    private val lifecycleOwner: LifecycleOwner
+) :
+    RecyclerView.Adapter<DepartmentViewHolder>() {
+
     var itemsList: List<DomainDepartmentComplete> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DepartmentViewHolder {
 
         val withDataBinding: ItemDepartmentBinding = DataBindingUtil
@@ -39,22 +51,26 @@ class Adapter_____Department(val callback: DepartmentClick) :
             it.department = itemsList[position]
             it.departmentCallback = callback
             it.position = position
-            it.parentId = itemsList[position].departments.id
 
-            val subDepAdapter = Adapter____SubDepartment(SubDepartmentClick { subDepartment, position ->
-                subDepartment.channelsVisibility = !subDepartment.channelsVisibility
-                it.childAdapter?.notifyItemChanged(position)
-            })
+            val subDepAdapter =
+                Adapter____SubDepartment(SubDepartmentClick { subDepartment, position ->
+                    subDepartment.channelsVisibility = !subDepartment.channelsVisibility
+                    it.childAdapter?.notifyItemChanged(position)
+                })
 
             it.childAdapter = subDepAdapter
 
-//            ToDo - how to bring here live data?
-            subDepAdapter.itemsList = listOf(
-                DomainSubDepartment(1,1,"testAbbr1","testName1",1,false),
-                DomainSubDepartment(1,1,"testAbbr2","testName2",2,false)
-            )
+            it.departmentSubDepartments.adapter = it.childAdapter
 
-            it.itemDetails.adapter = subDepAdapter
+            this.viewModel.subDepartments.observe(this.lifecycleOwner,
+                Observer { items ->
+                    items?.apply {
+                        subDepAdapter.itemsList =
+                            items.filter { item -> item.depId == itemsList[position].departments.id }
+                                .toList()
+                    }
+                }
+            )
         }
     }
 
