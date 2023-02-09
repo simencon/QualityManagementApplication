@@ -6,6 +6,7 @@
     tools:context=".fragments.Fragment____RecyclerViewForMainActivity">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.simenko.qmapp.viewmodels.QualityManagementViewModel" />
@@ -13,24 +14,18 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/holo_green_light">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/fragment_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="First page"/>
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scrollbars="vertical"
                 tools:listitem="@layout/item_________department" />
 
         </LinearLayout>
@@ -40,8 +35,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:isNetworkError="@{safeUnbox(viewModel.eventNetworkError)}"
-            app:departments="@{viewModel.departmentsDetailed}" />
+            app:departments="@{viewModel.departmentsDetailed}"
+            app:isNetworkError="@{safeUnbox(viewModel.eventNetworkError)}" />
 
     </FrameLayout>
 

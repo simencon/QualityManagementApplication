@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -25,20 +26,21 @@
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_margin="3dp">
+        android:layout_margin="3dp"
+        android:layout_marginStart="8dp">
 
         <RelativeLayout
             android:id="@+id/item_sub_department"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="#FDAEC9D5">
 
             <LinearLayout
                 android:id="@+id/first_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:orientation="horizontal"
                 android:weightSum="100">
@@ -50,44 +52,20 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Abbr.:"
+                    android:text="Line:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/line_abbr"
+                    android:id="@+id/line_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="40"
+                    android:layout_weight="80"
                     android:ellipsize="end"
-                    android:hint="channelAbbr"
+                    android:hint="channelDesignation"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{manLine.lineAbbr}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="@color/primary_variant_color" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:paddingStart="8dp"
-                    android:text="Order num.:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="10sp" />
-
-                <TextView
-                    android:id="@+id/line_order_number"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20"
-                    android:ellipsize="end"
-                    android:hint="channelOrder"
-                    android:maxLines="1"
-                    android:padding="@dimen/padding_insight_item"
-                    android:text="@{Integer.toString(manLine.lineOrder)}"
+                    android:text="@{manLine.lineDesignation}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -110,20 +88,44 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Channel:"
+                    android:text="Abbr.:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="10sp" />
 
                 <TextView
-                    android:id="@+id/line_name"
+                    android:id="@+id/line_abbr"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="80"
+                    android:layout_weight="55"
                     android:ellipsize="end"
-                    android:hint="channelDesignation"
+                    android:hint="channelAbbr"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{manLine.lineDesignation}"
+                    android:text="@{manLine.lineAbbr}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="15"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Order:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/line_order_number"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="10"
+                    android:ellipsize="end"
+                    android:hint="channelOrder"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{Integer.toString(manLine.lineOrder)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 

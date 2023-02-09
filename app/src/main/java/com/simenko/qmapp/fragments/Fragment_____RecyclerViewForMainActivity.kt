@@ -14,16 +14,21 @@ import com.simenko.qmapp.Activity_____Main
 import com.simenko.qmapp.databinding.FragmentRvForMainActivityBinding
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
-enum class Target {
-    TEAM_MEMBERS,
-    DEPARTMENTS,
-    SUB_DEPARTMENTS,
-    ORDERS;
+enum class Target (val title: String) {
+    TEAM_MEMBERS ("Company employees"),
+    DEPARTMENTS ("Company structure"),
+    SUB_DEPARTMENTS ("Company products"),
+    ORDERS ("Investigations");
 }
 
 private const val ARG_PARAM1 = "TARGET_LIST"
 
 class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
+
+    constructor() : this("restored") {
+
+    }
+
     private var param1: String? = null
 
     /**
@@ -83,8 +88,6 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
             container,
             false
         )
-
-        binding.root.findViewById<TextView>(R.id.fragment_title).text = title
 
         binding.setLifecycleOwner(viewLifecycleOwner)
 

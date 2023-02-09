@@ -61,7 +61,7 @@ class Activity_____Main : AppCompatActivity(), NavigationView.OnNavigationItemSe
         val navigationView: NavigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
         }
     }
@@ -112,15 +112,48 @@ class Activity_____Main : AppCompatActivity(), NavigationView.OnNavigationItemSe
         }
         mPreviousMenuItem = item
 
+        lateinit var target: Target
         val selectedFragment =
             when (item.getItemId()) {
-                R.id.nav_team -> Fragment____RecyclerViewForMainActivity.newInstance("Team", Target.TEAM_MEMBERS)
-                R.id.nav_structure -> Fragment____RecyclerViewForMainActivity.newInstance("Departments", Target.DEPARTMENTS)
-                R.id.nav_products -> Fragment____RecyclerViewForMainActivity.newInstance("Sub departments", Target.SUB_DEPARTMENTS)
-                R.id.nav_inv_orders_general -> Fragment______ViewPagerContainer()
-                R.id.nav_new_order -> Fragment_____NewOrder()
-                else -> Fragment____RecyclerViewForMainActivity.newInstance("Departments", Target.DEPARTMENTS)
+                R.id.nav_team -> {
+                    target = Target.TEAM_MEMBERS
+                    Fragment____RecyclerViewForMainActivity.newInstance(
+                        "Team",
+                        Target.TEAM_MEMBERS
+                    )
+                }
+                R.id.nav_structure -> {
+                    target = Target.DEPARTMENTS
+                    Fragment____RecyclerViewForMainActivity.newInstance(
+                        "Departments",
+                        Target.DEPARTMENTS
+                    )
+                }
+                R.id.nav_products -> {
+                    target = Target.SUB_DEPARTMENTS
+                    Fragment____RecyclerViewForMainActivity.newInstance(
+                        "Sub departments",
+                        Target.SUB_DEPARTMENTS
+                    )
+                }
+                R.id.nav_inv_orders_general -> {
+                    target = Target.ORDERS
+                    Fragment______ViewPagerContainer()
+                }
+
+                R.id.nav_new_order -> {
+                    target = Target.ORDERS
+                    Fragment_____NewOrder()
+                }
+                else -> {
+                    target = Target.DEPARTMENTS
+                    Fragment____RecyclerViewForMainActivity.newInstance(
+                        "Departments",
+                        Target.DEPARTMENTS
+                    )
+                }
             }
+        this.title = target.title
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, selectedFragment).commit()

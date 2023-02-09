@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <import type="android.view.View" />
-        <import type="com.simenko.qmapp.utils.StringUtils"/>
+
+        <import type="com.simenko.qmapp.utils.StringUtils" />
 
         <variable
             name="childAdapter"
@@ -33,7 +35,8 @@
         <RelativeLayout
             android:id="@+id/item_department"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="#51BFCDD3">
 
             <LinearLayout
                 android:id="@+id/first_line"
@@ -75,43 +78,7 @@
                 android:id="@+id/second_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
                 android:layout_below="@id/first_line"
-                android:layout_alignParentEnd="true"
-                android:orientation="horizontal"
-                android:weightSum="100">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="20"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:paddingStart="8dp"
-                    android:text="Functions:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="10sp" />
-
-                <TextView
-                    android:id="@+id/functions"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="80"
-                    android:ellipsize="end"
-                    android:hint="depOrganization"
-                    android:maxLines="1"
-                    android:padding="@dimen/padding_insight_item"
-                    android:text="@{department.departments.depOrganization}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="@color/primary_variant_color" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/third_line"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/second_line"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentEnd="true"
                 android:orientation="horizontal"
@@ -138,6 +105,42 @@
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
                     android:text="@{department.departments.depName}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/third_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/second_line"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="20"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Functions:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/functions"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="80"
+                    android:ellipsize="end"
+                    android:hint="depOrganization"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{department.departments.depOrganization}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -192,14 +195,11 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/department_expanded_layout"
-                android:background="#7B9EAC"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/department_clickable_overlay"
-                android:layout_margin="3dp"
-                android:padding="3dp"
+                android:layout_margin="6dp"
                 android:visibility="@{department.departmentDetailsVisibility?View.VISIBLE:View.GONE}">
-
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/department_sub_departments"
