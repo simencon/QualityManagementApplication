@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -18,11 +19,12 @@
             type="com.simenko.qmapp.fragments.SubOrderTaskClick" />
     </data>
 
-    <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
-        android:layout_marginStart="8dp">
+        android:layout_marginStart="8dp"
+        app:cardCornerRadius="7dp">
 
         <RelativeLayout
             android:id="@+id/item_characteristic"
@@ -105,8 +107,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="15"
                     android:ellipsize="middle"
-                    android:maxLines="1"
                     android:gravity="end"
+                    android:maxLines="1"
                     android:paddingStart="8dp"
                     android:text="Status:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
@@ -130,10 +132,10 @@
 
             <ImageView
                 android:id="@+id/to_measurements"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:src="@drawable/ic_arrow_right" />
 
             <View

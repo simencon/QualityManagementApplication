@@ -36,7 +36,7 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
 
 class Adapter____Order(
     private val callbackOrderDetails: OrderClick,
-    val callbackOrderSubOrders: OrderSubOrdersClick,
+    private val callbackOrderSubOrders: OrderSubOrdersClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
 ) :
@@ -70,6 +70,9 @@ class Adapter____Order(
             val subOrderAdapter =
                 Adapter___SubOrder(SubOrderClick { subOrder, position ->
                     subOrder.detailsVisibility = !subOrder.detailsVisibility
+                    it.childAdapter?.notifyItemChanged(position)
+                },SubOrderTasksClick { subOrder, position ->
+                    subOrder.tasksVisibility = !subOrder.tasksVisibility
                     it.childAdapter?.notifyItemChanged(position)
                 }, viewModel, lifecycleOwner)
 

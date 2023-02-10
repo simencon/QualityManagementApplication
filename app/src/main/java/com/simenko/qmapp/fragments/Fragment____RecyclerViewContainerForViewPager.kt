@@ -101,6 +101,9 @@ class Fragment____RecyclerViewContainerForViewPager(
                     SubOrderClick {subOrder, position  ->
                         subOrder.detailsVisibility = !subOrder.detailsVisibility
                         updateOneRvItem(position)
+                    },SubOrderTasksClick { subOrder, position ->
+                        subOrder.tasksVisibility = !subOrder.tasksVisibility
+                        updateOneRvItem(position)
                     },viewModel, viewLifecycleOwner
                 )
                 viewModel.completeSubOrders.observe(

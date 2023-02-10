@@ -1,5 +1,6 @@
 package com.simenko.qmapp.fragments
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
@@ -11,11 +12,17 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubOrderBinding
+import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainSubOrderComplete
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 
 class SubOrderClick(val block: (DomainSubOrderComplete, Int) -> Unit) {
+    fun onClick(subOrder: DomainSubOrderComplete, position: Int): Unit {
+        return block(subOrder, position)
+    }
+}
+class SubOrderTasksClick(val block: (DomainSubOrderComplete, Int) -> Unit) {
     fun onClick(subOrder: DomainSubOrderComplete, position: Int): Unit {
         return block(subOrder, position)
     }
@@ -29,8 +36,11 @@ class SubOrderViewHolder(val viewDataBinding: ItemSubOrderBinding) :
     }
 }
 
+private const val TAG = "Adapter___SubOrder"
+
 class Adapter___SubOrder(
-    val callback: SubOrderClick,
+    private val callbackSubOrderDetails: SubOrderClick,
+    private val callbackSubOrderTasks: SubOrderTasksClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
 ) :
@@ -107,7 +117,8 @@ class Adapter___SubOrder(
     override fun onBindViewHolder(holder: SubOrderViewHolder, position: Int) {
         holder.viewDataBinding.also {
             it.subOrder = itemsListFiltered[position]
-            it.subOrderCallback = callback
+            it.subOrderCallback = callbackSubOrderDetails
+            it.subOrderTasksCallback = callbackSubOrderTasks
             it.position = position
 
             val subOrderTaskAdapter =
@@ -125,7 +136,10 @@ class Adapter___SubOrder(
                 Observer { items ->
                     items?.apply {
                         subOrderTaskAdapter.itemsList =
-                            items.filter { item -> item.subOrderTask.subOrderId == itemsList[position].subOrder.id }
+                            items.filter { item ->
+                                Log.d(TAG, "onBindViewHolder: childID: ${item.subOrderTask.subOrderId}/parentID: ${itemsList[position].subOrder.id}")
+                                item.subOrderTask.subOrderId == itemsList[position].subOrder.id
+                            }
                                 .toList()
                     }
                 }

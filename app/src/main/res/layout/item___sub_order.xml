@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -23,6 +24,10 @@
         <variable
             name="subOrderCallback"
             type="com.simenko.qmapp.fragments.SubOrderClick" />
+
+        <variable
+            name="subOrderTasksCallback"
+            type="com.simenko.qmapp.fragments.SubOrderTasksClick" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -512,7 +517,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="?attr/selectableItemBackground"
-                    android:onClick="@{() -> subOrderCallback.onClick(subOrder, position)}"
+                    android:onClick="@{() -> subOrderTasksCallback.onClick(subOrder, position)}"
                     app:layout_constraintBottom_toBottomOf="@id/show_characteristics_button"
                     app:layout_constraintEnd_toEndOf="@id/show_characteristics_button"
                     app:layout_constraintStart_toStartOf="@id/show_characteristics_button"
@@ -533,11 +538,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
+                    android:background="@color/transparent"
                     android:textColor="@color/primary_variant_color"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:listitem="@layout/item__sub_order_task"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

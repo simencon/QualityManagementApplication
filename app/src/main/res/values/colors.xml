@@ -16,6 +16,7 @@
 <!--    <color name="color_on_secondary">#FF000000</color>-->
 <!--    <color name="color_on_primary">#FFFFFFFF</color>-->
 <!--    <color name="color_accent">#FF03DAC5</color>-->
+    <color name="transparent">#00FFFFFF</color>
     <color name="primary_variant_color">#0A043C</color>
     <color name="primary_color">#03506F</color>
     <color name="thread_detailed_btn_color">#BBBBBB</color>
