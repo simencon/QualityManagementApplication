@@ -29,7 +29,7 @@ class SubOrderViewHolder(val viewDataBinding: ItemSubOrderBinding) :
     }
 }
 
-class SubOrderAdapter(
+class Adapter__SubOrder(
     val activity: FragmentActivity,
     val fragmentContext: Context,
     val callback: SubOrderClick
@@ -68,7 +68,7 @@ class SubOrderAdapter(
     }
 
     private class MyFilter(
-        private val adapter: SubOrderAdapter,
+        private val adapter: Adapter__SubOrder,
         private val originalList: List<DomainSubOrderComplete>
     ) : Filter() {
         private val results: FilterResults = object : FilterResults() {}
@@ -116,9 +116,9 @@ class SubOrderAdapter(
         holder.viewDataBinding.also {
             it.position = position
             it.currentView = it.subOrderClickableOverlay
-            it.order = itemsListFiltered[position]
-
-            if (SubOrderAdapter.lastCheckedPos == position) {
+            it.subOrder = itemsListFiltered[position]
+//            ToDo      To highlight latest item (later use for measurements results)
+            /*if (Adapter__SubOrder.lastCheckedPos == position) {
                 it.subOrderClickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
             } else {
                 it.subOrderClickableOverlay.setBackgroundResource(
@@ -126,9 +126,9 @@ class SubOrderAdapter(
                         fragmentContext
                     ).resourceId
                 )
-            }
+            }*/
 
-            it.orderCallback = callback
+            it.subOrderCallback = callback
         }
     }
 

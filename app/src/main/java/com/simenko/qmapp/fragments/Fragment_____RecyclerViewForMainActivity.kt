@@ -2,7 +2,6 @@ package com.simenko.qmapp.fragments
 
 import android.os.Bundle
 import android.view.*
-import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -155,7 +154,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as OrderAdapter).itemsList = items
+                            (rvAdapter as Adapter___Order).itemsList = items
                         }
                     })
             }

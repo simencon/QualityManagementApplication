@@ -30,7 +30,7 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
     }
 }
 
-class OrderAdapter(private val callbackImplementedIn: Fragment______ViewPagerContainer, val callback: OrderClick) :
+class Adapter___Order(private val callbackImplementedIn: Fragment______ViewPagerContainer, val callback: OrderClick) :
     RecyclerView.Adapter<OrderViewHolder>() {
 
     init {

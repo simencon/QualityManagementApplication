@@ -131,7 +131,8 @@ data class DomainSubOrderComplete constructor(
     var subDepartment: DomainSubDepartment,
     var channel: DomainManufacturingChannel,
     var line: DomainManufacturingLine,
-    var operation: DomainManufacturingOperation
+    var operation: DomainManufacturingOperation,
+    var detailsVisibility: Boolean = false
 )
 
 //ToDo just to test

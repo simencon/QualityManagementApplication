@@ -74,7 +74,7 @@ class Fragment____RecyclerViewContainerForViewPager(
         when (param1) {
             TargetInv.ORDERS.name -> {
 //                Create adapter
-                val rv = OrderAdapter(parentActivity,
+                val rv = Adapter___Order(parentActivity,
                     OrderClick { position, view, order ->
 //                  ToDo      To highlight latest item (later use for measurements results)
                         /*if (OrderAdapter.lastCheckedView != null) {
@@ -100,16 +100,19 @@ class Fragment____RecyclerViewContainerForViewPager(
                 rv
             }
             TargetInv.TASKS.name -> {
-                val rv = SubOrderAdapter(requireActivity(), requireContext(),
+                val rv = Adapter__SubOrder(requireActivity(), requireContext(),
                     SubOrderClick { position, view, subOrder ->
-                        if (SubOrderAdapter.lastCheckedView != null) {
-                            SubOrderAdapter.lastCheckedView!!.setBackgroundResource(
+//                        ToDo      To highlight latest item (later use for measurements results)
+                        /*if (Adapter__SubOrder.lastCheckedView != null) {
+                            Adapter__SubOrder.lastCheckedView!!.setBackgroundResource(
                                 resolvedBackground.resourceId
                             )
                         }
-                        SubOrderAdapter.lastCheckedView = view
+                        Adapter__SubOrder.lastCheckedView = view
                         view.setBackgroundResource(R.drawable.background____selected_record)
-                        SubOrderAdapter.lastCheckedPos = position
+                        Adapter__SubOrder.lastCheckedPos = position*/
+                        subOrder.detailsVisibility = !subOrder.detailsVisibility
+                        updateOneRvItem(position)
                     }
                 )
                 viewModel.subOrderLiveData.observe(

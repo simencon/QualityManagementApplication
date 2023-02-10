@@ -135,7 +135,6 @@
 
             </LinearLayout>
 
-
             <LinearLayout
                 android:id="@+id/third_line"
                 android:layout_width="match_parent"
@@ -286,7 +285,6 @@
                         android:textColor="@color/primary_variant_color" />
 
                 </LinearLayout>
-
 
                 <LinearLayout
                     android:id="@+id/sixth_line"
