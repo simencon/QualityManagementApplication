@@ -9,20 +9,24 @@
         <import type="com.simenko.qmapp.utils.StringUtils" />
 
         <variable
-            name="order"
-            type="com.simenko.qmapp.domain.DomainOrderComplete" />
-
-        <variable
-            name="currentView"
-            type="android.view.View" />
+            name="childAdapter"
+            type="com.simenko.qmapp.fragments.Adapter__SubOrder" />
 
         <variable
             name="position"
             type="Integer" />
 
         <variable
+            name="order"
+            type="com.simenko.qmapp.domain.DomainOrderComplete" />
+
+        <variable
             name="orderCallback"
             type="com.simenko.qmapp.fragments.OrderClick" />
+
+        <variable
+            name="orderSubOrdersCallback"
+            type="com.simenko.qmapp.fragments.OrderSubOrdersClick" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -202,7 +206,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> orderCallback.onClick(position,currentView,order)}" />
+                android:onClick="@{() -> orderCallback.onClick(order, position)}" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/order_details_expanded_layout"
@@ -381,11 +385,32 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="?attr/selectableItemBackground"
-                    android:onClick="@{() -> orderCallback.onClick(position,currentView,order)}"
+                    android:onClick="@{() -> orderSubOrdersCallback.onClick(order, position)}"
                     app:layout_constraintBottom_toBottomOf="@id/show_sub_order_button"
                     app:layout_constraintEnd_toEndOf="@id/show_sub_order_button"
                     app:layout_constraintStart_toStartOf="@id/show_sub_order_button"
                     app:layout_constraintTop_toTopOf="@id/show_sub_order_button" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/sub_orders_expanded_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/order_details_expanded_layout"
+                android:layout_margin="3dp"
+                android:visibility="@{order.subOrdersVisibility?View.VISIBLE:View.GONE}">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/order_sub_orders"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:textColor="@color/primary_variant_color"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

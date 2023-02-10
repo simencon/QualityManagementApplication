@@ -36,7 +36,7 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
 
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
 
-    private val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
+    val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
     val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
 
     val subOrderLiveData: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Int?>> =

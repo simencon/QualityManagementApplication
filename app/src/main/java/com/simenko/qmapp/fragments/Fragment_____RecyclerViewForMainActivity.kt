@@ -62,7 +62,6 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                 Adapter_______SubDepartment(
                     SubDepartmentClick { subDepartment, position ->
                         subDepartment.channelsVisibility = !subDepartment.channelsVisibility
-//                        Toast.makeText(context, subDepartment.selectedRecord(), Toast.LENGTH_LONG).show()
                         updateOneRvItem(position)
                     }, viewModel, viewLifecycleOwner
                 )

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <import type="android.view.View" />
 
         <import type="com.simenko.qmapp.utils.StringUtils" />
@@ -12,8 +13,8 @@
             type="com.simenko.qmapp.domain.DomainSubOrderComplete" />
 
         <variable
-            name="currentView"
-            type="android.view.View" />
+            name="childAdapter"
+            type="com.simenko.qmapp.fragments.Adapter__SubOrder" />
 
         <variable
             name="position"
@@ -87,9 +88,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="25"
                     android:ellipsize="middle"
-                    android:maxLines="1"
                     android:gravity="start"
                     android:hint="Num."
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
                     android:text="@{Integer.toString(subOrder.subOrder.subOrderNumber)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -149,8 +150,8 @@
                     android:layout_weight="25"
                     android:ellipsize="middle"
                     android:gravity="start"
-                    android:maxLines="1"
                     android:hint="statusDescription"
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
                     android:text="@{subOrder.status.statusDescription}"
                     android:textColor="@color/primary_variant_color" />
@@ -183,9 +184,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="38"
-                    android:maxLines="1"
                     android:ellipsize="end"
                     android:hint="itemKey-itemDesignation"
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
                     android:text="@{StringUtils.concatTwoStrings3(subOrder.subOrder.itemPreffix,Integer.toString(subOrder.subOrder.itemTypeId))}"
                     android:textColor="@color/primary_variant_color" />
@@ -208,9 +209,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="25"
                     android:ellipsize="middle"
-                    android:maxLines="1"
                     android:gravity="start"
                     android:hint="Num."
+                    android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
                     android:text="@{Integer.toString(subOrder.subOrder.itemVersionId)}"
                     android:textColor="@color/primary_variant_color" />
@@ -298,7 +299,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> subOrderCallback.onClick(position,currentView,subOrder)}" />
+                android:onClick="@{() -> subOrderCallback.onClick(subOrder, position)}" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/so_details_expanded_layout"
@@ -320,11 +321,11 @@
                     android:id="@+id/sixth_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
                         android:layout_width="0dp"
@@ -353,11 +354,11 @@
                     android:id="@+id/seventh_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/sixth_line"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
+                    app:layout_constraintTop_toBottomOf="@id/sixth_line">
 
                     <TextView
                         android:layout_width="0dp"
@@ -386,11 +387,11 @@
                     android:id="@+id/eighth_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/seventh_line"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
+                    app:layout_constraintTop_toBottomOf="@id/seventh_line">
 
                     <TextView
                         android:layout_width="0dp"
@@ -419,11 +420,11 @@
                     android:id="@+id/ninth_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="100"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/eighth_line"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
+                    app:layout_constraintTop_toBottomOf="@id/eighth_line">
 
                     <TextView
                         android:layout_width="0dp"
@@ -480,8 +481,8 @@
                     android:id="@+id/show_characteristics_button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="6dp"
                     android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
                     android:background="@drawable/background_____corner_radius"
                     android:orientation="horizontal"
                     android:padding="3dp"
@@ -511,7 +512,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:background="?attr/selectableItemBackground"
-                    android:onClick="@{() -> subOrderCallback.onClick(position,currentView,subOrder)}"
+                    android:onClick="@{() -> subOrderCallback.onClick(subOrder, position)}"
                     app:layout_constraintBottom_toBottomOf="@id/show_characteristics_button"
                     app:layout_constraintEnd_toEndOf="@id/show_characteristics_button"
                     app:layout_constraintStart_toStartOf="@id/show_characteristics_button"

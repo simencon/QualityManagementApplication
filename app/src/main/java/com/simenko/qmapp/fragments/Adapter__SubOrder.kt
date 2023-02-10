@@ -9,15 +9,17 @@ import android.widget.Filterable
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubOrderBinding
 import com.simenko.qmapp.domain.DomainSubOrderComplete
+import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 
-class SubOrderClick(val block: (Int, View, DomainSubOrderComplete) -> Unit) {
-    fun onClick(position: Int, view: View, order: DomainSubOrderComplete): Unit {
-        return block(position, view, order)
+class SubOrderClick(val block: (DomainSubOrderComplete, Int) -> Unit) {
+    fun onClick(subOrder: DomainSubOrderComplete, position: Int): Unit {
+        return block(subOrder, position)
     }
 }
 
@@ -30,19 +32,11 @@ class SubOrderViewHolder(val viewDataBinding: ItemSubOrderBinding) :
 }
 
 class Adapter__SubOrder(
-    val activity: FragmentActivity,
-    val fragmentContext: Context,
-    val callback: SubOrderClick
+    val callback: SubOrderClick,
+    val viewModel: QualityManagementViewModel,
+    private val lifecycleOwner: LifecycleOwner
 ) :
     RecyclerView.Adapter<SubOrderViewHolder>(), Filterable {
-
-    companion object {
-        @JvmStatic
-        var lastCheckedPos = -1
-
-        @JvmStatic
-        var lastCheckedView: View? = null
-    }
 
     private var myFilter: MyFilter? = null
 
@@ -114,9 +108,12 @@ class Adapter__SubOrder(
 
     override fun onBindViewHolder(holder: SubOrderViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.position = position
-            it.currentView = it.subOrderClickableOverlay
             it.subOrder = itemsListFiltered[position]
+            it.subOrderCallback = callback
+            it.position = position
+
+//            adapter initialization for characteristics
+
 //            ToDo      To highlight latest item (later use for measurements results)
             /*if (Adapter__SubOrder.lastCheckedPos == position) {
                 it.subOrderClickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
@@ -128,7 +125,7 @@ class Adapter__SubOrder(
                 )
             }*/
 
-            it.subOrderCallback = callback
+
         }
     }
 

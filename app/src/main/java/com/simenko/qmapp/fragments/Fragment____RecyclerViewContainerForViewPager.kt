@@ -74,19 +74,16 @@ class Fragment____RecyclerViewContainerForViewPager(
         when (param1) {
             TargetInv.ORDERS.name -> {
 //                Create adapter
-                val rv = Adapter___Order(parentActivity,
-                    OrderClick { position, view, order ->
-//                  ToDo      To highlight latest item (later use for measurements results)
-                        /*if (OrderAdapter.lastCheckedView != null) {
-                            OrderAdapter.lastCheckedView!!.setBackgroundResource(resolvedBackground.resourceId)
-                        }
-                        OrderAdapter.lastCheckedView = view
-                        view.setBackgroundResource(R.drawable.background____selected_record)
-                        OrderAdapter.lastCheckedPos = position*/
-//                        To show/hide order details
+                val rv = Adapter___Order(
+                    OrderClick {order, position ->
                         order.detailsVisibility = !order.detailsVisibility
+                        order.subOrdersVisibility = false
                         updateOneRvItem(position)
-                    }
+                    },
+                    OrderSubOrdersClick {order, position ->
+                        order.subOrdersVisibility = !order.subOrdersVisibility
+                        updateOneRvItem(position)
+                    },viewModel, viewLifecycleOwner
                 )
 //                Start looking for target live data
                 viewModel.completeOrders.observe(
@@ -100,29 +97,17 @@ class Fragment____RecyclerViewContainerForViewPager(
                 rv
             }
             TargetInv.TASKS.name -> {
-                val rv = Adapter__SubOrder(requireActivity(), requireContext(),
-                    SubOrderClick { position, view, subOrder ->
-//                        ToDo      To highlight latest item (later use for measurements results)
-                        /*if (Adapter__SubOrder.lastCheckedView != null) {
-                            Adapter__SubOrder.lastCheckedView!!.setBackgroundResource(
-                                resolvedBackground.resourceId
-                            )
-                        }
-                        Adapter__SubOrder.lastCheckedView = view
-                        view.setBackgroundResource(R.drawable.background____selected_record)
-                        Adapter__SubOrder.lastCheckedPos = position*/
+                val rv = Adapter__SubOrder(
+                    SubOrderClick {subOrder, position  ->
                         subOrder.detailsVisibility = !subOrder.detailsVisibility
                         updateOneRvItem(position)
-                    }
+                    },viewModel, viewLifecycleOwner
                 )
-                viewModel.subOrderLiveData.observe(
+                viewModel.completeSubOrders.observe(
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            if (items.first != null) {
-                                rv.itemsList = items.first!!
-                                rv.filter.filter(items.second.toString())
-                            }
+                            rv.itemsList = items
                         }
                     }
                 )

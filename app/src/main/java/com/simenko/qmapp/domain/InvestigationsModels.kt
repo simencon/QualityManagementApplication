@@ -119,7 +119,8 @@ data class DomainOrderComplete constructor(
     var customer: DomainDepartment,
     var orderPlacer: DomainTeamMember,
     var orderStatus: DomainOrdersStatus,
-    var detailsVisibility: Boolean = false
+    var detailsVisibility: Boolean = false,
+    var subOrdersVisibility: Boolean = false
 )
 
 data class DomainSubOrderComplete constructor(

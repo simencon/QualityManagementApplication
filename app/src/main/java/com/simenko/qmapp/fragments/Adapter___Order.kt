@@ -3,22 +3,26 @@ package com.simenko.qmapp.fragments
 import android.content.Context
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
+import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
+class OrderClick(val block: (DomainOrderComplete, Int) -> Unit) {
+    fun onClick(order: DomainOrderComplete, position: Int): Unit {
+        return block(order, position)
+    }
+}
 
-private lateinit var sm: SendMessage
-
-class OrderClick(val block: (Int, View, DomainOrderComplete) -> Unit) {
-    fun onClick(position: Int, view: View, order: DomainOrderComplete): Unit {
-        sm.sendData(order.order.id)
-        return block(position, view, order)
+class OrderSubOrdersClick(val block: (DomainOrderComplete, Int) -> Unit) {
+    fun onClick(order: DomainOrderComplete, position: Int): Unit {
+        return block(order, position)
     }
 }
 
@@ -30,17 +34,13 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
     }
 }
 
-class Adapter___Order(private val callbackImplementedIn: Fragment______ViewPagerContainer, val callback: OrderClick) :
+class Adapter___Order(
+    private val callbackOrderDetails: OrderClick,
+    val callbackOrderSubOrders: OrderSubOrdersClick,
+    val viewModel: QualityManagementViewModel,
+    private val lifecycleOwner: LifecycleOwner
+) :
     RecyclerView.Adapter<OrderViewHolder>() {
-
-    init {
-        sm = callbackImplementedIn as SendMessage
-    }
-
-    companion object {
-        @JvmStatic var lastCheckedPos = -1
-        @JvmStatic var lastCheckedView: View? = null
-    }
 
     var itemsList: List<DomainOrderComplete> = emptyList()
         set(value) {
@@ -62,9 +62,30 @@ class Adapter___Order(private val callbackImplementedIn: Fragment______ViewPager
 
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         holder.viewDataBinding.also {
-            it.position = position
-            it.currentView = it.orderClickableOverlay
             it.order = itemsList[position]
+            it.orderCallback = callbackOrderDetails
+            it.orderSubOrdersCallback = callbackOrderSubOrders
+            it.position = position
+
+            val subOrderAdapter =
+                Adapter__SubOrder(SubOrderClick { subOrder, position ->
+                    subOrder.detailsVisibility = !subOrder.detailsVisibility
+                    it.childAdapter?.notifyItemChanged(position)
+                }, viewModel, lifecycleOwner)
+
+            it.childAdapter = subOrderAdapter
+
+            it.orderSubOrders.adapter = it.childAdapter
+
+            this.viewModel.completeSubOrders.observe(this.lifecycleOwner,
+                Observer { items ->
+                    items?.apply {
+                        subOrderAdapter.itemsList =
+                            items.filter { item -> item.subOrder.orderId == itemsList[position].order.id }
+                                .toList()
+                    }
+                }
+            )
 
 //            ToDo      To highlight latest item (later use for measurements results)
             /*if(OrderAdapter.lastCheckedPos == position) {
@@ -73,7 +94,6 @@ class Adapter___Order(private val callbackImplementedIn: Fragment______ViewPager
                 it.orderClickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(requireNotNull(callbackImplementedIn.context)).resourceId)
             }*/
 
-            it.orderCallback = callback
         }
     }
 
@@ -86,7 +106,11 @@ class Adapter___Order(private val callbackImplementedIn: Fragment______ViewPager
 object AdapterUtils {
     fun getNormalBackground(context: Context): TypedValue {
         val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+        context.theme.resolveAttribute(
+            android.R.attr.selectableItemBackgroundBorderless,
+            outValue,
+            true
+        )
         return outValue
     }
 
