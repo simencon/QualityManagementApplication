@@ -421,3 +421,20 @@ data class DatabaseCompleteSubOrder constructor(
     )
     var operation: DatabaseManufacturingOperation
 )
+
+data class DatabaseSubOrderTaskComplete constructor(
+    @Embedded
+    var subOrderTask: DatabaseSubOrderTask,
+    @Relation(
+        entity = DatabaseCharacteristic::class,
+        parentColumn = "charId",
+        entityColumn = "id"
+    )
+    var characteristic: DatabaseCharacteristic,
+    @Relation(
+        entity = DatabaseOrdersStatus::class,
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    var status: DatabaseOrdersStatus
+)

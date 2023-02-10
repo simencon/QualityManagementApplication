@@ -83,8 +83,8 @@ data class DatabaseCharacteristic constructor(
     @ColumnInfo(index = true)
     var ishCharId: Int,
     var charOrder: Int? = null,
-    var ishCharDesignation: String? = null,
-    var typeDescription: String? = null,
+    var charDesignation: String? = null,
+    var charDescription: String? = null,
     @ColumnInfo(index = true)
     var ishSubChar: Int,
     @ColumnInfo(index = true)

@@ -177,6 +177,13 @@ interface QualityManagementInvestigationsDao {
                 "ORDER BY subOrderNumber;"
     )
     fun getSubOrdersDetailed(): LiveData<List<DatabaseCompleteSubOrder>>
+    @Transaction
+    @Query(
+        "SELECT soTasks.* " +
+                "FROM `13_7_sub_order_tasks` AS soTasks " +
+                "ORDER BY id;"
+    )
+    fun getSubOrderTasksDetailed(): LiveData<List<DatabaseSubOrderTaskComplete>>
 }
 
 @Database(

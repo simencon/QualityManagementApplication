@@ -10,8 +10,8 @@
             type="Integer" />
 
         <variable
-            name="manOperation"
-            type="com.simenko.qmapp.domain.DomainManufacturingOperation" />
+            name="subOrderTask"
+            type="com.simenko.qmapp.domain.DomainSubOrderTaskComplete" />
 
         <variable
             name="manOperationCallback"
@@ -60,7 +60,7 @@
                     android:hint="operationDesignation"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{manOperation.operationDesignation}"
+                    android:text="@{subOrderTask.characteristic.charDescription}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -93,10 +93,10 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="40"
                     android:ellipsize="end"
-                    android:hint="operationAbbr"
+                    android:hint="ishCharId"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{manOperation.operationAbbr}"
+                    android:text="@{Integer.toString(subOrderTask.characteristic.ishCharId)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -119,10 +119,10 @@
                     android:layout_weight="25"
                     android:ellipsize="end"
                     android:gravity="start"
-                    android:hint="operationOrder"
+                    android:hint="statusDescription"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{Integer.toString(manOperation.operationOrder)}"
+                    android:text="@{subOrderTask.status.statusDescription}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -145,7 +145,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> manOperationCallback.onClick(manOperation, position)}" />
+                android:onClick="@{() -> manOperationCallback.onClick(subOrderTask, position)}" />
 
         </RelativeLayout>
 

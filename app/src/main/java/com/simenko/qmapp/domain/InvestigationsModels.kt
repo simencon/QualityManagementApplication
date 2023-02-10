@@ -136,6 +136,12 @@ data class DomainSubOrderComplete constructor(
     var detailsVisibility: Boolean = false
 )
 
+data class DomainSubOrderTaskComplete constructor(
+    var subOrderTask: DomainSubOrderTask,
+    var characteristic: DomainCharacteristic,
+    var status: DomainOrdersStatus
+)
+
 //ToDo just to test
 
 data class CompleteOrder constructor(
@@ -159,6 +165,7 @@ data class CompleteSubOrder constructor(
         samples.add(sample)
     }
 }
+
 
 data class CompleteSample constructor(
     var sample: DomainSample,

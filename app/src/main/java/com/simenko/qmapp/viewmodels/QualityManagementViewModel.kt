@@ -45,6 +45,8 @@ class QualityManagementViewModel(application: Application) : AndroidViewModel(ap
             addSource(subOrderParentId) { value = Pair(completeSubOrders.value, it) }
         }
 
+    val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
+
     /**
      *
      */

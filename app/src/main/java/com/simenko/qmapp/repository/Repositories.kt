@@ -309,4 +309,8 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         it.asDomainSubOrderDetailed(-1)
     }
 
+    val completeSubOrderTasks: LiveData<List<DomainSubOrderTaskComplete>> = Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderTasksDetailed()) {
+        it.asDomainSubOrderTask(-1)
+    }
+
 }

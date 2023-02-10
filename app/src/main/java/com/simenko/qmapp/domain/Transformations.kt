@@ -17,6 +17,10 @@ fun DatabaseManufacturingChannel.toDomainChannel() = ObjectTransformer(DatabaseM
 fun DatabaseManufacturingLine.toDomainLine() = ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
 fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
 
+fun DatabaseSubOrderTask.toDomainSubOrderTask() = ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
+fun DatabaseCharacteristic.toDomainCharacteristic() = ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
+
+
 fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<DomainOrderComplete> {
     return map {
         DomainOrderComplete(
@@ -31,7 +35,6 @@ fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<Doma
 }
 
 fun List<DatabaseCompleteSubOrder>.asDomainSubOrderDetailed(parentId: Int): List<DomainSubOrderComplete> {
-
     return filter { it.subOrder.orderId == parentId || parentId == -1 }. map {
         DomainSubOrderComplete(
             subOrder =  it.subOrder.toDomainSubOrder(),
@@ -43,6 +46,16 @@ fun List<DatabaseCompleteSubOrder>.asDomainSubOrderDetailed(parentId: Int): List
             channel = it.channel.toDomainChannel(),
             line = it.line.toDomainLine(),
             operation = it.operation.toDomainOperation()
+        )
+    }
+}
+
+fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(parentId: Int): List<DomainSubOrderTaskComplete> {
+    return filter { it.subOrderTask.subOrderId == parentId || parentId == -1 }. map {
+        DomainSubOrderTaskComplete(
+            subOrderTask = it.subOrderTask.toDomainSubOrderTask(),
+            characteristic = it.characteristic.toDomainCharacteristic(),
+            status = it.status.toDomainStatus()
         )
     }
 }
