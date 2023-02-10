@@ -7,22 +7,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.ItemChannelBinding
-import com.simenko.qmapp.databinding.ItemLineBinding
 import com.simenko.qmapp.databinding.ItemOperationBinding
-import com.simenko.qmapp.databinding.ItemOrderBinding
-import com.simenko.qmapp.databinding.ItemSubDepartmentBinding
-import com.simenko.qmapp.domain.DomainManufacturingChannel
-import com.simenko.qmapp.domain.DomainManufacturingLine
 import com.simenko.qmapp.domain.DomainManufacturingOperation
-import com.simenko.qmapp.domain.DomainSubDepartment
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 class OperationClick(val block: (DomainManufacturingOperation, Int) -> Unit) {
     fun onClick(operation: DomainManufacturingOperation, position: Int) = block(operation, position)
 }
 
-class Adapter_____Operation(
+class Adapter______Operation(
     val callback: OperationClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner

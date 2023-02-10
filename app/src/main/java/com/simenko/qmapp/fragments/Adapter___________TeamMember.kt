@@ -23,7 +23,7 @@ class TeamMemberViewHolder(val viewDataBinding: ItemTeamMemberBinding) :
     }
 }
 
-class Adapter__________TeamMember(val callback: TeamMemberClick) :
+class Adapter___________TeamMember(val callback: TeamMemberClick) :
     RecyclerView.Adapter<TeamMemberViewHolder>() {
 
     var itemsList: List<DomainTeamMember> = emptyList()

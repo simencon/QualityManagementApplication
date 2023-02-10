@@ -8,7 +8,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter_____Operation" />
+            type="com.simenko.qmapp.fragments.Adapter______Operation" />
 
         <variable
             name="position"

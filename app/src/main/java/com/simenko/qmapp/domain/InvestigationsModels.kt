@@ -133,7 +133,8 @@ data class DomainSubOrderComplete constructor(
     var channel: DomainManufacturingChannel,
     var line: DomainManufacturingLine,
     var operation: DomainManufacturingOperation,
-    var detailsVisibility: Boolean = false
+    var detailsVisibility: Boolean = false,
+    var tasksVisibility: Boolean = false
 )
 
 data class DomainSubOrderTaskComplete constructor(

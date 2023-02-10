@@ -74,7 +74,7 @@ class Fragment____RecyclerViewContainerForViewPager(
         when (param1) {
             TargetInv.ORDERS.name -> {
 //                Create adapter
-                val rv = Adapter___Order(
+                val rv = Adapter____Order(
                     OrderClick {order, position ->
                         order.detailsVisibility = !order.detailsVisibility
                         order.subOrdersVisibility = false
@@ -97,7 +97,7 @@ class Fragment____RecyclerViewContainerForViewPager(
                 rv
             }
             TargetInv.TASKS.name -> {
-                val rv = Adapter__SubOrder(
+                val rv = Adapter___SubOrder(
                     SubOrderClick {subOrder, position  ->
                         subOrder.detailsVisibility = !subOrder.detailsVisibility
                         updateOneRvItem(position)

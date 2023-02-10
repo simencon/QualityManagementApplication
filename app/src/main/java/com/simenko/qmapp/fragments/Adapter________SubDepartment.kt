@@ -16,7 +16,7 @@ class SubDepartmentClick(val block: (DomainSubDepartment, Int) -> Unit) {
     fun onClick(subDepartment: DomainSubDepartment, position: Int) = block(subDepartment, position)
 }
 
-class Adapter_______SubDepartment(
+class Adapter________SubDepartment(
     val callback: SubDepartmentClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
@@ -47,7 +47,7 @@ class Adapter_______SubDepartment(
             it.position = position
 
             val channelAdapter =
-                Adapter______Channel(ChannelClick { channel, position ->
+                Adapter_______Channel(ChannelClick { channel, position ->
                     channel.linesVisibility = !channel.linesVisibility
                     it.childAdapter?.notifyItemChanged(position)
                 }, viewModel, lifecycleOwner)

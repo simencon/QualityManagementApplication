@@ -1,15 +1,13 @@
 package com.simenko.qmapp.fragments
 
-import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubOrderBinding
@@ -31,7 +29,7 @@ class SubOrderViewHolder(val viewDataBinding: ItemSubOrderBinding) :
     }
 }
 
-class Adapter__SubOrder(
+class Adapter___SubOrder(
     val callback: SubOrderClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
@@ -62,7 +60,7 @@ class Adapter__SubOrder(
     }
 
     private class MyFilter(
-        private val adapter: Adapter__SubOrder,
+        private val adapter: Adapter___SubOrder,
         private val originalList: List<DomainSubOrderComplete>
     ) : Filter() {
         private val results: FilterResults = object : FilterResults() {}
@@ -112,7 +110,26 @@ class Adapter__SubOrder(
             it.subOrderCallback = callback
             it.position = position
 
-//            adapter initialization for characteristics
+            val subOrderTaskAdapter =
+                Adapter__SubOrderTask(SubOrderTaskClick() { task, position ->
+//                    Later will be used for measurements results
+//                    task.detailsVisibility = !task.detailsVisibility
+                    it.childAdapter?.notifyItemChanged(position)
+                }, viewModel, lifecycleOwner)
+
+            it.childAdapter = subOrderTaskAdapter
+
+            it.subOrderTasks.adapter = it.childAdapter
+
+            this.viewModel.completeSubOrderTasks.observe(this.lifecycleOwner,
+                Observer { items ->
+                    items?.apply {
+                        subOrderTaskAdapter.itemsList =
+                            items.filter { item -> item.subOrderTask.subOrderId == itemsList[position].subOrder.id }
+                                .toList()
+                    }
+                }
+            )
 
 //            ToDo      To highlight latest item (later use for measurements results)
             /*if (Adapter__SubOrder.lastCheckedPos == position) {

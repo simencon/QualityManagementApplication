@@ -18,7 +18,7 @@ class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
 
 private const val TAG = "Adapter_____Department"
 
-class Adapter_________Department(
+class Adapter__________Department(
     val callback: DepartmentClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
@@ -50,7 +50,7 @@ class Adapter_________Department(
             it.position = position
 
             val subDepAdapter =
-                Adapter_______SubDepartment(SubDepartmentClick { subDepartment, position ->
+                Adapter________SubDepartment(SubDepartmentClick { subDepartment, position ->
                     subDepartment.channelsVisibility = !subDepartment.channelsVisibility
                     it.childAdapter?.notifyItemChanged(position)
                 }, viewModel, lifecycleOwner)

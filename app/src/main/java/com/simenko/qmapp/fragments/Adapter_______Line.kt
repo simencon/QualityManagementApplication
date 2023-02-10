@@ -8,19 +8,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.ItemChannelBinding
 import com.simenko.qmapp.databinding.ItemLineBinding
-import com.simenko.qmapp.databinding.ItemSubDepartmentBinding
-import com.simenko.qmapp.domain.DomainManufacturingChannel
 import com.simenko.qmapp.domain.DomainManufacturingLine
-import com.simenko.qmapp.domain.DomainSubDepartment
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
 class LineClick(val block: (DomainManufacturingLine, Int) -> Unit) {
     fun onClick(line: DomainManufacturingLine, position: Int) = block(line, position)
 }
 
-class Adapter______Line(
+class Adapter_______Line(
     val callback: LineClick,
     val viewModel: QualityManagementViewModel,
     private val lifecycleOwner: LifecycleOwner
@@ -51,7 +47,7 @@ class Adapter______Line(
             it.position = position
 
             val operationAdapter =
-                Adapter_____Operation(OperationClick() { operation, position ->
+                Adapter______Operation(OperationClick() { operation, position ->
                     operation.detailsVisibility = !operation.detailsVisibility
                     it.childAdapter?.notifyItemChanged(position)
                 }, viewModel, lifecycleOwner)

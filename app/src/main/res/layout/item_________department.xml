@@ -10,7 +10,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter_______SubDepartment" />
+            type="com.simenko.qmapp.fragments.Adapter________SubDepartment" />
 
         <variable
             name="position"

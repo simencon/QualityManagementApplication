@@ -14,8 +14,8 @@
             type="com.simenko.qmapp.domain.DomainSubOrderTaskComplete" />
 
         <variable
-            name="manOperationCallback"
-            type="com.simenko.qmapp.fragments.OperationClick" />
+            name="subOrderTaskCallback"
+            type="com.simenko.qmapp.fragments.SubOrderTaskClick" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -145,7 +145,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="?attr/selectableItemBackground"
-                android:onClick="@{() -> manOperationCallback.onClick(subOrderTask, position)}" />
+                android:onClick="@{() -> subOrderTaskCallback.onClick(subOrderTask, position)}" />
 
         </RelativeLayout>
 

@@ -14,7 +14,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter__SubOrder" />
+            type="com.simenko.qmapp.fragments.Adapter__SubOrderTask" />
 
         <variable
             name="position"
@@ -517,6 +517,27 @@
                     app:layout_constraintEnd_toEndOf="@id/show_characteristics_button"
                     app:layout_constraintStart_toStartOf="@id/show_characteristics_button"
                     app:layout_constraintTop_toTopOf="@id/show_characteristics_button" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/sub_orders_expanded_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/so_details_expanded_layout"
+                android:layout_margin="3dp"
+                android:visibility="@{subOrder.tasksVisibility?View.VISIBLE:View.GONE}">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sub_order_tasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:textColor="@color/primary_variant_color"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

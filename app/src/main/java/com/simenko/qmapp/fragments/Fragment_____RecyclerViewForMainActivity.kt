@@ -44,14 +44,14 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
     private val rvAdapter by lazy {
         when (param1) {
             Target.TEAM_MEMBERS.name -> {
-                Adapter__________TeamMember(
+                Adapter___________TeamMember(
                     TeamMemberClick {
                         Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
                     }
                 )
             }
             Target.DEPARTMENTS.name -> {
-                Adapter_________Department(
+                Adapter__________Department(
                     DepartmentClick { item, position ->
                         item.departmentDetailsVisibility = !item.departmentDetailsVisibility
                         updateOneRvItem(position)
@@ -59,7 +59,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                 )
             }
             Target.SUB_DEPARTMENTS.name -> {
-                Adapter_______SubDepartment(
+                Adapter________SubDepartment(
                     SubDepartmentClick { subDepartment, position ->
                         subDepartment.channelsVisibility = !subDepartment.channelsVisibility
                         updateOneRvItem(position)
@@ -126,7 +126,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as Adapter__________TeamMember).itemsList = items
+                            (rvAdapter as Adapter___________TeamMember).itemsList = items
                         }
                     })
             }
@@ -135,7 +135,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as Adapter_________Department).itemsList = items
+                            (rvAdapter as Adapter__________Department).itemsList = items
                         }
                     })
             }
@@ -144,7 +144,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as Adapter_______SubDepartment).itemsList = items
+                            (rvAdapter as Adapter________SubDepartment).itemsList = items
                         }
                     })
             }
@@ -153,7 +153,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
                     viewLifecycleOwner,
                     Observer { items ->
                         items?.apply {
-                            (rvAdapter as Adapter___Order).itemsList = items
+                            (rvAdapter as Adapter____Order).itemsList = items
                         }
                     })
             }
