@@ -287,7 +287,7 @@ class CustomArrayAdapter(
 
         if (convertView == null) {
             resultConvertView = LayoutInflater.from(context).inflate(
-                R.layout.item__order_dialog_item, parent, false
+                R.layout.item_order_dialog_item, parent, false
             )
         } else {
             resultConvertView = convertView
