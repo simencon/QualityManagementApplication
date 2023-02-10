@@ -174,42 +174,6 @@
                     android:ellipsize="middle"
                     android:maxLines="1"
                     android:paddingStart="8dp"
-                    android:text="Operation:"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/so_operation"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="75"
-                    android:ellipsize="end"
-                    android:hint="(opAbbr.)opDesignation"
-                    android:maxLines="1"
-                    android:padding="@dimen/padding_insight_item"
-                    android:text="@{StringUtils.concatTwoStrings2(subOrder.operation.operationAbbr, subOrder.operation.operationDesignation)}"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                    android:textColor="@color/primary_variant_color" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fourth_line"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/third_line"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:orientation="horizontal"
-                android:weightSum="100">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="25"
-                    android:ellipsize="middle"
-                    android:maxLines="1"
-                    android:paddingStart="8dp"
                     android:text="Product:"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textSize="12sp" />
@@ -253,11 +217,83 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/fourth_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/third_line"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="25"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Operation:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/so_operation"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="75"
+                    android:ellipsize="end"
+                    android:hint="(opAbbr.)opDesignation"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{StringUtils.concatTwoStrings2(subOrder.operation.operationAbbr, subOrder.operation.operationDesignation)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fifth_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fourth_line"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="25"
+                    android:ellipsize="middle"
+                    android:maxLines="1"
+                    android:paddingStart="8dp"
+                    android:text="Quantity:"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/so_items_quantity"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="75"
+                    android:ellipsize="end"
+                    android:hint="samplesCount"
+                    android:maxLines="1"
+                    android:padding="@dimen/padding_insight_item"
+                    android:text="@{Integer.toString(subOrder.subOrder.samplesCount)}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/primary_variant_color" />
+
+            </LinearLayout>
+
             <View
                 android:id="@+id/sub_order_clickable_overlay"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_alignBottom="@id/fourth_line"
+                android:layout_alignBottom="@id/fifth_line"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
@@ -281,7 +317,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
-                    android:id="@+id/fifth_line"
+                    android:id="@+id/sixth_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -314,12 +350,12 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/sixth_line"
+                    android:id="@+id/seventh_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/fifth_line"
+                    app:layout_constraintTop_toBottomOf="@id/sixth_line"
                     android:orientation="horizontal"
                     android:weightSum="100">
 
@@ -347,12 +383,12 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/seventh_line"
+                    android:id="@+id/eighth_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/sixth_line"
+                    app:layout_constraintTop_toBottomOf="@id/seventh_line"
                     android:orientation="horizontal"
                     android:weightSum="100">
 
@@ -380,12 +416,12 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/eighth_line"
+                    android:id="@+id/ninth_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/seventh_line"
+                    app:layout_constraintTop_toBottomOf="@id/eighth_line"
                     android:orientation="horizontal"
                     android:weightSum="100">
 
@@ -405,7 +441,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="65"
-                        android:hint="created date"
+                        android:hint="completed date"
                         android:padding="@dimen/padding_insight_item"
                         android:text="@{subOrder.subOrder.completedDate}"
                         android:textColor="@color/primary_variant_color" />
@@ -424,7 +460,7 @@
                     app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/eighth_line" />
+                    app:layout_constraintTop_toBottomOf="@id/ninth_line" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/edit_order_record"
@@ -438,7 +474,7 @@
                     app:fabSize="mini"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/delete_order_record"
-                    app:layout_constraintTop_toBottomOf="@id/eighth_line" />
+                    app:layout_constraintTop_toBottomOf="@id/ninth_line" />
 
                 <LinearLayout
                     android:id="@+id/show_characteristics_button"
@@ -452,7 +488,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/edit_order_record"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/eighth_line">
+                    app:layout_constraintTop_toBottomOf="@id/ninth_line">
 
                     <ImageView
                         android:layout_width="wrap_content"
