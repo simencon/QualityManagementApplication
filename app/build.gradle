@@ -62,11 +62,6 @@ dependencies {
     // pager
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
-    // navigation //is not Android X libraries!
-//    def nav_version = "1.0.0"
-//    implementation "android.arch.navigation:navigation-fragment-ktx:$nav_version"
-//    implementation "android.arch.navigation:navigation-ui-ktx:$nav_version"
-
     // coroutines for getting off the UI thread
     def coroutines = "1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines"
