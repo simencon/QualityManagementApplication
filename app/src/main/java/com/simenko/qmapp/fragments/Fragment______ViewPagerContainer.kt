@@ -10,7 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.main.Activity_____Main
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.databinding.FragmentPagerContainerBinding
 import com.simenko.qmapp.pagers.OrderSectionPagerAdapter
 import com.simenko.qmapp.pagers.ZoomOutPageTransformer
@@ -23,7 +23,7 @@ class Fragment______ViewPagerContainer : Fragment(), SendMessage {
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
-        val model = (activity as Activity_____Main).viewModel
+        val model = (activity as MainActivity).viewModel
         model
     }
 

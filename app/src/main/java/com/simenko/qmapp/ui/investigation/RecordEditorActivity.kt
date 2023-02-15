@@ -4,10 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import android.widget.Button
 import com.simenko.qmapp.databinding.ActivityRecordEditorBinding
 
-class Activity____RecordEditor : AppCompatActivity() {
+class RecordEditorActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRecordEditorBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -21,7 +21,7 @@ import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
 
-class Activity_____Main : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val TAG = "_____MainActivity"
 

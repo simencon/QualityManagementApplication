@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.main.Activity_____Main
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.databinding.FragmentRvForViewPagerBinding
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
@@ -47,7 +47,7 @@ class Fragment____RecyclerViewContainerForViewPager(
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
-        val model = (activity as Activity_____Main).viewModel
+        val model = (activity as MainActivity).viewModel
         model
     }
 
