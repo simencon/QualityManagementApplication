@@ -10,7 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.simenko.qmapp.R
-import com.simenko.qmapp.Activity_____Main
+import com.simenko.qmapp.ui.main.Activity_____Main
 import com.simenko.qmapp.databinding.FragmentPagerContainerBinding
 import com.simenko.qmapp.pagers.OrderSectionPagerAdapter
 import com.simenko.qmapp.pagers.ZoomOutPageTransformer

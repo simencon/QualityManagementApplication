@@ -1,4 +1,4 @@
-package com.simenko.qmapp
+package com.simenko.qmapp.ui.investigation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

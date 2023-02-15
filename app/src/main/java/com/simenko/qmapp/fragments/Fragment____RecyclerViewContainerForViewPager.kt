@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.Activity_____Main
+import com.simenko.qmapp.ui.main.Activity_____Main
 import com.simenko.qmapp.databinding.FragmentRvForViewPagerBinding
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 
