@@ -1,6 +1,7 @@
 package com.simenko.qmapp.di.inestigations
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.ViewModelKey
 import com.simenko.qmapp.ui.QualityManagementViewModel
@@ -14,7 +15,8 @@ class InvestigationsModule {
     @Provides
     @IntoMap
     @ViewModelKey(QualityManagementViewModel::class)
-    fun bindQualityManagementViewModel(application: Application): ViewModel {
+    fun bindQualityManagementViewModel(context: Context): ViewModel {
+        val application = context.applicationContext as Application
         return QualityManagementViewModel(application)
     }
 }

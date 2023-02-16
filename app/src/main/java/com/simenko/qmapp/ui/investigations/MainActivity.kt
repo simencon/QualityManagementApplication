@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         private const val TAG = "MainActivity"
     }
 
-    private lateinit var viewModel: QualityManagementViewModel
+    lateinit var viewModel: QualityManagementViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawer: DrawerLayout
 
@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var messageMain: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
         var customManager = CustomManager(application as BaseApplication)
         customManager.changeToGlobalMessage()
@@ -50,6 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var investigationsComponent =
             (application as BaseApplication).appComponent.investigationsComponent().create()
         investigationsComponent.inject(this)
+        viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
         Log.d(TAG, "onCreate: message: $messageMain")
         Log.d(TAG, "onCreate: viewModel: $viewModel")
 
