@@ -1,11 +1,8 @@
 package com.simenko.qmapp.di
 
 
-import android.app.Application
 import android.content.Context
 import com.simenko.qmapp.di.inestigations.InvestigationsComponent
-import com.simenko.qmapp.usetesting.StringProviderModule
-import com.simenko.qmapp.usetesting.TestingComponent
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -30,6 +27,5 @@ interface AppComponent {
     }
 
     fun investigationsComponent(): InvestigationsComponent.Factory
-    fun testingComponent(): TestingComponent.Factory
 
 }

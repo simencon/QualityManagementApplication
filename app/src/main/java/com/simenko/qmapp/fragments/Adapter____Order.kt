@@ -1,8 +1,6 @@
 package com.simenko.qmapp.fragments
 
-import android.app.Application
 import android.content.Context
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,12 +9,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
-import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.ui.QualityManagementViewModel
-import javax.inject.Inject
 
 class OrderClick(val block: (DomainOrderComplete, Int) -> Unit) {
     fun onClick(order: DomainOrderComplete, position: Int): Unit {
@@ -42,24 +38,12 @@ class Adapter____Order(
     private val callbackOrderDetails: OrderClick,
     private val callbackOrderSubOrders: OrderSubOrdersClick,
     val viewModel: QualityManagementViewModel,
-    private val lifecycleOwner: LifecycleOwner,
-    private val application: Application?
+    private val lifecycleOwner: LifecycleOwner
 ) :
     RecyclerView.Adapter<OrderViewHolder>() {
 
     companion object {
         private const val TAG = "Adapter____Order"
-    }
-
-    @Inject
-    lateinit var globalMessage: String
-
-    init {
-        if(application!=null) {
-            var investigationsComponent = (application as BaseApplication).appComponent.investigationsComponent().create()
-            investigationsComponent.inject(this)
-            Log.d(TAG, "globalMessage is: $globalMessage")
-        }
     }
 
     var itemsList: List<DomainOrderComplete> = emptyList()

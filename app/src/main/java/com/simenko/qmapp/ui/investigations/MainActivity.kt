@@ -21,14 +21,10 @@ import com.simenko.qmapp.fragments.Fragment______ViewPagerContainer
 import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.ui.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
-import com.simenko.qmapp.usetesting.CustomManager
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-    companion object {
-        private const val TAG = "MainActivity"
-    }
 
     lateinit var viewModel: QualityManagementViewModel
     private lateinit var binding: ActivityMainBinding
@@ -37,21 +33,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
 
-    @Inject
-    lateinit var messageMain: String
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        (application as BaseApplication).appComponent
+            .investigationsComponent()
+            .create().inject(this)
 
-        var customManager = CustomManager(application as BaseApplication)
-        customManager.changeToGlobalMessage()
-        Log.d(TAG, "onCreate: message: ${customManager.messageFromCustomManager}")
-
-        var investigationsComponent =
-            (application as BaseApplication).appComponent.investigationsComponent().create()
-        investigationsComponent.inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
-        Log.d(TAG, "onCreate: message: $messageMain")
-        Log.d(TAG, "onCreate: viewModel: $viewModel")
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -169,11 +156,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, selectedFragment).commit()
-//        ToDo better to not replace but delete and add
-        val fragments: List<Fragment> = supportFragmentManager.fragments
-        fragments.forEach {
-            Log.d(TAG, "AlreadyCreatedFragment: $it")
-        }
+
         drawer.closeDrawer(GravityCompat.START)
         return true
     }
