@@ -13,6 +13,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.fragments.Fragment____RecyclerViewForMainActivity
@@ -20,10 +21,13 @@ import com.simenko.qmapp.fragments.Fragment______ViewPagerContainer
 import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
+import com.simenko.qmapp.usetesting.CustomManager
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private val TAG = "_____MainActivity"
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this) {
@@ -41,6 +45,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawer: DrawerLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        var customManager = CustomManager(application as BaseApplication)
+        customManager.changeToGlobalMessage()
+
+        Log.d(TAG, "onCreate: message: ${customManager.messageFromCustomManager}")
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
