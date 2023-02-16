@@ -6,7 +6,12 @@ import com.simenko.qmapp.usetesting.StringProviderModule
 import dagger.Subcomponent
 
 @InvestigationsScope
-@Subcomponent(modules = [StringProviderModule::class])
+@Subcomponent(
+    modules = [
+        InvestigationsModule::class,
+        StringProviderModule::class
+    ]
+)
 interface InvestigationsComponent {
     @Subcomponent.Factory
     interface Factory{

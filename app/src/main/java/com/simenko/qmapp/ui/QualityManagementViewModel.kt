@@ -11,8 +11,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import java.io.IOException
+import javax.inject.Inject
 
-class QualityManagementViewModel(application: Application) : AndroidViewModel(application) {
+class QualityManagementViewModel @Inject constructor (application: Application) : AndroidViewModel(application) {
     /**
      * Gets data from Repositories - which is live data with list
      */

@@ -22,40 +22,36 @@ import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.ui.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
 import com.simenko.qmapp.usetesting.CustomManager
+import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
     companion object {
         private const val TAG = "MainActivity"
     }
 
+    private lateinit var viewModel: QualityManagementViewModel
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var drawer: DrawerLayout
+
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
+
     @Inject
     lateinit var messageMain: String
 
-    val viewModel: QualityManagementViewModel by lazy {
-        val activity = requireNotNull(this) {
-
-        }
-        val model = ViewModelProvider(
-            this, QualityManagementViewModel.Factory(activity.application)
-        ).get(QualityManagementViewModel::class.java)
-
-        model
-    }
-
-    private lateinit var binding: ActivityMainBinding
-
-    private lateinit var drawer: DrawerLayout
-
     override fun onCreate(savedInstanceState: Bundle?) {
+        viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
+
         var customManager = CustomManager(application as BaseApplication)
         customManager.changeToGlobalMessage()
         Log.d(TAG, "onCreate: message: ${customManager.messageFromCustomManager}")
 
-        var investigationsComponent = (application as BaseApplication).appComponent.investigationsComponent().create()
+        var investigationsComponent =
+            (application as BaseApplication).appComponent.investigationsComponent().create()
         investigationsComponent.inject(this)
         Log.d(TAG, "onCreate: message: $messageMain")
+        Log.d(TAG, "onCreate: viewModel: $viewModel")
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

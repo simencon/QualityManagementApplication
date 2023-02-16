@@ -15,8 +15,8 @@ import javax.inject.Singleton
 // Definition of a Dagger component that adds info from the different modules to the graph
 @Component(
     modules = [
+        ViewModelFactoryModule::class,
         AppSubcomponents::class,
-//        StringProviderModule::class
     ]
 )
 interface AppComponent {
