@@ -7,12 +7,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.ItemOperationBinding
-import com.simenko.qmapp.databinding.ItemSubOrderBinding
 import com.simenko.qmapp.databinding.ItemSubOrderTaskBinding
-import com.simenko.qmapp.domain.DomainManufacturingOperation
 import com.simenko.qmapp.domain.DomainSubOrderTaskComplete
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 
 class SubOrderTaskClick(val block: (DomainSubOrderTaskComplete, Int) -> Unit) {
     fun onClick(operation: DomainSubOrderTaskComplete, position: Int) = block(operation, position)

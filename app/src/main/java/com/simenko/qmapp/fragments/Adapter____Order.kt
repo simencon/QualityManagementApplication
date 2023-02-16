@@ -10,13 +10,12 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 import javax.inject.Inject
 
 class OrderClick(val block: (DomainOrderComplete, Int) -> Unit) {

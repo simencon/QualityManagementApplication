@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemChannelBinding
 import com.simenko.qmapp.domain.DomainManufacturingChannel
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 
 class ChannelClick(val block: (DomainManufacturingChannel, Int) -> Unit) {
     fun onClick(channel: DomainManufacturingChannel, position: Int) = block(channel, position)

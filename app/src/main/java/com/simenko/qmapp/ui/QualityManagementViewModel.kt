@@ -1,4 +1,4 @@
-package com.simenko.qmapp.viewmodels
+package com.simenko.qmapp.ui
 
 import android.app.Application
 import androidx.lifecycle.*

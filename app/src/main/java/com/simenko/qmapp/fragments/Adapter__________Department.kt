@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 
 class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
     fun onClick(department: DomainDepartmentComplete, position: Int) = block(department, position)

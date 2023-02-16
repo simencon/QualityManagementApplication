@@ -8,7 +8,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.simenko.qmapp.viewmodels.QualityManagementViewModel" />
+            type="com.simenko.qmapp.ui.QualityManagementViewModel" />
     </data>
 
     <FrameLayout

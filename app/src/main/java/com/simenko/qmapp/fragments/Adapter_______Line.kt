@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemLineBinding
 import com.simenko.qmapp.domain.DomainManufacturingLine
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 
 class LineClick(val block: (DomainManufacturingLine, Int) -> Unit) {
     fun onClick(line: DomainManufacturingLine, position: Int) = block(line, position)

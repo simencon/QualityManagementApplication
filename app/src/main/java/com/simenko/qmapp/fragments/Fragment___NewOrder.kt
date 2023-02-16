@@ -21,7 +21,7 @@ import com.simenko.qmapp.databinding.FragmentOrderBinding
 import com.simenko.qmapp.domain.DomainInputForOrder
 import com.simenko.qmapp.domain.DomainMeasurementReason
 import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 import kotlin.collections.ArrayList
 
 var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()

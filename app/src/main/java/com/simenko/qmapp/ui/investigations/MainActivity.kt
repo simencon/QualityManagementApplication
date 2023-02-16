@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main
+package com.simenko.qmapp.ui.investigations
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -19,7 +19,7 @@ import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.fragments.Fragment____RecyclerViewForMainActivity
 import com.simenko.qmapp.fragments.Fragment______ViewPagerContainer
 import com.simenko.qmapp.fragments.Fragment_____NewOrder
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
 import com.simenko.qmapp.usetesting.CustomManager
 import javax.inject.Inject

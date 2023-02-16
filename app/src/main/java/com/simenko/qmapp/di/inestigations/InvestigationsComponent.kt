@@ -1,10 +1,12 @@
 package com.simenko.qmapp.di.inestigations
 
 import com.simenko.qmapp.fragments.Adapter____Order
-import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.investigations.MainActivity
+import com.simenko.qmapp.usetesting.StringProviderModule
 import dagger.Subcomponent
 
-@Subcomponent
+@InvestigationsScope
+@Subcomponent(modules = [StringProviderModule::class])
 interface InvestigationsComponent {
     @Subcomponent.Factory
     interface Factory{

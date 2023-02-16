@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.investigation
+package com.simenko.qmapp.ui.order
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

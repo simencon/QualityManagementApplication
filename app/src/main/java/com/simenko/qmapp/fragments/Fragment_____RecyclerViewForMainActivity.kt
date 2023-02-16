@@ -9,9 +9,9 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.investigations.MainActivity
 import com.simenko.qmapp.databinding.FragmentRvForMainActivityBinding
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 
 enum class Target (val title: String) {
     TEAM_MEMBERS ("Company employees"),

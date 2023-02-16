@@ -12,9 +12,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubOrderBinding
-import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainSubOrderComplete
-import com.simenko.qmapp.viewmodels.QualityManagementViewModel
+import com.simenko.qmapp.ui.QualityManagementViewModel
 
 
 class SubOrderClick(val block: (DomainSubOrderComplete, Int) -> Unit) {
