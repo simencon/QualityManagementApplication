@@ -1,7 +1,5 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.room_entities.*
-
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,

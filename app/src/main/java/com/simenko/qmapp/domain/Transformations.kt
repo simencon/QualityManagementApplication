@@ -1,6 +1,6 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.room_entities.*
+import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ListTransformer
 import com.simenko.qmapp.utils.ObjectTransformer
 
@@ -15,7 +15,8 @@ fun DatabaseDepartment.toDomainDepartment() = ObjectTransformer(DatabaseDepartme
 fun DatabaseSubDepartment.toDomainSubDepartment() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
 fun DatabaseManufacturingChannel.toDomainChannel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
 fun DatabaseManufacturingLine.toDomainLine() = ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
-fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
+fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(
+    DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
 
 fun DatabaseSubOrderTask.toDomainSubOrderTask() = ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
 fun DatabaseCharacteristic.toDomainCharacteristic() = ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)

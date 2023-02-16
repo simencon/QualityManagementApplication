@@ -1,10 +1,9 @@
-package com.simenko.qmapp.room_implementation
+package com.simenko.qmapp.room.implementation
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.*
-import com.simenko.qmapp.room_entities.*
+import com.simenko.qmapp.room.entities.*
 
 @Dao
 interface QualityManagementManufacturingDao {

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.room_entities
+package com.simenko.qmapp.room.entities
 
 import androidx.room.*
 

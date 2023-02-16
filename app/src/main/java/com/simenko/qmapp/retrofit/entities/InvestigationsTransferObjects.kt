@@ -1,4 +1,4 @@
-package com.simenko.qmapp.retrofit_entities
+package com.simenko.qmapp.retrofit.entities
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

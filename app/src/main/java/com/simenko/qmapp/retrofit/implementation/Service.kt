@@ -1,7 +1,6 @@
 package com.simenko.qmapp.retrofit_entities
 
-import androidx.lifecycle.LiveData
-import com.simenko.qmapp.room_entities.*
+import com.simenko.qmapp.retrofit.entities.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Retrofit
