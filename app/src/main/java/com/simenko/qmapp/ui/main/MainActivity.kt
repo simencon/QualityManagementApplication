@@ -22,12 +22,16 @@ import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.viewmodels.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
 import com.simenko.qmapp.usetesting.CustomManager
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     companion object {
         private const val TAG = "MainActivity"
     }
+
+    @Inject
+    lateinit var messageMain: String
 
     val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this) {
@@ -47,8 +51,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         var customManager = CustomManager(application as BaseApplication)
         customManager.changeToGlobalMessage()
-
         Log.d(TAG, "onCreate: message: ${customManager.messageFromCustomManager}")
+
+        var investigationsComponent = (application as BaseApplication).appComponent.investigationsComponent().create()
+        investigationsComponent.inject(this)
+        Log.d(TAG, "onCreate: message: $messageMain")
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

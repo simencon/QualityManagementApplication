@@ -83,7 +83,7 @@ class Fragment____RecyclerViewContainerForViewPager(
                     OrderSubOrdersClick {order, position ->
                         order.subOrdersVisibility = !order.subOrdersVisibility
                         updateOneRvItem(position)
-                    },viewModel, viewLifecycleOwner
+                    },viewModel, viewLifecycleOwner, activity?.application
                 )
 //                Start looking for target live data
                 viewModel.completeOrders.observe(

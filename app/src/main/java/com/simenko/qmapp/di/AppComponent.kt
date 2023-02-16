@@ -2,6 +2,7 @@ package com.simenko.qmapp.di
 
 
 import android.content.Context
+import com.simenko.qmapp.di.inestigations.InvestigationsComponent
 import com.simenko.qmapp.usetesting.StringProviderModule
 import com.simenko.qmapp.usetesting.TestingComponent
 import dagger.BindsInstance
@@ -27,5 +28,7 @@ interface AppComponent {
         fun create(@BindsInstance context: Context): AppComponent
     }
 
+    fun investigationsComponent(): InvestigationsComponent.Factory
     fun testingComponent(): TestingComponent.Factory
+
 }
