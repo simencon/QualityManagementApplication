@@ -1,8 +1,7 @@
-package com.simenko.qmapp.ui.investigations
+package com.simenko.qmapp.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -10,16 +9,14 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.fragments.Fragment____RecyclerViewForMainActivity
-import com.simenko.qmapp.fragments.Fragment______ViewPagerContainer
+import com.simenko.qmapp.fragments.PagerContainerFragment
 import com.simenko.qmapp.fragments.Fragment_____NewOrder
-import com.simenko.qmapp.ui.QualityManagementViewModel
 import com.simenko.qmapp.fragments.Target
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
@@ -137,7 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 R.id.nav_inv_orders_general -> {
                     target = Target.ORDERS
-                    Fragment______ViewPagerContainer()
+                    PagerContainerFragment()
                 }
 
                 R.id.nav_inv_orders_status_monitoring -> {

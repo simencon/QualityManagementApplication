@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.FragmentOrderBinding
+import com.simenko.qmapp.databinding.FragmentNewOrderBinding
 import com.simenko.qmapp.domain.DomainInputForOrder
 import com.simenko.qmapp.domain.DomainMeasurementReason
 import com.simenko.qmapp.domain.DomainTeamMember
@@ -47,13 +47,13 @@ class Fragment_____NewOrder : Fragment() {
 //    Simple way to obtain view model instance-----------------------------------
 //    private val viewModel: QualityManagementViewModel by viewModels()
 
-    private lateinit var binding: FragmentOrderBinding
+    private lateinit var binding: FragmentNewOrderBinding
     private lateinit var dialog: Dialog
 
     override fun onCreateView(p0: LayoutInflater, p1: ViewGroup?, p2: Bundle?): View? {
 
-        binding = DataBindingUtil.inflate(p0, R.layout.fragment___order, p1, false)
-                as FragmentOrderBinding
+        binding = DataBindingUtil.inflate(p0, R.layout.fragment___new_order, p1, false)
+                as FragmentNewOrderBinding
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -407,7 +407,7 @@ enum class TargetSpinner(
 
 fun <T> generateOptionsList(
     spinner: TargetSpinner,
-    binding: FragmentOrderBinding,
+    binding: FragmentNewOrderBinding,
     originList1: List<DomainMeasurementReason>,
     originList2: List<DomainInputForOrder>,
     originList3: List<DomainTeamMember>

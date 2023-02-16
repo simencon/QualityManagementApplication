@@ -5,15 +5,15 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.simenko.qmapp.fragments.Fragment____RecyclerViewContainerForViewPager
-import com.simenko.qmapp.fragments.Fragment______ViewPagerContainer
+import com.simenko.qmapp.fragments.OrdersFragment
+import com.simenko.qmapp.fragments.PagerContainerFragment
 import com.simenko.qmapp.fragments.TargetInv
 
 /**
  * The number of pages (wizard steps) to show in this demo = [tabTitles].size.
  */
 
-class OrderSectionPagerAdapter(private val fa: Fragment______ViewPagerContainer) :
+class OrderSectionPagerAdapter(private val fa: PagerContainerFragment) :
     FragmentStateAdapter(fa) {
 
     init {
@@ -27,9 +27,9 @@ class OrderSectionPagerAdapter(private val fa: Fragment______ViewPagerContainer)
 
     override fun createFragment(position: Int): Fragment {
         return when(position){
-            0-> Fragment____RecyclerViewContainerForViewPager.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
-            1-> Fragment____RecyclerViewContainerForViewPager.newInstance(fa,"Title", TargetInv.TASKS, parentId)
-            else -> Fragment____RecyclerViewContainerForViewPager.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
+            0-> OrdersFragment.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
+            1-> OrdersFragment.newInstance(fa,"Title", TargetInv.TASKS, parentId)
+            else -> OrdersFragment.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
         }
     }
 }

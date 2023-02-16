@@ -13,8 +13,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.investigations.MainActivity
-import com.simenko.qmapp.databinding.FragmentRvForViewPagerBinding
+import com.simenko.qmapp.ui.MainActivity
+import com.simenko.qmapp.databinding.FragmentResultsBinding
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
 enum class TargetInv() {
@@ -31,11 +31,11 @@ private const val ARG_PARAM2 = "PARENT_ID"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [Fragment____RecyclerViewContainerForViewPager.newInstance] factory method to
+ * Use the [OrdersFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Fragment____RecyclerViewContainerForViewPager(
-    val parentActivity: Fragment______ViewPagerContainer,
+class OrdersFragment(
+    val parentActivity: PagerContainerFragment,
     var title: String
 ) :
     Fragment() {
@@ -142,9 +142,9 @@ class Fragment____RecyclerViewContainerForViewPager(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding: FragmentRvForViewPagerBinding = DataBindingUtil.inflate(
+        val binding: FragmentResultsBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment____rv_for_view_pager,
+            R.layout.fragment____results,
             container,
             false
         )
@@ -174,12 +174,12 @@ class Fragment____RecyclerViewContainerForViewPager(
          */
         @JvmStatic
         fun newInstance(
-            parentActivity: Fragment______ViewPagerContainer,
+            parentActivity: PagerContainerFragment,
             title: String,
             targetList: TargetInv,
             parentId: Int
         ) =
-            Fragment____RecyclerViewContainerForViewPager(parentActivity, title).apply {
+            OrdersFragment(parentActivity, title).apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, targetList.name)
                     putInt(ARG_PARAM2, parentId)

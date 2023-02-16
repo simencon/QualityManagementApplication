@@ -9,8 +9,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.investigations.MainActivity
-import com.simenko.qmapp.databinding.FragmentRvForMainActivityBinding
+import com.simenko.qmapp.ui.MainActivity
+import com.simenko.qmapp.databinding.FragmentOrdersBinding
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
 enum class Target (val title: String) {
@@ -80,9 +80,9 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         param1 = arguments?.getString(ARG_PARAM1).toString()
-        val binding: FragmentRvForMainActivityBinding = DataBindingUtil.inflate(
+        val binding: FragmentOrdersBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_____rv_for_main_activity,
+            R.layout.fragment_____orders,
             container,
             false
         )

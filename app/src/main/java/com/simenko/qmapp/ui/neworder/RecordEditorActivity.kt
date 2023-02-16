@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.order
+package com.simenko.qmapp.ui.neworder
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

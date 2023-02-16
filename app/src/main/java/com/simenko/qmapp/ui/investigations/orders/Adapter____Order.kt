@@ -1,27 +1,18 @@
 package com.simenko.qmapp.fragments
 
 import android.app.Activity
-import android.content.Context
-import android.util.Log
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.ui.QualityManagementViewModel
-import com.simenko.qmapp.ui.investigations.MainActivity
-import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
-import javax.inject.Inject
+import com.simenko.qmapp.ui.MainActivity
 
 class OrderClick(val block: (DomainOrderComplete, Int) -> Unit) {
     fun onClick(order: DomainOrderComplete, position: Int): Unit {
