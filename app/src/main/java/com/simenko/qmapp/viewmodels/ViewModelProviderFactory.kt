@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import javax.inject.Inject
 import javax.inject.Provider
 
-
 //Class<out ViewModel> - means any class which extends viewModel
 //ToDo one more time learn the mechanism how it works (multibinding)
 class ViewModelProviderFactory @Inject constructor(private val creators: Map<Class<out ViewModel>, Provider<ViewModel>>) :

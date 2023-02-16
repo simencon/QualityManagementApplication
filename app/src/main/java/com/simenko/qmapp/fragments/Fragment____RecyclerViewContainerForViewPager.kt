@@ -1,5 +1,6 @@
 package com.simenko.qmapp.fragments
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -69,8 +70,6 @@ class Fragment____RecyclerViewContainerForViewPager(
                 if (isNetworkError) onNetworkError()
             })
 
-        val resolvedBackground = AdapterUtils.getNormalBackground(requireContext())
-
         when (param1) {
             TargetInv.ORDERS.name -> {
 //                Create adapter
@@ -83,7 +82,7 @@ class Fragment____RecyclerViewContainerForViewPager(
                     OrderSubOrdersClick {order, position ->
                         order.subOrdersVisibility = !order.subOrdersVisibility
                         updateOneRvItem(position)
-                    },viewModel, viewLifecycleOwner
+                    }, activity as Activity
                 )
 //                Start looking for target live data
                 viewModel.completeOrders.observe(

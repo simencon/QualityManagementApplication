@@ -1,7 +1,7 @@
-package com.simenko.qmapp.di.inestigations
+package com.simenko.qmapp.ui.investigations
 
-import com.simenko.qmapp.fragments.Adapter____Order
-import com.simenko.qmapp.ui.investigations.MainActivity
+import com.simenko.qmapp.di.inestigations.InvestigationsModule
+import com.simenko.qmapp.di.inestigations.InvestigationsScope
 import dagger.Subcomponent
 
 @InvestigationsScope
@@ -15,7 +15,5 @@ interface InvestigationsComponent {
     interface Factory{
         fun create(): InvestigationsComponent
     }
-
     fun inject(activity: MainActivity)
-    fun inject(orderAdapter: Adapter____Order)
 }

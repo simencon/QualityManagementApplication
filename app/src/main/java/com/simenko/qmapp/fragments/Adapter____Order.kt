@@ -1,6 +1,8 @@
 package com.simenko.qmapp.fragments
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,11 +10,18 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.investigations.MainActivity
+import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import javax.inject.Inject
 
 class OrderClick(val block: (DomainOrderComplete, Int) -> Unit) {
     fun onClick(order: DomainOrderComplete, position: Int): Unit {
@@ -34,16 +43,21 @@ class OrderViewHolder(val viewDataBinding: ItemOrderBinding) :
     }
 }
 
-class Adapter____Order(
+private const val TAG = "Adapter____Order"
+
+class Adapter____Order constructor(
     private val callbackOrderDetails: OrderClick,
     private val callbackOrderSubOrders: OrderSubOrdersClick,
-    val viewModel: QualityManagementViewModel,
-    private val lifecycleOwner: LifecycleOwner
+    activity: Activity
 ) :
     RecyclerView.Adapter<OrderViewHolder>() {
 
-    companion object {
-        private const val TAG = "Adapter____Order"
+    private val viewModel: QualityManagementViewModel
+    private val lifecycleOwner: LifecycleOwner
+
+    init {
+        viewModel = (activity as MainActivity).viewModel
+        lifecycleOwner = activity as MainActivity
     }
 
     var itemsList: List<DomainOrderComplete> = emptyList()
@@ -75,7 +89,7 @@ class Adapter____Order(
                 Adapter___SubOrder(SubOrderClick { subOrder, position ->
                     subOrder.detailsVisibility = !subOrder.detailsVisibility
                     it.childAdapter?.notifyItemChanged(position)
-                },SubOrderTasksClick { subOrder, position ->
+                }, SubOrderTasksClick { subOrder, position ->
                     subOrder.tasksVisibility = !subOrder.tasksVisibility
                     it.childAdapter?.notifyItemChanged(position)
                 }, viewModel, lifecycleOwner)
@@ -93,37 +107,10 @@ class Adapter____Order(
                     }
                 }
             )
-
-//            ToDo      To highlight latest item (later use for measurements results)
-            /*if(OrderAdapter.lastCheckedPos == position) {
-                it.orderClickableOverlay.setBackgroundResource(R.drawable.background____selected_record)
-            } else {
-                it.orderClickableOverlay.setBackgroundResource(AdapterUtils.getNormalBackground(requireNotNull(callbackImplementedIn.context)).resourceId)
-            }*/
-
         }
     }
 
     override fun getItemCount(): Int {
         return itemsList.size
-    }
-
-}
-
-object AdapterUtils {
-    fun getNormalBackground(context: Context): TypedValue {
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(
-            android.R.attr.selectableItemBackgroundBorderless,
-            outValue,
-            true
-        )
-        return outValue
-    }
-
-    fun getSelectedBackground(context: Context): TypedValue {
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(R.drawable.background____selected_record, outValue, true)
-        return outValue
     }
 }

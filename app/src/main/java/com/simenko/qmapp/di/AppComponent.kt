@@ -2,7 +2,7 @@ package com.simenko.qmapp.di
 
 
 import android.content.Context
-import com.simenko.qmapp.di.inestigations.InvestigationsComponent
+import com.simenko.qmapp.ui.investigations.InvestigationsComponent
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
