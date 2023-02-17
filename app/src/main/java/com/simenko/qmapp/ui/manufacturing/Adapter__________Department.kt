@@ -1,4 +1,4 @@
-package com.simenko.qmapp.fragments
+package com.simenko.qmapp.ui.manufacturing
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

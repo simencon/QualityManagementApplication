@@ -1,4 +1,4 @@
-package com.simenko.qmapp.fragments
+package com.simenko.qmapp.ui.manufacturing
 
 import android.os.Bundle
 import android.view.*
@@ -10,30 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.MainActivity
-import com.simenko.qmapp.databinding.FragmentOrdersBinding
+import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
-enum class Target (val title: String) {
-    TEAM_MEMBERS ("Company employees"),
-    DEPARTMENTS ("Company structure"),
-    SUB_DEPARTMENTS ("Company products"),
-    ORDERS ("Investigations");
-}
+class ManufacturingFragment : Fragment() {
 
-private const val ARG_PARAM1 = "TARGET_LIST"
-
-class ManufacturingFragment(val title: String) : Fragment() {
-
-    constructor() : this("restored") {
-
-    }
-
-    private var param1: String? = null
-
-    /**
-     * Used lazy init due to the fact - is not possible to get the activity,
-     * until the moment the view is created
-     */
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
@@ -42,32 +23,12 @@ class ManufacturingFragment(val title: String) : Fragment() {
     }
 
     private val rvAdapter by lazy {
-        when (param1) {
-            Target.TEAM_MEMBERS.name -> {
-                Adapter___________TeamMember(
-                    TeamMemberClick {
-                        Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_LONG).show()
-                    }
-                )
-            }
-            Target.DEPARTMENTS.name -> {
-                Adapter__________Department(
-                    DepartmentClick { item, position ->
-                        item.departmentDetailsVisibility = !item.departmentDetailsVisibility
-                        updateOneRvItem(position)
-                    }, viewModel, viewLifecycleOwner
-                )
-            }
-            Target.SUB_DEPARTMENTS.name -> {
-                Adapter________SubDepartment(
-                    SubDepartmentClick { subDepartment, position ->
-                        subDepartment.channelsVisibility = !subDepartment.channelsVisibility
-                        updateOneRvItem(position)
-                    }, viewModel, viewLifecycleOwner
-                )
-            }
-            else -> null
-        }
+        Adapter__________Department(
+            DepartmentClick { item, position ->
+                item.departmentDetailsVisibility = !item.departmentDetailsVisibility
+                updateOneRvItem(position)
+            }, viewModel, viewLifecycleOwner
+        )
     }
 
     private fun updateOneRvItem(position: Int) {
@@ -79,10 +40,10 @@ class ManufacturingFragment(val title: String) : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        param1 = arguments?.getString(ARG_PARAM1).toString()
-        val binding: FragmentOrdersBinding = DataBindingUtil.inflate(
+
+        val binding: FragmentRvOnlyBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_____orders,
+            R.layout.fragment_____rv_only,
             container,
             false
         )
@@ -96,11 +57,10 @@ class ManufacturingFragment(val title: String) : Fragment() {
             adapter = rvAdapter
         }
 
-        viewModel.eventNetworkError.observe(
-            viewLifecycleOwner,
-            Observer<Boolean> { isNetworkError ->
-                if (isNetworkError) onNetworkError()
-            })
+        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer { isNetworkError ->
+            if (isNetworkError) onNetworkError()
+        }
+        )
 
         return binding.root
     }
@@ -115,72 +75,12 @@ class ManufacturingFragment(val title: String) : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (param1 == null) {
-            param1 = arguments?.getString(ARG_PARAM1).toString()
-        }
-
-
-        when (param1) {
-            Target.TEAM_MEMBERS.name -> {
-                viewModel.teamMembers.observe(
-                    viewLifecycleOwner,
-                    Observer { items ->
-                        items?.apply {
-                            (rvAdapter as Adapter___________TeamMember).itemsList = items
-                        }
-                    })
+        viewModel.departmentsDetailed.observe(viewLifecycleOwner, Observer { items ->
+            items?.apply {
+                (rvAdapter as Adapter__________Department).itemsList = items
             }
-            Target.DEPARTMENTS.name -> {
-                viewModel.departmentsDetailed.observe(
-                    viewLifecycleOwner,
-                    Observer { items ->
-                        items?.apply {
-                            (rvAdapter as Adapter__________Department).itemsList = items
-                        }
-                    })
-            }
-            Target.SUB_DEPARTMENTS.name -> {
-                viewModel.subDepartments.observe(
-                    viewLifecycleOwner,
-                    Observer { items ->
-                        items?.apply {
-                            (rvAdapter as Adapter________SubDepartment).itemsList = items
-                        }
-                    })
-            }
-            Target.ORDERS.name -> {
-                viewModel.completeOrders.observe(
-                    viewLifecycleOwner,
-                    Observer { items ->
-                        items?.apply {
-                            (rvAdapter as Adapter____Order).itemsList = items
-                        }
-                    })
-            }
-            else -> {
-
-            }
-        }
+        })
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param targetList Parameter 1.
-         * @return A new instance of fragment Fragment____Structure.
-         */
-        @JvmStatic
-        fun newInstance(
-            title: String,
-            targetList: Target,
-        ) =
-            ManufacturingFragment(title).apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, targetList.name)
-                }
-            }
-    }
 }
 

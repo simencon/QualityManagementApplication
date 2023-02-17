@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.retrofit_entities.*
 import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer

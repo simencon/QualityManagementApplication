@@ -69,10 +69,6 @@ class QualityManagementViewModel @Inject constructor (application: Application) 
         refreshDataFromRepository()
     }
 
-    /**
-     * Factory for constructing ViewModel with into specific application
-     * Used here [com.simenko.qmapp.fragments.ManufacturingFragment.viewModel]
-     */
     class Factory(val app: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(QualityManagementViewModel::class.java)) {
@@ -83,9 +79,6 @@ class QualityManagementViewModel @Inject constructor (application: Application) 
         }
     }
 
-    /**
-     * Used in [com.simenko.qmapp.fragments.ManufacturingFragment.onNetworkError] to change trigger value
-     */
 
     fun onNetworkErrorShown() {
         _isNetworkErrorShown.value = true

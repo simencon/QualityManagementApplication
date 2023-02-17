@@ -16,7 +16,7 @@
 
         <variable
             name="subOrderTaskCallback"
-            type="com.simenko.qmapp.fragments.SubOrderTaskClick" />
+            type="com.simenko.qmapp.ui.investigations.orders.SubOrderTaskClick" />
     </data>
 
     <androidx.cardview.widget.CardView

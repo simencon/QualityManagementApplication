@@ -14,10 +14,8 @@ import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
-import com.simenko.qmapp.fragments.ManufacturingFragment
-import com.simenko.qmapp.fragments.InvestigationsContainerFragment
-import com.simenko.qmapp.fragments.Fragment_____NewOrder
-import com.simenko.qmapp.fragments.Target
+import com.simenko.qmapp.ui.manufacturing.ManufacturingFragment
+import com.simenko.qmapp.ui.investigations.InvestigationsContainerFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
@@ -108,7 +106,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         mPreviousMenuItem = item
 
-        lateinit var target: Target
         val selectedFragment =
             when (item.getItemId()) {
                 R.id.nav_company_profile -> {
@@ -118,17 +115,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     TODO("List item exists, need to create fragment similar to manufacturing")
                 }
                 R.id.nav_structure -> {
-                    target = Target.DEPARTMENTS
-                    ManufacturingFragment.newInstance(
-                        "Departments",
-                        Target.DEPARTMENTS
-                    )
+                    ManufacturingFragment()
                 }
                 R.id.nav_products -> {
                     TODO("Will be pager fragment for products")
                 }
                 R.id.nav_inv_orders_general -> {
-                    target = Target.ORDERS
                     InvestigationsContainerFragment()
                 }
                 R.id.nav_inv_orders_process_control -> {
@@ -142,7 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     TODO("Will be monitoring page")
                 }
             }
-        this.title = target.title
+        this.title = "Make specific title later"
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, selectedFragment).commit()

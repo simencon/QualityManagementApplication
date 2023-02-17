@@ -10,7 +10,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter___SubOrder" />
+            type="com.simenko.qmapp.ui.investigations.orders.Adapter___SubOrder" />
 
         <variable
             name="position"
@@ -22,11 +22,11 @@
 
         <variable
             name="orderCallback"
-            type="com.simenko.qmapp.fragments.OrderClick" />
+            type="com.simenko.qmapp.ui.investigations.orders.OrderClick" />
 
         <variable
             name="orderSubOrdersCallback"
-            type="com.simenko.qmapp.fragments.OrderSubOrdersClick" />
+            type="com.simenko.qmapp.ui.investigations.orders.OrderSubOrdersClick" />
     </data>
 
     <androidx.cardview.widget.CardView

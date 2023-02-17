@@ -1,4 +1,4 @@
-package com.simenko.qmapp.fragments
+package com.simenko.qmapp.ui.neworder
 
 import android.app.Dialog
 import android.content.Context

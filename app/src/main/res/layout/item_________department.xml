@@ -10,7 +10,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter________SubDepartment" />
+            type="com.simenko.qmapp.ui.manufacturing.Adapter________SubDepartment" />
 
         <variable
             name="position"
@@ -22,7 +22,7 @@
 
         <variable
             name="departmentCallback"
-            type="com.simenko.qmapp.fragments.DepartmentClick" />
+            type="com.simenko.qmapp.ui.manufacturing.DepartmentClick" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"

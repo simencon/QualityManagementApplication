@@ -1,4 +1,4 @@
-package com.simenko.qmapp.fragments
+package com.simenko.qmapp.ui.investigations
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,8 +12,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.MainActivity
 import com.simenko.qmapp.databinding.FragmentPagerContainerBinding
-import com.simenko.qmapp.pagers.OrderSectionPagerAdapter
-import com.simenko.qmapp.pagers.ZoomOutPageTransformer
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
 class InvestigationsContainerFragment : Fragment(), SendMessage {
@@ -47,7 +45,6 @@ class InvestigationsContainerFragment : Fragment(), SendMessage {
         val tabLayout: TabLayout = binding.tabs
         TabLayoutMediator(tabLayout, viewPager, true, true) { tab, position ->
             tab.text = TargetInv.values()[position].name
-            position
         }.attach()
 
         return binding.root
@@ -64,6 +61,12 @@ class InvestigationsContainerFragment : Fragment(), SendMessage {
             }
         }
     }
+
+    enum class TargetInv() {
+        INVESTIGATIONS,
+        RESULTS
+    }
+
 }
 
 interface SendMessage {

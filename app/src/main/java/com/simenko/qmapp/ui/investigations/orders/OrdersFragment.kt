@@ -1,4 +1,4 @@
-package com.simenko.qmapp.fragments
+package com.simenko.qmapp.ui.investigations.orders
 
 import android.app.Activity
 import android.os.Bundle
@@ -13,37 +13,14 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
+import com.simenko.qmapp.databinding.FragmentRvAndTitleBinding
 import com.simenko.qmapp.ui.MainActivity
-import com.simenko.qmapp.databinding.FragmentResultsBinding
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
-enum class TargetInv() {
-    ORDERS,
-    TASKS,
-    ITEMS,
-    RESULTS,
-    FOR_TESTING
-}
-
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "TARGET_LIST"
-private const val ARG_PARAM2 = "PARENT_ID"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [OrdersFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class OrdersFragment(
-    val parentActivity: InvestigationsContainerFragment,
-    var title: String
+    private var title: String
 ) :
     Fragment() {
-    /**
-     * Used lazy init due to the fact - is not possible to get the activity,
-     * until the moment the view is created
-     */
-    private val TAG = "Fragment____Investigation"
 
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
@@ -52,77 +29,18 @@ class OrdersFragment(
         model
     }
 
-    private var param1: String? = null
-    private var param2: Int? = null
-    lateinit var textView: TextView
-
-    /**
-     * Three actions done within recycler view adapter instantiation:
-     * 1. Observe if all is fine with connection
-     * 2. Observe specific live data
-     * 3. Assign proper adapter
-     */
     private val rvAdapter by lazy {
-//        Start looking if all is fine with connection
-        viewModel.eventNetworkError.observe(
-            viewLifecycleOwner,
-            Observer { isNetworkError ->
-                if (isNetworkError) onNetworkError()
-            })
-
-        when (param1) {
-            TargetInv.ORDERS.name -> {
-//                Create adapter
-                val rv = Adapter____Order(
-                    OrderClick {order, position ->
-                        order.detailsVisibility = !order.detailsVisibility
-                        order.subOrdersVisibility = false
-                        updateOneRvItem(position)
-                    },
-                    OrderSubOrdersClick {order, position ->
-                        order.subOrdersVisibility = !order.subOrdersVisibility
-                        updateOneRvItem(position)
-                    }, activity as Activity
-                )
-//                Start looking for target live data
-                viewModel.completeOrders.observe(
-                    viewLifecycleOwner,
-                    Observer { items ->
-                        items?.apply {
-                            rv.itemsList = items
-                        }
-                    })
-//                Assign adapter
-                rv
-            }
-            TargetInv.TASKS.name -> {
-                val rv = Adapter___SubOrder(
-                    SubOrderClick {subOrder, position  ->
-                        subOrder.detailsVisibility = !subOrder.detailsVisibility
-                        updateOneRvItem(position)
-                    },SubOrderTasksClick { subOrder, position ->
-                        subOrder.tasksVisibility = !subOrder.tasksVisibility
-                        updateOneRvItem(position)
-                    },viewModel, viewLifecycleOwner
-                )
-                viewModel.completeSubOrders.observe(
-                    viewLifecycleOwner,
-                    Observer { items ->
-                        items?.apply {
-                            rv.itemsList = items
-                        }
-                    }
-                )
-                rv
-            }
-            TargetInv.ITEMS.name -> {
-                null
-            }
-            TargetInv.RESULTS.name -> {
-                null
-            }
-            else -> null
-        }
+        Adapter____Order(
+            OrderClick { order, position ->
+                order.detailsVisibility = !order.detailsVisibility
+                order.subOrdersVisibility = false
+                updateOneRvItem(position)
+            },
+            OrderSubOrdersClick { order, position ->
+                order.subOrdersVisibility = !order.subOrdersVisibility
+                updateOneRvItem(position)
+            }, activity as Activity
+        )
     }
 
     private fun updateOneRvItem(position: Int) {
@@ -131,26 +49,19 @@ class OrdersFragment(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getInt(ARG_PARAM2)
-        }
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding: FragmentResultsBinding = DataBindingUtil.inflate(
+        val binding: FragmentRvAndTitleBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment____results,
+            R.layout.fragment____rv_and_title,
             container,
             false
         )
-        textView = binding.root.findViewById(R.id.title_investigations)
-        val text = "$title:  $param1"
-        textView.text = text
+        binding.root.findViewById<TextView?>(R.id.title_investigations).text = title
 
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -160,31 +71,24 @@ class OrdersFragment(
             adapter = rvAdapter
         }
         requireContext().theme
-        return binding.root
-    }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param targetList Parameter 1.
-         * @param parentId Parameter 2.
-         * @return A new instance of fragment Fragment____Investigations.
-         */
-        @JvmStatic
-        fun newInstance(
-            parentActivity: InvestigationsContainerFragment,
-            title: String,
-            targetList: TargetInv,
-            parentId: Int
-        ) =
-            OrdersFragment(parentActivity, title).apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, targetList.name)
-                    putInt(ARG_PARAM2, parentId)
+//        Start looking if all is fine with connection
+        viewModel.eventNetworkError.observe(
+            viewLifecycleOwner,
+            Observer { isNetworkError ->
+                if (isNetworkError) onNetworkError()
+            })
+
+//        Start looking for target live data
+        viewModel.completeOrders.observe(
+            viewLifecycleOwner,
+            Observer { items ->
+                items?.apply {
+                    rvAdapter.itemsList = items
                 }
-            }
+            })
+
+        return binding.root
     }
 
     private fun onNetworkError() {
@@ -193,5 +97,4 @@ class OrdersFragment(
             viewModel.onNetworkErrorShown()
         }
     }
-
 }

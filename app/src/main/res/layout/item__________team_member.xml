@@ -11,7 +11,7 @@
 
         <variable
             name="teamMemberCallback"
-            type="com.simenko.qmapp.fragments.TeamMemberClick" />
+            type="com.simenko.qmapp.ui.team.TeamMemberClick" />
     </data>
 
     <androidx.cardview.widget.CardView

@@ -1,35 +1,25 @@
-package com.simenko.qmapp.pagers
+package com.simenko.qmapp.ui.investigations
 
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.simenko.qmapp.fragments.OrdersFragment
-import com.simenko.qmapp.fragments.InvestigationsContainerFragment
-import com.simenko.qmapp.fragments.TargetInv
+import com.simenko.qmapp.ui.investigations.orders.OrdersFragment
 
-/**
- * The number of pages (wizard steps) to show in this demo = [tabTitles].size.
- */
 
-class OrderSectionPagerAdapter(private val fa: InvestigationsContainerFragment) :
-    FragmentStateAdapter(fa) {
-
-    init {
-    }
-
-    private var parentId = 0
+class OrderSectionPagerAdapter(fragment: InvestigationsContainerFragment) :
+    FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int {
-        return TargetInv.values().size
+        return InvestigationsContainerFragment.TargetInv.values().size
     }
 
     override fun createFragment(position: Int): Fragment {
         return when(position){
-            0-> OrdersFragment.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
-            1-> OrdersFragment.newInstance(fa,"Title", TargetInv.TASKS, parentId)
-            else -> OrdersFragment.newInstance(fa,"Title", TargetInv.ORDERS, parentId)
+            0-> OrdersFragment("Investigations")
+            1-> OrdersFragment("Measurement details") //To do - should be results
+            else -> OrdersFragment("Not in use")
         }
     }
 }

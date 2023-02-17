@@ -8,7 +8,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.fragments.Adapter______Operation" />
+            type="com.simenko.qmapp.ui.manufacturing.Adapter______Operation" />
 
         <variable
             name="position"
@@ -20,7 +20,7 @@
 
         <variable
             name="manLineCallback"
-            type="com.simenko.qmapp.fragments.LineClick" />
+            type="com.simenko.qmapp.ui.manufacturing.LineClick" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
