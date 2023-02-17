@@ -16,6 +16,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.investigations.InvestigationsContainerFragment
+import com.simenko.qmapp.ui.team.TeamFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
@@ -106,13 +107,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         mPreviousMenuItem = item
 
+        try {
         val selectedFragment =
-            when (item.getItemId()) {
+            when (item.itemId) {
                 R.id.nav_company_profile -> {
                     TODO("Will be fragment to display company profile")
                 }
                 R.id.nav_team -> {
-                    TODO("List item exists, need to create fragment similar to manufacturing")
+                    TeamFragment()
                 }
                 R.id.nav_structure -> {
                     ManufacturingFragment()
@@ -138,6 +140,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, selectedFragment).commit()
+        } catch (e: Error) {
+            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+        }
 
         drawer.closeDrawer(GravityCompat.START)
         return true

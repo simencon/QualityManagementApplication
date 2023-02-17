@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.manufacturing
+package com.simenko.qmapp.ui.team
 
 import android.os.Bundle
 import android.view.*
@@ -13,7 +13,7 @@ import com.simenko.qmapp.ui.MainActivity
 import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
-class ManufacturingFragment : Fragment() {
+class TeamFragment : Fragment() {
 
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
@@ -23,23 +23,18 @@ class ManufacturingFragment : Fragment() {
     }
 
     private val rvAdapter by lazy {
-        Adapter__________Department(
-            DepartmentClick { item, position ->
-                item.departmentDetailsVisibility = !item.departmentDetailsVisibility
-                updateOneRvItem(position)
-            }, viewModel, viewLifecycleOwner
+        Adapter___________TeamMember(
+            TeamMemberClick {
+                Toast.makeText(context, it.selectedRecord(), Toast.LENGTH_SHORT).show()
+            }
         )
-    }
-
-    private fun updateOneRvItem(position: Int) {
-        rvAdapter?.notifyItemChanged(position)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         val binding: FragmentRvOnlyBinding = DataBindingUtil.inflate(
             inflater,
@@ -48,7 +43,7 @@ class ManufacturingFragment : Fragment() {
             false
         )
 
-        binding.setLifecycleOwner(viewLifecycleOwner)
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
 
@@ -75,7 +70,7 @@ class ManufacturingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.departmentsDetailed.observe(viewLifecycleOwner, Observer { items ->
+        viewModel.teamMembers.observe(viewLifecycleOwner, Observer { items ->
             items?.apply {
                 rvAdapter.itemsList = items
             }
