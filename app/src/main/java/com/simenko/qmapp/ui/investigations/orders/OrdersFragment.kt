@@ -35,7 +35,7 @@ private const val ARG_PARAM2 = "PARENT_ID"
  * create an instance of this fragment.
  */
 class OrdersFragment(
-    val parentActivity: PagerContainerFragment,
+    val parentActivity: InvestigationsContainerFragment,
     var title: String
 ) :
     Fragment() {
@@ -174,7 +174,7 @@ class OrdersFragment(
          */
         @JvmStatic
         fun newInstance(
-            parentActivity: PagerContainerFragment,
+            parentActivity: InvestigationsContainerFragment,
             title: String,
             targetList: TargetInv,
             parentId: Int

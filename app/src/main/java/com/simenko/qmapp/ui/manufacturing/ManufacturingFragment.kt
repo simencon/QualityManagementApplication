@@ -22,7 +22,7 @@ enum class Target (val title: String) {
 
 private const val ARG_PARAM1 = "TARGET_LIST"
 
-class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
+class ManufacturingFragment(val title: String) : Fragment() {
 
     constructor() : this("restored") {
 
@@ -176,7 +176,7 @@ class Fragment____RecyclerViewForMainActivity(val title: String) : Fragment() {
             title: String,
             targetList: Target,
         ) =
-            Fragment____RecyclerViewForMainActivity(title).apply {
+            ManufacturingFragment(title).apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, targetList.name)
                 }

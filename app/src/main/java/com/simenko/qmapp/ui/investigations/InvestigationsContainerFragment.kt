@@ -16,7 +16,7 @@ import com.simenko.qmapp.pagers.OrderSectionPagerAdapter
 import com.simenko.qmapp.pagers.ZoomOutPageTransformer
 import com.simenko.qmapp.ui.QualityManagementViewModel
 
-class PagerContainerFragment : Fragment(), SendMessage {
+class InvestigationsContainerFragment : Fragment(), SendMessage {
 
     private lateinit var binding: FragmentPagerContainerBinding
     private lateinit var viewPager: ViewPager2

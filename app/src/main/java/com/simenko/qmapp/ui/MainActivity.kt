@@ -14,8 +14,8 @@ import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
-import com.simenko.qmapp.fragments.Fragment____RecyclerViewForMainActivity
-import com.simenko.qmapp.fragments.PagerContainerFragment
+import com.simenko.qmapp.fragments.ManufacturingFragment
+import com.simenko.qmapp.fragments.InvestigationsContainerFragment
 import com.simenko.qmapp.fragments.Fragment_____NewOrder
 import com.simenko.qmapp.fragments.Target
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -111,42 +111,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         lateinit var target: Target
         val selectedFragment =
             when (item.getItemId()) {
+                R.id.nav_company_profile -> {
+                    TODO("Will be fragment to display company profile")
+                }
                 R.id.nav_team -> {
-                    target = Target.TEAM_MEMBERS
-                    Fragment____RecyclerViewForMainActivity.newInstance(
-                        "Team",
-                        Target.TEAM_MEMBERS
-                    )
+                    TODO("List item exists, need to create fragment similar to manufacturing")
                 }
                 R.id.nav_structure -> {
                     target = Target.DEPARTMENTS
-                    Fragment____RecyclerViewForMainActivity.newInstance(
+                    ManufacturingFragment.newInstance(
                         "Departments",
                         Target.DEPARTMENTS
                     )
                 }
                 R.id.nav_products -> {
-                    target = Target.SUB_DEPARTMENTS
-                    Fragment____RecyclerViewForMainActivity.newInstance(
-                        "Sub departments",
-                        Target.SUB_DEPARTMENTS
-                    )
+                    TODO("Will be pager fragment for products")
                 }
                 R.id.nav_inv_orders_general -> {
                     target = Target.ORDERS
-                    PagerContainerFragment()
+                    InvestigationsContainerFragment()
+                }
+                R.id.nav_inv_orders_process_control -> {
+                    TODO("Will be pager fragment similar to general investigations")
                 }
 
                 R.id.nav_inv_orders_status_monitoring -> {
-                    target = Target.ORDERS
-                    Fragment_____NewOrder()
+                    TODO("Will be monitoring page")
                 }
                 else -> {
-                    target = Target.DEPARTMENTS
-                    Fragment____RecyclerViewForMainActivity.newInstance(
-                        "Departments",
-                        Target.DEPARTMENTS
-                    )
+                    TODO("Will be monitoring page")
                 }
             }
         this.title = target.title
