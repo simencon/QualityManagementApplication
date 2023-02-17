@@ -1,22 +1,23 @@
-package com.simenko.qmapp.ui.neworder
+package com.simenko.qmapp.ui.auth
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import com.simenko.qmapp.databinding.ActivityRecordEditorBinding
+import com.simenko.qmapp.databinding.ActivityAuthBinding
 
-class RecordEditorActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityRecordEditorBinding
+
+class AuthActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityAuthBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRecordEditorBinding.inflate(layoutInflater)
+        binding = ActivityAuthBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val button = binding.buttonSave
         /**
-         * One way to create anonymous inner class instance
+         ** One way to create anonymous inner class instance
          */
         button.setOnClickListener(object :OnClickListener {
             override fun onClick(view: View) {

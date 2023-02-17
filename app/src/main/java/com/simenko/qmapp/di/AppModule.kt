@@ -8,7 +8,7 @@ import javax.inject.Singleton
 
 
 @Module
-abstract class ViewModelFactoryModule {
+abstract class AppModule {
     @Singleton
     @Binds
     abstract fun bindViewModelFactory(modelProviderFactory: ViewModelProviderFactory): ViewModelProvider.Factory

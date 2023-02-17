@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui
+package com.simenko.qmapp.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,9 +14,9 @@ import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
-import com.simenko.qmapp.ui.manufacturing.ManufacturingFragment
-import com.simenko.qmapp.ui.investigations.InvestigationsContainerFragment
-import com.simenko.qmapp.ui.team.TeamFragment
+import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
+import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
+import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 

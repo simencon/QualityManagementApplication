@@ -1,11 +1,11 @@
-package com.simenko.qmapp.ui.investigations
+package com.simenko.qmapp.ui.main.investigations
 
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-import com.simenko.qmapp.ui.investigations.orders.OrdersFragment
+import com.simenko.qmapp.ui.main.investigations.orders.OrdersFragment
 
 
 class OrderSectionPagerAdapter(fragment: InvestigationsContainerFragment) :

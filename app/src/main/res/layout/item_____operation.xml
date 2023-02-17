@@ -15,7 +15,7 @@
 
         <variable
             name="manOperationCallback"
-            type="com.simenko.qmapp.ui.manufacturing.OperationClick" />
+            type="com.simenko.qmapp.ui.main.manufacturing.OperationClick" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"

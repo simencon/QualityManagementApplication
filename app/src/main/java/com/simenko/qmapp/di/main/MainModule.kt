@@ -1,17 +1,17 @@
-package com.simenko.qmapp.di.inestigations
+package com.simenko.qmapp.di.main
 
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.ViewModelKey
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoMap
 
 @Module
-class InvestigationsModule {
-    @InvestigationsScope
+class MainModule {
+    @MainScope
     @Provides
     @IntoMap
     @ViewModelKey(QualityManagementViewModel::class)

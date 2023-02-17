@@ -2,7 +2,7 @@ package com.simenko.qmapp.di
 
 
 import android.content.Context
-import com.simenko.qmapp.ui.investigations.InvestigationsComponent
+import com.simenko.qmapp.di.main.MainComponent
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 // Definition of a Dagger component that adds info from the different modules to the graph
 @Component(
     modules = [
-        ViewModelFactoryModule::class,
+        AppModule::class,
         AppSubcomponents::class,
     ]
 )
@@ -26,6 +26,6 @@ interface AppComponent {
         fun create(@BindsInstance context: Context): AppComponent
     }
 
-    fun investigationsComponent(): InvestigationsComponent.Factory
+    fun investigationsComponent(): MainComponent.Factory
 
 }

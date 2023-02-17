@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.app.Activity
 import android.os.Bundle
@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvAndTitleBinding
-import com.simenko.qmapp.ui.MainActivity
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class OrdersFragment(
     private var title: String

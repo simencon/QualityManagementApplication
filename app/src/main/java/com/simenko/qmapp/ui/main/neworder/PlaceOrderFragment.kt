@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder
+package com.simenko.qmapp.ui.main.neworder
 
 import android.app.Dialog
 import android.content.Context
@@ -21,14 +21,14 @@ import com.simenko.qmapp.databinding.FragmentNewOrderBinding
 import com.simenko.qmapp.domain.DomainInputForOrder
 import com.simenko.qmapp.domain.DomainMeasurementReason
 import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import kotlin.collections.ArrayList
 
 var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
 var listDomainMeasurementReasons = arrayListOf<DomainMeasurementReason>()
 private const val TAG = "OrderFragment"
 
-class Fragment_____NewOrder : Fragment() {
+class PlaceOrderFragment : Fragment() {
 
     /**
      * Used lazy init due to the fact - is not possible to get the activity,

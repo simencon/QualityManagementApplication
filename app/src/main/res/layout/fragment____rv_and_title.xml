@@ -3,12 +3,12 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.investigations.orders.OrdersFragment">
+    tools:context=".ui.main.investigations.orders.OrdersFragment">
 
     <data>
         <variable
             name="viewModel"
-            type="com.simenko.qmapp.ui.QualityManagementViewModel" />
+            type="com.simenko.qmapp.ui.main.QualityManagementViewModel" />
     </data>
 
     <FrameLayout

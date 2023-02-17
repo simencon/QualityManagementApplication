@@ -8,7 +8,7 @@
 
         <variable
             name="childAdapter"
-            type="com.simenko.qmapp.ui.manufacturing.Adapter_______Channel" />
+            type="com.simenko.qmapp.ui.main.manufacturing.Adapter_______Channel" />
 
         <variable
             name="position"
@@ -20,7 +20,7 @@
 
         <variable
             name="subDepartmentCallback"
-            type="com.simenko.qmapp.ui.manufacturing.SubDepartmentClick" />
+            type="com.simenko.qmapp.ui.main.manufacturing.SubDepartmentClick" />
     </data>
 
     <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"

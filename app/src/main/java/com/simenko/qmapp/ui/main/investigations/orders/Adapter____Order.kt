@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.app.Activity
 import android.view.LayoutInflater
@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOrderBinding
 import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.ui.QualityManagementViewModel
-import com.simenko.qmapp.ui.MainActivity
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.MainActivity
 
 class OrderClick(val block: (DomainOrderComplete, Int) -> Unit) {
     fun onClick(order: DomainOrderComplete, position: Int): Unit {

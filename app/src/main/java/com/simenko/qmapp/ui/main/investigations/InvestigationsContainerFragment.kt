@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.investigations
+package com.simenko.qmapp.ui.main.investigations
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +10,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.MainActivity
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.databinding.FragmentPagerContainerBinding
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class InvestigationsContainerFragment : Fragment(), SendMessage {
 

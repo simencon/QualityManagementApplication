@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.manufacturing
+package com.simenko.qmapp.ui.main.manufacturing
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
     fun onClick(department: DomainDepartmentComplete, position: Int) = block(department, position)

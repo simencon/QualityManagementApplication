@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui
+package com.simenko.qmapp.ui.main
 
 import android.app.Application
 import androidx.lifecycle.*

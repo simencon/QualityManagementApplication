@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubOrderTaskBinding
 import com.simenko.qmapp.domain.DomainSubOrderTaskComplete
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class SubOrderTaskClick(val block: (DomainSubOrderTaskComplete, Int) -> Unit) {
     fun onClick(operation: DomainSubOrderTaskComplete, position: Int) = block(operation, position)

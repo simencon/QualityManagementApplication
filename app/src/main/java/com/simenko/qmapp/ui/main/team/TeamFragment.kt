@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.team
+package com.simenko.qmapp.ui.main.team
 
 import android.os.Bundle
 import android.view.*
@@ -9,9 +9,9 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.MainActivity
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
-import com.simenko.qmapp.ui.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class TeamFragment : Fragment() {
 

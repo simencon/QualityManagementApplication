@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.team
+package com.simenko.qmapp.ui.main.team
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
