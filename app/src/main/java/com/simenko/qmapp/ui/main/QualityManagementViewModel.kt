@@ -1,28 +1,37 @@
 package com.simenko.qmapp.ui.main
 
-import android.app.Application
+import android.content.Context
 import androidx.lifecycle.*
+import com.simenko.qmapp.di.main.MainScope
 import com.simenko.qmapp.domain.DomainSubOrderComplete
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import java.io.IOException
 import javax.inject.Inject
 
-class QualityManagementViewModel @Inject constructor (application: Application) : AndroidViewModel(application) {
+@MainScope
+class QualityManagementViewModel @Inject constructor(
+    context: Context
+) : ViewModel() {
     /**
      * Gets data from Repositories - which is live data with list
      */
+
+    private val roomDatabase = getDatabase(context)
+
     private val qualityManagementManufacturingRepository =
-        QualityManagementManufacturingRepository(getDatabase(application))
+        QualityManagementManufacturingRepository(roomDatabase)
     private val qualityManagementProductsRepository =
-        QualityManagementProductsRepository(getDatabase(application))
+        QualityManagementProductsRepository(roomDatabase)
     private val qualityManagementInvestigationsRepository =
-        QualityManagementInvestigationsRepository(getDatabase(application))
+        QualityManagementInvestigationsRepository(roomDatabase)
+
+    init {
+        refreshDataFromRepository()
+    }
 
     val teamMembers = qualityManagementManufacturingRepository.teamMembers
     val departments = qualityManagementManufacturingRepository.departments
@@ -55,30 +64,9 @@ class QualityManagementViewModel @Inject constructor (application: Application) 
     val eventNetworkError: LiveData<Boolean>
         get() = _eventNetworkError
 
-    /**
-     *
-     */
     private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
     val isNetworkErrorShown: LiveData<Boolean>
         get() = _isNetworkErrorShown
-
-    /**
-     *
-     */
-    init {
-        refreshDataFromRepository()
-    }
-
-    class Factory(val app: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(QualityManagementViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return QualityManagementViewModel(app) as T
-            }
-            throw IllegalArgumentException("Unable to construct viewmodel")
-        }
-    }
-
 
     fun onNetworkErrorShown() {
         _isNetworkErrorShown.value = true
@@ -87,18 +75,10 @@ class QualityManagementViewModel @Inject constructor (application: Application) 
     /**
      * Runs every time when ViewModel in initializing process
      */
-    companion object {
-        fun refreshSubOrderList(parentId: Int) {
-
-        }
-    }
 
     private fun refreshDataFromRepository() {
-        val lock = Mutex()
-        var job: Job? = null
         viewModelScope.launch {
             try {
-//                runBlocking {
                 qualityManagementManufacturingRepository.refreshPositionLevels()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
                 qualityManagementManufacturingRepository.refreshCompanies()
@@ -124,7 +104,7 @@ class QualityManagementViewModel @Inject constructor (application: Application) 
                 qualityManagementInvestigationsRepository.refreshSamples()
                 qualityManagementInvestigationsRepository.refreshResultsDecryptions()
                 qualityManagementInvestigationsRepository.refreshResults()
-//                }
+
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
 

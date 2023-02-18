@@ -30,10 +30,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var providerFactory: ViewModelProviderFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (application as BaseApplication).appComponent
-            .investigationsComponent()
-            .create().inject(this)
-
+        (application as BaseApplication).appComponent.mainComponent().create().inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
         super.onCreate(savedInstanceState)

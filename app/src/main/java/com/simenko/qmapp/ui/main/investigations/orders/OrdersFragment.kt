@@ -10,12 +10,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvAndTitleBinding
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import javax.inject.Inject
 
 class OrdersFragment(
     private var title: String
@@ -23,10 +28,7 @@ class OrdersFragment(
     Fragment() {
 
     private val viewModel: QualityManagementViewModel by lazy {
-        val activity = requireNotNull(this.activity) {
-        }
-        val model = (activity as MainActivity).viewModel
-        model
+        (activity as MainActivity).viewModel
     }
 
     private val rvAdapter by lazy {
@@ -44,7 +46,7 @@ class OrdersFragment(
     }
 
     private fun updateOneRvItem(position: Int) {
-        rvAdapter?.notifyItemChanged(position)
+        rvAdapter.notifyItemChanged(position)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

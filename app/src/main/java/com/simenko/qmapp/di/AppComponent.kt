@@ -26,6 +26,6 @@ interface AppComponent {
         fun create(@BindsInstance context: Context): AppComponent
     }
 
-    fun investigationsComponent(): MainComponent.Factory
+    fun mainComponent(): MainComponent.Factory
 
 }

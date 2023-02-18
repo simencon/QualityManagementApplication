@@ -5,9 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import javax.inject.Inject
 import javax.inject.Provider
+import javax.inject.Singleton
 
 //Class<out ViewModel> - means any class which extends viewModel
-//ToDo one more time learn the mechanism how it works (multibinding)
+//ToDo one more time learn the mechanism how it works (multibinding) - Singleton doesn't work
 class ViewModelProviderFactory @Inject constructor(private val creators: Map<Class<out ViewModel>, Provider<ViewModel>>) :
     ViewModelProvider.Factory {
 

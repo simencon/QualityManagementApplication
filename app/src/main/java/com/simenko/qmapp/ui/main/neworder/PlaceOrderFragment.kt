@@ -16,12 +16,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentNewOrderBinding
 import com.simenko.qmapp.domain.DomainInputForOrder
 import com.simenko.qmapp.domain.DomainMeasurementReason
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
@@ -35,14 +38,13 @@ class PlaceOrderFragment : Fragment() {
      * until the moment the view is created
      */
 //    Custom way to obtain view model instance -----------------------------------
-    private val viewModel: QualityManagementViewModel by lazy {
-        val activity = requireNotNull(this.activity) {
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
 
-        }
-        Log.d(TAG, "viewModel by lazy: $activity")
+    private val viewModel: QualityManagementViewModel by lazy {
         ViewModelProvider(
-            this, QualityManagementViewModel.Factory(activity.application)
-        ).get(QualityManagementViewModel::class.java)
+            this, providerFactory
+        )[QualityManagementViewModel::class.java]
     }
 //    Simple way to obtain view model instance-----------------------------------
 //    private val viewModel: QualityManagementViewModel by viewModels()
@@ -51,6 +53,7 @@ class PlaceOrderFragment : Fragment() {
     private lateinit var dialog: Dialog
 
     override fun onCreateView(p0: LayoutInflater, p1: ViewGroup?, p2: Bundle?): View? {
+        (context?.applicationContext as BaseApplication).appComponent.mainComponent().create().inject(this)
 
         binding = DataBindingUtil.inflate(p0, R.layout.fragment___new_order, p1, false)
                 as FragmentNewOrderBinding
