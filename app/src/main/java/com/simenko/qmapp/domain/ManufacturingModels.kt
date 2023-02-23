@@ -18,7 +18,8 @@ data class DomainTeamMember(
     var jobRole: String,
     var roleLevelId: Int,
     var passWord: String? = null,
-    var companyId: Int
+    var companyId: Int,
+    var detailsVisibility: Boolean = false
 ) : ListOfItems {
     override fun selectedRecord(): String {
         return "$fullName ($department)"

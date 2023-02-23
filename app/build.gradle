@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "com.simenko.qmapp"
-        minSdk 23
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -140,4 +140,6 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.6.1'
     implementation 'androidx.compose.material3:material3'
     implementation "androidx.compose.material:material-icons-extended"
+
+    implementation("androidx.compose.runtime:runtime-livedata")
 }

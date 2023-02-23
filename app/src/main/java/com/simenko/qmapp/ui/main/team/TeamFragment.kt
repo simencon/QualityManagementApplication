@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -75,11 +73,11 @@ class TeamFragment : Fragment() {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            /*setContent {
+            setContent {
                 QMAppTheme {
-                    MyApp(Modifier.fillMaxSize())
+                    TeamMembersLiveData(Modifier.fillMaxSize(), viewModel)
                 }
-            }*/
+            }
         }
 
         return binding.root
@@ -103,11 +101,11 @@ class TeamFragment : Fragment() {
                     // Dispose of the Composition when the view's LifecycleOwner
                     // is destroyed
 //                    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                    setContent {
+                    /*setContent {
                         QMAppTheme {
                             TeamMembers(Modifier.fillMaxSize(), items)
                         }
-                    }
+                    }*/
                 }
 
             }

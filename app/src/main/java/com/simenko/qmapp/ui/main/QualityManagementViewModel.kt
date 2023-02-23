@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.main.MainScope
 import com.simenko.qmapp.domain.DomainSubOrderComplete
+import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
@@ -34,6 +36,15 @@ class QualityManagementViewModel @Inject constructor(
     }
 
     val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): DomainTeamMember {
+        var result = item
+        teamMembers.value?.find { it.id == item.id }?.let { member ->
+            member.detailsVisibility = !member.detailsVisibility
+            result = member
+        }
+        return result
+    }
+
     val departments = qualityManagementManufacturingRepository.departments
     val departmentsDetailed = qualityManagementManufacturingRepository.departmentsDetailed
     val subDepartments = qualityManagementManufacturingRepository.subDepartments
@@ -79,6 +90,7 @@ class QualityManagementViewModel @Inject constructor(
     private fun refreshDataFromRepository() {
         viewModelScope.launch {
             try {
+//                for (i in 1..30) {
                 qualityManagementManufacturingRepository.refreshPositionLevels()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
                 qualityManagementManufacturingRepository.refreshCompanies()
@@ -107,6 +119,9 @@ class QualityManagementViewModel @Inject constructor(
 
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
+
+//                    delay(5000)
+//                }
 
             } catch (networkError: IOException) {
                 // Show a Toast error message and hide the progress bar.
