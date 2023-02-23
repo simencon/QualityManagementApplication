@@ -68,20 +68,21 @@ fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
-    val observeTeam by appModel.teamMembers.observeAsState(initial = null)
+    val observeTeam by appModel.teamMembersMediator.observeAsState()
 
-    if (observeTeam != null) {
-        LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-            items(items = observeTeam!!) { teamMember ->
-                var result = teamMember
-                TeamMemberCard(
-                    onClickDetails = { it ->
-                        result = appModel.changeTeamMembersDetailsVisibility(it)
-                    },
-                    teamMember = result
-                )
+    observeTeam?.apply {
+            if (observeTeam!!.first != null) {
+                LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+                    items(items = observeTeam!!.first!!) { teamMember ->
+                        TeamMemberCard(
+                            teamMember = teamMember,
+                            onClickDetails = { it ->
+                                appModel.changeTeamMembersDetailsVisibility(it)
+                            }
+                        )
+                    }
+                }
             }
-        }
     }
 }
 

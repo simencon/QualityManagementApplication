@@ -35,14 +35,20 @@ class QualityManagementViewModel @Inject constructor(
         refreshDataFromRepository()
     }
 
+    private val teamMembersTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+
     val teamMembers = qualityManagementManufacturingRepository.teamMembers
-    fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): DomainTeamMember {
-        var result = item
+    val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
+            addSource(teamMembers) { value = Pair(it, teamMembersTrigger.value) }
+            addSource(teamMembersTrigger) { value = Pair(teamMembers.value, it) }
+        }
+
+    fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): Unit {
         teamMembers.value?.find { it.id == item.id }?.let { member ->
             member.detailsVisibility = !member.detailsVisibility
-            result = member
+            teamMembersTrigger.value = !(teamMembersTrigger.value as Boolean)
         }
-        return result
     }
 
     val departments = qualityManagementManufacturingRepository.departments
