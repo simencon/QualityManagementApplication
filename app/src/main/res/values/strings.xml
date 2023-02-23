@@ -20,5 +20,9 @@
 
     <string name="delete_btn"><i>Record will be deleted</i></string>
     <string name="edit_btn"><i>Record will be edited</i></string>
+    <string name="title_activity_team">TeamActivity</string>
+
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
 
 </resources>

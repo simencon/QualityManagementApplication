@@ -3,6 +3,12 @@ package com.simenko.qmapp.ui.main.team
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -13,6 +19,7 @@ import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.team.ui.theme.QMAppTheme
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
@@ -20,6 +27,7 @@ class TeamFragment : Fragment() {
 
 
     private lateinit var viewModel: QualityManagementViewModel
+    private lateinit var composition: ComposeView
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
@@ -37,7 +45,8 @@ class TeamFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        (activity?.application as BaseApplication).appComponent.mainComponent().create().inject(this)
+        (activity?.application as BaseApplication).appComponent.mainComponent().create()
+            .inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
         val binding: FragmentRvOnlyBinding = DataBindingUtil.inflate(
@@ -46,6 +55,7 @@ class TeamFragment : Fragment() {
             container,
             false
         )
+        composition = binding.composeView
 
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -60,6 +70,17 @@ class TeamFragment : Fragment() {
             if (isNetworkError) onNetworkError()
         }
         )
+
+        composition.apply {
+            // Dispose of the Composition when the view's LifecycleOwner
+            // is destroyed
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            /*setContent {
+                QMAppTheme {
+                    MyApp(Modifier.fillMaxSize())
+                }
+            }*/
+        }
 
         return binding.root
     }
@@ -77,6 +98,18 @@ class TeamFragment : Fragment() {
         viewModel.teamMembers.observe(viewLifecycleOwner, Observer { items ->
             items?.apply {
                 rvAdapter.itemsList = items
+
+                composition.apply {
+                    // Dispose of the Composition when the view's LifecycleOwner
+                    // is destroyed
+//                    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                    setContent {
+                        QMAppTheme {
+                            TeamMembers(Modifier.fillMaxSize(), items)
+                        }
+                    }
+                }
+
             }
         })
     }
