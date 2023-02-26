@@ -32,50 +32,50 @@ import com.simenko.qmapp.utils.StringUtils
 fun getOrders() = List(30) { i ->
 
     DomainOrderComplete(
-        order = DomainOrder(
-            id = i,
-            1,
-            1,
-            orderNumber = (100..300).random(),
-            1,
-            1,
-            1,
-            "2022-12-15T22:24:43",
-            "2022-12-15T22:24:43"
-        ),
-        orderType = DomainOrdersType(1, "Incoming Inspection"),
-        orderReason = DomainMeasurementReason(1, "Налагоджульник", "FLI", 1),
-        customer = DomainDepartment(
-            1,
-            "ГШСК№1",
-            "Група шліфувально-складальних ліній",
-            1,
-            "Manufacturing",
-            1,
-            1
-        ),
-        orderPlacer = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Роман Семенишин",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        orderStatus = DomainOrdersStatus(1, "In Progress"),
-        detailsVisibility = true,
-        subOrdersVisibility = false
+            order = DomainOrder(
+                    id = i,
+                    1,
+                    1,
+                    orderNumber = (100..300).random(),
+                    1,
+                    1,
+                    1,
+                    "2022-12-15T22:24:43",
+                    "2022-12-15T22:24:43"
+            ),
+            orderType = DomainOrdersType(1, "Incoming Inspection"),
+            orderReason = DomainMeasurementReason(1, "Налагоджульник", "FLI", 1),
+            customer = DomainDepartment(
+                    1,
+                    "ГШСК№1",
+                    "Група шліфувально-складальних ліній",
+                    1,
+                    "Manufacturing",
+                    1,
+                    1
+            ),
+            orderPlacer = DomainTeamMember(
+                    id = 1,
+                    departmentId = 1,
+                    department = "ГШСК№1",
+                    email = "roman.semenyshyn@skf.com",
+                    fullName = "Роман Семенишин",
+                    jobRole = "Quality Manager",
+                    roleLevelId = 1,
+                    passWord = "13050513",
+                    companyId = 1,
+                    detailsVisibility = false
+            ),
+            orderStatus = DomainOrdersStatus(1, "In Progress"),
+            detailsVisibility = true,
+            subOrdersVisibility = false
     )
 }
 
 @Composable
 fun OrdersLiveData(
-    modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel
+        modifier: Modifier = Modifier,
+        appModel: QualityManagementViewModel
 ) {
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
 
@@ -84,12 +84,12 @@ fun OrdersLiveData(
             LazyColumn(modifier = modifier) {
                 items(items = observeOrders!!.first!!) { order ->
                     OrderCard(
-                        viewModel = appModel,
-                        order = order,
-                        onClickDetails = { it ->
-                            appModel.changeCompleteOrdersDetailsVisibility(it)
-                        },
-                        modifier = modifier
+                            viewModel = appModel,
+                            order = order,
+                            onClickDetails = { it ->
+                                appModel.changeCompleteOrdersDetailsVisibility(it)
+                            },
+                            modifier = modifier
                     )
                 }
             }
@@ -99,29 +99,29 @@ fun OrdersLiveData(
 
 @Composable
 fun OrderCard(
-    viewModel: QualityManagementViewModel,
-    order: DomainOrderComplete,
-    onClickDetails: (DomainOrderComplete) -> Unit,
-    modifier: Modifier = Modifier
+        viewModel: QualityManagementViewModel,
+        order: DomainOrderComplete,
+        onClickDetails: (DomainOrderComplete) -> Unit,
+        modifier: Modifier = Modifier
 ) {
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = level_1_record_color,
-        ),
-        modifier = modifier
+            colors = CardDefaults.cardColors(
+                    containerColor = level_1_record_color,
+            ),
+            modifier = modifier
     ) {
         Order(
-            viewModel = viewModel,
-            modifier = modifier,
-            order = order,
-            onClickDetails = { onClickDetails(order) }
+                viewModel = viewModel,
+                modifier = modifier,
+                order = order,
+                onClickDetails = { onClickDetails(order) }
         )
     }
 }
 
 @Composable
 fun Order(
-    viewModel: QualityManagementViewModel? = null,
+        viewModel: QualityManagementViewModel? = null,
         modifier: Modifier = Modifier,
         order: DomainOrderComplete = getOrders()[0],
         onClickDetails: () -> Unit = {}
@@ -258,96 +258,96 @@ fun Order(
             }
         }
 
-        OrderDetails(viewModel = viewModel,modifier = modifier, order = order)
+        OrderDetails(viewModel = viewModel, modifier = modifier, order = order)
     }
 }
 
 @Composable
 fun OrderDetails(
-    viewModel: QualityManagementViewModel? = null,
-    modifier: Modifier = Modifier,
-    order: DomainOrderComplete = getOrders()[0],
+        viewModel: QualityManagementViewModel? = null,
+        modifier: Modifier = Modifier,
+        order: DomainOrderComplete = getOrders()[0],
 ) {
 
-        if (order.detailsVisibility) {
+    if (order.detailsVisibility) {
 
-            Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
 
-            Row(
+        Row(
                 modifier = modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
+        ) {
+            Text(
                     text = "Ordered by:",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.35f)
-                )
-                Text(
+                            .weight(weight = 0.35f)
+            )
+            Text(
                     text = order.orderPlacer.fullName,
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.65f)
-                        .padding(start = 3.dp)
-                )
-            }
-            Row(
+                            .weight(weight = 0.65f)
+                            .padding(start = 3.dp)
+            )
+        }
+        Row(
                 modifier = modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
+        ) {
+            Text(
                     text = "Order date:",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.35f)
-                )
-                Text(
+                            .weight(weight = 0.35f)
+            )
+            Text(
                     text = StringUtils.getDateTime(order.order.createdDate),
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.65f)
-                        .padding(start = 3.dp)
-                )
-            }
-            Row(
+                            .weight(weight = 0.65f)
+                            .padding(start = 3.dp)
+            )
+        }
+        Row(
                 modifier = modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
+        ) {
+            Text(
                     text = "Completion date:",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.35f)
-                )
-                Text(
+                            .weight(weight = 0.35f)
+            )
+            Text(
                     text = StringUtils.getDateTime(order.order.completedDate),
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.65f)
-                        .padding(start = 3.dp)
-                )
-            }
-            SubOrdersFlowColumn(
+                            .weight(weight = 0.65f)
+                            .padding(start = 3.dp)
+            )
+        }
+        SubOrdersFlowColumn(
                 parentId = order.order.id,
                 appModel = viewModel!!,
                 modifier = Modifier
-            )
-        }
+        )
+    }
 }
 
 @Preview(name = "Light Mode Order", showBackground = true, widthDp = 409)

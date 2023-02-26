@@ -161,6 +161,7 @@ fun SubOrdersFlowColumn(
                 observeSubOrders!!.first!!.forEach { subOrder ->
                     if (subOrder.subOrder.orderId == parentId) {
                         SubOrderCard(
+                                viewModel = appModel,
                                 subOrder = subOrder,
                                 onClickDetails = { it ->
                                     appModel.changeCompleteSubOrdersDetailsVisibility(it)
@@ -177,6 +178,7 @@ fun SubOrdersFlowColumn(
 
 @Composable
 fun SubOrderCard(
+        viewModel: QualityManagementViewModel? = null,
         subOrder: DomainSubOrderComplete,
         onClickDetails: (DomainSubOrderComplete) -> Unit,
         modifier: Modifier = Modifier
@@ -188,6 +190,7 @@ fun SubOrderCard(
             modifier = modifier
     ) {
         SubOrder(
+                viewModel = viewModel,
                 modifier = modifier,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetails(subOrder) }
@@ -197,6 +200,7 @@ fun SubOrderCard(
 
 @Composable
 fun SubOrder(
+        viewModel: QualityManagementViewModel? = null,
         modifier: Modifier = Modifier,
         onClickDetails: () -> Unit = {},
         subOrder: DomainSubOrderComplete = getSubOrders()[0]
@@ -382,12 +386,13 @@ fun SubOrder(
             }
         }
 
-        SubOrderDetails(modifier = modifier, subOrder = subOrder)
+        SubOrderDetails(viewModel = viewModel, modifier = modifier, subOrder = subOrder)
     }
 }
 
 @Composable
 fun SubOrderDetails(
+        viewModel: QualityManagementViewModel? = null,
         modifier: Modifier = Modifier,
         subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
@@ -485,6 +490,11 @@ fun SubOrderDetails(
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
+        SubOrderTasksFlowColumn(
+                parentId = subOrder.subOrder.id,
+                appModel = viewModel!!,
+                modifier = Modifier
+        )
     }
 }
 

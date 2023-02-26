@@ -45,6 +45,9 @@ class ListTransformer<in T : Any, out R : Any> constructor(
             "tasksVisibility" -> {
                 false
             }
+            "measurementsVisibility" -> {
+                false
+            }
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
     }
@@ -88,6 +91,9 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
                 false
             }
             "tasksVisibility" -> {
+                false
+            }
+            "measurementsVisibility" -> {
                 false
             }
             else -> return inPropertiesByName[parameter.name]?.get(data)

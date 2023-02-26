@@ -17,8 +17,8 @@ class OrderSectionPagerAdapter(fragment: InvestigationsContainerFragment) :
 
     override fun createFragment(position: Int): Fragment {
         return when(position){
-            0-> OrdersFragment("Investigations")
-            1-> OrdersFragment("Measurement details") //To do - should be results
+            0-> OrdersFragment(InvestigationsContainerFragment.TargetInv.COMPOSE.name)
+            1-> OrdersFragment(InvestigationsContainerFragment.TargetInv.CLASSIC.name) //To do - should be results
             else -> OrdersFragment("Not in use")
         }
     }

@@ -138,7 +138,8 @@ data class DomainSubOrderComplete constructor(
 data class DomainSubOrderTaskComplete constructor(
     var subOrderTask: DomainSubOrderTask,
     var characteristic: DomainCharacteristic,
-    var status: DomainOrdersStatus
+    var status: DomainOrdersStatus,
+    var measurementsVisibility: Boolean = false
 )
 
 //ToDo just to test

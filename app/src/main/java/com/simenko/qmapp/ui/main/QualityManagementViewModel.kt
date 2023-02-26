@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.simenko.qmapp.di.main.MainScope
 import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainSubOrderComplete
+import com.simenko.qmapp.domain.DomainSubOrderTaskComplete
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
@@ -61,6 +62,7 @@ class QualityManagementViewModel @Inject constructor(
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
     val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
 
+    val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
     val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
@@ -87,15 +89,18 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
-
-    val subOrderLiveData: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Int?>> =
-        MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Int?>>().apply {
-            addSource(completeSubOrders) { value = Pair(it, subOrderParentId.value) }
-            addSource(subOrderParentId) { value = Pair(completeSubOrders.value, it) }
-        }
-
     val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
+    val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
+            MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
+                addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
+                addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
+            }
+    fun changeCompleteSubOrderTasksDetailsVisibility(item: DomainSubOrderTaskComplete): Unit {
+        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }?.let { subOrderTask ->
+            subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
 
     /**
      *

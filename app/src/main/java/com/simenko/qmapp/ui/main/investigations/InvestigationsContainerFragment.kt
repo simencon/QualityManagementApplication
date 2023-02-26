@@ -63,8 +63,8 @@ class InvestigationsContainerFragment : Fragment(), SendMessage {
     }
 
     enum class TargetInv() {
-        INVESTIGATIONS,
-        RESULTS
+        COMPOSE,
+        CLASSIC
     }
 
 }
