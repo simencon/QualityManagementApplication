@@ -8,6 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -19,6 +24,8 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvAndTitleBinding
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.team.TeamMembersLiveData
+import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
@@ -89,6 +96,17 @@ class OrdersFragment(
                     rvAdapter.itemsList = items
                 }
             })
+
+        binding.composeView.apply {
+            // Dispose of the Composition when the view's LifecycleOwner
+            // is destroyed
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                QMAppTheme {
+                    OrdersLiveData(Modifier.fillMaxSize().padding(vertical = 2.dp, horizontal = 4.dp), viewModel)
+                }
+            }
+        }
 
         return binding.root
     }

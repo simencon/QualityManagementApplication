@@ -6,6 +6,7 @@
     tools:context=".ui.main.investigations.orders.OrdersFragment">
 
     <data>
+
         <variable
             name="viewModel"
             type="com.simenko.qmapp.ui.main.QualityManagementViewModel" />
@@ -19,18 +20,26 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:weightSum="100">
 
             <TextView
                 android:id="@+id/title_investigations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="First page"/>
+                android:text="First page" />
+
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/compose_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="50" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_investigations"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="50"
                 tools:listitem="@layout/item_________department" />
 
         </LinearLayout>
@@ -40,8 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:isNetworkError="@{safeUnbox(viewModel.eventNetworkError)}"
-            app:departments="@{viewModel.departmentsDetailed}" />
+            app:departments="@{viewModel.departmentsDetailed}"
+            app:isNetworkError="@{safeUnbox(viewModel.eventNetworkError)}" />
 
     </FrameLayout>
 

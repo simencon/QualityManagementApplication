@@ -3,13 +3,13 @@ package com.simenko.qmapp.ui.main
 import android.content.Context
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.main.MainScope
+import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.domain.DomainSubOrderComplete
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
@@ -35,19 +35,19 @@ class QualityManagementViewModel @Inject constructor(
         refreshDataFromRepository()
     }
 
-    private val teamMembersTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    private val teamMembers = qualityManagementManufacturingRepository.teamMembers
     val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(teamMembers) { value = Pair(it, teamMembersTrigger.value) }
-            addSource(teamMembersTrigger) { value = Pair(teamMembers.value, it) }
+            addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
         }
 
     fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): Unit {
         teamMembers.value?.find { it.id == item.id }?.let { member ->
             member.detailsVisibility = !member.detailsVisibility
-            teamMembersTrigger.value = !(teamMembersTrigger.value as Boolean)
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
 
@@ -62,8 +62,31 @@ class QualityManagementViewModel @Inject constructor(
     val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
 
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
+    val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
+            addSource(completeOrders) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
+        }
+    fun changeCompleteOrdersDetailsVisibility(item: DomainOrderComplete): Unit {
+        completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
+            order.detailsVisibility = !order.detailsVisibility
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
 
     val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
+    val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>>().apply {
+            addSource(completeSubOrders) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
+        }
+    fun changeCompleteSubOrdersDetailsVisibility(item: DomainSubOrderComplete): Unit {
+        completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
+            subOrder.detailsVisibility = !subOrder.detailsVisibility
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
+
     val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
 
     val subOrderLiveData: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Int?>> =

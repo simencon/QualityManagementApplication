@@ -29,8 +29,17 @@ object StringUtils {
     }
 
     @JvmStatic
-    fun concatTwoStrings(str1: String, str2: String): String {
-        return "$str1 / $str2"
+    fun getDateTime(original: String?): String {
+        return if(original != null) {
+            original.split("T").toTypedArray()[0] + " " + original.split("T").toTypedArray()[1]
+        } else {
+            "-"
+        }
+    }
+
+    @JvmStatic
+    fun concatTwoStrings(str1: String?, str2: String?): String {
+        return "${str1?:"-"} / ${str2?:"-"}"
     }
 
     @JvmStatic

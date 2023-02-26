@@ -8,7 +8,7 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="white">#FFFFFF</color>
 <!--    <color name="color_primary">#FF6200EE</color>-->
 <!--    <color name="color_primary_variant">#FF3700B3</color>-->
 <!--    <color name="color_secondary">#FF03DAC5</color>-->
@@ -26,7 +26,7 @@
 
     <color name="level_1_record_color">#51BFCDD3</color>
     <color name="level_2_record_color">#A8BFCDD3</color>
-    <color name="level_3_record_color">#FDBFCDD3</color>
+    <color name="level_3_record_color">#FCBFCDD3</color>
     <color name="level_4_record_color">#FDAEC9D5</color>
     <color name="level_5_record_color">#FD8AB7CC</color>
 

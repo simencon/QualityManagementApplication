@@ -19,16 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
 import com.simenko.qmapp.domain.DomainTeamMember
-import com.simenko.qmapp.ui.main.team.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
-
-//import androidx.compose.runtime.R
-
-private const val TAG = "TeamComposition"
 
 fun getTeamMembers() = List(30) { i ->
 
@@ -62,7 +57,6 @@ fun getTeamMembers() = List(30) { i ->
     }
 }
 
-
 @Composable
 fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
@@ -71,18 +65,18 @@ fun TeamMembersLiveData(
     val observeTeam by appModel.teamMembersMediator.observeAsState()
 
     observeTeam?.apply {
-            if (observeTeam!!.first != null) {
-                LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-                    items(items = observeTeam!!.first!!) { teamMember ->
-                        TeamMemberCard(
-                            teamMember = teamMember,
-                            onClickDetails = { it ->
-                                appModel.changeTeamMembersDetailsVisibility(it)
-                            }
-                        )
-                    }
+        if (observeTeam!!.first != null) {
+            LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+                items(items = observeTeam!!.first!!) { teamMember ->
+                    TeamMemberCard(
+                        teamMember = teamMember,
+                        onClickDetails = { it ->
+                            appModel.changeTeamMembersDetailsVisibility(it)
+                        }
+                    )
                 }
             }
+        }
     }
 }
 
@@ -90,7 +84,7 @@ fun TeamMembersLiveData(
 fun TeamMemberCard(teamMember: DomainTeamMember, onClickDetails: (DomainTeamMember) -> Unit) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.tertiary.copy(0.3f),
         ),
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
@@ -184,7 +178,7 @@ fun TeamMember(
                 )
                 Text(
 
-                    text = StringUtils.getMail(email ?: ""),
+                    text = StringUtils.getMail(email),
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -231,7 +225,7 @@ fun TeamMember(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(columnOneWeight)
-                        .padding(start = 8.dp)
+                        .padding(start = 8.dp, bottom = 16.dp)
                 )
                 Text(
                     text = jobRole,
@@ -240,7 +234,7 @@ fun TeamMember(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(columnSecondWeight)
-                        .padding(start = 16.dp)
+                        .padding(start = 16.dp, bottom = 16.dp)
                 )
             }
         }

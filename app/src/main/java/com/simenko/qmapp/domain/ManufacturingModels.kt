@@ -93,6 +93,7 @@ data class DomainManufacturingOperation(
     var operationDesignation: String,
     var operationOrder: Int,
     var detailsVisibility: Boolean = false
+//ToDo where is the machine???
 )
 
 data class DomainDepartmentComplete(
