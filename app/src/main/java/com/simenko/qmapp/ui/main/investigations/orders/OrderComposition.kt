@@ -333,7 +333,7 @@ fun Order(
                 )
                 Text(
                     text = StringUtils.getDateTime(order.order.completedDate),
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
@@ -341,12 +341,14 @@ fun Order(
                         .padding(start = 3.dp)
                 )
             }
-
-//            Column {
-                SubOrdersLiveData(appModel = viewModel, modifier = Modifier)
-//            }
+            SubOrdersFlowColumn(
+                parentId = order.order.id,
+                appModel = viewModel,
+                modifier = Modifier
+            )
         }
     }
+
 }
 
 @Preview(name = "Light Mode Order", showBackground = true, widthDp = 409)

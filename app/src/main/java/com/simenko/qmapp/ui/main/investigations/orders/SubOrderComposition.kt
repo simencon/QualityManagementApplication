@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +29,8 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme.level_1_record_color
 import com.simenko.qmapp.ui.theme.level_2_record_color
 import com.simenko.qmapp.utils.StringUtils
+import com.google.accompanist.flowlayout.FlowColumn
+import com.google.accompanist.flowlayout.FlowRow
 
 fun getSubOrders() = List(30) { i ->
 
@@ -39,8 +42,8 @@ fun getSubOrders() = List(30) { i ->
             orderedById = 1,
             completedById = 1,
             statusId = 1,
-            createdDate = "",
-            completedDate = "",
+            createdDate = "2022-12-15T22:24:43",
+            completedDate = "2022-12-15T22:24:43",
             departmentId = 1,
             subDepartmentId = 1,
             channelId = 1,
@@ -75,7 +78,7 @@ fun getSubOrders() = List(30) { i ->
             companyId = 1,
             detailsVisibility = false
         ),
-        status = DomainOrdersStatus(1, "ToDo"),
+        status = DomainOrdersStatus(1, "In Progress"),
         department = DomainDepartment(
             id = 1,
             depAbbr = "ГШСК№1",
@@ -147,6 +150,34 @@ fun SubOrdersLiveData(
 }
 
 @Composable
+fun SubOrdersFlowColumn(
+    parentId: Int = 0,
+    modifier: Modifier = Modifier,
+    appModel: QualityManagementViewModel
+) {
+    val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
+
+    observeSubOrders?.apply {
+        if (observeSubOrders!!.first != null) {
+            FlowRow(modifier = modifier) {
+                observeSubOrders!!.first!!.forEach { subOrder ->
+                    if(subOrder.subOrder.orderId == parentId) {
+                        SubOrderCard(
+                            subOrder = subOrder,
+                            onClickDetails = { it ->
+                                appModel.changeCompleteSubOrdersDetailsVisibility(it)
+                            },
+                            modifier = modifier
+                        )
+                        Divider(thickness = 4.dp, color = Color.Transparent)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun SubOrderCard(
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
@@ -180,7 +211,7 @@ fun SubOrder(
                     stiffness = Spring.StiffnessLow
                 )
             )
-            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
     ) {
         Row(
             modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
@@ -225,12 +256,12 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.20f)
+                    .weight(weight = 0.17f)
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
             IconButton(
                 onClick = onClickDetails, modifier = Modifier
-                    .weight(weight = 0.10f)
+                    .weight(weight = 0.13f)
                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     .fillMaxWidth()
             ) {
@@ -246,7 +277,7 @@ fun SubOrder(
             }
         }
         Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -255,7 +286,7 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.18f)
+                    .weight(weight = 0.22f)
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
@@ -263,7 +294,7 @@ fun SubOrder(
                     subOrder.channel.channelAbbr,
                     subOrder.line.lineAbbr
                 ),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
@@ -279,21 +310,21 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.10f)
+                    .weight(weight = 0.14f)
                     .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
                 text = subOrder.status.statusDescription ?: "-",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.30f)
+                    .weight(weight = 0.22f)
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
         Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -302,13 +333,13 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.18f)
+                    .weight(weight = 0.22f)
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
 //                ToDo change it when all data available
                 text = "IR-33213/VK806/VU1006",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
@@ -324,22 +355,22 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.10f)
+                    .weight(weight = 0.14f)
                     .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
 //                ToDo change when all data available
                 text = "V.8",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.30f)
+                    .weight(weight = 0.22f)
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
         Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -348,7 +379,7 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.18f)
+                    .weight(weight = 0.22f)
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
@@ -356,16 +387,16 @@ fun SubOrder(
                     subOrder.operation.operationAbbr,
                     subOrder.operation.operationDesignation
                 ),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.82f)
+                    .weight(weight = 0.78f)
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
         Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -374,23 +405,23 @@ fun SubOrder(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.18f)
+                    .weight(weight = 0.22f)
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
                 text = subOrder.subOrder.samplesCount.toString(),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .weight(weight = 0.82f)
+                    .weight(weight = 0.78f)
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
         if (subOrder.detailsVisibility) {
             Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Row(
-                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 0.dp),
+                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -399,21 +430,21 @@ fun SubOrder(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.18f)
+                        .weight(weight = 0.22f)
                         .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
                 Text(
                     text = subOrder.orderedBy.fullName,
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.82f)
+                        .weight(weight = 0.78f)
                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 0.dp),
+                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -422,21 +453,21 @@ fun SubOrder(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.18f)
+                        .weight(weight = 0.22f)
                         .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
                 Text(
                     text = StringUtils.getDateTime(subOrder.subOrder.createdDate),
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.82f)
+                        .weight(weight = 0.78f)
                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 0.dp),
+                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -445,21 +476,21 @@ fun SubOrder(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.18f)
+                        .weight(weight = 0.22f)
                         .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
                 Text(
                     text = subOrder.completedBy?.fullName ?: "-",
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.82f)
+                        .weight(weight = 0.78f)
                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
             Row(
-                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 0.dp),
+                modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -468,16 +499,16 @@ fun SubOrder(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.18f)
+                        .weight(weight = 0.22f)
                         .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
                 Text(
                     text = StringUtils.getDateTime(subOrder.subOrder.completedDate),
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .weight(weight = 0.82f)
+                        .weight(weight = 0.78f)
                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
@@ -485,11 +516,25 @@ fun SubOrder(
     }
 }
 
+@Composable
+fun SubOrderHeader(
+    modifier: Modifier = Modifier,
+    onClickDetails: () -> Unit = {},
+    subOrder: DomainSubOrderComplete = getSubOrders()[0]
+) {
+    Row(
+        modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+    }
+}
+
 @Preview(name = "Light Mode SubOrder", showBackground = true, widthDp = 409)
 @Composable
 fun MySubOrderPreview() {
     QMAppTheme {
-        SubOrder(
+        SubOrderHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp)
