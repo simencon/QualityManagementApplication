@@ -61,4 +61,9 @@ object StringUtils {
     fun concatThreeStrings(str1: String, str2: String, str3: String): String {
         return "$str1 / $str2 / $str3"
     }
+
+    @JvmStatic
+    fun concatFourStrings(str1: String?, str2: String?, str3: String?, str4: String?): String {
+        return "${str1?:"-"} / ${str2?:"-"} / ${str3?:"-"} / ${str4?:"-"}"
+    }
 }
