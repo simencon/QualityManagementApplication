@@ -66,7 +66,7 @@ fun getOrders() = List(30) { i ->
             companyId = 1,
             detailsVisibility = false
         ),
-        orderStatus = DomainOrdersStatus(1, "ToDo"),
+        orderStatus = DomainOrdersStatus(1, "In Progress"),
         detailsVisibility = true,
         subOrdersVisibility = false
     )
@@ -121,159 +121,160 @@ fun OrderCard(
 
 @Composable
 fun Order(
-    viewModel: QualityManagementViewModel,
-    modifier: Modifier = Modifier,
-    order: DomainOrderComplete = getOrders()[0],
-    onClickDetails: () -> Unit = {}
+    viewModel: QualityManagementViewModel? = null,
+        modifier: Modifier = Modifier,
+        order: DomainOrderComplete = getOrders()[0],
+        onClickDetails: () -> Unit = {}
 ) {
-
     Column(
-        modifier = modifier.animateContentSize(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
-        ),
-        verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.Start
+            modifier = Modifier
+                    .animateContentSize(
+                            animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                            )
+                    )
+                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
     ) {
         Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Order type:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.25f)
-            )
-            Text(
-                text = order.orderType.typeDescription ?: "",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 18.sp,
-                    baselineShift = BaselineShift(0.3f)
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-
+            Column(
+                    modifier = Modifier
+                            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
+                            .weight(0.90f),
+            ) {
+                Row(
+                        modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                            text = "Num.:",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.11f)
+                                    .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                            text = order.order.orderNumber.toString(),
+                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.15f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                            text = "Status:",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.13f)
+                                    .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                            text = order.orderStatus.statusDescription ?: "",
+                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.61f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                }
+                Row(
+                        modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                            text = "Type/reason:",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.22f)
+                                    .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                            text = StringUtils.concatTwoStrings(
+                                    order.orderType.typeDescription,
+                                    order.orderReason.reasonFormalDescript
+                            ),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.78f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                }
+                Row(
+                        modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                            text = "Customer:",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.22f)
+                                    .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                            text = order.customer.depAbbr ?: "",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                    .weight(weight = 0.78f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                }
+            }
             IconButton(
-                onClick = onClickDetails, modifier = Modifier
+                    onClick = onClickDetails, modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(0.dp)
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (order.detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
-                    modifier = Modifier.padding(0.dp)
+                        imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = if (order.detailsVisibility) {
+                            stringResource(R.string.show_less)
+                        } else {
+                            stringResource(R.string.show_more)
+                        },
+                        modifier = Modifier.padding(0.dp)
                 )
             }
         }
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Customer:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.25f)
-            )
-            Text(
-                text = order.customer.depAbbr ?: "",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.38f)
-                    .padding(start = 3.dp)
-            )
-            Text(
-                text = "Num.:",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 10.sp,
-                    textAlign = TextAlign.Right,
-                    baselineShift = BaselineShift(0.3f)
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.12f)
-            )
-            Text(
-                text = order.order.orderNumber.toString(),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 18.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.25f)
-                    .padding(start = 3.dp)
-            )
-        }
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Order reason:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.25f)
-            )
-            Text(
-                text = order.orderReason.reasonFormalDescript ?: "",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.38f)
-                    .padding(start = 3.dp)
-            )
-            Text(
-                text = "Status:",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 10.sp,
-                    textAlign = TextAlign.Right
-                ),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.12f)
-            )
-            Text(
-                text = order.orderStatus.statusDescription ?: "",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.25f)
-                    .padding(start = 3.dp)
-            )
-        }
+
+        OrderDetails(viewModel = viewModel,modifier = modifier, order = order)
+    }
+}
+
+@Composable
+fun OrderDetails(
+    viewModel: QualityManagementViewModel? = null,
+    modifier: Modifier = Modifier,
+    order: DomainOrderComplete = getOrders()[0],
+) {
 
         if (order.detailsVisibility) {
 
             Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
 
             Row(
-                modifier = modifier.padding(start = 10.dp),
+                modifier = modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -287,7 +288,7 @@ fun Order(
                 )
                 Text(
                     text = order.orderPlacer.fullName,
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
@@ -296,7 +297,7 @@ fun Order(
                 )
             }
             Row(
-                modifier = modifier.padding(start = 10.dp),
+                modifier = modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -310,7 +311,7 @@ fun Order(
                 )
                 Text(
                     text = StringUtils.getDateTime(order.order.createdDate),
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
@@ -319,7 +320,7 @@ fun Order(
                 )
             }
             Row(
-                modifier = modifier.padding(start = 10.dp),
+                modifier = modifier.padding(start = 8.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -343,22 +344,20 @@ fun Order(
             }
             SubOrdersFlowColumn(
                 parentId = order.order.id,
-                appModel = viewModel,
+                appModel = viewModel!!,
                 modifier = Modifier
             )
         }
-    }
-
 }
 
 @Preview(name = "Light Mode Order", showBackground = true, widthDp = 409)
 @Composable
 fun MyOrderPreview() {
     QMAppTheme {
-//        Order(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(vertical = 1.5.dp)
-//        )
+        Order(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 1.5.dp)
+        )
     }
 }
