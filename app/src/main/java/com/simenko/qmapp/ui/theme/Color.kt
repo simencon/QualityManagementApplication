@@ -31,8 +31,8 @@ val level_4_record_color = reference2.copy(alpha = 0.99f)
 val level_5_record_color = reference3.copy(alpha = 0.99f)
 
 
-val _level_1_record_color = Color(0xFF487386)
-val _level_2_record_color = Color(0xFF548297)
+val _level_5_record_color = Color(0xFF487386)
+val _level_4_record_color = Color(0xFF548297)
 val _level_3_record_color = Color(0xFF6d95a8)
-val _level_4_record_color = Color(0xFF85a9ba)
-val _level_5_record_color = Color(0xFFa5c2d0)
+val _level_2_record_color = Color(0xFF85a9ba)
+val _level_1_record_color = Color(0xFFa5c2d0)

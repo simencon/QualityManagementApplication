@@ -75,6 +75,12 @@ class QualityManagementViewModel @Inject constructor(
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
+    fun changeCompleteOrdersExpandState(item: DomainOrderComplete): Unit {
+        completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
+            order.isExpanded = !order.isExpanded
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
 
     val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
     val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
@@ -88,6 +94,12 @@ class QualityManagementViewModel @Inject constructor(
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
+    fun changeCompleteSubOrdersExpandState(item: DomainSubOrderComplete): Unit {
+        completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
+            subOrder.isExpanded = !subOrder.isExpanded
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
 
     val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
     val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
@@ -98,6 +110,12 @@ class QualityManagementViewModel @Inject constructor(
     fun changeCompleteSubOrderTasksDetailsVisibility(item: DomainSubOrderTaskComplete): Unit {
         completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }?.let { subOrderTask ->
             subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
+    fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete): Unit {
+        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }?.let { subOrderTask ->
+            subOrderTask.isExpanded = !subOrderTask.isExpanded
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }

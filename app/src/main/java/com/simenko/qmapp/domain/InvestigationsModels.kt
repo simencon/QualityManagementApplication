@@ -118,7 +118,8 @@ data class DomainOrderComplete constructor(
     var orderPlacer: DomainTeamMember,
     var orderStatus: DomainOrdersStatus,
     var detailsVisibility: Boolean = false,
-    var subOrdersVisibility: Boolean = false
+    var subOrdersVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 )
 
 data class DomainSubOrderComplete constructor(
@@ -132,14 +133,16 @@ data class DomainSubOrderComplete constructor(
     var line: DomainManufacturingLine,
     var operation: DomainManufacturingOperation,
     var detailsVisibility: Boolean = false,
-    var tasksVisibility: Boolean = false
+    var tasksVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 )
 
 data class DomainSubOrderTaskComplete constructor(
     var subOrderTask: DomainSubOrderTask,
     var characteristic: DomainCharacteristic,
     var status: DomainOrdersStatus,
-    var measurementsVisibility: Boolean = false
+    var measurementsVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 )
 
 //ToDo just to test

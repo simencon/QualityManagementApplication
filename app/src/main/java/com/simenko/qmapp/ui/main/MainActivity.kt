@@ -14,6 +14,7 @@ import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
+import com.simenko.qmapp.ui.main.fli.ProcessOnlyFragment
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     InvestigationsContainerFragment()
                 }
                 R.id.nav_inv_orders_process_control -> {
-                    TODO("Will be pager fragment similar to general investigations")
+                    ProcessOnlyFragment()
                 }
 
                 R.id.nav_inv_orders_status_monitoring -> {
