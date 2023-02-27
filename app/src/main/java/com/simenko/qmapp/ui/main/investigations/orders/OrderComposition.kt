@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -33,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.neworder.NewItemType
+import com.simenko.qmapp.ui.main.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
@@ -88,7 +91,8 @@ fun getOrders() = List(30) { i ->
 @Composable
 fun InvestigationsAll(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel
+    appModel: QualityManagementViewModel,
+    context: Context
 ){
     QMAppTheme {
         androidx.compose.material.Scaffold(
@@ -97,7 +101,9 @@ fun InvestigationsAll(
 //            bottomBar = {},
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        launchNewItemActivity(context, NewItemType.NEW_INVESTIGATION)
+                    },
                     content = {
                         androidx.compose.material.Icon(
                             painter = painterResource(id = R.drawable.ic_add),

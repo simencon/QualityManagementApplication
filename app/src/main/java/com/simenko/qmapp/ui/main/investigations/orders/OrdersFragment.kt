@@ -138,9 +138,11 @@ class OrdersFragment(
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 InvestigationsAll(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxSize()
-                        .padding(vertical = 2.dp, horizontal = 4.dp), viewModel
+                        .padding(vertical = 2.dp, horizontal = 4.dp),
+                    viewModel,
+                    context = context
                 )
             }
         }
