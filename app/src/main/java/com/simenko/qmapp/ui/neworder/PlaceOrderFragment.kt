@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.neworder
+package com.simenko.qmapp.ui.neworder
 
 import android.app.Dialog
 import android.content.Context

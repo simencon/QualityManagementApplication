@@ -3,6 +3,7 @@ package com.simenko.qmapp.di
 
 import android.content.Context
 import com.simenko.qmapp.di.main.MainComponent
+import com.simenko.qmapp.di.neworder.NewItemComponent
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -27,5 +28,5 @@ interface AppComponent {
     }
 
     fun mainComponent(): MainComponent.Factory
-
+    fun newItemComponent(): NewItemComponent.Factory
 }

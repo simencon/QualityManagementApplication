@@ -5,7 +5,7 @@ import com.simenko.qmapp.ui.main.fli.ProcessOnlyFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
 import com.simenko.qmapp.ui.main.investigations.orders.OrdersFragment
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
-import com.simenko.qmapp.ui.main.neworder.PlaceOrderFragment
+import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import dagger.Subcomponent
 

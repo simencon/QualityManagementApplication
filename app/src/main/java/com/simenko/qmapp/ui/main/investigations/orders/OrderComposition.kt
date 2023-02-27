@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.main.neworder.NewItemType
-import com.simenko.qmapp.ui.main.neworder.launchNewItemActivity
+import com.simenko.qmapp.ui.neworder.NewItemType
+import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
