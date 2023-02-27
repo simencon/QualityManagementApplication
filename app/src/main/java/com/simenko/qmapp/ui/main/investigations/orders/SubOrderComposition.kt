@@ -33,6 +33,10 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 fun getSubOrders() = List(30) { i ->
@@ -135,6 +139,7 @@ fun SubOrdersFlowColumn(
     appModel: QualityManagementViewModel
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
+    var clickCounter = 0
 
     observeSubOrders?.apply {
         if (observeSubOrders!!.first != null) {
@@ -159,7 +164,17 @@ fun SubOrdersFlowColumn(
                                 modifier = modifier,
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {
-                                    appModel.changeCompleteSubOrdersExpandState(it)
+                                    clickCounter++
+                                    if (clickCounter == 1) {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            delay(200)
+                                            clickCounter--
+                                        }
+                                    }
+                                    if (clickCounter == 2) {
+                                        clickCounter = 0
+                                        appModel.changeCompleteSubOrdersExpandState(it)
+                                    }
                                 }
                             )
                         }

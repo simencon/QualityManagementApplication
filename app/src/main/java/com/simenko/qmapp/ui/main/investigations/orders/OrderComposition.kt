@@ -19,7 +19,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +36,10 @@ import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 fun getOrders() = List(30) { i ->
@@ -80,11 +86,48 @@ fun getOrders() = List(30) { i ->
 }
 
 @Composable
+fun InvestigationsAll(
+    modifier: Modifier = Modifier,
+    appModel: QualityManagementViewModel
+){
+    QMAppTheme {
+        androidx.compose.material.Scaffold(
+//            topBar = {},
+//            drawerContent = {},
+//            bottomBar = {},
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { /*TODO*/ },
+                    content = {
+                        androidx.compose.material.Icon(
+                            painter = painterResource(id = R.drawable.ic_add),
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                )
+            },
+//            snackbarHost = {/**/ },
+            content = { padding ->
+                OrdersLiveData(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 2.dp, horizontal = 4.dp), appModel
+                )
+            }
+        )
+
+
+    }
+}
+
+@Composable
 fun OrdersLiveData(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
+    var clickCounter = 0
 
     observeOrders?.apply {
         if (observeOrders!!.first != null) {
@@ -107,7 +150,17 @@ fun OrdersLiveData(
                             modifier = modifier,
                             cardOffset = CARD_OFFSET.dp(),
                             onChangeExpandState = {
-                                appModel.changeCompleteOrdersExpandState(it)
+                                clickCounter++
+                                if (clickCounter == 1) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(200)
+                                        clickCounter--
+                                    }
+                                }
+                                if (clickCounter == 2) {
+                                    clickCounter = 0
+                                    appModel.changeCompleteOrdersExpandState(it)
+                                }
                             }
                         )
                     }
@@ -162,11 +215,12 @@ fun OrderCard(
         modifier = modifier
             .fillMaxWidth()
             .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { _, dragAmount ->
-                    onChangeExpandState(order)
-                }
-            }
+//                ToDo - think how to make swiping more natural
+//            .pointerInput(Unit) {
+//                detectHorizontalDragGestures { _, dragAmount ->
+//                    onChangeExpandState(order)
+//                }
+//            }
             .clickable { onChangeExpandState(order) },
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {

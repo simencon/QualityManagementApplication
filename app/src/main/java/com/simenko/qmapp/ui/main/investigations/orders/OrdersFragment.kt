@@ -11,8 +11,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -32,9 +37,9 @@ import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
 class OrdersFragment(
-        private var title: String
+    private var title: String
 ) :
-        Fragment() {
+    Fragment() {
 
     private val viewModel: QualityManagementViewModel by lazy {
         (activity as MainActivity).viewModel
@@ -42,15 +47,15 @@ class OrdersFragment(
 
     private val rvAdapter by lazy {
         Adapter____Order(
-                OrderClick { order, position ->
-                    order.detailsVisibility = !order.detailsVisibility
-                    order.subOrdersVisibility = false
-                    updateOneRvItem(position)
-                },
-                OrderSubOrdersClick { order, position ->
-                    order.subOrdersVisibility = !order.subOrdersVisibility
-                    updateOneRvItem(position)
-                }, activity as Activity
+            OrderClick { order, position ->
+                order.detailsVisibility = !order.detailsVisibility
+                order.subOrdersVisibility = false
+                updateOneRvItem(position)
+            },
+            OrderSubOrdersClick { order, position ->
+                order.subOrdersVisibility = !order.subOrdersVisibility
+                updateOneRvItem(position)
+            }, activity as Activity
         )
     }
 
@@ -63,40 +68,40 @@ class OrdersFragment(
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val binding: FragmentRvAndTitleBinding = DataBindingUtil.inflate(
-                inflater,
-                R.layout.fragment____rv_and_title,
-                container,
-                false
+            inflater,
+            R.layout.fragment____rv_and_title,
+            container,
+            false
         )
         binding.root.findViewById<TextView?>(R.id.title_investigations).text = title
 
         when (title) {
             InvestigationsContainerFragment.TargetInv.COMPOSE.name -> {
                 binding.composeView.layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        1.0f
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    1.0f
                 )
                 binding.rvInvestigations.layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        0,
-                        0.0f
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    0,
+                    0.0f
                 )
             }
             InvestigationsContainerFragment.TargetInv.CLASSIC.name -> {
                 binding.rvInvestigations.layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        1.0f
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    1.0f
                 )
                 binding.composeView.layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        0,
-                        0.0f
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    0,
+                    0.0f
                 )
             }
             else -> {}
@@ -113,30 +118,30 @@ class OrdersFragment(
 
 //        Start looking if all is fine with connection
         viewModel.eventNetworkError.observe(
-                viewLifecycleOwner,
-                Observer { isNetworkError ->
-                    if (isNetworkError) onNetworkError()
-                })
+            viewLifecycleOwner,
+            Observer { isNetworkError ->
+                if (isNetworkError) onNetworkError()
+            })
 
 //        Start looking for target live data
         viewModel.completeOrders.observe(
-                viewLifecycleOwner,
-                Observer { items ->
-                    items?.apply {
-                        rvAdapter.itemsList = items
-                    }
-                })
+            viewLifecycleOwner,
+            Observer { items ->
+                items?.apply {
+                    rvAdapter.itemsList = items
+                }
+            })
 
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                QMAppTheme {
-                    OrdersLiveData(Modifier
-                            .fillMaxSize()
-                            .padding(vertical = 2.dp, horizontal = 4.dp), viewModel)
-                }
+                InvestigationsAll(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 2.dp, horizontal = 4.dp), viewModel
+                )
             }
         }
 

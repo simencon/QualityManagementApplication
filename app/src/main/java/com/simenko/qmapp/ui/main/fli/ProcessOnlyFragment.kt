@@ -17,6 +17,7 @@ import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsAll
 import com.simenko.qmapp.ui.main.investigations.orders.OrdersLiveData
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -71,11 +72,11 @@ class ProcessOnlyFragment : Fragment() {
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                QMAppTheme {
-                    OrdersLiveData(Modifier
+                InvestigationsAll(
+                    Modifier
                         .fillMaxSize()
-                        .padding(vertical = 2.dp, horizontal = 4.dp), viewModel)
-                }
+                        .padding(vertical = 2.dp, horizontal = 4.dp), viewModel
+                )
             }
         }
 

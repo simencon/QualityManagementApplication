@@ -16,7 +16,7 @@ import com.simenko.qmapp.ui.theme.PrimaryVariant900
 
 const val ACTION_ITEM_SIZE = 45
 const val CARD_HEIGHT = 45
-const val CARD_OFFSET = 135f
+const val CARD_OFFSET = 90f//135f
 
 const val ANIMATION_DURATION = 500
 const val MIN_DRAG_AMOUNT = 6
@@ -51,16 +51,16 @@ fun ActionsRow(
                 )
             },
         )
-        IconButton(
-            modifier = Modifier.size(actionIconSize),
-            onClick = onFavorite,
-            content = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_favorite),
-                    tint = Color.Red,
-                    contentDescription = "Expandable Arrow",
-                )
-            }
-        )
+//        IconButton(
+//            modifier = Modifier.size(actionIconSize),
+//            onClick = onFavorite,
+//            content = {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.ic_favorite),
+//                    tint = Color.Red,
+//                    contentDescription = "Expandable Arrow",
+//                )
+//            }
+//        )
     }
 }

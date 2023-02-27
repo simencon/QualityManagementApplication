@@ -34,6 +34,10 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_3_record_color
 import com.simenko.qmapp.ui.theme.level_3_record_color
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 fun getSubOrderTasks() = List(30) { i ->
@@ -71,6 +75,7 @@ fun SubOrderTasksFlowColumn(
     appModel: QualityManagementViewModel
 ) {
     val observeSubOrderTasks by appModel.completeSubOrderTasksMediator.observeAsState()
+    var clickCounter = 0
 
     observeSubOrderTasks?.apply {
         if (observeSubOrderTasks!!.first != null) {
@@ -94,7 +99,17 @@ fun SubOrderTasksFlowColumn(
                                 modifier = modifier,
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {
-                                    appModel.changeCompleteSubOrderTasksExpandState(it)
+                                    clickCounter++
+                                    if (clickCounter == 1) {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            delay(200)
+                                            clickCounter--
+                                        }
+                                    }
+                                    if (clickCounter == 2) {
+                                        clickCounter = 0
+                                        appModel.changeCompleteSubOrderTasksExpandState(it)
+                                    }
                                 }
                             )
                         }
