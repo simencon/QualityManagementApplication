@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.team
 
 import android.os.Bundle
 import android.view.*
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -39,6 +40,17 @@ class TeamFragment : Fragment() {
             R.layout.fragment_____rv_only,
             container,
             false
+        )
+
+        binding.composeView.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1.0f
+        )
+        binding.recyclerView.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                0.0f
         )
 
         binding.lifecycleOwner = viewLifecycleOwner
