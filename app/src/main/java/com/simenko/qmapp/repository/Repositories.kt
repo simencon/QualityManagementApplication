@@ -219,7 +219,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
-    suspend fun refreshMeasurementReasons() {
+    suspend fun refreshInvestigationReasons() {
         withContext(Dispatchers.IO) {
             val measurementReasons = QualityManagementNetwork.serviceholderInvestigations.getMeasurementReasons();
             database.qualityManagementInvestigationsDao.insertMeasurementReasonsAll(
@@ -230,7 +230,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
-    suspend fun refreshOrdersTypes() {
+    suspend fun refreshInvestigationTypes() {
         withContext(Dispatchers.IO) {
             val ordersTypes = QualityManagementNetwork.serviceholderInvestigations.getOrdersTypes();
             database.qualityManagementInvestigationsDao.insertOrdersTypesAll(
@@ -306,7 +306,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         ListTransformer(it, DatabaseInputForOrder::class,DomainInputForOrder::class).generateList()
     }
 
-    val measurementReasons: LiveData<List<DomainMeasurementReason>> = Transformations.map(database.qualityManagementInvestigationsDao.getMeasurementReasons()) {
+    val investigationTypes: LiveData<List<DomainOrdersType>> = Transformations.map(database.qualityManagementInvestigationsDao.getOrdersTypes()) {
+        ListTransformer(it, DatabaseOrdersType::class,DomainOrdersType::class).generateList()
+    }
+
+    val investigationReasons: LiveData<List<DomainMeasurementReason>> = Transformations.map(database.qualityManagementInvestigationsDao.getMeasurementReasons()) {
         ListTransformer(it, DatabaseMeasurementReason::class,DomainMeasurementReason::class).generateList()
     }
 

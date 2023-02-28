@@ -18,6 +18,7 @@ import com.simenko.qmapp.ui.main.fli.ProcessOnlyFragment
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
+import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
@@ -129,6 +130,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 R.id.nav_inv_orders_status_monitoring -> {
                     TODO("Will be monitoring page")
+                }
+                R.id.nav_settings -> {
+                    PlaceOrderFragment()
                 }
                 else -> {
                     TODO("Will be monitoring page")

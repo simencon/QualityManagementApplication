@@ -93,11 +93,11 @@ class PlaceOrderFragment : Fragment() {
 
         Log.d(TAG, "viewModel set second observer: $viewModel")
 
-        viewModel.measurementReasons.value?.forEach {
+        viewModel.investigationReasons.value?.forEach {
             Log.d(TAG, "measurementReasons item: $it")
         }
 
-        viewModel.measurementReasons.observe(
+        viewModel.investigationReasons.observe(
             viewLifecycleOwner,
             Observer<List<DomainMeasurementReason>> { items ->
                 items.apply {

@@ -5,7 +5,10 @@
     <string name="label_template">Test string</string>
 
     <string name="order_title"><b><i>Заявка на дослідження мікрогеометрії</i></b></string>
+    <string name="select_type"><i>Вид дослідження</i></string>
     <string name="select_reason"><i>Причина дослідження</i></string>
+    <string name="select_customer"><i>Споживач</i></string>
+    <string name="select_placer"><i>Замовник дослідження</i></string>
     <string name="select_department"><i>Виробничий підрозділ</i></string>
     <string name="select_sub_department"><i>Виробнича дільниця</i></string>
     <string name="select_ordered_by"><i>Замовлення розмістив</i></string>

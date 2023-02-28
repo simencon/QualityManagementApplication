@@ -5,33 +5,25 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.DomainInputForOrder
+import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
-import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import java.util.*
 import javax.inject.Inject
 
 enum class NewItemType() {
@@ -92,125 +84,72 @@ fun HomeScreen(
         modifier
             .verticalScroll(rememberScrollState())
     ) {
-        Spacer(Modifier.height(16.dp))
-        SearchBar(Modifier.padding(horizontal = 16.dp))
-        Spacer(Modifier.height(16.dp))
-        FavoriteCollectionsGrid(
-            modifier = modifier,
-            appModel = viewModel,
-            parentId = parentId
-        )
+        ButtonsSection(title = R.string.select_type) {
+            TypesSelection(
+                modifier = modifier,
+                appModel = viewModel,
+                parentId = parentId
+            )
+        }
+        ButtonsSection(title = R.string.select_reason) {
+            ReasonsSelection(
+                modifier = modifier,
+                appModel = viewModel,
+                parentId = parentId
+            )
+        }
+        ButtonsSection(title = R.string.select_customer) {
+            CustomersSelection(
+                modifier = modifier,
+                appModel = viewModel,
+                parentId = parentId
+            )
+        }
+
+        ButtonsSection(title = R.string.select_placer) {
+            SearchBarProducts(Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(16.dp))
+            PlacersSelection(
+                modifier = modifier,
+                appModel = viewModel,
+                parentId = parentId
+            )
+        }
+
+        ButtonsSection(title = R.string.select_item_type) {
+            SearchBarProducts(Modifier.padding(horizontal = 16.dp))
+            Spacer(Modifier.height(16.dp))
+            ProductsSelection(
+                modifier = modifier,
+                appModel = viewModel,
+                parentId = parentId
+            )
+        }
+
         Spacer(Modifier.height(16.dp))
     }
 }
 
 @Composable
-fun SearchBar(
-    modifier: Modifier = Modifier
-) {
-    androidx.compose.material.TextField(
-        value = "",
-        onValueChange = {},
-        leadingIcon = {
-            androidx.compose.material.Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null
-            )
-        },
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.surface
-        ),
-        placeholder = {
-            androidx.compose.material.Text(stringResource(R.string.placeholder_search))
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-    )
-}
-
-@Composable
-fun FavoriteCollectionsGrid(
+fun ButtonsSection(
+    @StringRes title: Int,
     modifier: Modifier = Modifier,
-    appModel: NewItemViewModel,
-    parentId: Int
+    content: @Composable () -> Unit
 ) {
-    val observeInputForOrder by appModel.inputForOrderMediator.observeAsState()
-    var litOfInput = arrayListOf<DomainInputForOrder>()
-
-    observeInputForOrder?.apply {
-        if (observeInputForOrder!!.first != null) {
-            litOfInput.clear()
-
-            observeInputForOrder!!.first!!.filter { it.id > parentId }.forEach { input ->
-                if (litOfInput.find { it.recordId == input.recordId } == null) {
-                    litOfInput.add(input)
-                }
-            }
-        }
-    }
-
-    LazyHorizontalGrid(
-//        ToDo for products list 2 rows and 120dp height
-        rows = GridCells.Fixed(4),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.height(240.dp)
-    ) {
-        items(litOfInput.size) { item ->
-            FavoriteCollectionCard(litOfInput[item], modifier)
-        }
-    }
-}
-
-@Composable
-fun FavoriteCollectionCard(
-    inputForOrder: DomainInputForOrder,
-    modifier: Modifier = Modifier
-) {
-
-    var checked by rememberSaveable { mutableStateOf(false) }
-
-    val btnBackgroundColor = if (checked) Primary900 else StatusBar400
-    val btnContentColor = if (checked) Color.White else Color.Black
-
-    val btnColors = ButtonDefaults.buttonColors(
-        contentColor = btnContentColor,
-        containerColor = btnBackgroundColor
-    )
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(
-            colors = btnColors,
+    Column(modifier) {
+        androidx.compose.material.Text(
+            text = stringResource(title).uppercase(Locale.getDefault()),
+            style = MaterialTheme.typography.h2.copy(fontSize = 18.sp),
             modifier = Modifier
-                .width(224.dp)
-                .height(56.dp),
-            onClick = {
-                checked = !checked
-            }
-        ) {
-            Text(
-                text = StringUtils.concatTwoStrings3(
-                    inputForOrder.itemKey,
-                    inputForOrder.itemDesignation
-                )
-            )
-        }
-    }
-
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
-@Composable
-fun FavoriteCollectionCardPreview() {
-    QMAppTheme {
-        /*  FavoriteCollectionCard(
-              text = R.string.fc2_nature_meditations,
-              drawable = R.drawable.fc2_nature_meditations,
-              modifier = Modifier.padding(8.dp)
-          )*/
+                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
+        )
+        content()
+        Spacer(Modifier.height(16.dp))
+        Divider(
+            modifier = modifier.height(1.dp),
+            color = Accent200
+        )
     }
 }
+

@@ -44,7 +44,6 @@ class QualityManagementViewModel @Inject constructor(
             addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
         }
-
     fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): Unit {
         teamMembers.value?.find { it.id == item.id }?.let { member ->
             member.detailsVisibility = !member.detailsVisibility
@@ -60,7 +59,7 @@ class QualityManagementViewModel @Inject constructor(
     val operations = qualityManagementManufacturingRepository.operations
 
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
-    val measurementReasons = qualityManagementInvestigationsRepository.measurementReasons
+    val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
 
     val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
     val completeOrders = qualityManagementInvestigationsRepository.completeOrders
@@ -160,8 +159,8 @@ class QualityManagementViewModel @Inject constructor(
 
                 qualityManagementInvestigationsRepository.refreshInputForOrder()
                 qualityManagementInvestigationsRepository.refreshOrdersStatuses()
-                qualityManagementInvestigationsRepository.refreshMeasurementReasons()
-                qualityManagementInvestigationsRepository.refreshOrdersTypes()
+                qualityManagementInvestigationsRepository.refreshInvestigationReasons()
+                qualityManagementInvestigationsRepository.refreshInvestigationTypes()
                 qualityManagementInvestigationsRepository.refreshOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrderTasks()
