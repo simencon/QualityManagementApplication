@@ -11,7 +11,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainOrdersType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
@@ -39,7 +38,23 @@ fun TypesSelection(
                     inputForOrder = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.ChangeState(first!!).selectSingleRecord(it)
+
+                        appModel.filterWithOneParent(
+                            appModel.investigationReasonsMutable,
+                            appModel.investigationReasons,
+                            -1
+                        )
+                        appModel.filterWithOneParent(
+                            appModel.customersMutable,
+                            appModel.customers,
+                            0
+                        )
+                        appModel.filterWithOneParent(
+                            appModel.teamMembersMutable,
+                            appModel.teamMembers,
+                            0
+                        )
+                        appModel.selectSingleRecord(appModel.investigationTypesMutable, it)
                     }
                 )
             }

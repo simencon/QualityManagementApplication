@@ -9,9 +9,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,29 +25,34 @@ fun ReasonsSelection(
     parentId: Int
 ) {
     val observeInputForOrder by appModel.investigationReasonsMediator.observeAsState()
-    val inputList = arrayListOf<DomainMeasurementReason>()
 
     observeInputForOrder?.apply {
-        if (observeInputForOrder!!.first != null) {
-            inputList.clear()
-
-            observeInputForOrder!!.first!!.filter { it.id > parentId }.forEach { input ->
-                if (inputList.find { it.id == input.id } == null) {
-                    inputList.add(input)
-                }
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier.height(60.dp)
+        ) {
+            items(first!!.size) { item ->
+                InvestigationReasonCard(
+                    inputForOrder = first!![item],
+                    modifier = modifier,
+                    onClick = {
+                        appModel.filterWithOneParent(
+                            appModel.customersMutable,
+                            appModel.customers,
+                            -1
+                        )
+                        appModel.filterWithOneParent(
+                            appModel.teamMembersMutable,
+                            appModel.teamMembers,
+                            0
+                        )
+                        appModel.selectSingleRecord(appModel.investigationReasonsMutable, it)
+                    }
+                )
             }
-        }
-    }
-
-    LazyHorizontalGrid(
-        rows = GridCells.Fixed(1),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.height(60.dp)
-    ) {
-        items(inputList.size) { item ->
-            InvestigationReasonCard(inputList[item], modifier)
         }
     }
 }
@@ -58,12 +60,12 @@ fun ReasonsSelection(
 @Composable
 fun InvestigationReasonCard(
     inputForOrder: DomainMeasurementReason,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (DomainMeasurementReason)-> Unit
 ) {
 
-    var checked by rememberSaveable { mutableStateOf(false) }
-    val btnBackgroundColor = if (checked) Primary900 else StatusBar400
-    val btnContentColor = if (checked) Color.White else Color.Black
+    val btnBackgroundColor = if (inputForOrder.isSelected) Primary900 else StatusBar400
+    val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,
         containerColor = btnBackgroundColor
@@ -78,7 +80,7 @@ fun InvestigationReasonCard(
                 .width(224.dp)
                 .height(56.dp),
             onClick = {
-                checked = !checked
+                onClick(inputForOrder)
             }
         ) {
             Text(

@@ -29,29 +29,22 @@ fun PlacersSelection(
     parentId: Int
 ) {
     val observeInputForOrder by appModel.teamMembersMediator.observeAsState()
-    val inputList = arrayListOf<DomainTeamMember>()
 
     observeInputForOrder?.apply {
-        if (observeInputForOrder!!.first != null) {
-            inputList.clear()
-
-            observeInputForOrder!!.first!!.filter { it.id > parentId }.forEach { input ->
-                if (inputList.find { it.id == input.id } == null) {
-                    inputList.add(input)
-                }
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier.height(60.dp)
+        ) {
+            items(first!!.size) { item ->
+                InvestigationPlacerCard(
+                    inputForOrder = first!![item],
+                    modifier = modifier,
+                    onClick = { appModel.selectSingleRecord(appModel.teamMembersMutable, it) }
+                )
             }
-        }
-    }
-
-    LazyHorizontalGrid(
-        rows = GridCells.Fixed(1),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.height(60.dp)
-    ) {
-        items(inputList.size) { item ->
-            InvestigationPlacerCard(inputList[item], modifier)
         }
     }
 }
@@ -59,12 +52,12 @@ fun PlacersSelection(
 @Composable
 fun InvestigationPlacerCard(
     inputForOrder: DomainTeamMember,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (DomainTeamMember) -> Unit
 ) {
 
-    var checked by rememberSaveable { mutableStateOf(false) }
-    val btnBackgroundColor = if (checked) Primary900 else StatusBar400
-    val btnContentColor = if (checked) Color.White else Color.Black
+    val btnBackgroundColor = if (inputForOrder.isSelected) Primary900 else StatusBar400
+    val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,
         containerColor = btnBackgroundColor
@@ -79,7 +72,7 @@ fun InvestigationPlacerCard(
                 .width(224.dp)
                 .height(56.dp),
             onClick = {
-                checked = !checked
+                onClick(inputForOrder)
             }
         ) {
             Text(

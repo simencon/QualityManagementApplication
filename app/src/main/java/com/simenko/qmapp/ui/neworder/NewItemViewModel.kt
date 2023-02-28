@@ -27,64 +27,83 @@ class NewItemViewModel @Inject constructor(
         refreshDataFromRepository()
     }
 
-    private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
-
-    inner class ChangeState<T : DomainModel>(private val destination: MutableList<T>) {
-        lateinit var source: List<T>
-
-        constructor(destination: MutableList<T>, source: List<T>) : this(destination) {
-            this.source = source
+    fun <T : DomainModel> selectSingleRecord(d: MutableLiveData<MutableList<T>>, record: T?) {
+        d.value?.forEach {
+            it.setIsChecked(false)
         }
+        d.value?.find { it.getRecordId() == record?.getRecordId() }?.setIsChecked(true)
+        pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    }
 
-        fun selectSingleRecord(record: T) {
-            destination.forEach {
-                it.setIsChecked(false)
+    fun <T : DomainModel> filterWithOneParent(d: MutableLiveData<MutableList<T>>, s: LiveData<List<T>>, pId: Int) {
+
+        when (pId) {
+//            Add all without deselection
+            -2 -> {
+                d.value?.clear()
+                s.value?.let { d.value?.addAll(it.toList()) }
             }
-            destination.find { it.getRecordId() == record.getRecordId() }?.setIsChecked(true)
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-        }
-
-        fun updateMutableList(parentId: Int) {
-            destination.clear()
-            source.apply {
-                this.filter { it.getRecordId() > parentId }.forEach { input ->
-                    if (destination.find { it.getRecordId() == input.getRecordId() } == null) {
-                        destination.add(input)
+//            Add all
+            -1 -> {
+                selectSingleRecord(d, null) //Is made because previously selected/filtered/unfiltered item again selected
+                d.value?.clear()
+                s.value?.let { d.value?.addAll(it.toList()) }
+            }
+//            Clear all
+            0 -> {
+                selectSingleRecord(d, null) //Is made because previously selected/filtered/unfiltered item again selected
+                d.value?.clear()
+            }
+//            Add filtered by one parent id
+            else -> {
+                selectSingleRecord(d, null) //Is made because previously selected/filtered/unfiltered item again selected
+                d.value?.clear()
+                s.apply {
+                    this.value?.filter { it.getRecordId() > pId }?.forEach { input ->
+                        if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
+                            d.value?.add(input)
+                        }
                     }
                 }
             }
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
+
+        pairedTrigger.value = !(pairedTrigger.value as Boolean)
     }
 
+    private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+
     val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
-    private val orderTypes = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
+    val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
     val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>>().apply {
-            addSource(orderTypes) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(orderTypes.value, it) }
+            addSource(investigationTypesMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(investigationTypesMutable.value, it) }
         }
 
-    private val investigationReasons =
-        qualityManagementInvestigationsRepository.investigationReasons
-    val investigationReasonsMediator: MediatorLiveData<Pair<List<DomainMeasurementReason>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainMeasurementReason>?, Boolean?>>().apply {
-            addSource(investigationReasons) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(investigationReasons.value, it) }
+    val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
+    val investigationReasonsMutable =
+        MutableLiveData<MutableList<DomainMeasurementReason>>(mutableListOf())
+    val investigationReasonsMediator: MediatorLiveData<Pair<MutableList<DomainMeasurementReason>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainMeasurementReason>?, Boolean?>>().apply {
+            addSource(investigationReasonsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(investigationReasonsMutable.value, it) }
         }
 
-    private val customers = qualityManagementManufacturingRepository.departments
-    val customersMediator: MediatorLiveData<Pair<List<DomainDepartment>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainDepartment>?, Boolean?>>().apply {
-            addSource(customers) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(customers.value, it) }
+    val customers = qualityManagementManufacturingRepository.departments
+    val customersMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
+    val customersMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
+            addSource(customersMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(customersMutable.value, it) }
         }
 
-    private val teamMembers = qualityManagementManufacturingRepository.teamMembers
-    val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
+    val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    val teamMembersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
+    val teamMembersMediator: MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>>().apply {
+            addSource(teamMembersMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(teamMembersMutable.value, it) }
         }
 
     private val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder

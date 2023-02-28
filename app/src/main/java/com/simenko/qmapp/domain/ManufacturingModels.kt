@@ -10,17 +10,23 @@ data class DomainPositionLevel(
 )
 
 data class DomainTeamMember(
-    var id: Int,
-    var departmentId: Int,
-    var department: String,
-    var email: String? = null,
-    var fullName: String,
-    var jobRole: String,
-    var roleLevelId: Int,
-    var passWord: String? = null,
-    var companyId: Int,
-    var detailsVisibility: Boolean = false
-) : ListOfItems {
+    val id: Int,
+    val departmentId: Int,
+    val department: String,
+    val email: String? = null,
+    val fullName: String,
+    val jobRole: String,
+    val roleLevelId: Int,
+    val passWord: String? = null,
+    val companyId: Int,
+    var detailsVisibility: Boolean = false,
+    var isSelected: Boolean = false
+) : DomainModel(), ListOfItems {
+    override fun getRecordId() = id
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+
     override fun selectedRecord(): String {
         return "$fullName ($department)"
     }
@@ -47,8 +53,14 @@ data class DomainDepartment(
     val depManager: Int?,
     val depOrganization: String?,
     val depOrder: Int?,
-    val companyId: Int?
-) : ListOfItems {
+    val companyId: Int?,
+    var isSelected: Boolean = false
+) : DomainModel(), ListOfItems {
+    override fun getRecordId() = id
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+
     override fun selectedRecord(): String {
         return "$depName ($depAbbr)"
     }
@@ -101,7 +113,7 @@ data class DomainDepartmentComplete(
     val depManagerDetails: List<DomainTeamMember>,
     val companies: List<DomainCompany>,
     var departmentDetailsVisibility: Boolean = false
-): ListOfItems {
+) : ListOfItems {
     override fun selectedRecord(): String {
         return "${depManagerDetails[0].fullName} (${departments.depName})"
     }

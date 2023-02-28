@@ -37,16 +37,22 @@ data class DomainOrdersStatus constructor(
     var statusDescription: String? = null
 )
 
+data class DomainOrdersType constructor(
+    var id: Int,
+    var typeDescription: String? = null,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = id
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
+
 data class DomainMeasurementReason constructor(
     var id: Int,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
-    var reasonOrder: Int? = null
-)
-
-data class DomainOrdersType constructor(
-    var id: Int,
-    var typeDescription: String? = null,
+    var reasonOrder: Int? = null,
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id

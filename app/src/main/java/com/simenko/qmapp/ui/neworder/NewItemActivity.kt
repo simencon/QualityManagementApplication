@@ -78,11 +78,15 @@ class NewItemActivity : ComponentActivity() {
         viewModel.investigationTypes.observe(
             this
         ) {
-            viewModel.ChangeState(
-                viewModel.investigationTypesMediator.value!!.first!!,
-                viewModel.investigationTypes.value!!
-            ).updateMutableList(0)
+            viewModel.filterWithOneParent(
+                viewModel.investigationTypesMutable,
+                viewModel.investigationTypes,
+                -2
+            )
         }
+        viewModel.investigationReasons.observe(this) {}
+        viewModel.customers.observe(this) {}
+        viewModel.teamMembers.observe(this) {}
     }
 
 }
