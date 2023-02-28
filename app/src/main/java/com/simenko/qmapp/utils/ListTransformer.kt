@@ -51,6 +51,9 @@ class ListTransformer<in T : Any, out R : Any> constructor(
             "isExpanded" -> {
                 false
             }
+            "isSelected" -> {
+                false
+            }
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
     }
@@ -100,6 +103,9 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
                 false
             }
             "isExpanded" -> {
+                false
+            }
+            "isSelected" -> {
                 false
             }
             else -> return inPropertiesByName[parameter.name]?.get(data)

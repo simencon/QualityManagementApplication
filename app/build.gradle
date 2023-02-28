@@ -142,6 +142,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended"
 
     implementation("androidx.compose.runtime:runtime-livedata")
+//    implementation "androidx.lifecycle:lifecycle-viewmodel-compose"
 
 
     implementation "com.google.accompanist:accompanist-flowlayout:0.23.1"

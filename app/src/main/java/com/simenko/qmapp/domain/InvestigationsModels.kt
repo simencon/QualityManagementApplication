@@ -28,7 +28,7 @@ data class DomainInputForOrder constructor(
     var ishCharId: Int,
     var ishSubChar: Int,
     var charDescription: String,
-    var charDesignation: String?=null,
+    var charDesignation: String? = null,
     var charOrder: Int
 )
 
@@ -46,8 +46,14 @@ data class DomainMeasurementReason constructor(
 
 data class DomainOrdersType constructor(
     var id: Int,
-    var typeDescription: String? = null
-)
+    var typeDescription: String? = null,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = id
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
 
 data class DomainOrder constructor(
     var id: Int,
@@ -82,7 +88,7 @@ data class DomainSubOrder constructor(
 )
 
 data class DomainSubOrderTask constructor(
-    var id:Int,
+    var id: Int,
     var statusId: Int,
     var createdDate: String? = null,
     var completedDate: String? = null,
@@ -151,11 +157,12 @@ data class CompleteOrder constructor(
     var order: DomainOrder,
     var subOrders: ArrayList<CompleteSubOrder>,
     var subOrderTasks: ArrayList<DomainSubOrderTask>
-){
-    fun addSubOrder(order: CompleteSubOrder){
+) {
+    fun addSubOrder(order: CompleteSubOrder) {
         subOrders.add(order)
     }
-    fun addSubOrderTask(subOrderTask: DomainSubOrderTask){
+
+    fun addSubOrderTask(subOrderTask: DomainSubOrderTask) {
         subOrderTasks.add(subOrderTask)
     }
 }
@@ -163,8 +170,8 @@ data class CompleteOrder constructor(
 data class CompleteSubOrder constructor(
     var subOrder: DomainSubOrder,
     var samples: ArrayList<CompleteSample>
-){
-    fun addSample(sample: CompleteSample){
+) {
+    fun addSample(sample: CompleteSample) {
         samples.add(sample)
     }
 }
@@ -173,8 +180,8 @@ data class CompleteSubOrder constructor(
 data class CompleteSample constructor(
     var sample: DomainSample,
     var results: ArrayList<DomainResult>
-){
-    fun addResult(result: DomainResult){
+) {
+    fun addResult(result: DomainResult) {
         results.add(result)
     }
 }

@@ -72,6 +72,19 @@ class NewItemActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.investigationTypes.observe(
+            this
+        ) {
+            viewModel.ChangeState(
+                viewModel.investigationTypesMediator.value!!.first!!,
+                viewModel.investigationTypes.value!!
+            ).updateMutableList(0)
+        }
+    }
+
 }
 
 @Composable
@@ -147,7 +160,7 @@ fun ButtonsSection(
         content()
         Spacer(Modifier.height(16.dp))
         Divider(
-            modifier = modifier.height(1.dp),
+            modifier = modifier.height(2.dp),
             color = Accent200
         )
     }

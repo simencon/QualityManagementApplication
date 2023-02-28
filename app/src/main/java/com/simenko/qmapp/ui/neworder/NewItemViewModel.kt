@@ -15,9 +15,6 @@ import javax.inject.Inject
 class NewItemViewModel @Inject constructor(
     context: Context
 ) : ViewModel() {
-    /**
-     * Gets data from Repositories - which is live data with list
-     */
 
     private val roomDatabase = getDatabase(context)
 
@@ -32,21 +29,44 @@ class NewItemViewModel @Inject constructor(
 
     private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    private val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
-    val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
-            addSource(inputForOrder) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(inputForOrder.value, it) }
+    inner class ChangeState<T : DomainModel>(private val destination: MutableList<T>) {
+        lateinit var source: List<T>
+
+        constructor(destination: MutableList<T>, source: List<T>) : this(destination) {
+            this.source = source
         }
 
-    private val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
-    val investigationTypesMediator: MediatorLiveData<Pair<List<DomainOrdersType>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainOrdersType>?, Boolean?>>().apply {
-            addSource(investigationTypes) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(investigationTypes.value, it) }
+        fun selectSingleRecord(record: T) {
+            destination.forEach {
+                it.setIsChecked(false)
+            }
+            destination.find { it.getRecordId() == record.getRecordId() }?.setIsChecked(true)
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
 
-    private val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
+        fun updateMutableList(parentId: Int) {
+            destination.clear()
+            source.apply {
+                this.filter { it.getRecordId() > parentId }.forEach { input ->
+                    if (destination.find { it.getRecordId() == input.getRecordId() } == null) {
+                        destination.add(input)
+                    }
+                }
+            }
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+        }
+    }
+
+    val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
+    private val orderTypes = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
+    val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>>().apply {
+            addSource(orderTypes) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(orderTypes.value, it) }
+        }
+
+    private val investigationReasons =
+        qualityManagementInvestigationsRepository.investigationReasons
     val investigationReasonsMediator: MediatorLiveData<Pair<List<DomainMeasurementReason>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainMeasurementReason>?, Boolean?>>().apply {
             addSource(investigationReasons) { value = Pair(it, pairedTrigger.value) }
@@ -65,6 +85,13 @@ class NewItemViewModel @Inject constructor(
         MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
             addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
+        }
+
+    private val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
+    val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
+            addSource(inputForOrder) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(inputForOrder.value, it) }
         }
 
     /**
