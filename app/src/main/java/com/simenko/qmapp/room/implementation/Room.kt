@@ -128,6 +128,10 @@ interface QualityManagementInvestigationsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrdersAll(company: List<DatabaseOrder>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrder(order:DatabaseOrder)
+    @Delete
+    fun deleteOrder(order: DatabaseOrder)
 
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber ASC")
     fun getOrders(): LiveData<List<DatabaseOrder>>

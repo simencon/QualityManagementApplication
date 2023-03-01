@@ -373,10 +373,18 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
-    suspend fun placeOrder(order: NetworkOrder) {
+    suspend fun placeOrder(order: DomainOrder) {
         withContext(Dispatchers.IO) {
-            val result = QualityManagementNetwork.serviceholderInvestigations.createOrder(order)
-            Log.d(TAG, "placeOrder: $result")
+            val result = QualityManagementNetwork.serviceholderInvestigations.createOrder(order.toNetworkOrder())
+            database.qualityManagementInvestigationsDao.insertOrder(result.toDatabaseOrder())
+        }
+    }
+
+    suspend fun deleteOrder(order: DomainOrder) {
+        withContext(Dispatchers.IO) {
+            QualityManagementNetwork.serviceholderInvestigations.deleteOrder(order.id)
+            val dbOrder = order.toDatabaseOrder()
+            database.qualityManagementInvestigationsDao.deleteOrder(dbOrder)
         }
     }
 

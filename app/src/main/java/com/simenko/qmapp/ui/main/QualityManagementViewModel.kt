@@ -10,6 +10,7 @@ import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.room.implementation.getDatabase
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -159,6 +160,15 @@ class QualityManagementViewModel @Inject constructor(
             qualityManagementInvestigationsRepository.refreshOrders()
             isLoadingInProgress.value = false
         }
+    }
+
+    fun deleteOrder(order: DomainOrderComplete) {
+        viewModelScope.launch {
+            isLoadingInProgress.value = true
+            qualityManagementInvestigationsRepository.deleteOrder(order.order)
+            isLoadingInProgress.value = false
+        }
+        refreshOrdersFromRepository()
     }
 
     private fun refreshDataFromRepository() {

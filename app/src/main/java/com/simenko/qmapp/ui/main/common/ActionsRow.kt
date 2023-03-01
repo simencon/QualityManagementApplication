@@ -11,6 +11,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.ui.theme.PrimaryVariant900
 
 const val ACTION_ITEM_SIZE = 45
@@ -22,15 +23,22 @@ const val MIN_DRAG_AMOUNT = 6
 
 @Composable
 fun ActionsRow(
+    order: DomainOrderComplete? = null,
     actionIconSize: Dp,
-    onDelete: () -> Unit,
+    onDelete: (DomainOrderComplete) -> Unit,
     onEdit: () -> Unit,
     onFavorite: () -> Unit,
 ) {
     Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
         IconButton(
             modifier = Modifier.size(actionIconSize),
-            onClick = onDelete,
+            onClick = {
+                when {
+                    (order != null) -> {
+                        onDelete(order)
+                    }
+                }
+            },
             content = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_bin),

@@ -165,7 +165,8 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun postNewOrder() {
-        val order = NetworkOrder(
+        val order = DomainOrder(
+            id = 1,
             1,
             1,
             orderNumber = (100..300).random(),

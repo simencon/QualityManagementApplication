@@ -1,5 +1,7 @@
 package com.simenko.qmapp.utils
 
+import com.simenko.qmapp.domain.DomainOrder
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
@@ -109,6 +111,16 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
                 false
             }
             else -> return inPropertiesByName[parameter.name]?.get(data)
+        }
+    }
+}
+
+val orderDomainToNetwork = object
+    : ObjectTransformer<DomainOrder, NetworkOrder>(DomainOrder::class, NetworkOrder::class) {
+    override fun argFor(parameter: KParameter, data: DomainOrder): Any? {
+        return when (parameter.name) {
+            "id" -> {}
+            else -> super.argFor(parameter, data)
         }
     }
 }

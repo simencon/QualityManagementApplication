@@ -171,8 +171,11 @@ fun OrdersLiveData(
                     items(items = observeOrders!!.first!!) { order ->
                         Box(Modifier.fillMaxWidth()) {
                             ActionsRow(
+                                order = order,
                                 actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDelete = {},
+                                onDelete = {
+                                    appModel.deleteOrder(it)
+                                },
                                 onEdit = {},
                                 onFavorite = {}
                             )

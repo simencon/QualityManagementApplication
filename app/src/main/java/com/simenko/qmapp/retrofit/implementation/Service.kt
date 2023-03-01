@@ -3,12 +3,14 @@ package com.simenko.qmapp.retrofit.implementation
 import com.simenko.qmapp.retrofit.entities.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface QualityManagementManufacturingService {
     @GET("api/_0PositionLevel")
@@ -56,6 +58,8 @@ interface QualityManagementInvestigationsService {
     suspend fun getOrders(): List<NetworkOrder>
     @POST("api/_12Order")
     suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder
+    @DELETE("api/_12Order/{id}")
+    suspend fun deleteOrder(@Path("id") id: Int): Response<Unit>
 
     @GET("api/_13SubOrder")
     suspend fun getSubOrders(): List<NetworkSubOrder>
