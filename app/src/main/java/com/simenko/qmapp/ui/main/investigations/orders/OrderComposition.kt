@@ -20,8 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -121,9 +123,9 @@ fun InvestigationsAll(
                     },
                     content = {
                         androidx.compose.material.Icon(
-                            painter = painterResource(id = R.drawable.ic_add),
+                            imageVector = Icons.Default.Add,
                             contentDescription = null,
-                            tint = Color.White
+                            tint = Primary900
                         )
                     }
                 )

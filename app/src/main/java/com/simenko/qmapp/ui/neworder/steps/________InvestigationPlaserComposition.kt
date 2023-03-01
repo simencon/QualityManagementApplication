@@ -25,8 +25,7 @@ import com.simenko.qmapp.ui.theme.StatusBar400
 @Composable
 fun PlacersSelection(
     modifier: Modifier = Modifier,
-    appModel: NewItemViewModel,
-    parentId: Int
+    appModel: NewItemViewModel
 ) {
     val observeInputForOrder by appModel.teamMembersMediator.observeAsState()
 

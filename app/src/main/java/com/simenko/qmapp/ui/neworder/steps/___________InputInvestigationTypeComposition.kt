@@ -21,7 +21,6 @@ import com.simenko.qmapp.ui.theme.StatusBar400
 fun TypesSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel,
-    parentId: Int
 ) {
     val inputList by appModel.investigationTypesMediator.observeAsState()
 

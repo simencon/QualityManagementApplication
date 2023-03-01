@@ -22,7 +22,6 @@ import com.simenko.qmapp.ui.theme.StatusBar400
 fun ReasonsSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel,
-    parentId: Int
 ) {
     val observeInputForOrder by appModel.investigationReasonsMediator.observeAsState()
 
@@ -37,7 +36,7 @@ fun ReasonsSelection(
             items(first!!.size) { item ->
                 InvestigationReasonCard(
                     inputForOrder = first!![item],
-                    modifier = modifier,
+                    modifier = modifier.padding(top = 0.dp),
                     onClick = {
                         appModel.filterWithOneParent(
                             appModel.customersMutable,

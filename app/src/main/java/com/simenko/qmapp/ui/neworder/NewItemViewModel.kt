@@ -164,20 +164,9 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun postNewOrder() {
-        val order = DomainOrder(
-            id = 1,
-            1,
-            1,
-            orderNumber = (100..300).random(),
-            1,
-            6,
-            1,
-            "2022-12-15T22:24:43",
-            "2022-12-15T22:24:43"
-        )
+    fun postNewOrder(order: DomainOrder) {
         viewModelScope.launch {
-            val result = qualityManagementInvestigationsRepository.placeOrder(order)
+            qualityManagementInvestigationsRepository.placeOrder(order)
         }
     }
 

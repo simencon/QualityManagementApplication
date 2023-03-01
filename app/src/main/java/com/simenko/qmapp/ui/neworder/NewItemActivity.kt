@@ -10,7 +10,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Divider
@@ -24,14 +24,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
-import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
-import com.simenko.qmapp.retrofit.entities.NetworkOrder
-import com.simenko.qmapp.room.implementation.QualityManagementDB
-import com.simenko.qmapp.room.implementation.getDatabase
+import com.simenko.qmapp.domain.DomainOrder
+import com.simenko.qmapp.ui.neworder.assemblers.assembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
-import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -60,6 +57,7 @@ class NewItemActivity : ComponentActivity() {
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         (application as BaseApplication).appComponent.newItemComponent().create().inject(this)
@@ -73,21 +71,35 @@ class NewItemActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = { Text("Top App Bar", color = Color.White) },
-                            backgroundColor = Primary900
+                            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Primary900)
                         )
                     },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            modifier = Modifier.padding(end = 29.dp),
+                            onClick = {
+                                if(assembleOrder(viewModel) == null) {
+                                    Toast.makeText(this,"Перед збереженням заповніть всі поля!", Toast.LENGTH_SHORT).show()
+                                    return@FloatingActionButton
+                                } else {
+                                    viewModel.postNewOrder(assembleOrder(viewModel)!!)
+                                    this.finish()
+                                }
 
-                    bottomBar = {
-                        BottomNavigation(
-                            saveRecord = {
-                                viewModel.postNewOrder()
+                            },
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Default.Save,
+                                    contentDescription = null,
+                                    tint = Primary900
+                                )
                             }
                         )
-                    }
+                    },
                 ) { padding ->
 
                     HomeScreen(
-                        modifier = Modifier.padding(all = 0.dp /*padding*/),
+                        modifier = Modifier.padding(padding),
                         viewModel = viewModel,
                         parentId = 0
                     )
@@ -111,61 +123,6 @@ class NewItemActivity : ComponentActivity() {
         viewModel.customers.observe(this) {}
         viewModel.teamMembers.observe(this) {}
     }
-
-    private suspend fun testCoroutines(context: Context) {
-        withContext(Dispatchers.IO) {
-            for (i in 1..10) {
-                Toast.makeText(context, "Save button pressed $i", Toast.LENGTH_SHORT).show()
-                delay(5000)
-            }
-        }
-    }
-
-}
-
-@Composable
-private fun BottomNavigation(
-    modifier: Modifier = Modifier,
-    saveRecord: () -> Unit
-) {
-    BottomNavigation(
-        backgroundColor = Primary900,
-        modifier = modifier
-    ) {
-        BottomNavigationItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.ArrowBackIos,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            },
-            selected = true,
-            onClick = {}
-        )
-        BottomNavigationItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Cancel,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            },
-            selected = true,
-            onClick = {}
-        )
-        BottomNavigationItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Save,
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            },
-            selected = false,
-            onClick = { saveRecord() }
-        )
-    }
 }
 
 @Composable
@@ -180,23 +137,20 @@ fun HomeScreen(
     ) {
         ButtonsSection(title = R.string.select_type) {
             TypesSelection(
-                modifier = modifier,
-                appModel = viewModel,
-                parentId = parentId
+                modifier = Modifier.padding(top = 0.dp),
+                appModel = viewModel
             )
         }
         ButtonsSection(title = R.string.select_reason) {
             ReasonsSelection(
-                modifier = modifier,
-                appModel = viewModel,
-                parentId = parentId
+                modifier = Modifier.padding(top = 0.dp),
+                appModel = viewModel
             )
         }
         ButtonsSection(title = R.string.select_customer) {
             CustomersSelection(
-                modifier = modifier,
-                appModel = viewModel,
-                parentId = parentId
+                modifier = Modifier.padding(top = 0.dp),
+                appModel = viewModel
             )
         }
 
@@ -204,9 +158,8 @@ fun HomeScreen(
             SearchBarProducts(Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(16.dp))
             PlacersSelection(
-                modifier = modifier,
-                appModel = viewModel,
-                parentId = parentId
+                modifier = Modifier.padding(top = 0.dp),
+                appModel = viewModel
             )
         }
 
@@ -214,7 +167,7 @@ fun HomeScreen(
             SearchBarProducts(Modifier.padding(horizontal = 16.dp))
             Spacer(Modifier.height(16.dp))
             ProductsSelection(
-                modifier = modifier,
+                modifier = Modifier.padding(top = 0.dp),
                 appModel = viewModel,
                 parentId = parentId
             )
@@ -231,9 +184,9 @@ fun ButtonsSection(
     content: @Composable () -> Unit
 ) {
     Column(modifier) {
-        androidx.compose.material.Text(
+        Text(
             text = stringResource(title).uppercase(Locale.getDefault()),
-            style = MaterialTheme.typography.h2.copy(fontSize = 18.sp),
+            style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
             modifier = Modifier
                 .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
                 .padding(horizontal = 16.dp)
