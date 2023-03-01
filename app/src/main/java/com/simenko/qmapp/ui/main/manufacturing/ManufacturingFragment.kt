@@ -62,8 +62,6 @@ class ManufacturingFragment : Fragment() {
 
         binding.setLifecycleOwner(viewLifecycleOwner)
 
-        binding.viewModel = viewModel
-
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = rvAdapter

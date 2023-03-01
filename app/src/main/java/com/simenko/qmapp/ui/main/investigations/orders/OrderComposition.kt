@@ -2,19 +2,29 @@ package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -22,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -90,6 +102,8 @@ fun getOrders() = List(30) { i ->
     )
 }
 
+private const val TAG = "OrderComposition"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestigationsAll(
@@ -128,60 +142,85 @@ fun InvestigationsAll(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrdersLiveData(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
+    val context = LocalContext.current
+
+    val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
+    val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+
+    val listState = rememberLazyListState()
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
     var clickCounter = 0
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator()
-    }
-    observeOrders?.apply {
-        if (observeOrders!!.first != null) {
-            LazyColumn(modifier = modifier) {
-                items(items = observeOrders!!.first!!) { order ->
-                    Box(Modifier.fillMaxWidth()) {
-                        ActionsRow(
-                            actionIconSize = ACTION_ITEM_SIZE.dp,
-                            onDelete = {},
-                            onEdit = {},
-                            onFavorite = {}
-                        )
 
-                        OrderCard(
-                            viewModel = appModel,
-                            order = order,
-                            onClickDetails = { it ->
-                                appModel.changeCompleteOrdersDetailsVisibility(it)
-                            },
-                            modifier = modifier,
-                            cardOffset = CARD_OFFSET.dp(),
-                            onChangeExpandState = {
-                                clickCounter++
-                                if (clickCounter == 1) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        delay(200)
-                                        clickCounter--
+    val pullRefreshState = rememberPullRefreshState(
+        observerLoadingProcess!!,
+        { appModel.refreshOrdersFromRepository() })
+
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        observeOrders?.apply {
+            if (observeOrders!!.first != null) {
+                LazyColumn(
+                    modifier = modifier,
+                    state = listState
+                ) {
+                    items(items = observeOrders!!.first!!) { order ->
+                        Box(Modifier.fillMaxWidth()) {
+                            ActionsRow(
+                                actionIconSize = ACTION_ITEM_SIZE.dp,
+                                onDelete = {},
+                                onEdit = {},
+                                onFavorite = {}
+                            )
+
+                            OrderCard(
+                                viewModel = appModel,
+                                order = order,
+                                onClickDetails = { it ->
+                                    appModel.changeCompleteOrdersDetailsVisibility(it)
+                                },
+                                modifier = modifier,
+                                cardOffset = CARD_OFFSET.dp(),
+                                onChangeExpandState = {
+                                    clickCounter++
+                                    if (clickCounter == 1) {
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            delay(200)
+                                            clickCounter--
+                                        }
+                                    }
+                                    if (clickCounter == 2) {
+                                        clickCounter = 0
+                                        appModel.changeCompleteOrdersExpandState(it)
                                     }
                                 }
-                                if (clickCounter == 2) {
-                                    clickCounter = 0
-                                    appModel.changeCompleteOrdersExpandState(it)
-                                }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
         }
+        PullRefreshIndicator(
+            observerLoadingProcess!!,
+            pullRefreshState,
+            Modifier.align(Alignment.TopCenter),
+            contentColor = ProgressIndicatorDefaults.circularColor
+        )
     }
+
+    if (observerIsNetworkError == true) {
+        Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
+        appModel.onNetworkErrorShown()
+    }
+
 }
+
+fun LazyListState.isScrolledToTheEnd() =
+    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable

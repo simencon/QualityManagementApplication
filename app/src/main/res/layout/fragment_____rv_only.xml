@@ -5,12 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.main.manufacturing.ManufacturingFragment">
 
-    <data>
-        <variable
-            name="viewModel"
-            type="com.simenko.qmapp.ui.main.QualityManagementViewModel" />
-    </data>
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -36,14 +30,6 @@
                 tools:listitem="@layout/item_________department" />
 
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/loading_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            app:departments="@{viewModel.departmentsDetailed}"
-            app:isNetworkError="@{safeUnbox(viewModel.eventNetworkError)}" />
 
     </FrameLayout>
 

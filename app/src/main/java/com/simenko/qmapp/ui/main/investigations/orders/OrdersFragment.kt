@@ -106,7 +106,6 @@ class OrdersFragment(
         }
 
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
 
         binding.root.findViewById<RecyclerView>(R.id.rv_investigations).apply {
             layoutManager = LinearLayoutManager(context)

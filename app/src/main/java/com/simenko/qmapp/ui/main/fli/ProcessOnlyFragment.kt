@@ -58,7 +58,6 @@ class ProcessOnlyFragment : Fragment() {
         )
 
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
 
 
         viewModel.eventNetworkError.observe(

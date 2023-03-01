@@ -54,8 +54,6 @@ class TeamFragment : Fragment() {
         )
 
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.viewModel = viewModel
-
 
         viewModel.eventNetworkError.observe(
             viewLifecycleOwner, Observer { isNetworkError ->

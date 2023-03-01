@@ -31,6 +31,8 @@ class QualityManagementViewModel @Inject constructor(
         QualityManagementProductsRepository(roomDatabase)
     private val qualityManagementInvestigationsRepository =
         QualityManagementInvestigationsRepository(roomDatabase)
+    val isLoadingInProgress = MutableLiveData<Boolean>(false)
+    val isNetworkError = MutableLiveData<Boolean>(false)
 
     init {
         refreshDataFromRepository()
@@ -44,6 +46,7 @@ class QualityManagementViewModel @Inject constructor(
             addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
         }
+
     fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): Unit {
         teamMembers.value?.find { it.id == item.id }?.let { member ->
             member.detailsVisibility = !member.detailsVisibility
@@ -68,12 +71,14 @@ class QualityManagementViewModel @Inject constructor(
             addSource(completeOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
         }
+
     fun changeCompleteOrdersDetailsVisibility(item: DomainOrderComplete): Unit {
         completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
             order.detailsVisibility = !order.detailsVisibility
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
+
     fun changeCompleteOrdersExpandState(item: DomainOrderComplete): Unit {
         completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
             order.isExpanded = !order.isExpanded
@@ -87,12 +92,14 @@ class QualityManagementViewModel @Inject constructor(
             addSource(completeSubOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
         }
+
     fun changeCompleteSubOrdersDetailsVisibility(item: DomainSubOrderComplete): Unit {
         completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
             subOrder.detailsVisibility = !subOrder.detailsVisibility
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
+
     fun changeCompleteSubOrdersExpandState(item: DomainSubOrderComplete): Unit {
         completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
             subOrder.isExpanded = !subOrder.isExpanded
@@ -102,26 +109,31 @@ class QualityManagementViewModel @Inject constructor(
 
     val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
     val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
-            MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
-                addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
-                addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
-            }
+        MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
+            addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
+        }
+
     fun changeCompleteSubOrderTasksDetailsVisibility(item: DomainSubOrderTaskComplete): Unit {
-        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }?.let { subOrderTask ->
-            subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-        }
+        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
+            ?.let { subOrderTask ->
+                subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
+                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            }
     }
+
     fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete): Unit {
-        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }?.let { subOrderTask ->
-            subOrderTask.isExpanded = !subOrderTask.isExpanded
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-        }
+        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
+            ?.let { subOrderTask ->
+                subOrderTask.isExpanded = !subOrderTask.isExpanded
+                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            }
     }
 
     /**
      *
      */
+
     private var _eventNetworkError = MutableLiveData<Boolean>(false)
     val eventNetworkError: LiveData<Boolean>
         get() = _eventNetworkError
@@ -132,16 +144,28 @@ class QualityManagementViewModel @Inject constructor(
 
     fun onNetworkErrorShown() {
         _isNetworkErrorShown.value = true
+
+        isLoadingInProgress.value = false
+        isNetworkError.value = false
     }
 
     /**
      * Runs every time when ViewModel in initializing process
      */
 
+    fun refreshOrdersFromRepository() {
+        viewModelScope.launch {
+            isLoadingInProgress.value = true
+            qualityManagementInvestigationsRepository.refreshOrders()
+            isLoadingInProgress.value = false
+        }
+    }
+
     private fun refreshDataFromRepository() {
         viewModelScope.launch {
             try {
-//                for (i in 1..30) {
+                isLoadingInProgress.value = true
+
                 qualityManagementManufacturingRepository.refreshPositionLevels()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
                 qualityManagementManufacturingRepository.refreshCompanies()
@@ -167,14 +191,13 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementInvestigationsRepository.refreshSamples()
                 qualityManagementInvestigationsRepository.refreshResultsDecryptions()
                 qualityManagementInvestigationsRepository.refreshResults()
+                isLoadingInProgress.value = false
 
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false
 
-//                    delay(5000)
-//                }
-
             } catch (networkError: IOException) {
+                isNetworkError.value = true
                 // Show a Toast error message and hide the progress bar.
                 if (departments.value.isNullOrEmpty())
                     _eventNetworkError.value = true
