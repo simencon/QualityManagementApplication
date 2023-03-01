@@ -23,12 +23,6 @@
             android:orientation="vertical"
             android:weightSum="100">
 
-            <TextView
-                android:id="@+id/title_investigations"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="First page" />
-
             <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/compose_view"
                 android:layout_width="match_parent"

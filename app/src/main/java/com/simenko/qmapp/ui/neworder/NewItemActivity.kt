@@ -3,26 +3,35 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
+import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
+import com.simenko.qmapp.room.implementation.QualityManagementDB
+import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import kotlinx.coroutines.*
 import java.util.*
 import javax.inject.Inject
 
@@ -52,6 +61,7 @@ class NewItemActivity : ComponentActivity() {
     lateinit var providerFactory: ViewModelProviderFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         (application as BaseApplication).appComponent.newItemComponent().create().inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[NewItemViewModel::class.java]
 
@@ -60,11 +70,24 @@ class NewItemActivity : ComponentActivity() {
 
             QMAppTheme {
                 Scaffold(
-                    bottomBar = {}
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Top App Bar", color = Color.White) },
+                            backgroundColor = Primary900
+                        )
+                    },
+
+                    bottomBar = {
+                        BottomNavigation(
+                            saveRecord = {
+                                viewModel.postNewOrder()
+                            }
+                        )
+                    }
                 ) { padding ->
 
                     HomeScreen(
-                        modifier = Modifier.padding(padding),
+                        modifier = Modifier.padding(all = 0.dp /*padding*/),
                         viewModel = viewModel,
                         parentId = 0
                     )
@@ -89,6 +112,60 @@ class NewItemActivity : ComponentActivity() {
         viewModel.teamMembers.observe(this) {}
     }
 
+    private suspend fun testCoroutines(context: Context) {
+        withContext(Dispatchers.IO) {
+            for (i in 1..10) {
+                Toast.makeText(context, "Save button pressed $i", Toast.LENGTH_SHORT).show()
+                delay(5000)
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun BottomNavigation(
+    modifier: Modifier = Modifier,
+    saveRecord: () -> Unit
+) {
+    BottomNavigation(
+        backgroundColor = Primary900,
+        modifier = modifier
+    ) {
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.ArrowBackIos,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            },
+            selected = true,
+            onClick = {}
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Cancel,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            },
+            selected = true,
+            onClick = {}
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Save,
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            },
+            selected = false,
+            onClick = { saveRecord() }
+        )
+    }
 }
 
 @Composable
@@ -143,7 +220,7 @@ fun HomeScreen(
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height((16 + 56).dp))
     }
 }
 

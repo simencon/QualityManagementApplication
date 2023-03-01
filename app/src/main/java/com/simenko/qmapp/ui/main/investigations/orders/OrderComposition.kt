@@ -6,26 +6,24 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.BaselineShift
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -34,6 +32,10 @@ import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.common.ACTION_ITEM_SIZE
+import com.simenko.qmapp.ui.main.common.ANIMATION_DURATION
+import com.simenko.qmapp.ui.main.common.ActionsRow
+import com.simenko.qmapp.ui.main.common.CARD_OFFSET
 import com.simenko.qmapp.ui.neworder.NewItemType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
@@ -88,19 +90,18 @@ fun getOrders() = List(30) { i ->
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestigationsAll(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
     context: Context
-){
+) {
     QMAppTheme {
-        androidx.compose.material.Scaffold(
-//            topBar = {},
-//            drawerContent = {},
-//            bottomBar = {},
+        Scaffold(
             floatingActionButton = {
                 FloatingActionButton(
+                    modifier = Modifier.padding(end = 29.dp),
                     onClick = {
                         launchNewItemActivity(context, NewItemType.NEW_INVESTIGATION)
                     },
@@ -113,7 +114,7 @@ fun InvestigationsAll(
                     }
                 )
             },
-//            snackbarHost = {/**/ },
+            floatingActionButtonPosition = FabPosition.End,
             content = { padding ->
                 OrdersLiveData(
                     Modifier
@@ -134,7 +135,13 @@ fun OrdersLiveData(
 ) {
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
     var clickCounter = 0
-
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        CircularProgressIndicator()
+    }
     observeOrders?.apply {
         if (observeOrders!!.first != null) {
             LazyColumn(modifier = modifier) {

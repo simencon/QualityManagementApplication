@@ -6,8 +6,11 @@ import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.room.implementation.getDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 
@@ -35,7 +38,11 @@ class NewItemViewModel @Inject constructor(
         pairedTrigger.value = !(pairedTrigger.value as Boolean)
     }
 
-    fun <T : DomainModel> filterWithOneParent(d: MutableLiveData<MutableList<T>>, s: LiveData<List<T>>, pId: Int) {
+    fun <T : DomainModel> filterWithOneParent(
+        d: MutableLiveData<MutableList<T>>,
+        s: LiveData<List<T>>,
+        pId: Int
+    ) {
 
         when (pId) {
 //            Add all without deselection
@@ -45,18 +52,27 @@ class NewItemViewModel @Inject constructor(
             }
 //            Add all
             -1 -> {
-                selectSingleRecord(d, null) //Is made because previously selected/filtered/unfiltered item again selected
+                selectSingleRecord(
+                    d,
+                    null
+                ) //Is made because previously selected/filtered/unfiltered item again selected
                 d.value?.clear()
                 s.value?.let { d.value?.addAll(it.toList()) }
             }
 //            Clear all
             0 -> {
-                selectSingleRecord(d, null) //Is made because previously selected/filtered/unfiltered item again selected
+                selectSingleRecord(
+                    d,
+                    null
+                ) //Is made because previously selected/filtered/unfiltered item again selected
                 d.value?.clear()
             }
 //            Add filtered by one parent id
             else -> {
-                selectSingleRecord(d, null) //Is made because previously selected/filtered/unfiltered item again selected
+                selectSingleRecord(
+                    d,
+                    null
+                ) //Is made because previously selected/filtered/unfiltered item again selected
                 d.value?.clear()
                 s.apply {
                     this.value?.filter { it.getRecordId() > pId }?.forEach { input ->
@@ -145,6 +161,22 @@ class NewItemViewModel @Inject constructor(
                 if (inputForOrder.value.isNullOrEmpty())
                     _eventNetworkError.value = true
             }
+        }
+    }
+
+    fun postNewOrder() {
+        val order = NetworkOrder(
+            1,
+            1,
+            orderNumber = (100..300).random(),
+            1,
+            6,
+            1,
+            "2022-12-15T22:24:43",
+            "2022-12-15T22:24:43"
+        )
+        viewModelScope.launch {
+            val result = qualityManagementInvestigationsRepository.placeOrder(order)
         }
     }
 

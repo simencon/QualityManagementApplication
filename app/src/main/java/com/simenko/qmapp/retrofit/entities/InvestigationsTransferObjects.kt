@@ -18,7 +18,7 @@ data class NetworkInputForOrder constructor(
     var lineAbbr: String,
     var lineOrder: Int,
     var recordId: String,
-    @Json(name ="itemPreffix")
+    @Json(name = "itemPreffix")
     var itemPrefix: String,
     var itemId: Int,
     var itemVersionId: Int,
@@ -33,7 +33,7 @@ data class NetworkInputForOrder constructor(
     var ishCharId: Int,
     var ishSubChar: Int,
     var charDescription: String,
-    var charDesignation: String?=null,
+    var charDesignation: String? = null,
     var charOrder: Int
 )
 
@@ -59,6 +59,42 @@ data class NetworkOrdersType constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrder constructor(
+    var orderTypeId: Int,
+    var reasonId: Int,
+    var orderNumber: Int? = null,
+    var customerId: Int,
+    var orderedById: Int,
+    var statusId: Int,
+    var createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
+    var completedDate: String? = null
+) {
+    var id: Int = 0
+    constructor(
+        id: Int,
+        orderTypeId: Int,
+        reasonId: Int,
+        orderNumber: Int? = null,
+        customerId: Int,
+        orderedById: Int,
+        statusId: Int,
+        createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
+        completedDate: String? = null
+    ) : this(
+        orderTypeId,
+        reasonId,
+        orderNumber,
+        customerId,
+        orderedById,
+        statusId,
+        createdDate,
+        completedDate
+    ) {
+        this.id = id
+    }
+}
+
+/*@JsonClass(generateAdapter = true)
+data class NetworkOrder constructor(
     var id: Int,
     var orderTypeId: Int,
     var reasonId: Int,
@@ -68,7 +104,7 @@ data class NetworkOrder constructor(
     var statusId: Int,
     var createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: String? = null
-)
+)*/
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrder constructor(

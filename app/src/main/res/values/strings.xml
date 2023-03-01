@@ -31,4 +31,7 @@
 
     <string name="placeholder_search">Search</string>
 
+    <string name="bottom_navigation_home">HOME</string>
+    <string name="bottom_navigation_profile">SAVE</string>
+
 </resources>

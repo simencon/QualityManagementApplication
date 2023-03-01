@@ -5,7 +5,6 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NavigateBefore
@@ -18,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,10 +27,13 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.common.ACTION_ITEM_SIZE
+import com.simenko.qmapp.ui.main.common.ANIMATION_DURATION
+import com.simenko.qmapp.ui.main.common.ActionsRow
+import com.simenko.qmapp.ui.main.common.CARD_OFFSET
 import com.simenko.qmapp.ui.theme.Accent200
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_3_record_color
-import com.simenko.qmapp.ui.theme.level_3_record_color
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

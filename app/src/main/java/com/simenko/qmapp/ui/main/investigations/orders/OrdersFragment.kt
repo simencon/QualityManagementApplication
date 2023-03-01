@@ -77,14 +77,12 @@ class OrdersFragment(
             container,
             false
         )
-        binding.root.findViewById<TextView?>(R.id.title_investigations).text = title
-
         when (title) {
             InvestigationsContainerFragment.TargetInv.COMPOSE.name -> {
                 binding.composeView.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    1.0f
+                     1.0f
                 )
                 binding.rvInvestigations.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
