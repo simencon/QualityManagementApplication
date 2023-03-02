@@ -5,10 +5,14 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.investigations.orders.OrdersFragment
 
 
-class OrderSectionPagerAdapter(fragment: InvestigationsContainerFragment) :
+class OrderSectionPagerAdapter(
+    private val createdRecord: CreatedRecord? = null,
+    fragment: InvestigationsContainerFragment
+) :
     FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int {
@@ -16,10 +20,16 @@ class OrderSectionPagerAdapter(fragment: InvestigationsContainerFragment) :
     }
 
     override fun createFragment(position: Int): Fragment {
-        return when(position){
-            0-> OrdersFragment(InvestigationsContainerFragment.TargetInv.COMPOSE.name)
-            1-> OrdersFragment(InvestigationsContainerFragment.TargetInv.CLASSIC.name) //To do - should be results
-            else -> OrdersFragment("Not in use")
+        return when (position) {
+            0 -> OrdersFragment(
+                createdRecord,
+                InvestigationsContainerFragment.TargetInv.COMPOSE.name
+            )
+            1 -> OrdersFragment(
+                createdRecord,
+                InvestigationsContainerFragment.TargetInv.CLASSIC.name
+            ) //To do - should be results
+            else -> OrdersFragment(createdRecord, "Not in use")
         }
     }
 }

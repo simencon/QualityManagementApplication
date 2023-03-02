@@ -25,12 +25,18 @@ import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainOrder
+import com.simenko.qmapp.ui.main.launchMainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.assembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.delay
 import java.util.*
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 enum class NewItemType() {
     NEW_INVESTIGATION,
@@ -50,6 +56,8 @@ fun createNewItemActivityIntent(context: Context, orderType: NewItemType): Inten
     return intent
 }
 
+private lateinit var recordType: String
+
 class NewItemActivity : ComponentActivity() {
 
     lateinit var viewModel: NewItemViewModel
@@ -64,8 +72,8 @@ class NewItemActivity : ComponentActivity() {
         viewModel = ViewModelProvider(this, providerFactory)[NewItemViewModel::class.java]
 
         super.onCreate(savedInstanceState)
+        recordType = intent.extras?.getString("KEY_ARG_NEW_ITEM_TYPE") ?: ""
         setContent {
-
             QMAppTheme {
                 Scaffold(
                     topBar = {
@@ -78,14 +86,16 @@ class NewItemActivity : ComponentActivity() {
                         FloatingActionButton(
                             modifier = Modifier.padding(end = 29.dp),
                             onClick = {
-                                if(assembleOrder(viewModel) == null) {
-                                    Toast.makeText(this,"Перед збереженням заповніть всі поля!", Toast.LENGTH_SHORT).show()
+                                if (assembleOrder(viewModel) == null) {
+                                    Toast.makeText(
+                                        this,
+                                        "Перед збереженням заповніть всі поля!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     return@FloatingActionButton
                                 } else {
-                                    viewModel.postNewOrder(assembleOrder(viewModel)!!)
-                                    this.finish()
+                                    viewModel.postNewOrder(this, assembleOrder(viewModel)!!)
                                 }
-
                             },
                             content = {
                                 Icon(

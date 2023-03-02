@@ -16,14 +16,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
+import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsAll
-import com.simenko.qmapp.ui.main.investigations.orders.OrdersLiveData
-import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
-class ProcessOnlyFragment : Fragment() {
+class ProcessOnlyFragment(private val createdRecord: CreatedRecord? = null) : Fragment() {
 
     private lateinit var viewModel: QualityManagementViewModel
 
@@ -47,14 +46,14 @@ class ProcessOnlyFragment : Fragment() {
         )
 
         binding.composeView.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1.0f
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            1.0f
         )
         binding.recyclerView.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                0.0f
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            0,
+            0.0f
         )
 
         binding.lifecycleOwner = viewLifecycleOwner
@@ -72,11 +71,12 @@ class ProcessOnlyFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 InvestigationsAll(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxSize()
                         .padding(vertical = 2.dp, horizontal = 4.dp),
-                    viewModel,
-                    context
+                    appModel = viewModel,
+                    context = context,
+                    createdRecord = createdRecord
                 )
             }
         }

@@ -3,14 +3,15 @@ package com.simenko.qmapp.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.produce
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -373,18 +374,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
-    suspend fun placeOrder(order: DomainOrder) {
-        withContext(Dispatchers.IO) {
-            val result = QualityManagementNetwork.serviceholderInvestigations.createOrder(order.toNetworkOrder())
-            database.qualityManagementInvestigationsDao.insertOrder(result.toDatabaseOrder())
-        }
-    }
-
     suspend fun deleteOrder(order: DomainOrder) {
         withContext(Dispatchers.IO) {
             QualityManagementNetwork.serviceholderInvestigations.deleteOrder(order.id)
             val dbOrder = order.toDatabaseOrder()
-//            ToDo this action reload view model completely
+//            ToDo this action reload view model completely because it triggers to update DomainModel completely
             database.qualityManagementInvestigationsDao.deleteOrder(dbOrder)
         }
     }
@@ -482,9 +476,22 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             ).generateList()
         }
 
+    val orders: LiveData<List<DomainOrder>> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getOrders()) {
+            ListTransformer(
+                it,
+                DatabaseOrder::class,
+                DomainOrder::class
+            ).generateList()
+        }
+
     val completeOrders: LiveData<List<DomainOrderComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
             it.asDomainOrdersComplete(-1)
+        }
+    val latestOrder: LiveData<DomainOrder> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getLatestOrder()) {
+            it.toDomainOrder()
         }
 
     val completeSubOrders: LiveData<List<DomainSubOrderComplete>> =

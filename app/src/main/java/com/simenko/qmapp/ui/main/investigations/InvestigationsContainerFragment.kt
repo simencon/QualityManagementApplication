@@ -12,9 +12,12 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.databinding.FragmentPagerContainerBinding
+import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
-class InvestigationsContainerFragment : Fragment(), SendMessage {
+class InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) :
+    Fragment(),
+    SendMessage {
 
     private lateinit var binding: FragmentPagerContainerBinding
     private lateinit var viewPager: ViewPager2
@@ -38,7 +41,7 @@ class InvestigationsContainerFragment : Fragment(), SendMessage {
         )
         // Instantiate a ViewPager2 and a PagerAdapter.
         viewPager = binding.fragmentContainer
-        val pagerAdapter = OrderSectionPagerAdapter(this)
+        val pagerAdapter = OrderSectionPagerAdapter(createdRecord, this)
         viewPager.adapter = pagerAdapter
         viewPager.setPageTransformer(ZoomOutPageTransformer())
 

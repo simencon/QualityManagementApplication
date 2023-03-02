@@ -2,41 +2,31 @@ package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,7 +101,8 @@ private const val TAG = "OrderComposition"
 fun InvestigationsAll(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
-    context: Context
+    context: Context,
+    createdRecord: CreatedRecord?
 ) {
     QMAppTheme {
         Scaffold(
@@ -132,10 +123,12 @@ fun InvestigationsAll(
             },
             floatingActionButtonPosition = FabPosition.End,
             content = { padding ->
-                OrdersLiveData(
-                    Modifier
+                Orders(
+                    modifier = Modifier
                         .fillMaxSize()
-                        .padding(vertical = 2.dp, horizontal = 4.dp), appModel
+                        .padding(vertical = 2.dp, horizontal = 4.dp),
+                    appModel = appModel,
+                    createdRecord = createdRecord
                 )
             }
         )
@@ -146,14 +139,27 @@ fun InvestigationsAll(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun OrdersLiveData(
+fun Orders(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel
+    appModel: QualityManagementViewModel,
+    createdRecord: CreatedRecord?
 ) {
     val context = LocalContext.current
 
     val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+
+    var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false)}
+    if(!isNewOrderRecordDetailsExpanded) {
+        appModel.completeOrders.value?.find {
+            it.order.id == createdRecord?.orderId
+        }.let{
+            if(it != null) {
+                isNewOrderRecordDetailsExpanded = true
+                it.detailsVisibility = true
+            }
+        }
+    }
 
     val listState = rememberLazyListState()
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
@@ -256,7 +262,7 @@ fun OrderCard(
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
             if (order.isExpanded) Accent200 else
-                if(order.detailsVisibility) {
+                if (order.detailsVisibility) {
                     _level_1_record_color_details
                 } else {
                     _level_1_record_color

@@ -2,15 +2,21 @@ package com.simenko.qmapp.ui.neworder
 
 import android.content.Context
 import androidx.lifecycle.*
+import androidx.room.Index
 import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
+import com.simenko.qmapp.retrofit.entities.toNetworkOrder
+import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
+import com.simenko.qmapp.room.entities.toDatabaseOrder
 import com.simenko.qmapp.room.implementation.getDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.simenko.qmapp.ui.main.launchMainActivity
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
 import java.io.IOException
 import javax.inject.Inject
 
@@ -164,10 +170,28 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun postNewOrder(order: DomainOrder) {
+    fun postNewOrder(activity: NewItemActivity, order: DomainOrder) {
         viewModelScope.launch {
-            qualityManagementInvestigationsRepository.placeOrder(order)
+            withContext(Dispatchers.IO) {
+                val channel = getCreatedRecord<DomainOrder>(order)
+                channel.consumeEach {
+                    launchMainActivity(activity, it.id)
+                    activity.finish()
+                }
+            }
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun <T> CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
+
+        val newOrder =
+            QualityManagementNetwork.serviceholderInvestigations.createOrder(record.toNetworkOrder())
+                .toDatabaseOrder()
+
+        roomDatabase.qualityManagementInvestigationsDao.insertOrder(newOrder)
+
+        send(newOrder.toDomainOrder()) //cold send
+//            this.trySend(l).isSuccess //hot send
+    }
 }

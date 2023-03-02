@@ -10,7 +10,6 @@ import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.room.implementation.getDatabase
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -36,7 +35,8 @@ class QualityManagementViewModel @Inject constructor(
     val isNetworkError = MutableLiveData<Boolean>(false)
 
     init {
-        refreshDataFromRepository()
+//        ToDo decide when to update all SQLData (but not every time when MainActivity Created!)
+//        refreshDataFromRepository()
     }
 
     private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)

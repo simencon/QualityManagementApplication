@@ -180,6 +180,11 @@ interface QualityManagementInvestigationsDao {
                 "ORDER BY subOrderNumber;"
     )
     fun getSubOrdersDetailed(): LiveData<List<DatabaseCompleteSubOrder>>
+    @Query("SELECT * FROM `12_orders` WHERE id=:id ")
+    fun getOrder(id: String): LiveData<DatabaseOrder>
+    @Query("SELECT * FROM '12_orders' WHERE id = (SELECT MAX(id) FROM '12_orders')")
+    fun getLatestOrder(): LiveData<DatabaseOrder>
+
     @Transaction
     @Query(
         "SELECT soTasks.* " +

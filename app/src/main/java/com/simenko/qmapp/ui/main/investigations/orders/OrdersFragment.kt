@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentRvAndTitleBinding
+import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
@@ -36,9 +37,7 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
-class OrdersFragment(
-    private var title: String
-) :
+class OrdersFragment(private val createdRecord: CreatedRecord? = null, private var title: String) :
     Fragment() {
 
     private val viewModel: QualityManagementViewModel by lazy {
@@ -82,7 +81,7 @@ class OrdersFragment(
                 binding.composeView.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                     1.0f
+                    1.0f
                 )
                 binding.rvInvestigations.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -138,8 +137,9 @@ class OrdersFragment(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(vertical = 2.dp, horizontal = 4.dp),
-                    viewModel,
-                    context = context
+                    appModel = viewModel,
+                    context = context,
+                    createdRecord = createdRecord
                 )
             }
         }
