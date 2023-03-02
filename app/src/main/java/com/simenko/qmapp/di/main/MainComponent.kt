@@ -3,7 +3,7 @@ package com.simenko.qmapp.di.main
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.fli.ProcessOnlyFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
-import com.simenko.qmapp.ui.main.investigations.orders.OrdersFragment
+import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsFragment
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
@@ -29,7 +29,7 @@ interface MainComponent {
     fun inject(fragment: ManufacturingFragment)
 
     fun inject(fragment: InvestigationsContainerFragment)
-    fun inject(fragment: OrdersFragment)
+    fun inject(fragment: InvestigationsFragment)
 
     fun inject(fragment: PlaceOrderFragment)
 }

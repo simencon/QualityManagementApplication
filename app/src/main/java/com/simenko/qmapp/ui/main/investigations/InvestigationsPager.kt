@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.simenko.qmapp.ui.main.CreatedRecord
-import com.simenko.qmapp.ui.main.investigations.orders.OrdersFragment
+import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsFragment
 
 
 class OrderSectionPagerAdapter(
@@ -21,15 +21,19 @@ class OrderSectionPagerAdapter(
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> OrdersFragment(
+            0 -> InvestigationsFragment(
                 createdRecord,
-                InvestigationsContainerFragment.TargetInv.COMPOSE.name
+                InvestigationsContainerFragment.TargetInv.TO_DO.name
             )
-            1 -> OrdersFragment(
+            1 -> InvestigationsFragment(
                 createdRecord,
-                InvestigationsContainerFragment.TargetInv.CLASSIC.name
-            ) //To do - should be results
-            else -> OrdersFragment(createdRecord, "Not in use")
+                InvestigationsContainerFragment.TargetInv.IN_PROGRESS.name
+            )
+            1 -> InvestigationsFragment(
+                createdRecord,
+                InvestigationsContainerFragment.TargetInv.DONE.name
+            )
+            else -> InvestigationsFragment(createdRecord, "Not in use")
         }
     }
 }

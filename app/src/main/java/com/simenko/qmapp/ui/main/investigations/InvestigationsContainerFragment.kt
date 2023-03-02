@@ -14,10 +14,9 @@ import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.databinding.FragmentPagerContainerBinding
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.utils.StringUtils
 
-class InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) :
-    Fragment(),
-    SendMessage {
+class InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) : Fragment() {
 
     private lateinit var binding: FragmentPagerContainerBinding
     private lateinit var viewPager: ViewPager2
@@ -47,31 +46,16 @@ class InvestigationsContainerFragment(private val createdRecord: CreatedRecord? 
 
         val tabLayout: TabLayout = binding.tabs
         TabLayoutMediator(tabLayout, viewPager, true, true) { tab, position ->
-            tab.text = TargetInv.values()[position].name
+            tab.text = StringUtils.getWithSpaces(TargetInv.values()[position].name)
         }.attach()
+
 
         return binding.root
     }
 
-    override fun sendData(message: Int) {
-        var currentPage = viewPager.currentItem
-        when (currentPage) {
-            0 -> {
-                viewPager.currentItem = ++currentPage
-                viewModel.subOrderParentId.value = message
-            }
-            else -> {
-            }
-        }
+    enum class TargetInv {
+        TO_DO,
+        IN_PROGRESS,
+        DONE
     }
-
-    enum class TargetInv() {
-        COMPOSE,
-        CLASSIC
-    }
-
-}
-
-interface SendMessage {
-    fun sendData(message: Int)
 }

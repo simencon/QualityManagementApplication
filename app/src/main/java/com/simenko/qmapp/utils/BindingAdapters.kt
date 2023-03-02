@@ -20,6 +20,11 @@ fun hideIfNetworkError(view: View, isNetWorkError: Boolean, departments: Any?) {
 object StringUtils {
 
     @JvmStatic
+    fun getWithSpaces(original: String?): String {
+        return original?.replace("_"," ") ?: "-"
+    }
+
+    @JvmStatic
     fun getMail(original: String?): String {
         return if(original != null) {
             original.split("#mailto:").toTypedArray()[0]
