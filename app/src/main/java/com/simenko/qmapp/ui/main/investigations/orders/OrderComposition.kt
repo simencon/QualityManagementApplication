@@ -173,6 +173,8 @@ fun Orders(
     }
 
     val listState = rememberLazyListState()
+    var needToReact by remember{ mutableStateOf(true)}
+
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
     var clickCounter by remember{ mutableStateOf(0)}
 
@@ -240,10 +242,12 @@ fun Orders(
         appModel.onNetworkErrorShown()
     }
 
-    if (listState.isScrolledToTheEnd()) {
+    if (listState.isScrolledToTheEnd() && needToReact) {
         onListEnd(FabPosition.Center)
-    } else {
+        needToReact = false
+    } else if(!listState.isScrolledToTheEnd() && !needToReact) {
         onListEnd(FabPosition.End)
+        needToReact = true
     }
 }
 
