@@ -135,8 +135,8 @@ fun getSubOrders() = List(30) { i ->
 
 @Composable
 fun SubOrdersFlowColumn(
-    parentId: Int = 0,
     modifier: Modifier = Modifier,
+    parentId: Int = 0,
     appModel: QualityManagementViewModel
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
@@ -157,12 +157,12 @@ fun SubOrdersFlowColumn(
                             )
 
                             SubOrderCard(
+                                modifier = modifier,
                                 viewModel = appModel,
                                 subOrder = subOrder,
                                 onClickDetails = { it ->
                                     appModel.changeCompleteSubOrdersDetailsVisibility(it)
                                 },
-                                modifier = modifier,
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {
                                     clickCounter++
@@ -190,10 +190,10 @@ fun SubOrdersFlowColumn(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SubOrderCard(
+    modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
-    modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderComplete) -> Unit,
 ) {
@@ -215,7 +215,12 @@ fun SubOrderCard(
         label = "cardBgColorTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
-            if (subOrder.isExpanded) Accent200 else _level_2_record_color
+            if (subOrder.isExpanded) Accent200 else
+                if(subOrder.detailsVisibility) {
+                    _level_2_record_color_details
+                } else {
+                    _level_2_record_color
+                }
         }
     )
 
@@ -236,8 +241,8 @@ fun SubOrderCard(
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {
         SubOrder(
-            viewModel = viewModel,
             modifier = modifier,
+            viewModel = viewModel,
             subOrder = subOrder,
             onClickDetails = { onClickDetails(subOrder) }
         )
@@ -246,8 +251,8 @@ fun SubOrderCard(
 
 @Composable
 fun SubOrder(
-    viewModel: QualityManagementViewModel? = null,
     modifier: Modifier = Modifier,
+    viewModel: QualityManagementViewModel? = null,
     onClickDetails: () -> Unit = {},
     subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
@@ -452,14 +457,14 @@ fun SubOrder(
             }
         }
 
-        SubOrderDetails(viewModel = viewModel, modifier = modifier, subOrder = subOrder)
+        SubOrderDetails(modifier = modifier, viewModel = viewModel, subOrder = subOrder)
     }
 }
 
 @Composable
 fun SubOrderDetails(
-    viewModel: QualityManagementViewModel? = null,
     modifier: Modifier = Modifier,
+    viewModel: QualityManagementViewModel? = null,
     subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
     if (subOrder.detailsVisibility) {
@@ -556,11 +561,12 @@ fun SubOrderDetails(
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
-        SubOrderTasksFlowColumn(
-            parentId = subOrder.subOrder.id,
-            appModel = viewModel!!,
-            modifier = Modifier
-        )
+        if (viewModel != null)
+            SubOrderTasksFlowColumn(
+                modifier = Modifier,
+                parentId = subOrder.subOrder.id,
+                appModel = viewModel
+            )
     }
 }
 

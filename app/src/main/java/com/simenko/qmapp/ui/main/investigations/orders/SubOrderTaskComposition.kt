@@ -31,9 +31,7 @@ import com.simenko.qmapp.ui.main.common.ACTION_ITEM_SIZE
 import com.simenko.qmapp.ui.main.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.common.ActionsRow
 import com.simenko.qmapp.ui.main.common.CARD_OFFSET
-import com.simenko.qmapp.ui.theme.Accent200
-import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.theme._level_3_record_color
+import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,8 +69,8 @@ fun getSubOrderTasks() = List(30) { i ->
 
 @Composable
 fun SubOrderTasksFlowColumn(
-    parentId: Int = 0,
     modifier: Modifier = Modifier,
+    parentId: Int = 0,
     appModel: QualityManagementViewModel
 ) {
     val observeSubOrderTasks by appModel.completeSubOrderTasksMediator.observeAsState()
@@ -93,11 +91,11 @@ fun SubOrderTasksFlowColumn(
                             )
 
                             SubOrderTaskCard(
+                                modifier = modifier,
                                 subOrderTask = subOrder,
                                 onClickDetails = { it ->
                                     appModel.changeCompleteSubOrderTasksDetailsVisibility(it)
                                 },
-                                modifier = modifier,
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {
                                     clickCounter++
@@ -125,9 +123,9 @@ fun SubOrderTasksFlowColumn(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SubOrderTaskCard(
+    modifier: Modifier = Modifier,
     subOrderTask: DomainSubOrderTaskComplete,
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
-    modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit,
 ) {
@@ -149,7 +147,12 @@ fun SubOrderTaskCard(
         label = "cardBgColorTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
-            if (subOrderTask.isExpanded) Accent200 else _level_3_record_color
+            if (subOrderTask.isExpanded) Accent200 else
+                if(subOrderTask.measurementsVisibility) {
+                    _level_3_record_color_details
+                } else {
+                    _level_3_record_color
+                }
         }
     )
 

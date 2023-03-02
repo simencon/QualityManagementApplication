@@ -255,7 +255,12 @@ fun OrderCard(
         label = "cardBgColorTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
-            if (order.isExpanded) Accent200 else _level_1_record_color
+            if (order.isExpanded) Accent200 else
+                if(order.detailsVisibility) {
+                    _level_1_record_color_details
+                } else {
+                    _level_1_record_color
+                }
         }
     )
 
@@ -282,8 +287,8 @@ fun OrderCard(
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {
         Order(
-            viewModel = viewModel,
             modifier = modifier,
+            viewModel = viewModel,
             order = order,
             onClickDetails = { onClickDetails(order) }
         )
@@ -292,8 +297,8 @@ fun OrderCard(
 
 @Composable
 fun Order(
-    viewModel: QualityManagementViewModel? = null,
     modifier: Modifier = Modifier,
+    viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
     onClickDetails: () -> Unit = {}
 ) {
@@ -450,8 +455,8 @@ fun Order(
 
 @Composable
 fun OrderDetails(
-    viewModel: QualityManagementViewModel? = null,
     modifier: Modifier = Modifier,
+    viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
 ) {
 
@@ -528,11 +533,12 @@ fun OrderDetails(
                     .padding(start = 3.dp)
             )
         }
-        SubOrdersFlowColumn(
-            parentId = order.order.id,
-            appModel = viewModel!!,
-            modifier = Modifier
-        )
+        if (viewModel != null)
+            SubOrdersFlowColumn(
+                modifier = Modifier,
+                parentId = order.order.id,
+                appModel = viewModel
+            )
     }
 }
 

@@ -384,6 +384,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         withContext(Dispatchers.IO) {
             QualityManagementNetwork.serviceholderInvestigations.deleteOrder(order.id)
             val dbOrder = order.toDatabaseOrder()
+//            ToDo this action reload view model completely
             database.qualityManagementInvestigationsDao.deleteOrder(dbOrder)
         }
     }
