@@ -1,7 +1,6 @@
 package com.simenko.qmapp.di.main
 
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.fli.ProcessOnlyFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
 import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsFragment
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
@@ -23,8 +22,6 @@ interface MainComponent {
     fun inject(activity: MainActivity)
 
     fun inject(fragment: TeamFragment)
-
-    fun inject(fragment: ProcessOnlyFragment)
 
     fun inject(fragment: ManufacturingFragment)
 

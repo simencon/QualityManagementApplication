@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.databinding.FragmentRvOnlyBinding
+import com.simenko.qmapp.databinding.FragmentRvBinding
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class ManufacturingFragment : Fragment() {
@@ -42,44 +42,21 @@ class ManufacturingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val binding: FragmentRvOnlyBinding = DataBindingUtil.inflate(
+        val binding: FragmentRvBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_____rv_only,
+            R.layout.fragment_____rv,
             container,
             false
         )
 
-        binding.composeView.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                0.0f
-        )
-        binding.recyclerView.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1.0f
-        )
-
-        binding.setLifecycleOwner(viewLifecycleOwner)
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.root.findViewById<RecyclerView>(R.id.recycler_view).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = rvAdapter
         }
 
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer { isNetworkError ->
-            if (isNetworkError) onNetworkError()
-        }
-        )
-
         return binding.root
-    }
-
-    private fun onNetworkError() {
-        if (!viewModel.isNetworkErrorShown.value!!) {
-            Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
-            viewModel.onNetworkErrorShown()
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -16,9 +16,9 @@ import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
-import com.simenko.qmapp.ui.main.fli.ProcessOnlyFragment
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsContainerFragment
+import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         InvestigationsContainerFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        ProcessOnlyFragment(createdRecord)
+                        InvestigationsFragment(createdRecord)
                     }
 
                     R.id.nav_inv_orders_status_monitoring -> {

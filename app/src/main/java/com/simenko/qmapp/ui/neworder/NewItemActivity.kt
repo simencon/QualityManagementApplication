@@ -10,33 +10,33 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.DomainOrder
-import com.simenko.qmapp.ui.main.launchMainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.assembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.delay
 import java.util.*
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 enum class NewItemType() {
     NEW_INVESTIGATION,
@@ -111,7 +111,7 @@ class NewItemActivity : ComponentActivity() {
                     HomeScreen(
                         modifier = Modifier.padding(padding),
                         viewModel = viewModel,
-                        parentId = 0
+                        parentId = 0,
                     )
                 }
             }
@@ -135,55 +135,78 @@ class NewItemActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: NewItemViewModel,
     parentId: Int
 ) {
-    Column(
-        modifier
-            .verticalScroll(rememberScrollState())
-    ) {
-        ButtonsSection(title = R.string.select_type) {
-            TypesSelection(
-                modifier = Modifier.padding(top = 0.dp),
-                appModel = viewModel
-            )
-        }
-        ButtonsSection(title = R.string.select_reason) {
-            ReasonsSelection(
-                modifier = Modifier.padding(top = 0.dp),
-                appModel = viewModel
-            )
-        }
-        ButtonsSection(title = R.string.select_customer) {
-            CustomersSelection(
-                modifier = Modifier.padding(top = 0.dp),
-                appModel = viewModel
-            )
-        }
+    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
+    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
 
-        ButtonsSection(title = R.string.select_placer) {
-            SearchBarProducts(Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(16.dp))
-            PlacersSelection(
-                modifier = Modifier.padding(top = 0.dp),
-                appModel = viewModel
-            )
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = observerLoadingProcess!!,
+        onRefresh = {
+            viewModel.refreshDataFromRepository()
         }
+    )
 
-        ButtonsSection(title = R.string.select_item_type) {
-            SearchBarProducts(Modifier.padding(horizontal = 16.dp))
-            Spacer(Modifier.height(16.dp))
-            ProductsSelection(
-                modifier = Modifier.padding(top = 0.dp),
-                appModel = viewModel,
-                parentId = parentId
-            )
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        Column(
+            modifier
+                .verticalScroll(rememberScrollState())
+        ) {
+            ButtonsSection(title = R.string.select_type) {
+                TypesSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
+            ButtonsSection(title = R.string.select_reason) {
+                ReasonsSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
+            ButtonsSection(title = R.string.select_customer) {
+                CustomersSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
+
+            ButtonsSection(title = R.string.select_placer) {
+                SearchBarProducts(Modifier.padding(horizontal = 16.dp))
+                Spacer(Modifier.height(16.dp))
+                PlacersSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
+
+            ButtonsSection(title = R.string.select_item_type) {
+                SearchBarProducts(Modifier.padding(horizontal = 16.dp))
+                Spacer(Modifier.height(16.dp))
+                ProductsSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel,
+                    parentId = parentId
+                )
+            }
+
+            Spacer(Modifier.height((16 + 56).dp))
         }
-
-        Spacer(Modifier.height((16 + 56).dp))
+        PullRefreshIndicator(
+            observerLoadingProcess!!,
+            pullRefreshState,
+            modifier.align(Alignment.TopCenter),
+            contentColor = ProgressIndicatorDefaults.circularColor
+        )
+    }
+    if (observerIsNetworkError == true) {
+        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
+        viewModel.onNetworkErrorShown()
     }
 }
 

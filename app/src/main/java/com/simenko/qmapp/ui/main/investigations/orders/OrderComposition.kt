@@ -105,10 +105,18 @@ fun InvestigationsAll(
     createdRecord: CreatedRecord?
 ) {
     QMAppTheme {
+        var fabPosition by remember {
+            mutableStateOf(FabPosition.End)
+        }
+
+        fun changeFlaBtnPosition(position: FabPosition) {
+//            ToDo is it possible to animate it?
+            fabPosition = position
+        }
+
         Scaffold(
             floatingActionButton = {
                 FloatingActionButton(
-                    modifier = Modifier.padding(end = 29.dp),
                     onClick = {
                         launchNewItemActivity(context, NewItemType.NEW_INVESTIGATION)
                     },
@@ -121,15 +129,17 @@ fun InvestigationsAll(
                     }
                 )
             },
-            floatingActionButtonPosition = FabPosition.End,
+            floatingActionButtonPosition = fabPosition,
             content = { padding ->
                 Orders(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(vertical = 2.dp, horizontal = 4.dp),
                     appModel = appModel,
+                    onListEnd = {changeFlaBtnPosition(it)},
                     createdRecord = createdRecord
                 )
+
             }
         )
 
@@ -137,11 +147,12 @@ fun InvestigationsAll(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun Orders(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
+    onListEnd: (FabPosition) -> Unit,
     createdRecord: CreatedRecord?
 ) {
     val context = LocalContext.current
@@ -149,12 +160,12 @@ fun Orders(
     val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by appModel.isNetworkError.observeAsState()
 
-    var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false)}
-    if(!isNewOrderRecordDetailsExpanded) {
+    var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false) }
+    if (!isNewOrderRecordDetailsExpanded) {
         appModel.completeOrders.value?.find {
             it.order.id == createdRecord?.orderId
-        }.let{
-            if(it != null) {
+        }.let {
+            if (it != null) {
                 isNewOrderRecordDetailsExpanded = true
                 it.detailsVisibility = true
             }
@@ -163,11 +174,12 @@ fun Orders(
 
     val listState = rememberLazyListState()
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
-    var clickCounter = 0
+    var clickCounter by remember{ mutableStateOf(0)}
 
     val pullRefreshState = rememberPullRefreshState(
-        observerLoadingProcess!!,
-        { appModel.refreshOrdersFromRepository() })
+        refreshing = observerLoadingProcess!!,
+        onRefresh = { appModel.refreshOrdersFromRepository() }
+    )
 
     Box(Modifier.pullRefresh(pullRefreshState)) {
         observeOrders?.apply {
@@ -228,6 +240,11 @@ fun Orders(
         appModel.onNetworkErrorShown()
     }
 
+    if (listState.isScrolledToTheEnd()) {
+        onListEnd(FabPosition.Center)
+    } else {
+        onListEnd(FabPosition.End)
+    }
 }
 
 fun LazyListState.isScrolledToTheEnd() =

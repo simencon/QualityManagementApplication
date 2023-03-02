@@ -11,6 +11,7 @@ import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
@@ -134,41 +135,44 @@ class QualityManagementViewModel @Inject constructor(
     /**
      *
      */
-
-    private var _eventNetworkError = MutableLiveData<Boolean>(false)
-    val eventNetworkError: LiveData<Boolean>
-        get() = _eventNetworkError
-
-    private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
-    val isNetworkErrorShown: LiveData<Boolean>
-        get() = _isNetworkErrorShown
-
     fun onNetworkErrorShown() {
-        _isNetworkErrorShown.value = true
-
         isLoadingInProgress.value = false
         isNetworkError.value = false
     }
-
     /**
-     * Runs every time when ViewModel in initializing process
+     *
      */
-
     fun refreshOrdersFromRepository() {
         viewModelScope.launch {
-            isLoadingInProgress.value = true
-            qualityManagementInvestigationsRepository.refreshOrders()
-            isLoadingInProgress.value = false
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.refreshOrders()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
         }
     }
 
     fun deleteOrder(order: DomainOrderComplete) {
         viewModelScope.launch {
-            isLoadingInProgress.value = true
-            qualityManagementInvestigationsRepository.deleteOrder(order.order)
-            isLoadingInProgress.value = false
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.deleteOrder(order.order)
+                refreshOrdersFromRepository()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
         }
-        refreshOrdersFromRepository()
     }
 
     private fun refreshDataFromRepository() {
@@ -202,15 +206,9 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementInvestigationsRepository.refreshResultsDecryptions()
                 qualityManagementInvestigationsRepository.refreshResults()
                 isLoadingInProgress.value = false
-
-                _eventNetworkError.value = false
-                _isNetworkErrorShown.value = false
-
             } catch (networkError: IOException) {
+                delay(500)
                 isNetworkError.value = true
-                // Show a Toast error message and hide the progress bar.
-                if (departments.value.isNullOrEmpty())
-                    _eventNetworkError.value = true
             }
         }
     }

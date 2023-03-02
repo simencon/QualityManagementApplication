@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.FragmentRvAndTitleBinding
+import com.simenko.qmapp.databinding.FragmentComposeBinding
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
@@ -28,9 +28,9 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null, p
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding: FragmentRvAndTitleBinding = DataBindingUtil.inflate(
+        val binding: FragmentComposeBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment____rv_and_title,
+            R.layout.fragment____compose,
             container,
             false
         )

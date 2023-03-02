@@ -31,9 +31,12 @@ class NewItemViewModel @Inject constructor(
         QualityManagementInvestigationsRepository(roomDatabase)
     private val qualityManagementManufacturingRepository =
         QualityManagementManufacturingRepository(roomDatabase)
+    val isLoadingInProgress = MutableLiveData<Boolean>(false)
+    val isNetworkError = MutableLiveData<Boolean>(false)
 
     init {
-        refreshDataFromRepository()
+//        ToDo decide when to update all SQLData (but not every time when MainActivity Created!)
+//        refreshDataFromRepository()
     }
 
     fun <T : DomainModel> selectSingleRecord(d: MutableLiveData<MutableList<T>>, record: T?) {
@@ -138,46 +141,50 @@ class NewItemViewModel @Inject constructor(
     /**
      *
      */
-    private var _eventNetworkError = MutableLiveData<Boolean>(false)
-    val eventNetworkError: LiveData<Boolean>
-        get() = _eventNetworkError
-
-    private var _isNetworkErrorShown = MutableLiveData<Boolean>(false)
-    val isNetworkErrorShown: LiveData<Boolean>
-        get() = _isNetworkErrorShown
-
     fun onNetworkErrorShown() {
-        _isNetworkErrorShown.value = true
+        isLoadingInProgress.value = false
+        isNetworkError.value = false
     }
 
     /**
-     * Runs every time when ViewModel in initializing process
+     *
      */
 
-    private fun refreshDataFromRepository() {
+    fun refreshDataFromRepository() {
         viewModelScope.launch {
             try {
+                isLoadingInProgress.value = true
+
                 qualityManagementInvestigationsRepository.refreshInvestigationTypes()
                 qualityManagementInvestigationsRepository.refreshInvestigationReasons()
                 qualityManagementInvestigationsRepository.refreshInputForOrder()
                 qualityManagementManufacturingRepository.refreshDepartments()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
             } catch (networkError: IOException) {
-                // Show a Toast error message and hide the progress bar.
-                if (inputForOrder.value.isNullOrEmpty())
-                    _eventNetworkError.value = true
+                delay(500)
+                isNetworkError.value = true
             }
         }
     }
 
     fun postNewOrder(activity: NewItemActivity, order: DomainOrder) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val channel = getCreatedRecord<DomainOrder>(order)
-                channel.consumeEach {
-                    launchMainActivity(activity, it.id)
-                    activity.finish()
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = getCreatedRecord<DomainOrder>(order)
+                    channel.consumeEach {
+                        launchMainActivity(activity, it.id)
+                        activity.finish()
+                    }
                 }
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
             }
         }
     }
