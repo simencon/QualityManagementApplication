@@ -9,18 +9,24 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainMeasurementReason
+import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
+
+fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int) {
+    appModel.filterWithOneParent(
+        appModel.teamMembersMutable,
+        appModel.teamMembers,
+        -1
+    )
+    appModel.selectSingleRecord(appModel.customersMutable, selectedId)
+}
 
 @Composable
 fun CustomersSelection(
@@ -42,12 +48,8 @@ fun CustomersSelection(
                     inputForOrder = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.filterWithOneParent(
-                            appModel.teamMembersMutable,
-                            appModel.teamMembers,
-                            -1
-                        )
-                        appModel.selectSingleRecord(appModel.customersMutable, it)
+                        appModel.currentOrder.value?.customerId = it.id
+                        filterAllAfterCustomers(appModel, it.id)
                     }
                 )
             }

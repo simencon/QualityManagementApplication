@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.neworder.assemblers.assembleOrder
+import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
 import com.simenko.qmapp.ui.neworder.assemblers.disassembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
@@ -39,7 +39,6 @@ import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import java.util.*
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 enum class ActionType() {
     ADD_ORDER,
@@ -113,7 +112,7 @@ class NewItemActivity : ComponentActivity() {
                         FloatingActionButton(
                             modifier = Modifier.padding(end = 29.dp),
                             onClick = {
-                                if (assembleOrder(viewModel) == null) {
+                                if (checkCurrentOrder(viewModel) == null) {
                                     Toast.makeText(
                                         this,
                                         "Перед збереженням заповніть всі поля!",
@@ -125,21 +124,16 @@ class NewItemActivity : ComponentActivity() {
                                         ActionType.ADD_ORDER -> {
                                             viewModel.postNewOrder(
                                                 this,
-                                                assembleOrder(viewModel)!!
+                                                checkCurrentOrder(viewModel)!!
                                             )
                                         }
                                         ActionType.EDIT_ORDER -> {
                                             viewModel.editOrder(
                                                 this,
-                                                assembleOrder(viewModel)!!
+                                                checkCurrentOrder(viewModel)!!
                                             )
                                         }
-                                        else -> {
-                                            viewModel.postNewOrder(
-                                                this,
-                                                assembleOrder(viewModel)!!
-                                            )
-                                        }
+                                        else -> {}
                                     }
                                 }
                             },
@@ -167,20 +161,31 @@ class NewItemActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.investigationTypes.observe(
-            this
-        ) {
-            viewModel.filterWithOneParent(
-                viewModel.investigationTypesMutable,
-                viewModel.investigationTypes,
-                -2
-            )
+        viewModel.investigationTypes.observe(this) {
             viewModel.investigationReasons.observe(this) {
                 viewModel.customers.observe(this) {
                     viewModel.teamMembers.observe(this) {
                         viewModel.investigationOrders.observe(this) {
-                            if (actionTypeEnum == ActionType.EDIT_ORDER)
-                                disassembleOrder(viewModel, recordId)
+
+                            viewModel.filterWithOneParent(
+                                viewModel.investigationTypesMutable,
+                                viewModel.investigationTypes,
+                                -2
+                            )
+
+                            when (actionTypeEnum) {
+                                ActionType.ADD_ORDER -> {
+
+                                }
+                                ActionType.EDIT_ORDER -> {
+                                    disassembleOrder(viewModel, recordId)
+                                    filterAllAfterTypes(viewModel, viewModel.currentOrder.value?.orderTypeId!!)
+                                    filterAllAfterReasons(viewModel, viewModel.currentOrder.value?.reasonId!!)
+                                    filterAllAfterCustomers(viewModel, viewModel.currentOrder.value?.customerId!!)
+                                    filterAllAfterPlacers(viewModel, viewModel.currentOrder.value?.orderedById!!)
+                                }
+                                else -> {}
+                            }
                         }
                     }
                 }
@@ -215,15 +220,13 @@ fun HomeScreen(
             ButtonsSection(title = R.string.select_type) {
                 TypesSelection(
                     modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel,
-                    actionType = actionType,
+                    appModel = viewModel
                 )
             }
             ButtonsSection(title = R.string.select_reason) {
                 ReasonsSelection(
                     modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel,
-                    actionType = actionType,
+                    appModel = viewModel
                 )
             }
             ButtonsSection(title = R.string.select_customer) {

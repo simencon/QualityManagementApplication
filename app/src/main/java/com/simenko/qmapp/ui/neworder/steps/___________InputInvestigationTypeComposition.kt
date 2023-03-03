@@ -18,7 +18,7 @@ import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
 
-private fun filterAllAfterTypes(appModel: NewItemViewModel, type: DomainOrdersType) {
+fun filterAllAfterTypes(appModel: NewItemViewModel, selectedId: Int) {
     appModel.filterWithOneParent(
         appModel.investigationReasonsMutable,
         appModel.investigationReasons,
@@ -34,14 +34,13 @@ private fun filterAllAfterTypes(appModel: NewItemViewModel, type: DomainOrdersTy
         appModel.teamMembers,
         0
     )
-    appModel.selectSingleRecord(appModel.investigationTypesMutable, type)
+    appModel.selectSingleRecord(appModel.investigationTypesMutable, selectedId)
 }
 
 @Composable
 fun TypesSelection(
     modifier: Modifier = Modifier,
-    appModel: NewItemViewModel,
-    actionType: ActionType
+    appModel: NewItemViewModel
 ) {
     val inputList by appModel.investigationTypesMediator.observeAsState()
 
@@ -54,14 +53,12 @@ fun TypesSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                if (actionType == ActionType.EDIT_ORDER && first!![item].isSelected) {
-                    filterAllAfterTypes(appModel, first!![item])
-                }
                 InvestigationTypeCard(
                     inputForOrder = first!![item],
                     modifier = modifier,
                     onClick = {
-                        filterAllAfterTypes(appModel, it)
+                        appModel.currentOrder.value?.orderTypeId = it.id
+                        filterAllAfterTypes(appModel, it.id)
                     }
                 )
             }

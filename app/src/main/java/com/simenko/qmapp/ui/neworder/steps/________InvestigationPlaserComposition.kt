@@ -9,18 +9,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainDepartment
 import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
+
+fun filterAllAfterPlacers(appModel: NewItemViewModel, selectedId: Int) {
+    appModel.selectSingleRecord(appModel.teamMembersMutable, selectedId)
+}
 
 @Composable
 fun PlacersSelection(
@@ -41,7 +42,10 @@ fun PlacersSelection(
                 InvestigationPlacerCard(
                     inputForOrder = first!![item],
                     modifier = modifier,
-                    onClick = { appModel.selectSingleRecord(appModel.teamMembersMutable, it) }
+                    onClick = {
+                        appModel.currentOrder.value?.orderedById = it.id
+                        filterAllAfterPlacers(appModel, it.id)
+                    }
                 )
             }
         }

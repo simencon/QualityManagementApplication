@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.neworder
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.room.Index
 import com.simenko.qmapp.di.neworder.NewItemScope
@@ -19,6 +20,9 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import java.io.IOException
 import javax.inject.Inject
+
+
+private const val TAG = "NewItemViewModel"
 
 @NewItemScope
 class NewItemViewModel @Inject constructor(
@@ -39,11 +43,11 @@ class NewItemViewModel @Inject constructor(
 //        refreshDataFromRepository()
     }
 
-    fun <T : DomainModel> selectSingleRecord(d: MutableLiveData<MutableList<T>>, record: T?) {
+    fun <T : DomainModel> selectSingleRecord(d: MutableLiveData<MutableList<T>>, selectedId: Int) {
         d.value?.forEach {
             it.setIsChecked(false)
         }
-        d.value?.find { it.getRecordId() == record?.getRecordId() }?.setIsChecked(true)
+        d.value?.find { it.getRecordId() == selectedId}?.setIsChecked(true)
         pairedTrigger.value = !(pairedTrigger.value as Boolean)
     }
 
@@ -63,7 +67,7 @@ class NewItemViewModel @Inject constructor(
             -1 -> {
                 selectSingleRecord(
                     d,
-                    null
+                    0
                 ) //Is made because previously selected/filtered/unfiltered item again selected
                 d.value?.clear()
                 s.value?.let { d.value?.addAll(it.toList()) }
@@ -72,7 +76,7 @@ class NewItemViewModel @Inject constructor(
             0 -> {
                 selectSingleRecord(
                     d,
-                    null
+                    0
                 ) //Is made because previously selected/filtered/unfiltered item again selected
                 d.value?.clear()
             }
@@ -80,7 +84,7 @@ class NewItemViewModel @Inject constructor(
             else -> {
                 selectSingleRecord(
                     d,
-                    null
+                    0
                 ) //Is made because previously selected/filtered/unfiltered item again selected
                 d.value?.clear()
                 s.apply {
@@ -99,6 +103,10 @@ class NewItemViewModel @Inject constructor(
     private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val investigationOrders = qualityManagementInvestigationsRepository.orders
+
+    //
+    val currentOrder =
+        MutableLiveData(DomainOrder(0, 0, 0, null, 0, 0, 1, "2022-01-30T15:30:00", null))
 
     val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
@@ -213,8 +221,11 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
 
+        val networkOrder = record.toNetworkOrder()
+        Log.d(TAG, "getCreatedRecord: $networkOrder")
+
         val newOrder =
-            QualityManagementNetwork.serviceholderInvestigations.createOrder(record.toNetworkOrder())
+            QualityManagementNetwork.serviceholderInvestigations.createOrder(networkOrder)
                 .toDatabaseOrder()
 
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(newOrder)
@@ -226,7 +237,10 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.updateRecord(record: DomainOrder) = produce {
 
-        QualityManagementNetwork.serviceholderInvestigations.editOrder(record.id, record.toNetworkOrder())
+        QualityManagementNetwork.serviceholderInvestigations.editOrder(
+            record.id,
+            record.toNetworkOrder()
+        )
 
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(record.toDatabaseOrder())
 
