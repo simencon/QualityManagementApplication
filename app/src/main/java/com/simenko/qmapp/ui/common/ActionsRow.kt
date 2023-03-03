@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.common
+package com.simenko.qmapp.ui.common
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding

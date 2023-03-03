@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
@@ -9,7 +10,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -33,22 +33,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.main.common.ACTION_ITEM_SIZE
-import com.simenko.qmapp.ui.main.common.ANIMATION_DURATION
-import com.simenko.qmapp.ui.main.common.ActionsRow
-import com.simenko.qmapp.ui.main.common.CARD_OFFSET
 import com.simenko.qmapp.ui.neworder.NewItemType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
 fun getOrders() = List(30) { i ->
@@ -136,7 +131,7 @@ fun InvestigationsAll(
                         .fillMaxSize()
                         .padding(vertical = 2.dp, horizontal = 4.dp),
                     appModel = appModel,
-                    onListEnd = {changeFlaBtnPosition(it)},
+                    onListEnd = { changeFlaBtnPosition(it) },
                     createdRecord = createdRecord
                 )
 
@@ -173,10 +168,9 @@ fun Orders(
     }
 
     val listState = rememberLazyListState()
-    var needToReact by remember{ mutableStateOf(true)}
 
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
-    var clickCounter by remember{ mutableStateOf(0)}
+    var clickCounter = 0
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = observerLoadingProcess!!,
@@ -215,12 +209,17 @@ fun Orders(
                                     if (clickCounter == 1) {
                                         CoroutineScope(Dispatchers.Main).launch {
                                             delay(200)
-                                            clickCounter--
+                                            clickCounter = 0
                                         }
                                     }
                                     if (clickCounter == 2) {
                                         clickCounter = 0
                                         appModel.changeCompleteOrdersExpandState(it)
+                                    }
+                                },
+                                onEvent = {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        checkIfEndOfList(listState, onListEnd)
                                     }
                                 }
                             )
@@ -241,18 +240,7 @@ fun Orders(
         Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
         appModel.onNetworkErrorShown()
     }
-
-    if (listState.isScrolledToTheEnd() && needToReact) {
-        onListEnd(FabPosition.Center)
-        needToReact = false
-    } else if(!listState.isScrolledToTheEnd() && !needToReact) {
-        onListEnd(FabPosition.End)
-        needToReact = true
-    }
 }
-
-fun LazyListState.isScrolledToTheEnd() =
-    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
@@ -263,6 +251,7 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
+    onEvent: () -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
@@ -304,12 +293,6 @@ fun OrderCard(
         modifier = modifier
             .fillMaxWidth()
             .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-//                ToDo - think how to make swiping more natural
-//            .pointerInput(Unit) {
-//                detectHorizontalDragGestures { _, dragAmount ->
-//                    onChangeExpandState(order)
-//                }
-//            }
             .clickable { onChangeExpandState(order) },
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {
@@ -319,6 +302,20 @@ fun OrderCard(
             order = order,
             onClickDetails = { onClickDetails(order) }
         )
+    }
+
+    OnLifecycleEvent { owner, event ->
+        Log.d(TAG, "Orders: OnLifecycleEvent: $event")
+        when (event) {
+//            ToDo improve a bit (learn lifecycle anyhow!)
+            Lifecycle.Event.ON_RESUME -> {
+                CoroutineScope(Dispatchers.Main).launch {
+                    onEvent()
+                }
+            }
+            else -> {
+            }
+        }
     }
 }
 

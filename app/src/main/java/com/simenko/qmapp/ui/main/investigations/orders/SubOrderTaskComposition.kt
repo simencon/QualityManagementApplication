@@ -27,10 +27,10 @@ import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.main.common.ACTION_ITEM_SIZE
-import com.simenko.qmapp.ui.main.common.ANIMATION_DURATION
-import com.simenko.qmapp.ui.main.common.ActionsRow
-import com.simenko.qmapp.ui.main.common.CARD_OFFSET
+import com.simenko.qmapp.ui.common.ACTION_ITEM_SIZE
+import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.ui.common.ActionsRow
+import com.simenko.qmapp.ui.common.CARD_OFFSET
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.CoroutineScope
