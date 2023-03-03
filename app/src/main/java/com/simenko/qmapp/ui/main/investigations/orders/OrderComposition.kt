@@ -38,7 +38,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.neworder.NewItemType
+import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
@@ -113,7 +113,7 @@ fun InvestigationsAll(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        launchNewItemActivity(context, NewItemType.NEW_INVESTIGATION)
+                        launchNewItemActivity(context, ActionType.ADD_ORDER)
                     },
                     content = {
                         androidx.compose.material.Icon(
@@ -192,7 +192,13 @@ fun Orders(
                                 onDelete = {
                                     appModel.deleteOrder(it)
                                 },
-                                onEdit = {},
+                                onEdit = {
+                                    launchNewItemActivity(
+                                        context,
+                                        ActionType.EDIT_ORDER,
+                                        order.order.id
+                                    )
+                                },
                                 onFavorite = {}
                             )
 

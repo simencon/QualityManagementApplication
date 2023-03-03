@@ -20,3 +20,12 @@ fun assembleOrder(viewModel: NewItemViewModel): DomainOrder? {
         createdDate = "2022-12-15T22:24:43"//Will be changed anyhow by API but has to be with proper format
     )
 }
+
+fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
+    val order = viewModel.investigationOrders.value?.find { it.id == orderId }
+
+    viewModel.investigationTypes.value?.find { it.id == (order?.orderTypeId ?: 0) }?.isSelected = true
+    viewModel.investigationReasons.value?.find { it.id == (order?.reasonId ?: 0) }?.isSelected = true
+    viewModel.customers.value?.find { it.id == (order?.customerId ?: 0) }?.isSelected = true
+    viewModel.teamMembers.value?.find { it.id == (order?.orderedById ?: 0) }?.isSelected = true
+}

@@ -32,31 +32,39 @@ import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.neworder.assemblers.assembleOrder
+import com.simenko.qmapp.ui.neworder.assemblers.disassembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
+import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import java.util.*
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
-enum class NewItemType() {
-    NEW_INVESTIGATION,
-    NEW_PROCESS_INVESTIGATION,
-    NEW_CHARACTERISTIC
+enum class ActionType() {
+    ADD_ORDER,
+    EDIT_ORDER,
+    ADD_SUB_ORDER,
+    EDIT_SUBORDER
 }
 
-internal const val KEY_ARG_NEW_ITEM_TYPE = "KEY_ARG_NEW_ITEM_TYPE"
+internal const val KEY_ARG_ACTION_TYPE = "KEY_ARG_ACTION_TYPE"
+internal const val KEY_ARG_RECORD_ID = "KEY_ARG_RECORD_ID"
 
-fun launchNewItemActivity(context: Context, orderType: NewItemType) {
-    context.startActivity(createNewItemActivityIntent(context, orderType))
+fun launchNewItemActivity(context: Context, actionType: ActionType, recordId: Int = 0) {
+    context.startActivity(createNewItemActivityIntent(context, actionType, recordId))
 }
 
-fun createNewItemActivityIntent(context: Context, orderType: NewItemType): Intent {
+fun createNewItemActivityIntent(context: Context, actionType: ActionType, recordId: Int): Intent {
     val intent = Intent(context, NewItemActivity::class.java)
-    intent.putExtra(KEY_ARG_NEW_ITEM_TYPE, orderType.name)
+    intent.putExtra(KEY_ARG_ACTION_TYPE, actionType.name)
+    intent.putExtra(KEY_ARG_RECORD_ID, recordId)
     return intent
 }
 
-private lateinit var recordType: String
+private lateinit var actionType: String
+private lateinit var actionTypeEnum: ActionType
+private var recordId = 0
 
 class NewItemActivity : ComponentActivity() {
 
@@ -72,13 +80,32 @@ class NewItemActivity : ComponentActivity() {
         viewModel = ViewModelProvider(this, providerFactory)[NewItemViewModel::class.java]
 
         super.onCreate(savedInstanceState)
-        recordType = intent.extras?.getString("KEY_ARG_NEW_ITEM_TYPE") ?: ""
+        actionType = intent.extras?.getString(KEY_ARG_ACTION_TYPE) ?: ""
+        actionTypeEnum = when (actionType) {
+            ActionType.ADD_ORDER.name -> {
+                ActionType.ADD_ORDER
+            }
+            ActionType.EDIT_ORDER.name -> {
+                ActionType.EDIT_ORDER
+            }
+            else -> {
+                ActionType.ADD_ORDER
+            }
+        }
+
+        recordId = intent.extras?.getInt(KEY_ARG_RECORD_ID) ?: 0
+
         setContent {
             QMAppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("Top App Bar", color = Color.White) },
+                            title = {
+                                Text(
+                                    StringUtils.getWithSpaces(actionType),
+                                    color = Color.White
+                                )
+                            },
                             colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Primary900)
                         )
                     },
@@ -94,7 +121,26 @@ class NewItemActivity : ComponentActivity() {
                                     ).show()
                                     return@FloatingActionButton
                                 } else {
-                                    viewModel.postNewOrder(this, assembleOrder(viewModel)!!)
+                                    when (actionTypeEnum) {
+                                        ActionType.ADD_ORDER -> {
+                                            viewModel.postNewOrder(
+                                                this,
+                                                assembleOrder(viewModel)!!
+                                            )
+                                        }
+                                        ActionType.EDIT_ORDER -> {
+                                            viewModel.editOrder(
+                                                this,
+                                                assembleOrder(viewModel)!!
+                                            )
+                                        }
+                                        else -> {
+                                            viewModel.postNewOrder(
+                                                this,
+                                                assembleOrder(viewModel)!!
+                                            )
+                                        }
+                                    }
                                 }
                             },
                             content = {
@@ -111,6 +157,7 @@ class NewItemActivity : ComponentActivity() {
                     HomeScreen(
                         modifier = Modifier.padding(padding),
                         viewModel = viewModel,
+                        actionType = actionTypeEnum,
                         parentId = 0,
                     )
                 }
@@ -128,10 +175,17 @@ class NewItemActivity : ComponentActivity() {
                 viewModel.investigationTypes,
                 -2
             )
+            viewModel.investigationReasons.observe(this) {
+                viewModel.customers.observe(this) {
+                    viewModel.teamMembers.observe(this) {
+                        viewModel.investigationOrders.observe(this) {
+                            if (actionTypeEnum == ActionType.EDIT_ORDER)
+                                disassembleOrder(viewModel, recordId)
+                        }
+                    }
+                }
+            }
         }
-        viewModel.investigationReasons.observe(this) {}
-        viewModel.customers.observe(this) {}
-        viewModel.teamMembers.observe(this) {}
     }
 }
 
@@ -139,6 +193,7 @@ class NewItemActivity : ComponentActivity() {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    actionType: ActionType,
     viewModel: NewItemViewModel,
     parentId: Int
 ) {
@@ -160,13 +215,15 @@ fun HomeScreen(
             ButtonsSection(title = R.string.select_type) {
                 TypesSelection(
                     modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
+                    appModel = viewModel,
+                    actionType = actionType,
                 )
             }
             ButtonsSection(title = R.string.select_reason) {
                 ReasonsSelection(
                     modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
+                    appModel = viewModel,
+                    actionType = actionType,
                 )
             }
             ButtonsSection(title = R.string.select_customer) {

@@ -13,14 +13,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainOrdersType
+import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
+
+private fun filterAllAfterTypes(appModel: NewItemViewModel, type: DomainOrdersType) {
+    appModel.filterWithOneParent(
+        appModel.investigationReasonsMutable,
+        appModel.investigationReasons,
+        -1
+    )
+    appModel.filterWithOneParent(
+        appModel.customersMutable,
+        appModel.customers,
+        0
+    )
+    appModel.filterWithOneParent(
+        appModel.teamMembersMutable,
+        appModel.teamMembers,
+        0
+    )
+    appModel.selectSingleRecord(appModel.investigationTypesMutable, type)
+}
 
 @Composable
 fun TypesSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel,
+    actionType: ActionType
 ) {
     val inputList by appModel.investigationTypesMediator.observeAsState()
 
@@ -33,27 +54,14 @@ fun TypesSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
+                if (actionType == ActionType.EDIT_ORDER && first!![item].isSelected) {
+                    filterAllAfterTypes(appModel, first!![item])
+                }
                 InvestigationTypeCard(
                     inputForOrder = first!![item],
                     modifier = modifier,
                     onClick = {
-
-                        appModel.filterWithOneParent(
-                            appModel.investigationReasonsMutable,
-                            appModel.investigationReasons,
-                            -1
-                        )
-                        appModel.filterWithOneParent(
-                            appModel.customersMutable,
-                            appModel.customers,
-                            0
-                        )
-                        appModel.filterWithOneParent(
-                            appModel.teamMembersMutable,
-                            appModel.teamMembers,
-                            0
-                        )
-                        appModel.selectSingleRecord(appModel.investigationTypesMutable, it)
+                        filterAllAfterTypes(appModel, it)
                     }
                 )
             }

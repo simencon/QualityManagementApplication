@@ -14,14 +14,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainMeasurementReason
+import com.simenko.qmapp.domain.DomainOrdersType
+import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
+
+private fun filterAllAfterReasons(appModel: NewItemViewModel, reason: DomainMeasurementReason) {
+    appModel.filterWithOneParent(
+        appModel.customersMutable,
+        appModel.customers,
+        -1
+    )
+    appModel.filterWithOneParent(
+        appModel.teamMembersMutable,
+        appModel.teamMembers,
+        0
+    )
+    appModel.selectSingleRecord(appModel.investigationReasonsMutable, reason)
+}
 
 @Composable
 fun ReasonsSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel,
+    actionType: ActionType
 ) {
     val observeInputForOrder by appModel.investigationReasonsMediator.observeAsState()
 
@@ -34,21 +51,15 @@ fun ReasonsSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
+                if (actionType == ActionType.EDIT_ORDER && first!![item].isSelected) {
+                    filterAllAfterReasons(appModel, first!![item])
+                }
+
                 InvestigationReasonCard(
                     inputForOrder = first!![item],
                     modifier = modifier.padding(top = 0.dp),
                     onClick = {
-                        appModel.filterWithOneParent(
-                            appModel.customersMutable,
-                            appModel.customers,
-                            -1
-                        )
-                        appModel.filterWithOneParent(
-                            appModel.teamMembersMutable,
-                            appModel.teamMembers,
-                            0
-                        )
-                        appModel.selectSingleRecord(appModel.investigationReasonsMutable, it)
+                        filterAllAfterReasons(appModel, it)
                     }
                 )
             }

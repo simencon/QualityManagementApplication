@@ -98,6 +98,8 @@ class NewItemViewModel @Inject constructor(
 
     private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
+    val investigationOrders = qualityManagementInvestigationsRepository.orders
+
     val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
     val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
@@ -189,6 +191,25 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
+    fun editOrder(activity: NewItemActivity, order: DomainOrder) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = updateRecord<DomainOrder>(order)
+                    channel.consumeEach {
+                        launchMainActivity(activity, it.id)
+                        activity.finish()
+                    }
+                }
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
 
@@ -199,6 +220,17 @@ class NewItemViewModel @Inject constructor(
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(newOrder)
 
         send(newOrder.toDomainOrder()) //cold send
+//            this.trySend(l).isSuccess //hot send
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun <T> CoroutineScope.updateRecord(record: DomainOrder) = produce {
+
+        QualityManagementNetwork.serviceholderInvestigations.editOrder(record.id, record.toNetworkOrder())
+
+        roomDatabase.qualityManagementInvestigationsDao.insertOrder(record.toDatabaseOrder())
+
+        send(record) //cold send
 //            this.trySend(l).isSuccess //hot send
     }
 }

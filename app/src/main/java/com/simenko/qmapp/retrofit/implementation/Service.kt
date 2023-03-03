@@ -9,7 +9,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface QualityManagementManufacturingService {
@@ -60,6 +62,9 @@ interface QualityManagementInvestigationsService {
     suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder
     @DELETE("api/_12Order/{id}")
     suspend fun deleteOrder(@Path("id") id: Int): Response<Unit>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("api/_12Order/{id}")
+    suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<Unit>
 
     @GET("api/_13SubOrder")
     suspend fun getSubOrders(): List<NetworkSubOrder>
