@@ -1,11 +1,9 @@
 package com.simenko.qmapp.ui.neworder.steps
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -15,14 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import com.simenko.qmapp.domain.DomainOrdersType
-import com.simenko.qmapp.ui.common.OnLifecycleEvent
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -58,26 +52,20 @@ fun TypesSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel
 ) {
-    val inputList by appModel.investigationTypesMediator.observeAsState()
-    val listState = rememberLazyGridState()
+    val observeInputForOrder by appModel.investigationTypesMediator.observeAsState()
+    val gritState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
-    var selectedIndex by remember {
-        mutableStateOf(0)
-    }
 
-    inputList?.apply {
+    observeInputForOrder?.apply {
         LazyHorizontalGrid(
             rows = GridCells.Fixed(1),
-            state = listState,
+            state = gritState,
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                Log.d(TAG, "TypesSelection: ${appModel.currentOrder.value?.orderTypeId}")
-                if(first!![item].id == appModel.currentOrder.value?.orderTypeId)
-                    selectedIndex = item
                 InvestigationTypeCard(
                     inputForOrder = first!![item],
                     modifier = modifier,
@@ -88,21 +76,17 @@ fun TypesSelection(
                 )
             }
         }
-        OnLifecycleEvent { owner, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        Log.d(TAG, "TypesSelection: $event / index = $selectedIndex")
-                        coroutineScope.launch {
-                            // Animate scroll to the 10th item
-                            delay(500)
-                            listState.animateScrollToItem(index = selectedIndex)
-                        }
-                    }
+
+        var index = 0
+        first!!.forEach {
+            if (it.id == appModel.currentOrder.value?.orderTypeId) {
+                coroutineScope.launch {
+                    delay(500)
+                    gritState.animateScrollToItem(index = index)
                 }
-                else -> {
-                }
+                return
             }
+            index++
         }
     }
 }
