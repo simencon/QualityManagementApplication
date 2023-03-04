@@ -19,7 +19,7 @@ import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
 
-fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int) {
+fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
     appModel.filterWithOneParent(
         appModel.customersMutable,
         appModel.customers,
@@ -31,6 +31,11 @@ fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int) {
         0
     )
     appModel.selectSingleRecord(appModel.investigationReasonsMutable, selectedId)
+
+    if (clear) {
+        appModel.currentOrder.value?.customerId = 0
+        appModel.currentOrder.value?.orderedById = 0
+    }
 }
 
 @Composable
@@ -54,7 +59,7 @@ fun ReasonsSelection(
                     modifier = modifier.padding(top = 0.dp),
                     onClick = {
                         appModel.currentOrder.value?.reasonId = it.id
-                        filterAllAfterReasons(appModel, it.id)
+                        filterAllAfterReasons(appModel, it.id, true)
                     }
                 )
             }

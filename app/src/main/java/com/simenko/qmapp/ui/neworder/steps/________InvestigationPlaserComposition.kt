@@ -19,8 +19,10 @@ import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
 
-fun filterAllAfterPlacers(appModel: NewItemViewModel, selectedId: Int) {
+fun filterAllAfterPlacers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
     appModel.selectSingleRecord(appModel.teamMembersMutable, selectedId)
+    if (clear) {
+    }
 }
 
 @Composable
@@ -44,7 +46,7 @@ fun PlacersSelection(
                     modifier = modifier,
                     onClick = {
                         appModel.currentOrder.value?.orderedById = it.id
-                        filterAllAfterPlacers(appModel, it.id)
+                        filterAllAfterPlacers(appModel, it.id, true)
                     }
                 )
             }

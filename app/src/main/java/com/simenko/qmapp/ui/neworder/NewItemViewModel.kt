@@ -47,7 +47,7 @@ class NewItemViewModel @Inject constructor(
         d.value?.forEach {
             it.setIsChecked(false)
         }
-        d.value?.find { it.getRecordId() == selectedId}?.setIsChecked(true)
+        d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
         pairedTrigger.value = !(pairedTrigger.value as Boolean)
     }
 
@@ -221,17 +221,13 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
 
-        val networkOrder = record.toNetworkOrder()
-        Log.d(TAG, "getCreatedRecord: $networkOrder")
-
-        val newOrder =
-            QualityManagementNetwork.serviceholderInvestigations.createOrder(networkOrder)
-                .toDatabaseOrder()
+        val newOrder = QualityManagementNetwork.serviceholderInvestigations.createOrder(
+            record.toNetworkOrder()
+        ).toDatabaseOrder()
 
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(newOrder)
 
-        send(newOrder.toDomainOrder()) //cold send
-//            this.trySend(l).isSuccess //hot send
+        send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -244,7 +240,6 @@ class NewItemViewModel @Inject constructor(
 
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(record.toDatabaseOrder())
 
-        send(record) //cold send
-//            this.trySend(l).isSuccess //hot send
+        send(record)
     }
 }

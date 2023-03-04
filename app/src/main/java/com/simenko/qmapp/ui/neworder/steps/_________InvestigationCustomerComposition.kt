@@ -19,13 +19,17 @@ import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
 
-fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int) {
+fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
     appModel.filterWithOneParent(
         appModel.teamMembersMutable,
         appModel.teamMembers,
         -1
     )
     appModel.selectSingleRecord(appModel.customersMutable, selectedId)
+
+    if (clear) {
+        appModel.currentOrder.value?.orderedById = 0
+    }
 }
 
 @Composable
@@ -49,7 +53,7 @@ fun CustomersSelection(
                     modifier = modifier,
                     onClick = {
                         appModel.currentOrder.value?.customerId = it.id
-                        filterAllAfterCustomers(appModel, it.id)
+                        filterAllAfterCustomers(appModel, it.id, true)
                     }
                 )
             }
