@@ -162,6 +162,7 @@ fun Orders(
 
     var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false) }
     if (!isNewOrderRecordDetailsExpanded) {
+//        ToDo must be combined with scrolling to item
         appModel.completeOrders.value?.find {
             it.order.id == createdRecord?.orderId
         }.let {
@@ -171,6 +172,7 @@ fun Orders(
             }
         }
     }
+
 
     var clickCounter = 0
 
@@ -226,7 +228,7 @@ fun Orders(
                                     }
                                 },
                                 onEvent = {
-                                    CoroutineScope(Dispatchers.Main).launch {
+                                    coroutineScope.launch {
                                         checkIfEndOfList(listState, onListEnd)
                                     }
                                 }
@@ -236,9 +238,10 @@ fun Orders(
                 }
             }
 
+//            ToDo how to run it only one time?
             if (first != null && createdRecord != null)
                 coroutineScope.launch {
-                    listState.scrollToSelectedItem(
+                    val result = listState.scrollToSelectedItem(
                         list = first!!.map { it.order.id }.toList(),
                         selectedId = createdRecord.orderId
                     )
@@ -322,19 +325,13 @@ fun OrderCard(
         )
     }
 
-    OnLifecycleEvent { owner, event ->
-        Log.d(TAG, "Orders: OnLifecycleEvent: $event")
-        when (event) {
-//            ToDo improve a bit (learn lifecycle anyhow!)
-            Lifecycle.Event.ON_RESUME -> {
-                CoroutineScope(Dispatchers.Main).launch {
-                    onEvent()
-                }
-            }
-            else -> {
-            }
+//    ToDo Learn launchedEffect
+    LaunchedEffect(key1 = Unit) {
+        CoroutineScope(Dispatchers.Main).launch {
+            onEvent()
         }
     }
+
 }
 
 @Composable
