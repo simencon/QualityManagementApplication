@@ -10,6 +10,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -154,6 +155,10 @@ fun Orders(
 
     val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+    val observeOrders by appModel.completeOrdersMediator.observeAsState()
+
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false) }
     if (!isNewOrderRecordDetailsExpanded) {
@@ -167,9 +172,6 @@ fun Orders(
         }
     }
 
-    val listState = rememberLazyListState()
-
-    val observeOrders by appModel.completeOrdersMediator.observeAsState()
     var clickCounter = 0
 
     val pullRefreshState = rememberPullRefreshState(
@@ -233,7 +235,17 @@ fun Orders(
                     }
                 }
             }
+
+            if (first != null && createdRecord != null)
+                coroutineScope.launch {
+                    listState.scrollToSelectedItem(
+                        list = first!!.map { it.order.id }.toList(),
+                        selectedId = createdRecord.orderId
+                    )
+                }
+
         }
+
         PullRefreshIndicator(
             observerLoadingProcess!!,
             pullRefreshState,

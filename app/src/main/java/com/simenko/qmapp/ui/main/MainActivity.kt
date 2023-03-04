@@ -96,6 +96,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         try {
             when (item.itemId) {
+                R.id.upload_all_data -> {
+                    viewModel.refreshDataFromRepository()
+                }
                 R.id.incoming_inspection -> {
                     TODO("Will filter accordingly")
                 }

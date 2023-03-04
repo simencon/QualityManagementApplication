@@ -1,6 +1,9 @@
 package com.simenko.qmapp.ui.common
 
+import android.util.Log
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.runtime.Composable
@@ -11,7 +14,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+
+private const val TAG = "LifeCycle"
 
 @Composable
 fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
@@ -43,6 +49,31 @@ suspend fun checkIfEndOfList(listState: LazyListState, onListEnd: (FabPosition) 
             } else {
                 onListEnd(FabPosition.End)
             }
+        }
+    }
+}
+
+suspend fun < T : ScrollableState> T.scrollToSelectedItem(
+    list: List<Int>,
+    selectedId: Int,
+) {
+    val state = this
+    withContext(Dispatchers.Main) {
+        Log.d(TAG, "scrollToSelectedItem with: $selectedId")
+        var index = 0
+        list.forEach {
+            if (it == selectedId) {
+                delay(500)
+                when {
+                    (state::class.java == LazyListState::class.java) -> {
+                        (state as LazyListState).animateScrollToItem(index = index)
+                    }
+                    (state::class.java == LazyGridState::class.java) -> {
+                        (state as LazyGridState).animateScrollToItem(index = index)
+                    }
+                }
+            }
+            index++
         }
     }
 }

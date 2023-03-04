@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainOrdersType
+import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
@@ -77,17 +78,13 @@ fun TypesSelection(
             }
         }
 
-        var index = 0
-        first!!.forEach {
-            if (it.id == appModel.currentOrder.value?.orderTypeId) {
-                coroutineScope.launch {
-                    delay(500)
-                    gritState.animateScrollToItem(index = index)
-                }
-                return
+        if (first != null && appModel.currentOrder.value != null)
+            coroutineScope.launch {
+                gritState.scrollToSelectedItem(
+                    list = first!!.map { it.id }.toList(),
+                    selectedId = appModel.currentOrder.value!!.orderTypeId,
+                )
             }
-            index++
-        }
     }
 }
 

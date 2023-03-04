@@ -175,7 +175,7 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    private fun refreshDataFromRepository() {
+    fun refreshDataFromRepository() {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true

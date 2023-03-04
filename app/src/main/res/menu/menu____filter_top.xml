@@ -3,6 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/upload_all_data"
+        android:title="Upload all data"
+        app:showAsAction = "never"/>
+    <item
         android:id="@+id/ppap"
         android:title="PPAP"
         app:showAsAction = "never"/>
