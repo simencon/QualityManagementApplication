@@ -41,102 +41,12 @@ class NewItemViewModel @Inject constructor(
 //        refreshDataFromRepository()
     }
 
-    enum class FilteringMode() {
-        ADD_ALL,
-        ADD_ALL_AND_RESELECT,
-        REMOVE_ALL,
-        ADD_BY_PARENT_ID,
-        ADD_ALL_FROM_META_TABLE
-    }
-
-    fun <T : DomainModel> selectSingleRecord(d: MutableLiveData<MutableList<T>>, selectedId: Int) {
-        d.value?.forEach {
-            it.setIsChecked(false)
-        }
-        d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
-        pairedTrigger.value = !(pairedTrigger.value as Boolean)
-    }
-
-    fun <T : DomainModel> filterWithOneParent(
-        d: MutableLiveData<MutableList<T>>,
-        s: LiveData<List<T>>,
-        pId: Int
-    ) {
-
-        when (pId) {
-//            Add all without deselection
-            -2 -> {
-                d.value?.clear()
-                s.value?.let { d.value?.addAll(it.toList()) }
-            }
-//            Add all
-            -1 -> {
-                selectSingleRecord(
-                    d,
-                    0
-                ) //Is made because previously selected/filtered/unfiltered item again selected
-                d.value?.clear()
-                s.value?.let { d.value?.addAll(it.toList()) }
-            }
-//            Clear all
-            0 -> {
-                selectSingleRecord(
-                    d,
-                    0
-                ) //Is made because previously selected/filtered/unfiltered item again selected
-                d.value?.clear()
-            }
-//            Add filtered by one parent id
-            else -> {
-                selectSingleRecord(
-                    d,
-                    0
-                ) //Is made because previously selected/filtered/unfiltered item again selected
-                d.value?.clear()
-                s.apply {
-                    this.value?.filter { it.getRecordId() > pId }?.forEach { input ->
-                        if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
-                            d.value?.add(input)
-                        }
-                    }
-                }
-            }
-        }
-
-        pairedTrigger.value = !(pairedTrigger.value as Boolean)
-    }
-
-    private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val investigationOrders = qualityManagementInvestigationsRepository.orders
 
-    //
-    val currentOrder =
-        MutableLiveData(DomainOrder(0, 0, 0, null, 0, 0, 1, "2022-01-30T15:30:00", null))
-
-    val currentSubOrder =
-        MutableLiveData(
-            DomainSubOrder(
-                id = 0,
-                orderId = 0,//maybe currentOrder.id?
-                subOrderNumber = 0,
-                orderedById = 0,
-                completedById = null,
-                statusId = 1,
-                createdDate = "2022-01-30T15:30:00",
-                completedDate = null,
-                departmentId = 0,
-                subDepartmentId = 0,
-                channelId = 0,
-                lineId = 0,
-                operationId = 0,
-                itemPreffix = "",
-                itemTypeId = 0,
-                itemVersionId = 0,
-                samplesCount = null
-                )
-        )
-
+    val currentOrder = MutableLiveData(getEmptyOrder())
+    val currentSubOrder = MutableLiveData(getEmptySubOrder())
 
     val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
@@ -287,3 +197,89 @@ class NewItemViewModel @Inject constructor(
         send(record)
     }
 }
+
+enum class FilteringMode {
+    ADD_ALL,
+    REMOVE_ALL,
+    ADD_BY_PARENT_ID,
+    ADD_ALL_FROM_META_TABLE
+}
+
+fun <T : DomainModel> selectSingleRecord(
+    d: MutableLiveData<MutableList<T>>,
+    pairedTrigger: MutableLiveData<Boolean>,
+    selectedId: Int = 0,
+) {
+    d.value?.forEach {
+        it.setIsChecked(false)
+    }
+    d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
+    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+}
+
+fun <T : DomainModel> MutableLiveData<MutableList<T>>.filterWithOneParentM(
+    s: LiveData<List<T>>,
+    action: FilteringMode,
+    pairedTrigger: MutableLiveData<Boolean>,
+    pId: Int = 0
+) {
+    val d = this
+    when (action) {
+        FilteringMode.ADD_ALL -> {
+            //Is made because previously selected/filtered/unfiltered item again selected
+            selectSingleRecord(d, pairedTrigger)
+            d.value?.clear()
+            s.value?.let { d.value?.addAll(it.toList()) }
+        }
+        FilteringMode.REMOVE_ALL -> {
+            //Is made because previously selected/filtered/unfiltered item again selected
+            selectSingleRecord(d, pairedTrigger)
+            d.value?.clear()
+        }
+        FilteringMode.ADD_BY_PARENT_ID -> {
+            //Is made because previously selected/filtered/unfiltered item again selected
+            selectSingleRecord(d, pairedTrigger)
+            d.value?.clear()
+            s.apply {
+                this.value?.filter { it.getRecordId() > pId }?.forEach { input ->
+                    if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
+                        d.value?.add(input)
+                    }
+                }
+            }
+        }
+        FilteringMode.ADD_ALL_FROM_META_TABLE -> {}
+    }
+
+    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+}
+
+fun getEmptyOrder() = DomainOrder(
+    id = 0, orderTypeId = 0, reasonId = 0,
+    orderNumber = null,
+    customerId = 0,
+    orderedById = 0,
+    statusId = 1,
+    createdDate = "2022-01-30T15:30:00",
+    completedDate = null
+)
+
+fun getEmptySubOrder() = DomainSubOrder(
+    id = 0,
+    orderId = 0,//maybe currentOrder.id?
+    subOrderNumber = 0,
+    orderedById = 0,
+    completedById = null,
+    statusId = 1,
+    createdDate = "2022-01-30T15:30:00",
+    completedDate = null,
+    departmentId = 0,
+    subDepartmentId = 0,
+    channelId = 0,
+    lineId = 0,
+    operationId = 0,
+    itemPreffix = "",
+    itemTypeId = 0,
+    itemVersionId = 0,
+    samplesCount = null
+)

@@ -17,20 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainDepartment
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.NewItemViewModel
+import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.filterWithOneParent(
-        appModel.teamMembersMutable,
+    appModel.teamMembersMutable.filterWithOneParentM(
         appModel.teamMembers,
-        -1
+        FilteringMode.ADD_ALL,
+        appModel.pairedTrigger
     )
-    appModel.selectSingleRecord(appModel.customersMutable, selectedId)
+    selectSingleRecord(appModel.customersMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
         appModel.currentOrder.value?.orderedById = 0

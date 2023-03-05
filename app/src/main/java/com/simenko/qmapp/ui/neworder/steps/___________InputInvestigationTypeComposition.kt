@@ -15,31 +15,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainOrdersType
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
+import com.simenko.qmapp.ui.neworder.FilteringMode
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
+import com.simenko.qmapp.ui.neworder.filterWithOneParentM
+import com.simenko.qmapp.ui.neworder.selectSingleRecord
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterTypes(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.filterWithOneParent(
-        appModel.investigationReasonsMutable,
+
+    appModel.investigationReasonsMutable.filterWithOneParentM(
         appModel.investigationReasons,
-        -1
+        FilteringMode.ADD_ALL,
+        appModel.pairedTrigger
     )
-    appModel.filterWithOneParent(
-        appModel.customersMutable,
+    appModel.customersMutable.filterWithOneParentM(
         appModel.customers,
-        0
+        FilteringMode.REMOVE_ALL,
+        appModel.pairedTrigger
     )
-    appModel.filterWithOneParent(
-        appModel.teamMembersMutable,
+    appModel.teamMembersMutable.filterWithOneParentM(
         appModel.teamMembers,
-        0
+        FilteringMode.REMOVE_ALL,
+        appModel.pairedTrigger
     )
-    appModel.selectSingleRecord(appModel.investigationTypesMutable, selectedId)
+    selectSingleRecord(appModel.investigationTypesMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
         appModel.currentOrder.value?.reasonId = 0

@@ -19,13 +19,14 @@ import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
+import com.simenko.qmapp.ui.neworder.selectSingleRecord
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 fun filterAllAfterPlacers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.selectSingleRecord(appModel.teamMembersMutable, selectedId)
+    selectSingleRecord(appModel.teamMembersMutable, appModel.pairedTrigger, selectedId)
     if (clear) {
     }
 }

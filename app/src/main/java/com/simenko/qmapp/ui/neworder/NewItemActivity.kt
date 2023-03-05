@@ -195,18 +195,18 @@ class NewItemActivity : ComponentActivity() {
 
                                 when (actionTypeEnum) {
                                     ActionType.ADD_ORDER -> {
-                                        viewModel.filterWithOneParent(
-                                            viewModel.investigationTypesMutable,
+                                        viewModel.investigationTypesMutable.filterWithOneParentM(
                                             viewModel.investigationTypes,
-                                            -2
+                                            FilteringMode.ADD_ALL,
+                                            viewModel.pairedTrigger
                                         )
                                     }
 
                                     ActionType.EDIT_ORDER -> {
-                                        viewModel.filterWithOneParent(
-                                            viewModel.investigationTypesMutable,
+                                        viewModel.investigationTypesMutable.filterWithOneParentM(
                                             viewModel.investigationTypes,
-                                            -2
+                                            FilteringMode.ADD_ALL,
+                                            viewModel.pairedTrigger
                                         )
 
                                         disassembleOrder(viewModel, recordId)
@@ -229,10 +229,10 @@ class NewItemActivity : ComponentActivity() {
                                     }
 
                                     ActionType.ADD_SUB_ORDER -> {
-                                        viewModel.filterWithOneParent(
-                                            viewModel.departmentsMutable,
+                                        viewModel.departmentsMutable.filterWithOneParentM(
                                             viewModel.departments,
-                                            -2
+                                            FilteringMode.ADD_ALL,
+                                            viewModel.pairedTrigger
                                         )
                                     }
                                     else -> {}
