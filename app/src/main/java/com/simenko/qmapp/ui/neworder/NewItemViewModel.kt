@@ -3,19 +3,17 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.room.Index
 import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
-import com.simenko.qmapp.retrofit.entities.NetworkOrder
-import com.simenko.qmapp.retrofit.entities.toNetworkOrder
+import com.simenko.qmapp.retrofit.entities.toNetworkOrderWithId
+import com.simenko.qmapp.retrofit.entities.toNetworkOrderWithoutId
 import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
 import com.simenko.qmapp.room.entities.toDatabaseOrder
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.launchMainActivity
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import java.io.IOException
@@ -214,6 +212,8 @@ class NewItemViewModel @Inject constructor(
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
+            } catch (e: Error) {
+                Log.d(TAG, "editOrder: $e")
             }
         }
     }
@@ -222,7 +222,7 @@ class NewItemViewModel @Inject constructor(
     fun <T> CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
 
         val newOrder = QualityManagementNetwork.serviceholderInvestigations.createOrder(
-            record.toNetworkOrder()
+            record.toNetworkOrderWithoutId()
         ).toDatabaseOrder()
 
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(newOrder)
@@ -233,9 +233,11 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.updateRecord(record: DomainOrder) = produce {
 
+        val nOrder = record.toNetworkOrderWithId()
+
         QualityManagementNetwork.serviceholderInvestigations.editOrder(
             record.id,
-            record.toNetworkOrder()
+            nOrder
         )
 
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(record.toDatabaseOrder())

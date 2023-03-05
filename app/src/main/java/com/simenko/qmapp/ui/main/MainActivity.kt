@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 internal const val KEY_ARG_CREATED_ORDER_ID = "KEY_ARG_CREATED_ORDER_ID"
 
-data class CreatedRecord(val orderId: Int)
+data class CreatedRecord(val orderId: Int = 0)
 
 fun launchMainActivity(context: Context, orderId: Int = 0) {
     context.startActivity(createMainActivityIntent(context, orderId))

@@ -56,22 +56,22 @@ suspend fun checkIfEndOfList(listState: LazyListState, onListEnd: (FabPosition) 
 suspend fun < T : ScrollableState> T.scrollToSelectedItem(
     list: List<Int>,
     selectedId: Int,
-): Int {
+): Boolean {
     val state = this
-    var result = -1
+    var result = false
     withContext(Dispatchers.Main) {
         var index = 0
         list.forEach {
             if (it == selectedId) {
-                delay(500)
+                delay(200)
                 when {
                     (state::class.java == LazyListState::class.java) -> {
                         (state as LazyListState).animateScrollToItem(index = index)
-                        result = index
+                        result = true
                     }
                     (state::class.java == LazyGridState::class.java) -> {
                         (state as LazyGridState).animateScrollToItem(index = index)
-                        result = index
+                        result = true
                     }
                 }
             }

@@ -114,13 +114,3 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
         }
     }
 }
-
-val orderDomainToNetwork = object
-    : ObjectTransformer<DomainOrder, NetworkOrder>(DomainOrder::class, NetworkOrder::class) {
-    override fun argFor(parameter: KParameter, data: DomainOrder): Any? {
-        return when (parameter.name) {
-            "id" -> {}
-            else -> super.argFor(parameter, data)
-        }
-    }
-}

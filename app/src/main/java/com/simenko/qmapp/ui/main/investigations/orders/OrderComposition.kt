@@ -120,6 +120,8 @@ fun InvestigationsAll(
                 FloatingActionButton(
                     onClick = {
                         launchNewItemActivity(context, ActionType.ADD_ORDER)
+//                        ToDo while adding new item Main activity still added in the run stack
+                        (context as MainActivity).finish()
                     },
                     content = {
                         androidx.compose.material.Icon(
@@ -165,29 +167,30 @@ fun Orders(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false) }
+    var lookForRecord by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(lookForRecord) {
 
-    if (!isNewOrderRecordDetailsExpanded) {
-//        ToDo must be combined with scrolling to item
-        appModel.completeOrders.value?.find {
-            it.order.id == createdRecord?.orderId
-        }.let {
-            if (it != null) {
-                isNewOrderRecordDetailsExpanded = true
-                it.detailsVisibility = true
-            }
-        }
-    }
-
-    //            ToDo how to run it only one time?
-    LaunchedEffect(key1 = isNewOrderRecordDetailsExpanded) {
         if (observeOrders?.first != null && createdRecord != null)
             coroutineScope.launch {
+
                 listState.scrollToSelectedItem(
                     list = observeOrders?.first!!.map { it.order.id }.toList(),
                     selectedId = createdRecord.orderId
                 )
-            }
+
+                delay(200)
+
+                val order = observeOrders?.first!!.find {
+                    it.order.id == createdRecord.orderId
+                }
+
+                if (order != null)
+                    appModel.changeCompleteOrdersDetailsVisibility(order)
+
+            } else if (createdRecord?.orderId != 0) {
+            delay(50)
+            lookForRecord = !lookForRecord
+        }
     }
 
 
