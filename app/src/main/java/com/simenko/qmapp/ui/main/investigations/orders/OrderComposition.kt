@@ -10,7 +10,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -34,7 +33,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
@@ -101,13 +99,20 @@ fun InvestigationsAll(
     createdRecord: CreatedRecord?
 ) {
     QMAppTheme {
-        var fabPosition by remember {
+        var fabPositionToRemember by remember {
+            mutableStateOf(FabPosition.End)
+        }
+        var fabPositionToSet by remember {
             mutableStateOf(FabPosition.End)
         }
 
         fun changeFlaBtnPosition(position: FabPosition) {
-//            ToDo is it possible to animate it?
-            fabPosition = position
+            fabPositionToRemember = position
+        }
+
+        LaunchedEffect(fabPositionToRemember) {
+            fabPositionToSet = fabPositionToRemember
+            Log.d(TAG, "changeFlaBtnPosition: $fabPositionToRemember")
         }
 
         Scaffold(
@@ -125,7 +130,7 @@ fun InvestigationsAll(
                     }
                 )
             },
-            floatingActionButtonPosition = fabPosition,
+            floatingActionButtonPosition = fabPositionToSet,
             content = { padding ->
                 Orders(
                     modifier = Modifier
@@ -161,6 +166,7 @@ fun Orders(
     val coroutineScope = rememberCoroutineScope()
 
     var isNewOrderRecordDetailsExpanded by rememberSaveable { mutableStateOf(false) }
+
     if (!isNewOrderRecordDetailsExpanded) {
 //        ToDo must be combined with scrolling to item
         appModel.completeOrders.value?.find {
@@ -169,6 +175,27 @@ fun Orders(
             if (it != null) {
                 isNewOrderRecordDetailsExpanded = true
                 it.detailsVisibility = true
+            }
+        }
+    }
+
+    //            ToDo how to run it only one time?
+    LaunchedEffect(key1 = isNewOrderRecordDetailsExpanded) {
+        if (observeOrders?.first != null && createdRecord != null)
+            coroutineScope.launch {
+                listState.scrollToSelectedItem(
+                    list = observeOrders?.first!!.map { it.order.id }.toList(),
+                    selectedId = createdRecord.orderId
+                )
+            }
+    }
+
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.Main) {
+            for (i in generateSequence(0) { it }) {
+                checkIfEndOfList(listState, onListEnd)
+                delay(50)
             }
         }
     }
@@ -226,27 +253,12 @@ fun Orders(
                                         clickCounter = 0
                                         appModel.changeCompleteOrdersExpandState(it)
                                     }
-                                },
-                                onEvent = {
-                                    coroutineScope.launch {
-                                        checkIfEndOfList(listState, onListEnd)
-                                    }
                                 }
                             )
                         }
                     }
                 }
             }
-
-//            ToDo how to run it only one time?
-            if (first != null && createdRecord != null)
-                coroutineScope.launch {
-                    val result = listState.scrollToSelectedItem(
-                        list = first!!.map { it.order.id }.toList(),
-                        selectedId = createdRecord.orderId
-                    )
-                }
-
         }
 
         PullRefreshIndicator(
@@ -272,7 +284,6 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
-    onEvent: () -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
@@ -324,14 +335,6 @@ fun OrderCard(
             onClickDetails = { onClickDetails(order) }
         )
     }
-
-//    ToDo Learn launchedEffect
-    LaunchedEffect(key1 = Unit) {
-        CoroutineScope(Dispatchers.Main).launch {
-            onEvent()
-        }
-    }
-
 }
 
 @Composable
