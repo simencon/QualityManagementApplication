@@ -41,6 +41,14 @@ class NewItemViewModel @Inject constructor(
 //        refreshDataFromRepository()
     }
 
+    enum class FilteringMode() {
+        ADD_ALL,
+        ADD_ALL_AND_RESELECT,
+        REMOVE_ALL,
+        ADD_BY_PARENT_ID,
+        ADD_ALL_FROM_META_TABLE
+    }
+
     fun <T : DomainModel> selectSingleRecord(d: MutableLiveData<MutableList<T>>, selectedId: Int) {
         d.value?.forEach {
             it.setIsChecked(false)
@@ -106,6 +114,30 @@ class NewItemViewModel @Inject constructor(
     val currentOrder =
         MutableLiveData(DomainOrder(0, 0, 0, null, 0, 0, 1, "2022-01-30T15:30:00", null))
 
+    val currentSubOrder =
+        MutableLiveData(
+            DomainSubOrder(
+                id = 0,
+                orderId = 0,//maybe currentOrder.id?
+                subOrderNumber = 0,
+                orderedById = 0,
+                completedById = null,
+                statusId = 1,
+                createdDate = "2022-01-30T15:30:00",
+                completedDate = null,
+                departmentId = 0,
+                subDepartmentId = 0,
+                channelId = 0,
+                lineId = 0,
+                operationId = 0,
+                itemPreffix = "",
+                itemTypeId = 0,
+                itemVersionId = 0,
+                samplesCount = null
+                )
+        )
+
+
     val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
     val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
@@ -140,6 +172,16 @@ class NewItemViewModel @Inject constructor(
         }
 
     private val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
+
+    val departments = qualityManagementManufacturingRepository.departments
+    val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
+    val departmentsMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
+            addSource(departmentsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(departmentsMutable.value, it) }
+        }
+
+
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
             addSource(inputForOrder) { value = Pair(it, pairedTrigger.value) }

@@ -1,12 +1,14 @@
 package com.simenko.qmapp.ui.main.investigations.orders
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -32,6 +34,8 @@ import com.simenko.qmapp.ui.common.ACTION_ITEM_SIZE
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.ActionsRow
 import com.simenko.qmapp.ui.common.CARD_OFFSET
+import com.simenko.qmapp.ui.neworder.ActionType
+import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.CoroutineScope
@@ -137,52 +141,71 @@ fun getSubOrders() = List(30) { i ->
 fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
-    appModel: QualityManagementViewModel
+    appModel: QualityManagementViewModel,
+    context: Context
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
     var clickCounter = 0
 
     observeSubOrders?.apply {
         if (observeSubOrders!!.first != null) {
-            FlowRow(modifier = modifier) {
-                observeSubOrders!!.first!!.forEach { subOrder ->
-                    if (subOrder.subOrder.orderId == parentId) {
+            Column (horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+                FlowRow(modifier = modifier) {
+                    observeSubOrders!!.first!!.forEach { subOrder ->
+                        if (subOrder.subOrder.orderId == parentId) {
 
-                        Box(Modifier.fillMaxWidth()) {
-                            ActionsRow(
-                                actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDelete = {},
-                                onEdit = {},
-                                onFavorite = {}
-                            )
+                            Box(Modifier.fillMaxWidth()) {
+                                ActionsRow(
+                                    actionIconSize = ACTION_ITEM_SIZE.dp,
+                                    onDelete = {},
+                                    onEdit = {},
+                                    onFavorite = {}
+                                )
 
-                            SubOrderCard(
-                                modifier = modifier,
-                                viewModel = appModel,
-                                subOrder = subOrder,
-                                onClickDetails = { it ->
-                                    appModel.changeCompleteSubOrdersDetailsVisibility(it)
-                                },
-                                cardOffset = CARD_OFFSET.dp(),
-                                onChangeExpandState = {
-                                    clickCounter++
-                                    if (clickCounter == 1) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(200)
-                                            clickCounter--
+                                SubOrderCard(
+                                    modifier = modifier,
+                                    viewModel = appModel,
+                                    subOrder = subOrder,
+                                    onClickDetails = { it ->
+                                        appModel.changeCompleteSubOrdersDetailsVisibility(it)
+                                    },
+                                    cardOffset = CARD_OFFSET.dp(),
+                                    onChangeExpandState = {
+                                        clickCounter++
+                                        if (clickCounter == 1) {
+                                            CoroutineScope(Dispatchers.Main).launch {
+                                                delay(200)
+                                                clickCounter--
+                                            }
+                                        }
+                                        if (clickCounter == 2) {
+                                            clickCounter = 0
+                                            appModel.changeCompleteSubOrdersExpandState(it)
                                         }
                                     }
-                                    if (clickCounter == 2) {
-                                        clickCounter = 0
-                                        appModel.changeCompleteSubOrdersExpandState(it)
-                                    }
-                                }
-                            )
+                                )
+                            }
+                            Divider(thickness = 4.dp, color = Color.Transparent)
                         }
-                        Divider(thickness = 4.dp, color = Color.Transparent)
                     }
                 }
+                Divider(modifier = modifier.height(0.dp))
+                FloatingActionButton(
+                    containerColor = _level_2_record_color,
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    onClick = {
+                        launchNewItemActivity(context, ActionType.ADD_SUB_ORDER)
+                    },
+                    content = {
+                        androidx.compose.material.Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            tint = Primary900
+                        )
+                    }
+                )
             }
+
         }
     }
 }

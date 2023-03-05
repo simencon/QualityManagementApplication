@@ -257,7 +257,8 @@ fun Orders(
                                         clickCounter = 0
                                         appModel.changeCompleteOrdersExpandState(it)
                                     }
-                                }
+                                },
+                                context = context
                             )
                         }
                     }
@@ -288,6 +289,7 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
+    context: Context
 ) {
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
@@ -336,7 +338,8 @@ fun OrderCard(
             modifier = modifier,
             viewModel = viewModel,
             order = order,
-            onClickDetails = { onClickDetails(order) }
+            onClickDetails = { onClickDetails(order) },
+            context = context
         )
     }
 }
@@ -346,7 +349,8 @@ fun Order(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
-    onClickDetails: () -> Unit = {}
+    onClickDetails: () -> Unit = {},
+    context: Context
 ) {
     Column(
         modifier = Modifier
@@ -495,7 +499,7 @@ fun Order(
             }
         }
 
-        OrderDetails(viewModel = viewModel, modifier = modifier, order = order)
+        OrderDetails(viewModel = viewModel, modifier = modifier, order = order, context = context)
     }
 }
 
@@ -504,6 +508,7 @@ fun OrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
+    context: Context
 ) {
 
     if (order.detailsVisibility) {
@@ -583,7 +588,8 @@ fun OrderDetails(
             SubOrdersFlowColumn(
                 modifier = Modifier,
                 parentId = order.order.id,
-                appModel = viewModel
+                appModel = viewModel,
+                context = context
             )
     }
 }
@@ -592,10 +598,10 @@ fun OrderDetails(
 @Composable
 fun MyOrderPreview() {
     QMAppTheme {
-        Order(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 1.5.dp)
-        )
+//        Order(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(vertical = 1.5.dp)
+//        )
     }
 }
