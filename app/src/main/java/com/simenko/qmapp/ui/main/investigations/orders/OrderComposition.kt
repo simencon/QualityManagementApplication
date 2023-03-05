@@ -169,6 +169,7 @@ fun Orders(
 
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(lookForRecord) {
+        Log.d(TAG, "Orders: lookForRecord")
 
         if (observeOrders?.first != null && createdRecord != null)
             coroutineScope.launch {
@@ -187,7 +188,7 @@ fun Orders(
                 if (order != null)
                     appModel.changeCompleteOrdersDetailsVisibility(order)
 
-            } else if (createdRecord?.orderId != 0) {
+            } else if (createdRecord != null && createdRecord.orderId != 0) {
             delay(50)
             lookForRecord = !lookForRecord
         }
