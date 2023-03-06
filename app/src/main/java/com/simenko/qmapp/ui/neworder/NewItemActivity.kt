@@ -195,51 +195,53 @@ class NewItemActivity : ComponentActivity() {
                                 viewModel.inputForOrder.observe(this) {
                                     viewModel.subDepartments.observe(this) {
                                         viewModel.channels.observe(this) {
+                                            viewModel.lines.observe(this) {
 
-                                            when (actionTypeEnum) {
-                                                ActionType.ADD_ORDER -> {
-                                                    viewModel.investigationTypesMutable.performFiltration(
-                                                        viewModel.investigationTypes,
-                                                        FilteringMode.ADD_ALL,
-                                                        viewModel.pairedTrigger
-                                                    )
+                                                when (actionTypeEnum) {
+                                                    ActionType.ADD_ORDER -> {
+                                                        viewModel.investigationTypesMutable.performFiltration(
+                                                            viewModel.investigationTypes,
+                                                            FilteringMode.ADD_ALL,
+                                                            viewModel.pairedTrigger
+                                                        )
+                                                    }
+
+                                                    ActionType.EDIT_ORDER -> {
+                                                        viewModel.investigationTypesMutable.performFiltration(
+                                                            viewModel.investigationTypes,
+                                                            FilteringMode.ADD_ALL,
+                                                            viewModel.pairedTrigger
+                                                        )
+
+                                                        disassembleOrder(viewModel, recordId)
+                                                        filterAllAfterTypes(
+                                                            viewModel,
+                                                            viewModel.currentOrder.value?.orderTypeId!!
+                                                        )
+                                                        filterAllAfterReasons(
+                                                            viewModel,
+                                                            viewModel.currentOrder.value?.reasonId!!
+                                                        )
+                                                        filterAllAfterCustomers(
+                                                            viewModel,
+                                                            viewModel.currentOrder.value?.customerId!!
+                                                        )
+                                                        filterAllAfterPlacers(
+                                                            viewModel,
+                                                            viewModel.currentOrder.value?.orderedById!!
+                                                        )
+                                                    }
+
+                                                    ActionType.ADD_SUB_ORDER -> {
+                                                        viewModel.departmentsMutable.performFiltration(
+                                                            s = viewModel.departments,
+                                                            action = FilteringMode.ADD_ALL_FROM_META_TABLE,
+                                                            trigger = viewModel.pairedTrigger,
+                                                            m = viewModel.inputForOrder
+                                                        )
+                                                    }
+                                                    else -> {}
                                                 }
-
-                                                ActionType.EDIT_ORDER -> {
-                                                    viewModel.investigationTypesMutable.performFiltration(
-                                                        viewModel.investigationTypes,
-                                                        FilteringMode.ADD_ALL,
-                                                        viewModel.pairedTrigger
-                                                    )
-
-                                                    disassembleOrder(viewModel, recordId)
-                                                    filterAllAfterTypes(
-                                                        viewModel,
-                                                        viewModel.currentOrder.value?.orderTypeId!!
-                                                    )
-                                                    filterAllAfterReasons(
-                                                        viewModel,
-                                                        viewModel.currentOrder.value?.reasonId!!
-                                                    )
-                                                    filterAllAfterCustomers(
-                                                        viewModel,
-                                                        viewModel.currentOrder.value?.customerId!!
-                                                    )
-                                                    filterAllAfterPlacers(
-                                                        viewModel,
-                                                        viewModel.currentOrder.value?.orderedById!!
-                                                    )
-                                                }
-
-                                                ActionType.ADD_SUB_ORDER -> {
-                                                    viewModel.departmentsMutable.performFiltration(
-                                                        s = viewModel.departments,
-                                                        action = FilteringMode.ADD_ALL_FROM_META_TABLE,
-                                                        trigger = viewModel.pairedTrigger,
-                                                        m = viewModel.inputForOrder
-                                                    )
-                                                }
-                                                else -> {}
                                             }
                                         }
                                     }

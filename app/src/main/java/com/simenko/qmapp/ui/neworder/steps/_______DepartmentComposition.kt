@@ -39,6 +39,10 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
+    appModel.linesMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.departmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {

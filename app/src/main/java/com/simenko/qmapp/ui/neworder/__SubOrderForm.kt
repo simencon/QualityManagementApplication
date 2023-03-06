@@ -60,8 +60,14 @@ fun SubOrderForm(
                     appModel = viewModel
                 )
             }
-            ButtonsSection(title = R.string.select_ordered_by) {
+            ButtonsSection(title = R.string.select_channel) {
                 ChannelsSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
+            ButtonsSection(title = R.string.select_channel) {
+                LinesSelection(
                     modifier = Modifier.padding(top = 0.dp),
                     appModel = viewModel
                 )

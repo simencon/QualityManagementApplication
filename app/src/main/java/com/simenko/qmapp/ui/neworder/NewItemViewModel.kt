@@ -114,6 +114,14 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(channelsMutable.value, it) }
         }
 
+    val lines = qualityManagementManufacturingRepository.lines
+    val linesMutable = MutableLiveData<MutableList<DomainManufacturingLine>>(mutableListOf())
+    val linesMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>>().apply {
+            addSource(linesMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
+        }
+
 
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
@@ -232,7 +240,8 @@ enum class FilteringMode {
 enum class FilteringStep {
     NOT_FROM_META_TABLE,
     SUB_DEPARTMENTS,
-    CHANNELS
+    CHANNELS,
+    LINES
 }
 
 fun <T : DomainModel> selectSingleRecord(
@@ -302,6 +311,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                     FilteringStep.NOT_FROM_META_TABLE -> { 0 }
                                     FilteringStep.SUB_DEPARTMENTS -> { mIt.subDepId }
                                     FilteringStep.CHANNELS -> { mIt.chId }
+                                    FilteringStep.LINES -> { mIt.lineId }
                                 }
                     }
                     if (item != null)

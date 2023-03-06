@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainManufacturingChannel
+import com.simenko.qmapp.domain.DomainManufacturingLine
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
@@ -23,20 +24,11 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterChannels(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.linesMutable.performFiltration(
-        s = appModel.lines,
-        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-        trigger = appModel.pairedTrigger,
-        pId = selectedId,
-        m = appModel.inputForOrder,
-        step = FilteringStep.LINES
-    )
+fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
-    selectSingleRecord(appModel.channelsMutable, appModel.pairedTrigger, selectedId)
+    selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.lineId = 0
         appModel.currentSubOrder.value?.itemPreffix = ""
         appModel.currentSubOrder.value?.itemTypeId = 0
         appModel.currentSubOrder.value?.itemVersionId = 0
@@ -46,11 +38,11 @@ fun filterAllAfterChannels(appModel: NewItemViewModel, selectedId: Int, clear: B
 }
 
 @Composable
-fun ChannelsSelection(
+fun LinesSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel
 ) {
-    val observeInputForOrder by appModel.channelsMediator.observeAsState()
+    val observeInputForOrder by appModel.linesMediator.observeAsState()
     val gritState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -64,12 +56,12 @@ fun ChannelsSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                ChannelCard(
+                LineCard(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.channelId = it.id
-                        filterAllAfterChannels(appModel, it.id, true)
+                        appModel.currentSubOrder.value?.lineId = it.id
+                        filterAllAfterLines(appModel, it.id, true)
                     }
                 )
             }
@@ -79,17 +71,17 @@ fun ChannelsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.channelId,
+                    selectedId = appModel.currentSubOrder.value!!.lineId,
                 )
             }
     }
 }
 
 @Composable
-fun ChannelCard(
-    input: DomainManufacturingChannel,
+fun LineCard(
+    input: DomainManufacturingLine,
     modifier: Modifier = Modifier,
-    onClick: (DomainManufacturingChannel) -> Unit
+    onClick: (DomainManufacturingLine) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
@@ -109,7 +101,7 @@ fun ChannelCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.channelAbbr ?: "-"
+                text = input.lineAbbr ?: "-"
             )
         }
     }
