@@ -290,7 +290,7 @@ data class DatabaseComponentVersion(
     var statusId: Int?,
     var isDefault: Boolean
 )
-/*
+
 @Entity(
     tableName = "11_component_in_stage_versions",
     foreignKeys = [
@@ -318,8 +318,8 @@ data class DatabaseComponentInStageVersion(
     var versionDate: String?,
     @ColumnInfo(index = true)
     var statusId: Int?,
-    var isDefault: Int
-)*/
+    var isDefault: Boolean
+)
 
 @Entity(
     tableName = "9_8_product_tolerances",
@@ -340,6 +340,68 @@ data class DatabaseComponentInStageVersion(
         )]
 )
 data class DatabaseProductTolerance(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var metrixId: Int?,
+    @ColumnInfo(index = true)
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
+@Entity(
+    tableName = "10_8_component_tolerances",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseMetrix::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("metrixId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseComponentVersion::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("versionId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseComponentTolerance(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var metrixId: Int?,
+    @ColumnInfo(index = true)
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
+@Entity(
+    tableName = "11_8_component_in_stage_tolerances",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseMetrix::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("metrixId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseComponentInStageVersion::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("versionId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseComponentInStageTolerance(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     @ColumnInfo(index = true)

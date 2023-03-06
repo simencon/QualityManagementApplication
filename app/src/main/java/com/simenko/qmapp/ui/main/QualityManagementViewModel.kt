@@ -202,7 +202,10 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementProductsRepository.refreshVersionStatuses()
                 qualityManagementProductsRepository.refreshProductVersions()
                 qualityManagementProductsRepository.refreshComponentVersions()
-                /*qualityManagementProductsRepository.refreshComponentInStageVersions()*/
+                qualityManagementProductsRepository.refreshComponentInStageVersions()
+                qualityManagementProductsRepository.refreshProductTolerances()
+                qualityManagementProductsRepository.refreshComponentTolerances()
+                qualityManagementProductsRepository.refreshComponentInStageTolerances()
 
                 qualityManagementInvestigationsRepository.refreshInputForOrder()
                 qualityManagementInvestigationsRepository.refreshOrdersStatuses()
@@ -221,5 +224,4 @@ class QualityManagementViewModel @Inject constructor(
             }
         }
     }
-
 }

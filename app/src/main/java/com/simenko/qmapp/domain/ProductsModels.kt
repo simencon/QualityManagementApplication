@@ -114,7 +114,27 @@ data class DomainComponentInStageVersion(
     var isDefault: Boolean
 )
 
-data class ProductTolerance(
+data class DomainProductTolerance(
+    var id: Int,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
+data class DomainComponentTolerance(
+    var id: Int,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
+data class DomainComponentInStageTolerance(
     var id: Int,
     var metrixId: Int?,
     var versionId: Int?,

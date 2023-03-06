@@ -120,7 +120,6 @@ data class NetworkComponentVersion(
     var statusId: Int?,
     var isDefault: Boolean
 )
-/*
 @JsonClass(generateAdapter = true)
 data class NetworkComponentInStageVersion(
     var id: Int,
@@ -129,10 +128,30 @@ data class NetworkComponentInStageVersion(
     var versionDate: String?,
     var statusId: Int?,
     var isDefault: Boolean
-)*/
-
+)
 @JsonClass(generateAdapter = true)
 data class NetworkProductTolerance(
+    var id: Int,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkComponentTolerance(
+    var id: Int,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
+data class NetworkComponentInStageTolerance(
     var id: Int,
     var metrixId: Int?,
     var versionId: Int?,

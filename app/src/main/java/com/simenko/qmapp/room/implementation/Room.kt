@@ -136,16 +136,26 @@ interface QualityManagementProductsDao {
     fun insertComponentVersionsAll(list: List<DatabaseComponentVersion>)
     @Query("SELECT * FROM `10_components_versions` ORDER BY id ASC")
     fun getComponentVersions(): LiveData<List<DatabaseComponentVersion>>
-/*
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertComponentInStageVersionsAll(list: List<DatabaseComponentInStageVersion>)
     @Query("SELECT * FROM `11_component_in_stage_versions` ORDER BY id ASC")
-    fun getComponentInStageVersions(): LiveData<List<DatabaseComponentInStageVersion>>*/
+    fun getComponentInStageVersions(): LiveData<List<DatabaseComponentInStageVersion>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertProductTolerancesAll(list: List<DatabaseProductTolerance>)
     @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
     fun getProductTolerances(): LiveData<List<DatabaseProductTolerance>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentTolerancesAll(list: List<DatabaseComponentTolerance>)
+    @Query("SELECT * FROM `10_8_component_tolerances` ORDER BY id ASC")
+    fun getComponentTolerances(): LiveData<List<DatabaseComponentTolerance>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentInStageTolerancesAll(list: List<DatabaseComponentInStageTolerance>)
+    @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
+    fun getComponentInStageTolerances(): LiveData<List<DatabaseComponentInStageTolerance>>
 }
 
 @Dao
@@ -274,8 +284,10 @@ interface QualityManagementInvestigationsDao {
         DatabaseVersionStatus::class,
         DatabaseProductVersion::class,
         DatabaseComponentVersion::class,
-        /*DatabaseComponentInStageVersion::class,*/
+        DatabaseComponentInStageVersion::class,
         DatabaseProductTolerance::class,
+        DatabaseComponentTolerance::class,
+        DatabaseComponentInStageTolerance::class,
 
         DatabaseInputForOrder::class,
         DatabaseOrdersStatus::class,
@@ -288,7 +300,8 @@ interface QualityManagementInvestigationsDao {
         DatabaseResultsDecryption::class,
         DatabaseResult::class
     ],
-    version = 2
+    version = 1,
+    exportSchema = true
 )
 abstract class QualityManagementDB : RoomDatabase() {
     abstract val qualityManagementManufacturingDao: QualityManagementManufacturingDao
