@@ -193,7 +193,8 @@ data class DatabaseManufacturingOperation(
     var lineId: Int,
     var operationAbbr: String,
     var operationDesignation: String,
-    var operationOrder: Int
+    var operationOrder: Int,
+    var equipment: String?
 )
 
 data class DatabaseDepartmentsDetailed(

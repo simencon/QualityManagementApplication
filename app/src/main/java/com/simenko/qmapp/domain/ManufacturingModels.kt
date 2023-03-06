@@ -126,8 +126,8 @@ data class DomainManufacturingOperation(
     var operationAbbr: String,
     var operationDesignation: String,
     var operationOrder: Int,
+    var equipment: String?,
     var detailsVisibility: Boolean = false,
-//ToDo where is the machine???
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id

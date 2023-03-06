@@ -130,7 +130,8 @@ fun getSubOrders() = List(30) { i ->
             lineId = 1,
             operationDesignation = "Шліфування торців",
             operationOrder = 1,
-            detailsVisibility = false
+            detailsVisibility = false,
+            equipment = "MTD-250"
         ),
         detailsVisibility = true,
         tasksVisibility = true

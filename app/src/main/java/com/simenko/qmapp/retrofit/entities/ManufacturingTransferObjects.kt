@@ -80,5 +80,6 @@ data class NetworkManufacturingOperation(
     var lineId: Int,
     var operationAbbr: String,
     var operationDesignation: String,
-    var operationOrder: Int
+    var operationOrder: Int,
+    var equipment: String?
 )
