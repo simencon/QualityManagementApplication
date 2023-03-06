@@ -69,34 +69,83 @@ interface QualityManagementManufacturingDao {
 interface QualityManagementProductsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertElementIshModelsAll(company: List<DatabaseElementIshModel>)
+    fun insertElementIshModelsAll(list: List<DatabaseElementIshModel>)
 
     @Query("SELECT * FROM `10_1_d_element_ish_model` ORDER BY id ASC")
     fun getElementIshModels(): LiveData<List<DatabaseElementIshModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIshSubCharacteristicsAll(company: List<DatabaseIshSubCharacteristic>)
+    fun insertIshSubCharacteristicsAll(list: List<DatabaseIshSubCharacteristic>)
 
     @Query("SELECT * FROM `0_ish_sub_characteristics` ORDER BY id ASC")
     fun getIshSubCharacteristics(): LiveData<List<DatabaseIshSubCharacteristic>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertManufacturingProjectsAll(company: List<DatabaseManufacturingProject>)
+    fun insertManufacturingProjectsAll(list: List<DatabaseManufacturingProject>)
 
     @Query("SELECT * FROM `0_manufacturing_project` ORDER BY id ASC")
     fun geManufacturingProjects(): LiveData<List<DatabaseManufacturingProject>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCharacteristicsAll(company: List<DatabaseCharacteristic>)
+    fun insertCharacteristicsAll(list: List<DatabaseCharacteristic>)
 
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
     fun getCharacteristics(): LiveData<List<DatabaseCharacteristic>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMetrixesAll(company: List<DatabaseMetrix>)
-
+    fun insertMetrixesAll(list: List<DatabaseMetrix>)
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
     fun getMetrixes(): LiveData<List<DatabaseMetrix>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertKeysAll(list: List<DatabaseKey>)
+    @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
+    fun getKeys(): LiveData<List<DatabaseKey>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertProductBasesAll(list: List<DatabaseProductBase>)
+    @Query("SELECT * FROM `0_products_bases` ORDER BY id ASC")
+    fun getProductBases(): LiveData<List<DatabaseProductBase>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertProductsAll(list: List<DatabaseProduct>)
+    @Query("SELECT * FROM `2_products` ORDER BY id ASC")
+    fun getProducts(): LiveData<List<DatabaseProduct>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentsAll(list: List<DatabaseComponent>)
+    @Query("SELECT * FROM `4_components` ORDER BY id ASC")
+    fun getComponents(): LiveData<List<DatabaseComponent>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentInStagesAll(list: List<DatabaseComponentInStage>)
+    @Query("SELECT * FROM `6_components_in_stages` ORDER BY id ASC")
+    fun getComponentInStages(): LiveData<List<DatabaseComponentInStage>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertVersionStatusesAll(list: List<DatabaseVersionStatus>)
+    @Query("SELECT * FROM `0_vesrions_status` ORDER BY id ASC")
+    fun getVersionStatuses(): LiveData<List<DatabaseVersionStatus>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertProductVersionsAll(list: List<DatabaseProductVersion>)
+    @Query("SELECT * FROM `9_products_versions` ORDER BY id ASC")
+    fun getProductVersions(): LiveData<List<DatabaseProductVersion>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentVersionsAll(list: List<DatabaseComponentVersion>)
+    @Query("SELECT * FROM `10_components_versions` ORDER BY id ASC")
+    fun getComponentVersions(): LiveData<List<DatabaseComponentVersion>>
+/*
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentInStageVersionsAll(list: List<DatabaseComponentInStageVersion>)
+    @Query("SELECT * FROM `11_component_in_stage_versions` ORDER BY id ASC")
+    fun getComponentInStageVersions(): LiveData<List<DatabaseComponentInStageVersion>>*/
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertProductTolerancesAll(list: List<DatabaseProductTolerance>)
+    @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
+    fun getProductTolerances(): LiveData<List<DatabaseProductTolerance>>
 }
 
 @Dao
@@ -217,6 +266,16 @@ interface QualityManagementInvestigationsDao {
         DatabaseManufacturingProject::class,
         DatabaseCharacteristic::class,
         DatabaseMetrix::class,
+        DatabaseKey::class,
+        DatabaseProductBase::class,
+        DatabaseProduct::class,
+        DatabaseComponent::class,
+        DatabaseComponentInStage::class,
+        DatabaseVersionStatus::class,
+        DatabaseProductVersion::class,
+        DatabaseComponentVersion::class,
+        /*DatabaseComponentInStageVersion::class,*/
+        DatabaseProductTolerance::class,
 
         DatabaseInputForOrder::class,
         DatabaseOrdersStatus::class,
@@ -229,7 +288,7 @@ interface QualityManagementInvestigationsDao {
         DatabaseResultsDecryption::class,
         DatabaseResult::class
     ],
-    version = 1
+    version = 2
 )
 abstract class QualityManagementDB : RoomDatabase() {
     abstract val qualityManagementManufacturingDao: QualityManagementManufacturingDao

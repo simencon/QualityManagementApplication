@@ -194,6 +194,15 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementProductsRepository.refreshManufacturingProjects()
                 qualityManagementProductsRepository.refreshCharacteristics()
                 qualityManagementProductsRepository.refreshMetrixes()
+                qualityManagementProductsRepository.refreshKeys()
+                qualityManagementProductsRepository.refreshProductBases()
+                qualityManagementProductsRepository.refreshProducts()
+                qualityManagementProductsRepository.refreshComponents()
+                qualityManagementProductsRepository.refreshComponentInStages()
+                qualityManagementProductsRepository.refreshVersionStatuses()
+                qualityManagementProductsRepository.refreshProductVersions()
+                qualityManagementProductsRepository.refreshComponentVersions()
+                /*qualityManagementProductsRepository.refreshComponentInStageVersions()*/
 
                 qualityManagementInvestigationsRepository.refreshInputForOrder()
                 qualityManagementInvestigationsRepository.refreshOrdersStatuses()

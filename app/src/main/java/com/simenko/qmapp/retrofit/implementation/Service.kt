@@ -44,6 +44,26 @@ interface QualityManagementProductsService {
     suspend fun getCharacteristics(): List<NetworkCharacteristic>
     @GET("api/_8Metrix")
     suspend fun getMetrixes(): List<NetworkMetrix>
+    @GET("api/_0Key")
+    suspend fun getKeys(): List<NetworkKey>
+    @GET("api/_0ProductsBasis")
+    suspend fun getProductBases(): List<NetworkProductBase>
+    @GET("api/_2Product")
+    suspend fun getProducts(): List<NetworkProduct>
+    @GET("api/_4Component")
+    suspend fun getComponents(): List<NetworkComponent>
+    @GET("api/_6ComponentsInStage")
+    suspend fun getComponentInStages(): List<NetworkComponentInStage>
+    @GET("api/_0VesrionsStatus")
+    suspend fun getVersionStatuses(): List<NetworkVersionStatus>
+    @GET("api/_9ProductsVersion")
+    suspend fun getProductVersions(): List<NetworkProductVersion>
+    @GET("api/_10ComponentsVersion")
+    suspend fun getComponentVersions(): List<NetworkComponentVersion>
+    /*@GET("api/_11ComponentInStageVersion")
+    suspend fun getComponentInStageVersions(): List<NetworkComponentInStageVersion>*/
+    @GET("api/_98ProductTolerances")
+    suspend fun getProductTolerances(): List<NetworkProductTolerance>
 }
 
 interface QualityManagementInvestigationsService {

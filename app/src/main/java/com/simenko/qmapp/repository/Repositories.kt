@@ -289,6 +289,169 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             Log.d(TAG, "refreshMetrixes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
+
+    suspend fun refreshKeys() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getKeys();
+            database.qualityManagementProductsDao.insertKeysAll(
+                ListTransformer(
+                    list,
+                    NetworkKey::class,
+                    DatabaseKey::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshKeys: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshProductBases() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getProductBases();
+            database.qualityManagementProductsDao.insertProductBasesAll(
+                ListTransformer(
+                    list,
+                    NetworkProductBase::class,
+                    DatabaseProductBase::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshProducts() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getProducts();
+            database.qualityManagementProductsDao.insertProductsAll(
+                ListTransformer(
+                    list,
+                    NetworkProduct::class,
+                    DatabaseProduct::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshProducts: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshComponents() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getComponents();
+            database.qualityManagementProductsDao.insertComponentsAll(
+                ListTransformer(
+                    list,
+                    NetworkComponent::class,
+                    DatabaseComponent::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshComponents: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshComponentInStages() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getComponentInStages();
+            database.qualityManagementProductsDao.insertComponentInStagesAll(
+                ListTransformer(
+                    list,
+                    NetworkComponentInStage::class,
+                    DatabaseComponentInStage::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshVersionStatuses() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getVersionStatuses();
+            database.qualityManagementProductsDao.insertVersionStatusesAll(
+                ListTransformer(
+                    list,
+                    NetworkVersionStatus::class,
+                    DatabaseVersionStatus::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshProductVersions() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getProductVersions();
+            database.qualityManagementProductsDao.insertProductVersionsAll(
+                ListTransformer(
+                    list,
+                    NetworkProductVersion::class,
+                    DatabaseProductVersion::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshComponentVersions() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getComponentVersions();
+            database.qualityManagementProductsDao.insertComponentVersionsAll(
+                ListTransformer(
+                    list,
+                    NetworkComponentVersion::class,
+                    DatabaseComponentVersion::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }
+/*
+    suspend fun refreshComponentInStageVersions() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderProducts.getComponentInStageVersions();
+            database.qualityManagementProductsDao.insertComponentInStageVersionsAll(
+                ListTransformer(
+                    list,
+                    NetworkComponentInStageVersion::class,
+                    DatabaseComponentInStageVersion::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+        }
+    }*/
+
+    val keys: LiveData<List<DomainKey>> =
+        Transformations.map(database.qualityManagementProductsDao.getKeys()) {
+            ListTransformer(it, DatabaseKey::class, DomainKey::class).generateList()
+        }
+    val productBases: LiveData<List<DomainProductBase>> =
+        Transformations.map(database.qualityManagementProductsDao.getProductBases()) {
+            ListTransformer(it, DatabaseProductBase::class, DomainProductBase::class).generateList()
+        }
+    val products: LiveData<List<DomainProduct>> =
+        Transformations.map(database.qualityManagementProductsDao.getProducts()) {
+            ListTransformer(it, DatabaseProduct::class, DomainProduct::class).generateList()
+        }
+    val components: LiveData<List<DomainComponent>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponents()) {
+            ListTransformer(it, DatabaseComponent::class, DomainComponent::class).generateList()
+        }
+    val componentInStages: LiveData<List<DomainComponentInStage>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponentInStages()) {
+            ListTransformer(it, DatabaseComponentInStage::class, DomainComponentInStage::class).generateList()
+        }
+    val versionStatuses: LiveData<List<DomainVersionStatus>> =
+        Transformations.map(database.qualityManagementProductsDao.getVersionStatuses()) {
+            ListTransformer(it, DatabaseVersionStatus::class, DomainVersionStatus::class).generateList()
+        }
+    val productVersions: LiveData<List<DomainProductVersion>> =
+        Transformations.map(database.qualityManagementProductsDao.getProductVersions()) {
+            ListTransformer(it, DatabaseProductVersion::class, DomainProductVersion::class).generateList()
+        }
+    val componentVersions: LiveData<List<DomainComponentVersion>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponentVersions()) {
+            ListTransformer(it, DatabaseComponentVersion::class, DomainComponentVersion::class).generateList()
+        }
+    /*val componentInStageVersions: LiveData<List<DomainComponentInStageVersion>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersions()) {
+            ListTransformer(it, DatabaseComponentInStageVersion::class, DomainComponentInStageVersion::class).generateList()
+        }*/
 }
 
 class QualityManagementInvestigationsRepository(private val database: QualityManagementDB) {

@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.squareup.moshi.JsonClass
 
 //ToDo - add products/components/raw material related entities with versions and specifications (9tbl.)
 
@@ -112,4 +113,241 @@ data class DatabaseMetrix constructor(
     var metrixOrder: Int? = null,
     var metrixDesignation: String? = null,
     var metrixDescription: String? = null
+)
+
+@Entity(
+    tableName = "0_keys",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingProject::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("projectId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseKey(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var projectId: Int?,
+    var componentKey: String?,
+    var componentKeyDescription: String?
+)
+
+@Entity(
+    tableName = "0_products_bases",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingProject::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("projectId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseProductBase(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var projectId: Int?,
+    var componentBaseDesignation: String?
+)
+
+
+@Entity(
+    tableName = "2_products",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseProductBase::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("productBaseId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseKey::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("keyId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseProduct(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var productBaseId: Int?,
+    @ColumnInfo(index = true)
+    var keyId: Int?,
+    var productDesignation: String?
+)
+
+@Entity(
+    tableName = "4_components",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseKey::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("keyId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseComponent(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var keyId: Int?,
+    var componentDesignation: String?,
+    var ifAny: Int?
+)
+
+@Entity(
+    tableName = "6_components_in_stages",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseKey::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("keyId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseComponentInStage(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var keyId: Int?,
+    var componentInStageDescription: String?,
+    var ifAny: Int?
+)
+
+@Entity(tableName = "0_vesrions_status")
+data class DatabaseVersionStatus(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    var statusDescription: String?
+)
+
+@Entity(
+    tableName = "9_products_versions",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseProduct::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("productId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseVersionStatus::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("statusId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseProductVersion(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var productId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    @ColumnInfo(index = true)
+    var statusId: Int?,
+    var isDefault: Boolean
+)
+
+
+@Entity(
+    tableName = "10_components_versions",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseComponent::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("componentId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseVersionStatus::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("statusId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseComponentVersion(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var componentId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    @ColumnInfo(index = true)
+    var statusId: Int?,
+    var isDefault: Boolean
+)
+/*
+@Entity(
+    tableName = "11_component_in_stage_versions",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseComponentInStage::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("componentInStageId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseVersionStatus::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("statusId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseComponentInStageVersion(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var componentInStageId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    @ColumnInfo(index = true)
+    var statusId: Int?,
+    var isDefault: Int
+)*/
+
+@Entity(
+    tableName = "9_8_product_tolerances",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseMetrix::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("metrixId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseProductVersion::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("versionId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseProductTolerance(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var metrixId: Int?,
+    @ColumnInfo(index = true)
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
 )

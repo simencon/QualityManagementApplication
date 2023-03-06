@@ -54,3 +54,90 @@ data class NetworkMetrix constructor(
     var metrixDesignation: String? = null,
     var metrixDescription: String? = null
 )
+
+@JsonClass(generateAdapter = true)
+data class NetworkKey(
+    var id: Int,
+    var projectId: Int?,
+    var componentKey: String?,
+    var componentKeyDescription: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkProductBase(
+    var id: Int,
+    var projectId: Int?,
+    var componentBaseDesignation: String?
+)
+
+
+@JsonClass(generateAdapter = true)
+data class NetworkProduct(
+    var id: Int,
+    var productBaseId: Int?,
+    var keyId: Int?,
+    var productDesignation: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkComponent(
+    var id: Int,
+    var keyId: Int?,
+    var componentDesignation: String?,
+    var ifAny: Int?
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkComponentInStage(
+    var id: Int,
+    var keyId: Int?,
+    var componentInStageDescription: String?,
+    var ifAny: Int?
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkVersionStatus(
+    var id: Int,
+    var statusDescription: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkProductVersion(
+    var id: Int,
+    var productId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    var statusId: Int?,
+    var isDefault: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkComponentVersion(
+    var id: Int,
+    var componentId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    var statusId: Int?,
+    var isDefault: Boolean
+)
+/*
+@JsonClass(generateAdapter = true)
+data class NetworkComponentInStageVersion(
+    var id: Int,
+    var componentInStageId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    var statusId: Int?,
+    var isDefault: Boolean
+)*/
+
+@JsonClass(generateAdapter = true)
+data class NetworkProductTolerance(
+    var id: Int,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
