@@ -125,8 +125,8 @@ data class DatabaseOrder constructor(
             entity = DatabaseOrder::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("orderId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DatabaseTeamMember::class,
@@ -237,8 +237,8 @@ data class DatabaseSubOrder constructor(
             entity = DatabaseSubOrder::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("subOrderId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DatabaseCharacteristic::class,
@@ -268,8 +268,8 @@ data class DatabaseSubOrderTask constructor(
             entity = DatabaseSubOrder::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("subOrderId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )]
 )
 data class DatabaseSample constructor(
@@ -294,8 +294,8 @@ data class DatabaseResultsDecryption constructor(
             entity = DatabaseSample::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("sampleId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DatabaseMetrix::class,

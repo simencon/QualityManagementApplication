@@ -3,7 +3,6 @@ package com.simenko.qmapp.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
@@ -11,7 +10,6 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.produce
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -366,10 +364,10 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshOrders() {
         withContext(Dispatchers.IO) {
-            val orders = QualityManagementNetwork.serviceholderInvestigations.getOrders();
-            database.qualityManagementInvestigationsDao.insertOrdersAll(
-                ListTransformer(orders, NetworkOrder::class, DatabaseOrder::class).generateList()
-            )
+            val ntOrders = QualityManagementNetwork.serviceholderInvestigations.getOrders()
+            val dbOrders = database.qualityManagementInvestigationsDao.getOrdersByList()
+
+            syncOrders(dbOrders, ntOrders, database)
             Log.d(TAG, "refreshOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
@@ -386,6 +384,8 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
             val subOrders = QualityManagementNetwork.serviceholderInvestigations.getSubOrders();
+//            if (subOrders.isNotEmpty())
+//                database.qualityManagementInvestigationsDao.deleteSubOrdersAll()
             database.qualityManagementInvestigationsDao.insertSubOrdersAll(
                 ListTransformer(
                     subOrders,
@@ -401,6 +401,8 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         withContext(Dispatchers.IO) {
             val subOrderTasks =
                 QualityManagementNetwork.serviceholderInvestigations.getSubOrderTasks();
+//            if (subOrderTasks.isNotEmpty())
+//                database.qualityManagementInvestigationsDao.deleteSubOrderTasksAll()
             database.qualityManagementInvestigationsDao.insertSubOrderTasksAll(
                 ListTransformer(
                     subOrderTasks,
@@ -504,4 +506,38 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSubOrderTask(-1)
         }
 
+}
+
+fun syncOrders(
+    dbOrders: List<DatabaseOrder>,
+    ntOrders: List<NetworkOrder>,
+    database: QualityManagementDB
+) {
+    ntOrders.forEach byBlock1@{ ntIt ->
+        var recordStatusChanged = false
+        dbOrders.forEach byBlock2@{ dbIt ->
+            if (ntIt.id == dbIt.id) {
+                if (ntIt.statusId != dbIt.statusId)
+                    recordStatusChanged = true
+                return@byBlock2
+            }
+        }
+        database.qualityManagementInvestigationsDao.insertOrder(ntIt.toDatabaseOrder())
+        if (recordStatusChanged) {
+            Log.d(TAG, "syncOrders: Order status has been changed / id = ${ntIt.id}")
+        }
+    }
+    dbOrders.forEach byBlock1@{ dbIt ->
+        var recordExists = false
+        ntOrders.forEach byBlock2@{ ntIt ->
+            if (ntIt.id == dbIt.id) {
+                recordExists = true
+                return@byBlock2
+            }
+        }
+        if (!recordExists) {
+            database.qualityManagementInvestigationsDao.deleteOrder(dbIt)
+            Log.d(TAG, "syncOrders: Order deleted from SQLite / id = ${dbIt.id}")
+        }
+    }
 }
