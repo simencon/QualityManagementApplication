@@ -60,6 +60,12 @@ fun SubOrderForm(
                     appModel = viewModel
                 )
             }
+            ButtonsSection(title = R.string.select_ordered_by) {
+                ChannelsSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
             Spacer(Modifier.height((16 + 56).dp))
         }
         PullRefreshIndicator(

@@ -94,8 +94,15 @@ data class DomainManufacturingChannel(
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null,
-    var linesVisibility: Boolean = false
-)
+    var linesVisibility: Boolean = false,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = id
+    override fun getParentOneId() = subDepId
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
 
 data class DomainManufacturingLine(
     var id: Int,
@@ -103,8 +110,15 @@ data class DomainManufacturingLine(
     var lineAbbr: String,
     var lineDesignation: String,
     var lineOrder: Int,
-    var operationVisibility: Boolean = false
-)
+    var operationVisibility: Boolean = false,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = id
+    override fun getParentOneId() = chId
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
 
 data class DomainManufacturingOperation(
     var id: Int,
@@ -112,9 +126,16 @@ data class DomainManufacturingOperation(
     var operationAbbr: String,
     var operationDesignation: String,
     var operationOrder: Int,
-    var detailsVisibility: Boolean = false
+    var detailsVisibility: Boolean = false,
 //ToDo where is the machine???
-)
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = id
+    override fun getParentOneId() = lineId
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
 
 data class DomainDepartmentComplete(
     val departments: DomainDepartment,

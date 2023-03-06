@@ -106,6 +106,14 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(subOrderPlacersMutable.value, it) }
         }
 
+    val channels = qualityManagementManufacturingRepository.channels
+    val channelsMutable = MutableLiveData<MutableList<DomainManufacturingChannel>>(mutableListOf())
+    val channelsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingChannel>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainManufacturingChannel>?, Boolean?>>().apply {
+            addSource(channelsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(channelsMutable.value, it) }
+        }
+
 
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
@@ -223,7 +231,8 @@ enum class FilteringMode {
 
 enum class FilteringStep {
     NOT_FROM_META_TABLE,
-    SUB_DEPARTMENTS
+    SUB_DEPARTMENTS,
+    CHANNELS
 }
 
 fun <T : DomainModel> selectSingleRecord(
@@ -282,23 +291,23 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             }
         }
         FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE -> {
-            //Is made because previously selected/filtered/unfiltered item again selected
             selectSingleRecord(d, trigger)
             d.value?.clear()
-            when (step) {
-                FilteringStep.NOT_FROM_META_TABLE -> {}
-                FilteringStep.SUB_DEPARTMENTS -> {
-                    if (m != null && m.value != null) {
-                        m.value!!.forEach { mIt ->
-                            val item = s?.value?.find {
-                                it.getParentOneId() == pId && it.getRecordId() == mIt.subDepId
-                            }
-                            if (item != null)
-                                if (d.value?.find { it.getRecordId() == item.getRecordId() } == null) {
-                                    d.value?.add(item)
+
+            if (m != null && m.value != null) {
+                m.value!!.forEach { mIt ->
+                    val item = s?.value?.find {
+                        it.getParentOneId() == pId && it.getRecordId() ==
+                                when (step) {
+                                    FilteringStep.NOT_FROM_META_TABLE -> { 0 }
+                                    FilteringStep.SUB_DEPARTMENTS -> { mIt.subDepId }
+                                    FilteringStep.CHANNELS -> { mIt.chId }
                                 }
-                        }
                     }
+                    if (item != null)
+                        if (d.value?.find { it.getRecordId() == item.getRecordId() } == null) {
+                            d.value?.add(item)
+                        }
                 }
             }
         }

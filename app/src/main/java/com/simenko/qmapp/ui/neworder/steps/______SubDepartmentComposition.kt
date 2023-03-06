@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainDepartment
 import com.simenko.qmapp.domain.DomainSubDepartment
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
@@ -30,7 +29,10 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         trigger = appModel.pairedTrigger,
         pId = appModel.currentSubOrder.value?.departmentId?:0
     )
-
+    appModel.channelsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.subDepartmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {

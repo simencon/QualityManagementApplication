@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.DomainDepartment
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -22,11 +22,27 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-
-    selectSingleRecord(appModel.subOrderPlacersMutable, appModel.pairedTrigger, selectedId)
+fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
+    appModel.subDepartmentsMutable.performFiltration(
+        s = appModel.subDepartments,
+        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
+        trigger = appModel.pairedTrigger,
+        pId = selectedId,
+        m = appModel.inputForOrder,
+        step = FilteringStep.SUB_DEPARTMENTS
+    )
+    appModel.subOrderPlacersMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.channelsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    selectSingleRecord(appModel.departmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
+        appModel.currentSubOrder.value?.subDepartmentId = 0
         appModel.currentSubOrder.value?.orderedById = 0
         appModel.currentSubOrder.value?.channelId = 0
         appModel.currentSubOrder.value?.lineId = 0
@@ -39,11 +55,11 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
 }
 
 @Composable
-fun SubOrderPlacersSelection(
+fun DepartmentsSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel
 ) {
-    val observeInputForOrder by appModel.subOrderPlacersMediator.observeAsState()
+    val observeInputForOrder by appModel.departmentsMediator.observeAsState()
     val gritState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -57,12 +73,12 @@ fun SubOrderPlacersSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                SubOrderPlacerCard(
+                DepartmentCard(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.orderId = it.id
-                        filterAllAfterSubOrderPlacers(appModel, it.id, true)
+                        appModel.currentSubOrder.value?.departmentId = it.id
+                        filterAllAfterDepartments(appModel, it.id, true)
                     }
                 )
             }
@@ -72,17 +88,17 @@ fun SubOrderPlacersSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.orderId,
+                    selectedId = appModel.currentSubOrder.value!!.departmentId,
                 )
             }
     }
 }
 
 @Composable
-fun SubOrderPlacerCard(
-    input: DomainTeamMember,
+fun DepartmentCard(
+    input: DomainDepartment,
     modifier: Modifier = Modifier,
-    onClick: (DomainTeamMember) -> Unit
+    onClick: (DomainDepartment) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
@@ -102,7 +118,7 @@ fun SubOrderPlacerCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.fullName ?: "-"
+                text = input.depAbbr ?: "-"
             )
         }
     }
