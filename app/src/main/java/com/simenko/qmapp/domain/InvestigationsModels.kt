@@ -43,6 +43,7 @@ data class DomainOrdersType constructor(
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id
+    override fun getParentOneId() = 0
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }
@@ -56,6 +57,7 @@ data class DomainMeasurementReason constructor(
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id
+    override fun getParentOneId() = 0 // ToDo later will be investigation Type id
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }

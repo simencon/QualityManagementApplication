@@ -17,7 +17,7 @@ import com.simenko.qmapp.domain.DomainOrdersType
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.FilteringMode
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
-import com.simenko.qmapp.ui.neworder.filterWithOneParentM
+import com.simenko.qmapp.ui.neworder.performFiltration
 import com.simenko.qmapp.ui.neworder.selectSingleRecord
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
@@ -27,17 +27,17 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterTypes(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
-    appModel.investigationReasonsMutable.filterWithOneParentM(
+    appModel.investigationReasonsMutable.performFiltration(
         appModel.investigationReasons,
         FilteringMode.ADD_ALL,
         appModel.pairedTrigger
     )
-    appModel.customersMutable.filterWithOneParentM(
+    appModel.customersMutable.performFiltration(
         appModel.customers,
         FilteringMode.REMOVE_ALL,
         appModel.pairedTrigger
     )
-    appModel.teamMembersMutable.filterWithOneParentM(
+    appModel.teamMembersMutable.performFiltration(
         appModel.teamMembers,
         FilteringMode.REMOVE_ALL,
         appModel.pairedTrigger

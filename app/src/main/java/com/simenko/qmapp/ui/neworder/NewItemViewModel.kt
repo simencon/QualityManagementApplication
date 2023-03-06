@@ -81,7 +81,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(teamMembersMutable.value, it) }
         }
 
-    private val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
+    val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
 
     val departments = qualityManagementManufacturingRepository.departments
     val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
@@ -89,6 +89,14 @@ class NewItemViewModel @Inject constructor(
         MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
             addSource(departmentsMutable) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(departmentsMutable.value, it) }
+        }
+
+    val subDepartments = qualityManagementManufacturingRepository.subDepartments
+    val subDepartmentsMutable = MutableLiveData<MutableList<DomainSubDepartment>>(mutableListOf())
+    val subDepartmentsMediator: MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>>().apply {
+            addSource(subDepartmentsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(subDepartmentsMutable.value, it) }
         }
 
 
@@ -202,7 +210,13 @@ enum class FilteringMode {
     ADD_ALL,
     REMOVE_ALL,
     ADD_BY_PARENT_ID,
-    ADD_ALL_FROM_META_TABLE
+    ADD_ALL_FROM_META_TABLE,
+    ADD_BY_PARENT_ID_FROM_META_TABLE
+}
+
+enum class FilteringStep {
+    NOT_FROM_META_TABLE,
+    SUB_DEPARTMENTS
 }
 
 fun <T : DomainModel> selectSingleRecord(
@@ -217,28 +231,30 @@ fun <T : DomainModel> selectSingleRecord(
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
 }
 
-fun <T : DomainModel> MutableLiveData<MutableList<T>>.filterWithOneParentM(
+fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     s: LiveData<List<T>>,
     action: FilteringMode,
-    pairedTrigger: MutableLiveData<Boolean>,
-    pId: Int = 0
+    trigger: MutableLiveData<Boolean>,
+    pId: Int = 0,
+    m: LiveData<List<DomainInputForOrder>>? = null,
+    step: FilteringStep = FilteringStep.NOT_FROM_META_TABLE
 ) {
     val d = this
     when (action) {
         FilteringMode.ADD_ALL -> {
             //Is made because previously selected/filtered/unfiltered item again selected
-            selectSingleRecord(d, pairedTrigger)
+            selectSingleRecord(d, trigger)
             d.value?.clear()
             s.value?.let { d.value?.addAll(it.toList()) }
         }
         FilteringMode.REMOVE_ALL -> {
             //Is made because previously selected/filtered/unfiltered item again selected
-            selectSingleRecord(d, pairedTrigger)
+            selectSingleRecord(d, trigger)
             d.value?.clear()
         }
         FilteringMode.ADD_BY_PARENT_ID -> {
             //Is made because previously selected/filtered/unfiltered item again selected
-            selectSingleRecord(d, pairedTrigger)
+            selectSingleRecord(d, trigger)
             d.value?.clear()
             s.apply {
                 this.value?.filter { it.getRecordId() > pId }?.forEach { input ->
@@ -248,10 +264,40 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.filterWithOneParentM(
                 }
             }
         }
-        FilteringMode.ADD_ALL_FROM_META_TABLE -> {}
+        FilteringMode.ADD_ALL_FROM_META_TABLE -> {
+            if (m != null && m.value != null) {
+                m.value!!.forEach { mIt ->
+                    val item = s.value?.find { it.getRecordId() == mIt.id }
+                    if (d.value?.find { it.getRecordId() == item?.getRecordId() } == null) {
+                        d.value?.add(item!!)
+                    }
+                }
+            }
+        }
+        FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE -> {
+            //Is made because previously selected/filtered/unfiltered item again selected
+            selectSingleRecord(d, trigger)
+            d.value?.clear()
+            when (step) {
+                FilteringStep.NOT_FROM_META_TABLE -> {}
+                FilteringStep.SUB_DEPARTMENTS -> {
+                    if (m != null && m.value != null) {
+                        m.value!!.forEach { mIt ->
+                            val item = s.value?.find {
+                                it.getParentOneId() == pId && it.getRecordId() == mIt.subDepId
+                            }
+                            if (item != null)
+                                if (d.value?.find { it.getRecordId() == item.getRecordId() } == null) {
+                                    d.value?.add(item)
+                                }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    trigger.value = !(trigger.value as Boolean)
 }
 
 fun getEmptyOrder() = DomainOrder(

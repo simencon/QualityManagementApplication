@@ -23,6 +23,7 @@ data class DomainTeamMember(
     var isSelected: Boolean = false
 ) : DomainModel(), ListOfItems {
     override fun getRecordId() = id
+    override fun getParentOneId() = departmentId
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }
@@ -57,6 +58,7 @@ data class DomainDepartment(
     var isSelected: Boolean = false
 ) : DomainModel(), ListOfItems {
     override fun getRecordId() = id
+    override fun getParentOneId() = companyId?:0
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }
@@ -72,12 +74,18 @@ data class DomainSubDepartment(
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null,
-    var channelsVisibility: Boolean = false
-) : ListOfItems {
+    var channelsVisibility: Boolean = false,
+    var isSelected: Boolean = false
+) : DomainModel(), ListOfItems {
+    override fun getRecordId() = id
+    override fun getParentOneId() = depId
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+
     override fun selectedRecord(): String {
         return "$subDepDesignation ($subDepAbbr)"
     }
-
 }
 
 data class DomainManufacturingChannel(

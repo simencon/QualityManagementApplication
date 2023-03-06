@@ -20,16 +20,15 @@ import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.customersMutable.filterWithOneParentM(
+    appModel.customersMutable.performFiltration(
         appModel.customers,
         FilteringMode.ADD_ALL,
         appModel.pairedTrigger
     )
-    appModel.teamMembersMutable.filterWithOneParentM(
+    appModel.teamMembersMutable.performFiltration(
         appModel.teamMembers,
         FilteringMode.REMOVE_ALL,
         appModel.pairedTrigger
