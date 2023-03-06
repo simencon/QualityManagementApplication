@@ -23,7 +23,7 @@ import com.simenko.qmapp.ui.theme.StatusBar400
 import kotlinx.coroutines.launch
 
 fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.teamMembersMutable.performFiltration(
+    appModel.orderPlacersMutable.performFiltration(
         appModel.teamMembers,
         FilteringMode.ADD_ALL,
         appModel.pairedTrigger

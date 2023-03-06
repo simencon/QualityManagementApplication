@@ -13,8 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainDepartment
-import com.simenko.qmapp.domain.DomainSubDepartment
+import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -23,15 +22,9 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.subOrderPlacersMutable.performFiltration(
-        s = appModel.teamMembers,
-        action = FilteringMode.ADD_BY_PARENT_ID,
-        trigger = appModel.pairedTrigger,
-        pId = appModel.currentSubOrder.value?.departmentId?:0
-    )
+fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
-    selectSingleRecord(appModel.subDepartmentsMutable, appModel.pairedTrigger, selectedId)
+    selectSingleRecord(appModel.subOrderPlacersMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
         appModel.currentSubOrder.value?.orderedById = 0
@@ -46,11 +39,11 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
 }
 
 @Composable
-fun SubDepartmentsSelection(
+fun SubOrderPlacersSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel
 ) {
-    val observeInputForOrder by appModel.subDepartmentsMediator.observeAsState()
+    val observeInputForOrder by appModel.subOrderPlacersMediator.observeAsState()
     val gritState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -64,12 +57,12 @@ fun SubDepartmentsSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                SubDepartmentCard(
+                SubOrderPlacerCard(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.subDepartmentId = it.id
-                        filterAllAfterSubDepartments(appModel, it.id, true)
+                        appModel.currentSubOrder.value?.orderId = it.id
+                        filterAllAfterSubOrderPlacers(appModel, it.id, true)
                     }
                 )
             }
@@ -79,17 +72,17 @@ fun SubDepartmentsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.subDepartmentId,
+                    selectedId = appModel.currentSubOrder.value!!.orderId,
                 )
             }
     }
 }
 
 @Composable
-fun SubDepartmentCard(
-    input: DomainSubDepartment,
+fun SubOrderPlacerCard(
+    input: DomainTeamMember,
     modifier: Modifier = Modifier,
-    onClick: (DomainSubDepartment) -> Unit
+    onClick: (DomainTeamMember) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
@@ -109,7 +102,7 @@ fun SubDepartmentCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.subDepAbbr ?: "-"
+                text = input.fullName ?: "-"
             )
         }
     }

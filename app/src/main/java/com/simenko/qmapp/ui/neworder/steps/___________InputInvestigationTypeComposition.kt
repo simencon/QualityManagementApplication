@@ -37,7 +37,7 @@ fun filterAllAfterTypes(appModel: NewItemViewModel, selectedId: Int, clear: Bool
         FilteringMode.REMOVE_ALL,
         appModel.pairedTrigger
     )
-    appModel.teamMembersMutable.performFiltration(
+    appModel.orderPlacersMutable.performFiltration(
         appModel.teamMembers,
         FilteringMode.REMOVE_ALL,
         appModel.pairedTrigger

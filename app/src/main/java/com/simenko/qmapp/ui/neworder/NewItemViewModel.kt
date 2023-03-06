@@ -74,11 +74,11 @@ class NewItemViewModel @Inject constructor(
         }
 
     val teamMembers = qualityManagementManufacturingRepository.teamMembers
-    val teamMembersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
+    val orderPlacersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
     val teamMembersMediator: MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(teamMembersMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(teamMembersMutable.value, it) }
+            addSource(orderPlacersMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(orderPlacersMutable.value, it) }
         }
 
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
@@ -97,6 +97,13 @@ class NewItemViewModel @Inject constructor(
         MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>>().apply {
             addSource(subDepartmentsMutable) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(subDepartmentsMutable.value, it) }
+        }
+
+    val subOrderPlacersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
+    val subOrderPlacersMediator: MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>>().apply {
+            addSource(subOrderPlacersMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(subOrderPlacersMutable.value, it) }
         }
 
 
@@ -232,7 +239,7 @@ fun <T : DomainModel> selectSingleRecord(
 }
 
 fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
-    s: LiveData<List<T>>,
+    s: LiveData<List<T>>? = null,
     action: FilteringMode,
     trigger: MutableLiveData<Boolean>,
     pId: Int = 0,
@@ -245,7 +252,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             //Is made because previously selected/filtered/unfiltered item again selected
             selectSingleRecord(d, trigger)
             d.value?.clear()
-            s.value?.let { d.value?.addAll(it.toList()) }
+            s?.value?.let { d.value?.addAll(it.toList()) }
         }
         FilteringMode.REMOVE_ALL -> {
             //Is made because previously selected/filtered/unfiltered item again selected
@@ -257,7 +264,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             selectSingleRecord(d, trigger)
             d.value?.clear()
             s.apply {
-                this.value?.filter { it.getRecordId() > pId }?.forEach { input ->
+                this?.value?.filter { it.getParentOneId() == pId }?.forEach { input ->
                     if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
                         d.value?.add(input)
                     }
@@ -267,7 +274,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
         FilteringMode.ADD_ALL_FROM_META_TABLE -> {
             if (m != null && m.value != null) {
                 m.value!!.forEach { mIt ->
-                    val item = s.value?.find { it.getRecordId() == mIt.id }
+                    val item = s?.value?.find { it.getRecordId() == mIt.id }
                     if (d.value?.find { it.getRecordId() == item?.getRecordId() } == null) {
                         d.value?.add(item!!)
                     }
@@ -283,7 +290,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                 FilteringStep.SUB_DEPARTMENTS -> {
                     if (m != null && m.value != null) {
                         m.value!!.forEach { mIt ->
-                            val item = s.value?.find {
+                            val item = s?.value?.find {
                                 it.getParentOneId() == pId && it.getRecordId() == mIt.subDepId
                             }
                             if (item != null)

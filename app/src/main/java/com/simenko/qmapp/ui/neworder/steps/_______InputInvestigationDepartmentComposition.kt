@@ -31,18 +31,12 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
         m = appModel.inputForOrder,
         step = FilteringStep.SUB_DEPARTMENTS
     )
-//    appModel.filterWithOneParent(
-//        appModel.customersMutable,
-//        appModel.customers,
-//        0
-//    )
-//    appModel.filterWithOneParent(
-//        appModel.teamMembersMutable,
-//        appModel.teamMembers,
-//        0
-//    )
+    appModel.subOrderPlacersMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.departmentsMutable, appModel.pairedTrigger, selectedId)
-//
+
     if (clear) {
         appModel.currentSubOrder.value?.subDepartmentId = 0
         appModel.currentSubOrder.value?.orderedById = 0

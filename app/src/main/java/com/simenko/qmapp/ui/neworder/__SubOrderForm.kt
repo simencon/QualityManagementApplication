@@ -48,8 +48,14 @@ fun SubOrderForm(
                     appModel = viewModel
                 )
             }
-            ButtonsSection(title = R.string.select_department) {
+            ButtonsSection(title = R.string.select_sub_department) {
                 SubDepartmentsSelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
+            ButtonsSection(title = R.string.select_ordered_by) {
+                SubOrderPlacersSelection(
                     modifier = Modifier.padding(top = 0.dp),
                     appModel = viewModel
                 )

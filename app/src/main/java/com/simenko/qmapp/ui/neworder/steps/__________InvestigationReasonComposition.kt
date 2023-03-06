@@ -28,7 +28,7 @@ fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int, clear: Bo
         FilteringMode.ADD_ALL,
         appModel.pairedTrigger
     )
-    appModel.teamMembersMutable.performFiltration(
+    appModel.orderPlacersMutable.performFiltration(
         appModel.teamMembers,
         FilteringMode.REMOVE_ALL,
         appModel.pairedTrigger
