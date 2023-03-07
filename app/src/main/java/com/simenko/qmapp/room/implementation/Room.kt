@@ -157,13 +157,20 @@ interface QualityManagementProductsDao {
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     fun getComponentInStageTolerances(): LiveData<List<DatabaseComponentInStageTolerance>>
 
-    @Transaction
-    @Query(
-        "SELECT cv.* FROM `10_components_versions` AS cv " +
-                "ORDER BY cv.componentId ASC"
-    )
-    fun getComponentVersionsDetailed(): LiveData<List<DatabaseComponentVersionDetailed>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertProductsToLinesAll(list: List<DatabaseProductToLine>)
+    @Query("SELECT * FROM `13_1_products_to_lines` ORDER BY id ASC")
+    fun getProductsToLines(): LiveData<List<DatabaseProductToLine>>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentsToLinesAll(list: List<DatabaseComponentToLine>)
+    @Query("SELECT * FROM `13_3_components_to_lines` ORDER BY id ASC")
+    fun getComponentsToLines(): LiveData<List<DatabaseComponentToLine>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertComponentInStagesToLinesAll(list: List<DatabaseComponentInStageToLine>)
+    @Query("SELECT * FROM `13_5_component_in_stages_to_lines` ORDER BY id ASC")
+    fun getComponentInStagesToLines(): LiveData<List<DatabaseComponentInStageToLine>>
 }
 
 @Dao
@@ -296,6 +303,9 @@ interface QualityManagementInvestigationsDao {
         DatabaseProductTolerance::class,
         DatabaseComponentTolerance::class,
         DatabaseComponentInStageTolerance::class,
+        DatabaseProductToLine::class,
+        DatabaseComponentToLine::class,
+        DatabaseComponentInStageToLine::class,
 
         DatabaseInputForOrder::class,
         DatabaseOrdersStatus::class,

@@ -13,9 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainManufacturingChannel
 import com.simenko.qmapp.domain.DomainManufacturingLine
-import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -25,6 +23,14 @@ import kotlinx.coroutines.launch
 private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
+
+    appModel.itemVersionsMutable.performFiltration(
+        s = getProductVersionInput(appModel),
+        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
+        trigger = appModel.pairedTrigger,
+        pId = selectedId,
+        m = appModel.inputForOrder
+    )
 
     selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)
 

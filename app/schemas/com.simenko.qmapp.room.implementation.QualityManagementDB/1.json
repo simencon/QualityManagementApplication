@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8231e4815e4ee6b74ded8a5db4bab541",
+    "identityHash": "0592d1152694634444fd648113a8b6c6",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -1893,6 +1893,228 @@
         ]
       },
       {
+        "tableName": "13_1_products_to_lines",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lineId` INTEGER NOT NULL, `productId` INTEGER NOT NULL, FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lineId",
+            "columnName": "lineId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productId",
+            "columnName": "productId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_13_1_products_to_lines_lineId",
+            "unique": false,
+            "columnNames": [
+              "lineId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_1_products_to_lines_lineId` ON `${TABLE_NAME}` (`lineId`)"
+          },
+          {
+            "name": "index_13_1_products_to_lines_productId",
+            "unique": false,
+            "columnNames": [
+              "productId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_1_products_to_lines_productId` ON `${TABLE_NAME}` (`productId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "13_manufacturing_lines",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "lineId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "2_products",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "productId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "13_3_components_to_lines",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lineId` INTEGER NOT NULL, `componentId` INTEGER NOT NULL, FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lineId",
+            "columnName": "lineId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componentId",
+            "columnName": "componentId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_13_3_components_to_lines_lineId",
+            "unique": false,
+            "columnNames": [
+              "lineId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_3_components_to_lines_lineId` ON `${TABLE_NAME}` (`lineId`)"
+          },
+          {
+            "name": "index_13_3_components_to_lines_componentId",
+            "unique": false,
+            "columnNames": [
+              "componentId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_3_components_to_lines_componentId` ON `${TABLE_NAME}` (`componentId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "13_manufacturing_lines",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "lineId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "4_components",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "componentId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "13_5_component_in_stages_to_lines",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `lineId` INTEGER NOT NULL, `componentInStageId` INTEGER NOT NULL, FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`componentInStageId`) REFERENCES `6_components_in_stages`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lineId",
+            "columnName": "lineId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "componentInStageId",
+            "columnName": "componentInStageId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_13_5_component_in_stages_to_lines_lineId",
+            "unique": false,
+            "columnNames": [
+              "lineId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_5_component_in_stages_to_lines_lineId` ON `${TABLE_NAME}` (`lineId`)"
+          },
+          {
+            "name": "index_13_5_component_in_stages_to_lines_componentInStageId",
+            "unique": false,
+            "columnNames": [
+              "componentInStageId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_5_component_in_stages_to_lines_componentInStageId` ON `${TABLE_NAME}` (`componentInStageId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "13_manufacturing_lines",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "lineId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "6_components_in_stages",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "componentInStageId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "1_1_inputForMeasurementRegister",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `depAbbr` TEXT NOT NULL, `depOrder` INTEGER NOT NULL, `subDepId` INTEGER NOT NULL, `subDepAbbr` TEXT NOT NULL, `subDepOrder` INTEGER NOT NULL, `chId` INTEGER NOT NULL, `channelAbbr` TEXT NOT NULL, `channelOrder` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `lineAbbr` TEXT NOT NULL, `lineOrder` INTEGER NOT NULL, `recordId` TEXT NOT NULL, `itemPrefix` TEXT NOT NULL, `itemId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, `itemKey` TEXT NOT NULL, `itemDesignation` TEXT NOT NULL, `operationId` INTEGER NOT NULL, `operationAbbr` TEXT NOT NULL, `operationDesignation` TEXT NOT NULL, `operationOrder` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `ishCharId` INTEGER NOT NULL, `ishSubChar` INTEGER NOT NULL, `charDescription` TEXT NOT NULL, `charDesignation` TEXT, `charOrder` INTEGER NOT NULL, PRIMARY KEY(`recordId`))",
         "fields": [
@@ -2956,7 +3178,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8231e4815e4ee6b74ded8a5db4bab541')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0592d1152694634444fd648113a8b6c6')"
     ]
   }
 }

@@ -14,6 +14,7 @@ import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
 import com.simenko.qmapp.room.entities.toDatabaseOrder
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.launchMainActivity
+import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
@@ -126,7 +127,19 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
         }
 
-    val componentVersionsDetailed = qualityManagementProductsRepository.componentVersionsDetailed
+
+    val keys = qualityManagementProductsRepository.keys
+    val components = qualityManagementProductsRepository.components
+    val componentsToLines = qualityManagementProductsRepository.componentsToLines
+    val statuses = qualityManagementProductsRepository.versionStatuses
+    val componentVersions = qualityManagementProductsRepository.componentVersions
+
+    val itemVersionsMutable = MutableLiveData<MutableList<DomainItemVersion>>(mutableListOf())
+    val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersion>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainItemVersion>?, Boolean?>>().apply {
+            addSource(itemVersionsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(itemVersionsMutable.value, it) }
+        }
 
 
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
@@ -252,14 +265,18 @@ enum class FilteringStep {
     NOT_FROM_META_TABLE,
     SUB_DEPARTMENTS,
     CHANNELS,
-    LINES
+    LINES,
+    ITEM_VERSIONS
 }
 
 fun <T : DomainModel> selectSingleRecord(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
-    selectedId: Int = 0,
+    selectedId: Any = 0,
 ) {
+    if(selectedId is Int) {
+//        do nothing ....
+    }
     d.value?.forEach {
         it.setIsChecked(false)
     }
@@ -319,10 +336,21 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                     val item = s?.value?.find {
                         it.getParentOneId() == pId && it.getRecordId() ==
                                 when (step) {
-                                    FilteringStep.NOT_FROM_META_TABLE -> { 0 }
-                                    FilteringStep.SUB_DEPARTMENTS -> { mIt.subDepId }
-                                    FilteringStep.CHANNELS -> { mIt.chId }
-                                    FilteringStep.LINES -> { mIt.lineId }
+                                    FilteringStep.NOT_FROM_META_TABLE -> {
+                                        0
+                                    }
+                                    FilteringStep.SUB_DEPARTMENTS -> {
+                                        mIt.subDepId
+                                    }
+                                    FilteringStep.CHANNELS -> {
+                                        mIt.chId
+                                    }
+                                    FilteringStep.LINES -> {
+                                        mIt.lineId
+                                    }
+                                    FilteringStep.ITEM_VERSIONS -> {
+                                        StringUtils.concatTwoStrings4(mIt.itemPrefix, mIt.itemVersionId.toString())
+                                    }
                                 }
                     }
                     if (item != null)
@@ -335,6 +363,54 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     }
 
     trigger.value = !(trigger.value as Boolean)
+}
+
+fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersion>> {
+    val keys = model.keys.value!!
+    val statuses = model.statuses.value!!
+    val components = model.components.value!!
+    val componentVersions = model.componentVersions.value!!
+
+    lateinit var key: DomainKey
+    lateinit var component: DomainComponent
+    lateinit var status: DomainVersionStatus
+    lateinit var componentVersion: DomainComponentVersion
+
+    val componentVersionsDetailed = mutableListOf<DomainItemVersion>()
+
+    componentVersions.forEach ByBlock1@{ cv ->
+        componentVersion = cv
+        statuses.forEach ByBlock2@{ s ->
+            if(cv.statusId == s.id) {
+                status = s
+                return@ByBlock2
+            }
+        }
+        components.forEach ByBlock2@{ c ->
+            if (cv.componentId == c.id) {
+                component = c
+                keys.forEach ByBlock3@{ k ->
+                    if(c.keyId == k.id) {
+                        key = k
+                        return@ByBlock3
+                    }
+                }
+                return@ByBlock2
+            }
+        }
+        componentVersionsDetailed.add(
+            DomainItemVersion(
+                itemPrefix = ItemType.COMPONENT,
+                itemToLine = null,
+                versionStatus = status,
+                itemVersion = componentVersion,
+                item = component,
+                key = key
+            )
+        )
+    }
+
+    return MutableLiveData(componentVersionsDetailed)
 }
 
 fun getEmptyOrder() = DomainOrder(

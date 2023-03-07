@@ -118,13 +118,3 @@ fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<D
         )
     }
 }
-
-fun List<DatabaseComponentVersionDetailed>.asComponentVersionDetailedDomainModel(): List<DomainComponentVersionDetailed> {
-    return map {
-        DomainComponentVersionDetailed(
-            componentVersion = it.componentVersion.toDomainComponentVersion(),
-            component = it.component.toDomainComponent(),
-            versionStatus = it.versionStatus.toVersionStatus()
-        )
-    }
-}

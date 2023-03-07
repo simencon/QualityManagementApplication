@@ -68,6 +68,12 @@ interface QualityManagementProductsService {
     suspend fun getComponentTolerances(): List<NetworkComponentTolerance>
     @GET("api/_118ComponentInStageTolerance")
     suspend fun getComponentInStageTolerances(): List<NetworkComponentInStageTolerance>
+    @GET("api/_131ProductsToLine")
+    suspend fun getProductsToLines(): List<NetworkProductToLine>
+    @GET("api/_133ComponentsToLine")
+    suspend fun getComponentsToLines(): List<NetworkComponentToLine>
+    @GET("api/_135ComponentInStagesToLine")
+    suspend fun getComponentInStagesToLines(): List<NetworkComponentInStageToLine>
 }
 
 interface QualityManagementInvestigationsService {

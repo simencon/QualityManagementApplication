@@ -1,11 +1,5 @@
 package com.simenko.qmapp.domain
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.simenko.qmapp.room.entities.DatabaseCompany
-import com.simenko.qmapp.room.entities.DatabaseDepartment
-import com.simenko.qmapp.room.entities.DatabaseTeamMember
-
 data class DomainElementIshModel constructor(
     var id: Int,
     var ishElement: String? = null
@@ -150,19 +144,50 @@ data class DomainComponentInStageTolerance(
     var isActual: Boolean
 )
 
-data class DomainComponentVersionDetailed(
-    @Embedded
-    val componentVersion: DomainComponentVersion,
-    @Relation(
-        entity = DomainComponent::class,
-        parentColumn = "componentId",
-        entityColumn = "id"
-    )
-    val component: DomainComponent,
-    @Relation(
-        entity = DomainVersionStatus::class,
-        parentColumn = "statusId",
-        entityColumn = "id"
-    )
-    val versionStatus: DomainVersionStatus
+data class DomainProductToLine(
+    var id: Int,
+    var lineId: Int,
+    var productId: Int
 )
+
+data class DomainComponentToLine(
+    var id: Int,
+    var lineId: Int,
+    var componentId: Int
+)
+
+data class DomainComponentInStageToLine(
+    var id: Int,
+    var lineId: Int,
+    var componentInStageId: Int
+)
+
+enum class ItemType {
+    PRODUCT,
+    COMPONENT,
+    COMPONENT_IN_STAGE
+}
+
+data class DomainItemVersion(
+    val itemPrefix: ItemType,
+    val itemToLine: DomainComponentToLine?,
+    val versionStatus: DomainVersionStatus,
+    val itemVersion: DomainComponentVersion,
+    val item: DomainComponent,
+    val key: DomainKey,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = itemVersion.id
+    override fun getParentOneId() = itemToLine?.lineId ?: 0
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+
+    fun getItemPrefix(): String {
+        return when (itemPrefix) {
+            ItemType.PRODUCT -> "p"
+            ItemType.COMPONENT -> "c"
+            ItemType.COMPONENT_IN_STAGE -> "s"
+        }
+    }
+}

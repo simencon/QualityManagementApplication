@@ -206,6 +206,9 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementProductsRepository.refreshProductTolerances()
                 qualityManagementProductsRepository.refreshComponentTolerances()
                 qualityManagementProductsRepository.refreshComponentInStageTolerances()
+                qualityManagementProductsRepository.refreshProductsToLines()
+                qualityManagementProductsRepository.refreshComponentsToLines()
+                qualityManagementProductsRepository.refreshComponentInStagesToLines()
 
                 qualityManagementInvestigationsRepository.refreshInputForOrder()
                 qualityManagementInvestigationsRepository.refreshOrdersStatuses()

@@ -3,6 +3,7 @@ package com.simenko.qmapp.room.entities
 import androidx.room.*
 import com.simenko.qmapp.domain.DomainComponent
 import com.simenko.qmapp.domain.DomainComponentVersion
+import com.simenko.qmapp.domain.DomainKey
 import com.simenko.qmapp.domain.DomainVersionStatus
 import com.squareup.moshi.JsonClass
 
@@ -414,19 +415,83 @@ data class DatabaseComponentInStageTolerance(
     var isActual: Boolean
 )
 
-data class DatabaseComponentVersionDetailed(
-    @Embedded
-    val componentVersion: DatabaseComponentVersion,
-    @Relation(
-        entity = DatabaseComponent::class,
-        parentColumn = "componentId",
-        entityColumn = "id"
-    )
-    val component: DatabaseComponent,
-    @Relation(
-        entity = DatabaseVersionStatus::class,
-        parentColumn = "statusId",
-        entityColumn = "id"
-    )
-    val versionStatus: DatabaseVersionStatus
+@Entity(
+    tableName = "13_1_products_to_lines",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingLine::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("lineId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseProduct::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("productId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseProductToLine(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var lineId: Int,
+    @ColumnInfo(index = true)
+    var productId: Int
+)
+
+@Entity(
+    tableName = "13_3_components_to_lines",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingLine::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("lineId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseComponent::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("componentId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseComponentToLine(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var lineId: Int,
+    @ColumnInfo(index = true)
+    var componentId: Int
+)
+
+@Entity(
+    tableName = "13_5_component_in_stages_to_lines",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingLine::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("lineId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseComponentInStage::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("componentInStageId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )]
+)
+data class DatabaseComponentInStageToLine(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var lineId: Int,
+    @ColumnInfo(index = true)
+    var componentInStageId: Int
 )

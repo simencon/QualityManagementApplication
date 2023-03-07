@@ -151,6 +151,7 @@ data class NetworkComponentTolerance(
     var isActual: Boolean
 )
 
+@JsonClass(generateAdapter = true)
 data class NetworkComponentInStageTolerance(
     var id: Int,
     var metrixId: Int?,
@@ -159,4 +160,25 @@ data class NetworkComponentInStageTolerance(
     var lsl: Float?,
     var usl: Float?,
     var isActual: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkProductToLine(
+    var id: Int,
+    var lineId: Int,
+    var productId: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkComponentToLine(
+    var id: Int,
+    var lineId: Int,
+    var componentId: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class NetworkComponentInStageToLine(
+    var id: Int,
+    var lineId: Int,
+    var componentInStageId: Int
 )
