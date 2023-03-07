@@ -274,9 +274,6 @@ fun <T : DomainModel> selectSingleRecord(
     pairedTrigger: MutableLiveData<Boolean>,
     selectedId: Any = 0,
 ) {
-    if(selectedId is Int) {
-//        do nothing ....
-    }
     d.value?.forEach {
         it.setIsChecked(false)
     }
@@ -349,7 +346,10 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                         mIt.lineId
                                     }
                                     FilteringStep.ITEM_VERSIONS -> {
-                                        StringUtils.concatTwoStrings4(mIt.itemPrefix, mIt.itemVersionId.toString())
+                                        StringUtils.concatTwoStrings4(
+                                            mIt.itemPrefix,
+                                            mIt.itemVersionId.toString()
+                                        )
                                     }
                                 }
                     }
@@ -366,48 +366,54 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
 }
 
 fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersion>> {
+//    ToDo pass here database object and get everything from SQLite DB with coroutine
+    val componentToLines = model.componentsToLines.value!!
     val keys = model.keys.value!!
     val statuses = model.statuses.value!!
     val components = model.components.value!!
     val componentVersions = model.componentVersions.value!!
 
-    lateinit var key: DomainKey
-    lateinit var component: DomainComponent
-    lateinit var status: DomainVersionStatus
-    lateinit var componentVersion: DomainComponentVersion
+    var key: DomainKey? = null
+    var status: DomainVersionStatus? = null
 
     val componentVersionsDetailed = mutableListOf<DomainItemVersion>()
 
     componentVersions.forEach ByBlock1@{ cv ->
-        componentVersion = cv
         statuses.forEach ByBlock2@{ s ->
-            if(cv.statusId == s.id) {
+            if (cv.statusId == s.id) {
                 status = s
                 return@ByBlock2
             }
         }
         components.forEach ByBlock2@{ c ->
             if (cv.componentId == c.id) {
-                component = c
                 keys.forEach ByBlock3@{ k ->
-                    if(c.keyId == k.id) {
+                    if (c.keyId == k.id) {
                         key = k
                         return@ByBlock3
+                    }
+                }
+                componentToLines.forEach ByBlock3@{ ctl ->
+                    if (c.id == ctl.componentId) {
+                        if (status != null && key != null) {
+                            componentVersionsDetailed.add(
+                                DomainItemVersion(
+                                    itemPrefix = ItemType.COMPONENT,
+                                    itemToLine = ctl,
+                                    versionStatus = status!!,
+                                    itemVersion = cv,
+                                    item = c,
+                                    key = key!!
+                                )
+                            )
+                        }
                     }
                 }
                 return@ByBlock2
             }
         }
-        componentVersionsDetailed.add(
-            DomainItemVersion(
-                itemPrefix = ItemType.COMPONENT,
-                itemToLine = null,
-                versionStatus = status,
-                itemVersion = componentVersion,
-                item = component,
-                key = key
-            )
-        )
+        status = null
+        key = null
     }
 
     return MutableLiveData(componentVersionsDetailed)

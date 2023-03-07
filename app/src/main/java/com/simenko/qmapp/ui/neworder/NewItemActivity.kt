@@ -250,7 +250,6 @@ class NewItemActivity : ComponentActivity() {
                                                                         }
                                                                         else -> {}
                                                                     }
-
                                                                 }
                                                             }
                                                         }

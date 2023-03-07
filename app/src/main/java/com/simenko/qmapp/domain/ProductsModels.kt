@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.utils.StringUtils
+
 data class DomainElementIshModel constructor(
     var id: Int,
     var ishElement: String? = null
@@ -170,15 +172,15 @@ enum class ItemType {
 
 data class DomainItemVersion(
     val itemPrefix: ItemType,
-    val itemToLine: DomainComponentToLine?,
+    val itemToLine: DomainComponentToLine,
     val versionStatus: DomainVersionStatus,
     val itemVersion: DomainComponentVersion,
     val item: DomainComponent,
     val key: DomainKey,
     var isSelected: Boolean = false
 ) : DomainModel() {
-    override fun getRecordId() = itemVersion.id
-    override fun getParentOneId() = itemToLine?.lineId ?: 0
+    override fun getRecordId()= StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
+    override fun getParentOneId() = itemToLine.lineId ?: 0
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }

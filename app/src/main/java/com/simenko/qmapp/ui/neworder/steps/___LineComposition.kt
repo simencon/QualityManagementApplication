@@ -29,7 +29,8 @@ fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Bool
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
         pId = selectedId,
-        m = appModel.inputForOrder
+        m = appModel.inputForOrder,
+        step = FilteringStep.ITEM_VERSIONS
     )
 
     selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)

@@ -25,7 +25,7 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: Boolean = false) {
 
-    selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)
+    selectSingleRecord(appModel.itemVersionsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
         appModel.currentSubOrder.value?.operationId = 0
