@@ -1,9 +1,9 @@
 package com.simenko.qmapp.room.entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.*
+import com.simenko.qmapp.domain.DomainComponent
+import com.simenko.qmapp.domain.DomainComponentVersion
+import com.simenko.qmapp.domain.DomainVersionStatus
 import com.squareup.moshi.JsonClass
 
 //ToDo - add products/components/raw material related entities with versions and specifications (9tbl.)
@@ -412,4 +412,21 @@ data class DatabaseComponentInStageTolerance(
     var lsl: Float?,
     var usl: Float?,
     var isActual: Boolean
+)
+
+data class DatabaseComponentVersionDetailed(
+    @Embedded
+    val componentVersion: DatabaseComponentVersion,
+    @Relation(
+        entity = DatabaseComponent::class,
+        parentColumn = "componentId",
+        entityColumn = "id"
+    )
+    val component: DatabaseComponent,
+    @Relation(
+        entity = DatabaseVersionStatus::class,
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    val versionStatus: DatabaseVersionStatus
 )

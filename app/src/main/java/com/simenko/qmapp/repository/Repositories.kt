@@ -506,6 +506,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         Transformations.map(database.qualityManagementProductsDao.getComponentInStageTolerances()) {
             ListTransformer(it, DatabaseComponentInStageTolerance::class, DomainComponentInStageTolerance::class).generateList()
         }
+    val componentVersionsDetailed: LiveData<List<DomainComponentVersionDetailed>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponentVersionsDetailed()) {
+            it.asComponentVersionDetailedDomainModel()
+        }
 }
 
 class QualityManagementInvestigationsRepository(private val database: QualityManagementDB) {

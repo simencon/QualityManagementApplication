@@ -156,6 +156,14 @@ interface QualityManagementProductsDao {
     fun insertComponentInStageTolerancesAll(list: List<DatabaseComponentInStageTolerance>)
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     fun getComponentInStageTolerances(): LiveData<List<DatabaseComponentInStageTolerance>>
+
+    @Transaction
+    @Query(
+        "SELECT cv.* FROM `10_components_versions` AS cv " +
+                "ORDER BY cv.componentId ASC"
+    )
+    fun getComponentVersionsDetailed(): LiveData<List<DatabaseComponentVersionDetailed>>
+
 }
 
 @Dao

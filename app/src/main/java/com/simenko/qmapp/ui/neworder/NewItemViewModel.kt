@@ -7,6 +7,7 @@ import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
+import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.retrofit.entities.toNetworkOrderWithId
 import com.simenko.qmapp.retrofit.entities.toNetworkOrderWithoutId
 import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
@@ -29,10 +30,13 @@ class NewItemViewModel @Inject constructor(
 
     private val roomDatabase = getDatabase(context)
 
-    private val qualityManagementInvestigationsRepository =
-        QualityManagementInvestigationsRepository(roomDatabase)
     private val qualityManagementManufacturingRepository =
         QualityManagementManufacturingRepository(roomDatabase)
+    private val qualityManagementProductsRepository =
+        QualityManagementProductsRepository(roomDatabase)
+    private val qualityManagementInvestigationsRepository =
+        QualityManagementInvestigationsRepository(roomDatabase)
+
     val isLoadingInProgress = MutableLiveData<Boolean>(false)
     val isNetworkError = MutableLiveData<Boolean>(false)
 
@@ -122,6 +126,8 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
         }
 
+    val componentVersionsDetailed = qualityManagementProductsRepository.componentVersionsDetailed
+
 
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
@@ -151,6 +157,11 @@ class NewItemViewModel @Inject constructor(
                 qualityManagementInvestigationsRepository.refreshInputForOrder()
                 qualityManagementManufacturingRepository.refreshDepartments()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
+
+                qualityManagementProductsRepository.refreshKeys()
+                qualityManagementProductsRepository.refreshComponents()
+                qualityManagementProductsRepository.refreshVersionStatuses()
+                qualityManagementProductsRepository.refreshComponentVersions()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

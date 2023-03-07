@@ -1,5 +1,11 @@
 package com.simenko.qmapp.domain
 
+import androidx.room.Embedded
+import androidx.room.Relation
+import com.simenko.qmapp.room.entities.DatabaseCompany
+import com.simenko.qmapp.room.entities.DatabaseDepartment
+import com.simenko.qmapp.room.entities.DatabaseTeamMember
+
 data class DomainElementIshModel constructor(
     var id: Int,
     var ishElement: String? = null
@@ -142,4 +148,21 @@ data class DomainComponentInStageTolerance(
     var lsl: Float?,
     var usl: Float?,
     var isActual: Boolean
+)
+
+data class DomainComponentVersionDetailed(
+    @Embedded
+    val componentVersion: DomainComponentVersion,
+    @Relation(
+        entity = DomainComponent::class,
+        parentColumn = "componentId",
+        entityColumn = "id"
+    )
+    val component: DomainComponent,
+    @Relation(
+        entity = DomainVersionStatus::class,
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    val versionStatus: DomainVersionStatus
 )

@@ -31,9 +31,7 @@ fun DatabaseSubDepartment.toDomainSubDepartment() =
     ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
 
 fun DatabaseManufacturingChannel.toDomainChannel() = ObjectTransformer(
-    DatabaseManufacturingChannel::class,
-    DomainManufacturingChannel::class
-).transform(this)
+    DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
 
 fun DatabaseManufacturingLine.toDomainLine() =
     ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(
@@ -49,6 +47,15 @@ fun DatabaseSubOrderTask.toDomainSubOrderTask() =
 
 fun DatabaseCharacteristic.toDomainCharacteristic() =
     ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
+
+fun DatabaseComponent.toDomainComponent() = ObjectTransformer(
+    DatabaseComponent::class, DomainComponent::class).transform(this)
+
+fun DatabaseVersionStatus.toVersionStatus() = ObjectTransformer(
+    DatabaseVersionStatus::class, DomainVersionStatus::class).transform(this)
+
+fun DatabaseComponentVersion.toDomainComponentVersion() = ObjectTransformer(
+    DatabaseComponentVersion::class, DomainComponentVersion::class).transform(this)
 
 
 fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<DomainOrderComplete> {
@@ -108,6 +115,16 @@ fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<D
                 DatabaseCompany::class,
                 DomainCompany::class
             ).generateList()
+        )
+    }
+}
+
+fun List<DatabaseComponentVersionDetailed>.asComponentVersionDetailedDomainModel(): List<DomainComponentVersionDetailed> {
+    return map {
+        DomainComponentVersionDetailed(
+            componentVersion = it.componentVersion.toDomainComponentVersion(),
+            component = it.component.toDomainComponent(),
+            versionStatus = it.versionStatus.toVersionStatus()
         )
     }
 }
