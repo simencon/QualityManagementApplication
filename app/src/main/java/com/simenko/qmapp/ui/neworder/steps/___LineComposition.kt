@@ -45,6 +45,10 @@ fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Bool
         m = appModel.inputForOrder,
         step = FilteringStep.ITEM_VERSIONS
     )
+    appModel.operationsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
 
     selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)
 

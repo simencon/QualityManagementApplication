@@ -138,6 +138,14 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(itemVersionsCompleteMutable.value, it) }
         }
 
+    val operations = qualityManagementManufacturingRepository.operations
+    val operationsMutable = MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
+    val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>>().apply {
+            addSource(operationsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(operationsMutable.value, it) }
+        }
+
 
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
@@ -263,7 +271,8 @@ enum class FilteringStep {
     SUB_DEPARTMENTS,
     CHANNELS,
     LINES,
-    ITEM_VERSIONS
+    ITEM_VERSIONS,
+    OPERATIONS
 }
 
 fun <T : DomainModel> selectSingleRecord(
@@ -347,6 +356,9 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                             mIt.itemPrefix,
                                             mIt.itemVersionId.toString()
                                         )
+                                    }
+                                    FilteringStep.OPERATIONS -> {
+                                        mIt.operationId
                                     }
                                 }
                     }

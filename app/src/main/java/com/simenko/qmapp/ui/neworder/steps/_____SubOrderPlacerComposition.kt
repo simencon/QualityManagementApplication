@@ -39,6 +39,10 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
+    appModel.operationsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
 
     selectSingleRecord(appModel.subOrderPlacersMutable, appModel.pairedTrigger, selectedId)
 

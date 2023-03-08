@@ -13,52 +13,44 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainManufacturingChannel
-import com.simenko.qmapp.domain.DomainTeamMember
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.simenko.qmapp.domain.DomainItemVersionComplete
+import com.simenko.qmapp.domain.DomainManufacturingLine
+import com.simenko.qmapp.domain.DomainManufacturingOperation
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterChannels(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.linesMutable.performFiltration(
-        s = appModel.lines,
-        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-        trigger = appModel.pairedTrigger,
-        pId = selectedId,
-        m = appModel.inputForOrder,
-        step = FilteringStep.LINES
-    )
-    appModel.itemVersionsCompleteMutable.performFiltration(
-        action = FilteringMode.REMOVE_ALL,
-        trigger = appModel.pairedTrigger
-    )
-    appModel.operationsMutable.performFiltration(
-        action = FilteringMode.REMOVE_ALL,
-        trigger = appModel.pairedTrigger
-    )
+fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
-    selectSingleRecord(appModel.channelsMutable, appModel.pairedTrigger, selectedId)
+//    appModel.operationsMutable.performFiltration(
+//        s = appModel.operations,
+//        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
+//        trigger = appModel.pairedTrigger,
+//        pId = selectedId,
+//        m = appModel.inputForOrder,
+//        step = FilteringStep.OPERATIONS
+//    )
+
+    selectSingleRecord(appModel.operationsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.lineId = 0
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
         appModel.currentSubOrder.value?.samplesCount = null
     }
 }
 
 @Composable
-fun ChannelsSelection(
+fun OperationsSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel
 ) {
-    val observeInputForOrder by appModel.channelsMediator.observeAsState()
+    val observeInputForOrder by appModel.operationsMediator.observeAsState()
     val gritState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -72,12 +64,12 @@ fun ChannelsSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                ChannelCard(
+                OperationCard(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.channelId = it.id
-                        filterAllAfterChannels(appModel, it.id, true)
+                        appModel.currentSubOrder.value?.operationId = it.id
+                        filterAllAfterOperations(appModel, it.id, true)
                     }
                 )
             }
@@ -87,17 +79,17 @@ fun ChannelsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.channelId,
+                    selectedId = appModel.currentSubOrder.value!!.operationId,
                 )
             }
     }
 }
 
 @Composable
-fun ChannelCard(
-    input: DomainManufacturingChannel,
+fun OperationCard(
+    input: DomainManufacturingOperation,
     modifier: Modifier = Modifier,
-    onClick: (DomainManufacturingChannel) -> Unit
+    onClick: (DomainManufacturingOperation) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
@@ -117,7 +109,7 @@ fun ChannelCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.channelAbbr ?: "-"
+                text = StringUtils.concatTwoStrings1(input.equipment, input.operationAbbr)
             )
         }
     }

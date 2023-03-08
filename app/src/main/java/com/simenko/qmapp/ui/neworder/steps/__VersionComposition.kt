@@ -31,6 +31,15 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: Boolean = false) {
 
+    appModel.operationsMutable.performFiltration(
+        s = appModel.operations,
+        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
+        trigger = appModel.pairedTrigger,
+        pId = appModel.currentSubOrder.value?.lineId?:0,//And should be also filtered by itemId
+        m = appModel.inputForOrder,
+        step = FilteringStep.OPERATIONS
+    )
+
     selectSingleRecord(appModel.itemVersionsCompleteMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
