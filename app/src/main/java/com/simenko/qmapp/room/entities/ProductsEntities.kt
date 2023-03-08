@@ -494,9 +494,7 @@ data class DatabaseComponentInStageToLine(
 
 @DatabaseView(
     viewName = "products_complete",
-    value = "SELECT p.* FROM `2_products` p\n" +
-            "JOIN `0_keys` k on k.id = p.keyId\n" +
-            "JOIN `13_1_products_to_lines` ptl on p.id = ptl.productId;"
+    value = "SELECT p.* FROM `2_products` p"
 )
 data class DatabaseProductComplete(
     @Embedded
@@ -515,9 +513,7 @@ data class DatabaseProductComplete(
 
 @DatabaseView(
     viewName = "components_complete",
-    value = "SELECT c.* FROM `4_components` c\n" +
-            "JOIN `0_keys` k on k.id = c.keyId\n" +
-            "JOIN `13_3_components_to_lines` ctl on c.ID = ctl.componentID;"
+    value = "SELECT c.* FROM `4_components` c"
 )
 data class DatabaseComponentComplete(
     @Embedded
@@ -536,9 +532,7 @@ data class DatabaseComponentComplete(
 
 @DatabaseView(
     viewName = "components_in_stage_complete",
-    value = "SELECT s.* FROM `6_components_in_stages` s\n" +
-            "JOIN `0_keys` k on k.id = s.keyId\n" +
-            "JOIN `13_5_component_in_stages_to_lines` stl on s.ID = stl.componentInStageId;"
+    value = "SELECT s.* FROM `6_components_in_stages` s"
 )
 data class DatabaseComponentInStageComplete(
     @Embedded
@@ -557,9 +551,7 @@ data class DatabaseComponentInStageComplete(
 
 @DatabaseView(
     viewName = "product_versions_complete",
-    value = "SELECT pv.* FROM `9_products_versions` pv\n" +
-            "         JOIN `0_versions_status` vs on vs.id = pv.statusId\n" +
-            "         JOIN products_complete pc on pv.productId = pc.id;"
+    value = "SELECT pv.* FROM `9_products_versions` pv"
 )
 data class DatabaseProductVersionComplete(
     @Embedded
@@ -578,9 +570,7 @@ data class DatabaseProductVersionComplete(
 
 @DatabaseView(
     viewName = "component_versions_complete",
-    value = "SELECT cv.* FROM `10_components_versions` cv\n" +
-            "         JOIN `0_versions_status` vs on vs.id = cv.statusId\n" +
-            "         JOIN components_complete cc on cv.componentID = cc.id;"
+    value = "SELECT cv.* FROM `10_components_versions` cv"
 )
 data class DatabaseComponentVersionComplete(
     @Embedded
@@ -599,9 +589,7 @@ data class DatabaseComponentVersionComplete(
 
 @DatabaseView(
     viewName = "component_in_stage_versions_complete",
-    value = "SELECT sv.* FROM `11_component_in_stage_versions` sv\n" +
-            "         JOIN `0_versions_status` vs on vs.id = sv.statusId\n" +
-            "         JOIN components_in_stage_complete sc on sv.componentInStageId = sc.id;"
+    value = "SELECT sv.* FROM `11_component_in_stage_versions` sv"
 )
 data class DatabaseComponentInStageVersionComplete(
     @Embedded

@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -12,13 +13,18 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.DomainItemVersionComplete
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
+import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
+import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
@@ -59,7 +65,14 @@ fun VersionsSelection(
                         appModel.currentSubOrder.value?.itemPreffix = it.getItemPrefix()
                         appModel.currentSubOrder.value?.itemTypeId = it.itemComplete.item.id
                         appModel.currentSubOrder.value?.itemVersionId = it.itemVersion.id
-                        filterAllAfterVersions(appModel, StringUtils.concatTwoStrings4(it.getItemPrefix(),it.itemVersion.id.toString()), true)
+                        filterAllAfterVersions(
+                            appModel,
+                            StringUtils.concatTwoStrings4(
+                                it.getItemPrefix(),
+                                it.itemVersion.id.toString()
+                            ),
+                            true
+                        )
                     }
                 )
             }
@@ -69,7 +82,7 @@ fun VersionsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.itemVersion.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.itemVersionId, //todo must be string
+                    selectedId = appModel.currentSubOrder.value!!.itemVersionId, //to scroll is enough only versionId
                 )
             }
     }
@@ -96,10 +109,20 @@ fun VersionCard(
             modifier = Modifier
                 .width(224.dp)
                 .height(56.dp),
-            onClick = { onClick(input) }
+            onClick = { onClick(input) },
+
         ) {
             Text(
-                text = StringUtils.concatTwoStrings3(input.itemComplete.key.componentKey, input.itemComplete.item.itemDesignation)
+                text = concatTwoStrings1(
+                    concatTwoStrings3(
+                        input.itemComplete.key.componentKey,
+                        input.itemComplete.item.itemDesignation
+                    ), input.itemVersion.versionDescription
+                ),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
             )
         }
     }

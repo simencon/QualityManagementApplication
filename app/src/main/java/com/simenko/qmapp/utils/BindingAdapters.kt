@@ -48,8 +48,8 @@ object StringUtils {
     }
 
     @JvmStatic
-    fun concatTwoStrings1(str1: String, str2: String): String {
-        return "$str1 ($str2)"
+    fun concatTwoStrings1(str1: String?, str2: String?): String {
+        return "${str1?:"_"} (${str2?:"_"})"
     }
 
     @JvmStatic

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b0fbac879cb7cd9cb0ca0d874e74ac57",
+    "identityHash": "6f58bb5f26e449658f5e1d1f8e5dd592",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3178,32 +3178,32 @@
     "views": [
       {
         "viewName": "products_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.* FROM `2_products` p\nJOIN `0_keys` k on k.id = p.keyId\nJOIN `13_1_products_to_lines` ptl on p.id = ptl.productId;"
-      },
-      {
-        "viewName": "components_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.* FROM `4_components` c\nJOIN `0_keys` k on k.id = c.keyId\nJOIN `13_3_components_to_lines` ctl on c.ID = ctl.componentID;"
-      },
-      {
-        "viewName": "components_in_stage_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.* FROM `6_components_in_stages` s\nJOIN `0_keys` k on k.id = s.keyId\nJOIN `13_5_component_in_stages_to_lines` stl on s.ID = stl.componentInStageId;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.* FROM `2_products` p"
       },
       {
         "viewName": "product_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pv.* FROM `9_products_versions` pv\n         JOIN `0_versions_status` vs on vs.id = pv.statusId\n         JOIN products_complete pc on pv.productId = pc.id;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pv.* FROM `9_products_versions` pv"
+      },
+      {
+        "viewName": "components_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.* FROM `4_components` c"
       },
       {
         "viewName": "component_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT cv.* FROM `10_components_versions` cv\n         JOIN `0_versions_status` vs on vs.id = cv.statusId\n         JOIN components_complete cc on cv.componentID = cc.id;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT cv.* FROM `10_components_versions` cv"
+      },
+      {
+        "viewName": "components_in_stage_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.* FROM `6_components_in_stages` s"
       },
       {
         "viewName": "component_in_stage_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT sv.* FROM `11_component_in_stage_versions` sv\n         JOIN `0_versions_status` vs on vs.id = sv.statusId\n         JOIN components_in_stage_complete sc on sv.componentInStageId = sc.id;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT sv.* FROM `11_component_in_stage_versions` sv"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b0fbac879cb7cd9cb0ca0d874e74ac57')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6f58bb5f26e449658f5e1d1f8e5dd592')"
     ]
   }
 }
