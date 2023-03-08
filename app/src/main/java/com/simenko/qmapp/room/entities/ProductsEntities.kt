@@ -510,7 +510,7 @@ data class DatabaseProductComplete(
         parentColumn = "id",
         entityColumn = "productId"
     )
-    val productToLines: List<DatabaseProductToLine>
+    val productToLines: DatabaseProductToLine
 )
 
 @DatabaseView(
@@ -531,7 +531,7 @@ data class DatabaseComponentComplete(
         parentColumn = "id",
         entityColumn = "componentId"
     )
-    val componentToLines: List<DatabaseComponentToLine>
+    val componentToLines: DatabaseComponentToLine
 )
 
 @DatabaseView(
@@ -552,7 +552,7 @@ data class DatabaseComponentInStageComplete(
         parentColumn = "id",
         entityColumn = "componentInStageId"
     )
-    val componentInStageToLines: List<DatabaseComponentInStageToLine>
+    val componentInStageToLines: DatabaseComponentInStageToLine
 )
 
 @DatabaseView(

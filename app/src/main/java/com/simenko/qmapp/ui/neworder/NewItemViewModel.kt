@@ -132,20 +132,10 @@ class NewItemViewModel @Inject constructor(
     val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
 
     val itemVersionsCompleteMutable = MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
-
-
-
-    val keys = qualityManagementProductsRepository.keys
-    val components = qualityManagementProductsRepository.components
-    val componentsToLines = qualityManagementProductsRepository.componentsToLines
-    val statuses = qualityManagementProductsRepository.versionStatuses
-    val componentVersions = qualityManagementProductsRepository.componentVersions
-
-    val itemVersionsMutable = MutableLiveData<MutableList<DomainItemVersionV1>>(mutableListOf())
-    val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionV1>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainItemVersionV1>?, Boolean?>>().apply {
-            addSource(itemVersionsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(itemVersionsMutable.value, it) }
+    val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>>().apply {
+            addSource(itemVersionsCompleteMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(itemVersionsCompleteMutable.value, it) }
         }
 
 
@@ -370,60 +360,6 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     }
 
     trigger.value = !(trigger.value as Boolean)
-}
-
-fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersionV1>> {
-//    ToDo pass here database object and get everything from SQLite DB with coroutine
-    val componentToLines = model.componentsToLines.value!!
-    val keys = model.keys.value!!
-    val statuses = model.statuses.value!!
-    val components = model.components.value!!
-    val componentVersions = model.componentVersions.value!!
-
-    var key: DomainKey? = null
-    var status: DomainVersionStatus? = null
-
-    val componentVersionsDetailed = mutableListOf<DomainItemVersionV1>()
-
-    componentVersions.forEach ByBlock1@{ cv ->
-        statuses.forEach ByBlock2@{ s ->
-            if (cv.statusId == s.id) {
-                status = s
-                return@ByBlock2
-            }
-        }
-        components.forEach ByBlock2@{ c ->
-            if (cv.componentId == c.id) {
-                keys.forEach ByBlock3@{ k ->
-                    if (c.keyId == k.id) {
-                        key = k
-                        return@ByBlock3
-                    }
-                }
-                componentToLines.forEach ByBlock3@{ ctl ->
-                    if (c.id == ctl.componentId) {
-                        if (status != null && key != null) {
-                            componentVersionsDetailed.add(
-                                DomainItemVersionV1(
-                                    itemPrefix = ItemType.COMPONENT,
-                                    itemToLine = ctl,
-                                    versionStatus = status!!,
-                                    itemVersion = cv,
-                                    item = c,
-                                    key = key!!
-                                )
-                            )
-                        }
-                    }
-                }
-                return@ByBlock2
-            }
-        }
-        status = null
-        key = null
-    }
-
-    return MutableLiveData(componentVersionsDetailed)
 }
 
 fun getEmptyOrder() = DomainOrder(

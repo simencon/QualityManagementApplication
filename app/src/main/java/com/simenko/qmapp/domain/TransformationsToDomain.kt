@@ -1,7 +1,6 @@
 package com.simenko.qmapp.domain
 
 import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.utils.ItemListTransformer
 import com.simenko.qmapp.utils.ItemTransformer
 import com.simenko.qmapp.utils.ListTransformer
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -142,32 +141,30 @@ fun DatabaseComponentInStage.toDomainItem() = ItemTransformer(
     DatabaseComponentInStage::class, DomainItem::class
 ).transform(this)
 
+fun DatabaseProductToLine.toDomainItemToLine() = ItemTransformer(
+    DatabaseProductToLine::class, DomainItemToLine::class
+).transform(this)
+fun DatabaseComponentToLine.toDomainItemToLine() = ItemTransformer(
+    DatabaseComponentToLine::class, DomainItemToLine::class
+).transform(this)
+fun DatabaseComponentInStageToLine.toDomainItemToLine() = ItemTransformer(
+    DatabaseComponentInStageToLine::class, DomainItemToLine::class
+).transform(this)
+
 fun DatabaseProductComplete.toDomainItemComplete() = DomainItemComplete(
     item = this.product.toDomainItem(),
     key = this.key.toDomainKey(),
-    itemToLines = ItemListTransformer(
-        this.productToLines,
-        DatabaseProductToLine::class,
-        DomainItemToLine::class
-    ).generateList()
+    itemToLines = this.productToLines.toDomainItemToLine()
 )
 fun DatabaseComponentComplete.toDomainItemComplete() = DomainItemComplete(
     item = this.component.toDomainItem(),
     key = this.key.toDomainKey(),
-    itemToLines = ItemListTransformer(
-        this.componentToLines,
-        DatabaseComponentToLine::class,
-        DomainItemToLine::class
-    ).generateList()
+    itemToLines = this.componentToLines.toDomainItemToLine()
 )
 fun DatabaseComponentInStageComplete.toDomainItemComplete() = DomainItemComplete(
     item = this.componentInStage.toDomainItem(),
     key = this.key.toDomainKey(),
-    itemToLines = ItemListTransformer(
-        this.componentInStageToLines,
-        DatabaseComponentInStageToLine::class,
-        DomainItemToLine::class
-    ).generateList()
+    itemToLines = this.componentInStageToLines.toDomainItemToLine()
 )
 
 fun List<DatabaseProductVersionComplete>.asDomainItemFromProduct(): List<DomainItemVersionComplete> {

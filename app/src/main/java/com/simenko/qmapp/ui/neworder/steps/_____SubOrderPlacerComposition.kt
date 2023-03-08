@@ -35,7 +35,7 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
-    appModel.itemVersionsMutable.performFiltration(
+    appModel.itemVersionsCompleteMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )

@@ -13,6 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.simenko.qmapp.domain.DomainItemVersionComplete
 import com.simenko.qmapp.domain.DomainManufacturingLine
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
@@ -22,9 +25,19 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
+private fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersionComplete>> {
+    val list: MutableList<DomainItemVersionComplete> = mutableListOf()
+
+    model.itemVersionsCompleteP.value?.let { list.addAll(it) }
+    model.itemVersionsCompleteC.value?.let { list.addAll(it) }
+    model.itemVersionsCompleteS.value?.let { list.addAll(it) }
+
+    return MutableLiveData(list.toList())
+}
+
 fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
-    appModel.itemVersionsMutable.performFiltration(
+    appModel.itemVersionsCompleteMutable.performFiltration(
         s = getProductVersionInput(appModel),
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,

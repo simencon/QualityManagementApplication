@@ -32,7 +32,7 @@ fun filterAllAfterChannels(appModel: NewItemViewModel, selectedId: Int, clear: B
         m = appModel.inputForOrder,
         step = FilteringStep.LINES
     )
-    appModel.itemVersionsMutable.performFiltration(
+    appModel.itemVersionsCompleteMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )

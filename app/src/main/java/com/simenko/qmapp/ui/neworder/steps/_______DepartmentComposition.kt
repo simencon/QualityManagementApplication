@@ -43,7 +43,7 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
-    appModel.itemVersionsMutable.performFiltration(
+    appModel.itemVersionsCompleteMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )

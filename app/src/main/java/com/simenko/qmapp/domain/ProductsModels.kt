@@ -164,39 +164,6 @@ data class DomainComponentInStageToLine(
     var componentInStageId: Int
 )
 
-
-data class DomainProductComplete(
-    val product: DomainProduct,
-    val key: DomainKey,
-    val productToLines: List<DomainProductToLine>
-)
-data class DomainComponentsComplete(
-    val component: DomainComponent,
-    val key: DomainKey,
-    val componentToLines: List<DomainComponentToLine>
-)
-data class DomainComponentInStageComplete(
-    val componentInStage: DomainComponentInStage,
-    val key: DomainKey,
-    val componentInStageToLines: List<DomainComponentInStageToLine>
-)
-
-data class DomainProductVersionComplete(
-    val productVersion: DomainProductVersion,
-    val versionStatus: DomainVersionStatus,
-    val productComplete: DomainProductComplete
-)
-data class DomainComponentVersionComplete(
-    val componentVersion: DomainComponentVersion,
-    val versionStatus: DomainVersionStatus,
-    val componentComplete: DomainComponentsComplete
-)
-data class DomainComponentInStageVersionComplete(
-    val componentInStageVersion: DomainComponentInStageVersion,
-    val versionStatus: DomainVersionStatus,
-    val componentInStageComplete: DomainComponentInStageComplete
-)
-
 data class DomainItem(
     var id: Int,
     var keyId: Int?,
@@ -225,8 +192,9 @@ enum class ItemType {
 data class DomainItemComplete(
     val item: DomainItem,
     val key: DomainKey,
-    val itemToLines: List<DomainItemToLine>
+    val itemToLines: DomainItemToLine
 )
+
 data class DomainItemVersionComplete(
     val itemPrefix: ItemType,
     val itemVersion: DomainItemVersion,
@@ -235,31 +203,7 @@ data class DomainItemVersionComplete(
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId()= StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
-    override fun getParentOneId() = 0//itemComplete.itemToLines.forEach {it.lineId} ?: 0
-    override fun setIsChecked(value: Boolean) {
-        isSelected = value
-    }
-
-    fun getItemPrefix(): String {
-        return when (itemPrefix) {
-            ItemType.PRODUCT -> "p"
-            ItemType.COMPONENT -> "c"
-            ItemType.COMPONENT_IN_STAGE -> "s"
-        }
-    }
-}
-
-data class DomainItemVersionV1(
-    val itemPrefix: ItemType,
-    val itemToLine: DomainComponentToLine,
-    val versionStatus: DomainVersionStatus,
-    val itemVersion: DomainComponentVersion,
-    val item: DomainComponent,
-    val key: DomainKey,
-    var isSelected: Boolean = false
-) : DomainModel() {
-    override fun getRecordId()= StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
-    override fun getParentOneId() = itemToLine.lineId ?: 0
+    override fun getParentOneId() = itemComplete.itemToLines.lineId
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }

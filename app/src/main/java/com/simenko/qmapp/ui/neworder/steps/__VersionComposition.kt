@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainItemVersionV1
+import com.simenko.qmapp.domain.DomainItemVersionComplete
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -25,7 +25,7 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: Boolean = false) {
 
-    selectSingleRecord(appModel.itemVersionsMutable, appModel.pairedTrigger, selectedId)
+    selectSingleRecord(appModel.itemVersionsCompleteMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
         appModel.currentSubOrder.value?.operationId = 0
@@ -57,7 +57,7 @@ fun VersionsSelection(
                     modifier = modifier,
                     onClick = {
                         appModel.currentSubOrder.value?.itemPreffix = it.getItemPrefix()
-                        appModel.currentSubOrder.value?.itemTypeId = it.item.id
+                        appModel.currentSubOrder.value?.itemTypeId = it.itemComplete.item.id
                         appModel.currentSubOrder.value?.itemVersionId = it.itemVersion.id
                         filterAllAfterVersions(appModel, StringUtils.concatTwoStrings4(it.getItemPrefix(),it.itemVersion.id.toString()), true)
                     }
@@ -77,9 +77,9 @@ fun VersionsSelection(
 
 @Composable
 fun VersionCard(
-    input: DomainItemVersionV1,
+    input: DomainItemVersionComplete,
     modifier: Modifier = Modifier,
-    onClick: (DomainItemVersionV1) -> Unit
+    onClick: (DomainItemVersionComplete) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
@@ -99,7 +99,7 @@ fun VersionCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = StringUtils.concatTwoStrings3(input.key.componentKey, input.item.componentDesignation)
+                text = StringUtils.concatTwoStrings3(input.itemComplete.key.componentKey, input.itemComplete.item.itemDesignation)
             )
         }
     }
