@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainItemVersion
+import com.simenko.qmapp.domain.DomainItemVersionV1
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -77,9 +77,9 @@ fun VersionsSelection(
 
 @Composable
 fun VersionCard(
-    input: DomainItemVersion,
+    input: DomainItemVersionV1,
     modifier: Modifier = Modifier,
-    onClick: (DomainItemVersion) -> Unit
+    onClick: (DomainItemVersionV1) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black

@@ -127,6 +127,13 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
         }
 
+    val itemVersionsCompleteP = qualityManagementProductsRepository.itemsVersionsCompleteP
+    val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
+    val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
+
+    val itemVersionsCompleteMutable = MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
+
+
 
     val keys = qualityManagementProductsRepository.keys
     val components = qualityManagementProductsRepository.components
@@ -134,9 +141,9 @@ class NewItemViewModel @Inject constructor(
     val statuses = qualityManagementProductsRepository.versionStatuses
     val componentVersions = qualityManagementProductsRepository.componentVersions
 
-    val itemVersionsMutable = MutableLiveData<MutableList<DomainItemVersion>>(mutableListOf())
-    val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersion>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainItemVersion>?, Boolean?>>().apply {
+    val itemVersionsMutable = MutableLiveData<MutableList<DomainItemVersionV1>>(mutableListOf())
+    val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionV1>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainItemVersionV1>?, Boolean?>>().apply {
             addSource(itemVersionsMutable) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(itemVersionsMutable.value, it) }
         }
@@ -365,7 +372,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     trigger.value = !(trigger.value as Boolean)
 }
 
-fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersion>> {
+fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersionV1>> {
 //    ToDo pass here database object and get everything from SQLite DB with coroutine
     val componentToLines = model.componentsToLines.value!!
     val keys = model.keys.value!!
@@ -376,7 +383,7 @@ fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVer
     var key: DomainKey? = null
     var status: DomainVersionStatus? = null
 
-    val componentVersionsDetailed = mutableListOf<DomainItemVersion>()
+    val componentVersionsDetailed = mutableListOf<DomainItemVersionV1>()
 
     componentVersions.forEach ByBlock1@{ cv ->
         statuses.forEach ByBlock2@{ s ->
@@ -397,7 +404,7 @@ fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVer
                     if (c.id == ctl.componentId) {
                         if (status != null && key != null) {
                             componentVersionsDetailed.add(
-                                DomainItemVersion(
+                                DomainItemVersionV1(
                                     itemPrefix = ItemType.COMPONENT,
                                     itemToLine = ctl,
                                     versionStatus = status!!,

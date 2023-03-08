@@ -1,11 +1,6 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
-import com.simenko.qmapp.domain.DomainComponent
-import com.simenko.qmapp.domain.DomainComponentVersion
-import com.simenko.qmapp.domain.DomainKey
-import com.simenko.qmapp.domain.DomainVersionStatus
-import com.squareup.moshi.JsonClass
 
 //ToDo - add products/components/raw material related entities with versions and specifications (9tbl.)
 
@@ -224,7 +219,7 @@ data class DatabaseComponentInStage(
     var ifAny: Int?
 )
 
-@Entity(tableName = "0_vesrions_status")
+@Entity(tableName = "0_versions_status")
 data class DatabaseVersionStatus(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
@@ -487,6 +482,7 @@ data class DatabaseComponentToLine(
             onUpdate = ForeignKey.CASCADE
         )]
 )
+
 data class DatabaseComponentInStageToLine(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
@@ -494,4 +490,130 @@ data class DatabaseComponentInStageToLine(
     var lineId: Int,
     @ColumnInfo(index = true)
     var componentInStageId: Int
+)
+
+@DatabaseView(
+    viewName = "products_complete",
+    value = "SELECT p.* FROM `2_products` p\n" +
+            "JOIN `0_keys` k on k.id = p.keyId\n" +
+            "JOIN `13_1_products_to_lines` ptl on p.id = ptl.productId;"
+)
+data class DatabaseProductComplete(
+    @Embedded
+    val product: DatabaseProduct,
+    @Relation(
+        parentColumn = "keyId",
+        entityColumn = "id"
+    )
+    val key: DatabaseKey,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "productId"
+    )
+    val productToLines: List<DatabaseProductToLine>
+)
+
+@DatabaseView(
+    viewName = "components_complete",
+    value = "SELECT c.* FROM `4_components` c\n" +
+            "JOIN `0_keys` k on k.id = c.keyId\n" +
+            "JOIN `13_3_components_to_lines` ctl on c.ID = ctl.componentID;"
+)
+data class DatabaseComponentComplete(
+    @Embedded
+    val component: DatabaseComponent,
+    @Relation(
+        parentColumn = "keyId",
+        entityColumn = "id"
+    )
+    val key: DatabaseKey,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "componentId"
+    )
+    val componentToLines: List<DatabaseComponentToLine>
+)
+
+@DatabaseView(
+    viewName = "components_in_stage_complete",
+    value = "SELECT s.* FROM `6_components_in_stages` s\n" +
+            "JOIN `0_keys` k on k.id = s.keyId\n" +
+            "JOIN `13_5_component_in_stages_to_lines` stl on s.ID = stl.componentInStageId;"
+)
+data class DatabaseComponentInStageComplete(
+    @Embedded
+    val componentInStage: DatabaseComponentInStage,
+    @Relation(
+        parentColumn = "keyId",
+        entityColumn = "id"
+    )
+    val key: DatabaseKey,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "componentInStageId"
+    )
+    val componentInStageToLines: List<DatabaseComponentInStageToLine>
+)
+
+@DatabaseView(
+    viewName = "product_versions_complete",
+    value = "SELECT pv.* FROM `9_products_versions` pv\n" +
+            "         JOIN `0_versions_status` vs on vs.id = pv.statusId\n" +
+            "         JOIN products_complete pc on pv.productId = pc.id;"
+)
+data class DatabaseProductVersionComplete(
+    @Embedded
+    val productVersion: DatabaseProductVersion,
+    @Relation(
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    val versionStatus: DatabaseVersionStatus,
+    @Relation(
+        parentColumn = "productId",
+        entityColumn = "id"
+    )
+    val productComplete: DatabaseProductComplete
+)
+
+@DatabaseView(
+    viewName = "component_versions_complete",
+    value = "SELECT cv.* FROM `10_components_versions` cv\n" +
+            "         JOIN `0_versions_status` vs on vs.id = cv.statusId\n" +
+            "         JOIN components_complete cc on cv.componentID = cc.id;"
+)
+data class DatabaseComponentVersionComplete(
+    @Embedded
+    val componentVersion: DatabaseComponentVersion,
+    @Relation(
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    val versionStatus: DatabaseVersionStatus,
+    @Relation(
+        parentColumn = "componentId",
+        entityColumn = "id"
+    )
+    val componentComplete: DatabaseComponentComplete
+)
+
+@DatabaseView(
+    viewName = "component_in_stage_versions_complete",
+    value = "SELECT sv.* FROM `11_component_in_stage_versions` sv\n" +
+            "         JOIN `0_versions_status` vs on vs.id = sv.statusId\n" +
+            "         JOIN components_in_stage_complete sc on sv.componentInStageId = sc.id;"
+)
+data class DatabaseComponentInStageVersionComplete(
+    @Embedded
+    val componentInStageVersion: DatabaseComponentInStageVersion,
+    @Relation(
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    val versionStatus: DatabaseVersionStatus,
+    @Relation(
+        parentColumn = "componentInStageId",
+        entityColumn = "id"
+    )
+    val componentInStageComplete: DatabaseComponentInStageComplete
 )

@@ -2,6 +2,7 @@ package com.simenko.qmapp.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
@@ -314,7 +315,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductBase::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -356,7 +360,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStage::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -370,7 +377,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseVersionStatus::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -384,7 +394,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductVersion::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -398,7 +411,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentVersion::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -412,7 +428,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStageVersion::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -426,7 +445,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductTolerance::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -440,13 +462,17 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentTolerance::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
     suspend fun refreshComponentInStageTolerances() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentInStageTolerances();
+            val list =
+                QualityManagementNetwork.serviceholderProducts.getComponentInStageTolerances();
             database.qualityManagementProductsDao.insertComponentInStageTolerancesAll(
                 ListTransformer(
                     list,
@@ -454,7 +480,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStageTolerance::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -468,7 +497,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductToLine::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -482,7 +514,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentToLine::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
 
@@ -496,9 +531,13 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStageToLine::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+            Log.d(
+                TAG,
+                "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
         }
     }
+
 
     val keys: LiveData<List<DomainKey>> =
         Transformations.map(database.qualityManagementProductsDao.getKeys()) {
@@ -518,48 +557,108 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         }
     val componentInStages: LiveData<List<DomainComponentInStage>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentInStages()) {
-            ListTransformer(it, DatabaseComponentInStage::class, DomainComponentInStage::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentInStage::class,
+                DomainComponentInStage::class
+            ).generateList()
         }
     val versionStatuses: LiveData<List<DomainVersionStatus>> =
         Transformations.map(database.qualityManagementProductsDao.getVersionStatuses()) {
-            ListTransformer(it, DatabaseVersionStatus::class, DomainVersionStatus::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseVersionStatus::class,
+                DomainVersionStatus::class
+            ).generateList()
         }
     val productVersions: LiveData<List<DomainProductVersion>> =
         Transformations.map(database.qualityManagementProductsDao.getProductVersions()) {
-            ListTransformer(it, DatabaseProductVersion::class, DomainProductVersion::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseProductVersion::class,
+                DomainProductVersion::class
+            ).generateList()
         }
     val componentVersions: LiveData<List<DomainComponentVersion>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentVersions()) {
-            ListTransformer(it, DatabaseComponentVersion::class, DomainComponentVersion::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentVersion::class,
+                DomainComponentVersion::class
+            ).generateList()
         }
     val componentInStageVersions: LiveData<List<DomainComponentInStageVersion>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersions()) {
-            ListTransformer(it, DatabaseComponentInStageVersion::class, DomainComponentInStageVersion::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentInStageVersion::class,
+                DomainComponentInStageVersion::class
+            ).generateList()
         }
     val productTolerances: LiveData<List<DomainProductTolerance>> =
         Transformations.map(database.qualityManagementProductsDao.getProductTolerances()) {
-            ListTransformer(it, DatabaseProductTolerance::class, DomainProductTolerance::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseProductTolerance::class,
+                DomainProductTolerance::class
+            ).generateList()
         }
     val componentTolerances: LiveData<List<DomainComponentTolerance>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentTolerances()) {
-            ListTransformer(it, DatabaseComponentTolerance::class, DomainComponentTolerance::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentTolerance::class,
+                DomainComponentTolerance::class
+            ).generateList()
         }
     val componentInStageTolerances: LiveData<List<DomainComponentInStageTolerance>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentInStageTolerances()) {
-            ListTransformer(it, DatabaseComponentInStageTolerance::class, DomainComponentInStageTolerance::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentInStageTolerance::class,
+                DomainComponentInStageTolerance::class
+            ).generateList()
         }
     val productsToLines: LiveData<List<DomainProductToLine>> =
         Transformations.map(database.qualityManagementProductsDao.getProductsToLines()) {
-            ListTransformer(it, DatabaseProductToLine::class, DomainProductToLine::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseProductToLine::class,
+                DomainProductToLine::class
+            ).generateList()
         }
     val componentsToLines: LiveData<List<DomainComponentToLine>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentsToLines()) {
-            ListTransformer(it, DatabaseComponentToLine::class, DomainComponentToLine::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentToLine::class,
+                DomainComponentToLine::class
+            ).generateList()
         }
     val componentInStagesToLines: LiveData<List<DomainComponentInStageToLine>> =
         Transformations.map(database.qualityManagementProductsDao.getComponentInStagesToLines()) {
-            ListTransformer(it, DatabaseComponentInStageToLine::class, DomainComponentInStageToLine::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseComponentInStageToLine::class,
+                DomainComponentInStageToLine::class
+            ).generateList()
         }
+
+
+
+    val itemsVersionsCompleteP: LiveData<List<DomainItemVersionComplete>> =
+        Transformations.map(database.qualityManagementProductsDao.getProductVersionsComplete()) {
+            it.asDomainItemFromProduct()
+        }
+    val itemsVersionsCompleteC: LiveData<List<DomainItemVersionComplete>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponentVersionsComplete()) {
+            it.asDomainItemFromComponent()
+        }
+    val itemsVersionsCompleteS: LiveData<List<DomainItemVersionComplete>> =
+        Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersionsComplete()) {
+            it.asDomainItemFromStage()
+        }
+
 }
 
 class QualityManagementInvestigationsRepository(private val database: QualityManagementDB) {

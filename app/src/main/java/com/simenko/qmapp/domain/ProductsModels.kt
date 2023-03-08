@@ -164,13 +164,92 @@ data class DomainComponentInStageToLine(
     var componentInStageId: Int
 )
 
+
+data class DomainProductComplete(
+    val product: DomainProduct,
+    val key: DomainKey,
+    val productToLines: List<DomainProductToLine>
+)
+data class DomainComponentsComplete(
+    val component: DomainComponent,
+    val key: DomainKey,
+    val componentToLines: List<DomainComponentToLine>
+)
+data class DomainComponentInStageComplete(
+    val componentInStage: DomainComponentInStage,
+    val key: DomainKey,
+    val componentInStageToLines: List<DomainComponentInStageToLine>
+)
+
+data class DomainProductVersionComplete(
+    val productVersion: DomainProductVersion,
+    val versionStatus: DomainVersionStatus,
+    val productComplete: DomainProductComplete
+)
+data class DomainComponentVersionComplete(
+    val componentVersion: DomainComponentVersion,
+    val versionStatus: DomainVersionStatus,
+    val componentComplete: DomainComponentsComplete
+)
+data class DomainComponentInStageVersionComplete(
+    val componentInStageVersion: DomainComponentInStageVersion,
+    val versionStatus: DomainVersionStatus,
+    val componentInStageComplete: DomainComponentInStageComplete
+)
+
+data class DomainItem(
+    var id: Int,
+    var keyId: Int?,
+    var itemDesignation: String?
+)
+data class DomainItemToLine(
+    var id: Int,
+    var lineId: Int,
+    var itemId: Int
+)
+data class DomainItemVersion(
+    var id: Int,
+    var itemId: Int,
+    var versionDescription: String?,
+    var versionDate: String?,
+    var statusId: Int?,
+    var isDefault: Boolean
+)
+
 enum class ItemType {
     PRODUCT,
     COMPONENT,
     COMPONENT_IN_STAGE
 }
 
-data class DomainItemVersion(
+data class DomainItemComplete(
+    val item: DomainItem,
+    val key: DomainKey,
+    val itemToLines: List<DomainItemToLine>
+)
+data class DomainItemVersionComplete(
+    val itemPrefix: ItemType,
+    val itemVersion: DomainItemVersion,
+    val versionStatus: DomainVersionStatus,
+    val itemComplete: DomainItemComplete,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId()= StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
+    override fun getParentOneId() = 0//itemComplete.itemToLines.forEach {it.lineId} ?: 0
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+
+    fun getItemPrefix(): String {
+        return when (itemPrefix) {
+            ItemType.PRODUCT -> "p"
+            ItemType.COMPONENT -> "c"
+            ItemType.COMPONENT_IN_STAGE -> "s"
+        }
+    }
+}
+
+data class DomainItemVersionV1(
     val itemPrefix: ItemType,
     val itemToLine: DomainComponentToLine,
     val versionStatus: DomainVersionStatus,

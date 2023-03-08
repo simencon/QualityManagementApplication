@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +30,8 @@ import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import java.util.*
 import javax.inject.Inject
+
+private const val TAG = "NewItemActivity"
 
 enum class ActionType() {
     ADD_ORDER,
@@ -201,6 +204,10 @@ class NewItemActivity : ComponentActivity() {
                                                         viewModel.componentsToLines.observe(this) {
                                                             viewModel.statuses.observe(this) {
                                                                 viewModel.componentVersions.observe(this) {
+                                                                    viewModel.itemVersionsCompleteP.observe(this){}
+                                                                    viewModel.itemVersionsCompleteC.observe(this){}
+                                                                    viewModel.itemVersionsCompleteS.observe(this){}
+
 
                                                                     when (actionTypeEnum) {
                                                                         ActionType.ADD_ORDER -> {
