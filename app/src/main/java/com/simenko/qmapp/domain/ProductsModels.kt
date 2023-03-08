@@ -192,7 +192,7 @@ enum class ItemType {
 data class DomainItemComplete(
     val item: DomainItem,
     val key: DomainKey,
-    val itemToLines: DomainItemToLine
+    val itemToLines: List<DomainItemToLine>
 )
 
 data class DomainItemVersionComplete(
@@ -203,7 +203,17 @@ data class DomainItemVersionComplete(
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId()= StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
-    override fun getParentOneId() = itemComplete.itemToLines.lineId
+    override fun getParentOneId() = 0//is not the case with itemsVersions
+    override fun hasParentOneId(pId: Int): Boolean {
+        var result: Boolean = false
+        itemComplete.itemToLines.forEach runByBlock@{ it ->
+            if(it.lineId == pId) {
+                result = true
+                return@runByBlock
+            }
+        }
+        return result
+    }
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }

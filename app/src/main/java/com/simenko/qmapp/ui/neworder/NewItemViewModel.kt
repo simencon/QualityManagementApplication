@@ -328,7 +328,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             if (m != null && m.value != null) {
                 m.value!!.forEach { mIt ->
                     val item = s?.value?.find {
-                        it.getParentOneId() == pId && it.getRecordId() ==
+                        (it.getParentOneId() == pId || it.hasParentOneId(pId)) && it.getRecordId() ==
                                 when (step) {
                                     FilteringStep.NOT_FROM_META_TABLE -> {
                                         0
