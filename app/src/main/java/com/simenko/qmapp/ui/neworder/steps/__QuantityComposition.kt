@@ -1,15 +1,16 @@
 package com.simenko.qmapp.ui.neworder.steps
 
-import android.graphics.drawable.GradientDrawable.Orientation
-import android.os.Build
 import android.widget.NumberPicker
-import androidx.annotation.RequiresApi
+import android.widget.TextView
+import androidx.annotation.IdRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,45 +69,37 @@ fun QuantitySelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel? = null
 ) {
+    val observeInputForOrder by appModel!!.currentSubOrderMediator.observeAsState()
 
-    Row(
-        modifier = Modifier.fillMaxWidth().height(120.dp)
-    ) {
-        Spacer(modifier.width(16.dp))
-        QuantityView(
-            modifier = modifier.width(224.dp),
-            onValueChanged = { oldVal, newVal ->
-                if (newVal != oldVal && newVal != 0) {
-                    appModel!!.currentSubOrder.value?.samplesCount = newVal
-                    filterAllAfterQuantity(appModel, newVal, true)
-                }
-            },
-        )
+    observeInputForOrder?.apply {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .padding(horizontal = 16.dp)
+        ) {
+            if (first!!.operationId != 0)
+                AndroidView(
+                    modifier = modifier.width(224.dp),
+                    factory = { context ->
+                        NumberPicker(context).apply {
+                            setOnValueChangedListener { picker, oldVal, newVal ->
+                                appModel!!.currentSubOrder.value!!.samplesCount = newVal
+                                filterAllAfterQuantity(appModel, newVal, true)
+                            }
+                            scaleX = 1f
+                            scaleY = 1f
+                            minValue = 0
+                            maxValue = 10
+                            this.value = first!!.samplesCount ?: 0
+                        }
+                    },
+                    update = {
+                        it.value = first!!.samplesCount ?: 0
+                    }
+                )
+        }
     }
-}
-
-
-@Composable
-fun QuantityView(
-    modifier: Modifier = Modifier,
-    onValueChanged: (Int, Int) -> Unit
-) {
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            NumberPicker(context).apply {
-                setOnValueChangedListener { picker, oldVal, newVal ->
-                    onValueChanged(oldVal, newVal)
-                }
-                scaleX = 1f
-                scaleY = 1f
-                minValue = 0
-                maxValue = 10
-                this.value = value
-            }
-        },
-        update = {}
-    )
 }
 
 @Preview(name = "Light Mode Order", showBackground = true, widthDp = 409)

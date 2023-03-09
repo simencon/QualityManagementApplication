@@ -51,7 +51,13 @@ class NewItemViewModel @Inject constructor(
     val investigationOrders = qualityManagementInvestigationsRepository.orders
 
     val currentOrder = MutableLiveData(getEmptyOrder())
+
     val currentSubOrder = MutableLiveData(getEmptySubOrder())
+    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrder?, Boolean?>> =
+        MediatorLiveData<Pair<DomainSubOrder?, Boolean?>>().apply {
+            addSource(currentSubOrder) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
+        }
 
     val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
@@ -131,7 +137,8 @@ class NewItemViewModel @Inject constructor(
     val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
     val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
 
-    val itemVersionsCompleteMutable = MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
+    val itemVersionsCompleteMutable =
+        MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
     val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>>().apply {
             addSource(itemVersionsCompleteMutable) { value = Pair(it, pairedTrigger.value) }
@@ -139,7 +146,8 @@ class NewItemViewModel @Inject constructor(
         }
 
     val operations = qualityManagementManufacturingRepository.operations
-    val operationsMutable = MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
+    val operationsMutable =
+        MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
     val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>>().apply {
             addSource(operationsMutable) { value = Pair(it, pairedTrigger.value) }
@@ -336,7 +344,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
 
             if (m != null && m.value != null) {
                 val mSorted = m.value!!.sortedBy {
-                    when(step) {
+                    when (step) {
                         FilteringStep.NOT_FROM_META_TABLE -> it.depOrder
                         FilteringStep.SUB_DEPARTMENTS -> it.subDepOrder
                         FilteringStep.CHANNELS -> it.channelOrder

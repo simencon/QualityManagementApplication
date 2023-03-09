@@ -25,19 +25,10 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
-//    appModel.operationsMutable.performFiltration(
-//        s = appModel.operations,
-//        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-//        trigger = appModel.pairedTrigger,
-//        pId = selectedId,
-//        m = appModel.inputForOrder,
-//        step = FilteringStep.OPERATIONS
-//    )
-
     selectSingleRecord(appModel.operationsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.samplesCount = null
+        appModel.currentSubOrder.value?.samplesCount = 0
     }
 }
 
