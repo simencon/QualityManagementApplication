@@ -25,6 +25,11 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
+    appModel.characteristicsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+
     selectSingleRecord(appModel.operationsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {

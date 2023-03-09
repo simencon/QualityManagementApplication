@@ -13,59 +13,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.DomainCharacteristic
+import com.simenko.qmapp.domain.DomainManufacturingOperation
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.channelsMutable.performFiltration(
-        s = appModel.channels,
-        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-        trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subDepartmentId?:0,
-        m = appModel.inputForOrder,
-        step = FilteringStep.CHANNELS
-    )
-    appModel.linesMutable.performFiltration(
-        action = FilteringMode.REMOVE_ALL,
-        trigger = appModel.pairedTrigger
-    )
-    appModel.itemVersionsCompleteMutable.performFiltration(
-        action = FilteringMode.REMOVE_ALL,
-        trigger = appModel.pairedTrigger
-    )
-    appModel.operationsMutable.performFiltration(
-        action = FilteringMode.REMOVE_ALL,
-        trigger = appModel.pairedTrigger
-    )
-    appModel.characteristicsMutable.performFiltration(
-        action = FilteringMode.REMOVE_ALL,
-        trigger = appModel.pairedTrigger
-    )
-    selectSingleRecord(appModel.subOrderPlacersMutable, appModel.pairedTrigger, selectedId)
-
-    if (clear) {
-        appModel.currentSubOrder.value?.channelId = 0
-        appModel.currentSubOrder.value?.lineId = 0
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
-    }
+fun filterAllAfterCharacteristics(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
+    selectSingleRecord(appModel.characteristicsMutable, appModel.pairedTrigger, selectedId)
 }
 
 @Composable
-fun SubOrderPlacersSelection(
+fun CharacteristicsSelection(
     modifier: Modifier = Modifier,
     appModel: NewItemViewModel
 ) {
-    val observeInputForOrder by appModel.subOrderPlacersMediator.observeAsState()
+    val observeInputForOrder by appModel.characteristicsMediator.observeAsState()
     val gritState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -79,32 +47,32 @@ fun SubOrderPlacersSelection(
             modifier = modifier.height(60.dp)
         ) {
             items(first!!.size) { item ->
-                SubOrderPlacerCard(
+                CharacteristicCard(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.orderedById = it.id
-                        filterAllAfterSubOrderPlacers(appModel, it.id, true)
+//                        appModel.currentSubOrder.value?.operationId = it.id
+                        filterAllAfterCharacteristics(appModel, it.id, true)
                     }
                 )
             }
         }
 
-        if (first != null && appModel.currentSubOrder.value != null)
-            coroutineScope.launch {
-                gritState.scrollToSelectedItem(
-                    list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.orderedById,
-                )
-            }
+//        if (first != null && appModel.currentSubOrder.value != null)
+//            coroutineScope.launch {
+//                gritState.scrollToSelectedItem(
+//                    list = first!!.map { it.id }.toList(),
+//                    selectedId = appModel.currentSubOrder.value!!.operationId,
+//                )
+//            }
     }
 }
 
 @Composable
-fun SubOrderPlacerCard(
-    input: DomainTeamMember,
+fun CharacteristicCard(
+    input: DomainCharacteristic,
     modifier: Modifier = Modifier,
-    onClick: (DomainTeamMember) -> Unit
+    onClick: (DomainCharacteristic) -> Unit
 ) {
     val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
@@ -124,7 +92,7 @@ fun SubOrderPlacerCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.fullName ?: "-"
+                text = input.charDescription?:"-"
             )
         }
     }

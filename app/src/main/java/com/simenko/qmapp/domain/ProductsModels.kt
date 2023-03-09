@@ -39,8 +39,20 @@ data class DomainCharacteristic constructor(
     var ishSubChar: Int,
     var projectId: Int,
     var sampleRelatedTime: Double? = null,
-    var measurementRelatedTime: Double? = null
-)
+    var measurementRelatedTime: Double? = null,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId() = id
+    override fun getParentOneId() = 0
+    override fun hasParentOneId(qnt: Int) =
+        when (qnt) {
+            0 -> false
+            else -> true
+        }
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
 
 data class DomainMetrix constructor(
     var id: Int,
@@ -169,11 +181,13 @@ data class DomainItem(
     var keyId: Int?,
     var itemDesignation: String?
 )
+
 data class DomainItemToLine(
     var id: Int,
     var lineId: Int,
     var itemId: Int
 )
+
 data class DomainItemVersion(
     var id: Int,
     var itemId: Int,
@@ -202,18 +216,21 @@ data class DomainItemVersionComplete(
     val itemComplete: DomainItemComplete,
     var isSelected: Boolean = false
 ) : DomainModel() {
-    override fun getRecordId()= StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
+    override fun getRecordId() =
+        StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
+
     override fun getParentOneId() = 0//is not the case with itemsVersions
     override fun hasParentOneId(pId: Int): Boolean {
         var result: Boolean = false
         itemComplete.itemToLines.forEach runByBlock@{ it ->
-            if(it.lineId == pId) {
+            if (it.lineId == pId) {
                 result = true
                 return@runByBlock
             }
         }
         return result
     }
+
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }

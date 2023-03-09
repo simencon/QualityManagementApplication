@@ -27,7 +27,7 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
         s = appModel.subDepartments,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        pId = selectedId,
+        p1Id = selectedId,
         m = appModel.inputForOrder,
         step = FilteringStep.SUB_DEPARTMENTS
     )
@@ -51,6 +51,10 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
+    appModel.characteristicsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.departmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
@@ -62,7 +66,7 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
         appModel.currentSubOrder.value?.itemTypeId = 0
         appModel.currentSubOrder.value?.itemVersionId = 0
         appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = null
+        appModel.currentSubOrder.value?.samplesCount = 0
     }
 }
 

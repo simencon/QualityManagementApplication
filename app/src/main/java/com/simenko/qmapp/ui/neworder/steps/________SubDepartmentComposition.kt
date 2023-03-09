@@ -27,7 +27,7 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         s = appModel.teamMembers,
         action = FilteringMode.ADD_BY_PARENT_ID,
         trigger = appModel.pairedTrigger,
-        pId = appModel.currentSubOrder.value?.departmentId?:0
+        p1Id = appModel.currentSubOrder.value?.departmentId?:0
     )
     appModel.channelsMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
@@ -45,6 +45,10 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
+    appModel.characteristicsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.subDepartmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
@@ -55,7 +59,7 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         appModel.currentSubOrder.value?.itemTypeId = 0
         appModel.currentSubOrder.value?.itemVersionId = 0
         appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = null
+        appModel.currentSubOrder.value?.samplesCount = 0
     }
 }
 

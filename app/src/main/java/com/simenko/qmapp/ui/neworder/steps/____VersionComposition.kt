@@ -34,16 +34,24 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
         s = appModel.operations,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        pId = appModel.currentSubOrder.value?.lineId?:0,//And should be also filtered by itemId
+        p1Id = appModel.currentSubOrder.value?.lineId?:0,
+        p2Id = StringUtils.concatTwoStrings4(
+            appModel.currentSubOrder.value?.itemPreffix,
+            appModel.currentSubOrder.value?.itemVersionId.toString()
+        ),
         m = appModel.inputForOrder,
         step = FilteringStep.OPERATIONS
     )
 
+    appModel.characteristicsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.itemVersionsCompleteMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
         appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = null
+        appModel.currentSubOrder.value?.samplesCount = 0
     }
 }
 

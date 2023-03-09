@@ -41,7 +41,7 @@ fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Bool
         s = getProductVersionInput(appModel),
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        pId = selectedId,
+        p1Id = selectedId,
         m = appModel.inputForOrder,
         step = FilteringStep.ITEM_VERSIONS
     )
@@ -49,7 +49,10 @@ fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Bool
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
     )
-
+    appModel.characteristicsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
     selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
@@ -57,7 +60,7 @@ fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Bool
         appModel.currentSubOrder.value?.itemTypeId = 0
         appModel.currentSubOrder.value?.itemVersionId = 0
         appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = null
+        appModel.currentSubOrder.value?.samplesCount = 0
     }
 }
 

@@ -137,8 +137,7 @@ class NewItemViewModel @Inject constructor(
     val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
     val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
 
-    val itemVersionsCompleteMutable =
-        MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
+    val itemVersionsCompleteMutable = MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
     val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>>().apply {
             addSource(itemVersionsCompleteMutable) { value = Pair(it, pairedTrigger.value) }
@@ -146,12 +145,19 @@ class NewItemViewModel @Inject constructor(
         }
 
     val operations = qualityManagementManufacturingRepository.operations
-    val operationsMutable =
-        MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
+    val operationsMutable = MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
     val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>>().apply {
             addSource(operationsMutable) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(operationsMutable.value, it) }
+        }
+
+    val characteristics = qualityManagementProductsRepository.characteristics
+    val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
+    val characteristicsMediator: MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>>().apply {
+            addSource(characteristicsMutable) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(characteristicsMutable.value, it) }
         }
 
 
@@ -280,7 +286,8 @@ enum class FilteringStep {
     CHANNELS,
     LINES,
     ITEM_VERSIONS,
-    OPERATIONS
+    OPERATIONS,
+    CHARACTERISTICS
 }
 
 fun <T : DomainModel> selectSingleRecord(
@@ -299,7 +306,9 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     s: LiveData<List<T>>? = null,
     action: FilteringMode,
     trigger: MutableLiveData<Boolean>,
-    pId: Int = 0,
+    p1Id: Int = 0,
+    p2Id: Any = 0,
+    p3Id: Int = 0,
     m: LiveData<List<DomainInputForOrder>>? = null,
     step: FilteringStep = FilteringStep.NOT_FROM_META_TABLE
 ) {
@@ -321,7 +330,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             selectSingleRecord(d, trigger)
             d.value?.clear()
             s.apply {
-                this?.value?.filter { it.getParentOneId() == pId }?.forEach { input ->
+                this?.value?.filter { it.getParentOneId() == p1Id }?.forEach { input ->
                     if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
                         d.value?.add(input)
                     }
@@ -351,33 +360,45 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                         FilteringStep.LINES -> it.lineOrder
                         FilteringStep.ITEM_VERSIONS -> it.itemId
                         FilteringStep.OPERATIONS -> it.operationOrder
+                        FilteringStep.CHARACTERISTICS -> it.charOrder
                     }
                 }
                 mSorted.forEach { mIt ->
                     val item = s?.value?.find {
-                        (it.getParentOneId() == pId || it.hasParentOneId(pId)) && it.getRecordId() ==
+                        (it.getParentOneId() == p1Id || it.hasParentOneId(p1Id)) &&
                                 when (step) {
                                     FilteringStep.NOT_FROM_META_TABLE -> {
-                                        0
+                                        it.getRecordId() == 0
                                     }
                                     FilteringStep.SUB_DEPARTMENTS -> {
-                                        mIt.subDepId
+                                        it.getRecordId() == mIt.subDepId
                                     }
                                     FilteringStep.CHANNELS -> {
-                                        mIt.chId
+                                        it.getRecordId() == mIt.chId
                                     }
                                     FilteringStep.LINES -> {
-                                        mIt.lineId
+                                        it.getRecordId() == mIt.lineId
                                     }
                                     FilteringStep.ITEM_VERSIONS -> {
-                                        StringUtils.concatTwoStrings4(
+                                        it.getRecordId() == StringUtils.concatTwoStrings4(
                                             mIt.itemPrefix,
                                             mIt.itemVersionId.toString()
                                         )
                                     }
                                     FilteringStep.OPERATIONS -> {
-                                        mIt.operationId
+                                        it.getRecordId() == mIt.operationId &&
+                                        p2Id == StringUtils.concatTwoStrings4(
+                                            mIt.itemPrefix,
+                                            mIt.itemVersionId.toString())
                                     }
+                                    FilteringStep.CHARACTERISTICS -> {
+                                        it.getRecordId() == mIt.charId &&
+                                        p2Id == StringUtils.concatTwoStrings4(
+                                            mIt.itemPrefix,
+                                            mIt.itemVersionId.toString()) &&
+                                        p3Id == mIt.operationId
+                                    }
+
                                 }
                     }
                     if (item != null)

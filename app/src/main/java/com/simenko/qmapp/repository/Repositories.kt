@@ -546,6 +546,10 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         }
     }
 
+    val characteristics: LiveData<List<DomainCharacteristic>> =
+        Transformations.map(database.qualityManagementProductsDao.getCharacteristics()) {
+            ListTransformer(it, DatabaseCharacteristic::class, DomainCharacteristic::class).generateList()
+        }
 
     val keys: LiveData<List<DomainKey>> =
         Transformations.map(database.qualityManagementProductsDao.getKeys()) {
