@@ -84,6 +84,12 @@ fun SubOrderForm(
                     appModel = viewModel
                 )
             }
+            ButtonsSectionQuantity(title = R.string.select_quantity) {
+                QuantitySelection(
+                    modifier = Modifier.padding(top = 0.dp),
+                    appModel = viewModel
+                )
+            }
             Spacer(Modifier.height((16 + 56).dp))
         }
         PullRefreshIndicator(
