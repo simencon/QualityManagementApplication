@@ -4,7 +4,15 @@ import androidx.room.*
 
 //    @ColumnInfo(name = "nameInTable")
 
-@Entity(tableName = "1_1_inputForMeasurementRegister")
+@Entity(
+    tableName = "1_1_inputForMeasurementRegister",
+    primaryKeys = [
+        "itemPrefix",
+        "itemVersionId",
+        "operationId",
+        "charId"
+    ]
+)
 data class DatabaseInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -18,7 +26,6 @@ data class DatabaseInputForOrder constructor(
     var lineId: Int,
     var lineAbbr: String,
     var lineOrder: Int,
-    @PrimaryKey(autoGenerate = false)
     var recordId: String,
     var itemPrefix: String,
     var itemId: Int,
@@ -363,7 +370,7 @@ data class DatabaseOrderComplete constructor(
         entityColumn = "id"
     )
     var orderStatus: DatabaseOrdersStatus
-){
+) {
     fun selectedRecord(): String {
         return "${orderReason.reasonDescription} (${order.orderNumber})"
     }

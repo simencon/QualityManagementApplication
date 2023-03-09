@@ -154,12 +154,20 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
      */
     val teamMembers: LiveData<List<DomainTeamMember>> =
         Transformations.map(database.qualityManagementManufacturingDao.getTeamMembers()) {
-            ListTransformer(it, DatabaseTeamMember::class, DomainTeamMember::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseTeamMember::class,
+                DomainTeamMember::class
+            ).generateList()
         }
 
     val departments: LiveData<List<DomainDepartment>> =
         Transformations.map(database.qualityManagementManufacturingDao.getDepartments()) {
-            ListTransformer(it, DatabaseDepartment::class, DomainDepartment::class).generateList()
+            ListTransformer(
+                it,
+                DatabaseDepartment::class,
+                DomainDepartment::class
+            ).generateList()
         }
 
     val subDepartments: LiveData<List<DomainSubDepartment>> =
@@ -190,7 +198,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val operations: LiveData<List<DomainManufacturingOperation>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getManufacturingOperations()) {
+        Transformations.map(database.qualityManagementManufacturingDao.getManufacturingOperations()) { it->
             ListTransformer(
                 it,
                 DatabaseManufacturingOperation::class,
@@ -826,12 +834,12 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
 
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getInputForOrder()) {
+        Transformations.map(database.qualityManagementInvestigationsDao.getInputForOrder()) {it->
             ListTransformer(
                 it,
                 DatabaseInputForOrder::class,
                 DomainInputForOrder::class
-            ).generateList()
+            ).generateList().sortedBy {item -> item.depOrder }
         }
 
     val investigationTypes: LiveData<List<DomainOrdersType>> =

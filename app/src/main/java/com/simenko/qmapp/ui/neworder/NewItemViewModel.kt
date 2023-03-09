@@ -335,7 +335,17 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             d.value?.clear()
 
             if (m != null && m.value != null) {
-                m.value!!.forEach { mIt ->
+                val mSorted = m.value!!.sortedBy {
+                    when(step) {
+                        FilteringStep.NOT_FROM_META_TABLE -> it.depOrder
+                        FilteringStep.SUB_DEPARTMENTS -> it.subDepOrder
+                        FilteringStep.CHANNELS -> it.channelOrder
+                        FilteringStep.LINES -> it.lineOrder
+                        FilteringStep.ITEM_VERSIONS -> it.itemId
+                        FilteringStep.OPERATIONS -> it.operationOrder
+                    }
+                }
+                mSorted.forEach { mIt ->
                     val item = s?.value?.find {
                         (it.getParentOneId() == pId || it.hasParentOneId(pId)) && it.getRecordId() ==
                                 when (step) {
