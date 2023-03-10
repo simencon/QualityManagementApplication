@@ -43,7 +43,7 @@ data class DomainCharacteristic constructor(
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id
-    override fun getParentOneId() = 0
+    override fun getParentOneId() = -1
     override fun hasParentOneId(qnt: Int) =
         when (qnt) {
             0 -> false

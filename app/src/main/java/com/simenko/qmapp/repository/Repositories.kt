@@ -22,11 +22,10 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
      */
     suspend fun refreshPositionLevels() {
         withContext(Dispatchers.IO) {
-            val positionLevels =
-                QualityManagementNetwork.serviceholderManufacturing.getPositionLevels();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getPositionLevels();
             database.qualityManagementManufacturingDao.insertPositionLevelsAll(
                 ListTransformer(
-                    positionLevels,
+                    list,
                     NetworkPositionLevel::class,
                     DatabasePositionLevel::class
                 ).generateList()
@@ -40,10 +39,10 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshTeamMembers() {
         withContext(Dispatchers.IO) {
-            val teamMembers = QualityManagementNetwork.serviceholderManufacturing.getTeamMembers();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getTeamMembers();
             database.qualityManagementManufacturingDao.insertTeamMembersAll(
                 ListTransformer(
-                    teamMembers,
+                    list,
                     NetworkTeamMembers::class,
                     DatabaseTeamMember::class
                 ).generateList()
@@ -54,10 +53,10 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshCompanies() {
         withContext(Dispatchers.IO) {
-            val companies = QualityManagementNetwork.serviceholderManufacturing.getCompanies();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getCompanies();
             database.qualityManagementManufacturingDao.insertCompaniesAll(
                 ListTransformer(
-                    companies,
+                    list,
                     NetworkCompany::class,
                     DatabaseCompany::class
                 ).generateList()
@@ -68,10 +67,10 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshDepartments() {
         withContext(Dispatchers.IO) {
-            val departments = QualityManagementNetwork.serviceholderManufacturing.getDepartments();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getDepartments();
             database.qualityManagementManufacturingDao.insertDepartmentsAll(
                 ListTransformer(
-                    departments,
+                    list,
                     NetworkDepartment::class,
                     DatabaseDepartment::class
                 ).generateList()
@@ -82,11 +81,10 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshSubDepartments() {
         withContext(Dispatchers.IO) {
-            val subDepartments =
-                QualityManagementNetwork.serviceholderManufacturing.getSubDepartments();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getSubDepartments();
             database.qualityManagementManufacturingDao.insertSubDepartmentsAll(
                 ListTransformer(
-                    subDepartments,
+                    list,
                     NetworkSubDepartment::class,
                     DatabaseSubDepartment::class
                 ).generateList()
@@ -100,12 +98,12 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshManufacturingChannels() {
         withContext(Dispatchers.IO) {
-            val subDepartments =
-                QualityManagementNetwork.serviceholderManufacturing.getManufacturingChannels();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getManufacturingChannels();
             database.qualityManagementManufacturingDao.insertManufacturingChannelsAll(
                 ListTransformer(
-                    subDepartments,
-                    NetworkManufacturingChannel::class, DatabaseManufacturingChannel::class
+                    list,
+                    NetworkManufacturingChannel::class,
+                    DatabaseManufacturingChannel::class
                 ).generateList()
             )
             Log.d(
@@ -117,12 +115,12 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshManufacturingLines() {
         withContext(Dispatchers.IO) {
-            val manufacturingLines =
-                QualityManagementNetwork.serviceholderManufacturing.getManufacturingLines();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getManufacturingLines();
             database.qualityManagementManufacturingDao.insertManufacturingLinesAll(
                 ListTransformer(
-                    manufacturingLines,
-                    NetworkManufacturingLine::class, DatabaseManufacturingLine::class
+                    list,
+                    NetworkManufacturingLine::class,
+                    DatabaseManufacturingLine::class
                 ).generateList()
             )
             Log.d(
@@ -134,12 +132,12 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshManufacturingOperations() {
         withContext(Dispatchers.IO) {
-            val manufacturingOperations =
-                QualityManagementNetwork.serviceholderManufacturing.getManufacturingOperations();
+            val list = QualityManagementNetwork.serviceholderManufacturing.getManufacturingOperations();
             database.qualityManagementManufacturingDao.insertManufacturingOperationsAll(
                 ListTransformer(
-                    manufacturingOperations,
-                    NetworkManufacturingOperation::class, DatabaseManufacturingOperation::class
+                    list,
+                    NetworkManufacturingOperation::class,
+                    DatabaseManufacturingOperation::class
                 ).generateList()
             )
             Log.d(
@@ -148,7 +146,22 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
             )
         }
     }
-
+    suspend fun refreshOperationsFlows() {
+        withContext(Dispatchers.IO) {
+            val list = QualityManagementNetwork.serviceholderManufacturing.getOperationsFlows();
+            database.qualityManagementManufacturingDao.insertOperationsFlowsAll(
+                ListTransformer(
+                    list,
+                    NetworkOperationsFlow::class,
+                    DatabaseOperationsFlow::class
+                ).generateList()
+            )
+            Log.d(
+                TAG,
+                "refreshOperationsFlows: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
+            )
+        }
+    }
     /**
      * Connecting with LiveData for ViewModel
      */
@@ -203,6 +216,15 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                 it,
                 DatabaseManufacturingOperation::class,
                 DomainManufacturingOperation::class
+            ).generateList()
+        }
+
+    val operationsFlows: LiveData<List<DomainOperationsFlow>> =
+        Transformations.map(database.qualityManagementManufacturingDao.getOperationsFlows()) { it->
+            ListTransformer(
+                it,
+                DatabaseOperationsFlow::class,
+                DomainOperationsFlow::class
             ).generateList()
         }
 

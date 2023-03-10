@@ -137,6 +137,12 @@ data class DomainManufacturingOperation(
     }
 }
 
+data class DomainOperationsFlow(
+    var id: Int,
+    var currentOperationId: Int,
+    var previousOperationId: Int
+)
+
 data class DomainDepartmentComplete(
     val departments: DomainDepartment,
     val depManagerDetails: List<DomainTeamMember>,

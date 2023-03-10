@@ -31,6 +31,8 @@ interface QualityManagementManufacturingService {
     suspend fun getManufacturingLines(): List<NetworkManufacturingLine>
     @GET("api/_14ManufacturingOperation")
     suspend fun getManufacturingOperations(): List<NetworkManufacturingOperation>
+    @GET("api/_1414ManufacturingOperationsFlow")
+    suspend fun getOperationsFlows(): List<NetworkOperationsFlow>
 }
 
 interface QualityManagementProductsService {

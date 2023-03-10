@@ -188,6 +188,7 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementManufacturingRepository.refreshManufacturingChannels()
                 qualityManagementManufacturingRepository.refreshManufacturingLines()
                 qualityManagementManufacturingRepository.refreshManufacturingOperations()
+                qualityManagementManufacturingRepository.refreshOperationsFlows()
 
                 qualityManagementProductsRepository.refreshElementIshModels()
                 qualityManagementProductsRepository.refreshIshSubCharacteristics()

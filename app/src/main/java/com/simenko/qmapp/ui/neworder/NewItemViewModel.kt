@@ -152,6 +152,8 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(operationsMutable.value, it) }
         }
 
+    val operationsFlows = qualityManagementManufacturingRepository.operationsFlows
+
     val characteristics = qualityManagementProductsRepository.characteristics
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
     val characteristicsMediator: MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>> =
@@ -302,6 +304,29 @@ fun <T : DomainModel> selectSingleRecord(
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
 }
 
+fun isOperationInFlow(operationId: Int, selectedOperationId: Int,  operationsFlow: List<DomainOperationsFlow>): Boolean {
+    var result = false
+    val previousIds = getPreviousIds(selectedOperationId, operationsFlow)
+    previousIds.forEach byBlock@{
+        if(it == operationId) {
+            result = true
+            return@byBlock
+        }
+    }
+    return result
+}
+
+fun getPreviousIds(currentId: Int, pairs: List<DomainOperationsFlow>): List<Int> {
+    val previousIds = mutableListOf<Int>()
+    for (pair in pairs) {
+        if (pair.currentOperationId == currentId) {
+            previousIds.add(pair.previousOperationId)
+            previousIds.addAll(getPreviousIds(pair.previousOperationId, pairs))
+        }
+    }
+    return previousIds
+}
+
 fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     s: LiveData<List<T>>? = null,
     action: FilteringMode,
@@ -309,6 +334,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
     p1Id: Int = 0,
     p2Id: Any = 0,
     p3Id: Int = 0,
+    pFlow: List<DomainOperationsFlow>? = null,
     m: LiveData<List<DomainInputForOrder>>? = null,
     step: FilteringStep = FilteringStep.NOT_FROM_META_TABLE
 ) {
@@ -395,8 +421,9 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                         it.getRecordId() == mIt.charId &&
                                         p2Id == StringUtils.concatTwoStrings4(
                                             mIt.itemPrefix,
-                                            mIt.itemVersionId.toString()) &&
-                                        p3Id == mIt.operationId
+                                            mIt.itemVersionId.toString())
+                                                &&
+                                                (p3Id == mIt.operationId || isOperationInFlow(mIt.operationId,p3Id, pFlow!!))
                                     }
 
                                 }

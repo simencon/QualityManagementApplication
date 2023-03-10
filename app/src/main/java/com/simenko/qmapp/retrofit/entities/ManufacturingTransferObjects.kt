@@ -83,3 +83,10 @@ data class NetworkManufacturingOperation(
     var operationOrder: Int,
     var equipment: String?
 )
+
+@JsonClass(generateAdapter = true)
+data class NetworkOperationsFlow(
+    var id: Int,
+    var currentOperationId: Int,
+    var previousOperationId: Int
+)

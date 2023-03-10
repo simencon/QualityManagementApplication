@@ -197,6 +197,34 @@ data class DatabaseManufacturingOperation(
     var equipment: String?
 )
 
+@Entity(
+    tableName = "14_14_manufacturing_operations_flow",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseManufacturingOperation::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("currentOperationId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseManufacturingOperation::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("currentOperationId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ]
+)
+data class DatabaseOperationsFlow(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var currentOperationId: Int,
+    @ColumnInfo(index = true)
+    var previousOperationId: Int
+)
+
 data class DatabaseDepartmentsDetailed(
     @Embedded
     val departments: DatabaseDepartment,

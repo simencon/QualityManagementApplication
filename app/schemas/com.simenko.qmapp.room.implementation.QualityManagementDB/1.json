@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fc04ddafb303e87cbea496bd433d3be5",
+    "identityHash": "2f2bb13efdc1f15e7cd1b0fecb095d78",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -601,6 +601,80 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "lineId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "14_14_manufacturing_operations_flow",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `currentOperationId` INTEGER NOT NULL, `previousOperationId` INTEGER NOT NULL, FOREIGN KEY(`currentOperationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`currentOperationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentOperationId",
+            "columnName": "currentOperationId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previousOperationId",
+            "columnName": "previousOperationId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_14_14_manufacturing_operations_flow_currentOperationId",
+            "unique": false,
+            "columnNames": [
+              "currentOperationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_14_14_manufacturing_operations_flow_currentOperationId` ON `${TABLE_NAME}` (`currentOperationId`)"
+          },
+          {
+            "name": "index_14_14_manufacturing_operations_flow_previousOperationId",
+            "unique": false,
+            "columnNames": [
+              "previousOperationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_14_14_manufacturing_operations_flow_previousOperationId` ON `${TABLE_NAME}` (`previousOperationId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "14_manufacturing_operations",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "currentOperationId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "14_manufacturing_operations",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "currentOperationId"
             ],
             "referencedColumns": [
               "id"
@@ -3206,7 +3280,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fc04ddafb303e87cbea496bd433d3be5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f2bb13efdc1f15e7cd1b0fecb095d78')"
     ]
   }
 }
