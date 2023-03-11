@@ -386,7 +386,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                         FilteringStep.LINES -> it.lineOrder
                         FilteringStep.ITEM_VERSIONS -> it.itemId
                         FilteringStep.OPERATIONS -> it.operationOrder
-                        FilteringStep.CHARACTERISTICS -> it.charOrder
+                        FilteringStep.CHARACTERISTICS -> it.operationOrder
                     }
                 }
                 mSorted.forEach { mIt ->

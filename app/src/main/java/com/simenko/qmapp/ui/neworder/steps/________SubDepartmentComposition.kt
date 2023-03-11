@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -12,7 +13,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.DomainSubDepartment
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
@@ -127,7 +131,12 @@ fun SubDepartmentCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.subDepAbbr ?: "-"
+                text = input.subDepDesignation ?: "-",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
             )
         }
     }

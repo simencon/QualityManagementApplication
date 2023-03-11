@@ -22,7 +22,11 @@ import java.util.*
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterQuantity(appModel: NewItemViewModel, samplesQuantity: Int, clear: Boolean = false) {
+fun filterAllAfterQuantity(
+    appModel: NewItemViewModel,
+    samplesQuantity: Int,
+    clear: Boolean = false
+) {
 
     appModel.characteristicsMutable.performFiltration(
         s = appModel.characteristics,
@@ -33,7 +37,7 @@ fun filterAllAfterQuantity(appModel: NewItemViewModel, samplesQuantity: Int, cle
             appModel.currentSubOrder.value?.itemPreffix,
             appModel.currentSubOrder.value?.itemVersionId.toString()
         ),
-        p3Id =appModel.currentSubOrder.value?.operationId?:0,
+        p3Id = appModel.currentSubOrder.value?.operationId ?: 0,
         pFlow = appModel.operationsFlows.value,
         m = appModel.inputForOrder,
         step = FilteringStep.CHARACTERISTICS
@@ -90,7 +94,8 @@ fun QuantitySelection(
                         NumberPicker(context).apply {
                             setOnValueChangedListener { picker, oldVal, newVal ->
                                 appModel!!.currentSubOrder.value!!.samplesCount = newVal
-                                filterAllAfterQuantity(appModel, newVal, true)
+                                if (oldVal == 0 || newVal == 0)
+                                    filterAllAfterQuantity(appModel, newVal, true)
                             }
                             scaleX = 1f
                             scaleY = 1f
