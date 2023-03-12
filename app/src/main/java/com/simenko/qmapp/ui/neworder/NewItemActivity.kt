@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
+import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
 import com.simenko.qmapp.ui.neworder.assemblers.disassembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
@@ -41,22 +41,22 @@ enum class ActionType() {
 }
 
 internal const val KEY_ARG_ACTION_TYPE = "KEY_ARG_ACTION_TYPE"
-internal const val KEY_ARG_RECORD_ID = "KEY_ARG_RECORD_ID"
+internal const val KEY_ARG_ORDER_RECORD_ID = "KEY_ARG_RECORD_ID"
 
-fun launchNewItemActivity(context: Context, actionType: ActionType, recordId: Int = 0) {
-    context.startActivity(createNewItemActivityIntent(context, actionType, recordId))
+fun launchNewItemActivity(context: Context, actionType: ActionType, orderId: Int = 0) {
+    context.startActivity(createNewItemActivityIntent(context, actionType, orderId))
 }
 
 fun createNewItemActivityIntent(context: Context, actionType: ActionType, recordId: Int): Intent {
     val intent = Intent(context, NewItemActivity::class.java)
     intent.putExtra(KEY_ARG_ACTION_TYPE, actionType.name)
-    intent.putExtra(KEY_ARG_RECORD_ID, recordId)
+    intent.putExtra(KEY_ARG_ORDER_RECORD_ID, recordId)
     return intent
 }
 
 private lateinit var actionType: String
 private lateinit var actionTypeEnum: ActionType
-private var recordId = 0
+private var orderId = 0
 
 class NewItemActivity : ComponentActivity() {
 
@@ -91,7 +91,7 @@ class NewItemActivity : ComponentActivity() {
             }
         }
 
-        recordId = intent.extras?.getInt(KEY_ARG_RECORD_ID) ?: 0
+        orderId = intent.extras?.getInt(KEY_ARG_ORDER_RECORD_ID) ?: 0
 
         setContent {
             QMAppTheme {
@@ -111,7 +111,7 @@ class NewItemActivity : ComponentActivity() {
                         FloatingActionButton(
                             modifier = Modifier.padding(end = 29.dp),
                             onClick = {
-                                if (checkCurrentOrder(viewModel) == null) {
+                                if (checkCurrentOrder(viewModel) == null && checkCurrentSubOrder(viewModel) == null) {
                                     Toast.makeText(
                                         this,
                                         "Перед збереженням заповніть всі поля!",
@@ -132,7 +132,12 @@ class NewItemActivity : ComponentActivity() {
                                                 checkCurrentOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.ADD_SUB_ORDER -> {}
+                                        ActionType.ADD_SUB_ORDER -> {
+                                            viewModel.postNewSubOrder(
+                                                this,
+                                                checkCurrentSubOrder(viewModel)!!
+                                            )
+                                        }
                                         ActionType.EDIT_SUBORDER -> {}
                                     }
                                 }
@@ -224,7 +229,7 @@ class NewItemActivity : ComponentActivity() {
 
                                                                                 disassembleOrder(
                                                                                     viewModel,
-                                                                                    recordId
+                                                                                    orderId
                                                                                 )
                                                                                 filterAllAfterTypes(
                                                                                     viewModel,
@@ -245,6 +250,7 @@ class NewItemActivity : ComponentActivity() {
                                                                             }
 
                                                                             ActionType.ADD_SUB_ORDER -> {
+                                                                                viewModel.currentSubOrder.value?.orderId = orderId
                                                                                 viewModel.departmentsMutable.performFiltration(
                                                                                     s = viewModel.departments,
                                                                                     action = FilteringMode.ADD_ALL_FROM_META_TABLE,

@@ -69,6 +69,7 @@ data class NetworkOrder constructor(
     var completedDate: String? = null
 ) {
     var id: Int = 0
+
     constructor(
         id: Int,
         orderTypeId: Int,
@@ -93,22 +94,8 @@ data class NetworkOrder constructor(
     }
 }
 
-/*@JsonClass(generateAdapter = true)
-data class NetworkOrder constructor(
-    var id: Int,
-    var orderTypeId: Int,
-    var reasonId: Int,
-    var orderNumber: Int? = null,
-    var customerId: Int,
-    var orderedById: Int,
-    var statusId: Int,
-    var createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
-    var completedDate: String? = null
-)*/
-
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrder constructor(
-    var id: Int,
     var orderId: Int,
     var subOrderNumber: Int,
     var orderedById: Int,
@@ -125,7 +112,48 @@ data class NetworkSubOrder constructor(
     var itemTypeId: Int,
     var itemVersionId: Int,
     var samplesCount: Int? = null
-)
+) {
+    var id: Int = 0
+
+    constructor(
+        id: Int,
+        orderId: Int,
+        subOrderNumber: Int,
+        orderedById: Int,
+        completedById: Int? = null,
+        statusId: Int,
+        createdDate: String,
+        completedDate: String? = null,
+        departmentId: Int,
+        subDepartmentId: Int,
+        channelId: Int,
+        lineId: Int,
+        operationId: Int,
+        itemPreffix: String,
+        itemTypeId: Int,
+        itemVersionId: Int,
+        samplesCount: Int? = null
+    ) : this(
+        orderId,
+        subOrderNumber,
+        orderedById,
+        completedById,
+        statusId,
+        createdDate,
+        completedDate,
+        departmentId,
+        subDepartmentId,
+        channelId,
+        lineId,
+        operationId,
+        itemPreffix,
+        itemTypeId,
+        itemVersionId,
+        samplesCount
+    ) {
+        this.id = id
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrderTask constructor(

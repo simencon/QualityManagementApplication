@@ -1,6 +1,8 @@
 package com.simenko.qmapp.ui.neworder.assemblers
 
 import com.simenko.qmapp.domain.DomainOrder
+import com.simenko.qmapp.domain.DomainSubOrder
+import com.simenko.qmapp.domain.DomainSubOrderWithTasks
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 
 fun checkCurrentOrder(viewModel: NewItemViewModel): DomainOrder? {
@@ -14,4 +16,38 @@ fun checkCurrentOrder(viewModel: NewItemViewModel): DomainOrder? {
 
 fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
     viewModel.currentOrder.value = viewModel.investigationOrders.value?.find { it.id == orderId }
+}
+
+fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrder? {
+
+    val subOrder = viewModel.currentSubOrder.value!!
+
+    if (subOrder.orderedById == 0) return null
+    if (subOrder.departmentId == 0) return null
+    if (subOrder.subDepartmentId == 0) return null
+    if (subOrder.channelId == 0) return null
+    if (subOrder.lineId == 0) return null
+    if (subOrder.operationId == 0) return null
+    if (subOrder.itemVersionId == 0) return null
+    if (subOrder.samplesCount == 0) return null
+
+    return DomainSubOrder(
+        id = subOrder.id,
+        orderId = subOrder.orderId,
+        subOrderNumber = subOrder.subOrderNumber,
+        orderedById = subOrder.orderedById,
+        completedById = subOrder.completedById,
+        statusId = subOrder.statusId,
+        createdDate = subOrder.createdDate,
+        completedDate = subOrder.completedDate,
+        departmentId = subOrder.departmentId,
+        subDepartmentId = subOrder.subDepartmentId,
+        channelId = subOrder.channelId,
+        lineId = subOrder.lineId,
+        operationId = subOrder.operationId,
+        itemPreffix = subOrder.itemPreffix,
+        itemTypeId = subOrder.itemTypeId,
+        itemVersionId = subOrder.itemVersionId,
+        samplesCount = subOrder.samplesCount
+    )
 }

@@ -100,6 +100,8 @@ interface QualityManagementInvestigationsService {
 
     @GET("api/_13SubOrder")
     suspend fun getSubOrders(): List<NetworkSubOrder>
+    @POST("api/_13SubOrder")
+    suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
     @GET("api/_137SubOrderTask")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
     @GET("api/_14Sample")

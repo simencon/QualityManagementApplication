@@ -1,6 +1,7 @@
 package com.simenko.qmapp.retrofit.entities
 
 import com.simenko.qmapp.domain.DomainOrder
+import com.simenko.qmapp.domain.DomainSubOrder
 import com.simenko.qmapp.utils.ObjectTransformer
 
 //KClasses can only take primary constructor
@@ -18,4 +19,28 @@ fun DomainOrder.toNetworkOrderWithId() = NetworkOrder(
     statusId = statusId,
     createdDate = createdDate,
     completedDate = completedDate
+)
+
+fun DomainSubOrder.toNetworkSubOrderWithoutId() = ObjectTransformer(
+    DomainSubOrder::class, NetworkSubOrder::class
+).transform(this)
+
+fun DomainSubOrder.toNetworkSubOrderWithId() = NetworkSubOrder(
+    id = id,
+    orderId = orderId,//maybe currentOrder.id?
+    subOrderNumber = subOrderNumber,
+    orderedById = orderedById,
+    completedById = completedById,
+    statusId = statusId,
+    createdDate = createdDate,
+    completedDate = completedDate,
+    departmentId = departmentId,
+    subDepartmentId = subDepartmentId,
+    channelId = channelId,
+    lineId = lineId,
+    operationId = operationId,
+    itemPreffix = itemPreffix,
+    itemTypeId = itemTypeId,
+    itemVersionId = itemVersionId,
+    samplesCount = samplesCount
 )

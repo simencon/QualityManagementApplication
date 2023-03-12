@@ -195,7 +195,7 @@ fun SubOrdersFlowColumn(
                     containerColor = _level_2_record_color,
                     modifier = Modifier.padding(vertical = 4.dp),
                     onClick = {
-                        launchNewItemActivity(context, ActionType.ADD_SUB_ORDER)
+                        launchNewItemActivity(context, ActionType.ADD_SUB_ORDER, parentId)
                     },
                     content = {
                         androidx.compose.material.Icon(
