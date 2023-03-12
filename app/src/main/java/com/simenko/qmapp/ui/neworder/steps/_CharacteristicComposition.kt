@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.DomainCharacteristic
 import com.simenko.qmapp.domain.DomainManufacturingOperation
+import com.simenko.qmapp.domain.DomainSubOrderTask
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -28,8 +29,27 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-fun filterAllAfterCharacteristics(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    selectSingleRecord(appModel.characteristicsMutable, appModel.pairedTrigger, selectedId)
+fun filterAllAfterCharacteristics(
+    appModel: NewItemViewModel,
+    selectedId: Int,
+    clear: Boolean = false
+) {
+    when (changeRecordSelection(
+        appModel.characteristicsMutable,
+        appModel.pairedTrigger,
+        selectedId
+    )) {
+        true -> {
+            val subOrderId = appModel.currentSubOrder.value?.id
+            appModel.currentSubOrder.value?.subOrderTasks?.add(getEmptySubOrderTask(selectedId,subOrderId?:0))
+        }
+        false -> {
+            val index =
+                appModel.currentSubOrder.value?.subOrderTasks?.indexOfFirst { it.charId == selectedId }
+            if (index != null)
+                appModel.currentSubOrder.value?.subOrderTasks?.removeAt(index)
+        }
+    }
 }
 
 @Composable
@@ -96,7 +116,7 @@ fun CharacteristicCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.charDescription?:"-",
+                text = input.charDescription ?: "-",
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,

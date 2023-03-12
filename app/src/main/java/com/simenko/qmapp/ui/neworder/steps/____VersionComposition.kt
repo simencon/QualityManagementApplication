@@ -53,6 +53,8 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
     if (clear) {
         appModel.currentSubOrder.value?.operationId = 0
         appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.samples?.clear()
+        appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
 }
 

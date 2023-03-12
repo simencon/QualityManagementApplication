@@ -53,8 +53,8 @@ class NewItemViewModel @Inject constructor(
     val currentOrder = MutableLiveData(getEmptyOrder())
 
     val currentSubOrder = MutableLiveData(getEmptySubOrder())
-    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrder?, Boolean?>> =
-        MediatorLiveData<Pair<DomainSubOrder?, Boolean?>>().apply {
+    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderWithTasks?, Boolean?>> =
+        MediatorLiveData<Pair<DomainSubOrderWithTasks?, Boolean?>>().apply {
             addSource(currentSubOrder) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
         }
@@ -137,7 +137,8 @@ class NewItemViewModel @Inject constructor(
     val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
     val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
 
-    val itemVersionsCompleteMutable = MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
+    val itemVersionsCompleteMutable =
+        MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
     val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>>().apply {
             addSource(itemVersionsCompleteMutable) { value = Pair(it, pairedTrigger.value) }
@@ -145,7 +146,8 @@ class NewItemViewModel @Inject constructor(
         }
 
     val operations = qualityManagementManufacturingRepository.operations
-    val operationsMutable = MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
+    val operationsMutable =
+        MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
     val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>>().apply {
             addSource(operationsMutable) { value = Pair(it, pairedTrigger.value) }
@@ -292,6 +294,16 @@ enum class FilteringStep {
     CHARACTERISTICS
 }
 
+fun <T : DomainModel> changeRecordSelection(
+    d: MutableLiveData<MutableList<T>>,
+    pairedTrigger: MutableLiveData<Boolean>,
+    selectedId: Any = 0,
+): Boolean {
+    val result = d.value?.find { it.getRecordId() == selectedId }?.changeCheckedState()
+    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    return result ?: false
+}
+
 fun <T : DomainModel> selectSingleRecord(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
@@ -304,11 +316,15 @@ fun <T : DomainModel> selectSingleRecord(
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
 }
 
-fun isOperationInFlow(operationId: Int, selectedOperationId: Int,  operationsFlow: List<DomainOperationsFlow>): Boolean {
+fun isOperationInFlow(
+    operationId: Int,
+    selectedOperationId: Int,
+    operationsFlow: List<DomainOperationsFlow>
+): Boolean {
     var result = false
     val previousIds = getPreviousIds(selectedOperationId, operationsFlow)
     previousIds.forEach byBlock@{
-        if(it == operationId) {
+        if (it == operationId) {
             result = true
             return@byBlock
         }
@@ -413,17 +429,23 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                     }
                                     FilteringStep.OPERATIONS -> {
                                         it.getRecordId() == mIt.operationId &&
-                                        p2Id == StringUtils.concatTwoStrings4(
+                                                p2Id == StringUtils.concatTwoStrings4(
                                             mIt.itemPrefix,
-                                            mIt.itemVersionId.toString())
+                                            mIt.itemVersionId.toString()
+                                        )
                                     }
                                     FilteringStep.CHARACTERISTICS -> {
                                         it.getRecordId() == mIt.charId &&
-                                        p2Id == StringUtils.concatTwoStrings4(
+                                                p2Id == StringUtils.concatTwoStrings4(
                                             mIt.itemPrefix,
-                                            mIt.itemVersionId.toString())
+                                            mIt.itemVersionId.toString()
+                                        )
                                                 &&
-                                                (p3Id == mIt.operationId || isOperationInFlow(mIt.operationId,p3Id, pFlow!!))
+                                                (p3Id == mIt.operationId || isOperationInFlow(
+                                                    mIt.operationId,
+                                                    p3Id,
+                                                    pFlow!!
+                                                ))
                                     }
 
                                 }
@@ -450,7 +472,7 @@ fun getEmptyOrder() = DomainOrder(
     completedDate = null
 )
 
-fun getEmptySubOrder() = DomainSubOrder(
+fun getEmptySubOrder() = DomainSubOrderWithTasks(
     id = 0,
     orderId = 0,//maybe currentOrder.id?
     subOrderNumber = 0,
@@ -468,4 +490,19 @@ fun getEmptySubOrder() = DomainSubOrder(
     itemTypeId = 0,
     itemVersionId = 0,
     samplesCount = null
+)
+
+fun getEmptySubOrderTask(charId: Int, subOrderId: Int = 0) = DomainSubOrderTask(
+    id = 0,
+    statusId = 1,
+    createdDate = "2022-01-30T15:30:00",
+    completedDate = null,
+    subOrderId = subOrderId,
+    charId = charId
+)
+
+fun getEmptySample(sampleNumber: Int, subOrderId: Int = 0) = DomainSample(
+    id = 0,
+    subOrderId = subOrderId,
+    sampleNumber = sampleNumber
 )

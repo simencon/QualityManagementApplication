@@ -52,6 +52,11 @@ data class DomainCharacteristic constructor(
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }
+
+    override fun changeCheckedState(): Boolean {
+        isSelected = !isSelected
+        return isSelected
+    }
 }
 
 data class DomainMetrix constructor(

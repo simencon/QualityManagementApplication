@@ -64,6 +64,8 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         appModel.currentSubOrder.value?.itemVersionId = 0
         appModel.currentSubOrder.value?.operationId = 0
         appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.samples?.clear()
+        appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
 }
 

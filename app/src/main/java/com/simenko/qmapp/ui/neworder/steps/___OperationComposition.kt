@@ -34,6 +34,8 @@ fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear:
 
     if (clear) {
         appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.samples?.clear()
+        appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
 }
 

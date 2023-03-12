@@ -27,25 +27,35 @@ fun filterAllAfterQuantity(
     samplesQuantity: Int,
     clear: Boolean = false
 ) {
-
-    appModel.characteristicsMutable.performFiltration(
-        s = appModel.characteristics,
-        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-        trigger = appModel.pairedTrigger,
-        p1Id = samplesQuantity,
-        p2Id = StringUtils.concatTwoStrings4(
-            appModel.currentSubOrder.value?.itemPreffix,
-            appModel.currentSubOrder.value?.itemVersionId.toString()
-        ),
-        p3Id = appModel.currentSubOrder.value?.operationId ?: 0,
-        pFlow = appModel.operationsFlows.value,
-        m = appModel.inputForOrder,
-        step = FilteringStep.CHARACTERISTICS
-    )
-
     if (clear) {
-//        ToDo clear characteristics
+        appModel.characteristicsMutable.performFiltration(
+            s = appModel.characteristics,
+            action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
+            trigger = appModel.pairedTrigger,
+            p1Id = samplesQuantity,
+            p2Id = StringUtils.concatTwoStrings4(
+                appModel.currentSubOrder.value?.itemPreffix,
+                appModel.currentSubOrder.value?.itemVersionId.toString()
+            ),
+            p3Id = appModel.currentSubOrder.value?.operationId ?: 0,
+            pFlow = appModel.operationsFlows.value,
+            m = appModel.inputForOrder,
+            step = FilteringStep.CHARACTERISTICS
+        )
+        appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
+
+    val subOrderId = appModel.currentSubOrder.value?.id
+    val currentSize = appModel.currentSubOrder.value?.samples?.size
+
+    if (samplesQuantity > (currentSize ?: 0)) {
+        for (q in ((currentSize ?: 0) + 1)..samplesQuantity)
+            appModel.currentSubOrder.value?.samples?.add(getEmptySample(q,subOrderId?:0))
+    } else if (samplesQuantity < (currentSize ?: 0)) {
+        for (q in (currentSize ?: 0) downTo samplesQuantity + 1)
+            appModel.currentSubOrder.value?.samples?.removeAt(q - 1)
+    }
+
 }
 
 @Composable
@@ -96,6 +106,8 @@ fun QuantitySelection(
                                 appModel!!.currentSubOrder.value!!.samplesCount = newVal
                                 if (oldVal == 0 || newVal == 0)
                                     filterAllAfterQuantity(appModel, newVal, true)
+                                else
+                                    filterAllAfterQuantity(appModel, newVal, false)
                             }
                             scaleX = 1f
                             scaleY = 1f
