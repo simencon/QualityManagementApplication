@@ -2,7 +2,6 @@ package com.simenko.qmapp.repository
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
@@ -785,18 +784,22 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
+    suspend fun deleteSubOrder(subOrder: DomainSubOrder) {
+        withContext(Dispatchers.IO) {
+            QualityManagementNetwork.serviceholderInvestigations.deleteSubOrder(subOrder.id)
+            val dbSubOrder = subOrder.toDatabaseSubOrder()
+//            ToDo this action reload view model completely because it triggers to update DomainModel completely
+            database.qualityManagementInvestigationsDao.deleteSubOrder(dbSubOrder)
+        }
+    }
+
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
-            val subOrders = QualityManagementNetwork.serviceholderInvestigations.getSubOrders();
-//            if (subOrders.isNotEmpty())
-//                database.qualityManagementInvestigationsDao.deleteSubOrdersAll()
-            database.qualityManagementInvestigationsDao.insertSubOrdersAll(
-                ListTransformer(
-                    subOrders,
-                    NetworkSubOrder::class,
-                    DatabaseSubOrder::class
-                ).generateList()
-            )
+            val ntSubOrder = QualityManagementNetwork.serviceholderInvestigations.getSubOrders()
+            val dbSubOrders = database.qualityManagementInvestigationsDao.getSubOrdersByList()
+
+            syncSubOrders(dbSubOrders,ntSubOrder, database)
+
             Log.d(TAG, "refreshSubOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
@@ -942,6 +945,40 @@ fun syncOrders(
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteOrder(dbIt)
             Log.d(TAG, "syncOrders: Order deleted from SQLite / id = ${dbIt.id}")
+        }
+    }
+}
+
+fun syncSubOrders(
+    dbSubOrders: List<DatabaseSubOrder>,
+    ntSubOrders: List<NetworkSubOrder>,
+    database: QualityManagementDB
+) {
+    ntSubOrders.forEach byBlock1@{ ntIt ->
+        var recordStatusChanged = false
+        dbSubOrders.forEach byBlock2@{ dbIt ->
+            if (ntIt.id == dbIt.id) {
+                if (ntIt.statusId != dbIt.statusId)
+                    recordStatusChanged = true
+                return@byBlock2
+            }
+        }
+        database.qualityManagementInvestigationsDao.insertSubOrder(ntIt.toDatabaseSubOrder())
+        if (recordStatusChanged) {
+            Log.d(TAG, "syncSubOrders: Sub order status has been changed / id = ${ntIt.id}")
+        }
+    }
+    dbSubOrders.forEach byBlock1@{ dbIt ->
+        var recordExists = false
+        ntSubOrders.forEach byBlock2@{ ntIt ->
+            if (ntIt.id == dbIt.id) {
+                recordExists = true
+                return@byBlock2
+            }
+        }
+        if (!recordExists) {
+            database.qualityManagementInvestigationsDao.deleteSubOrder(dbIt)
+            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }

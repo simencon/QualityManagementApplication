@@ -12,10 +12,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -143,22 +142,46 @@ fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
     appModel: QualityManagementViewModel,
-    context: Context
+    context: Context,
+    createdRecord: CreatedRecord? = null
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+    var lookForRecord by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(lookForRecord) {
+        if (observeSubOrders?.first != null && createdRecord != null)
+            coroutineScope.launch {
+                delay(200)
+                val subOrder = observeSubOrders?.first!!.find {
+                    it.subOrder.id == createdRecord.subOrderId
+                }
+                if (subOrder != null)
+                    appModel.changeCompleteSubOrdersDetailsVisibility(subOrder)
+
+            } else if (createdRecord != null && createdRecord.subOrderId != 0) {
+            delay(50)
+            lookForRecord = !lookForRecord
+        }
+    }
+
     var clickCounter = 0
 
     observeSubOrders?.apply {
         if (observeSubOrders!!.first != null) {
-            Column (horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
                 FlowRow(modifier = modifier) {
                     observeSubOrders!!.first!!.forEach { subOrder ->
                         if (subOrder.subOrder.orderId == parentId) {
 
                             Box(Modifier.fillMaxWidth()) {
                                 ActionsRow(
+                                    subOrder = subOrder,
                                     actionIconSize = ACTION_ITEM_SIZE.dp,
-                                    onDelete = {},
+                                    onDeleteSubOrder = {
+                                        appModel.deleteSubOrder(it)
+                                    },
                                     onEdit = {},
                                     onFavorite = {}
                                 )
@@ -240,7 +263,7 @@ fun SubOrderCard(
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
             if (subOrder.isExpanded) Accent200 else
-                if(subOrder.detailsVisibility) {
+                if (subOrder.detailsVisibility) {
                     _level_2_record_color_details
                 } else {
                     _level_2_record_color

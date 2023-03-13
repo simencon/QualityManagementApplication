@@ -85,7 +85,7 @@ fun SubOrderTasksFlowColumn(
                         Box(Modifier.fillMaxWidth()) {
                             ActionsRow(
                                 actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDelete = {},
+                                onDeleteOrder = {},
                                 onEdit = {},
                                 onFavorite = {}
                             )

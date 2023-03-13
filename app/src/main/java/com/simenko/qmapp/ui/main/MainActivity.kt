@@ -25,16 +25,18 @@ import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
 internal const val KEY_ARG_CREATED_ORDER_ID = "KEY_ARG_CREATED_ORDER_ID"
+internal const val KEY_ARG_CREATED_SUB_ORDER_ID = "KEY_ARG_CREATED_SUB_ORDER_ID"
 
-data class CreatedRecord(val orderId: Int = 0)
+data class CreatedRecord(val orderId: Int = 0, val subOrderId: Int = 0)
 
-fun launchMainActivity(context: Context, orderId: Int = 0) {
-    context.startActivity(createMainActivityIntent(context, orderId))
+fun launchMainActivity(context: Context, orderId: Int = 0, subOrderId: Int = 0) {
+    context.startActivity(createMainActivityIntent(context, orderId, subOrderId))
 }
 
-fun createMainActivityIntent(context: Context, orderId: Int): Intent {
+fun createMainActivityIntent(context: Context, orderId: Int, subOrderId: Int): Intent {
     val intent = Intent(context, MainActivity::class.java)
     intent.putExtra(KEY_ARG_CREATED_ORDER_ID, orderId)
+    intent.putExtra(KEY_ARG_CREATED_SUB_ORDER_ID, subOrderId)
     return intent
 }
 
@@ -54,7 +56,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
         super.onCreate(savedInstanceState)
-        createdRecord = CreatedRecord(intent.extras?.getInt("KEY_ARG_CREATED_ORDER_ID") ?: 0)
+        createdRecord = CreatedRecord(
+            intent.extras?.getInt(KEY_ARG_CREATED_ORDER_ID) ?: 0,
+            intent.extras?.getInt(KEY_ARG_CREATED_SUB_ORDER_ID) ?: 0
+        )
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

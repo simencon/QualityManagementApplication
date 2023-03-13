@@ -148,6 +148,23 @@ class QualityManagementViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 qualityManagementInvestigationsRepository.refreshOrders()
+                qualityManagementInvestigationsRepository.refreshSubOrders()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun refreshSubOrdersFromRepository() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.refreshSubOrders()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -165,6 +182,23 @@ class QualityManagementViewModel @Inject constructor(
 
                 qualityManagementInvestigationsRepository.deleteOrder(order.order)
                 refreshOrdersFromRepository()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun deleteSubOrder(subOrder: DomainSubOrderComplete) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.deleteSubOrder(subOrder.subOrder)
+                refreshSubOrdersFromRepository()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

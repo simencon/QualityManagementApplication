@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainOrderComplete
+import com.simenko.qmapp.domain.DomainSubOrderComplete
 import com.simenko.qmapp.ui.theme.PrimaryVariant900
 
 const val ACTION_ITEM_SIZE = 45
@@ -24,8 +25,10 @@ const val MIN_DRAG_AMOUNT = 6
 @Composable
 fun ActionsRow(
     order: DomainOrderComplete? = null,
+    subOrder: DomainSubOrderComplete? = null,
     actionIconSize: Dp,
-    onDelete: (DomainOrderComplete) -> Unit,
+    onDeleteOrder: (DomainOrderComplete) -> Unit = {},
+    onDeleteSubOrder: (DomainSubOrderComplete) -> Unit = {},
     onEdit: () -> Unit,
     onFavorite: () -> Unit,
 ) {
@@ -35,7 +38,10 @@ fun ActionsRow(
             onClick = {
                 when {
                     (order != null) -> {
-                        onDelete(order)
+                        onDeleteOrder(order)
+                    }
+                    (subOrder != null) -> {
+                        onDeleteSubOrder(subOrder)
                     }
                 }
             },

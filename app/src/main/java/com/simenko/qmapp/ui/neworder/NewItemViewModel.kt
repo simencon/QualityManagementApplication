@@ -217,7 +217,7 @@ class NewItemViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val channel = getCreatedRecord<DomainSubOrder>(subOrder)
                     channel.consumeEach {
-                        launchMainActivity(activity, it.id)
+                        launchMainActivity(activity, it.orderId, it.id)
                         activity.finish()
                     }
                 }

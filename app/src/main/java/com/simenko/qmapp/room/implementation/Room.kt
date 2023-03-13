@@ -252,8 +252,14 @@ interface QualityManagementInvestigationsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrder(order: DatabaseSubOrder)
 
+    @Delete
+    fun deleteSubOrder(order: DatabaseSubOrder)
+
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrders(): LiveData<List<DatabaseSubOrder>>
+
+    @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
+    fun getSubOrdersByList(): List<DatabaseSubOrder>
 
     @Query("DELETE FROM `13_7_sub_order_tasks`")
     fun deleteSubOrderTasksAll()

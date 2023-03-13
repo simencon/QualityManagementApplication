@@ -156,7 +156,7 @@ fun Orders(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
     onListEnd: (FabPosition) -> Unit,
-    createdRecord: CreatedRecord?
+    createdRecord: CreatedRecord? = null
 ) {
     val context = LocalContext.current
 
@@ -224,7 +224,7 @@ fun Orders(
                             ActionsRow(
                                 order = order,
                                 actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDelete = {
+                                onDeleteOrder = {
                                     appModel.deleteOrder(it)
                                 },
                                 onEdit = {
@@ -258,7 +258,8 @@ fun Orders(
                                         appModel.changeCompleteOrdersExpandState(it)
                                     }
                                 },
-                                context = context
+                                context = context,
+                                createdRecord = createdRecord
                             )
                         }
                     }
@@ -289,7 +290,8 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
-    context: Context
+    context: Context,
+    createdRecord: CreatedRecord? = null
 ) {
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
@@ -339,7 +341,8 @@ fun OrderCard(
             viewModel = viewModel,
             order = order,
             onClickDetails = { onClickDetails(order) },
-            context = context
+            context = context,
+            createdRecord = createdRecord
         )
     }
 }
@@ -350,7 +353,8 @@ fun Order(
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
     onClickDetails: () -> Unit = {},
-    context: Context
+    context: Context,
+    createdRecord: CreatedRecord? = null
 ) {
     Column(
         modifier = Modifier
@@ -499,7 +503,13 @@ fun Order(
             }
         }
 
-        OrderDetails(viewModel = viewModel, modifier = modifier, order = order, context = context)
+        OrderDetails(
+            viewModel = viewModel,
+            modifier = modifier,
+            order = order,
+            context = context,
+            createdRecord = createdRecord
+        )
     }
 }
 
@@ -508,7 +518,8 @@ fun OrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
-    context: Context
+    context: Context,
+    createdRecord: CreatedRecord? = null
 ) {
 
     if (order.detailsVisibility) {
@@ -589,7 +600,8 @@ fun OrderDetails(
                 modifier = Modifier,
                 parentId = order.order.id,
                 appModel = viewModel,
-                context = context
+                context = context,
+                createdRecord = createdRecord
             )
     }
 }
