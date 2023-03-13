@@ -46,12 +46,12 @@ fun filterAllAfterChannels(appModel: NewItemViewModel, selectedId: Int, clear: B
     selectSingleRecord(appModel.channelsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.lineId = 0
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.lineId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -80,7 +80,7 @@ fun ChannelsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.channelId = it.id
+                        appModel.currentSubOrder.value?.subOrder?.channelId = it.id
                         filterAllAfterChannels(appModel, it.id, true)
                     }
                 )
@@ -91,7 +91,7 @@ fun ChannelsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.channelId,
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.channelId,
                 )
             }
     }

@@ -18,9 +18,9 @@ fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
     viewModel.currentOrder.value = viewModel.investigationOrders.value?.find { it.id == orderId }
 }
 
-fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrder? {
+fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderWithTasks? {
 
-    val subOrder = viewModel.currentSubOrder.value!!
+    val subOrder = viewModel.currentSubOrder.value!!.subOrder
 
     if (subOrder.orderedById == 0) return null
     if (subOrder.departmentId == 0) return null
@@ -31,23 +31,6 @@ fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrder? {
     if (subOrder.itemVersionId == 0) return null
     if (subOrder.samplesCount == 0) return null
 
-    return DomainSubOrder(
-        id = subOrder.id,
-        orderId = subOrder.orderId,
-        subOrderNumber = subOrder.subOrderNumber,
-        orderedById = subOrder.orderedById,
-        completedById = subOrder.completedById,
-        statusId = subOrder.statusId,
-        createdDate = subOrder.createdDate,
-        completedDate = subOrder.completedDate,
-        departmentId = subOrder.departmentId,
-        subDepartmentId = subOrder.subDepartmentId,
-        channelId = subOrder.channelId,
-        lineId = subOrder.lineId,
-        operationId = subOrder.operationId,
-        itemPreffix = subOrder.itemPreffix,
-        itemTypeId = subOrder.itemTypeId,
-        itemVersionId = subOrder.itemVersionId,
-        samplesCount = subOrder.samplesCount
-    )
+    return viewModel.currentSubOrder.value
+
 }

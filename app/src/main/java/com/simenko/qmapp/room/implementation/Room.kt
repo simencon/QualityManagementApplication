@@ -225,6 +225,9 @@ interface QualityManagementInvestigationsDao {
     @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
     fun getOrdersTypes(): LiveData<List<DatabaseOrdersType>>
 
+
+
+
     @Query("DELETE FROM `12_orders`")
     fun deleteOrdersAll()
 
@@ -242,6 +245,9 @@ interface QualityManagementInvestigationsDao {
 
     @Delete
     fun deleteOrder(order: DatabaseOrder)
+
+
+
 
     @Query("DELETE FROM `13_sub_orders`")
     fun deleteSubOrdersAll()
@@ -261,8 +267,14 @@ interface QualityManagementInvestigationsDao {
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrdersByList(): List<DatabaseSubOrder>
 
+
+
+
     @Query("DELETE FROM `13_7_sub_order_tasks`")
     fun deleteSubOrderTasksAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSubOrderTask(record: DatabaseSubOrderTask)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrderTasksAll(company: List<DatabaseSubOrderTask>)
@@ -270,11 +282,23 @@ interface QualityManagementInvestigationsDao {
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
     fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
 
+
+
+
+    @Query("DELETE FROM `14_samples`")
+    fun deleteSamplesAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSample(record: DatabaseSample)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSamplesAll(company: List<DatabaseSample>)
 
     @Query("SELECT * FROM `14_samples` ORDER BY sampleNumber ASC")
     fun getSamples(): LiveData<List<DatabaseSample>>
+
+
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertResultsDecryptionsAll(company: List<DatabaseResultsDecryption>)

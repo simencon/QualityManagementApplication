@@ -1,7 +1,9 @@
 package com.simenko.qmapp.retrofit.entities
 
 import com.simenko.qmapp.domain.DomainOrder
+import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSubOrder
+import com.simenko.qmapp.domain.DomainSubOrderTask
 import com.simenko.qmapp.utils.ObjectTransformer
 
 //KClasses can only take primary constructor
@@ -44,3 +46,11 @@ fun DomainSubOrder.toNetworkSubOrderWithId() = NetworkSubOrder(
     itemVersionId = itemVersionId,
     samplesCount = samplesCount
 )
+
+fun DomainSubOrderTask.toNetworkSubOrderTaskWithoutId() = ObjectTransformer(
+    DomainSubOrderTask::class, NetworkSubOrderTask::class
+).transform(this)
+
+fun DomainSample.toNetworkSampleWithoutId() = ObjectTransformer(
+    DomainSample::class, NetworkSample::class
+).transform(this)

@@ -34,10 +34,10 @@ fun filterAllAfterQuantity(
             trigger = appModel.pairedTrigger,
             p1Id = samplesQuantity,
             p2Id = StringUtils.concatTwoStrings4(
-                appModel.currentSubOrder.value?.itemPreffix,
-                appModel.currentSubOrder.value?.itemVersionId.toString()
+                appModel.currentSubOrder.value?.subOrder?.itemPreffix,
+                appModel.currentSubOrder.value?.subOrder?.itemVersionId.toString()
             ),
-            p3Id = appModel.currentSubOrder.value?.operationId ?: 0,
+            p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: 0,
             pFlow = appModel.operationsFlows.value,
             m = appModel.inputForOrder,
             step = FilteringStep.CHARACTERISTICS
@@ -45,7 +45,7 @@ fun filterAllAfterQuantity(
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
 
-    val subOrderId = appModel.currentSubOrder.value?.id
+    val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
     val currentSize = appModel.currentSubOrder.value?.samples?.size
 
     if (samplesQuantity > (currentSize ?: 0)) {
@@ -97,13 +97,13 @@ fun QuantitySelection(
                 .height(120.dp)
                 .padding(horizontal = 16.dp)
         ) {
-            if (first!!.operationId != 0)
+            if (first?.subOrder?.operationId != 0)
                 AndroidView(
                     modifier = modifier.width(224.dp),
                     factory = { context ->
                         NumberPicker(context).apply {
                             setOnValueChangedListener { picker, oldVal, newVal ->
-                                appModel!!.currentSubOrder.value!!.samplesCount = newVal
+                                appModel!!.currentSubOrder.value?.subOrder?.samplesCount = newVal
                                 if (oldVal == 0 || newVal == 0)
                                     filterAllAfterQuantity(appModel, newVal, true)
                                 else
@@ -113,11 +113,11 @@ fun QuantitySelection(
                             scaleY = 1f
                             minValue = 0
                             maxValue = 10
-                            this.value = first!!.samplesCount ?: 0
+                            this.value = first?.subOrder?.samplesCount ?: 0
                         }
                     },
                     update = {
-                        it.value = first!!.samplesCount ?: 0
+                        it.value = first?.subOrder?.samplesCount ?: 0
                     }
                 )
         }

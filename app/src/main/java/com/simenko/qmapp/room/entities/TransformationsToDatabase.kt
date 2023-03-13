@@ -3,7 +3,9 @@ package com.simenko.qmapp.room.entities
 import com.simenko.qmapp.domain.DomainOrder
 import com.simenko.qmapp.domain.DomainSubOrder
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
+import com.simenko.qmapp.retrofit.entities.NetworkSample
 import com.simenko.qmapp.retrofit.entities.NetworkSubOrder
+import com.simenko.qmapp.retrofit.entities.NetworkSubOrderTask
 import com.simenko.qmapp.utils.ObjectTransformer
 
 fun DomainOrder.toDatabaseOrder() =
@@ -17,3 +19,9 @@ fun DomainSubOrder.toDatabaseSubOrder() =
 
 fun NetworkSubOrder.toDatabaseSubOrder() =
     ObjectTransformer(NetworkSubOrder::class, DatabaseSubOrder::class).transform(this)
+
+fun NetworkSubOrderTask.toDatabaseSubOrderTask() =
+    ObjectTransformer(NetworkSubOrderTask::class, DatabaseSubOrderTask::class).transform(this)
+
+fun NetworkSample.toDatabaseSample() =
+    ObjectTransformer(NetworkSample::class, DatabaseSample::class).transform(this)

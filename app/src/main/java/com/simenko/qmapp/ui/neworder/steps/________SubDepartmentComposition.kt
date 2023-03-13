@@ -31,7 +31,7 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         s = appModel.teamMembers,
         action = FilteringMode.ADD_BY_PARENT_ID,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.departmentId?:0
+        p1Id = appModel.currentSubOrder.value?.subOrder?.departmentId?:0
     )
     appModel.channelsMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
@@ -56,14 +56,14 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
     selectSingleRecord(appModel.subDepartmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.orderedById = 0
-        appModel.currentSubOrder.value?.channelId = 0
-        appModel.currentSubOrder.value?.lineId = 0
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.orderedById = 0
+        appModel.currentSubOrder.value?.subOrder?.channelId = 0
+        appModel.currentSubOrder.value?.subOrder?.lineId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -92,7 +92,7 @@ fun SubDepartmentsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.subDepartmentId = it.id
+                        appModel.currentSubOrder.value?.subOrder?.subDepartmentId = it.id
                         filterAllAfterSubDepartments(appModel, it.id, true)
                     }
                 )
@@ -103,7 +103,7 @@ fun SubDepartmentsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.subDepartmentId,
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.subDepartmentId,
                 )
             }
     }

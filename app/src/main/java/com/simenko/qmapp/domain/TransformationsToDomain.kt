@@ -48,6 +48,9 @@ fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(
 fun DatabaseSubOrderTask.toDomainSubOrderTask() =
     ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
 
+fun DatabaseSample.toDomainSample() =
+    ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
+
 fun DatabaseCharacteristic.toDomainCharacteristic() =
     ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
 
@@ -125,9 +128,11 @@ fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<D
 fun DatabaseProductVersion.toDomainItemVersion() = ItemTransformer(
     DatabaseProductVersion::class, DomainItemVersion::class
 ).transform(this)
+
 fun DatabaseComponentVersion.toDomainItemVersion() = ItemTransformer(
     DatabaseComponentVersion::class, DomainItemVersion::class
 ).transform(this)
+
 fun DatabaseComponentInStageVersion.toDomainItemVersion() = ItemTransformer(
     DatabaseComponentInStageVersion::class, DomainItemVersion::class
 ).transform(this)
@@ -135,9 +140,11 @@ fun DatabaseComponentInStageVersion.toDomainItemVersion() = ItemTransformer(
 fun DatabaseProduct.toDomainItem() = ItemTransformer(
     DatabaseProduct::class, DomainItem::class
 ).transform(this)
+
 fun DatabaseComponent.toDomainItem() = ItemTransformer(
     DatabaseComponent::class, DomainItem::class
 ).transform(this)
+
 fun DatabaseComponentInStage.toDomainItem() = ItemTransformer(
     DatabaseComponentInStage::class, DomainItem::class
 ).transform(this)
@@ -151,6 +158,7 @@ fun DatabaseProductComplete.toDomainItemComplete() = DomainItemComplete(
         DomainItemToLine::class
     ).generateList()
 )
+
 fun DatabaseComponentComplete.toDomainItemComplete() = DomainItemComplete(
     item = this.component.toDomainItem(),
     key = this.key.toDomainKey(),
@@ -160,6 +168,7 @@ fun DatabaseComponentComplete.toDomainItemComplete() = DomainItemComplete(
         DomainItemToLine::class
     ).generateList()
 )
+
 fun DatabaseComponentInStageComplete.toDomainItemComplete() = DomainItemComplete(
     item = this.componentInStage.toDomainItem(),
     key = this.key.toDomainKey(),
@@ -180,6 +189,7 @@ fun List<DatabaseProductVersionComplete>.asDomainItemFromProduct(): List<DomainI
         )
     }
 }
+
 fun List<DatabaseComponentVersionComplete>.asDomainItemFromComponent(): List<DomainItemVersionComplete> {
     return map {
         DomainItemVersionComplete(
@@ -190,6 +200,7 @@ fun List<DatabaseComponentVersionComplete>.asDomainItemFromComponent(): List<Dom
         )
     }
 }
+
 fun List<DatabaseComponentInStageVersionComplete>.asDomainItemFromStage(): List<DomainItemVersionComplete> {
     return map {
         DomainItemVersionComplete(

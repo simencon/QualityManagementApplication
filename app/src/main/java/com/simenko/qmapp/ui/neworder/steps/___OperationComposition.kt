@@ -33,7 +33,7 @@ fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear:
     selectSingleRecord(appModel.operationsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -62,7 +62,7 @@ fun OperationsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.operationId = it.id
+                        appModel.currentSubOrder.value?.subOrder?.operationId = it.id
                         filterAllAfterOperations(appModel, it.id, true)
                     }
                 )
@@ -73,7 +73,7 @@ fun OperationsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.operationId,
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.operationId,
                 )
             }
     }

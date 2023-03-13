@@ -58,15 +58,15 @@ fun filterAllAfterDepartments(appModel: NewItemViewModel, selectedId: Int, clear
     selectSingleRecord(appModel.departmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subDepartmentId = 0
-        appModel.currentSubOrder.value?.orderedById = 0
-        appModel.currentSubOrder.value?.channelId = 0
-        appModel.currentSubOrder.value?.lineId = 0
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.subDepartmentId = 0
+        appModel.currentSubOrder.value?.subOrder?.orderedById = 0
+        appModel.currentSubOrder.value?.subOrder?.channelId = 0
+        appModel.currentSubOrder.value?.subOrder?.lineId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -95,7 +95,7 @@ fun DepartmentsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.departmentId = it.id
+                        appModel.currentSubOrder.value?.subOrder?.departmentId = it.id
                         filterAllAfterDepartments(appModel, it.id, true)
                     }
                 )
@@ -106,7 +106,7 @@ fun DepartmentsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.departmentId,
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.departmentId,
                 )
             }
     }

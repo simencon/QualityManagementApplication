@@ -56,11 +56,11 @@ fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Bool
     selectSingleRecord(appModel.linesMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -89,7 +89,7 @@ fun LinesSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.lineId = it.id
+                        appModel.currentSubOrder.value?.subOrder?.lineId = it.id
                         filterAllAfterLines(appModel, it.id, true)
                     }
                 )
@@ -100,7 +100,7 @@ fun LinesSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.lineId,
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.lineId,
                 )
             }
     }

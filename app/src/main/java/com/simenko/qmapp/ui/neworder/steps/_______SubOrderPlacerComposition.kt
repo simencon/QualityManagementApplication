@@ -27,7 +27,7 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
         s = appModel.channels,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subDepartmentId?:0,
+        p1Id = appModel.currentSubOrder.value?.subOrder?.subDepartmentId?:0,
         m = appModel.inputForOrder,
         step = FilteringStep.CHANNELS
     )
@@ -50,13 +50,13 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
     selectSingleRecord(appModel.subOrderPlacersMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.channelId = 0
-        appModel.currentSubOrder.value?.lineId = 0
-        appModel.currentSubOrder.value?.itemPreffix = ""
-        appModel.currentSubOrder.value?.itemTypeId = 0
-        appModel.currentSubOrder.value?.itemVersionId = 0
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.channelId = 0
+        appModel.currentSubOrder.value?.subOrder?.lineId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -85,7 +85,7 @@ fun SubOrderPlacersSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.orderedById = it.id
+                        appModel.currentSubOrder.value?.subOrder?.orderedById = it.id
                         filterAllAfterSubOrderPlacers(appModel, it.id, true)
                     }
                 )
@@ -96,7 +96,7 @@ fun SubOrderPlacersSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.orderedById,
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.orderedById,
                 )
             }
     }

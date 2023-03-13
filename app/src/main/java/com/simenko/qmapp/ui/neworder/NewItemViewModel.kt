@@ -8,12 +8,12 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.retrofit.entities.toNetworkOrderWithId
-import com.simenko.qmapp.retrofit.entities.toNetworkOrderWithoutId
-import com.simenko.qmapp.retrofit.entities.toNetworkSubOrderWithoutId
+import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
 import com.simenko.qmapp.room.entities.toDatabaseOrder
+import com.simenko.qmapp.room.entities.toDatabaseSample
 import com.simenko.qmapp.room.entities.toDatabaseSubOrder
+import com.simenko.qmapp.room.entities.toDatabaseSubOrderTask
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.launchMainActivity
 import com.simenko.qmapp.utils.StringUtils
@@ -54,7 +54,7 @@ class NewItemViewModel @Inject constructor(
 
     val currentOrder = MutableLiveData(getEmptyOrder())
 
-    val currentSubOrder = MutableLiveData(getEmptySubOrder())
+    val currentSubOrder = MutableLiveData(DomainSubOrderWithTasks(getEmptySubOrder()))
     val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderWithTasks?, Boolean?>> =
         MediatorLiveData<Pair<DomainSubOrderWithTasks?, Boolean?>>().apply {
             addSource(currentSubOrder) { value = Pair(it, pairedTrigger.value) }
@@ -210,13 +210,35 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrder) {
+    suspend fun postSample(subOrderId: Int, subOrder: DomainSubOrderWithTasks) {
+        withContext(Dispatchers.IO) {
+            subOrder.samples.forEach {
+                it.subOrderId = subOrderId
+                val channel = getCreatedRecord<DomainSubOrderTask>(it)
+                channel.consumeEach {  }
+            }
+        }
+    }
+
+    suspend fun postNewSubOrderTask(subOrderId: Int, subOrder: DomainSubOrderWithTasks) {
+        withContext(Dispatchers.IO) {
+            subOrder.subOrderTasks.forEach {
+                it.subOrderId = subOrderId
+                val channel = getCreatedRecord<DomainSubOrderTask>(it)
+                channel.consumeEach {  }
+            }
+        }
+    }
+
+    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderWithTasks) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = getCreatedRecord<DomainSubOrder>(subOrder)
+                    val channel = getCreatedRecord<DomainSubOrder>(subOrder.subOrder)
                     channel.consumeEach {
+                        postNewSubOrderTask(it.id, subOrder)
+                        postSample(it.id, subOrder)
                         launchMainActivity(activity, it.orderId, it.id)
                         activity.finish()
                     }
@@ -267,6 +289,30 @@ class NewItemViewModel @Inject constructor(
                 Log.d(TAG, "editOrder: $e")
             }
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun <T> CoroutineScope.getCreatedRecord(record: DomainSample) = produce {
+
+        val newRecord = QualityManagementNetwork.serviceholderInvestigations.createSample(
+            record.toNetworkSampleWithoutId()
+        ).toDatabaseSample()
+
+        roomDatabase.qualityManagementInvestigationsDao.insertSample(newRecord)
+
+        send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun <T> CoroutineScope.getCreatedRecord(record: DomainSubOrderTask) = produce {
+
+        val newRecord = QualityManagementNetwork.serviceholderInvestigations.createSubOrderTask(
+            record.toNetworkSubOrderTaskWithoutId()
+        ).toDatabaseSubOrderTask()
+
+        roomDatabase.qualityManagementInvestigationsDao.insertSubOrderTask(newRecord)
+
+        send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -505,7 +551,7 @@ fun getEmptyOrder() = DomainOrder(
     completedDate = null
 )
 
-fun getEmptySubOrder() = DomainSubOrderWithTasks(
+fun getEmptySubOrder() = DomainSubOrder(
     id = 0,
     orderId = 0,//maybe currentOrder.id?
     subOrderNumber = 0,

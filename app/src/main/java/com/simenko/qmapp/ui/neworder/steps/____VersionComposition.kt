@@ -35,10 +35,10 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
         s = appModel.operations,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.lineId?:0,
+        p1Id = appModel.currentSubOrder.value?.subOrder?.lineId?:0,
         p2Id = StringUtils.concatTwoStrings4(
-            appModel.currentSubOrder.value?.itemPreffix,
-            appModel.currentSubOrder.value?.itemVersionId.toString()
+            appModel.currentSubOrder.value?.subOrder?.itemPreffix,
+            appModel.currentSubOrder.value?.subOrder?.itemVersionId.toString()
         ),
         m = appModel.inputForOrder,
         step = FilteringStep.OPERATIONS
@@ -51,8 +51,8 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
     selectSingleRecord(appModel.itemVersionsCompleteMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.operationId = 0
-        appModel.currentSubOrder.value?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.clear()
         appModel.currentSubOrder.value?.subOrderTasks?.clear()
     }
@@ -81,9 +81,9 @@ fun VersionsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.itemPreffix = it.getItemPrefix()
-                        appModel.currentSubOrder.value?.itemTypeId = it.itemComplete.item.id
-                        appModel.currentSubOrder.value?.itemVersionId = it.itemVersion.id
+                        appModel.currentSubOrder.value?.subOrder?.itemPreffix = it.getItemPrefix()
+                        appModel.currentSubOrder.value?.subOrder?.itemTypeId = it.itemComplete.item.id
+                        appModel.currentSubOrder.value?.subOrder?.itemVersionId = it.itemVersion.id
                         filterAllAfterVersions(
                             appModel,
                             StringUtils.concatTwoStrings4(
@@ -101,7 +101,7 @@ fun VersionsSelection(
             coroutineScope.launch {
                 gritState.scrollToSelectedItem(
                     list = first!!.map { it.itemVersion.id }.toList(),
-                    selectedId = appModel.currentSubOrder.value!!.itemVersionId, //to scroll is enough only versionId
+                    selectedId = appModel.currentSubOrder.value?.subOrder!!.itemVersionId, //to scroll is enough only versionId
                 )
             }
     }

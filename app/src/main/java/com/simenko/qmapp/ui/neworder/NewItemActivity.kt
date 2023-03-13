@@ -250,7 +250,7 @@ class NewItemActivity : ComponentActivity() {
                                                                             }
 
                                                                             ActionType.ADD_SUB_ORDER -> {
-                                                                                viewModel.currentSubOrder.value?.orderId = orderId
+                                                                                viewModel.currentSubOrder.value?.subOrder?.orderId = orderId
                                                                                 viewModel.departmentsMutable.performFiltration(
                                                                                     s = viewModel.departments,
                                                                                     action = FilteringMode.ADD_ALL_FROM_META_TABLE,

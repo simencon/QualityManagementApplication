@@ -96,23 +96,7 @@ data class DomainSubOrder constructor(
 )
 
 data class DomainSubOrderWithTasks constructor(
-    var id: Int,
-    var orderId: Int,
-    var subOrderNumber: Int,
-    var orderedById: Int,
-    var completedById: Int? = null,
-    var statusId: Int,
-    var createdDate: String,
-    var completedDate: String? = null,
-    var departmentId: Int,
-    var subDepartmentId: Int,
-    var channelId: Int,
-    var lineId: Int,
-    var operationId: Int,
-    var itemPreffix: String,
-    var itemTypeId: Int,
-    var itemVersionId: Int,
-    var samplesCount: Int? = null,
+    var subOrder: DomainSubOrder,
     var samples: MutableList<DomainSample> = mutableListOf(),
     var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
 )

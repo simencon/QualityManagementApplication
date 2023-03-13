@@ -40,7 +40,7 @@ fun filterAllAfterCharacteristics(
         selectedId
     )) {
         true -> {
-            val subOrderId = appModel.currentSubOrder.value?.id
+            val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
             appModel.currentSubOrder.value?.subOrderTasks?.add(getEmptySubOrderTask(selectedId,subOrderId?:0))
         }
         false -> {
