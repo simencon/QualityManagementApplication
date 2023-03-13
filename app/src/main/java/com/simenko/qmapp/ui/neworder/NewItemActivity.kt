@@ -41,22 +41,25 @@ enum class ActionType() {
 }
 
 internal const val KEY_ARG_ACTION_TYPE = "KEY_ARG_ACTION_TYPE"
-internal const val KEY_ARG_ORDER_RECORD_ID = "KEY_ARG_RECORD_ID"
+internal const val KEY_ARG_ORDER_ID = "KEY_ARG_ORDER_ID"
+internal const val KEY_ARG_SUB_ORDER_ID = "KEY_ARG_SUB_ORDER_ID"
 
-fun launchNewItemActivity(context: Context, actionType: ActionType, orderId: Int = 0) {
-    context.startActivity(createNewItemActivityIntent(context, actionType, orderId))
+fun launchNewItemActivity(context: Context, actionType: ActionType, orderId: Int = 0, subOrderId: Int = 0) {
+    context.startActivity(createNewItemActivityIntent(context, actionType, orderId, subOrderId))
 }
 
-fun createNewItemActivityIntent(context: Context, actionType: ActionType, recordId: Int): Intent {
+fun createNewItemActivityIntent(context: Context, actionType: ActionType, orderId: Int, subOrderId: Int): Intent {
     val intent = Intent(context, NewItemActivity::class.java)
     intent.putExtra(KEY_ARG_ACTION_TYPE, actionType.name)
-    intent.putExtra(KEY_ARG_ORDER_RECORD_ID, recordId)
+    intent.putExtra(KEY_ARG_ORDER_ID, orderId)
+    intent.putExtra(KEY_ARG_SUB_ORDER_ID, subOrderId)
     return intent
 }
 
 private lateinit var actionType: String
 private lateinit var actionTypeEnum: ActionType
 private var orderId = 0
+private var subOrderId = 0
 
 class NewItemActivity : ComponentActivity() {
 
@@ -91,7 +94,8 @@ class NewItemActivity : ComponentActivity() {
             }
         }
 
-        orderId = intent.extras?.getInt(KEY_ARG_ORDER_RECORD_ID) ?: 0
+        orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: 0
+        subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: 0
 
         setContent {
             QMAppTheme {
@@ -259,7 +263,31 @@ class NewItemActivity : ComponentActivity() {
                                                                                 )
                                                                             }
 
-                                                                            else -> {}
+                                                                            ActionType.EDIT_SUBORDER -> {
+                                                                                viewModel.getCurrentSubOrder(subOrderId)
+
+                                                                                viewModel.departmentsMutable.performFiltration(
+                                                                                    s = viewModel.departments,
+                                                                                    action = FilteringMode.ADD_ALL_FROM_META_TABLE,
+                                                                                    trigger = viewModel.pairedTrigger,
+                                                                                    m = viewModel.inputForOrder
+                                                                                )
+                                                                                val currentSubOrder = viewModel.currentSubOrder.value!!
+                                                                                filterAllAfterDepartments(viewModel,currentSubOrder.subOrder.departmentId)
+                                                                                filterAllAfterSubDepartments(viewModel,currentSubOrder.subOrder.subDepartmentId)
+                                                                                filterAllAfterSubOrderPlacers(viewModel,currentSubOrder.subOrder.orderedById)
+                                                                                filterAllAfterChannels(viewModel,currentSubOrder.subOrder.channelId)
+                                                                                filterAllAfterLines(viewModel,currentSubOrder.subOrder.lineId)
+                                                                                filterAllAfterVersions(viewModel,
+                                                                                    StringUtils.concatTwoStrings4(
+                                                                                        currentSubOrder.subOrder.itemPreffix,
+                                                                                        currentSubOrder.subOrder.itemVersionId.toString()
+                                                                                    )
+                                                                                )
+                                                                                filterAllAfterOperations(viewModel,currentSubOrder.subOrder.operationId)
+                                                                                filterAllAfterQuantity(viewModel,currentSubOrder.subOrder.samplesCount?:0)
+                                                                                filterAllAfterCharacteristics(viewModel,0)
+                                                                            }
                                                                         }
                                                                     }
                                                                 }

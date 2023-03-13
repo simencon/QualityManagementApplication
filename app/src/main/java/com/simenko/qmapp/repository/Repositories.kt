@@ -913,6 +913,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSubOrderTask(-1)
         }
 
+    fun getCurrentSubOrder(subOrderId: Int): LiveData<DomainSubOrderWithChildren> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderWithChildren(subOrderId.toString())) {
+            it.toDomainSubOrderWithChildren()
+        }
+
 }
 
 fun syncOrders(

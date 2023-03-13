@@ -34,21 +34,33 @@ fun filterAllAfterCharacteristics(
     selectedId: Int,
     clear: Boolean = false
 ) {
-    when (changeRecordSelection(
-        appModel.characteristicsMutable,
-        appModel.pairedTrigger,
-        selectedId
-    )) {
-        true -> {
-            val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
-            appModel.currentSubOrder.value?.subOrderTasks?.add(getEmptySubOrderTask(selectedId,subOrderId?:0))
+    if (clear) {
+        when (changeRecordSelection(
+            appModel.characteristicsMutable,
+            appModel.pairedTrigger,
+            selectedId
+        )) {
+            true -> {
+                val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
+                appModel.currentSubOrder.value?.subOrderTasks?.add(
+                    getEmptySubOrderTask(
+                        selectedId,
+                        subOrderId ?: 0
+                    )
+                )
+            }
+            false -> {
+                val index =
+                    appModel.currentSubOrder.value?.subOrderTasks?.indexOfFirst { it.charId == selectedId }
+                if (index != null)
+                    appModel.currentSubOrder.value?.subOrderTasks?.removeAt(index)
+            }
         }
-        false -> {
-            val index =
-                appModel.currentSubOrder.value?.subOrderTasks?.indexOfFirst { it.charId == selectedId }
-            if (index != null)
-                appModel.currentSubOrder.value?.subOrderTasks?.removeAt(index)
+    } else {
+        appModel.currentSubOrder.value?.subOrderTasks?.forEach { record ->
+            appModel.characteristicsMutable.value?.find { it.id == record.id }?.isSelected = true
         }
+        appModel.pairedTrigger.value = !(appModel.pairedTrigger.value as Boolean)
     }
 }
 

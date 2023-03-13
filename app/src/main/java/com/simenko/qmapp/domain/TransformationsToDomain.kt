@@ -20,6 +20,9 @@ fun DatabaseMeasurementReason.toDomainReason() =
 fun DatabaseSubOrder.toDomainSubOrder() =
     ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
 
+fun DatabaseSubOrder.toDomainSubOrderTask() =
+    ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
+
 fun DatabaseTeamMember.toDomainTeamMember() =
     ObjectTransformer(DatabaseTeamMember::class, DomainTeamMember::class).transform(this)
 
@@ -210,4 +213,28 @@ fun List<DatabaseComponentInStageVersionComplete>.asDomainItemFromStage(): List<
             itemComplete = it.componentInStageComplete.toDomainItemComplete()
         )
     }
+}
+
+fun DatabaseSubOrderWithChildren.toDomainSubOrderWithChildren(): DomainSubOrderWithChildren {
+    return DomainSubOrderWithChildren(
+        subOrder = this.subOrder.toDomainSubOrder(),
+        samples = mutableListOf<DomainSample>().apply {
+            addAll(
+                ListTransformer(
+                    samples,
+                    DatabaseSample::class,
+                    DomainSample::class
+                ).generateList()
+            )
+        },
+        subOrderTasks = mutableListOf<DomainSubOrderTask>().apply {
+            addAll(
+                ListTransformer(
+                    subOrderTasks,
+                    DatabaseSubOrderTask::class,
+                    DomainSubOrderTask::class
+                ).generateList()
+            )
+        }
+    )
 }

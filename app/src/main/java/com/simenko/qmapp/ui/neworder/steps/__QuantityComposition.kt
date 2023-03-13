@@ -27,33 +27,35 @@ fun filterAllAfterQuantity(
     samplesQuantity: Int,
     clear: Boolean = false
 ) {
-    if (clear) {
-        appModel.characteristicsMutable.performFiltration(
-            s = appModel.characteristics,
-            action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-            trigger = appModel.pairedTrigger,
-            p1Id = samplesQuantity,
-            p2Id = StringUtils.concatTwoStrings4(
-                appModel.currentSubOrder.value?.subOrder?.itemPreffix,
-                appModel.currentSubOrder.value?.subOrder?.itemVersionId.toString()
-            ),
-            p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: 0,
-            pFlow = appModel.operationsFlows.value,
-            m = appModel.inputForOrder,
-            step = FilteringStep.CHARACTERISTICS
-        )
-        appModel.currentSubOrder.value?.subOrderTasks?.clear()
-    }
+
+    appModel.characteristicsMutable.performFiltration(
+        s = appModel.characteristics,
+        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
+        trigger = appModel.pairedTrigger,
+        p1Id = samplesQuantity,
+        p2Id = StringUtils.concatTwoStrings4(
+            appModel.currentSubOrder.value?.subOrder?.itemPreffix,
+            appModel.currentSubOrder.value?.subOrder?.itemVersionId.toString()
+        ),
+        p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: 0,
+        pFlow = appModel.operationsFlows.value,
+        m = appModel.inputForOrder,
+        step = FilteringStep.CHARACTERISTICS
+    )
 
     val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
     val currentSize = appModel.currentSubOrder.value?.samples?.size
 
-    if (samplesQuantity > (currentSize ?: 0)) {
-        for (q in ((currentSize ?: 0) + 1)..samplesQuantity)
-            appModel.currentSubOrder.value?.samples?.add(getEmptySample(q,subOrderId?:0))
-    } else if (samplesQuantity < (currentSize ?: 0)) {
-        for (q in (currentSize ?: 0) downTo samplesQuantity + 1)
-            appModel.currentSubOrder.value?.samples?.removeAt(q - 1)
+    if (clear) {
+        appModel.currentSubOrder.value?.subOrderTasks?.clear()
+
+        if (samplesQuantity > (currentSize ?: 0)) {
+            for (q in ((currentSize ?: 0) + 1)..samplesQuantity)
+                appModel.currentSubOrder.value?.samples?.add(getEmptySample(q, subOrderId ?: 0))
+        } else if (samplesQuantity < (currentSize ?: 0)) {
+            for (q in (currentSize ?: 0) downTo samplesQuantity + 1)
+                appModel.currentSubOrder.value?.samples?.removeAt(q - 1)
+        }
     }
 
 }

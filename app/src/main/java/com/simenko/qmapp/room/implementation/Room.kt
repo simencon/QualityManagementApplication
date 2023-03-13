@@ -328,6 +328,14 @@ interface QualityManagementInvestigationsDao {
     )
     fun getSubOrdersDetailed(): LiveData<List<DatabaseCompleteSubOrder>>
 
+    @Transaction
+    @Query(
+        "SELECT subOrders.* " +
+                "FROM `13_sub_orders` AS subOrders " +
+                "WHERE id=:id"
+    )
+    fun getSubOrderWithChildren(id: String): LiveData<DatabaseSubOrderWithChildren>
+
     @Query("SELECT * FROM `12_orders` WHERE id=:id ")
     fun getOrder(id: String): LiveData<DatabaseOrder>
 

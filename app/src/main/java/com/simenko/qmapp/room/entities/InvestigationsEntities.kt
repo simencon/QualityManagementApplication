@@ -429,6 +429,23 @@ data class DatabaseCompleteSubOrder constructor(
     var operation: DatabaseManufacturingOperation
 )
 
+data class DatabaseSubOrderWithChildren constructor(
+    @Embedded
+    var subOrder: DatabaseSubOrder,
+    @Relation(
+        entity = DatabaseSample::class,
+        parentColumn = "id",
+        entityColumn = "subOrderId"
+    )
+    var samples: List<DatabaseSample>,
+    @Relation(
+        entity = DatabaseSubOrderTask::class,
+        parentColumn = "id",
+        entityColumn = "subOrderId"
+    )
+    var subOrderTasks: List<DatabaseSubOrderTask>
+)
+
 data class DatabaseSubOrderTaskComplete constructor(
     @Embedded
     var subOrderTask: DatabaseSubOrderTask,

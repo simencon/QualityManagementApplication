@@ -182,7 +182,14 @@ fun SubOrdersFlowColumn(
                                     onDeleteSubOrder = {
                                         appModel.deleteSubOrder(it)
                                     },
-                                    onEdit = {},
+                                    onEdit = {
+                                        launchNewItemActivity(
+                                            context,
+                                            ActionType.EDIT_SUBORDER,
+                                            subOrder.subOrder.orderId,
+                                            subOrder.subOrder.id
+                                        )
+                                    },
                                     onFavorite = {}
                                 )
 

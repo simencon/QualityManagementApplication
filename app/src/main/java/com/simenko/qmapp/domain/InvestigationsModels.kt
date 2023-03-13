@@ -95,7 +95,7 @@ data class DomainSubOrder constructor(
     var samplesCount: Int? = null
 )
 
-data class DomainSubOrderWithTasks constructor(
+data class DomainSubOrderWithChildren constructor(
     var subOrder: DomainSubOrder,
     var samples: MutableList<DomainSample> = mutableListOf(),
     var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()

@@ -54,9 +54,14 @@ class NewItemViewModel @Inject constructor(
 
     val currentOrder = MutableLiveData(getEmptyOrder())
 
-    val currentSubOrder = MutableLiveData(DomainSubOrderWithTasks(getEmptySubOrder()))
-    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderWithTasks?, Boolean?>> =
-        MediatorLiveData<Pair<DomainSubOrderWithTasks?, Boolean?>>().apply {
+    val currentSubOrder = MutableLiveData(DomainSubOrderWithChildren(getEmptySubOrder()))
+
+    fun getCurrentSubOrder(subOrderId: Int) {
+        currentSubOrder.value = qualityManagementInvestigationsRepository.getCurrentSubOrder(subOrderId).value
+    }
+
+    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderWithChildren?, Boolean?>> =
+        MediatorLiveData<Pair<DomainSubOrderWithChildren?, Boolean?>>().apply {
             addSource(currentSubOrder) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
         }
@@ -210,7 +215,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    suspend fun postSample(subOrderId: Int, subOrder: DomainSubOrderWithTasks) {
+    suspend fun postSample(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
         withContext(Dispatchers.IO) {
             subOrder.samples.forEach {
                 it.subOrderId = subOrderId
@@ -220,7 +225,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    suspend fun postNewSubOrderTask(subOrderId: Int, subOrder: DomainSubOrderWithTasks) {
+    suspend fun postNewSubOrderTask(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
         withContext(Dispatchers.IO) {
             subOrder.subOrderTasks.forEach {
                 it.subOrderId = subOrderId
@@ -230,7 +235,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderWithTasks) {
+    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderWithChildren) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
