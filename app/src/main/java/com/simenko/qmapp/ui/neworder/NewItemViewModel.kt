@@ -51,13 +51,18 @@ class NewItemViewModel @Inject constructor(
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val investigationOrders = qualityManagementInvestigationsRepository.orders
+    val subOrdersWithChildren = qualityManagementInvestigationsRepository.subOrdersWithChildren
 
     val currentOrder = MutableLiveData(getEmptyOrder())
-
     val currentSubOrder = MutableLiveData(DomainSubOrderWithChildren(getEmptySubOrder()))
 
-    fun getCurrentSubOrder(subOrderId: Int) {
-        currentSubOrder.value = qualityManagementInvestigationsRepository.getCurrentSubOrder(subOrderId).value
+    fun loadCurrentSubOrder(subOrderId: Int) {
+        subOrdersWithChildren.value?.forEach rubByBlock@{
+            if (it.subOrder.id == subOrderId) {
+                currentSubOrder.value = it
+                return@rubByBlock
+            }
+        }
     }
 
     val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderWithChildren?, Boolean?>> =

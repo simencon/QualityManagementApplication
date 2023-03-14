@@ -10,41 +10,49 @@ interface QualityManagementManufacturingDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPositionLevelsAll(teamMember: List<DatabasePositionLevel>)
+
     @Query("SELECT * FROM `0_position_levels` ORDER BY id ASC")
     fun getPositionLevels(): LiveData<List<DatabasePositionLevel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertTeamMembersAll(teamMember: List<DatabaseTeamMember>)
+
     @Query("SELECT * FROM `8_team_members` ORDER BY id ASC")
     fun getTeamMembers(): LiveData<List<DatabaseTeamMember>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCompaniesAll(company: List<DatabaseCompany>)
+
     @Query("SELECT * FROM `0_companies` ORDER BY id ASC")
     fun getCompanies(): LiveData<List<DatabaseCompany>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertDepartmentsAll(department: List<DatabaseDepartment>)
+
     @Query("SELECT * FROM `10_departments` ORDER BY depOrder ASC")
     fun getDepartments(): LiveData<List<DatabaseDepartment>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubDepartmentsAll(department: List<DatabaseSubDepartment>)
+
     @Query("SELECT * FROM `11_sub_departments` ORDER BY subDepOrder ASC")
     fun getSubDepartments(): LiveData<List<DatabaseSubDepartment>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertManufacturingChannelsAll(department: List<DatabaseManufacturingChannel>)
+
     @Query("SELECT * FROM `12_manufacturing_channels` ORDER BY channelOrder ASC")
     fun getManufacturingChannels(): LiveData<List<DatabaseManufacturingChannel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertManufacturingLinesAll(department: List<DatabaseManufacturingLine>)
+
     @Query("SELECT * FROM `13_manufacturing_lines` ORDER BY lineOrder ASC")
     fun getManufacturingLines(): LiveData<List<DatabaseManufacturingLine>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertManufacturingOperationsAll(department: List<DatabaseManufacturingOperation>)
+
     @Query("SELECT * FROM `14_manufacturing_operations` ORDER BY operationOrder ASC")
     fun getManufacturingOperations(): LiveData<List<DatabaseManufacturingOperation>>
 
@@ -58,6 +66,7 @@ interface QualityManagementManufacturingDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOperationsFlowsAll(department: List<DatabaseOperationsFlow>)
+
     @Query("SELECT * FROM `14_14_manufacturing_operations_flow` ORDER BY currentOperationId ASC")
     fun getOperationsFlows(): LiveData<List<DatabaseOperationsFlow>>
 }
@@ -226,8 +235,6 @@ interface QualityManagementInvestigationsDao {
     fun getOrdersTypes(): LiveData<List<DatabaseOrdersType>>
 
 
-
-
     @Query("DELETE FROM `12_orders`")
     fun deleteOrdersAll()
 
@@ -245,8 +252,6 @@ interface QualityManagementInvestigationsDao {
 
     @Delete
     fun deleteOrder(order: DatabaseOrder)
-
-
 
 
     @Query("DELETE FROM `13_sub_orders`")
@@ -268,8 +273,6 @@ interface QualityManagementInvestigationsDao {
     fun getSubOrdersByList(): List<DatabaseSubOrder>
 
 
-
-
     @Query("DELETE FROM `13_7_sub_order_tasks`")
     fun deleteSubOrderTasksAll()
 
@@ -281,8 +284,6 @@ interface QualityManagementInvestigationsDao {
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
     fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
-
-
 
 
     @Query("DELETE FROM `14_samples`")
@@ -298,8 +299,6 @@ interface QualityManagementInvestigationsDao {
     fun getSamples(): LiveData<List<DatabaseSample>>
 
 
-
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertResultsDecryptionsAll(company: List<DatabaseResultsDecryption>)
 
@@ -313,28 +312,16 @@ interface QualityManagementInvestigationsDao {
     fun getResults(): LiveData<List<DatabaseResult>>
 
     @Transaction
-    @Query(
-        "SELECT orders.* " +
-                "FROM '12_orders' AS orders " +
-                "ORDER BY orderNumber;"
-    )
+    @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
     fun getOrdersDetailed(): LiveData<List<DatabaseOrderComplete>>
 
     @Transaction
-    @Query(
-        "SELECT subOrders.* " +
-                "FROM `13_sub_orders` AS subOrders " +
-                "ORDER BY subOrderNumber;"
-    )
+    @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
     fun getSubOrdersDetailed(): LiveData<List<DatabaseCompleteSubOrder>>
 
     @Transaction
-    @Query(
-        "SELECT subOrders.* " +
-                "FROM `13_sub_orders` AS subOrders " +
-                "WHERE id=:id"
-    )
-    fun getSubOrderWithChildren(id: String): LiveData<DatabaseSubOrderWithChildren>
+    @Query("SELECT * FROM `13_sub_orders`")
+    fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderWithChildren>>
 
     @Query("SELECT * FROM `12_orders` WHERE id=:id ")
     fun getOrder(id: String): LiveData<DatabaseOrder>
@@ -343,11 +330,7 @@ interface QualityManagementInvestigationsDao {
     fun getLatestOrder(): LiveData<DatabaseOrder>
 
     @Transaction
-    @Query(
-        "SELECT soTasks.* " +
-                "FROM `13_7_sub_order_tasks` AS soTasks " +
-                "ORDER BY id;"
-    )
+    @Query("SELECT * FROM `13_7_sub_order_tasks` AS soTasks ORDER BY id;")
     fun getSubOrderTasksDetailed(): LiveData<List<DatabaseSubOrderTaskComplete>>
 }
 

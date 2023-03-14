@@ -806,13 +806,10 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshSubOrderTasks() {
         withContext(Dispatchers.IO) {
-            val subOrderTasks =
-                QualityManagementNetwork.serviceholderInvestigations.getSubOrderTasks();
-//            if (subOrderTasks.isNotEmpty())
-//                database.qualityManagementInvestigationsDao.deleteSubOrderTasksAll()
+            val records = QualityManagementNetwork.serviceholderInvestigations.getSubOrderTasks();
             database.qualityManagementInvestigationsDao.insertSubOrderTasksAll(
                 ListTransformer(
-                    subOrderTasks,
+                    records,
                     NetworkSubOrderTask::class,
                     DatabaseSubOrderTask::class
                 ).generateList()
@@ -913,8 +910,9 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSubOrderTask(-1)
         }
 
-    fun getCurrentSubOrder(subOrderId: Int): LiveData<DomainSubOrderWithChildren> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderWithChildren(subOrderId.toString())) {
+
+    val subOrdersWithChildren: LiveData<List<DomainSubOrderWithChildren>> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderWithChildren()) {
             it.toDomainSubOrderWithChildren()
         }
 

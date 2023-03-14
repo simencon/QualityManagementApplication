@@ -31,7 +31,7 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterCharacteristics(
     appModel: NewItemViewModel,
-    selectedId: Int,
+    selectedId: Int = 0,
     clear: Boolean = false
 ) {
     if (clear) {
@@ -58,7 +58,7 @@ fun filterAllAfterCharacteristics(
         }
     } else {
         appModel.currentSubOrder.value?.subOrderTasks?.forEach { record ->
-            appModel.characteristicsMutable.value?.find { it.id == record.id }?.isSelected = true
+            appModel.characteristicsMutable.value?.find { it.id == record.charId }?.isSelected = true
         }
         appModel.pairedTrigger.value = !(appModel.pairedTrigger.value as Boolean)
     }

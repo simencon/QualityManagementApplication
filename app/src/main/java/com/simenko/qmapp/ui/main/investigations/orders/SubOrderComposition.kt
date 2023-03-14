@@ -185,7 +185,7 @@ fun SubOrdersFlowColumn(
                                     onEdit = {
                                         launchNewItemActivity(
                                             context,
-                                            ActionType.EDIT_SUBORDER,
+                                            ActionType.EDIT_SUB_ORDER,
                                             subOrder.subOrder.orderId,
                                             subOrder.subOrder.id
                                         )

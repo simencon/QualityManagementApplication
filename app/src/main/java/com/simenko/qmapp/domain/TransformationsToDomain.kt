@@ -215,26 +215,28 @@ fun List<DatabaseComponentInStageVersionComplete>.asDomainItemFromStage(): List<
     }
 }
 
-fun DatabaseSubOrderWithChildren.toDomainSubOrderWithChildren(): DomainSubOrderWithChildren {
-    return DomainSubOrderWithChildren(
-        subOrder = this.subOrder.toDomainSubOrder(),
-        samples = mutableListOf<DomainSample>().apply {
-            addAll(
-                ListTransformer(
-                    samples,
-                    DatabaseSample::class,
-                    DomainSample::class
-                ).generateList()
-            )
-        },
-        subOrderTasks = mutableListOf<DomainSubOrderTask>().apply {
-            addAll(
-                ListTransformer(
-                    subOrderTasks,
-                    DatabaseSubOrderTask::class,
-                    DomainSubOrderTask::class
-                ).generateList()
-            )
-        }
-    )
+fun List<DatabaseSubOrderWithChildren>.toDomainSubOrderWithChildren(): List<DomainSubOrderWithChildren> {
+    return map {
+        DomainSubOrderWithChildren(
+            subOrder = it.subOrder.toDomainSubOrder(),
+            samples = mutableListOf<DomainSample>().apply {
+                addAll(
+                    ListTransformer(
+                        it.samples,
+                        DatabaseSample::class,
+                        DomainSample::class
+                    ).generateList()
+                )
+            },
+            subOrderTasks = mutableListOf<DomainSubOrderTask>().apply {
+                addAll(
+                    ListTransformer(
+                        it.subOrderTasks,
+                        DatabaseSubOrderTask::class,
+                        DomainSubOrderTask::class
+                    ).generateList()
+                )
+            }
+        )
+    }
 }

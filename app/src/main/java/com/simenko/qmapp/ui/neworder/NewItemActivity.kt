@@ -33,11 +33,11 @@ import javax.inject.Inject
 
 private const val TAG = "NewItemActivity"
 
-enum class ActionType() {
+enum class ActionType {
     ADD_ORDER,
     EDIT_ORDER,
     ADD_SUB_ORDER,
-    EDIT_SUBORDER
+    EDIT_SUB_ORDER
 }
 
 internal const val KEY_ARG_ACTION_TYPE = "KEY_ARG_ACTION_TYPE"
@@ -86,8 +86,8 @@ class NewItemActivity : ComponentActivity() {
             ActionType.ADD_SUB_ORDER.name -> {
                 ActionType.ADD_SUB_ORDER
             }
-            ActionType.EDIT_SUBORDER.name -> {
-                ActionType.EDIT_SUBORDER
+            ActionType.EDIT_SUB_ORDER.name -> {
+                ActionType.EDIT_SUB_ORDER
             }
             else -> {
                 ActionType.ADD_ORDER
@@ -142,7 +142,9 @@ class NewItemActivity : ComponentActivity() {
                                                 checkCurrentSubOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.EDIT_SUBORDER -> {}
+                                        ActionType.EDIT_SUB_ORDER -> {
+//                                            ToDo the next action here!!!
+                                        }
                                     }
                                 }
                             },
@@ -182,7 +184,7 @@ class NewItemActivity : ComponentActivity() {
                                 parentId = 0,
                             )
                         }
-                        ActionType.EDIT_SUBORDER -> {
+                        ActionType.EDIT_SUB_ORDER -> {
                             SubOrderForm(
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
@@ -263,30 +265,33 @@ class NewItemActivity : ComponentActivity() {
                                                                                 )
                                                                             }
 
-                                                                            ActionType.EDIT_SUBORDER -> {
-                                                                                viewModel.getCurrentSubOrder(subOrderId)
+                                                                            ActionType.EDIT_SUB_ORDER -> {
 
-                                                                                viewModel.departmentsMutable.performFiltration(
-                                                                                    s = viewModel.departments,
-                                                                                    action = FilteringMode.ADD_ALL_FROM_META_TABLE,
-                                                                                    trigger = viewModel.pairedTrigger,
-                                                                                    m = viewModel.inputForOrder
-                                                                                )
-                                                                                val currentSubOrder = viewModel.currentSubOrder.value!!
-                                                                                filterAllAfterDepartments(viewModel,currentSubOrder.subOrder.departmentId)
-                                                                                filterAllAfterSubDepartments(viewModel,currentSubOrder.subOrder.subDepartmentId)
-                                                                                filterAllAfterSubOrderPlacers(viewModel,currentSubOrder.subOrder.orderedById)
-                                                                                filterAllAfterChannels(viewModel,currentSubOrder.subOrder.channelId)
-                                                                                filterAllAfterLines(viewModel,currentSubOrder.subOrder.lineId)
-                                                                                filterAllAfterVersions(viewModel,
-                                                                                    StringUtils.concatTwoStrings4(
-                                                                                        currentSubOrder.subOrder.itemPreffix,
-                                                                                        currentSubOrder.subOrder.itemVersionId.toString()
+                                                                                viewModel.subOrdersWithChildren.observe(this){
+                                                                                    viewModel.loadCurrentSubOrder(subOrderId)
+
+                                                                                    viewModel.departmentsMutable.performFiltration(
+                                                                                        s = viewModel.departments,
+                                                                                        action = FilteringMode.ADD_ALL_FROM_META_TABLE,
+                                                                                        trigger = viewModel.pairedTrigger,
+                                                                                        m = viewModel.inputForOrder
                                                                                     )
-                                                                                )
-                                                                                filterAllAfterOperations(viewModel,currentSubOrder.subOrder.operationId)
-                                                                                filterAllAfterQuantity(viewModel,currentSubOrder.subOrder.samplesCount?:0)
-                                                                                filterAllAfterCharacteristics(viewModel,0)
+                                                                                    val currentSubOrder = viewModel.currentSubOrder.value!!
+                                                                                    filterAllAfterDepartments(viewModel,currentSubOrder.subOrder.departmentId)
+                                                                                    filterAllAfterSubDepartments(viewModel,currentSubOrder.subOrder.subDepartmentId)
+                                                                                    filterAllAfterSubOrderPlacers(viewModel,currentSubOrder.subOrder.orderedById)
+                                                                                    filterAllAfterChannels(viewModel,currentSubOrder.subOrder.channelId)
+                                                                                    filterAllAfterLines(viewModel,currentSubOrder.subOrder.lineId)
+                                                                                    filterAllAfterVersions(viewModel,
+                                                                                        StringUtils.concatTwoStrings4(
+                                                                                            currentSubOrder.subOrder.itemPreffix,
+                                                                                            currentSubOrder.subOrder.itemVersionId.toString()
+                                                                                        )
+                                                                                    )
+                                                                                    filterAllAfterOperations(viewModel,currentSubOrder.subOrder.operationId)
+                                                                                    filterAllAfterQuantity(viewModel,currentSubOrder.subOrder.samplesCount?:0)
+                                                                                    filterAllAfterCharacteristics(viewModel)
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
