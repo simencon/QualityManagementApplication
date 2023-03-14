@@ -107,13 +107,17 @@ data class DomainSubOrderTask constructor(
     var createdDate: String? = null,
     var completedDate: String? = null,
     var subOrderId: Int,
-    var charId: Int
+    var charId: Int,
+    var isNewRecord: Boolean = false,
+    var toBeDeleted : Boolean = false
 )
 
 data class DomainSample constructor(
     var id: Int,
     var subOrderId: Int,
-    var sampleNumber: Int? = null
+    var sampleNumber: Int? = null,
+    var isNewRecord: Boolean = false,
+    var toBeDeleted : Boolean = false
 )
 
 data class DomainResultsDecryption constructor(

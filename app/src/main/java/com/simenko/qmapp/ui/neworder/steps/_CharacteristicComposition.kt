@@ -42,18 +42,30 @@ fun filterAllAfterCharacteristics(
         )) {
             true -> {
                 val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
-                appModel.currentSubOrder.value?.subOrderTasks?.add(
-                    getEmptySubOrderTask(
-                        selectedId,
-                        subOrderId ?: 0
-                    )
-                )
+                appModel.currentSubOrder.value?.subOrderTasks?.find {
+                    it.charId == selectedId && it.subOrderId == (subOrderId ?: 0)
+                }.let {
+                    if (it == null)
+                        appModel.currentSubOrder.value?.subOrderTasks?.add(
+                            getEmptySubOrderTask(
+                                selectedId,
+                                subOrderId ?: 0
+                            )
+                        )
+                    else
+                        it.toBeDeleted = false
+                }
             }
             false -> {
-                val index =
-                    appModel.currentSubOrder.value?.subOrderTasks?.indexOfFirst { it.charId == selectedId }
-                if (index != null)
-                    appModel.currentSubOrder.value?.subOrderTasks?.removeAt(index)
+                val index = appModel.currentSubOrder.value?.subOrderTasks?.indexOfFirst {
+                    it.charId == selectedId
+                }
+                if (index != null) {
+                    if (appModel.currentSubOrder.value?.subOrderTasks?.get(index)!!.isNewRecord)
+                        appModel.currentSubOrder.value?.subOrderTasks?.removeAt(index)
+                    else
+                        appModel.currentSubOrder.value?.subOrderTasks?.get(index)!!.toBeDeleted = true
+                }
             }
         }
     } else {
@@ -71,7 +83,6 @@ fun CharacteristicsSelection(
 ) {
     val observeInputForOrder by appModel.characteristicsMediator.observeAsState()
     val gritState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
     observeInputForOrder?.apply {
         LazyHorizontalGrid(
@@ -87,20 +98,11 @@ fun CharacteristicsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-//                        appModel.currentSubOrder.value?.operationId = it.id
                         filterAllAfterCharacteristics(appModel, it.id, true)
                     }
                 )
             }
         }
-
-//        if (first != null && appModel.currentSubOrder.value != null)
-//            coroutineScope.launch {
-//                gritState.scrollToSelectedItem(
-//                    list = first!!.map { it.id }.toList(),
-//                    selectedId = appModel.currentSubOrder.value!!.operationId,
-//                )
-//            }
     }
 }
 

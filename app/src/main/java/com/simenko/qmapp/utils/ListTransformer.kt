@@ -48,6 +48,12 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
             "isSelected" -> {
                 false
             }
+            "isNewRecord" -> {
+                false
+            }
+            "toBeDeleted" -> {
+                false
+            }
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
     }
@@ -104,6 +110,12 @@ class ListTransformer<in T : Any, out R : Any> constructor(
                 false
             }
             "isSelected" -> {
+                false
+            }
+            "isNewRecord" -> {
+                false
+            }
+            "toBeDeleted" -> {
                 false
             }
             else -> return inPropertiesByName[parameter.name]?.get(data)
