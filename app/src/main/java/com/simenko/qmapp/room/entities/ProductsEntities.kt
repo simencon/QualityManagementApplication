@@ -2,8 +2,6 @@ package com.simenko.qmapp.room.entities
 
 import androidx.room.*
 
-//ToDo - add products/components/raw material related entities with versions and specifications (9tbl.)
-
 @Entity(tableName = "10_1_d_element_ish_model")
 data class DatabaseElementIshModel constructor(
     @PrimaryKey(autoGenerate = true)

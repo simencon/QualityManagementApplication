@@ -191,7 +191,6 @@ data class DatabaseOrder constructor(
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
         )
-//    ToDo Add item version with specifications (huge amount of job)
     ]
 )
 data class DatabaseSubOrder constructor(
@@ -370,11 +369,7 @@ data class DatabaseOrderComplete constructor(
         entityColumn = "id"
     )
     var orderStatus: DatabaseOrdersStatus
-) {
-    fun selectedRecord(): String {
-        return "${orderReason.reasonDescription} (${order.orderNumber})"
-    }
-}
+)
 
 data class DatabaseCompleteSubOrder constructor(
     @Embedded

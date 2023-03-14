@@ -280,6 +280,9 @@ interface QualityManagementInvestigationsDao {
     @Delete
     fun deleteSubOrderTask(record: DatabaseSubOrderTask)
 
+    @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY id ASC")
+    fun getSubOrderTasksByList(): List<DatabaseSubOrderTask>
+
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSamplesAll(records: List<DatabaseSample>)
@@ -293,6 +296,9 @@ interface QualityManagementInvestigationsDao {
     fun updateSample(record: DatabaseSample)
     @Delete
     fun deleteSample(record: DatabaseSample)
+
+    @Query("SELECT * FROM `14_samples` ORDER BY sampleNumber ASC")
+    fun getSamplesByList(): List<DatabaseSample>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -32,13 +32,8 @@ class QualityManagementViewModel @Inject constructor(
         QualityManagementProductsRepository(roomDatabase)
     private val qualityManagementInvestigationsRepository =
         QualityManagementInvestigationsRepository(roomDatabase)
-    val isLoadingInProgress = MutableLiveData<Boolean>(false)
-    val isNetworkError = MutableLiveData<Boolean>(false)
-
-    init {
-//        ToDo decide when to update all SQLData (but not every time when MainActivity Created!)
-//        refreshDataFromRepository()
-    }
+    val isLoadingInProgress = MutableLiveData(false)
+    val isNetworkError = MutableLiveData(false)
 
     private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
@@ -49,7 +44,7 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
         }
 
-    fun changeTeamMembersDetailsVisibility(item: DomainTeamMember): Unit {
+    fun changeTeamMembersDetailsVisibility(item: DomainTeamMember) {
         teamMembers.value?.find { it.id == item.id }?.let { member ->
             member.detailsVisibility = !member.detailsVisibility
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
@@ -66,22 +61,21 @@ class QualityManagementViewModel @Inject constructor(
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
     val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
 
-    val subOrderParentId: MutableLiveData<Int> = MutableLiveData(-1)
-    val completeOrders = qualityManagementInvestigationsRepository.completeOrders
+    private val completeOrders = qualityManagementInvestigationsRepository.completeOrders
     val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
             addSource(completeOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
         }
 
-    fun changeCompleteOrdersDetailsVisibility(item: DomainOrderComplete): Unit {
+    fun changeCompleteOrdersDetailsVisibility(item: DomainOrderComplete) {
         completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
             order.detailsVisibility = !order.detailsVisibility
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
 
-    fun changeCompleteOrdersExpandState(item: DomainOrderComplete): Unit {
+    fun changeCompleteOrdersExpandState(item: DomainOrderComplete) {
         completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
             order.isExpanded = !order.isExpanded
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
@@ -92,35 +86,35 @@ class QualityManagementViewModel @Inject constructor(
     val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
     val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
 
-    val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
+    private val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
     val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>>().apply {
             addSource(completeSubOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
         }
 
-    fun changeCompleteSubOrdersDetailsVisibility(item: DomainSubOrderComplete): Unit {
+    fun changeCompleteSubOrdersDetailsVisibility(item: DomainSubOrderComplete) {
         completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
             subOrder.detailsVisibility = !subOrder.detailsVisibility
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
 
-    fun changeCompleteSubOrdersExpandState(item: DomainSubOrderComplete): Unit {
+    fun changeCompleteSubOrdersExpandState(item: DomainSubOrderComplete) {
         completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
             subOrder.isExpanded = !subOrder.isExpanded
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
 
-    val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
+    private val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
     val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
             addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
         }
 
-    fun changeCompleteSubOrderTasksDetailsVisibility(item: DomainSubOrderTaskComplete): Unit {
+    fun changeCompleteSubOrderTasksDetailsVisibility(item: DomainSubOrderTaskComplete) {
         completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
             ?.let { subOrderTask ->
                 subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
@@ -128,7 +122,7 @@ class QualityManagementViewModel @Inject constructor(
             }
     }
 
-    fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete): Unit {
+    fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete) {
         completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
             ?.let { subOrderTask ->
                 subOrderTask.isExpanded = !subOrderTask.isExpanded
@@ -153,6 +147,8 @@ class QualityManagementViewModel @Inject constructor(
 
                 qualityManagementInvestigationsRepository.refreshOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrders()
+                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
+                qualityManagementInvestigationsRepository.refreshSamples()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -163,12 +159,14 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    fun refreshSubOrdersFromRepository() {
+    private fun refreshSubOrdersFromRepository() {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
 
                 qualityManagementInvestigationsRepository.refreshSubOrders()
+                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
+                qualityManagementInvestigationsRepository.refreshSamples()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
