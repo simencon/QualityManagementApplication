@@ -147,6 +147,20 @@ fun SubOrdersFlowColumn(
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
 
+    observeSubOrders?.first?.forEach { it ->
+        when(it.subOrder.itemPreffix) {
+            "p" -> {
+                it.itemVersionComplete = appModel.itemVersionsCompleteP.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+            }
+            "c" -> {
+                it.itemVersionComplete = appModel.itemVersionsCompleteC.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+            }
+            "s" -> {
+                it.itemVersionComplete = appModel.itemVersionsCompleteS.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+            }
+        }
+    }
+
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
@@ -451,8 +465,12 @@ fun SubOrder(
                             .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-//                ToDo change it when all data available
-                        text = "IR-33213/VK806/VU1006",
+                        text = StringUtils.concatTwoStrings1(
+                            StringUtils.concatTwoStrings3(
+                                subOrder.itemVersionComplete?.itemComplete?.key?.componentKey,
+                                subOrder.itemVersionComplete?.itemComplete?.item?.itemDesignation
+                            ), subOrder.itemVersionComplete?.itemVersion?.versionDescription
+                        ),
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

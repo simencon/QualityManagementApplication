@@ -156,6 +156,7 @@ data class DomainSubOrderComplete constructor(
     var channel: DomainManufacturingChannel,
     var line: DomainManufacturingLine,
     var operation: DomainManufacturingOperation,
+    var itemVersionComplete: DomainItemVersionComplete? = null,
     var detailsVisibility: Boolean = false,
     var tasksVisibility: Boolean = false,
     var isExpanded: Boolean = false

@@ -88,6 +88,10 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
+    val itemVersionsCompleteP = qualityManagementProductsRepository.itemsVersionsCompleteP
+    val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
+    val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
+
     val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
     val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>>().apply {

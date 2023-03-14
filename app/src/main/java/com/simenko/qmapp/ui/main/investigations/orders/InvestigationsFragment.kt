@@ -39,19 +39,26 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null, p
 
         requireContext().theme
 
-        binding.composeView.apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                InvestigationsAll(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 2.dp, horizontal = 4.dp),
-                    appModel = viewModel,
-                    context = context,
-                    createdRecord = createdRecord
-                )
+        viewModel.itemVersionsCompleteP.observe(viewLifecycleOwner) {
+            viewModel.itemVersionsCompleteC.observe(viewLifecycleOwner) {
+                viewModel.itemVersionsCompleteS.observe(viewLifecycleOwner) {
+                    binding.composeView.apply {
+                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                        setContent {
+                            InvestigationsAll(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(vertical = 2.dp, horizontal = 4.dp),
+                                appModel = viewModel,
+                                context = context,
+                                createdRecord = createdRecord
+                            )
+                        }
+                    }
+                }
             }
         }
+
         return binding.root
     }
 }
