@@ -913,10 +913,6 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
             it.asDomainOrdersComplete(-1)
         }
-    val latestOrder: LiveData<DomainOrder> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getLatestOrder()) {
-            it.toDomainOrder()
-        }
 
     val completeSubOrders: LiveData<List<DomainSubOrderComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrdersDetailed()) {

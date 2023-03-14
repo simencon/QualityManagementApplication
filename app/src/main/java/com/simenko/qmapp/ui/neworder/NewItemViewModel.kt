@@ -385,7 +385,7 @@ class NewItemViewModel @Inject constructor(
             nSubOrder
         )
 
-        roomDatabase.qualityManagementInvestigationsDao.insertSubOrder(record.toDatabaseSubOrder())
+        roomDatabase.qualityManagementInvestigationsDao.updateSubOrder(record.toDatabaseSubOrder())
 
         send(record)
     }
@@ -400,7 +400,7 @@ class NewItemViewModel @Inject constructor(
             nOrder
         )
 
-        roomDatabase.qualityManagementInvestigationsDao.insertOrder(record.toDatabaseOrder())
+        roomDatabase.qualityManagementInvestigationsDao.updateOrder(record.toDatabaseOrder())
 
         send(record)
     }

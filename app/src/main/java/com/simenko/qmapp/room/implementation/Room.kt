@@ -212,110 +212,99 @@ interface QualityManagementInvestigationsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertInputForOrderAll(company: List<DatabaseInputForOrder>)
-
     @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
     fun getInputForOrder(): LiveData<List<DatabaseInputForOrder>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrdersStatusesAll(company: List<DatabaseOrdersStatus>)
-
     @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
     fun getOrdersStatuses(): LiveData<List<DatabaseOrdersStatus>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMeasurementReasonsAll(company: List<DatabaseMeasurementReason>)
-
     @Query("SELECT * FROM `0_measurement_reasons` ORDER BY reasonOrder ASC")
     fun getMeasurementReasons(): LiveData<List<DatabaseMeasurementReason>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrdersTypesAll(company: List<DatabaseOrdersType>)
-
     @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
     fun getOrdersTypes(): LiveData<List<DatabaseOrdersType>>
 
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrdersAll(records: List<DatabaseOrder>)
     @Query("DELETE FROM `12_orders`")
     fun deleteOrdersAll()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrdersAll(company: List<DatabaseOrder>)
-
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber ASC")
     fun getOrders(): LiveData<List<DatabaseOrder>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrder(record: DatabaseOrder)
+    @Update
+    fun updateOrder(record: DatabaseOrder)
+    @Delete
+    fun deleteOrder(record: DatabaseOrder)
 
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber ASC")
     fun getOrdersByList(): List<DatabaseOrder>
 
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrder(order: DatabaseOrder)
-
-    @Delete
-    fun deleteOrder(record: DatabaseOrder)
-
-
+    fun insertSubOrdersAll(records: List<DatabaseSubOrder>)
     @Query("DELETE FROM `13_sub_orders`")
     fun deleteSubOrdersAll()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSubOrdersAll(company: List<DatabaseSubOrder>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSubOrder(order: DatabaseSubOrder)
-
-    @Delete
-    fun deleteSubOrder(record: DatabaseSubOrder)
-
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrders(): LiveData<List<DatabaseSubOrder>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSubOrder(record: DatabaseSubOrder)
+    @Update
+    fun updateSubOrder(record: DatabaseSubOrder)
+    @Query("SELECT * FROM `12_orders` WHERE id=:id ")
+    fun getOrder(id: String): LiveData<DatabaseOrder>
+    @Delete
+    fun deleteSubOrder(record: DatabaseSubOrder)
 
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrdersByList(): List<DatabaseSubOrder>
 
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSubOrderTasksAll(records: List<DatabaseSubOrderTask>)
     @Query("DELETE FROM `13_7_sub_order_tasks`")
     fun deleteSubOrderTasksAll()
-
+    @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
+    fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrderTask(record: DatabaseSubOrderTask)
-
+    @Update
+    fun updateSubOrderTask(record: DatabaseSubOrderTask)
     @Delete
     fun deleteSubOrderTask(record: DatabaseSubOrderTask)
 
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSubOrderTasksAll(company: List<DatabaseSubOrderTask>)
-
-    @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
-    fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
-
-
+    fun insertSamplesAll(records: List<DatabaseSample>)
     @Query("DELETE FROM `14_samples`")
     fun deleteSamplesAll()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSample(record: DatabaseSample)
-
-    @Delete
-    fun deleteSample(record: DatabaseSample)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSamplesAll(company: List<DatabaseSample>)
-
     @Query("SELECT * FROM `14_samples` ORDER BY sampleNumber ASC")
     fun getSamples(): LiveData<List<DatabaseSample>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSample(record: DatabaseSample)
+    @Update
+    fun updateSample(record: DatabaseSample)
+    @Delete
+    fun deleteSample(record: DatabaseSample)
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertResultsDecryptionsAll(company: List<DatabaseResultsDecryption>)
-
     @Query("SELECT * FROM `0_results_decryptions` ORDER BY id ASC")
     fun getResultsDecryptions(): LiveData<List<DatabaseResultsDecryption>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertResultsAll(company: List<DatabaseResult>)
-
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     fun getResults(): LiveData<List<DatabaseResult>>
+
 
     @Transaction
     @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
@@ -328,12 +317,6 @@ interface QualityManagementInvestigationsDao {
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
     fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderWithChildren>>
-
-    @Query("SELECT * FROM `12_orders` WHERE id=:id ")
-    fun getOrder(id: String): LiveData<DatabaseOrder>
-
-    @Query("SELECT * FROM '12_orders' WHERE id = (SELECT MAX(id) FROM '12_orders')")
-    fun getLatestOrder(): LiveData<DatabaseOrder>
 
     @Transaction
     @Query("SELECT * FROM `13_7_sub_order_tasks` AS soTasks ORDER BY id;")
