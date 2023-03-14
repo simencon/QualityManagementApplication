@@ -635,5 +635,6 @@ fun getEmptySubOrderTask(charId: Int, subOrderId: Int = 0) = DomainSubOrderTask(
 fun getEmptySample(sampleNumber: Int, subOrderId: Int = 0) = DomainSample(
     id = 0,
     subOrderId = subOrderId,
-    sampleNumber = sampleNumber
+    sampleNumber = sampleNumber,
+    isNewRecord = true
 )

@@ -34,8 +34,10 @@ fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear:
 
     if (clear) {
         appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
-        appModel.currentSubOrder.value?.samples?.clear()
-        appModel.currentSubOrder.value?.subOrderTasks?.clear()
+        appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
+        appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
+        appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
+        appModel.currentSubOrder.value?.subOrderTasks?.forEach {it.toBeDeleted = true}
     }
 }
 

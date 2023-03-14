@@ -27,7 +27,7 @@ fun filterAllAfterQuantity(
     samplesQuantity: Int,
     clear: Boolean = false
 ) {
-
+//    ToDo is not optimized while quantity is not reset
     appModel.characteristicsMutable.performFiltration(
         s = appModel.characteristics,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
@@ -43,18 +43,31 @@ fun filterAllAfterQuantity(
         step = FilteringStep.CHARACTERISTICS
     )
 
-    val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
-    val currentSize = appModel.currentSubOrder.value?.samples?.size
-
     if (clear) {
-        appModel.currentSubOrder.value?.subOrderTasks?.clear()
+        appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
+        appModel.currentSubOrder.value?.subOrderTasks?.forEach { it.toBeDeleted = true }
 
-        if (samplesQuantity > (currentSize ?: 0)) {
-            for (q in ((currentSize ?: 0) + 1)..samplesQuantity)
-                appModel.currentSubOrder.value?.samples?.add(getEmptySample(q, subOrderId ?: 0))
-        } else if (samplesQuantity < (currentSize ?: 0)) {
-            for (q in (currentSize ?: 0) downTo samplesQuantity + 1)
-                appModel.currentSubOrder.value?.samples?.removeAt(q - 1)
+        val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
+        var currentSize = 0
+        appModel.currentSubOrder.value?.samples?.forEach {
+            if (it.isNewRecord || !it.toBeDeleted)
+                currentSize++
+        }
+
+        if (samplesQuantity > currentSize) {
+            for (q in (currentSize + 1)..samplesQuantity)
+                if ((appModel.currentSubOrder.value?.samples?.size ?: 0) >= q &&
+                    appModel.currentSubOrder.value?.samples?.get(q - 1)?.isNewRecord == false
+                )
+                    appModel.currentSubOrder.value?.samples?.get(q - 1)?.toBeDeleted = false
+                else
+                    appModel.currentSubOrder.value?.samples?.add(getEmptySample(q, subOrderId ?: 0))
+        } else if (samplesQuantity < currentSize) {
+            for (q in currentSize downTo samplesQuantity + 1)
+                if (appModel.currentSubOrder.value?.samples?.get(q - 1)?.isNewRecord != false)
+                    appModel.currentSubOrder.value?.samples?.removeAt(q - 1)
+                else
+                    appModel.currentSubOrder.value?.samples?.get(q - 1)?.toBeDeleted = true
         }
     }
 
@@ -109,7 +122,7 @@ fun QuantitySelection(
                                 if (oldVal == 0 || newVal == 0)
                                     filterAllAfterQuantity(appModel, newVal, true)
                                 else
-                                    filterAllAfterQuantity(appModel, newVal, false)
+                                    filterAllAfterQuantity(appModel, newVal, true)
                             }
                             scaleX = 1f
                             scaleY = 1f
