@@ -251,7 +251,7 @@ interface QualityManagementInvestigationsDao {
     fun insertOrder(order: DatabaseOrder)
 
     @Delete
-    fun deleteOrder(order: DatabaseOrder)
+    fun deleteOrder(record: DatabaseOrder)
 
 
     @Query("DELETE FROM `13_sub_orders`")
@@ -264,7 +264,7 @@ interface QualityManagementInvestigationsDao {
     fun insertSubOrder(order: DatabaseSubOrder)
 
     @Delete
-    fun deleteSubOrder(order: DatabaseSubOrder)
+    fun deleteSubOrder(record: DatabaseSubOrder)
 
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrders(): LiveData<List<DatabaseSubOrder>>
@@ -279,6 +279,9 @@ interface QualityManagementInvestigationsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrderTask(record: DatabaseSubOrderTask)
 
+    @Delete
+    fun deleteSubOrderTask(record: DatabaseSubOrderTask)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrderTasksAll(company: List<DatabaseSubOrderTask>)
 
@@ -291,6 +294,9 @@ interface QualityManagementInvestigationsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSample(record: DatabaseSample)
+
+    @Delete
+    fun deleteSample(record: DatabaseSample)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSamplesAll(company: List<DatabaseSample>)

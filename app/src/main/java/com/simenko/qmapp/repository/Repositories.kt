@@ -793,6 +793,24 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
+    suspend fun deleteSubOrderTask(subOrderTask: DomainSubOrderTask) {
+        withContext(Dispatchers.IO) {
+            QualityManagementNetwork.serviceholderInvestigations.deleteSubOrderTask(subOrderTask.id)
+            val dbSubOrder = subOrderTask.toDatabaseSubOrderTask()
+//            ToDo this action reload view model completely because it triggers to update DomainModel completely
+            database.qualityManagementInvestigationsDao.deleteSubOrderTask(dbSubOrder)
+        }
+    }
+
+    suspend fun deleteSample(sample: DomainSample) {
+        withContext(Dispatchers.IO) {
+            QualityManagementNetwork.serviceholderInvestigations.deleteSample(sample.id)
+            val dbSubOrder = sample.toDatabaseSample()
+//            ToDo this action reload view model completely because it triggers to update DomainModel completely
+            database.qualityManagementInvestigationsDao.deleteSample(dbSubOrder)
+        }
+    }
+
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
             val ntSubOrder = QualityManagementNetwork.serviceholderInvestigations.getSubOrders()

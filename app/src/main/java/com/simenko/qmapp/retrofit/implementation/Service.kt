@@ -104,16 +104,23 @@ interface QualityManagementInvestigationsService {
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
     @DELETE("api/_13SubOrder/{id}")
     suspend fun deleteSubOrder(@Path("id") id: Int): Response<Unit>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("api/_13SubOrder/{id}")
+    suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<Unit>
 
     @GET("api/_137SubOrderTask")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
     @POST("api/_137SubOrderTask")
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
+    @DELETE("api/_137SubOrderTask/{id}")
+    suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<Unit>
 
     @GET("api/_14Sample")
     suspend fun getSamples(): List<NetworkSample>
     @POST("api/_14Sample")
     suspend fun createSample(@Body networkSample: NetworkSample): NetworkSample
+    @DELETE("api/_14Sample/{id}")
+    suspend fun deleteSample(@Path("id") id: Int): Response<Unit>
 
     @GET("api/_0ResultsDecryption")
     suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>

@@ -143,7 +143,10 @@ class NewItemActivity : ComponentActivity() {
                                             )
                                         }
                                         ActionType.EDIT_SUB_ORDER -> {
-//                                            ToDo the next action here!!!
+                                            viewModel.editSubOrder(
+                                                this,
+                                                checkCurrentSubOrder(viewModel)!!
+                                            )
                                         }
                                     }
                                 }

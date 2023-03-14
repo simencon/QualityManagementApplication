@@ -220,22 +220,30 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    suspend fun postSample(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
+    suspend fun postDeleteSamples(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
         withContext(Dispatchers.IO) {
             subOrder.samples.forEach {
-                it.subOrderId = subOrderId
-                val channel = getCreatedRecord<DomainSubOrderTask>(it)
-                channel.consumeEach {  }
+                if (it.toBeDeleted) {
+                    qualityManagementInvestigationsRepository.deleteSample(it)
+                } else if (it.isNewRecord) {
+                    it.subOrderId = subOrderId
+                    val channel = getCreatedRecord<DomainSubOrderTask>(it)
+                    channel.consumeEach { }
+                }
             }
         }
     }
 
-    suspend fun postNewSubOrderTask(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
+    suspend fun postDeleteSubOrderTasks(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
         withContext(Dispatchers.IO) {
             subOrder.subOrderTasks.forEach {
-                it.subOrderId = subOrderId
-                val channel = getCreatedRecord<DomainSubOrderTask>(it)
-                channel.consumeEach {  }
+                if (it.toBeDeleted) {
+                    qualityManagementInvestigationsRepository.deleteSubOrderTask(it)
+                } else if (it.isNewRecord) {
+                    it.subOrderId = subOrderId
+                    val channel = getCreatedRecord<DomainSubOrderTask>(it)
+                    channel.consumeEach { }
+                }
             }
         }
     }
@@ -247,8 +255,8 @@ class NewItemViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val channel = getCreatedRecord<DomainSubOrder>(subOrder.subOrder)
                     channel.consumeEach {
-                        postNewSubOrderTask(it.id, subOrder)
-                        postSample(it.id, subOrder)
+                        postDeleteSubOrderTasks(it.id, subOrder)
+                        postDeleteSamples(it.id, subOrder)
                         launchMainActivity(activity, it.orderId, it.id)
                         activity.finish()
                     }
@@ -280,6 +288,27 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
+    fun editSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderWithChildren) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = updateRecord<DomainSubOrder>(subOrder.subOrder)
+                    channel.consumeEach {
+                        postDeleteSubOrderTasks(it.id, subOrder)
+                        postDeleteSamples(it.id, subOrder)
+                        launchMainActivity(activity, it.orderId, it.id)
+                        activity.finish()
+                    }
+                }
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
     fun editOrder(activity: NewItemActivity, order: DomainOrder) {
         viewModelScope.launch {
             try {
@@ -295,8 +324,6 @@ class NewItemViewModel @Inject constructor(
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
-            } catch (e: Error) {
-                Log.d(TAG, "editOrder: $e")
             }
         }
     }
@@ -347,6 +374,21 @@ class NewItemViewModel @Inject constructor(
         roomDatabase.qualityManagementInvestigationsDao.insertOrder(newOrder)
 
         send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun <T> CoroutineScope.updateRecord(record: DomainSubOrder) = produce {
+
+        val nSubOrder = record.toNetworkSubOrderWithId()
+
+        QualityManagementNetwork.serviceholderInvestigations.editSubOrder(
+            record.id,
+            nSubOrder
+        )
+
+        roomDatabase.qualityManagementInvestigationsDao.insertSubOrder(record.toDatabaseSubOrder())
+
+        send(record)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
