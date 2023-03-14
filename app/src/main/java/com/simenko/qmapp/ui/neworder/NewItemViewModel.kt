@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.neworder
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
@@ -331,7 +330,7 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainSample) = produce {
 
-        val newRecord = QualityManagementNetwork.serviceholderInvestigations.createSample(
+        val newRecord = QualityManagementNetwork.serviceHolderInvestigations.createSample(
             record.toNetworkSampleWithoutId()
         ).toDatabaseSample()
 
@@ -343,7 +342,7 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainSubOrderTask) = produce {
 
-        val newRecord = QualityManagementNetwork.serviceholderInvestigations.createSubOrderTask(
+        val newRecord = QualityManagementNetwork.serviceHolderInvestigations.createSubOrderTask(
             record.toNetworkSubOrderTaskWithoutId()
         ).toDatabaseSubOrderTask()
 
@@ -355,7 +354,7 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainSubOrder) = produce {
 
-        val newRecord = QualityManagementNetwork.serviceholderInvestigations.createSubOrder(
+        val newRecord = QualityManagementNetwork.serviceHolderInvestigations.createSubOrder(
             record.toNetworkSubOrderWithoutId()
         ).toDatabaseSubOrder()
 
@@ -367,7 +366,7 @@ class NewItemViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun <T> CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
 
-        val newOrder = QualityManagementNetwork.serviceholderInvestigations.createOrder(
+        val newOrder = QualityManagementNetwork.serviceHolderInvestigations.createOrder(
             record.toNetworkOrderWithoutId()
         ).toDatabaseOrder()
 
@@ -381,7 +380,7 @@ class NewItemViewModel @Inject constructor(
 
         val nSubOrder = record.toNetworkSubOrderWithId()
 
-        QualityManagementNetwork.serviceholderInvestigations.editSubOrder(
+        QualityManagementNetwork.serviceHolderInvestigations.editSubOrder(
             record.id,
             nSubOrder
         )
@@ -396,7 +395,7 @@ class NewItemViewModel @Inject constructor(
 
         val nOrder = record.toNetworkOrderWithId()
 
-        QualityManagementNetwork.serviceholderInvestigations.editOrder(
+        QualityManagementNetwork.serviceHolderInvestigations.editOrder(
             record.id,
             nOrder
         )

@@ -21,7 +21,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
      */
     suspend fun refreshPositionLevels() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getPositionLevels();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getPositionLevels();
             database.qualityManagementManufacturingDao.insertPositionLevelsAll(
                 ListTransformer(
                     list,
@@ -38,7 +38,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshTeamMembers() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getTeamMembers();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getTeamMembers();
             database.qualityManagementManufacturingDao.insertTeamMembersAll(
                 ListTransformer(
                     list,
@@ -52,7 +52,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshCompanies() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getCompanies();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getCompanies();
             database.qualityManagementManufacturingDao.insertCompaniesAll(
                 ListTransformer(
                     list,
@@ -66,7 +66,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshDepartments() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getDepartments();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getDepartments();
             database.qualityManagementManufacturingDao.insertDepartmentsAll(
                 ListTransformer(
                     list,
@@ -80,7 +80,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshSubDepartments() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getSubDepartments();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getSubDepartments();
             database.qualityManagementManufacturingDao.insertSubDepartmentsAll(
                 ListTransformer(
                     list,
@@ -97,7 +97,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshManufacturingChannels() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getManufacturingChannels();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getManufacturingChannels();
             database.qualityManagementManufacturingDao.insertManufacturingChannelsAll(
                 ListTransformer(
                     list,
@@ -114,7 +114,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshManufacturingLines() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getManufacturingLines();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getManufacturingLines();
             database.qualityManagementManufacturingDao.insertManufacturingLinesAll(
                 ListTransformer(
                     list,
@@ -131,7 +131,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
 
     suspend fun refreshManufacturingOperations() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getManufacturingOperations();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getManufacturingOperations();
             database.qualityManagementManufacturingDao.insertManufacturingOperationsAll(
                 ListTransformer(
                     list,
@@ -147,7 +147,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
     }
     suspend fun refreshOperationsFlows() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderManufacturing.getOperationsFlows();
+            val list = QualityManagementNetwork.serviceHolderManufacturing.getOperationsFlows();
             database.qualityManagementManufacturingDao.insertOperationsFlowsAll(
                 ListTransformer(
                     list,
@@ -241,7 +241,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     suspend fun refreshElementIshModels() {
         withContext(Dispatchers.IO) {
             val elementIshModels =
-                QualityManagementNetwork.serviceholderProducts.getElementIshModels();
+                QualityManagementNetwork.serviceHolderProducts.getElementIshModels();
             database.qualityManagementProductsDao.insertElementIshModelsAll(
                 ListTransformer(
                     elementIshModels,
@@ -258,7 +258,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     suspend fun refreshIshSubCharacteristics() {
         withContext(Dispatchers.IO) {
             val ishSubCharacteristics =
-                QualityManagementNetwork.serviceholderProducts.getIshSubCharacteristics();
+                QualityManagementNetwork.serviceHolderProducts.getIshSubCharacteristics();
             database.qualityManagementProductsDao.insertIshSubCharacteristicsAll(
                 ListTransformer(
                     ishSubCharacteristics,
@@ -275,7 +275,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     suspend fun refreshManufacturingProjects() {
         withContext(Dispatchers.IO) {
             val manufacturingProjects =
-                QualityManagementNetwork.serviceholderProducts.getManufacturingProjects();
+                QualityManagementNetwork.serviceHolderProducts.getManufacturingProjects();
             database.qualityManagementProductsDao.insertManufacturingProjectsAll(
                 ListTransformer(
                     manufacturingProjects,
@@ -292,7 +292,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     suspend fun refreshCharacteristics() {
         withContext(Dispatchers.IO) {
             val characteristics =
-                QualityManagementNetwork.serviceholderProducts.getCharacteristics();
+                QualityManagementNetwork.serviceHolderProducts.getCharacteristics();
             database.qualityManagementProductsDao.insertCharacteristicsAll(
                 ListTransformer(
                     characteristics, NetworkCharacteristic::class,
@@ -308,7 +308,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshMetrixes() {
         withContext(Dispatchers.IO) {
-            val metrixes = QualityManagementNetwork.serviceholderProducts.getMetrixes();
+            val metrixes = QualityManagementNetwork.serviceHolderProducts.getMetrixes();
             database.qualityManagementProductsDao.insertMetrixesAll(
                 ListTransformer(
                     metrixes,
@@ -322,7 +322,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshKeys() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getKeys();
+            val list = QualityManagementNetwork.serviceHolderProducts.getKeys();
             database.qualityManagementProductsDao.insertKeysAll(
                 ListTransformer(
                     list,
@@ -336,7 +336,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshProductBases() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getProductBases();
+            val list = QualityManagementNetwork.serviceHolderProducts.getProductBases();
             database.qualityManagementProductsDao.insertProductBasesAll(
                 ListTransformer(
                     list,
@@ -353,7 +353,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshProducts() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getProducts();
+            val list = QualityManagementNetwork.serviceHolderProducts.getProducts();
             database.qualityManagementProductsDao.insertProductsAll(
                 ListTransformer(
                     list,
@@ -367,7 +367,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponents() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponents();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponents();
             database.qualityManagementProductsDao.insertComponentsAll(
                 ListTransformer(
                     list,
@@ -381,7 +381,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponentInStages() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentInStages();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponentInStages();
             database.qualityManagementProductsDao.insertComponentInStagesAll(
                 ListTransformer(
                     list,
@@ -398,7 +398,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshVersionStatuses() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getVersionStatuses();
+            val list = QualityManagementNetwork.serviceHolderProducts.getVersionStatuses();
             database.qualityManagementProductsDao.insertVersionStatusesAll(
                 ListTransformer(
                     list,
@@ -415,7 +415,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshProductVersions() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getProductVersions();
+            val list = QualityManagementNetwork.serviceHolderProducts.getProductVersions();
             database.qualityManagementProductsDao.insertProductVersionsAll(
                 ListTransformer(
                     list,
@@ -432,7 +432,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponentVersions() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentVersions();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponentVersions();
             database.qualityManagementProductsDao.insertComponentVersionsAll(
                 ListTransformer(
                     list,
@@ -449,7 +449,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponentInStageVersions() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentInStageVersions();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponentInStageVersions();
             database.qualityManagementProductsDao.insertComponentInStageVersionsAll(
                 ListTransformer(
                     list,
@@ -466,7 +466,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshProductTolerances() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getProductTolerances();
+            val list = QualityManagementNetwork.serviceHolderProducts.getProductTolerances();
             database.qualityManagementProductsDao.insertProductTolerancesAll(
                 ListTransformer(
                     list,
@@ -483,7 +483,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponentTolerances() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentTolerances();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponentTolerances();
             database.qualityManagementProductsDao.insertComponentTolerancesAll(
                 ListTransformer(
                     list,
@@ -501,7 +501,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     suspend fun refreshComponentInStageTolerances() {
         withContext(Dispatchers.IO) {
             val list =
-                QualityManagementNetwork.serviceholderProducts.getComponentInStageTolerances();
+                QualityManagementNetwork.serviceHolderProducts.getComponentInStageTolerances();
             database.qualityManagementProductsDao.insertComponentInStageTolerancesAll(
                 ListTransformer(
                     list,
@@ -518,7 +518,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshProductsToLines() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getProductsToLines();
+            val list = QualityManagementNetwork.serviceHolderProducts.getProductsToLines();
             database.qualityManagementProductsDao.insertProductsToLinesAll(
                 ListTransformer(
                     list,
@@ -535,7 +535,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponentsToLines() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentsToLines();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponentsToLines();
             database.qualityManagementProductsDao.insertComponentsToLinesAll(
                 ListTransformer(
                     list,
@@ -552,7 +552,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
     suspend fun refreshComponentInStagesToLines() {
         withContext(Dispatchers.IO) {
-            val list = QualityManagementNetwork.serviceholderProducts.getComponentInStagesToLines();
+            val list = QualityManagementNetwork.serviceHolderProducts.getComponentInStagesToLines();
             database.qualityManagementProductsDao.insertComponentInStagesToLinesAll(
                 ListTransformer(
                     list,
@@ -701,7 +701,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     suspend fun refreshInputForOrder() {
         withContext(Dispatchers.IO) {
             val inputForOrder =
-                QualityManagementNetwork.serviceholderInvestigations.getInputForOrder();
+                QualityManagementNetwork.serviceHolderInvestigations.getInputForOrder();
             database.qualityManagementInvestigationsDao.insertInputForOrderAll(
                 ListTransformer(
                     inputForOrder,
@@ -719,7 +719,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     suspend fun refreshOrdersStatuses() {
         withContext(Dispatchers.IO) {
             val ordersStatuses =
-                QualityManagementNetwork.serviceholderInvestigations.getOrdersStatuses();
+                QualityManagementNetwork.serviceHolderInvestigations.getOrdersStatuses();
             database.qualityManagementInvestigationsDao.insertOrdersStatusesAll(
                 ListTransformer(
                     ordersStatuses,
@@ -737,7 +737,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     suspend fun refreshInvestigationReasons() {
         withContext(Dispatchers.IO) {
             val measurementReasons =
-                QualityManagementNetwork.serviceholderInvestigations.getMeasurementReasons();
+                QualityManagementNetwork.serviceHolderInvestigations.getMeasurementReasons();
             database.qualityManagementInvestigationsDao.insertMeasurementReasonsAll(
                 ListTransformer(
                     measurementReasons,
@@ -753,7 +753,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshInvestigationTypes() {
         withContext(Dispatchers.IO) {
-            val ordersTypes = QualityManagementNetwork.serviceholderInvestigations.getOrdersTypes();
+            val ordersTypes = QualityManagementNetwork.serviceHolderInvestigations.getOrdersTypes();
             database.qualityManagementInvestigationsDao.insertOrdersTypesAll(
                 ListTransformer(
                     ordersTypes,
@@ -767,7 +767,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshOrders() {
         withContext(Dispatchers.IO) {
-            val ntOrders = QualityManagementNetwork.serviceholderInvestigations.getOrders()
+            val ntOrders = QualityManagementNetwork.serviceHolderInvestigations.getOrders()
             val dbOrders = database.qualityManagementInvestigationsDao.getOrdersByList()
 
             syncOrders(dbOrders, ntOrders, database)
@@ -777,7 +777,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun deleteOrder(order: DomainOrder) {
         withContext(Dispatchers.IO) {
-            QualityManagementNetwork.serviceholderInvestigations.deleteOrder(order.id)
+            QualityManagementNetwork.serviceHolderInvestigations.deleteOrder(order.id)
             val dbOrder = order.toDatabaseOrder()
 //            ToDo this action reload view model completely because it triggers to update DomainModel completely
             database.qualityManagementInvestigationsDao.deleteOrder(dbOrder)
@@ -786,7 +786,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun deleteSubOrder(subOrder: DomainSubOrder) {
         withContext(Dispatchers.IO) {
-            QualityManagementNetwork.serviceholderInvestigations.deleteSubOrder(subOrder.id)
+            QualityManagementNetwork.serviceHolderInvestigations.deleteSubOrder(subOrder.id)
             val dbSubOrder = subOrder.toDatabaseSubOrder()
 //            ToDo this action reload view model completely because it triggers to update DomainModel completely
             database.qualityManagementInvestigationsDao.deleteSubOrder(dbSubOrder)
@@ -795,7 +795,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun deleteSubOrderTask(subOrderTask: DomainSubOrderTask) {
         withContext(Dispatchers.IO) {
-            QualityManagementNetwork.serviceholderInvestigations.deleteSubOrderTask(subOrderTask.id)
+            QualityManagementNetwork.serviceHolderInvestigations.deleteSubOrderTask(subOrderTask.subOrderId, subOrderTask.charId)
             val dbSubOrder = subOrderTask.toDatabaseSubOrderTask()
 //            ToDo this action reload view model completely because it triggers to update DomainModel completely
             database.qualityManagementInvestigationsDao.deleteSubOrderTask(dbSubOrder)
@@ -804,7 +804,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun deleteSample(sample: DomainSample) {
         withContext(Dispatchers.IO) {
-            QualityManagementNetwork.serviceholderInvestigations.deleteSample(sample.id)
+            QualityManagementNetwork.serviceHolderInvestigations.deleteSample(sample.id)
             val dbSubOrder = sample.toDatabaseSample()
 //            ToDo this action reload view model completely because it triggers to update DomainModel completely
             database.qualityManagementInvestigationsDao.deleteSample(dbSubOrder)
@@ -813,7 +813,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
-            val ntSubOrder = QualityManagementNetwork.serviceholderInvestigations.getSubOrders()
+            val ntSubOrder = QualityManagementNetwork.serviceHolderInvestigations.getSubOrders()
             val dbSubOrders = database.qualityManagementInvestigationsDao.getSubOrdersByList()
 
             syncSubOrders(dbSubOrders,ntSubOrder, database)
@@ -824,7 +824,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshSubOrderTasks() {
         withContext(Dispatchers.IO) {
-            val records = QualityManagementNetwork.serviceholderInvestigations.getSubOrderTasks();
+            val records = QualityManagementNetwork.serviceHolderInvestigations.getSubOrderTasks();
             database.qualityManagementInvestigationsDao.insertSubOrderTasksAll(
                 ListTransformer(
                     records,
@@ -841,7 +841,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshSamples() {
         withContext(Dispatchers.IO) {
-            val samples = QualityManagementNetwork.serviceholderInvestigations.getSamples();
+            val samples = QualityManagementNetwork.serviceHolderInvestigations.getSamples();
             database.qualityManagementInvestigationsDao.insertSamplesAll(
                 ListTransformer(samples, NetworkSample::class, DatabaseSample::class).generateList()
             )
@@ -852,7 +852,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     suspend fun refreshResultsDecryptions() {
         withContext(Dispatchers.IO) {
             val resultsDecryptions =
-                QualityManagementNetwork.serviceholderInvestigations.getResultsDecryptions();
+                QualityManagementNetwork.serviceHolderInvestigations.getResultsDecryptions();
             database.qualityManagementInvestigationsDao.insertResultsDecryptionsAll(
                 ListTransformer(
                     resultsDecryptions,
@@ -868,7 +868,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshResults() {
         withContext(Dispatchers.IO) {
-            val results = QualityManagementNetwork.serviceholderInvestigations.getResults();
+            val results = QualityManagementNetwork.serviceHolderInvestigations.getResults();
             database.qualityManagementInvestigationsDao.insertResultsAll(
                 ListTransformer(results, NetworkResult::class, DatabaseResult::class).generateList()
             )
