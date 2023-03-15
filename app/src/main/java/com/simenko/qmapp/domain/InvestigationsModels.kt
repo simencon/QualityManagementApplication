@@ -132,7 +132,8 @@ data class DomainResult constructor(
     var metrixId: Int,
     var result: Double? = null,
     var isOk: Boolean? = null,
-    var resultDecryptionId: Int
+    var resultDecryptionId: Int,
+    var taskId: Int
 )
 
 data class DomainOrderComplete constructor(

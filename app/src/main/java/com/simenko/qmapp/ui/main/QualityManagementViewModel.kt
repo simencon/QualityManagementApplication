@@ -206,7 +206,6 @@ class QualityManagementViewModel @Inject constructor(
                 pairedTrigger.value = !(pairedTrigger.value as Boolean)
             }
     }
-
     /**
      *
      */
@@ -214,7 +213,6 @@ class QualityManagementViewModel @Inject constructor(
         isLoadingInProgress.value = false
         isNetworkError.value = false
     }
-
     /**
      *
      */

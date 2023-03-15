@@ -194,15 +194,19 @@ interface QualityManagementProductsDao {
     @Query("SELECT * FROM `13_5_component_in_stages_to_lines` ORDER BY id ASC")
     fun getComponentInStagesToLines(): LiveData<List<DatabaseComponentInStageToLine>>
 
+    @Transaction
     @Query("SELECT * FROM components_complete")
     fun getComponentsComplete(): LiveData<List<DatabaseComponentComplete>>
 
+    @Transaction
     @Query("SELECT * FROM product_versions_complete")
     fun getProductVersionsComplete(): LiveData<List<DatabaseProductVersionComplete>>
 
+    @Transaction
     @Query("SELECT * FROM component_versions_complete")
     fun getComponentVersionsComplete(): LiveData<List<DatabaseComponentVersionComplete>>
 
+    @Transaction
     @Query("SELECT * FROM component_in_stage_versions_complete")
     fun getComponentInStageVersionsComplete(): LiveData<List<DatabaseComponentInStageVersionComplete>>
 }
@@ -325,8 +329,12 @@ interface QualityManagementInvestigationsDao {
     fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderWithChildren>>
 
     @Transaction
-    @Query("SELECT * FROM `13_7_sub_order_tasks` AS soTasks ORDER BY id;")
+    @Query("SELECT * FROM sub_order_task_complete")
     fun getSubOrderTasksDetailed(): LiveData<List<DatabaseSubOrderTaskComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM result_complete")
+    fun getResultsDetailed(): LiveData<List<DatabaseResultComplete>>
 }
 
 @Database(
@@ -381,7 +389,10 @@ interface QualityManagementInvestigationsDao {
         DatabaseComponentVersionComplete::class,
 
         DatabaseComponentInStageComplete::class,
-        DatabaseComponentInStageVersionComplete::class
+        DatabaseComponentInStageVersionComplete::class,
+
+        DatabaseSubOrderTaskComplete::class,
+        DatabaseResultComplete::class
     ],
     version = 1,
     exportSchema = true

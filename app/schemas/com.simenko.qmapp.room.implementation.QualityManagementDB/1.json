@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2f2bb13efdc1f15e7cd1b0fecb095d78",
+    "identityHash": "6bc01e7636b003d1038aeb8e65160746",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3141,7 +3141,7 @@
       },
       {
         "tableName": "14_8_results",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sampleId` INTEGER NOT NULL, `metrixId` INTEGER NOT NULL, `result` REAL, `isOk` INTEGER, `resultDecryptionId` INTEGER NOT NULL, FOREIGN KEY(`sampleId`) REFERENCES `14_samples`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`resultDecryptionId`) REFERENCES `0_results_decryptions`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sampleId` INTEGER NOT NULL, `metrixId` INTEGER NOT NULL, `result` REAL, `isOk` INTEGER, `resultDecryptionId` INTEGER NOT NULL, `taskId` INTEGER NOT NULL, FOREIGN KEY(`sampleId`) REFERENCES `14_samples`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`metrixId`) REFERENCES `8_metrixes`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`resultDecryptionId`) REFERENCES `0_results_decryptions`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`taskId`) REFERENCES `13_7_sub_order_tasks`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3176,6 +3176,12 @@
           {
             "fieldPath": "resultDecryptionId",
             "columnName": "resultDecryptionId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -3213,6 +3219,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_14_8_results_resultDecryptionId` ON `${TABLE_NAME}` (`resultDecryptionId`)"
+          },
+          {
+            "name": "index_14_8_results_taskId",
+            "unique": false,
+            "columnNames": [
+              "taskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_14_8_results_taskId` ON `${TABLE_NAME}` (`taskId`)"
           }
         ],
         "foreignKeys": [
@@ -3229,8 +3244,8 @@
           },
           {
             "table": "8_metrixes",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "metrixId"
             ],
@@ -3240,10 +3255,21 @@
           },
           {
             "table": "0_results_decryptions",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
             "columns": [
               "resultDecryptionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "13_7_sub_order_tasks",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "taskId"
             ],
             "referencedColumns": [
               "id"
@@ -3276,11 +3302,19 @@
       {
         "viewName": "component_in_stage_versions_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT sv.* FROM `11_component_in_stage_versions` sv"
+      },
+      {
+        "viewName": "sub_order_task_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `13_7_sub_order_tasks` ORDER BY id;"
+      },
+      {
+        "viewName": "result_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `14_8_results` ORDER BY id;"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f2bb13efdc1f15e7cd1b0fecb095d78')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6bc01e7636b003d1038aeb8e65160746')"
     ]
   }
 }

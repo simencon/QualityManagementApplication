@@ -307,15 +307,22 @@ data class DatabaseResultsDecryption constructor(
             entity = DatabaseMetrix::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("metrixId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DatabaseResultsDecryption::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("resultDecryptionId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseSubOrderTask::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("taskId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )]
 )
 data class DatabaseResult constructor(
@@ -328,7 +335,9 @@ data class DatabaseResult constructor(
     var result: Double? = null,
     var isOk: Boolean? = null,
     @ColumnInfo(index = true)
-    var resultDecryptionId: Int
+    var resultDecryptionId: Int,
+    @ColumnInfo(index = true)
+    var taskId: Int
 )
 
 data class DatabaseOrderComplete constructor(
@@ -441,6 +450,10 @@ data class DatabaseSubOrderWithChildren constructor(
     var subOrderTasks: List<DatabaseSubOrderTask>
 )
 
+@DatabaseView(
+    viewName = "sub_order_task_complete",
+    value = "SELECT * FROM `13_7_sub_order_tasks` ORDER BY id;"
+)
 data class DatabaseSubOrderTaskComplete constructor(
     @Embedded
     var subOrderTask: DatabaseSubOrderTask,
@@ -451,9 +464,42 @@ data class DatabaseSubOrderTaskComplete constructor(
     )
     var characteristic: DatabaseCharacteristic,
     @Relation(
+        entity = DatabaseSubOrder::class,
+        parentColumn = "subOrderId",
+        entityColumn = "id"
+    )
+    var subOrder: DatabaseSubOrder,
+    @Relation(
         entity = DatabaseOrdersStatus::class,
         parentColumn = "statusId",
         entityColumn = "id"
     )
     var status: DatabaseOrdersStatus
+)
+
+@DatabaseView(
+    viewName = "result_complete",
+    value = "SELECT * FROM `14_8_results` ORDER BY id;"
+)
+data class DatabaseResultComplete(
+    @Embedded
+    val result: DatabaseResult,
+    @Relation(
+        entity = DatabaseResultsDecryption::class,
+        parentColumn = "resultDecryptionId",
+        entityColumn = "id"
+    )
+    val resultsDecryption: DatabaseResultsDecryption,
+    @Relation(
+        entity = DatabaseMetrix::class,
+        parentColumn = "metrixId",
+        entityColumn = "id"
+    )
+    val metrix: DatabaseMetrix,
+    @Relation(
+        entity = DatabaseSubOrderTaskComplete::class,
+        parentColumn = "taskId",
+        entityColumn = "id"
+    )
+    val subOrderTask: DatabaseSubOrderTaskComplete
 )
