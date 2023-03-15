@@ -116,6 +116,7 @@ data class DomainSample constructor(
     var id: Int,
     var subOrderId: Int,
     var sampleNumber: Int? = null,
+    var isSelected: Boolean = false,
     var isNewRecord: Boolean = false,
     var toBeDeleted : Boolean = false
 )

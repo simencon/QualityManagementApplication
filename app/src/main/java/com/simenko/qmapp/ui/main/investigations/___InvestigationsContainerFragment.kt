@@ -16,7 +16,7 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
 
-class InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) : Fragment() {
+class ___InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) : Fragment() {
 
     private lateinit var binding: FragmentPagerContainerBinding
     private lateinit var viewPager: ViewPager2
@@ -40,6 +40,7 @@ class InvestigationsContainerFragment(private val createdRecord: CreatedRecord? 
         )
         // Instantiate a ViewPager2 and a PagerAdapter.
         viewPager = binding.fragmentContainer
+        viewPager.isUserInputEnabled = false
         val pagerAdapter = OrderSectionPagerAdapter(createdRecord, this)
         viewPager.adapter = pagerAdapter
         viewPager.setPageTransformer(ZoomOutPageTransformer())

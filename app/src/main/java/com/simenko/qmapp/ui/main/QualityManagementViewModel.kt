@@ -3,10 +3,7 @@ package com.simenko.qmapp.ui.main
 import android.content.Context
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.main.MainScope
-import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.domain.DomainSubOrderComplete
-import com.simenko.qmapp.domain.DomainSubOrderTaskComplete
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
@@ -61,6 +58,8 @@ class QualityManagementViewModel @Inject constructor(
     val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
     val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
 
+    val currentOrder = MutableLiveData(0)
+
     private val completeOrders = qualityManagementInvestigationsRepository.completeOrders
     val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
@@ -68,23 +67,11 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
         }
 
-    fun changeCompleteOrdersDetailsVisibility(item: DomainOrderComplete) {
-        completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
-            order.detailsVisibility = !order.detailsVisibility
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-        }
-    }
-
-    fun changeCompleteOrdersExpandState(item: DomainOrderComplete) {
-        completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
-            order.isExpanded = !order.isExpanded
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-        }
-    }
-
     val itemVersionsCompleteP = qualityManagementProductsRepository.itemsVersionsCompleteP
     val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
     val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
+
+    val currentSubOrder = MutableLiveData(0)
 
     private val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
     val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
@@ -93,9 +80,105 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
         }
 
-    fun changeCompleteSubOrdersDetailsVisibility(item: DomainSubOrderComplete) {
-        completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
-            subOrder.detailsVisibility = !subOrder.detailsVisibility
+    private val completeSubOrderTasks =
+        qualityManagementInvestigationsRepository.completeSubOrderTasks
+    val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
+            addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
+        }
+
+    val currentSubOrderTask = MutableLiveData(0)
+
+    private val samples = qualityManagementInvestigationsRepository.samples
+    val samplesMediator: MediatorLiveData<Pair<List<DomainSample>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainSample>?, Boolean?>>().apply {
+            addSource(samples) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(samples.value, it) }
+        }
+
+    fun changeCompleteOrdersDetailsVisibility(itemId: Int) {
+        changeCompleteSubOrdersDetailsVisibility(currentSubOrder.value ?: 0)
+        changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
+
+        var select = false
+
+        completeOrders.value?.find { it.order.id == itemId }
+            ?.let { it ->
+                if (!it.detailsVisibility)
+                    select = true
+                else
+                    currentOrder.value = 0
+            }
+
+        completeOrders.value?.forEach { it.detailsVisibility = false }
+
+        if (select)
+            completeOrders.value?.find { it.order.id == itemId }
+                ?.let { order ->
+                    currentOrder.value = itemId
+                    order.detailsVisibility = !order.detailsVisibility
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    }
+
+    fun changeCompleteSubOrdersDetailsVisibility(itemId: Int) {
+
+        changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
+
+        var select = false
+
+        completeSubOrders.value?.find { it.subOrder.id == itemId }
+            ?.let { it ->
+                if (!it.detailsVisibility)
+                    select = true
+                else
+                    currentSubOrder.value = 0
+            }
+
+        completeSubOrders.value?.forEach { it.detailsVisibility = false }
+
+        if (select)
+            completeSubOrders.value?.find { it.subOrder.id == itemId }
+                ?.let { subOrder ->
+                    currentSubOrder.value = itemId
+                    subOrder.detailsVisibility = !subOrder.detailsVisibility
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+
+    }
+
+    fun changeCompleteSubOrderTasksDetailsVisibility(itemId: Int) {
+        var select = false
+
+        completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
+            ?.let { it ->
+                if (!it.measurementsVisibility)
+                    select = true
+                else
+                    currentSubOrderTask.value = 0
+            }
+
+        completeSubOrderTasks.value?.forEach { it.measurementsVisibility = false }
+
+        if (select)
+            completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
+                ?.let { subOrderTask ->
+                    subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
+                    currentSubOrderTask.value = itemId
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    }
+
+    fun changeCompleteOrdersExpandState(item: DomainOrderComplete) {
+        completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
+            order.isExpanded = !order.isExpanded
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
         }
     }
@@ -107,25 +190,19 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    private val completeSubOrderTasks = qualityManagementInvestigationsRepository.completeSubOrderTasks
-    val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
-            addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
-        }
-
-    fun changeCompleteSubOrderTasksDetailsVisibility(item: DomainSubOrderTaskComplete) {
-        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
-            ?.let { subOrderTask ->
-                subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
-                pairedTrigger.value = !(pairedTrigger.value as Boolean)
-            }
-    }
-
     fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete) {
         completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
             ?.let { subOrderTask ->
                 subOrderTask.isExpanded = !subOrderTask.isExpanded
+                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            }
+    }
+
+    fun changeSamplesIsSelectedState(item: DomainSample) {
+        samples.value?.forEach { it.isSelected = false }
+        samples.value?.find { it.id == item.id }
+            ?.let { subOrderTask ->
+                subOrderTask.isSelected = !subOrderTask.isSelected
                 pairedTrigger.value = !(pairedTrigger.value as Boolean)
             }
     }
@@ -137,6 +214,7 @@ class QualityManagementViewModel @Inject constructor(
         isLoadingInProgress.value = false
         isNetworkError.value = false
     }
+
     /**
      *
      */

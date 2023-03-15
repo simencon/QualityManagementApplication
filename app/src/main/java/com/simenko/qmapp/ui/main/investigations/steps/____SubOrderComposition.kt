@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -78,7 +78,7 @@ fun SubOrdersFlowColumn(
                     it.subOrder.id == createdRecord.subOrderId
                 }
                 if (subOrder != null)
-                    appModel.changeCompleteSubOrdersDetailsVisibility(subOrder)
+                    appModel.changeCompleteSubOrdersDetailsVisibility(subOrder.subOrder.id)
 
             } else if (createdRecord != null && createdRecord.subOrderId != 0) {
             delay(50)
@@ -118,7 +118,7 @@ fun SubOrdersFlowColumn(
                                     viewModel = appModel,
                                     subOrder = subOrder,
                                     onClickDetails = { it ->
-                                        appModel.changeCompleteSubOrdersDetailsVisibility(it)
+                                        appModel.changeCompleteSubOrdersDetailsVisibility(it.subOrder.id)
                                     },
                                     cardOffset = CARD_OFFSET.dp(),
                                     onChangeExpandState = {

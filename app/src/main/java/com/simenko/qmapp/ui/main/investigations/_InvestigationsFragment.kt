@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.investigations.orders
+package com.simenko.qmapp.ui.main.investigations
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -6,22 +6,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.databinding.DataBindingUtil
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentComposeBinding
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 
-class InvestigationsFragment(
+class _InvestigationsFragment(
     private val createdRecord: CreatedRecord? = null,
     private var title: String = ""
 ) :
@@ -54,7 +50,7 @@ class InvestigationsFragment(
                         setContent {
                             InvestigationsMainComposition(
                                 modifier = Modifier
-                                    .padding(vertical = 2.dp, horizontal = 4.dp),
+                                    .padding(vertical = 2.dp, horizontal = 2.dp),
                                 appModel = viewModel,
                                 context = context,
                                 createdRecord = createdRecord

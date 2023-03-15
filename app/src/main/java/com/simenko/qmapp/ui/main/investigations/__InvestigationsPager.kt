@@ -6,34 +6,33 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.simenko.qmapp.ui.main.CreatedRecord
-import com.simenko.qmapp.ui.main.investigations.orders.InvestigationsFragment
 
 
 class OrderSectionPagerAdapter(
     private val createdRecord: CreatedRecord? = null,
-    fragment: InvestigationsContainerFragment
+    fragment: ___InvestigationsContainerFragment
 ) :
     FragmentStateAdapter(fragment) {
 
     override fun getItemCount(): Int {
-        return InvestigationsContainerFragment.TargetInv.values().size
+        return ___InvestigationsContainerFragment.TargetInv.values().size
     }
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> InvestigationsFragment(
+            0 -> _InvestigationsFragment(
                 createdRecord,
-                InvestigationsContainerFragment.TargetInv.TO_DO.name
+                ___InvestigationsContainerFragment.TargetInv.TO_DO.name
             )
-            1 -> InvestigationsFragment(
+            1 -> _InvestigationsFragment(
                 createdRecord,
-                InvestigationsContainerFragment.TargetInv.IN_PROGRESS.name
+                ___InvestigationsContainerFragment.TargetInv.IN_PROGRESS.name
             )
-            1 -> InvestigationsFragment(
+            1 -> _InvestigationsFragment(
                 createdRecord,
-                InvestigationsContainerFragment.TargetInv.DONE.name
+                ___InvestigationsContainerFragment.TargetInv.DONE.name
             )
-            else -> InvestigationsFragment(createdRecord, "Not in use")
+            else -> _InvestigationsFragment(createdRecord, "Not in use")
         }
     }
 }

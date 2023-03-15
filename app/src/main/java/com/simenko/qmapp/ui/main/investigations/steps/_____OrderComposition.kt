@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -82,7 +82,7 @@ fun Orders(
                 }
 
                 if (order != null)
-                    appModel.changeCompleteOrdersDetailsVisibility(order)
+                    appModel.changeCompleteOrdersDetailsVisibility(order.order.id)
 
             } else if (createdRecord != null && createdRecord.orderId != 0) {
             delay(50)
@@ -137,7 +137,7 @@ fun Orders(
                                 viewModel = appModel,
                                 order = order,
                                 onClickDetails = { it ->
-                                    appModel.changeCompleteOrdersDetailsVisibility(it)
+                                    appModel.changeCompleteOrdersDetailsVisibility(it.order.id)
                                 },
                                 modifier = modifier,
                                 cardOffset = CARD_OFFSET.dp(),

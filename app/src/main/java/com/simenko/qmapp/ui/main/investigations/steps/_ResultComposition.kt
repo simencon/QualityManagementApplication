@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.steps
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -8,11 +8,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SamplesComposition(
+fun ResultsComposition(
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = "Here will be Items numbers.",
+        text = "Here will be Measurement results.",
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier

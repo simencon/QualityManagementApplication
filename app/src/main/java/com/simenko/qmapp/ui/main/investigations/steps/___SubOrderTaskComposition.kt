@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.animateColor
@@ -66,7 +66,7 @@ fun SubOrderTasksFlowColumn(
                                 modifier = modifier,
                                 subOrderTask = subOrder,
                                 onClickDetails = { it ->
-                                    appModel.changeCompleteSubOrderTasksDetailsVisibility(it)
+                                    appModel.changeCompleteSubOrderTasksDetailsVisibility(it.subOrderTask.id)
                                 },
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {

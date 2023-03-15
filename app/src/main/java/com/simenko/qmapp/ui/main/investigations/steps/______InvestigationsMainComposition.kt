@@ -1,6 +1,8 @@
-package com.simenko.qmapp.ui.main.investigations.orders
+package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.content.Context
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -14,10 +16,12 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
@@ -25,6 +29,8 @@ import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.QMAppTheme
+
+private const val TAG = "InvestigationsMai"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,8 +42,12 @@ fun InvestigationsMainComposition(
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+
+    val currentTask by appModel.currentSubOrderTask.observeAsState()
+
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     var isResultsVisible by rememberSaveable { mutableStateOf(1) }
+    var rowState = rememberScrollState()
 
     QMAppTheme {
         var fabPositionToRemember by remember { mutableStateOf(FabPosition.End) }
@@ -51,7 +61,19 @@ fun InvestigationsMainComposition(
             fabPositionToSet = fabPositionToRemember
         }
 
+        LaunchedEffect(currentTask) {
+            isSamplesNumVisible = when ((currentTask ?: 0) > 0) {
+                true -> 1
+                false -> 0
+            }
+            isResultsVisible = when ((currentTask ?: 0) > 0) {
+                true -> 1
+                false -> 0
+            }
+        }
+
         Scaffold(
+
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
@@ -72,27 +94,42 @@ fun InvestigationsMainComposition(
             content = { padding ->
                 Row(
                     Modifier
-                        .horizontalScroll(rememberScrollState())
+                        .horizontalScroll(rowState)
                         .width(
-                            (screenWidth * (
-                                    1 + 0.3 * isSamplesNumVisible + 0.5 * isResultsVisible
-                                    )).dp
+                            (screenWidth * (1 + 0.38 * isSamplesNumVisible + 0.5 * isResultsVisible)).dp
                         )
                         .padding(padding)
+                        .animateContentSize(
+                            tween(
+                                durationMillis = ANIMATION_DURATION,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
                 ) {
+                    LaunchedEffect(isSamplesNumVisible) {
+                        if (isSamplesNumVisible == 1)
+                            rowState.animateScrollTo(
+                                rowState.maxValue, tween(
+                                    durationMillis = ANIMATION_DURATION,
+                                    easing = LinearOutSlowInEasing
+                                )
+                            )
+                    }
+
                     Orders(
                         modifier = modifier.width(screenWidth.dp),
                         appModel = appModel,
                         onListEnd = { changeFlaBtnPosition(it) },
                         createdRecord = createdRecord
                     )
-                    SamplesComposition(modifier.width((screenWidth * 0.3 * isSamplesNumVisible).dp))
+                    SampleComposition(
+                        modifier.width((screenWidth * 0.38 * isSamplesNumVisible).dp),
+                        appModel
+                    )
                     ResultsComposition(modifier.width((screenWidth * 0.5 * isResultsVisible).dp))
                 }
 
             }
         )
-
-
     }
 }
