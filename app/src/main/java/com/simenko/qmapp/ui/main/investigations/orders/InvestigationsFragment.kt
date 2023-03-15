@@ -5,11 +5,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.databinding.DataBindingUtil
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentComposeBinding
@@ -17,7 +21,10 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
-class InvestigationsFragment(private val createdRecord: CreatedRecord? = null, private var title: String = "") :
+class InvestigationsFragment(
+    private val createdRecord: CreatedRecord? = null,
+    private var title: String = ""
+) :
     Fragment() {
 
     private val viewModel: QualityManagementViewModel by lazy {
@@ -45,9 +52,8 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null, p
                     binding.composeView.apply {
                         setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                         setContent {
-                            InvestigationsAll(
+                            InvestigationsMainComposition(
                                 modifier = Modifier
-                                    .fillMaxSize()
                                     .padding(vertical = 2.dp, horizontal = 4.dp),
                                 appModel = viewModel,
                                 context = context,
@@ -58,7 +64,6 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null, p
                 }
             }
         }
-
         return binding.root
     }
 }

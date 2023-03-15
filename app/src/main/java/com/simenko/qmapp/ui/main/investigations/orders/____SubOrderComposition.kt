@@ -43,100 +43,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-fun getSubOrders() = List(30) { i ->
-
-    DomainSubOrderComplete(
-        subOrder = DomainSubOrder(
-            id = 1,
-            orderId = 1,
-            subOrderNumber = (100..300).random(),
-            orderedById = 1,
-            completedById = 1,
-            statusId = 1,
-            createdDate = "2022-12-15T22:24:43",
-            completedDate = "2022-12-15T22:24:43",
-            departmentId = 1,
-            subDepartmentId = 1,
-            channelId = 1,
-            lineId = 1,
-            operationId = 1,
-            itemPreffix = "c",
-            itemTypeId = 1,
-            itemVersionId = 1,
-            samplesCount = (1..10).random()
-        ),
-        orderedBy = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Роман Семенишин",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        completedBy = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Дмитро Ліщук",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        status = DomainOrdersStatus(1, "In Progress"),
-        department = DomainDepartment(
-            id = 1,
-            depAbbr = "ГШСК№1",
-            depName = "Група шліфувально-складальних ліній",
-            depManager = 1,
-            depOrganization = "Manufacturing",
-            depOrder = 1,
-            companyId = 1
-        ),
-        subDepartment = DomainSubDepartment(
-            id = 1,
-            subDepAbbr = "ДБШ",
-            depId = 1,
-            subDepDesignation = "Дільниця безцетрової обробки",
-            subDepOrder = 1,
-            channelsVisibility = false
-        ),
-        channel = DomainManufacturingChannel(
-            id = 1,
-            channelAbbr = "ДБШ 1",
-            subDepId = 1,
-            channelDesignation = "Канал 1 нової дільниці безцентрового шліфування",
-            channelOrder = 1,
-            linesVisibility = false
-        ),
-        line = DomainManufacturingLine(
-            id = 1,
-            lineAbbr = "IR",
-            chId = 1,
-            lineDesignation = "Лінія обробки торців IR",
-            lineOrder = 1,
-            operationVisibility = false
-        ),
-        operation = DomainManufacturingOperation(
-            id = 1,
-            operationAbbr = "T",
-            lineId = 1,
-            operationDesignation = "Шліфування торців",
-            operationOrder = 1,
-            detailsVisibility = false,
-            equipment = "MTD-250"
-        ),
-        detailsVisibility = true,
-        tasksVisibility = true
-    )
-}
-
 @Composable
 fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
@@ -652,4 +558,98 @@ fun MySubOrderPreview() {
                 .padding(vertical = 0.dp, horizontal = 0.dp)
         )
     }
+}
+
+fun getSubOrders() = List(30) { i ->
+
+    DomainSubOrderComplete(
+        subOrder = DomainSubOrder(
+            id = 1,
+            orderId = 1,
+            subOrderNumber = (100..300).random(),
+            orderedById = 1,
+            completedById = 1,
+            statusId = 1,
+            createdDate = "2022-12-15T22:24:43",
+            completedDate = "2022-12-15T22:24:43",
+            departmentId = 1,
+            subDepartmentId = 1,
+            channelId = 1,
+            lineId = 1,
+            operationId = 1,
+            itemPreffix = "c",
+            itemTypeId = 1,
+            itemVersionId = 1,
+            samplesCount = (1..10).random()
+        ),
+        orderedBy = DomainTeamMember(
+            id = 1,
+            departmentId = 1,
+            department = "ГШСК№1",
+            email = "roman.semenyshyn@skf.com",
+            fullName = "Роман Семенишин",
+            jobRole = "Quality Manager",
+            roleLevelId = 1,
+            passWord = "13050513",
+            companyId = 1,
+            detailsVisibility = false
+        ),
+        completedBy = DomainTeamMember(
+            id = 1,
+            departmentId = 1,
+            department = "ГШСК№1",
+            email = "roman.semenyshyn@skf.com",
+            fullName = "Дмитро Ліщук",
+            jobRole = "Quality Manager",
+            roleLevelId = 1,
+            passWord = "13050513",
+            companyId = 1,
+            detailsVisibility = false
+        ),
+        status = DomainOrdersStatus(1, "In Progress"),
+        department = DomainDepartment(
+            id = 1,
+            depAbbr = "ГШСК№1",
+            depName = "Група шліфувально-складальних ліній",
+            depManager = 1,
+            depOrganization = "Manufacturing",
+            depOrder = 1,
+            companyId = 1
+        ),
+        subDepartment = DomainSubDepartment(
+            id = 1,
+            subDepAbbr = "ДБШ",
+            depId = 1,
+            subDepDesignation = "Дільниця безцетрової обробки",
+            subDepOrder = 1,
+            channelsVisibility = false
+        ),
+        channel = DomainManufacturingChannel(
+            id = 1,
+            channelAbbr = "ДБШ 1",
+            subDepId = 1,
+            channelDesignation = "Канал 1 нової дільниці безцентрового шліфування",
+            channelOrder = 1,
+            linesVisibility = false
+        ),
+        line = DomainManufacturingLine(
+            id = 1,
+            lineAbbr = "IR",
+            chId = 1,
+            lineDesignation = "Лінія обробки торців IR",
+            lineOrder = 1,
+            operationVisibility = false
+        ),
+        operation = DomainManufacturingOperation(
+            id = 1,
+            operationAbbr = "T",
+            lineId = 1,
+            operationDesignation = "Шліфування торців",
+            operationOrder = 1,
+            detailsVisibility = false,
+            equipment = "MTD-250"
+        ),
+        detailsVisibility = true,
+        tasksVisibility = true
+    )
 }

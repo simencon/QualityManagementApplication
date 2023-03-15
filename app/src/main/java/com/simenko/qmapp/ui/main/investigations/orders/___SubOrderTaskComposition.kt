@@ -39,34 +39,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-fun getSubOrderTasks() = List(30) { i ->
-    DomainSubOrderTaskComplete(
-        subOrderTask = DomainSubOrderTask(
-            id = 1,
-            statusId = 1,
-            completedDate = "",
-            createdDate = "",
-            subOrderId = 1,
-            charId = 1
-        ),
-        characteristic = DomainCharacteristic(
-            id = 1,
-            ishCharId = 1,
-            charOrder = 1,
-            charDescription = "Шорсткість отвору внутрішнього кількця",
-            charDesignation = "Ra d",
-            projectId = 1,
-            ishSubChar = 1,
-            sampleRelatedTime = 0.12,
-            measurementRelatedTime = 0.21
-        ),
-        status = DomainOrdersStatus(
-            id = 1,
-            statusDescription = "In Progress"
-        )
-    )
-}
-
 @Composable
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
@@ -315,4 +287,32 @@ fun MySubOrderTaskPreview() {
                 .padding(vertical = 0.dp, horizontal = 0.dp)
         )
     }
+}
+
+fun getSubOrderTasks() = List(30) { i ->
+    DomainSubOrderTaskComplete(
+        subOrderTask = DomainSubOrderTask(
+            id = 1,
+            statusId = 1,
+            completedDate = "",
+            createdDate = "",
+            subOrderId = 1,
+            charId = 1
+        ),
+        characteristic = DomainCharacteristic(
+            id = 1,
+            ishCharId = 1,
+            charOrder = 1,
+            charDescription = "Шорсткість отвору внутрішнього кількця",
+            charDesignation = "Ra d",
+            projectId = 1,
+            ishSubChar = 1,
+            sampleRelatedTime = 0.12,
+            measurementRelatedTime = 0.21
+        ),
+        status = DomainOrdersStatus(
+            id = 1,
+            statusDescription = "In Progress"
+        )
+    )
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -45,110 +44,7 @@ import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
-fun getOrders() = List(30) { i ->
-
-    DomainOrderComplete(
-        order = DomainOrder(
-            id = i,
-            1,
-            1,
-            orderNumber = (100..300).random(),
-            1,
-            1,
-            1,
-            "2022-12-15T22:24:43",
-            "2022-12-15T22:24:43"
-        ),
-        orderType = DomainOrdersType(1, "Incoming Inspection"),
-        orderReason = DomainMeasurementReason(1, "Налагоджульник", "FLI", 1),
-        customer = DomainDepartment(
-            1,
-            "ГШСК№1",
-            "Група шліфувально-складальних ліній",
-            1,
-            "Manufacturing",
-            1,
-            1
-        ),
-        orderPlacer = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Роман Семенишин",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        orderStatus = DomainOrdersStatus(1, "In Progress"),
-        detailsVisibility = true,
-        subOrdersVisibility = false
-    )
-}
-
 private const val TAG = "OrderComposition"
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun InvestigationsAll(
-    modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel,
-    context: Context,
-    createdRecord: CreatedRecord?
-) {
-    QMAppTheme {
-        var fabPositionToRemember by remember {
-            mutableStateOf(FabPosition.End)
-        }
-        var fabPositionToSet by remember {
-            mutableStateOf(FabPosition.End)
-        }
-
-        fun changeFlaBtnPosition(position: FabPosition) {
-            fabPositionToRemember = position
-        }
-
-        LaunchedEffect(fabPositionToRemember) {
-            fabPositionToSet = fabPositionToRemember
-            Log.d(TAG, "changeFlaBtnPosition: $fabPositionToRemember")
-        }
-
-        Scaffold(
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        launchNewItemActivity(context, ActionType.ADD_ORDER)
-//                        ToDo while adding new item Main activity still added in the run stack
-                        (context as MainActivity).finish()
-                    },
-                    content = {
-                        androidx.compose.material.Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            tint = Primary900
-                        )
-                    }
-                )
-            },
-            floatingActionButtonPosition = fabPositionToSet,
-            content = { padding ->
-                Orders(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 2.dp, horizontal = 4.dp),
-                    appModel = appModel,
-                    onListEnd = { changeFlaBtnPosition(it) },
-                    createdRecord = createdRecord
-                )
-
-            }
-        )
-
-
-    }
-}
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -616,4 +512,47 @@ fun MyOrderPreview() {
 //                .padding(vertical = 1.5.dp)
 //        )
     }
+}
+
+fun getOrders() = List(30) { i ->
+
+    DomainOrderComplete(
+        order = DomainOrder(
+            id = i,
+            1,
+            1,
+            orderNumber = (100..300).random(),
+            1,
+            1,
+            1,
+            "2022-12-15T22:24:43",
+            "2022-12-15T22:24:43"
+        ),
+        orderType = DomainOrdersType(1, "Incoming Inspection"),
+        orderReason = DomainMeasurementReason(1, "Налагоджульник", "FLI", 1),
+        customer = DomainDepartment(
+            1,
+            "ГШСК№1",
+            "Група шліфувально-складальних ліній",
+            1,
+            "Manufacturing",
+            1,
+            1
+        ),
+        orderPlacer = DomainTeamMember(
+            id = 1,
+            departmentId = 1,
+            department = "ГШСК№1",
+            email = "roman.semenyshyn@skf.com",
+            fullName = "Роман Семенишин",
+            jobRole = "Quality Manager",
+            roleLevelId = 1,
+            passWord = "13050513",
+            companyId = 1,
+            detailsVisibility = false
+        ),
+        orderStatus = DomainOrdersStatus(1, "In Progress"),
+        detailsVisibility = true,
+        subOrdersVisibility = false
+    )
 }
