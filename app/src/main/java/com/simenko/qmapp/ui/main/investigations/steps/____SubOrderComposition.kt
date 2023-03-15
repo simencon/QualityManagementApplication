@@ -54,15 +54,18 @@ fun SubOrdersFlowColumn(
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
 
     observeSubOrders?.first?.forEach { it ->
-        when(it.subOrder.itemPreffix) {
+        when (it.subOrder.itemPreffix) {
             "p" -> {
-                it.itemVersionComplete = appModel.itemVersionsCompleteP.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+                it.itemVersionComplete =
+                    appModel.itemVersionsCompleteP.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
             }
             "c" -> {
-                it.itemVersionComplete = appModel.itemVersionsCompleteC.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+                it.itemVersionComplete =
+                    appModel.itemVersionsCompleteC.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
             }
             "s" -> {
-                it.itemVersionComplete = appModel.itemVersionsCompleteS.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+                it.itemVersionComplete =
+                    appModel.itemVersionsCompleteS.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
             }
         }
     }
@@ -279,26 +282,6 @@ fun SubOrder(
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = "Status:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = subOrder.status.statusDescription ?: "-",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.25f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
                         text = "Quantity:",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontSize = 10.sp
@@ -317,6 +300,30 @@ fun SubOrder(
                         modifier = Modifier
                             .weight(weight = 0.12f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    TextButton(
+                        modifier = Modifier
+                            .weight(weight = 0.4f)
+                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+                        onClick = { /* Handle button click */ },
+                        content = {
+                            Text(
+                                text = subOrder.status.statusDescription ?: "-",
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        },
+                        enabled = true,
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = ButtonDefaults.buttonElevation(4.dp),
+                        border = null,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = _level_2_record_color,
+                            contentColor = Primary900
+                        )
                     )
                 }
                 Row(

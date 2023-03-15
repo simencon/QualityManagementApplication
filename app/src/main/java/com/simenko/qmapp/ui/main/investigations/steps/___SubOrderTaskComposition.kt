@@ -207,26 +207,31 @@ fun SubOrderTask(
                             .weight(weight = 0.38f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
-                    Text(
-                        text = "Status:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    TextButton(
                         modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(weight = 0.4f)
+                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+                        onClick = { /* Handle button click */ },
+                        content = {
+                            Text(
+                                text = subOrderTask.status.statusDescription ?: "-",
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        },
+                        enabled = true,
+                        shape = MaterialTheme.shapes.medium,
+                        elevation = ButtonDefaults.buttonElevation(4.dp),
+                        border = null,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = _level_3_record_color,
+                            contentColor = Primary900
+                        )
                     )
-                    Text(
-                        text = subOrderTask.status.statusDescription ?: "-",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.25f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
+
                 }
                 Row(
                     modifier = Modifier.padding(

@@ -57,6 +57,8 @@ fun DatabaseSample.toDomainSample() =
 fun DatabaseCharacteristic.toDomainCharacteristic() =
     ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
 
+fun DatabaseIshSubCharacteristic.toDomainCharacteristicGroup() =
+    ObjectTransformer(DatabaseIshSubCharacteristic::class, DomainIshSubCharacteristic::class).transform(this)
 
 fun DatabaseKey.toDomainKey() = ObjectTransformer(
     DatabaseKey::class, DomainKey::class
@@ -237,6 +239,15 @@ fun List<DatabaseSubOrderWithChildren>.toDomainSubOrderWithChildren(): List<Doma
                     ).generateList()
                 )
             }
+        )
+    }
+}
+
+fun List<DatabaseCharacteristicComplete>.asDomainCharacteristicsComplete(): List<DomainCharacteristicComplete> {
+    return map {
+        DomainCharacteristicComplete(
+            characteristic = it.characteristic.toDomainCharacteristic(),
+            characteristicGroup = it.characteristicGroup.toDomainCharacteristicGroup()
         )
     }
 }

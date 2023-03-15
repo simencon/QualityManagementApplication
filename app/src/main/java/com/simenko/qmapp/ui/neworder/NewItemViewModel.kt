@@ -160,7 +160,8 @@ class NewItemViewModel @Inject constructor(
 
     val operationsFlows = qualityManagementManufacturingRepository.operationsFlows
 
-    val characteristics = qualityManagementProductsRepository.characteristics
+    val characteristics = qualityManagementProductsRepository.
+    characteristics
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
     val characteristicsMediator: MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>>().apply {

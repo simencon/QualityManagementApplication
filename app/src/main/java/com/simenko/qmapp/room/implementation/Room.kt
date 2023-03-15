@@ -209,6 +209,10 @@ interface QualityManagementProductsDao {
     @Transaction
     @Query("SELECT * FROM component_in_stage_versions_complete")
     fun getComponentInStageVersionsComplete(): LiveData<List<DatabaseComponentInStageVersionComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM characteristic_complete")
+    fun getCharacteristicsComplete(): LiveData<List<DatabaseCharacteristicComplete>>
 }
 
 @Dao
@@ -390,6 +394,8 @@ interface QualityManagementInvestigationsDao {
 
         DatabaseComponentInStageComplete::class,
         DatabaseComponentInStageVersionComplete::class,
+
+        DatabaseCharacteristicComplete::class,
 
         DatabaseSubOrderTaskComplete::class,
         DatabaseResultComplete::class

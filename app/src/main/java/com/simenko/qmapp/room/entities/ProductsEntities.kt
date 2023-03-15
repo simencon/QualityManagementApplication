@@ -88,6 +88,22 @@ data class DatabaseCharacteristic constructor(
     var measurementRelatedTime: Double? = null
 )
 
+@DatabaseView(
+    viewName = "characteristic_complete",
+    value = "SELECT * FROM `7_characteristics` ORDER BY charOrder;"
+)
+data class DatabaseCharacteristicComplete(
+    @Embedded
+    val characteristic: DatabaseCharacteristic,
+    @Relation(
+        entity = DatabaseIshSubCharacteristic::class,
+        parentColumn = "ishCharId",
+        entityColumn = "id"
+    )
+    val characteristicGroup: DatabaseIshSubCharacteristic,
+//   ToDo val characteristicSubGroup:
+)
+
 @Entity(
     tableName = "8_metrixes",
     foreignKeys = [
