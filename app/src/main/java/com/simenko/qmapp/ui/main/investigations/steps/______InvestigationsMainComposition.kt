@@ -22,6 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.ui.common.CustomDialogUI
+import com.simenko.qmapp.ui.common.DialogFor
+import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
@@ -48,6 +51,16 @@ fun InvestigationsMainComposition(
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     var isResultsVisible by rememberSaveable { mutableStateOf(1) }
     var rowState = rememberScrollState()
+
+    val showStatusChangeDialog = rememberSaveable { mutableStateOf(false) }
+    val dialogInput = DialogInput(0, DialogFor.ORDER)
+    fun statusDialog(recordId: Int, dialogFor: DialogFor) {
+        dialogInput.recordId = recordId
+        dialogInput.target = dialogFor
+        showStatusChangeDialog.value = true
+    }
+
+    val performAction: (Int, DialogFor) -> Unit = { a, b -> statusDialog(a, b) }
 
     QMAppTheme {
         var fabPositionToRemember by remember { mutableStateOf(FabPosition.End) }
@@ -120,7 +133,8 @@ fun InvestigationsMainComposition(
                         modifier = modifier.width(screenWidth.dp),
                         appModel = appModel,
                         onListEnd = { changeFlaBtnPosition(it) },
-                        createdRecord = createdRecord
+                        createdRecord = createdRecord,
+                        showStatusDialog = performAction
                     )
                     SampleComposition(
                         modifier.width((screenWidth * 0.38 * isSamplesNumVisible).dp),
@@ -128,6 +142,9 @@ fun InvestigationsMainComposition(
                     )
                     ResultsComposition(modifier.width((screenWidth * 0.5 * isResultsVisible).dp))
                 }
+
+                if (showStatusChangeDialog.value)
+                    CustomDialogUI(dialogInput = dialogInput, openDialogCustom = showStatusChangeDialog, appModel = appModel)
 
             }
         )

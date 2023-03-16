@@ -28,11 +28,8 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
 import com.google.accompanist.flowlayout.FlowRow
+import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.common.ACTION_ITEM_SIZE
-import com.simenko.qmapp.ui.common.ANIMATION_DURATION
-import com.simenko.qmapp.ui.common.ActionsRow
-import com.simenko.qmapp.ui.common.CARD_OFFSET
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivity
 import com.simenko.qmapp.ui.theme.*
@@ -49,7 +46,8 @@ fun SubOrdersFlowColumn(
     parentId: Int = 0,
     appModel: QualityManagementViewModel,
     context: Context,
-    createdRecord: CreatedRecord? = null
+    createdRecord: CreatedRecord? = null,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
 
@@ -136,7 +134,8 @@ fun SubOrdersFlowColumn(
                                             clickCounter = 0
                                             appModel.changeCompleteSubOrdersExpandState(it)
                                         }
-                                    }
+                                    },
+                                    showStatusDialog = showStatusDialog
                                 )
                             }
                             Divider(thickness = 4.dp, color = Color.Transparent)
@@ -173,6 +172,7 @@ fun SubOrderCard(
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderComplete) -> Unit,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(subOrder.isExpanded).apply {
@@ -221,7 +221,8 @@ fun SubOrderCard(
             modifier = modifier,
             viewModel = viewModel,
             subOrder = subOrder,
-            onClickDetails = { onClickDetails(subOrder) }
+            onClickDetails = { onClickDetails(subOrder) },
+            showStatusDialog = showStatusDialog
         )
     }
 }
@@ -231,7 +232,8 @@ fun SubOrder(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     onClickDetails: () -> Unit = {},
-    subOrder: DomainSubOrderComplete = getSubOrders()[0]
+    subOrder: DomainSubOrderComplete = getSubOrders()[0],
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -305,7 +307,7 @@ fun SubOrder(
                         modifier = Modifier
                             .weight(weight = 0.4f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = { /* Handle button click */ },
+                        onClick = { showStatusDialog(subOrder.subOrder.id, DialogFor.SUB_ORDER) },
                         content = {
                             Text(
                                 text = subOrder.status.statusDescription ?: "-",
@@ -442,7 +444,12 @@ fun SubOrder(
             }
         }
 
-        SubOrderDetails(modifier = modifier, viewModel = viewModel, subOrder = subOrder)
+        SubOrderDetails(
+            modifier = modifier,
+            viewModel = viewModel,
+            subOrder = subOrder,
+            showStatusDialog = showStatusDialog
+        )
     }
 }
 
@@ -450,7 +457,8 @@ fun SubOrder(
 fun SubOrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
-    subOrder: DomainSubOrderComplete = getSubOrders()[0]
+    subOrder: DomainSubOrderComplete = getSubOrders()[0],
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     if (subOrder.detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -550,7 +558,8 @@ fun SubOrderDetails(
             SubOrderTasksFlowColumn(
                 modifier = Modifier,
                 parentId = subOrder.subOrder.id,
-                appModel = viewModel
+                appModel = viewModel,
+                showStatusDialog = showStatusDialog
             )
     }
 }
@@ -562,9 +571,14 @@ fun MySubOrderPreview() {
         SubOrder(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 0.dp, horizontal = 0.dp)
+                .padding(vertical = 0.dp, horizontal = 0.dp),
+            showStatusDialog = performAction
         )
     }
+}
+
+val performAction: (Int, DialogFor) -> Unit = { a, b -> statusDialog(a, b) }
+fun statusDialog(recordId: Int, dialogFor: DialogFor) {
 }
 
 fun getSubOrders() = List(30) { i ->

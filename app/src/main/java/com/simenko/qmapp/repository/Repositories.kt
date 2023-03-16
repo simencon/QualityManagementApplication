@@ -725,11 +725,10 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshOrdersStatuses() {
         withContext(Dispatchers.IO) {
-            val ordersStatuses =
-                QualityManagementNetwork.serviceHolderInvestigations.getOrdersStatuses()
+            val records = QualityManagementNetwork.serviceHolderInvestigations.getOrdersStatuses()
             database.qualityManagementInvestigationsDao.insertOrdersStatusesAll(
                 ListTransformer(
-                    ordersStatuses,
+                    records,
                     NetworkOrdersStatus::class,
                     DatabaseOrdersStatus::class
                 ).generateList()
@@ -743,11 +742,10 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshInvestigationReasons() {
         withContext(Dispatchers.IO) {
-            val measurementReasons =
-                QualityManagementNetwork.serviceHolderInvestigations.getMeasurementReasons()
+            val records = QualityManagementNetwork.serviceHolderInvestigations.getMeasurementReasons()
             database.qualityManagementInvestigationsDao.insertMeasurementReasonsAll(
                 ListTransformer(
-                    measurementReasons,
+                    records,
                     NetworkMeasurementReason::class, DatabaseMeasurementReason::class
                 ).generateList()
             )
@@ -760,10 +758,10 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshInvestigationTypes() {
         withContext(Dispatchers.IO) {
-            val ordersTypes = QualityManagementNetwork.serviceHolderInvestigations.getOrdersTypes()
+            val records = QualityManagementNetwork.serviceHolderInvestigations.getOrdersTypes()
             database.qualityManagementInvestigationsDao.insertOrdersTypesAll(
                 ListTransformer(
-                    ordersTypes,
+                    records,
                     NetworkOrdersType::class,
                     DatabaseOrdersType::class
                 ).generateList()
@@ -890,6 +888,15 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                 it,
                 DatabaseMeasurementReason::class,
                 DomainMeasurementReason::class
+            ).generateList()
+        }
+
+    val investigationStatuses: LiveData<List<DomainOrdersStatus>> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getOrdersStatuses()) {
+            ListTransformer(
+                it,
+                DatabaseOrdersStatus::class,
+                DomainOrdersStatus::class
             ).generateList()
         }
 

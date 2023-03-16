@@ -26,11 +26,8 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.common.ACTION_ITEM_SIZE
-import com.simenko.qmapp.ui.common.ANIMATION_DURATION
-import com.simenko.qmapp.ui.common.ActionsRow
-import com.simenko.qmapp.ui.common.CARD_OFFSET
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +40,8 @@ import kotlin.math.roundToInt
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
-    appModel: QualityManagementViewModel
+    appModel: QualityManagementViewModel,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val observeSubOrderTasks by appModel.completeSubOrderTasksMediator.observeAsState()
     var clickCounter = 0
@@ -81,7 +79,8 @@ fun SubOrderTasksFlowColumn(
                                         clickCounter = 0
                                         appModel.changeCompleteSubOrderTasksExpandState(it)
                                     }
-                                }
+                                },
+                                showStatusDialog = showStatusDialog
                             )
                         }
                         Divider(thickness = 4.dp, color = Color.Transparent)
@@ -100,6 +99,7 @@ fun SubOrderTaskCard(
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(subOrderTask.isExpanded).apply {
@@ -147,7 +147,8 @@ fun SubOrderTaskCard(
         SubOrderTask(
             modifier = modifier,
             subOrderTask = subOrderTask,
-            onClickDetails = { onClickDetails(subOrderTask) }
+            onClickDetails = { onClickDetails(subOrderTask) },
+            showStatusDialog = showStatusDialog
         )
     }
 }
@@ -156,7 +157,8 @@ fun SubOrderTaskCard(
 fun SubOrderTask(
     modifier: Modifier = Modifier,
     onClickDetails: () -> Unit = {},
-    subOrderTask: DomainSubOrderTaskComplete = getSubOrderTasks()[0]
+    subOrderTask: DomainSubOrderTaskComplete = getSubOrderTasks()[0],
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -251,7 +253,7 @@ fun SubOrderTask(
                         modifier = Modifier
                             .weight(weight = 0.4f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = { /* Handle button click */ },
+                        onClick = { showStatusDialog(subOrderTask.subOrderTask.id, DialogFor.CHARACTERISTIC) },
                         content = {
                             Text(
                                 text = subOrderTask.status.statusDescription ?: "-",
@@ -289,8 +291,8 @@ fun SubOrderTask(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.255f)
-                            .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(weight = 0.253f)
+                            .padding(top = 4.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
                         text = subOrderTask.characteristic.characteristic.charDescription ?: "-",
@@ -298,7 +300,7 @@ fun SubOrderTask(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.745f)
+                            .weight(weight = 0.747f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }
@@ -330,7 +332,8 @@ fun MySubOrderTaskPreview() {
         SubOrderTask(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 0.dp, horizontal = 0.dp)
+                .padding(vertical = 0.dp, horizontal = 0.dp),
+            showStatusDialog = performAction
         )
     }
 }
@@ -371,11 +374,11 @@ fun getCharacteristic() = DomainCharacteristic(
 
 fun getCharacteristicGroup() = DomainElementIshModel(
     id = 1,
-    ishElement = "Micro geometry"
+    ishElement = "Microgeometry"
 )
 
 fun getCharacteristicSubGroup() = DomainIshSubCharacteristic(
     id = 1,
-    ishElement = "Micro geometry",
+    ishElement = "Roughness",
     measurementGroupRelatedTime = 0.24
 )

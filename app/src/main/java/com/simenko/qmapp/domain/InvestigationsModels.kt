@@ -34,8 +34,21 @@ data class DomainInputForOrder constructor(
 
 data class DomainOrdersStatus constructor(
     var id: Int,
-    var statusDescription: String? = null
-)
+    var statusDescription: String? = null,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId(): Any {
+        return id
+    }
+
+    override fun getParentOneId(): Int {
+        return 0
+    }
+
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+}
 
 data class DomainOrdersType constructor(
     var id: Int,
@@ -109,7 +122,7 @@ data class DomainSubOrderTask constructor(
     var subOrderId: Int,
     var charId: Int,
     var isNewRecord: Boolean = false,
-    var toBeDeleted : Boolean = false
+    var toBeDeleted: Boolean = false
 )
 
 data class DomainSample constructor(
@@ -118,7 +131,7 @@ data class DomainSample constructor(
     var sampleNumber: Int? = null,
     var isSelected: Boolean = false,
     var isNewRecord: Boolean = false,
-    var toBeDeleted : Boolean = false
+    var toBeDeleted: Boolean = false
 )
 
 data class DomainResultsDecryption constructor(

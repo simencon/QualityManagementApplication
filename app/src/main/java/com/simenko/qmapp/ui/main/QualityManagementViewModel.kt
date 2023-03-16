@@ -32,7 +32,7 @@ class QualityManagementViewModel @Inject constructor(
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
 
-    private val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     private val teamMembers = qualityManagementManufacturingRepository.teamMembers
     val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
@@ -206,6 +206,15 @@ class QualityManagementViewModel @Inject constructor(
                 pairedTrigger.value = !(pairedTrigger.value as Boolean)
             }
     }
+    /**
+     *
+     */
+    val investigationStatuses = qualityManagementInvestigationsRepository.investigationStatuses
+    val investigationStatusesMediator: MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>>().apply {
+            addSource(investigationStatuses) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(investigationStatuses.value, it) }
+        }
     /**
      *
      */

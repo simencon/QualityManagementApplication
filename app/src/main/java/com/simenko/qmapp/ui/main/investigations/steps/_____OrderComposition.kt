@@ -52,7 +52,8 @@ fun Orders(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
     onListEnd: (FabPosition) -> Unit,
-    createdRecord: CreatedRecord? = null
+    createdRecord: CreatedRecord? = null,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -155,7 +156,8 @@ fun Orders(
                                     }
                                 },
                                 context = context,
-                                createdRecord = createdRecord
+                                createdRecord = createdRecord,
+                                showStatusDialog = showStatusDialog
                             )
                         }
                     }
@@ -187,7 +189,8 @@ fun OrderCard(
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
     context: Context,
-    createdRecord: CreatedRecord? = null
+    createdRecord: CreatedRecord? = null,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
@@ -238,7 +241,8 @@ fun OrderCard(
             order = order,
             onClickDetails = { onClickDetails(order) },
             context = context,
-            createdRecord = createdRecord
+            createdRecord = createdRecord,
+            showStatusDialog = showStatusDialog
         )
     }
 }
@@ -250,7 +254,8 @@ fun Order(
     order: DomainOrderComplete = getOrders()[0],
     onClickDetails: () -> Unit = {},
     context: Context,
-    createdRecord: CreatedRecord? = null
+    createdRecord: CreatedRecord? = null,
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -404,7 +409,8 @@ fun Order(
             modifier = modifier,
             order = order,
             context = context,
-            createdRecord = createdRecord
+            createdRecord = createdRecord,
+            showStatusDialog = showStatusDialog
         )
     }
 }
@@ -415,7 +421,8 @@ fun OrderDetails(
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
     context: Context,
-    createdRecord: CreatedRecord? = null
+    createdRecord: CreatedRecord? = null,
+    showStatusDialog: (Int, DialogFor)->Unit
 ) {
 
     if (order.detailsVisibility) {
@@ -497,7 +504,8 @@ fun OrderDetails(
                 parentId = order.order.id,
                 appModel = viewModel,
                 context = context,
-                createdRecord = createdRecord
+                createdRecord = createdRecord,
+                showStatusDialog = showStatusDialog
             )
     }
 }

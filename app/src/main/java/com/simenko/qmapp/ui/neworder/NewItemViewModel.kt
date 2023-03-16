@@ -160,8 +160,7 @@ class NewItemViewModel @Inject constructor(
 
     val operationsFlows = qualityManagementManufacturingRepository.operationsFlows
 
-    val characteristics = qualityManagementProductsRepository.
-    characteristics
+    val characteristics = qualityManagementProductsRepository.characteristics
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
     val characteristicsMediator: MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>>().apply {
@@ -401,6 +400,18 @@ fun <T : DomainModel> changeRecordSelection(
 
 fun <T : DomainModel> selectSingleRecord(
     d: MutableLiveData<MutableList<T>>,
+    pairedTrigger: MutableLiveData<Boolean>,
+    selectedId: Any = 0,
+) {
+    d.value?.forEach {
+        it.setIsChecked(false)
+    }
+    d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
+    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+}
+
+fun <T : DomainModel> selectSingleRecordI(
+    d: LiveData<List<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
     selectedId: Any = 0,
 ) {
