@@ -56,10 +56,10 @@ fun InvestigationsMainComposition(
     val rowState = rememberScrollState()
 
     val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
-    val dialogInput = DialogInput(0, DialogFor.ORDER)
+    val dialogInput by appModel.dialogInput.observeAsState()
+
     fun statusDialog(recordId: Int, dialogFor: DialogFor) {
-        dialogInput.recordId = recordId
-        dialogInput.target = dialogFor
+        appModel.dialogInput.value = DialogInput(recordId, dialogFor)
         appModel.isStatusDialogVisible.value = true
     }
 
@@ -146,7 +146,7 @@ fun InvestigationsMainComposition(
 
                 if (showStatusChangeDialog.value == true)
                     CustomDialogUI(
-                        dialogInput = dialogInput,
+                        dialogInput = dialogInput?: DialogInput(0,DialogFor.ORDER),
                         openDialogCustom = appModel.isStatusDialogVisible,
                         appModel = appModel
                     )

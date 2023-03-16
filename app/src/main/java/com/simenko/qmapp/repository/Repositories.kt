@@ -901,6 +901,13 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
+    fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) = coroutineScope.produce {
+        val nSubOrderTask = record.toNetworkSubOrderTaskWithId()
+        QualityManagementNetwork.serviceHolderInvestigations.editSubOrderTask(record.id, nSubOrderTask)
+        database.qualityManagementInvestigationsDao.updateSubOrderTask(record.toDatabaseSubOrderTask())
+        send(record)
+    }
+
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) = coroutineScope.produce {
         val nSubOrder = record.toNetworkSubOrderWithId()
         QualityManagementNetwork.serviceHolderInvestigations.editSubOrder(record.id, nSubOrder)
@@ -1096,7 +1103,7 @@ fun syncSubOrderTasks(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
-            Log.d(TAG, "syncSubOrders: Sub order has been inserted / id = ${ntIt.id}")
+            Log.d(TAG, "syncSubOrders: Sub order task has been inserted / id = ${ntIt.id}")
         }
     }
     ntSubOrderTasks.forEach byBlock1@{ ntIt ->
@@ -1110,7 +1117,7 @@ fun syncSubOrderTasks(
         }
         if (recordStatusChanged) {
             database.qualityManagementInvestigationsDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
-            Log.d(TAG, "syncSubOrders: Sub order status has been changed / id = ${ntIt.id}")
+            Log.d(TAG, "syncSubOrders: Sub order task status has been changed / id = ${ntIt.id}")
         }
     }
     dbSubOrderTasks.forEach byBlock1@{ dbIt ->

@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -45,16 +44,16 @@ data class DialogInput(
     var target: DialogFor
 )
 
-fun findCurrentObject(id: Int, orders: List<DomainOrderComplete>): DomainOrderComplete {
-    return orders.find { it.order.id == id }!!
+fun findCurrentObject(id: Int, items: List<DomainOrderComplete>): DomainOrderComplete {
+    return items.find { it.order.id == id }!!
 }
 
-fun findCurrentObject(id: Int, orders: List<DomainSubOrderComplete>): DomainSubOrderComplete {
-    return orders.find { it.subOrder.id == id }!!
+fun findCurrentObject(id: Int, items: List<DomainSubOrderComplete>): DomainSubOrderComplete {
+    return items.find { it.subOrder.id == id }!!
 }
 
-fun findCurrentObject(id: Int, orders: List<DomainSubOrderTaskComplete>): DomainSubOrderTaskComplete {
-    return orders.find { it.subOrderTask.id == id }!!
+fun findCurrentObject(id: Int, items: List<DomainSubOrderTaskComplete>): DomainSubOrderTaskComplete {
+    return items.find { it.subOrderTask.id == id }!!
 }
 
 //Layout
@@ -73,10 +72,7 @@ fun CustomDialogUI(
         findCurrentObject(dialogInput.recordId, appModel.completeSubOrdersMediator.value?.first!!)
     }
     val currentSubOrderTask by lazy {
-        findCurrentObject(
-            dialogInput.recordId,
-            appModel.completeSubOrderTasksMediator.value?.first!!
-        )
+        findCurrentObject(dialogInput.recordId, appModel.completeSubOrderTasksMediator.value?.first!!)
     }
 
     LaunchedEffect(Unit) {
@@ -190,7 +186,17 @@ fun CustomDialogUI(
                         )
                     }
                     TextButton(onClick = {
-                        openDialogCustom.value = false
+                        when(dialogInput.target) {
+                            DialogFor.ORDER -> {
+                                openDialogCustom.value = false
+                            }
+                            DialogFor.SUB_ORDER -> {
+                                appModel.editSubOrder(currentSubOrder.subOrder)
+                            }
+                            DialogFor.CHARACTERISTIC -> {
+                                appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
+                            }
+                        }
                     }) {
                         Text(
                             "Save",

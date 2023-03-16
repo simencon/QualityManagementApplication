@@ -8,8 +8,13 @@ import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
+import com.simenko.qmapp.ui.common.DialogFor
+import com.simenko.qmapp.ui.common.DialogInput
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 
@@ -211,12 +216,57 @@ class QualityManagementViewModel @Inject constructor(
      */
     var isStatusDialogVisible = MutableLiveData(false)
 
+    val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER))
+
     val investigationStatuses = qualityManagementInvestigationsRepository.investigationStatuses
     val investigationStatusesMediator: MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>>().apply {
             addSource(investigationStatuses) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(investigationStatuses.value, it) }
         }
+
+    fun editSubOrder(subOrder: DomainSubOrder) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                        this,
+                        subOrder
+                    )
+                    channel.consumeEach {
+                    }
+                }
+                isStatusDialogVisible.value = false
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                        this,
+                        subOrderTask
+                    )
+                    channel.consumeEach {
+                    }
+                }
+                isStatusDialogVisible.value = false
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
     /**
      *
      */
