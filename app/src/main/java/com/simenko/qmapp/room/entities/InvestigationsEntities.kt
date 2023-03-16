@@ -458,11 +458,11 @@ data class DatabaseSubOrderTaskComplete constructor(
     @Embedded
     var subOrderTask: DatabaseSubOrderTask,
     @Relation(
-        entity = DatabaseCharacteristic::class,
+        entity = DatabaseCharacteristicComplete::class,
         parentColumn = "charId",
         entityColumn = "id"
     )
-    var characteristic: DatabaseCharacteristic,
+    var characteristic: DatabaseCharacteristicComplete,
     @Relation(
         entity = DatabaseSubOrder::class,
         parentColumn = "subOrderId",

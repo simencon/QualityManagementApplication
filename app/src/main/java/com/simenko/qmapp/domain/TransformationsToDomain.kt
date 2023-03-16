@@ -57,8 +57,17 @@ fun DatabaseSample.toDomainSample() =
 fun DatabaseCharacteristic.toDomainCharacteristic() =
     ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
 
-fun DatabaseIshSubCharacteristic.toDomainCharacteristicGroup() =
-    ObjectTransformer(DatabaseIshSubCharacteristic::class, DomainIshSubCharacteristic::class).transform(this)
+fun DatabaseElementIshModel.toDomainCharacteristicGroup() =
+    ObjectTransformer(
+        DatabaseElementIshModel::class,
+        DomainElementIshModel::class
+    ).transform(this)
+
+fun DatabaseIshSubCharacteristic.toDomainCharacteristicSubGroup() =
+    ObjectTransformer(
+        DatabaseIshSubCharacteristic::class,
+        DomainIshSubCharacteristic::class
+    ).transform(this)
 
 fun DatabaseKey.toDomainKey() = ObjectTransformer(
     DatabaseKey::class, DomainKey::class
@@ -103,7 +112,7 @@ fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(parentId: Int): List
     return filter { it.subOrderTask.subOrderId == parentId || parentId == -1 }.map {
         DomainSubOrderTaskComplete(
             subOrderTask = it.subOrderTask.toDomainSubOrderTask(),
-            characteristic = it.characteristic.toDomainCharacteristic(),
+            characteristic = it.characteristic.toDomainCharacteristicComplete(),
             status = it.status.toDomainStatus()
         )
     }
@@ -243,11 +252,10 @@ fun List<DatabaseSubOrderWithChildren>.toDomainSubOrderWithChildren(): List<Doma
     }
 }
 
-fun List<DatabaseCharacteristicComplete>.asDomainCharacteristicsComplete(): List<DomainCharacteristicComplete> {
-    return map {
-        DomainCharacteristicComplete(
-            characteristic = it.characteristic.toDomainCharacteristic(),
-            characteristicGroup = it.characteristicGroup.toDomainCharacteristicGroup()
-        )
-    }
+fun DatabaseCharacteristicComplete.toDomainCharacteristicComplete(): DomainCharacteristicComplete {
+    return DomainCharacteristicComplete(
+        characteristic = characteristic.toDomainCharacteristic(),
+        characteristicGroup = characteristicGroup.toDomainCharacteristicGroup(),
+        characteristicSubGroup = characteristicSubGroup.toDomainCharacteristicSubGroup()
+    )
 }

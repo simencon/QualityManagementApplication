@@ -1,9 +1,5 @@
 package com.simenko.qmapp.domain
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.simenko.qmapp.room.entities.DatabaseCharacteristic
-import com.simenko.qmapp.room.entities.DatabaseIshSubCharacteristic
 import com.simenko.qmapp.utils.StringUtils
 
 data class DomainElementIshModel constructor(
@@ -65,8 +61,8 @@ data class DomainCharacteristic constructor(
 
 data class DomainCharacteristicComplete(
     val characteristic: DomainCharacteristic,
-    val characteristicGroup: DomainIshSubCharacteristic,
-//   ToDo val characteristicSubGroup:
+    val characteristicGroup: DomainElementIshModel,
+    val characteristicSubGroup: DomainIshSubCharacteristic
 )
 
 data class DomainMetrix constructor(

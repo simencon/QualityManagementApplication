@@ -96,12 +96,17 @@ data class DatabaseCharacteristicComplete(
     @Embedded
     val characteristic: DatabaseCharacteristic,
     @Relation(
-        entity = DatabaseIshSubCharacteristic::class,
+        entity = DatabaseElementIshModel::class,
         parentColumn = "ishCharId",
         entityColumn = "id"
     )
-    val characteristicGroup: DatabaseIshSubCharacteristic,
-//   ToDo val characteristicSubGroup:
+    val characteristicGroup: DatabaseElementIshModel,
+    @Relation(
+        entity = DatabaseIshSubCharacteristic::class,
+        parentColumn = "ishSubChar",
+        entityColumn = "id"
+    )
+    val characteristicSubGroup: DatabaseIshSubCharacteristic
 )
 
 @Entity(

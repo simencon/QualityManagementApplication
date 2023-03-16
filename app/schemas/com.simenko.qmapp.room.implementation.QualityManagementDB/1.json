@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6bc01e7636b003d1038aeb8e65160746",
+    "identityHash": "b401358dcd0959db21e918d9f51d4ef1",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3304,6 +3304,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT sv.* FROM `11_component_in_stage_versions` sv"
       },
       {
+        "viewName": "characteristic_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `7_characteristics` ORDER BY charOrder;"
+      },
+      {
         "viewName": "sub_order_task_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `13_7_sub_order_tasks` ORDER BY id;"
       },
@@ -3314,7 +3318,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6bc01e7636b003d1038aeb8e65160746')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b401358dcd0959db21e918d9f51d4ef1')"
     ]
   }
 }

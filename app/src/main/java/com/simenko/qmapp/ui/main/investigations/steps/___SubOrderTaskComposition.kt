@@ -120,7 +120,7 @@ fun SubOrderTaskCard(
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
             if (subOrderTask.isExpanded) Accent200 else
-                if(subOrderTask.measurementsVisibility) {
+                if (subOrderTask.measurementsVisibility) {
                     _level_3_record_color_details
                 } else {
                     _level_3_record_color
@@ -186,27 +186,67 @@ fun SubOrderTask(
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Char. group:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    Column(
                         modifier = Modifier
-                            .weight(weight = 0.22f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-//                            ToDo change to real value when data is available (subOrderTask.characteristic.ishCharId.toString())
-                        text = "Micro geometry",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.38f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(0.6f),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                        ) {
+                            Text(
+                                text = "Group:",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.32f)
+                                    .padding(top = 4.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = subOrderTask.characteristic.characteristicGroup.ishElement
+                                    ?: "-",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.68f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                        ) {
+                            Text(
+                                text = "Sub group:",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.32f)
+                                    .padding(top = 4.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = subOrderTask.characteristic.characteristicSubGroup.ishElement
+                                    ?: "-",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.68f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        }
+
+                    }
+
                     TextButton(
                         modifier = Modifier
                             .weight(weight = 0.4f)
@@ -233,6 +273,7 @@ fun SubOrderTask(
                     )
 
                 }
+
                 Row(
                     modifier = Modifier.padding(
                         top = 0.dp,
@@ -248,16 +289,16 @@ fun SubOrderTask(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.28f)
+                            .weight(weight = 0.255f)
                             .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = subOrderTask.characteristic.charDescription ?: "-",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                        text = subOrderTask.characteristic.characteristic.charDescription ?: "-",
+                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.72f)
+                            .weight(weight = 0.745f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }
@@ -304,16 +345,10 @@ fun getSubOrderTasks() = List(30) { i ->
             subOrderId = 1,
             charId = 1
         ),
-        characteristic = DomainCharacteristic(
-            id = 1,
-            ishCharId = 1,
-            charOrder = 1,
-            charDescription = "Шорсткість отвору внутрішнього кількця",
-            charDesignation = "Ra d",
-            projectId = 1,
-            ishSubChar = 1,
-            sampleRelatedTime = 0.12,
-            measurementRelatedTime = 0.21
+        characteristic = DomainCharacteristicComplete(
+            characteristic = getCharacteristic(),
+            characteristicGroup = getCharacteristicGroup(),
+            characteristicSubGroup = getCharacteristicSubGroup()
         ),
         status = DomainOrdersStatus(
             id = 1,
@@ -321,3 +356,26 @@ fun getSubOrderTasks() = List(30) { i ->
         )
     )
 }
+
+fun getCharacteristic() = DomainCharacteristic(
+    id = 1,
+    ishCharId = 1,
+    charOrder = 1,
+    charDescription = "Шорсткість отвору внутрішнього кількця",
+    charDesignation = "Ra d",
+    projectId = 1,
+    ishSubChar = 1,
+    sampleRelatedTime = 0.12,
+    measurementRelatedTime = 0.21
+)
+
+fun getCharacteristicGroup() = DomainElementIshModel(
+    id = 1,
+    ishElement = "Micro geometry"
+)
+
+fun getCharacteristicSubGroup() = DomainIshSubCharacteristic(
+    id = 1,
+    ishElement = "Micro geometry",
+    measurementGroupRelatedTime = 0.24
+)

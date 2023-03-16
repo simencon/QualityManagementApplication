@@ -166,7 +166,7 @@ data class DomainSubOrderComplete constructor(
 
 data class DomainSubOrderTaskComplete constructor(
     var subOrderTask: DomainSubOrderTask,
-    var characteristic: DomainCharacteristic,
+    var characteristic: DomainCharacteristicComplete,
     var status: DomainOrdersStatus,
     var measurementsVisibility: Boolean = false,
     var detailsVisibility: Boolean = false,
