@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -176,6 +177,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onDestroy() {
+        viewModel.isStatusDialogVisible.value = false
+        super.onDestroy()
     }
 }
 

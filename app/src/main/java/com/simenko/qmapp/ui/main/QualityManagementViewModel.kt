@@ -209,6 +209,8 @@ class QualityManagementViewModel @Inject constructor(
     /**
      *
      */
+    var isStatusDialogVisible = MutableLiveData(false)
+
     val investigationStatuses = qualityManagementInvestigationsRepository.investigationStatuses
     val investigationStatusesMediator: MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>>().apply {

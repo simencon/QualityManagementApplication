@@ -572,13 +572,9 @@ fun MySubOrderPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            showStatusDialog = performAction
+            showStatusDialog = { a, b -> statusDialog(a, b) }
         )
     }
-}
-
-val performAction: (Int, DialogFor) -> Unit = { a, b -> statusDialog(a, b) }
-fun statusDialog(recordId: Int, dialogFor: DialogFor) {
 }
 
 fun getSubOrders() = List(30) { i ->

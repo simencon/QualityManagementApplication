@@ -10,6 +10,7 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.produce
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -701,6 +702,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
 
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class QualityManagementInvestigationsRepository(private val database: QualityManagementDB) {
     /**
      * Update Investigations from the network
@@ -867,6 +869,51 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
+    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSample) = coroutineScope.produce {
+        val newRecord = QualityManagementNetwork.serviceHolderInvestigations.createSample(
+            record.toNetworkSampleWithoutId()
+        ).toDatabaseSample()
+        database.qualityManagementInvestigationsDao.insertSample(newRecord)
+        send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
+    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) = coroutineScope.produce {
+        val newRecord = QualityManagementNetwork.serviceHolderInvestigations.createSubOrderTask(
+            record.toNetworkSubOrderTaskWithoutId()
+        ).toDatabaseSubOrderTask()
+        database.qualityManagementInvestigationsDao.insertSubOrderTask(newRecord)
+        send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
+    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) = coroutineScope.produce {
+        val newRecord = QualityManagementNetwork.serviceHolderInvestigations.createSubOrder(
+            record.toNetworkSubOrderWithoutId()
+        ).toDatabaseSubOrder()
+        database.qualityManagementInvestigationsDao.insertSubOrder(newRecord)
+        send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
+    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainOrder) = coroutineScope.produce {
+        val newOrder = QualityManagementNetwork.serviceHolderInvestigations.createOrder(
+            record.toNetworkOrderWithoutId()
+        ).toDatabaseOrder()
+        database.qualityManagementInvestigationsDao.insertOrder(newOrder)
+        send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
+    fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) = coroutineScope.produce {
+        val nSubOrder = record.toNetworkSubOrderWithId()
+        QualityManagementNetwork.serviceHolderInvestigations.editSubOrder(record.id, nSubOrder)
+        database.qualityManagementInvestigationsDao.updateSubOrder(record.toDatabaseSubOrder())
+        send(record)
+    }
+
+    fun updateRecord(coroutineScope: CoroutineScope, record: DomainOrder) = coroutineScope.produce {
+        val nOrder = record.toNetworkOrderWithId()
+        QualityManagementNetwork.serviceHolderInvestigations.editOrder(record.id, nOrder)
+        database.qualityManagementInvestigationsDao.updateOrder(record.toDatabaseOrder())
+        send(record)
+    }
 
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getInputForOrder()) {
@@ -932,7 +979,6 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                 DomainSample::class
             ).generateList()
         }
-
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderWithChildren>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderWithChildren()) {

@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.MutableLiveData
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.neworder.selectSingleRecordI
 import com.simenko.qmapp.ui.theme.*
-
 
 enum class DialogFor {
     ORDER,
@@ -63,9 +63,59 @@ fun findCurrentObject(id: Int, orders: List<DomainSubOrderTaskComplete>): Domain
 fun CustomDialogUI(
     modifier: Modifier = Modifier,
     dialogInput: DialogInput,
-    openDialogCustom: MutableState<Boolean>,
+    openDialogCustom: MutableLiveData<Boolean>,
     appModel: QualityManagementViewModel
 ) {
+    val currentOrder by lazy {
+        findCurrentObject(dialogInput.recordId, appModel.completeOrdersMediator.value?.first!!)
+    }
+    val currentSubOrder by lazy {
+        findCurrentObject(dialogInput.recordId, appModel.completeSubOrdersMediator.value?.first!!)
+    }
+    val currentSubOrderTask by lazy {
+        findCurrentObject(
+            dialogInput.recordId,
+            appModel.completeSubOrderTasksMediator.value?.first!!
+        )
+    }
+
+    LaunchedEffect(Unit) {
+        selectSingleRecordI(
+            appModel.investigationStatuses,
+            appModel.pairedTrigger,
+            when (dialogInput.target) {
+                DialogFor.ORDER -> {
+                    currentOrder.order.statusId
+                }
+                DialogFor.SUB_ORDER -> {
+                    currentSubOrder.subOrder.statusId
+                }
+                DialogFor.CHARACTERISTIC -> {
+                    currentSubOrderTask.subOrderTask.statusId
+                }
+            }
+        )
+    }
+
+    fun changeStatus(id: Int) {
+        when (dialogInput.target) {
+            DialogFor.ORDER -> {
+                currentOrder.order.statusId = id
+            }
+            DialogFor.SUB_ORDER -> {
+                currentSubOrder.subOrder.statusId = id
+            }
+            DialogFor.CHARACTERISTIC -> {
+                currentSubOrderTask.subOrderTask.statusId = id
+            }
+        }
+        selectSingleRecordI(
+            appModel.investigationStatuses,
+            appModel.pairedTrigger,
+            id
+        )
+    }
+
     Dialog(
         onDismissRequest = { openDialogCustom.value = false },
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -95,7 +145,7 @@ fun CustomDialogUI(
                         .padding(top = 35.dp)
                         .height(70.dp)
                         .fillMaxWidth(),
-                    )
+                )
 
                 Column(
                     modifier = Modifier.padding(8.dp),
@@ -116,7 +166,7 @@ fun CustomDialogUI(
                             .padding(top = 10.dp)
                             .height(50.dp),
                         appModel = appModel,
-                        dialogInput
+                        onSelectStatus = { changeStatus(it) }
                     )
                 }
                 //.......................................................................
@@ -159,41 +209,10 @@ fun CustomDialogUI(
 fun StatusesSelection(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
-    dialogInput: DialogInput
+    onSelectStatus: (Int) -> Unit
 ) {
-    val currentOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.completeOrdersMediator.value?.first!!)
-    }
-    val currentSubOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.completeSubOrdersMediator.value?.first!!)
-    }
-    val currentSubOrderTask by lazy {
-        findCurrentObject(
-            dialogInput.recordId,
-            appModel.completeSubOrderTasksMediator.value?.first!!
-        )
-    }
-
     val observeInputForOrder by appModel.investigationStatusesMediator.observeAsState()
     val gritState = rememberLazyGridState()
-
-    LaunchedEffect(Unit) {
-        selectSingleRecordI(
-            appModel.investigationStatuses,
-            appModel.pairedTrigger,
-            when (dialogInput.target) {
-                DialogFor.ORDER -> {
-                    currentOrder.order.statusId
-                }
-                DialogFor.SUB_ORDER -> {
-                    currentSubOrder.subOrder.statusId
-                }
-                DialogFor.CHARACTERISTIC -> {
-                    currentSubOrderTask.subOrderTask.statusId
-                }
-            }
-        )
-    }
 
     observeInputForOrder?.apply {
         LazyHorizontalGrid(
@@ -210,22 +229,7 @@ fun StatusesSelection(
                         input = first!![item],
                         modifier = modifier.padding(top = 0.dp),
                         onClick = {
-                            when(dialogInput.target) {
-                                DialogFor.ORDER -> {
-                                    currentOrder.order.statusId = first!![item].id
-                                }
-                                DialogFor.SUB_ORDER -> {
-                                    currentSubOrder.subOrder.statusId = first!![item].id
-                                }
-                                DialogFor.CHARACTERISTIC -> {
-                                    currentSubOrderTask.subOrderTask.statusId = first!![item].id
-                                }
-                            }
-                            selectSingleRecordI(
-                                appModel.investigationStatuses,
-                                appModel.pairedTrigger,
-                                first!![item].id
-                            )
+                            onSelectStatus(first!![item].id)
                         }
                     )
             }

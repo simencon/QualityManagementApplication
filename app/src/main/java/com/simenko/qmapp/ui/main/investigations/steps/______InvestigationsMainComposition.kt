@@ -35,6 +35,9 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 
 private const val TAG = "InvestigationsMai"
 
+fun statusDialog(recordId: Int, dialogFor: DialogFor) {
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InvestigationsMainComposition(
@@ -50,17 +53,15 @@ fun InvestigationsMainComposition(
 
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     var isResultsVisible by rememberSaveable { mutableStateOf(1) }
-    var rowState = rememberScrollState()
+    val rowState = rememberScrollState()
 
-    val showStatusChangeDialog = rememberSaveable { mutableStateOf(false) }
+    val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
     val dialogInput = DialogInput(0, DialogFor.ORDER)
     fun statusDialog(recordId: Int, dialogFor: DialogFor) {
         dialogInput.recordId = recordId
         dialogInput.target = dialogFor
-        showStatusChangeDialog.value = true
+        appModel.isStatusDialogVisible.value = true
     }
-
-    val performAction: (Int, DialogFor) -> Unit = { a, b -> statusDialog(a, b) }
 
     QMAppTheme {
         var fabPositionToRemember by remember { mutableStateOf(FabPosition.End) }
@@ -134,7 +135,7 @@ fun InvestigationsMainComposition(
                         appModel = appModel,
                         onListEnd = { changeFlaBtnPosition(it) },
                         createdRecord = createdRecord,
-                        showStatusDialog = performAction
+                        showStatusDialog = { a, b -> statusDialog(a, b) }
                     )
                     SampleComposition(
                         modifier.width((screenWidth * 0.38 * isSamplesNumVisible).dp),
@@ -143,8 +144,12 @@ fun InvestigationsMainComposition(
                     ResultsComposition(modifier.width((screenWidth * 0.5 * isResultsVisible).dp))
                 }
 
-                if (showStatusChangeDialog.value)
-                    CustomDialogUI(dialogInput = dialogInput, openDialogCustom = showStatusChangeDialog, appModel = appModel)
+                if (showStatusChangeDialog.value == true)
+                    CustomDialogUI(
+                        dialogInput = dialogInput,
+                        openDialogCustom = appModel.isStatusDialogVisible,
+                        appModel = appModel
+                    )
 
             }
         )

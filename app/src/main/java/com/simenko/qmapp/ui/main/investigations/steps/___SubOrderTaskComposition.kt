@@ -333,7 +333,7 @@ fun MySubOrderTaskPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            showStatusDialog = performAction
+            showStatusDialog = { a, b -> statusDialog(a, b) }
         )
     }
 }
