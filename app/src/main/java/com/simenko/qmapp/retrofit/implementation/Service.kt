@@ -157,6 +157,9 @@ interface QualityManagementInvestigationsService {
     @PUT("api/_137SubOrderTask/{id}")
     suspend fun editSubOrderTask(@Path("id") id: Int, @Body body: NetworkSubOrderTask): Response<Unit>
 
+    @GET("api/_137SubOrderTask/{id}")
+    suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
+
     @GET("api/_14Sample")
     suspend fun getSamples(): List<NetworkSample>
 
@@ -171,6 +174,9 @@ interface QualityManagementInvestigationsService {
 
     @GET("api/_148Result")
     suspend fun getResults(): List<NetworkResult>
+
+    @POST("api/_148Result")
+    suspend fun createResult(@Body networkResult: NetworkResult): NetworkResult
 }
 
 object QualityManagementNetwork {

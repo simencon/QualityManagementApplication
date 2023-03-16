@@ -180,10 +180,31 @@ data class NetworkResultsDecryption constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkResult constructor(
-    var id: Int,
     var sampleId: Int,
     var metrixId: Int,
     var result: Double? = null,
     var isOk: Boolean? = null,
-    var resultDecryptionId: Int
-)
+    var resultDecryptionId: Int,
+    var taskId: Int
+) {
+    var id: Int = 0
+
+    constructor(
+        id: Int,
+        sampleId: Int,
+        metrixId: Int,
+        result: Double?,
+        isOk: Boolean?,
+        resultDecryptionId: Int,
+        taskId: Int
+    ) : this(
+        sampleId = sampleId,
+        metrixId = metrixId,
+        result = result,
+        isOk = isOk,
+        resultDecryptionId = resultDecryptionId,
+        taskId = taskId
+    ) {
+        this.id = id
+    }
+}

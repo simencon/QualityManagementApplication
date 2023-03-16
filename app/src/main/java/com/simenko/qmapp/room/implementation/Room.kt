@@ -318,6 +318,8 @@ interface QualityManagementInvestigationsDao {
     fun insertResultsAll(company: List<DatabaseResult>)
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     fun getResults(): LiveData<List<DatabaseResult>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertResult(record: DatabaseResult)
 
 
     @Transaction

@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.main.MainScope
 import com.simenko.qmapp.domain.*
@@ -17,6 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
+
+private const val TAG = "QualityManagementViewMo"
 
 @MainScope
 class QualityManagementViewModel @Inject constructor(
@@ -211,6 +214,7 @@ class QualityManagementViewModel @Inject constructor(
                 pairedTrigger.value = !(pairedTrigger.value as Boolean)
             }
     }
+
     /**
      *
      */
@@ -224,6 +228,12 @@ class QualityManagementViewModel @Inject constructor(
             addSource(investigationStatuses) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(investigationStatuses.value, it) }
         }
+
+    val productTolerances = qualityManagementProductsRepository.productTolerances
+    val componentTolerances = qualityManagementProductsRepository.componentTolerances
+    val componentInStageTolerances = qualityManagementProductsRepository.componentInStageTolerances
+
+    val metrixes = qualityManagementProductsRepository.metrixes
 
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
@@ -251,11 +261,88 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                    /**
+                     * 1.Get latest status task
+                     * 2.Compare with new status
+                     * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
+                     * 4.If change is "Done" -> "To Do" = Delete all results
+                     * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
+                     * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
+                     * */
+                    val channel1 = qualityManagementInvestigationsRepository.getRecord(
                         this,
                         subOrderTask
                     )
-                    channel.consumeEach {
+                    channel1.consumeEach {
+                        if (it.statusId == 1 || it.statusId == 4) {
+                            if (subOrderTask.statusId == 3)
+                            /**
+                             * Collect/Post new results and change status
+                             * */
+                            {
+                                val subOrder =
+                                    completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
+                                val metrixesToRecord: List<DomainMetrix?>? =
+                                    when (subOrder.itemPreffix) {
+                                        "p" -> {
+                                            productTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                        }
+                                        "c" -> {
+                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                        }
+                                        "s" -> {
+                                            componentInStageTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                        }
+                                        else -> {
+                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                        }
+                                    }
+
+                                samples.value?.filter { sIt -> sIt.subOrderId == subOrder.id }
+                                    ?.forEach { sfIt ->
+                                        metrixesToRecord?.forEach { mIt ->
+                                            if (mIt != null) {
+                                                val channel3 =
+                                                    qualityManagementInvestigationsRepository.getCreatedRecord(
+                                                        this,
+                                                        DomainResult(
+                                                            id = 0,
+                                                            sampleId = sfIt.id,
+                                                            metrixId = mIt.id,
+                                                            result = null,
+                                                            isOk = true,
+                                                            resultDecryptionId = 1,
+                                                            taskId = subOrderTask.id
+                                                        )
+                                                    )
+                                                channel3.consumeEach { nResIt ->
+                                                    Log.d(TAG, "editSubOrderTask: $nResIt")
+                                                }
+                                            }
+                                        }
+                                    }
+
+
+                                Log.d(TAG, "editSubOrderTask: Collect/Post new results")
+                            }
+                        } else if (it.statusId == 3) {
+                            if (subOrderTask.statusId == 1)
+                            /**
+                             * Delete all results and change status
+                             * */
+                                Log.d(TAG, "editSubOrderTask: Delete all results")
+                        }
+                    }
+
+                    val channel2 = qualityManagementInvestigationsRepository.updateRecord(
+                        this,
+                        subOrderTask
+                    )
+                    channel2.consumeEach {
                     }
                 }
                 isStatusDialogVisible.value = false
@@ -274,6 +361,7 @@ class QualityManagementViewModel @Inject constructor(
         isLoadingInProgress.value = false
         isNetworkError.value = false
     }
+
     /**
      *
      */
