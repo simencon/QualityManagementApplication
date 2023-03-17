@@ -285,19 +285,19 @@ class QualityManagementViewModel @Inject constructor(
                                 val metrixesToRecord: List<DomainMetrix?>? =
                                     when (subOrder.itemPreffix) {
                                         "p" -> {
-                                            productTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                            productTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
                                                 ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
                                         }
                                         "c" -> {
-                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
                                                 ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
                                         }
                                         "s" -> {
-                                            componentInStageTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                            componentInStageTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
                                                 ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
                                         }
                                         else -> {
-                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId }
+                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
                                                 ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
                                         }
                                     }
