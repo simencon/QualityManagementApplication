@@ -1,5 +1,10 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.room.entities.DatabaseMetrix
+import com.simenko.qmapp.room.entities.DatabaseResult
+import com.simenko.qmapp.room.entities.DatabaseResultsDecryption
+import com.simenko.qmapp.room.entities.DatabaseSubOrderTaskComplete
+
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -184,6 +189,13 @@ data class DomainSubOrderTaskComplete constructor(
     var measurementsVisibility: Boolean = false,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
+)
+
+data class DomainResultComplete(
+    val result: DomainResult,
+    val resultsDecryption: DomainResultsDecryption,
+    val metrix: DomainMetrix,
+    val subOrderTask: DomainSubOrderTaskComplete
 )
 
 //ToDo just to test
