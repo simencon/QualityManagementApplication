@@ -818,6 +818,12 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
+    suspend fun deleteResults(charId: Int = 0, id: Int = 0) {
+        withContext(Dispatchers.IO) {
+            QualityManagementNetwork.serviceHolderInvestigations.deleteResults(charId, id)
+        }
+    }
+
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
             val ntSubOrder = QualityManagementNetwork.serviceHolderInvestigations.getSubOrders()
@@ -870,10 +876,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     suspend fun refreshResults() {
         withContext(Dispatchers.IO) {
-            val results = QualityManagementNetwork.serviceHolderInvestigations.getResults()
-            database.qualityManagementInvestigationsDao.insertResultsAll(
-                ListTransformer(results, NetworkResult::class, DatabaseResult::class).generateList()
-            )
+            val ntResults = QualityManagementNetwork.serviceHolderInvestigations.getResults()
+            val dbResults = database.qualityManagementInvestigationsDao.getResultsByList()
+
+            syncResults(dbResults, ntResults, database)
+
             Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
@@ -1190,6 +1197,39 @@ fun syncSamples(
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteSample(dbIt)
             Log.d(TAG, "syncSamples: Sample deleted from SQLite / id = ${dbIt.id}")
+        }
+    }
+}
+
+fun syncResults(
+    dbResults: List<DatabaseResult>,
+    ntResults: List<NetworkResult>,
+    database: QualityManagementDB
+) {
+    ntResults.forEach byBlock1@{ ntIt ->
+        var recordExists = false
+        dbResults.forEach byBlock2@{ dbIt ->
+            if (ntIt.id == dbIt.id) {
+                recordExists = true
+                return@byBlock2
+            }
+        }
+        if (!recordExists) {
+            database.qualityManagementInvestigationsDao.insertResult(ntIt.toDatabaseResult())
+            Log.d(TAG, "syncSamples: Result has been inserted / id = ${ntIt.id}")
+        }
+    }
+    dbResults.forEach byBlock1@{ dbIt ->
+        var recordExists = false
+        ntResults.forEach byBlock2@{ ntIt ->
+            if (ntIt.id == dbIt.id) {
+                recordExists = true
+                return@byBlock2
+            }
+        }
+        if (!recordExists) {
+            database.qualityManagementInvestigationsDao.deleteResult(dbIt)
+            Log.d(TAG, "syncSamples: Result deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }

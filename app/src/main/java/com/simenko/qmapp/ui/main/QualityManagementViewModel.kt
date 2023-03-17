@@ -325,16 +325,18 @@ class QualityManagementViewModel @Inject constructor(
                                             }
                                         }
                                     }
-
-
                                 Log.d(TAG, "editSubOrderTask: Collect/Post new results")
                             }
                         } else if (it.statusId == 3) {
-                            if (subOrderTask.statusId == 1)
-                            /**
-                             * Delete all results and change status
-                             * */
+                            if (subOrderTask.statusId == 1) {
+                                /**
+                                 * Delete all results and change status
+                                 * */
+                                qualityManagementInvestigationsRepository.deleteResults(charId = subOrderTask.id)
+                                qualityManagementInvestigationsRepository.refreshSamples()
+
                                 Log.d(TAG, "editSubOrderTask: Delete all results")
+                            }
                         }
                     }
 
@@ -374,6 +376,7 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementInvestigationsRepository.refreshSubOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrderTasks()
                 qualityManagementInvestigationsRepository.refreshSamples()
+                qualityManagementInvestigationsRepository.refreshSamples()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -391,6 +394,7 @@ class QualityManagementViewModel @Inject constructor(
 
                 qualityManagementInvestigationsRepository.refreshSubOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrderTasks()
+                qualityManagementInvestigationsRepository.refreshSamples()
                 qualityManagementInvestigationsRepository.refreshSamples()
 
                 isLoadingInProgress.value = false
