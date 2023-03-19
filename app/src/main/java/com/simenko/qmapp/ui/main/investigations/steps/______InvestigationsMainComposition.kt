@@ -141,7 +141,10 @@ fun InvestigationsMainComposition(
                         modifier.width((screenWidth * 0.38 * isSamplesNumVisible).dp),
                         appModel
                     )
-                    ResultsComposition(modifier.width((screenWidth * 0.5 * isResultsVisible).dp))
+                    ResultsComposition(
+                        modifier.width((screenWidth * 0.5 * isResultsVisible).dp),
+                        appModel
+                    )
                 }
 
                 if (showStatusChangeDialog.value == true)

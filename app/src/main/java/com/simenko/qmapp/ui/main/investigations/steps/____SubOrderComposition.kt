@@ -580,25 +580,7 @@ fun MySubOrderPreview() {
 fun getSubOrders() = List(30) { i ->
 
     DomainSubOrderComplete(
-        subOrder = DomainSubOrder(
-            id = 1,
-            orderId = 1,
-            subOrderNumber = (100..300).random(),
-            orderedById = 1,
-            completedById = 1,
-            statusId = 1,
-            createdDate = "2022-12-15T22:24:43",
-            completedDate = "2022-12-15T22:24:43",
-            departmentId = 1,
-            subDepartmentId = 1,
-            channelId = 1,
-            lineId = 1,
-            operationId = 1,
-            itemPreffix = "c",
-            itemTypeId = 1,
-            itemVersionId = 1,
-            samplesCount = (1..10).random()
-        ),
+        subOrder = getSubOrder(),
         orderedBy = DomainTeamMember(
             id = 1,
             departmentId = 1,
@@ -670,3 +652,23 @@ fun getSubOrders() = List(30) { i ->
         tasksVisibility = true
     )
 }
+
+fun getSubOrder() = DomainSubOrder(
+    id = 1,
+    orderId = 1,
+    subOrderNumber = (100..300).random(),
+    orderedById = 1,
+    completedById = 1,
+    statusId = 1,
+    createdDate = "2022-12-15T22:24:43",
+    completedDate = "2022-12-15T22:24:43",
+    departmentId = 1,
+    subDepartmentId = 1,
+    channelId = 1,
+    lineId = 1,
+    operationId = 1,
+    itemPreffix = "c",
+    itemTypeId = 1,
+    itemVersionId = 1,
+    samplesCount = (1..10).random()
+)

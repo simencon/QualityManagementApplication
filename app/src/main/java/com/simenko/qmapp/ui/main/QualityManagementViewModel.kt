@@ -105,6 +105,15 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(samples.value, it) }
         }
 
+    val currentSample = MutableLiveData(0)
+
+    private val completeResults = qualityManagementInvestigationsRepository.completeResults
+    val completeResultsMediator: MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>>().apply {
+            addSource(completeResults) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeResults.value, it) }
+        }
+
     fun changeCompleteOrdersDetailsVisibility(itemId: Int) {
         changeCompleteSubOrdersDetailsVisibility(currentSubOrder.value ?: 0)
         changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
@@ -210,7 +219,17 @@ class QualityManagementViewModel @Inject constructor(
         samples.value?.forEach { it.isSelected = false }
         samples.value?.find { it.id == item.id }
             ?.let { subOrderTask ->
+                currentSample.value = item.id
                 subOrderTask.isSelected = !subOrderTask.isSelected
+                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            }
+    }
+
+    fun changeResultsIsSelectedState(item: DomainResult) {
+        completeResults.value?.forEach { it.isSelected = false }
+        completeResults.value?.find { it.result.id == item.id }
+            ?.let { result ->
+                result.isSelected = !result.isSelected
                 pairedTrigger.value = !(pairedTrigger.value as Boolean)
             }
     }

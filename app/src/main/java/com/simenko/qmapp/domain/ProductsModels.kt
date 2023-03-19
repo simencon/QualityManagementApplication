@@ -70,7 +70,8 @@ data class DomainMetrix constructor(
     var charId: Int,
     var metrixOrder: Int? = null,
     var metrixDesignation: String? = null,
-    var metrixDescription: String? = null
+    var metrixDescription: String? = null,
+    var units: String? = null
 )
 
 data class DomainKey(

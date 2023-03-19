@@ -58,6 +58,12 @@ fun NetworkSubOrderTask.toDomainSubOrderTask() =
 fun DatabaseResult.toDomainResult() =
     ObjectTransformer(DatabaseResult::class, DomainResult::class).transform(this)
 
+fun DatabaseResultsDecryption.toDomainResult() =
+    ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(this)
+
+fun DatabaseMetrix.toDomainMetrix() =
+    ObjectTransformer(DatabaseMetrix::class, DomainMetrix::class).transform(this)
+
 fun DatabaseSample.toDomainSample() =
     ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
 
@@ -120,7 +126,24 @@ fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(parentId: Int): List
         DomainSubOrderTaskComplete(
             subOrderTask = it.subOrderTask.toDomainSubOrderTask(),
             characteristic = it.characteristic.toDomainCharacteristicComplete(),
+            subOrder = it.subOrder.toDomainSubOrder(),
             status = it.status.toDomainStatus()
+        )
+    }
+}
+
+fun List<DatabaseResultComplete>.asDomainResults(): List<DomainResultComplete> {
+    return map {
+        DomainResultComplete(
+            result = it.result.toDomainResult(),
+            resultsDecryption = it.resultsDecryption.toDomainResult(),
+            metrix = it.metrix.toDomainMetrix(),
+            subOrderTask = DomainSubOrderTaskComplete(
+                subOrderTask = it.subOrderTask.subOrderTask.toDomainSubOrderTask(),
+                characteristic = it.subOrderTask.characteristic.toDomainCharacteristicComplete(),
+                subOrder = it.subOrderTask.subOrder.toDomainSubOrder(),
+                status = it.subOrderTask.status.toDomainStatus()
+            )
         )
     }
 }

@@ -353,6 +353,7 @@ fun getSubOrderTasks() = List(30) { i ->
             characteristicGroup = getCharacteristicGroup(),
             characteristicSubGroup = getCharacteristicSubGroup()
         ),
+        subOrder = getSubOrder(),
         status = DomainOrdersStatus(
             id = 1,
             statusDescription = "In Progress"

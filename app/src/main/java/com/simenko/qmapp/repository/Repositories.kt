@@ -1025,6 +1025,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.toDomainSubOrderWithChildren()
         }
 
+    val completeResults: LiveData<List<DomainResultComplete>> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getResultsDetailed()) {
+            it.asDomainResults()
+        }
+
 }
 
 fun syncOrders(
