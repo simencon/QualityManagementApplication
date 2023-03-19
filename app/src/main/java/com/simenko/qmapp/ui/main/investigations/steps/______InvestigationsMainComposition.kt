@@ -1,25 +1,30 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.CustomDialogUI
@@ -38,7 +43,7 @@ private const val TAG = "InvestigationsMai"
 fun statusDialog(recordId: Int, dialogFor: DialogFor) {
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
@@ -106,54 +111,79 @@ fun InvestigationsMainComposition(
             },
             floatingActionButtonPosition = fabPositionToSet,
             content = { padding ->
-                Row(
+
+                val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
+                val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+
+                val pullRefreshState = rememberPullRefreshState(
+                    refreshing = observerLoadingProcess!!,
+                    onRefresh = { appModel.refreshOrdersFromRepository() }
+                )
+
+                Box(
                     Modifier
-                        .horizontalScroll(rowState)
-                        .width(
-                            (screenWidth * (1 + 0.38 * isSamplesNumVisible + 0.5 * isResultsVisible)).dp
-                        )
-                        .padding(padding)
-                        .animateContentSize(
-                            tween(
-                                durationMillis = ANIMATION_DURATION,
-                                easing = LinearOutSlowInEasing
+                        .pullRefresh(pullRefreshState)
+                        .padding(padding)) {
+
+                    Row(
+                        Modifier
+                            .horizontalScroll(rowState)
+                            .width(
+                                (screenWidth * (1 + 0.38 * isSamplesNumVisible + 0.5 * isResultsVisible)).dp
                             )
-                        )
-                ) {
-                    LaunchedEffect(isSamplesNumVisible) {
-                        if (isSamplesNumVisible == 1)
-                            rowState.animateScrollTo(
-                                rowState.maxValue, tween(
+                            .animateContentSize(
+                                tween(
                                     durationMillis = ANIMATION_DURATION,
                                     easing = LinearOutSlowInEasing
                                 )
                             )
+                    ) {
+                        LaunchedEffect(isSamplesNumVisible) {
+                            if (isSamplesNumVisible == 1)
+                                rowState.animateScrollTo(
+                                    rowState.maxValue, tween(
+                                        durationMillis = ANIMATION_DURATION,
+                                        easing = LinearOutSlowInEasing
+                                    )
+                                )
+                        }
+
+                        Orders(
+                            modifier = modifier.width(screenWidth.dp),
+                            appModel = appModel,
+                            onListEnd = { changeFlaBtnPosition(it) },
+                            createdRecord = createdRecord,
+                            showStatusDialog = { a, b -> statusDialog(a, b) }
+                        )
+                        SampleComposition(
+                            modifier.width((screenWidth * 0.38 * isSamplesNumVisible).dp),
+                            appModel
+                        )
+                        ResultsComposition(
+                            modifier.width((screenWidth * 0.5 * isResultsVisible).dp),
+                            appModel
+                        )
                     }
 
-                    Orders(
-                        modifier = modifier.width(screenWidth.dp),
-                        appModel = appModel,
-                        onListEnd = { changeFlaBtnPosition(it) },
-                        createdRecord = createdRecord,
-                        showStatusDialog = { a, b -> statusDialog(a, b) }
-                    )
-                    SampleComposition(
-                        modifier.width((screenWidth * 0.38 * isSamplesNumVisible).dp),
-                        appModel
-                    )
-                    ResultsComposition(
-                        modifier.width((screenWidth * 0.5 * isResultsVisible).dp),
-                        appModel
+                    if (showStatusChangeDialog.value == true)
+                        CustomDialogUI(
+                            dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER),
+                            openDialogCustom = appModel.isStatusDialogVisible,
+                            appModel = appModel
+                        )
+
+                    PullRefreshIndicator(
+                        observerLoadingProcess!!,
+                        pullRefreshState,
+                        Modifier.align(Alignment.TopCenter),
+                        contentColor = ProgressIndicatorDefaults.circularColor
                     )
                 }
 
-                if (showStatusChangeDialog.value == true)
-                    CustomDialogUI(
-                        dialogInput = dialogInput?: DialogInput(0,DialogFor.ORDER),
-                        openDialogCustom = appModel.isStatusDialogVisible,
-                        appModel = appModel
-                    )
-
+                if (observerIsNetworkError == true) {
+                    Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
+                    appModel.onNetworkErrorShown()
+                }
             }
         )
     }

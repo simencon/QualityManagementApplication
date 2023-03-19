@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.investigations.steps
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -12,13 +11,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -46,7 +41,7 @@ import kotlin.math.roundToInt
 
 private const val TAG = "OrderComposition"
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Orders(
     modifier: Modifier = Modifier,
@@ -57,8 +52,6 @@ fun Orders(
 ) {
     val context = LocalContext.current
 
-    val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
-    val observerIsNetworkError by appModel.isNetworkError.observeAsState()
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
 
     val listState = rememberLazyListState()
@@ -91,7 +84,6 @@ fun Orders(
         }
     }
 
-
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Main) {
             for (i in generateSequence(0) { it }) {
@@ -101,81 +93,61 @@ fun Orders(
         }
     }
 
-
     var clickCounter = 0
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = observerLoadingProcess!!,
-        onRefresh = { appModel.refreshOrdersFromRepository() }
-    )
+    observeOrders?.apply {
+        if (observeOrders!!.first != null) {
+            LazyColumn(
+                modifier = modifier,
+                state = listState
+            ) {
+                items(items = observeOrders!!.first!!) { order ->
+                    Box(Modifier.fillMaxWidth()) {
+                        ActionsRow(
+                            order = order,
+                            actionIconSize = ACTION_ITEM_SIZE.dp,
+                            onDeleteOrder = {
+                                appModel.deleteOrder(it)
+                            },
+                            onEdit = {
+                                launchNewItemActivity(
+                                    context,
+                                    ActionType.EDIT_ORDER,
+                                    order.order.id
+                                )
+                            },
+                            onFavorite = {}
+                        )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
-        observeOrders?.apply {
-            if (observeOrders!!.first != null) {
-                LazyColumn(
-                    modifier = modifier,
-                    state = listState
-                ) {
-                    items(items = observeOrders!!.first!!) { order ->
-                        Box(Modifier.fillMaxWidth()) {
-                            ActionsRow(
-                                order = order,
-                                actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDeleteOrder = {
-                                    appModel.deleteOrder(it)
-                                },
-                                onEdit = {
-                                    launchNewItemActivity(
-                                        context,
-                                        ActionType.EDIT_ORDER,
-                                        order.order.id
-                                    )
-                                },
-                                onFavorite = {}
-                            )
-
-                            OrderCard(
-                                viewModel = appModel,
-                                order = order,
-                                onClickDetails = { it ->
-                                    appModel.changeCompleteOrdersDetailsVisibility(it.order.id)
-                                },
-                                modifier = modifier,
-                                cardOffset = CARD_OFFSET.dp(),
-                                onChangeExpandState = {
-                                    clickCounter++
-                                    if (clickCounter == 1) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(200)
-                                            clickCounter = 0
-                                        }
-                                    }
-                                    if (clickCounter == 2) {
+                        OrderCard(
+                            viewModel = appModel,
+                            order = order,
+                            onClickDetails = { it ->
+                                appModel.changeCompleteOrdersDetailsVisibility(it.order.id)
+                            },
+                            modifier = modifier,
+                            cardOffset = CARD_OFFSET.dp(),
+                            onChangeExpandState = {
+                                clickCounter++
+                                if (clickCounter == 1) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(200)
                                         clickCounter = 0
-                                        appModel.changeCompleteOrdersExpandState(it)
                                     }
-                                },
-                                context = context,
-                                createdRecord = createdRecord,
-                                showStatusDialog = showStatusDialog
-                            )
-                        }
+                                }
+                                if (clickCounter == 2) {
+                                    clickCounter = 0
+                                    appModel.changeCompleteOrdersExpandState(it)
+                                }
+                            },
+                            context = context,
+                            createdRecord = createdRecord,
+                            showStatusDialog = showStatusDialog
+                        )
                     }
                 }
             }
         }
-
-        PullRefreshIndicator(
-            observerLoadingProcess!!,
-            pullRefreshState,
-            Modifier.align(Alignment.TopCenter),
-            contentColor = ProgressIndicatorDefaults.circularColor
-        )
-    }
-
-    if (observerIsNetworkError == true) {
-        Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
-        appModel.onNetworkErrorShown()
     }
 }
 
@@ -422,7 +394,7 @@ fun OrderDetails(
     order: DomainOrderComplete = getOrders()[0],
     context: Context,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor)->Unit
+    showStatusDialog: (Int, DialogFor) -> Unit
 ) {
 
     if (order.detailsVisibility) {
