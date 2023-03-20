@@ -25,6 +25,7 @@ import com.simenko.qmapp.domain.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
@@ -43,7 +44,7 @@ fun ResultsComposition(
 
     observeResults?.apply {
         if (observeResults!!.first != null) {
-            LazyColumn(
+            FlowRow(
                 modifier = modifier.animateContentSize(
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
@@ -51,8 +52,7 @@ fun ResultsComposition(
                     )
                 )
             ) {
-
-                items(items = observeResults!!.first!!) { result ->
+                observeResults!!.first!!.forEach { result ->
                     if (result.result.taskId == currentSubOrderTask &&
                         result.result.sampleId == currentSample
                     ) {

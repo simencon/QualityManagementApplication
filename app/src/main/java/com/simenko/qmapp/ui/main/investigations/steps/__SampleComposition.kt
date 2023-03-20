@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.*
@@ -54,6 +56,7 @@ fun SampleComposition(
                     if (sample.subOrderId == observeCurrentSubOrder) {
                         SampleCard(
                             modifier = modifier,
+                            appModel = appModel,
                             sample = sample,
                             onClickDetails = { it ->
                                 appModel.changeSamplesIsSelectedState(it)
@@ -74,6 +77,7 @@ fun SampleComposition(
 @Composable
 fun SampleCard(
     modifier: Modifier = Modifier,
+    appModel: QualityManagementViewModel,
     sample: DomainSample,
     onClickDetails: (DomainSample) -> Unit,
     onChangeExpandState: (DomainSample) -> Unit,
@@ -108,6 +112,7 @@ fun SampleCard(
     ) {
         Sample(
             modifier = modifier,
+            appModel = appModel,
             sample = sample,
             onClickDetails = { onClickDetails(sample) }
         )
@@ -117,6 +122,7 @@ fun SampleCard(
 @Composable
 fun Sample(
     modifier: Modifier = Modifier,
+    appModel: QualityManagementViewModel? = null,
     sample: DomainSample = getSamples()[0],
     onClickDetails: () -> Unit = {},
 ) {
@@ -150,7 +156,7 @@ fun Sample(
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.End,
                         modifier = Modifier
-                            .weight(weight = 0.75f)
+                            .weight(weight = 0.5f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
@@ -160,7 +166,7 @@ fun Sample(
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Start,
                         modifier = Modifier
-                            .weight(weight = 0.25f)
+                            .weight(weight = 0.5f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }
@@ -172,7 +178,7 @@ fun Sample(
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (sample.isSelected) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext/*NavigateBefore*/,
+                    imageVector = if (sample.isSelected) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (sample.isSelected) {
                         stringResource(R.string.show_less)
                     } else {
@@ -182,6 +188,12 @@ fun Sample(
                 )
             }
         }
+
+        if (appModel != null && sample.isSelected)
+            ResultsComposition(
+                modifier,
+                appModel
+            )
     }
 }
 
