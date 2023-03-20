@@ -49,20 +49,22 @@ class _InvestigationsFragment(
                         viewModel.productTolerances.observe(viewLifecycleOwner) {
                             viewModel.componentTolerances.observe(viewLifecycleOwner) {
                                 viewModel.componentInStageTolerances.observe(viewLifecycleOwner) {
-                                    viewModel.metrixes.observe(viewLifecycleOwner) {
-                                        binding.composeView.apply {
-                                            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                                            setContent {
-                                                InvestigationsMainComposition(
-                                                    modifier = Modifier
-                                                        .padding(
-                                                            vertical = 2.dp,
-                                                            horizontal = 2.dp
-                                                        ),
-                                                    appModel = viewModel,
-                                                    context = context,
-                                                    createdRecord = createdRecord
-                                                )
+                                    viewModel.itemsTolerances.observe(viewLifecycleOwner) {
+                                        viewModel.metrixes.observe(viewLifecycleOwner) {
+                                            binding.composeView.apply {
+                                                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                                                setContent {
+                                                    InvestigationsMainComposition(
+                                                        modifier = Modifier
+                                                            .padding(
+                                                                vertical = 2.dp,
+                                                                horizontal = 2.dp
+                                                            ),
+                                                        appModel = viewModel,
+                                                        context = context,
+                                                        createdRecord = createdRecord
+                                                    )
+                                                }
                                             }
                                         }
                                     }

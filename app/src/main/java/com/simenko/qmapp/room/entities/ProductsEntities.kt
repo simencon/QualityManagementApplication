@@ -430,6 +430,25 @@ data class DatabaseComponentInStageTolerance(
     var isActual: Boolean
 )
 
+@DatabaseView(
+    viewName = "items_tolerances",
+    value = "SELECT substr('p', pt.id) as id, 'p' as itemPrefix , pt.metrixId, pt.versionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt " +
+            "UNION ALL " +
+            "SELECT substr('c', ct.id) as id,'c' as itemPrefix ,ct.metrixId,ct.versionId,ct.nominal,ct.LSL,ct.USL,ct.isActual FROM `10_8_component_tolerances` AS ct " +
+            "UNION ALL " +
+            "SELECT substr('s', st.id) as id, 's' as itemPrefix , st.metrixId, st.versionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
+)
+data class DatabaseItemTolerance(
+    var id: String,
+    var itemPrefix: String,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
 @Entity(
     tableName = "13_1_products_to_lines",
     foreignKeys = [

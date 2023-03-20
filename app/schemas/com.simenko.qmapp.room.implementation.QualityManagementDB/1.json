@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5fcaf9c66e38fd05ba89f66d2f4f54f9",
+    "identityHash": "b2c4ce1c769999ce822869605c26213a",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3310,6 +3310,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT sv.* FROM `11_component_in_stage_versions` sv"
       },
       {
+        "viewName": "items_tolerances",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT substr('p', pt.id) as id, 'p' as itemPrefix , pt.metrixId, pt.versionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt UNION ALL SELECT substr('c', ct.id) as id,'c' as itemPrefix ,ct.metrixId,ct.versionId,ct.nominal,ct.LSL,ct.USL,ct.isActual FROM `10_8_component_tolerances` AS ct UNION ALL SELECT substr('s', st.id) as id, 's' as itemPrefix , st.metrixId, st.versionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
+      },
+      {
         "viewName": "characteristic_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `7_characteristics` ORDER BY charOrder;"
       },
@@ -3324,7 +3328,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5fcaf9c66e38fd05ba89f66d2f4f54f9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2c4ce1c769999ce822869605c26213a')"
     ]
   }
 }

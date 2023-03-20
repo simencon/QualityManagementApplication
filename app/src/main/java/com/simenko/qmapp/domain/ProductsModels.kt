@@ -170,6 +170,17 @@ data class DomainComponentInStageTolerance(
     var isActual: Boolean
 )
 
+data class DomainItemTolerance(
+    var id: String,
+    var itemPrefix: String,
+    var metrixId: Int?,
+    var versionId: Int?,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?,
+    var isActual: Boolean
+)
+
 data class DomainProductToLine(
     var id: Int,
     var lineId: Int,

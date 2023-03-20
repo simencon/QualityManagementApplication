@@ -57,6 +57,9 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
             "itemVersionComplete" -> {
                 null
             }
+            "itemTolerance" -> {
+                null
+            }
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
     }
@@ -122,6 +125,9 @@ class ListTransformer<in T : Any, out R : Any> constructor(
                 false
             }
             "itemVersionComplete" -> {
+                null
+            }
+            "itemTolerance" -> {
                 null
             }
             else -> return inPropertiesByName[parameter.name]?.get(data)

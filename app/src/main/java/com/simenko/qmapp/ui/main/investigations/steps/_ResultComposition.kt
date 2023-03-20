@@ -36,6 +36,7 @@ import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_2_record_color
 import com.simenko.qmapp.ui.theme._level_2_record_color_details
+import com.simenko.qmapp.utils.StringUtils
 
 @Composable
 fun ResultsComposition(
@@ -45,6 +46,14 @@ fun ResultsComposition(
     val observeResults by appModel.completeResultsMediator.observeAsState()
     val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
     val currentSample by appModel.currentSample.observeAsState()
+
+    observeResults?.first?.forEach { it ->
+        it.itemTolerance = appModel.itemsTolerances.value?.find { item ->
+            item.itemPrefix == it.subOrderTask.subOrder.itemPreffix &&
+                    item.versionId == it.subOrderTask.subOrder.itemVersionId &&
+                    item.metrixId == it.metrix.id
+        }
+    }
 
     observeResults?.apply {
         if (observeResults!!.first != null) {
@@ -213,7 +222,7 @@ fun Result(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.35f)
+                            .weight(weight = 0.45f)
                             .padding(top = 0.dp, start = 2.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
@@ -222,7 +231,7 @@ fun Result(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.65f)
+                            .weight(weight = 0.55f)
                             .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }
@@ -241,7 +250,7 @@ fun Result(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.35f)
+                            .weight(weight = 0.45f)
                             .padding(top = 0.dp, start = 2.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
@@ -250,7 +259,7 @@ fun Result(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.65f)
+                            .weight(weight = 0.55f)
                             .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }
@@ -264,12 +273,12 @@ fun Result(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "180 000",
+                        text = (result.itemTolerance?.nominal ?: 0.0).toString(),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.35f)
+                            .weight(weight = 0.45f)
                             .padding(top = 0.dp, start = 2.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
@@ -278,7 +287,7 @@ fun Result(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.65f)
+                            .weight(weight = 0.55f)
                             .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }
@@ -292,12 +301,15 @@ fun Result(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "-10/32",
+                        text = StringUtils.concatTwoStrings(
+                            (result.itemTolerance?.lsl ?: 0.0).toString(),
+                            (result.itemTolerance?.usl ?: 0.0).toString()
+                        ),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.35f)
+                            .weight(weight = 0.45f)
                             .padding(top = 0.dp, start = 2.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
@@ -306,7 +318,7 @@ fun Result(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.65f)
+                            .weight(weight = 0.55f)
                             .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                 }

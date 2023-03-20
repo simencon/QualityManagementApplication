@@ -213,6 +213,10 @@ interface QualityManagementProductsDao {
     @Transaction
     @Query("SELECT * FROM characteristic_complete")
     fun getCharacteristicsComplete(): LiveData<List<DatabaseCharacteristicComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM items_tolerances")
+    fun getItemsTolerances(): LiveData<List<DatabaseItemTolerance>>
 }
 
 @Dao
@@ -403,6 +407,8 @@ interface QualityManagementInvestigationsDao {
 
         DatabaseComponentInStageComplete::class,
         DatabaseComponentInStageVersionComplete::class,
+
+        DatabaseItemTolerance::class,
 
         DatabaseCharacteristicComplete::class,
 

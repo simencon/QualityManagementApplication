@@ -192,6 +192,7 @@ data class DomainResultComplete(
     var resultsDecryption: DomainResultsDecryption,
     var metrix: DomainMetrix,
     var subOrderTask: DomainSubOrderTaskComplete,
+    var itemTolerance: DomainItemTolerance? = null,
     var detailsVisibility: Boolean = false
 )
 

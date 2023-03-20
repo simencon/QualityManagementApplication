@@ -288,6 +288,8 @@ class QualityManagementViewModel @Inject constructor(
     val componentTolerances = qualityManagementProductsRepository.componentTolerances
     val componentInStageTolerances = qualityManagementProductsRepository.componentInStageTolerances
 
+    val itemsTolerances = qualityManagementProductsRepository.itemsTolerances
+
     val metrixes = qualityManagementProductsRepository.metrixes
 
     fun editSubOrder(subOrder: DomainSubOrder) {

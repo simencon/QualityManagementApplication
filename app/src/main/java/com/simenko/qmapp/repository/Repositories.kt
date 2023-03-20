@@ -708,7 +708,14 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersionsComplete()) {
             it.asDomainItemFromStage()
         }
-
+    val itemsTolerances: LiveData<List<DomainItemTolerance>> =
+        Transformations.map(database.qualityManagementProductsDao.getItemsTolerances()) {
+            ListTransformer(
+                it,
+                DatabaseItemTolerance::class,
+                DomainItemTolerance::class
+            ).generateList()
+        }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
