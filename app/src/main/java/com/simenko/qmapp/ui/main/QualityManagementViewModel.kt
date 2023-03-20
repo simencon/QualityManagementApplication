@@ -75,9 +75,7 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
         }
 
-    val itemVersionsCompleteP = qualityManagementProductsRepository.itemsVersionsCompleteP
-    val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
-    val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
+    val itemVersionsComplete = qualityManagementProductsRepository.itemVersionsComplete
 
     val currentSubOrder = MutableLiveData(0)
 

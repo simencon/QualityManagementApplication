@@ -25,20 +25,10 @@ import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
 
-private fun getProductVersionInput(model: NewItemViewModel): LiveData<List<DomainItemVersionComplete>> {
-    val list: MutableList<DomainItemVersionComplete> = mutableListOf()
-
-    model.itemVersionsCompleteP.value?.let { list.addAll(it) }
-    model.itemVersionsCompleteC.value?.let { list.addAll(it) }
-    model.itemVersionsCompleteS.value?.let { list.addAll(it) }
-
-    return MutableLiveData(list.toList())
-}
-
 fun filterAllAfterLines(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
 
     appModel.itemVersionsCompleteMutable.performFiltration(
-        s = getProductVersionInput(appModel),
+        s = appModel.itemVersionsComplete,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
         p1Id = selectedId,

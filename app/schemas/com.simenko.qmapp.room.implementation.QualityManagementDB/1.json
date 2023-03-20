@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b2c4ce1c769999ce822869605c26213a",
+    "identityHash": "4bd3c3e73aac9cd67ec1a1b8c3ff2f4a",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3286,28 +3286,16 @@
     ],
     "views": [
       {
-        "viewName": "products_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.* FROM `2_products` p"
+        "viewName": "items",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.id as id, ('p'|| p.Id) as fId, p.keyId, p.productDesignation as itemDesignation FROM `2_products` AS p UNION ALL SELECT c.id as id, ('c'|| c.Id) as fId, c.keyId, c.componentDesignation as itemDesignation FROM `4_components` AS c UNION ALL SELECT s.id as id, ('s'|| s.Id) as fId, s.keyId, s.componentInStageDescription as itemDesignation FROM `6_components_in_stages` AS s;"
       },
       {
-        "viewName": "product_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pv.* FROM `9_products_versions` pv"
+        "viewName": "items_to_lines",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT ptl.id as id, ('p'|| ptl.id) as fId, ptl.lineId, ptl.productId as itemId, ('p'|| ptl.productId) as fItemId FROM `13_1_products_to_lines` AS ptl UNION ALL SELECT ctl.id as id, ('c'|| ctl.id) as fId, ctl.lineId, ctl.componentId as itemId, ('c'|| ctl.componentId) as fItemId FROM `13_3_components_to_lines` AS ctl UNION ALL SELECT stl.id as id, ('s'|| stl.id) as fId, stl.lineId, stl.componentInStageId as itemId, ('s'|| stl.componentInStageId) as fItemId FROM `13_5_component_in_stages_to_lines` AS stl;"
       },
       {
-        "viewName": "components_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.* FROM `4_components` c"
-      },
-      {
-        "viewName": "component_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT cv.* FROM `10_components_versions` cv"
-      },
-      {
-        "viewName": "components_in_stage_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.* FROM `6_components_in_stages` s"
-      },
-      {
-        "viewName": "component_in_stage_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT sv.* FROM `11_component_in_stage_versions` sv"
+        "viewName": "item_versions",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pv.id as id, ('p'|| pv.id) as fId, pv.productId as itemId, ('p'|| pv.productId) as fItemId, pv.versionDescription, pv.versionDate, pv.statusId, pv.isDefault FROM `9_products_versions` AS pv UNION ALL SELECT cv.id as id, ('c'|| cv.id) as fId, cv.componentId as itemId, ('c'|| cv.componentId) as fItemId, cv.versionDescription, cv.versionDate, cv.statusId, cv.isDefault FROM `10_components_versions` AS cv UNION ALL SELECT sv.id as id, ('s'|| sv.id) as fId, sv.componentInStageId as itemId, ('s'|| sv.componentInStageId) as fItemId, sv.versionDescription, sv.versionDate, sv.statusId, sv.isDefault FROM `11_component_in_stage_versions` AS sv;"
       },
       {
         "viewName": "items_tolerances",
@@ -3324,11 +3312,19 @@
       {
         "viewName": "result_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `14_8_results` ORDER BY id;"
+      },
+      {
+        "viewName": "items_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `items`"
+      },
+      {
+        "viewName": "item_versions_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `item_versions`"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2c4ce1c769999ce822869605c26213a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4bd3c3e73aac9cd67ec1a1b8c3ff2f4a')"
     ]
   }
 }

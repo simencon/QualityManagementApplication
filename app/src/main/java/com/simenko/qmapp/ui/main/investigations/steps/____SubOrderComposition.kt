@@ -52,20 +52,11 @@ fun SubOrdersFlowColumn(
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
 
     observeSubOrders?.first?.forEach { it ->
-        when (it.subOrder.itemPreffix) {
-            "p" -> {
-                it.itemVersionComplete =
-                    appModel.itemVersionsCompleteP.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
+        it.itemVersionComplete =
+            appModel.itemVersionsComplete.value?.find { item ->
+                item.itemVersion.id == it.subOrder.itemVersionId &&
+                        item.itemVersion.fId.substring(0, 1) == it.subOrder.itemPreffix
             }
-            "c" -> {
-                it.itemVersionComplete =
-                    appModel.itemVersionsCompleteC.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
-            }
-            "s" -> {
-                it.itemVersionComplete =
-                    appModel.itemVersionsCompleteS.value?.find { item -> item.itemVersion.id == it.subOrder.itemVersionId }
-            }
-        }
     }
 
     val coroutineScope = rememberCoroutineScope()

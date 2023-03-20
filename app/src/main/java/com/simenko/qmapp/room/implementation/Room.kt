@@ -195,22 +195,6 @@ interface QualityManagementProductsDao {
     fun getComponentInStagesToLines(): LiveData<List<DatabaseComponentInStageToLine>>
 
     @Transaction
-    @Query("SELECT * FROM components_complete")
-    fun getComponentsComplete(): LiveData<List<DatabaseComponentComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM product_versions_complete")
-    fun getProductVersionsComplete(): LiveData<List<DatabaseProductVersionComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM component_versions_complete")
-    fun getComponentVersionsComplete(): LiveData<List<DatabaseComponentVersionComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM component_in_stage_versions_complete")
-    fun getComponentInStageVersionsComplete(): LiveData<List<DatabaseComponentInStageVersionComplete>>
-
-    @Transaction
     @Query("SELECT * FROM item_versions_complete")
     fun getItemVersionsComplete(): LiveData<List<DatabaseItemVersionComplete>>
 
@@ -408,15 +392,6 @@ interface QualityManagementInvestigationsDao {
         DatabaseItemComplete::class,
         DatabaseItemVersion::class,
         DatabaseItemVersionComplete::class,
-
-        DatabaseProductComplete::class,
-        DatabaseProductVersionComplete::class,
-
-        DatabaseComponentComplete::class,
-        DatabaseComponentVersionComplete::class,
-
-        DatabaseComponentInStageComplete::class,
-        DatabaseComponentInStageVersionComplete::class,
 
         DatabaseItemTolerance::class,
 

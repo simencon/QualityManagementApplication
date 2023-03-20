@@ -694,20 +694,6 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                 DomainComponentInStageToLine::class
             ).generateList()
         }
-
-
-    val itemsVersionsCompleteP: LiveData<List<DomainItemVersionComplete>> =
-        Transformations.map(database.qualityManagementProductsDao.getProductVersionsComplete()) {
-            it.asDomainItemFromProduct()
-        }
-    val itemsVersionsCompleteC: LiveData<List<DomainItemVersionComplete>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentVersionsComplete()) {
-            it.asDomainItemFromComponent()
-        }
-    val itemsVersionsCompleteS: LiveData<List<DomainItemVersionComplete>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersionsComplete()) {
-            it.asDomainItemFromStage()
-        }
     val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
         Transformations.map(database.qualityManagementProductsDao.getItemVersionsComplete()) {
             it.asDomainItem()

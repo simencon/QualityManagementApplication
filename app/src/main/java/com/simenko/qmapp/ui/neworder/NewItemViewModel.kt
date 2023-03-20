@@ -137,9 +137,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
         }
 
-    val itemVersionsCompleteP = qualityManagementProductsRepository.itemsVersionsCompleteP
-    val itemVersionsCompleteC = qualityManagementProductsRepository.itemsVersionsCompleteC
-    val itemVersionsCompleteS = qualityManagementProductsRepository.itemsVersionsCompleteS
+    val itemVersionsComplete = qualityManagementProductsRepository.itemVersionsComplete
 
     val itemVersionsCompleteMutable =
         MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())

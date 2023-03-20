@@ -42,30 +42,26 @@ class _InvestigationsFragment(
 
         requireContext().theme
 
-        viewModel.itemVersionsCompleteP.observe(viewLifecycleOwner) {
-            viewModel.itemVersionsCompleteC.observe(viewLifecycleOwner) {
-                viewModel.itemVersionsCompleteS.observe(viewLifecycleOwner) {
-                    viewModel.investigationStatuses.observe(viewLifecycleOwner) {
-                        viewModel.productTolerances.observe(viewLifecycleOwner) {
-                            viewModel.componentTolerances.observe(viewLifecycleOwner) {
-                                viewModel.componentInStageTolerances.observe(viewLifecycleOwner) {
-                                    viewModel.itemsTolerances.observe(viewLifecycleOwner) {
-                                        viewModel.metrixes.observe(viewLifecycleOwner) {
-                                            binding.composeView.apply {
-                                                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                                                setContent {
-                                                    InvestigationsMainComposition(
-                                                        modifier = Modifier
-                                                            .padding(
-                                                                vertical = 2.dp,
-                                                                horizontal = 2.dp
-                                                            ),
-                                                        appModel = viewModel,
-                                                        context = context,
-                                                        createdRecord = createdRecord
-                                                    )
-                                                }
-                                            }
+        viewModel.itemVersionsComplete.observe(viewLifecycleOwner) {
+            viewModel.investigationStatuses.observe(viewLifecycleOwner) {
+                viewModel.productTolerances.observe(viewLifecycleOwner) {
+                    viewModel.componentTolerances.observe(viewLifecycleOwner) {
+                        viewModel.componentInStageTolerances.observe(viewLifecycleOwner) {
+                            viewModel.itemsTolerances.observe(viewLifecycleOwner) {
+                                viewModel.metrixes.observe(viewLifecycleOwner) {
+                                    binding.composeView.apply {
+                                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                                        setContent {
+                                            InvestigationsMainComposition(
+                                                modifier = Modifier
+                                                    .padding(
+                                                        vertical = 2.dp,
+                                                        horizontal = 2.dp
+                                                    ),
+                                                appModel = viewModel,
+                                                context = context,
+                                                createdRecord = createdRecord
+                                            )
                                         }
                                     }
                                 }

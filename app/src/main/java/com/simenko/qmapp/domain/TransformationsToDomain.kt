@@ -2,9 +2,7 @@ package com.simenko.qmapp.domain
 
 import com.simenko.qmapp.retrofit.entities.NetworkSubOrderTask
 import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.utils.ItemTransformer
 import com.simenko.qmapp.utils.ListTransformer
-import com.simenko.qmapp.utils.ItemListTransformer
 import com.simenko.qmapp.utils.ObjectTransformer
 
 fun DatabaseOrder.toDomainOrder() =
@@ -169,67 +167,14 @@ fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<D
     }
 }
 
-fun DatabaseProductVersion.toDomainItemVersion() = ItemTransformer(
-    DatabaseProductVersion::class, DomainItemVersion::class
-).transform(this)
-
-fun DatabaseComponentVersion.toDomainItemVersion() = ItemTransformer(
-    DatabaseComponentVersion::class, DomainItemVersion::class
-).transform(this)
-
-fun DatabaseComponentInStageVersion.toDomainItemVersion() = ItemTransformer(
-    DatabaseComponentInStageVersion::class, DomainItemVersion::class
-).transform(this)
-
 fun DatabaseItemVersion.toDomainItemVersion() = ObjectTransformer(
     DatabaseItemVersion::class, DomainItemVersion::class
 ).transform(this)
 
-fun DatabaseProduct.toDomainItem() = ItemTransformer(
-    DatabaseProduct::class, DomainItem::class
-).transform(this)
-
-fun DatabaseComponent.toDomainItem() = ItemTransformer(
-    DatabaseComponent::class, DomainItem::class
-).transform(this)
-
-fun DatabaseComponentInStage.toDomainItem() = ItemTransformer(
-    DatabaseComponentInStage::class, DomainItem::class
-).transform(this)
 
 fun DatabaseItem.toDomainItem() = ObjectTransformer(
     DatabaseItem::class, DomainItem::class
 ).transform(this)
-
-fun DatabaseProductComplete.toDomainItemComplete() = DomainItemComplete(
-    item = this.product.toDomainItem(),
-    key = this.key.toDomainKey(),
-    itemToLines = ItemListTransformer(
-        this.productToLines,
-        DatabaseProductToLine::class,
-        DomainItemToLine::class
-    ).generateList()
-)
-
-fun DatabaseComponentComplete.toDomainItemComplete() = DomainItemComplete(
-    item = this.component.toDomainItem(),
-    key = this.key.toDomainKey(),
-    itemToLines = ItemListTransformer(
-        this.componentToLines,
-        DatabaseComponentToLine::class,
-        DomainItemToLine::class
-    ).generateList()
-)
-
-fun DatabaseComponentInStageComplete.toDomainItemComplete() = DomainItemComplete(
-    item = this.componentInStage.toDomainItem(),
-    key = this.key.toDomainKey(),
-    itemToLines = ItemListTransformer(
-        this.componentInStageToLines,
-        DatabaseComponentInStageToLine::class,
-        DomainItemToLine::class
-    ).generateList()
-)
 
 fun DatabaseItemComplete.toDomainItemComplete() = DomainItemComplete(
     item = this.item.toDomainItem(),
@@ -241,43 +186,14 @@ fun DatabaseItemComplete.toDomainItemComplete() = DomainItemComplete(
     ).generateList()
 )
 
-fun List<DatabaseProductVersionComplete>.asDomainItemFromProduct(): List<DomainItemVersionComplete> {
-    return map {
-        DomainItemVersionComplete(
-            itemPrefix = ItemType.PRODUCT,
-            itemVersion = it.productVersion.toDomainItemVersion(),
-            versionStatus = it.versionStatus.toVersionStatus(),
-            itemComplete = it.productComplete.toDomainItemComplete()
-        )
-    }
-}
-
-fun List<DatabaseComponentVersionComplete>.asDomainItemFromComponent(): List<DomainItemVersionComplete> {
-    return map {
-        DomainItemVersionComplete(
-            itemPrefix = ItemType.COMPONENT,
-            itemVersion = it.componentVersion.toDomainItemVersion(),
-            versionStatus = it.versionStatus.toVersionStatus(),
-            itemComplete = it.componentComplete.toDomainItemComplete()
-        )
-    }
-}
-
-fun List<DatabaseComponentInStageVersionComplete>.asDomainItemFromStage(): List<DomainItemVersionComplete> {
-    return map {
-        DomainItemVersionComplete(
-            itemPrefix = ItemType.COMPONENT_IN_STAGE,
-            itemVersion = it.componentInStageVersion.toDomainItemVersion(),
-            versionStatus = it.versionStatus.toVersionStatus(),
-            itemComplete = it.componentInStageComplete.toDomainItemComplete()
-        )
-    }
-}
-
 fun List<DatabaseItemVersionComplete>.asDomainItem(): List<DomainItemVersionComplete> {
     return map {
         DomainItemVersionComplete(
-            itemPrefix = ItemType.COMPONENT_IN_STAGE,
+            itemPrefix = when(it.itemVersion.fId.substring(0,1)) {
+                "p" -> ItemType.PRODUCT
+                "c" -> ItemType.COMPONENT
+                else -> ItemType.COMPONENT_IN_STAGE //means "s"
+            },
             itemVersion = it.itemVersion.toDomainItemVersion(),
             versionStatus = it.versionStatus.toVersionStatus(),
             itemComplete = it.itemComplete.toDomainItemComplete()

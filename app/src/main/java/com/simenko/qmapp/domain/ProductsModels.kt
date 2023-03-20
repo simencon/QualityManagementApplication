@@ -201,6 +201,7 @@ data class DomainComponentInStageToLine(
 
 data class DomainItem(
     var id: Int,
+    val fId: String,
     var keyId: Int?,
     var itemDesignation: String?
 )
@@ -213,7 +214,9 @@ data class DomainItemToLine(
 
 data class DomainItemVersion(
     var id: Int,
+    var fId: String,
     var itemId: Int,
+    var fItemId: String,
     var versionDescription: String?,
     var versionDate: String?,
     var statusId: Int?,

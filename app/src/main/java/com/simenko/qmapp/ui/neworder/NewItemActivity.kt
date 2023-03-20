@@ -213,9 +213,7 @@ class NewItemActivity : ComponentActivity() {
                                     viewModel.subDepartments.observe(this) {
                                         viewModel.channels.observe(this) {
                                             viewModel.lines.observe(this) {
-                                                viewModel.itemVersionsCompleteP.observe(this) {
-                                                    viewModel.itemVersionsCompleteC.observe(this) {
-                                                        viewModel.itemVersionsCompleteS.observe(this) {
+                                                viewModel.itemVersionsComplete.observe(this) {
                                                             viewModel.operations.observe(this) {
                                                                 viewModel.operationsFlows.observe(this) {
                                                                     viewModel.characteristics.observe(this) {
@@ -300,8 +298,6 @@ class NewItemActivity : ComponentActivity() {
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                    }
                                                 }
                                             }
                                         }
