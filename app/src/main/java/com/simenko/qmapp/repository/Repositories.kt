@@ -708,6 +708,11 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersionsComplete()) {
             it.asDomainItemFromStage()
         }
+    val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
+        Transformations.map(database.qualityManagementProductsDao.getItemVersionsComplete()) {
+            it.asDomainItem()
+        }
+
     val itemsTolerances: LiveData<List<DomainItemTolerance>> =
         Transformations.map(database.qualityManagementProductsDao.getItemsTolerances()) {
             ListTransformer(

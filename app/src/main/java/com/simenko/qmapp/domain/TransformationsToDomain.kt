@@ -181,6 +181,10 @@ fun DatabaseComponentInStageVersion.toDomainItemVersion() = ItemTransformer(
     DatabaseComponentInStageVersion::class, DomainItemVersion::class
 ).transform(this)
 
+fun DatabaseItemVersion.toDomainItemVersion() = ObjectTransformer(
+    DatabaseItemVersion::class, DomainItemVersion::class
+).transform(this)
+
 fun DatabaseProduct.toDomainItem() = ItemTransformer(
     DatabaseProduct::class, DomainItem::class
 ).transform(this)
@@ -191,6 +195,10 @@ fun DatabaseComponent.toDomainItem() = ItemTransformer(
 
 fun DatabaseComponentInStage.toDomainItem() = ItemTransformer(
     DatabaseComponentInStage::class, DomainItem::class
+).transform(this)
+
+fun DatabaseItem.toDomainItem() = ObjectTransformer(
+    DatabaseItem::class, DomainItem::class
 ).transform(this)
 
 fun DatabaseProductComplete.toDomainItemComplete() = DomainItemComplete(
@@ -219,6 +227,16 @@ fun DatabaseComponentInStageComplete.toDomainItemComplete() = DomainItemComplete
     itemToLines = ItemListTransformer(
         this.componentInStageToLines,
         DatabaseComponentInStageToLine::class,
+        DomainItemToLine::class
+    ).generateList()
+)
+
+fun DatabaseItemComplete.toDomainItemComplete() = DomainItemComplete(
+    item = this.item.toDomainItem(),
+    key = this.key.toDomainKey(),
+    itemToLines = ListTransformer(
+        this.itemToLines,
+        DatabaseItemToLine::class,
         DomainItemToLine::class
     ).generateList()
 )
@@ -252,6 +270,17 @@ fun List<DatabaseComponentInStageVersionComplete>.asDomainItemFromStage(): List<
             itemVersion = it.componentInStageVersion.toDomainItemVersion(),
             versionStatus = it.versionStatus.toVersionStatus(),
             itemComplete = it.componentInStageComplete.toDomainItemComplete()
+        )
+    }
+}
+
+fun List<DatabaseItemVersionComplete>.asDomainItem(): List<DomainItemVersionComplete> {
+    return map {
+        DomainItemVersionComplete(
+            itemPrefix = ItemType.COMPONENT_IN_STAGE,
+            itemVersion = it.itemVersion.toDomainItemVersion(),
+            versionStatus = it.versionStatus.toVersionStatus(),
+            itemComplete = it.itemComplete.toDomainItemComplete()
         )
     }
 }

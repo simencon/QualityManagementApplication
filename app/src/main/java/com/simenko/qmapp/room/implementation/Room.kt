@@ -211,6 +211,10 @@ interface QualityManagementProductsDao {
     fun getComponentInStageVersionsComplete(): LiveData<List<DatabaseComponentInStageVersionComplete>>
 
     @Transaction
+    @Query("SELECT * FROM item_versions_complete")
+    fun getItemVersionsComplete(): LiveData<List<DatabaseItemVersionComplete>>
+
+    @Transaction
     @Query("SELECT * FROM characteristic_complete")
     fun getCharacteristicsComplete(): LiveData<List<DatabaseCharacteristicComplete>>
 
@@ -399,6 +403,12 @@ interface QualityManagementInvestigationsDao {
         DatabaseResult::class
     ],
     views = [
+        DatabaseItem::class,
+        DatabaseItemToLine::class,
+        DatabaseItemComplete::class,
+        DatabaseItemVersion::class,
+        DatabaseItemVersionComplete::class,
+
         DatabaseProductComplete::class,
         DatabaseProductVersionComplete::class,
 

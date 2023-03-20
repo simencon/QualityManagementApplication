@@ -1,6 +1,8 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
+import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.DomainItemComplete
 
 @Entity(tableName = "10_1_d_element_ish_model")
 data class DatabaseElementIshModel constructor(
@@ -643,4 +645,87 @@ data class DatabaseComponentInStageVersionComplete(
         entityColumn = "id"
     )
     val componentInStageComplete: DatabaseComponentInStageComplete
+)
+
+@DatabaseView(
+    viewName = "items",
+    value = "SELECT substr('p', p.Id) as Id, p.keyId, p.productDesignation as itemDesignation FROM `2_products` AS p " +
+            "UNION ALL " +
+            "SELECT substr('c', c.Id) as Id, c.keyId, c.componentDesignation as itemDesignation FROM `4_components` AS c " +
+            "UNION ALL " +
+            "SELECT substr('s', s.Id) as Id, s.keyId, s.componentInStageDescription as itemDesignation FROM `6_components_in_stages` AS s;"
+)
+data class DatabaseItem(
+    val id: Int,
+    val keyId: Int?,
+    val itemDesignation: String?
+)
+
+@DatabaseView(
+    viewName = "items_to_lines",
+    value = "SELECT substr('p', ptl.Id) as Id, ptl.lineId, substr('p', ptl.productId) as itemId FROM `13_1_products_to_lines` AS ptl " +
+            "UNION ALL " +
+            "SELECT substr('c', ctl.Id) as Id, ctl.lineId, substr('c', ctl.componentId) as itemId FROM `13_3_components_to_lines` AS ctl " +
+            "UNION ALL " +
+            "SELECT substr('s', stl.Id) as Id, stl.lineId, substr('s', stl.componentInStageId) as itemId FROM `13_5_component_in_stages_to_lines` AS stl;"
+)
+data class DatabaseItemToLine(
+    val id: Int,
+    val lineId: Int,
+    val itemId: Int
+)
+
+@DatabaseView(
+    viewName = "items_complete",
+    value = "SELECT * FROM `items`"
+)
+data class DatabaseItemComplete(
+    @Embedded
+    val item: DatabaseItem,
+    @Relation(
+        parentColumn = "keyId",
+        entityColumn = "id"
+    )
+    val key: DatabaseKey,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "itemId"
+    )
+    val itemToLines: List<DatabaseItemToLine>
+)
+
+@DatabaseView(
+    viewName = "item_versions",
+    value = "SELECT substr('p', pv.Id) as Id, substr('p', pv.productId) as itemId, pv.versionDescription, pv.versionDate, pv.statusId, pv.isDefault FROM `9_products_versions` AS pv " +
+            "UNION ALL " +
+            "SELECT substr('c', cv.Id) as Id, substr('p', cv.componentId) as itemId, cv.versionDescription, cv.versionDate, cv.statusId, cv.isDefault FROM `10_components_versions` AS cv " +
+            "UNION ALL " +
+            "SELECT substr('s', sv.Id) as Id, substr('p', sv.componentInStageId) as itemId, sv.versionDescription, sv.versionDate, sv.statusId, sv.isDefault FROM `11_component_in_stage_versions` AS sv;"
+)
+data class DatabaseItemVersion(
+    val id: String,
+    val itemId: Int,
+    val versionDescription: String?,
+    val versionDate: String?,
+    val statusId: Int?,
+    val isDefault: Boolean
+)
+
+@DatabaseView(
+    viewName = "item_versions_complete",
+    value = "SELECT * FROM `item_versions`"
+)
+data class DatabaseItemVersionComplete(
+    @Embedded
+    val itemVersion: DatabaseItemVersion,
+    @Relation(
+        parentColumn = "statusId",
+        entityColumn = "id"
+    )
+    val versionStatus: DatabaseVersionStatus,
+    @Relation(
+        parentColumn = "itemId",
+        entityColumn = "id"
+    )
+    val itemComplete: DatabaseItemComplete
 )
