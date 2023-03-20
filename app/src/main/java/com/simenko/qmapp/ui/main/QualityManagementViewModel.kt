@@ -114,9 +114,13 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(completeResults.value, it) }
         }
 
+    val currentResult = MutableLiveData(0)
+
     fun changeCompleteOrdersDetailsVisibility(itemId: Int) {
         changeCompleteSubOrdersDetailsVisibility(currentSubOrder.value ?: 0)
         changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
+        changeSamplesDetailsVisibility(currentSample.value ?: 0)
+        changeResultsDetailsVisibility(0)
 
         var select = false
 
@@ -144,6 +148,7 @@ class QualityManagementViewModel @Inject constructor(
     fun changeCompleteSubOrdersDetailsVisibility(itemId: Int) {
 
         changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
+        changeSamplesDetailsVisibility(currentSample.value ?: 0)
 
         var select = false
 
@@ -170,6 +175,7 @@ class QualityManagementViewModel @Inject constructor(
     }
 
     fun changeCompleteSubOrderTasksDetailsVisibility(itemId: Int) {
+        changeSamplesDetailsVisibility(currentSample.value ?: 0)
         var select = false
 
         completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
@@ -215,23 +221,53 @@ class QualityManagementViewModel @Inject constructor(
             }
     }
 
-    fun changeSamplesIsSelectedState(item: DomainSample) {
-        samples.value?.forEach { it.isSelected = false }
-        samples.value?.find { it.id == item.id }
-            ?.let { subOrderTask ->
-                currentSample.value = item.id
-                subOrderTask.isSelected = !subOrderTask.isSelected
-                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    fun changeSamplesDetailsVisibility(itemId: Int) {
+        changeResultsDetailsVisibility(currentResult.value ?: 0)
+        var select = false
+
+        samples.value?.find { it.id == itemId }
+            ?.let { it ->
+                if (!it.detailsVisibility)
+                    select = true
+                else
+                    currentSample.value = 0
             }
+
+        samples.value?.forEach { it.detailsVisibility = false }
+
+        if (select)
+            samples.value?.find { it.id == itemId }
+                ?.let { subOrderTask ->
+                    currentSample.value = itemId
+                    subOrderTask.detailsVisibility = !subOrderTask.detailsVisibility
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
     }
 
-    fun changeResultsIsSelectedState(item: DomainResult) {
-        completeResults.value?.forEach { it.isSelected = false }
-        completeResults.value?.find { it.result.id == item.id }
-            ?.let { result ->
-                result.isSelected = !result.isSelected
-                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+    fun changeResultsDetailsVisibility(itemId: Int) {
+        var select = false
+
+        completeResults.value?.find { it.result.id == itemId }
+            ?.let { it ->
+                if (!it.detailsVisibility)
+                    select = true
+                else
+                    currentResult.value = 0
             }
+
+        completeResults.value?.forEach { it.detailsVisibility = false }
+
+        if (select)
+            completeResults.value?.find { it.result.id == itemId }
+                ?.let { result ->
+                    currentResult.value = itemId
+                    result.detailsVisibility = !result.detailsVisibility
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
     }
 
     /**

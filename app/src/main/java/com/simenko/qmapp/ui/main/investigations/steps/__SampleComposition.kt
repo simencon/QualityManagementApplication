@@ -11,8 +11,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -59,10 +57,10 @@ fun SampleComposition(
                             appModel = appModel,
                             sample = sample,
                             onClickDetails = { it ->
-                                appModel.changeSamplesIsSelectedState(it)
+                                appModel.changeSamplesDetailsVisibility(it.id)
                             },
                             onChangeExpandState = {
-                                appModel.changeSamplesIsSelectedState(it)
+                                appModel.changeSamplesDetailsVisibility(it.id)
                             }
                         )
                     }
@@ -83,8 +81,8 @@ fun SampleCard(
     onChangeExpandState: (DomainSample) -> Unit,
 ) {
     val transitionState = remember {
-        MutableTransitionState(sample.isSelected).apply {
-            targetState = !sample.isSelected
+        MutableTransitionState(sample.detailsVisibility).apply {
+            targetState = !sample.detailsVisibility
         }
     }
 
@@ -94,8 +92,8 @@ fun SampleCard(
         label = "cardBgColorTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
-            if (sample.isSelected) {
-                _level_2_record_color_details
+            if (sample.detailsVisibility) {
+                _level_1_record_color_details
             } else {
                 _level_1_record_color
             }
@@ -178,8 +176,8 @@ fun Sample(
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (sample.isSelected) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (sample.isSelected) {
+                    imageVector = if (sample.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (sample.detailsVisibility) {
                         stringResource(R.string.show_less)
                     } else {
                         stringResource(R.string.show_more)
@@ -189,7 +187,7 @@ fun Sample(
             }
         }
 
-        if (appModel != null && sample.isSelected)
+        if (appModel != null && sample.detailsVisibility)
             ResultsComposition(
                 modifier,
                 appModel

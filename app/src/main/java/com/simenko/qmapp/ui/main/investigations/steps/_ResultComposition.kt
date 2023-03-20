@@ -1,13 +1,13 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -15,22 +15,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
-
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.theme._level_1_record_color
+import com.simenko.qmapp.ui.theme._level_2_record_color
 import com.simenko.qmapp.ui.theme._level_2_record_color_details
 
 @Composable
@@ -60,7 +64,7 @@ fun ResultsComposition(
                             modifier = modifier,
                             result = result,
                             onSelect = { it ->
-                                appModel.changeResultsIsSelectedState(it.result)
+                                appModel.changeResultsDetailsVisibility(it.result.id)
                             },
                             onChangeValue = {
                             }
@@ -81,8 +85,8 @@ fun ResultCard(
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
     val transitionState = remember {
-        MutableTransitionState(result.isSelected).apply {
-            targetState = !result.isSelected
+        MutableTransitionState(result.detailsVisibility).apply {
+            targetState = !result.detailsVisibility
         }
     }
 
@@ -92,10 +96,10 @@ fun ResultCard(
         label = "cardBgColorTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
-            if (result.isSelected) {
+            if (result.detailsVisibility) {
                 _level_2_record_color_details
             } else {
-                _level_1_record_color
+                _level_2_record_color
             }
         }
     )
@@ -106,24 +110,28 @@ fun ResultCard(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onSelect(result) }
     ) {
         Result(
             modifier = modifier,
             result = result,
-            onChangeValue = { onChangeValue(result) }
+            onChangeValue = { onChangeValue(result) },
+            onSelect = onSelect
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun Result(
     modifier: Modifier = Modifier,
     result: DomainResultComplete = getResults()[0],
     onChangeValue: (String) -> Unit = {},
+    onSelect: (DomainResultComplete) -> Unit,
 ) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     var text: String by rememberSaveable { mutableStateOf("") }
+
 
     Column(
         modifier = Modifier
@@ -162,7 +170,11 @@ fun Result(
                 )
                 TextField(
                     modifier = Modifier
-                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                        .onFocusChanged {
+                            if (it.isFocused)
+                                onSelect(result)
+                        },
                     value = text,
                     maxLines = 1,
                     singleLine = true,
@@ -172,6 +184,13 @@ fun Result(
                         text = it
                         onChangeValue(text)
                     },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    keyboardActions = KeyboardActions(onDone = {
+                        Toast.makeText(context, "To save the record", Toast.LENGTH_SHORT).show()
+                        keyboardController?.hide()
+                    })
                 )
             }
             Column(
@@ -303,7 +322,8 @@ fun MyResultPreview() {
         Result(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 0.dp, horizontal = 0.dp)
+                .padding(vertical = 0.dp, horizontal = 0.dp),
+            onSelect = {}
         )
     }
 }

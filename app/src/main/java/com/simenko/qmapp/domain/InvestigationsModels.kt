@@ -1,7 +1,5 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.room.entities.*
-
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -131,7 +129,7 @@ data class DomainSample constructor(
     var id: Int,
     var subOrderId: Int,
     var sampleNumber: Int? = null,
-    var isSelected: Boolean = false,
+    var detailsVisibility: Boolean = false,
     var isNewRecord: Boolean = false,
     var toBeDeleted: Boolean = false
 )
@@ -194,7 +192,7 @@ data class DomainResultComplete(
     var resultsDecryption: DomainResultsDecryption,
     var metrix: DomainMetrix,
     var subOrderTask: DomainSubOrderTaskComplete,
-    var isSelected: Boolean = false
+    var detailsVisibility: Boolean = false
 )
 
 //ToDo just to test
