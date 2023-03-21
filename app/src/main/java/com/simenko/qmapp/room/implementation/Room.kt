@@ -406,7 +406,8 @@ interface QualityManagementInvestigationsDao {
 
         DatabaseResultTolerance::class,
 
-        DatabaseSampleResult::class
+        DatabaseSampleResult::class,
+        DatabaseTaskResult::class
     ],
     version = 1,
     exportSchema = true

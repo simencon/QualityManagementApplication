@@ -268,6 +268,19 @@ data class DatabaseSubOrderTask constructor(
     var charId: Int
 )
 
+@DatabaseView(
+    viewName = "tasks_results",
+    value = "SELECT t.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t " +
+            "LEFT OUTER JOIN `14_8_results` AS r ON t.ID = r.taskId " +
+            "GROUP BY t.id, r.taskId;"
+)
+data class DatabaseTaskResult constructor(
+    val id: Int,
+    val isOk: Boolean?,
+    val good: Int?,
+    val total: Int?
+)
+
 @Entity(
     tableName = "14_samples",
     foreignKeys = [
@@ -290,7 +303,7 @@ data class DatabaseSample constructor(
 @DatabaseView(
     viewName = "samples_results",
     value = "SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s " +
-            "LEFT OUTER JOIN `14_8_results` AS r ON s.ID = r.sampleID " +
+            "LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId " +
             "GROUP BY s.id, r.taskId;"
 )
 data class DatabaseSampleResult constructor(
@@ -506,7 +519,14 @@ data class DatabaseSubOrderTaskComplete constructor(
         parentColumn = "statusId",
         entityColumn = "id"
     )
-    var status: DatabaseOrdersStatus
+    var status: DatabaseOrdersStatus,
+
+    @Relation(
+        entity = DatabaseTaskResult::class,
+        parentColumn = "id",
+        entityColumn = "id"
+    )
+    val taskResult: DatabaseTaskResult
 )
 
 @DatabaseView(

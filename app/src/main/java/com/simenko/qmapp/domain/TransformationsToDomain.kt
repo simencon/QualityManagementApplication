@@ -55,6 +55,9 @@ fun DatabaseResult.toDomainResult() =
 fun DatabaseResultsDecryption.toDomainResult() =
     ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(this)
 
+fun DatabaseTaskResult.toDomainTaskResult() =
+    ObjectTransformer(DatabaseTaskResult::class, DomainTaskResult::class).transform(this)
+
 fun DatabaseMetrix.toDomainMetrix() =
     ObjectTransformer(DatabaseMetrix::class, DomainMetrix::class).transform(this)
 
@@ -124,7 +127,8 @@ fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(parentId: Int): List
             subOrderTask = it.subOrderTask.toDomainSubOrderTask(),
             characteristic = it.characteristic.toDomainCharacteristicComplete(),
             subOrder = it.subOrder.toDomainSubOrder(),
-            status = it.status.toDomainStatus()
+            status = it.status.toDomainStatus(),
+            taskResult = it.taskResult.toDomainTaskResult()
         )
     }
 }

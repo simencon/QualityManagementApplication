@@ -157,7 +157,6 @@ fun Sample(
                     sample.sampleResult.good?.toFloat()
                         ?.div(it)
                 }?.times(100)?.roundToInt()).toString() + "%",
-
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

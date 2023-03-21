@@ -7,6 +7,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.*
@@ -18,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -191,7 +194,7 @@ fun SubOrderTask(
                     Column(
                         modifier = Modifier
                             .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(0.6f),
+                            .weight(0.54f),
                     ) {
                         Row(
                             modifier = Modifier
@@ -205,17 +208,17 @@ fun SubOrderTask(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
-                                    .weight(weight = 0.32f)
-                                    .padding(top = 4.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                                    .weight(weight = 0.35f)
+                                    .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
                                 text = subOrderTask.characteristic.characteristicGroup.ishElement
                                     ?: "-",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
-                                    .weight(weight = 0.68f)
+                                    .weight(weight = 0.65f)
                                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             )
                         }
@@ -232,17 +235,17 @@ fun SubOrderTask(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
-                                    .weight(weight = 0.32f)
-                                    .padding(top = 4.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                                    .weight(weight = 0.35f)
+                                    .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
                                 text = subOrderTask.characteristic.characteristicSubGroup.ishElement
                                     ?: "-",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier
-                                    .weight(weight = 0.68f)
+                                    .weight(weight = 0.65f)
                                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             )
                         }
@@ -251,7 +254,7 @@ fun SubOrderTask(
 
                     TextButton(
                         modifier = Modifier
-                            .weight(weight = 0.4f)
+                            .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = { showStatusDialog(subOrderTask.subOrderTask.id, DialogFor.CHARACTERISTIC) },
                         content = {
@@ -263,6 +266,55 @@ fun SubOrderTask(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
+                            if(subOrderTask.subOrderTask.statusId == 3) {
+                                Text(
+                                    text = "(",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+//                                        .weight(weight = 0.5f)
+                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                )
+                                Icon(
+                                    imageVector = if (subOrderTask.taskResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
+                                    contentDescription = if (subOrderTask.taskResult.isOk != false) {
+                                        stringResource(R.string.show_less)
+                                    } else {
+                                        stringResource(R.string.show_more)
+                                    },
+                                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                    tint = if (subOrderTask.taskResult.isOk != false) {
+                                        Color.Green
+                                    } else {
+                                        Color.Red
+                                    },
+                                )
+                                Text(
+                                    text = (subOrderTask.taskResult.total?.toFloat()?.let {
+                                        subOrderTask.taskResult.good?.toFloat()
+                                            ?.div(it)
+                                    }?.times(100)?.roundToInt()).toString() + "%",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+//                                        .weight(weight = 0.5f)
+                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                )
+                                Text(
+                                    text = ")",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+//                                        .weight(weight = 0.5f)
+                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                )
+                            }
                         },
                         enabled = true,
                         shape = MaterialTheme.shapes.medium,
@@ -357,7 +409,8 @@ fun getSubOrderTasks() = List(30) { i ->
         status = DomainOrdersStatus(
             id = 1,
             statusDescription = "In Progress"
-        )
+        ),
+        taskResult = getTaskResult()
     )
 }
 
@@ -382,4 +435,11 @@ fun getCharacteristicSubGroup() = DomainIshSubCharacteristic(
     id = 1,
     ishElement = "Roughness",
     measurementGroupRelatedTime = 0.24
+)
+
+fun getTaskResult() = DomainTaskResult(
+    id = 0,
+    isOk = true,
+    good = 10,
+    total = 10
 )
