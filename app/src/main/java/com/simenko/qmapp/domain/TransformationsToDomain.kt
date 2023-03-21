@@ -64,6 +64,9 @@ fun DatabaseResultTolerance.toDomainResultTolerance() =
 fun DatabaseSample.toDomainSample() =
     ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
 
+fun DatabaseSampleResult.toDomainSampleResult() =
+    ObjectTransformer(DatabaseSampleResult::class, DomainSampleResult::class).transform(this)
+
 fun DatabaseCharacteristic.toDomainCharacteristic() =
     ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
 
@@ -122,6 +125,15 @@ fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(parentId: Int): List
             characteristic = it.characteristic.toDomainCharacteristicComplete(),
             subOrder = it.subOrder.toDomainSubOrder(),
             status = it.status.toDomainStatus()
+        )
+    }
+}
+
+fun List<DatabaseSampleComplete>.asDomainSamples(): List<DomainSampleComplete> {
+    return map {
+        DomainSampleComplete(
+            sampleResult = it.sampleResult.toDomainSampleResult(),
+            sample = it.sample.toDomainSample()
         )
     }
 }

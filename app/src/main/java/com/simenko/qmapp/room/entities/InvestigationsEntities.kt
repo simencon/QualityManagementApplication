@@ -287,6 +287,31 @@ data class DatabaseSample constructor(
     var sampleNumber: Int? = null
 )
 
+@DatabaseView(
+    viewName = "samples_results",
+    value = "SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s " +
+            "LEFT OUTER JOIN `14_8_results` AS r ON s.ID = r.sampleID " +
+            "GROUP BY s.id, r.taskId;"
+)
+data class DatabaseSampleResult constructor(
+    val id: Int,
+    val taskId: Int?,
+    val isOk: Boolean?,
+    val good: Int?,
+    val total: Int?
+)
+
+data class DatabaseSampleComplete constructor(
+    @Embedded
+    val sampleResult: DatabaseSampleResult,
+    @Relation(
+        entity = DatabaseSample::class,
+        parentColumn = "id",
+        entityColumn = "id"
+    )
+    val sample: DatabaseSample
+)
+
 @Entity(tableName = "0_results_decryptions")
 data class DatabaseResultsDecryption constructor(
     @PrimaryKey(autoGenerate = true)

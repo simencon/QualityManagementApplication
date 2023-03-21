@@ -1016,13 +1016,9 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSubOrderTask(-1)
         }
 
-    val samples: LiveData<List<DomainSample>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getSamples()) {
-            ListTransformer(
-                it,
-                DatabaseSample::class,
-                DomainSample::class
-            ).generateList()
+    val completeSamples: LiveData<List<DomainSampleComplete>> =
+        Transformations.map(database.qualityManagementInvestigationsDao.getSamplesDetailed()) {
+            it.asDomainSamples()
         }
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderWithChildren>> =

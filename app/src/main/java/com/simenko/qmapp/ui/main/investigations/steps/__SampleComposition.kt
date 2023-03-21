@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -18,6 +20,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -26,9 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainSample
+import com.simenko.qmapp.domain.DomainSampleComplete
+import com.simenko.qmapp.domain.DomainSampleResult
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.theme.*
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -37,7 +43,7 @@ fun SampleComposition(
     appModel: QualityManagementViewModel
 ) {
     val observeSamples by appModel.samplesMediator.observeAsState()
-    val observeCurrentSubOrder by appModel.currentSubOrder.observeAsState()
+    val observeCurrentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
 
     observeSamples?.apply {
         if (observeSamples!!.first != null) {
@@ -51,16 +57,16 @@ fun SampleComposition(
             ) {
 
                 items(items = observeSamples!!.first!!) { sample ->
-                    if (sample.subOrderId == observeCurrentSubOrder) {
+                    if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
                         SampleCard(
                             modifier = modifier,
                             appModel = appModel,
                             sample = sample,
                             onClickDetails = { it ->
-                                appModel.changeSamplesDetailsVisibility(it.id)
+                                appModel.changeSamplesDetailsVisibility(it.sample.id)
                             },
                             onChangeExpandState = {
-                                appModel.changeSamplesDetailsVisibility(it.id)
+                                appModel.changeSamplesDetailsVisibility(it.sample.id)
                             }
                         )
                     }
@@ -76,9 +82,9 @@ fun SampleComposition(
 fun SampleCard(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel,
-    sample: DomainSample,
-    onClickDetails: (DomainSample) -> Unit,
-    onChangeExpandState: (DomainSample) -> Unit,
+    sample: DomainSampleComplete,
+    onClickDetails: (DomainSampleComplete) -> Unit,
+    onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
     val transitionState = remember {
         MutableTransitionState(sample.detailsVisibility).apply {
@@ -121,7 +127,7 @@ fun SampleCard(
 fun Sample(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel? = null,
-    sample: DomainSample = getSamples()[0],
+    sample: DomainSampleComplete = getSamplesComplete()[0],
     onClickDetails: () -> Unit = {},
 ) {
     Column(
@@ -132,6 +138,34 @@ fun Sample(
             modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = if (sample.sampleResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
+                contentDescription = if (sample.sampleResult.isOk != false) {
+                    stringResource(R.string.show_less)
+                } else {
+                    stringResource(R.string.show_more)
+                },
+                modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                tint = if (sample.sampleResult.isOk != false) {
+                    Color.Green
+                } else {
+                    Color.Red
+                },
+            )
+            Text(
+                text = (sample.sampleResult.total?.toFloat()?.let {
+                    sample.sampleResult.good?.toFloat()
+                        ?.div(it)
+                }?.times(100)?.roundToInt()).toString() + "%",
+
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .weight(weight = 0.5f)
+                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+            )
             Column(
                 modifier = Modifier
                     .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
@@ -158,7 +192,7 @@ fun Sample(
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = sample.sampleNumber.toString(),
+                        text = sample.sample.sampleNumber.toString(),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -207,10 +241,26 @@ fun MySamplePreview() {
     }
 }
 
-fun getSamples() = List(30) { i ->
-    DomainSample(
-        id = (1..30).random(),
-        subOrderId = (100..300).random(),
-        sampleNumber = i + 1
+fun getSamplesComplete() = List(30) { i ->
+    DomainSampleComplete(
+        sample = getSample(),
+        sampleResult = getSampleResult(),
     )
 }
+
+fun getSample() = DomainSample(
+    id = (1..30).random(),
+    subOrderId = (100..300).random(),
+    sampleNumber = 1
+)
+
+fun getSampleResult() = DomainSampleResult(
+    id = (1..30).random(),
+    taskId = 0,
+    isOk = true,
+    good = 10,
+    total = 10
+)
+
+
+

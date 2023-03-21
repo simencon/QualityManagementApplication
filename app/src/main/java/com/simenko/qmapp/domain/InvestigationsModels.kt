@@ -1,6 +1,10 @@
 package com.simenko.qmapp.domain
 
+import androidx.room.Embedded
+import androidx.room.Relation
 import com.simenko.qmapp.room.entities.DatabaseResultTolerance
+import com.simenko.qmapp.room.entities.DatabaseSample
+import com.simenko.qmapp.room.entities.DatabaseSampleResult
 
 data class DomainInputForOrder constructor(
     var id: Int,
@@ -131,9 +135,22 @@ data class DomainSample constructor(
     var id: Int,
     var subOrderId: Int,
     var sampleNumber: Int? = null,
-    var detailsVisibility: Boolean = false,
     var isNewRecord: Boolean = false,
     var toBeDeleted: Boolean = false
+)
+
+data class DomainSampleResult constructor(
+    var id: Int,
+    var taskId: Int?,
+    var isOk: Boolean?,
+    var good: Int?,
+    var total: Int?
+)
+
+data class DomainSampleComplete constructor(
+    var sampleResult: DomainSampleResult,
+    var sample: DomainSample,
+    var detailsVisibility: Boolean = false
 )
 
 data class DomainResultsDecryption constructor(

@@ -96,11 +96,11 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentSubOrderTask = MutableLiveData(0)
 
-    private val samples = qualityManagementInvestigationsRepository.samples
-    val samplesMediator: MediatorLiveData<Pair<List<DomainSample>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainSample>?, Boolean?>>().apply {
-            addSource(samples) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(samples.value, it) }
+    private val completeSamples = qualityManagementInvestigationsRepository.completeSamples
+    val samplesMediator: MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>> =
+        MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>>().apply {
+            addSource(completeSamples) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeSamples.value, it) }
         }
 
     val currentSample = MutableLiveData(0)
@@ -223,7 +223,7 @@ class QualityManagementViewModel @Inject constructor(
         changeResultsDetailsVisibility(currentResult.value ?: 0)
         var select = false
 
-        samples.value?.find { it.id == itemId }
+        completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value}
             ?.let { it ->
                 if (!it.detailsVisibility)
                     select = true
@@ -231,13 +231,13 @@ class QualityManagementViewModel @Inject constructor(
                     currentSample.value = 0
             }
 
-        samples.value?.forEach { it.detailsVisibility = false }
+        completeSamples.value?.forEach { it.detailsVisibility = false }
 
         if (select)
-            samples.value?.find { it.id == itemId }
-                ?.let { subOrderTask ->
+            completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value}
+                ?.let { sample ->
                     currentSample.value = itemId
-                    subOrderTask.detailsVisibility = !subOrderTask.detailsVisibility
+                    sample.detailsVisibility = !sample.detailsVisibility
                     pairedTrigger.value = !(pairedTrigger.value as Boolean)
                 }
         else
@@ -357,7 +357,7 @@ class QualityManagementViewModel @Inject constructor(
                                         }
                                     }
 
-                                samples.value?.filter { sIt -> sIt.subOrderId == subOrder.id }
+                                completeSamples.value?.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
                                     ?.forEach { sfIt ->
                                         metrixesToRecord?.forEach { mIt ->
                                             if (mIt != null) {
@@ -366,7 +366,7 @@ class QualityManagementViewModel @Inject constructor(
                                                         this,
                                                         DomainResult(
                                                             id = 0,
-                                                            sampleId = sfIt.id,
+                                                            sampleId = sfIt.sample.id,
                                                             metrixId = mIt.id,
                                                             result = null,
                                                             isOk = true,
