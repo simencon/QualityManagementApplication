@@ -48,18 +48,6 @@ fun ResultsComposition(
     val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
     val currentSample by appModel.currentSample.observeAsState()
 
-    val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            observeResults?.first?.forEach { it ->
-                it.itemTolerance = appModel.itemsTolerances.value?.find { item ->
-                    item.fVersionId == it.subOrderTask.subOrder.itemPreffix &&
-                            item.metrixId == it.metrix.id
-                }
-            }
-        }
-    }
-
     observeResults?.apply {
         if (observeResults!!.first != null) {
             FlowRow(
@@ -201,12 +189,12 @@ fun Result(
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         when {
-                            (text.toDouble() > (result.itemTolerance!!.usl ?: 0.0f)) -> {
+                            (text.toDouble() > (result.resultTolerance.usl ?: 0.0f)) -> {
                                 result.result.result = text.toFloat()
                                 result.result.isOk = false
                                 result.result.resultDecryptionId = 2
                             }
-                            (text.toDouble() < (result.itemTolerance!!.lsl ?: 0.0f)) -> {
+                            (text.toDouble() < (result.resultTolerance.lsl ?: 0.0f)) -> {
                                 result.result.result = text.toFloat()
                                 result.result.isOk = false
                                 result.result.resultDecryptionId = 3
@@ -293,7 +281,7 @@ fun Result(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = (result.itemTolerance?.nominal ?: 0.0).toString(),
+                        text = (result.resultTolerance.nominal ?: 0.0).toString(),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -322,8 +310,8 @@ fun Result(
                 ) {
                     Text(
                         text = StringUtils.concatTwoStrings(
-                            (result.itemTolerance?.lsl ?: 0.0).toString(),
-                            (result.itemTolerance?.usl ?: 0.0).toString()
+                            (result.resultTolerance.lsl ?: 0.0).toString(),
+                            (result.resultTolerance.usl ?: 0.0).toString()
                         ),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
@@ -365,7 +353,7 @@ fun getResults() = List(30) { i ->
         result = getResult(),
         resultsDecryption = getResultsDecryption(),
         metrix = getMetrix(),
-        subOrderTask = getSubOrderTasks()[0]
+        resultTolerance = getResultTolerance()
     )
 }
 
@@ -391,4 +379,11 @@ fun getMetrix() = DomainMetrix(
     metrixDesignation = "Ra C",
     metrixDescription = "Шорсткість базового торця зовнішнього кільця",
     units = "мкм"
+)
+
+fun getResultTolerance() = DomainResultTolerance(
+    id = 0,
+    lsl = -10.5f,
+    usl = 12.2f,
+    nominal = 180000.0f
 )

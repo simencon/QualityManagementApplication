@@ -398,7 +398,9 @@ interface QualityManagementInvestigationsDao {
         DatabaseCharacteristicComplete::class,
 
         DatabaseSubOrderTaskComplete::class,
-        DatabaseResultComplete::class
+        DatabaseResultComplete::class,
+
+        DatabaseResultTolerance::class
     ],
     version = 1,
     exportSchema = true

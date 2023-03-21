@@ -362,7 +362,7 @@ data class DatabaseOrderComplete constructor(
     @Relation(
         entity = DatabaseDepartment::class,
         parentColumn = "customerId",
-        entityColumn = "id"
+        entityColumn = "id",
     )
     var customer: DatabaseDepartment,
 
@@ -485,6 +485,20 @@ data class DatabaseSubOrderTaskComplete constructor(
 )
 
 @DatabaseView(
+    viewName = "results_tolerances",
+    value = "SELECT r.id, it.nominal, it.lsl, it.usl FROM `14_8_results` AS r " +
+            "INNER JOIN `13_7_sub_order_tasks` AS t ON t.ID = r.taskID " +
+            "INNER JOIN `13_sub_orders` AS so ON t.subOrderID = so.ID " +
+            "INNER JOIN items_tolerances AS it ON r.metrixID = it.metrixID AND so.itemPreffix = it.fVersionID;"
+)
+data class DatabaseResultTolerance(
+    val id: Int,
+    val nominal: Float?,
+    val lsl: Float?,
+    val usl: Float?
+)
+
+@DatabaseView(
     viewName = "result_complete",
     value = "SELECT * FROM `14_8_results` ORDER BY id;"
 )
@@ -504,9 +518,9 @@ data class DatabaseResultComplete(
     )
     val metrix: DatabaseMetrix,
     @Relation(
-        entity = DatabaseSubOrderTaskComplete::class,
-        parentColumn = "taskId",
+        entity = DatabaseResultTolerance::class,
+        parentColumn = "id",
         entityColumn = "id"
     )
-    val subOrderTask: DatabaseSubOrderTaskComplete
+    val resultTolerance: DatabaseResultTolerance
 )

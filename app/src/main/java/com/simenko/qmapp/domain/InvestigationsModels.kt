@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.room.entities.DatabaseResultTolerance
+
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -187,46 +189,17 @@ data class DomainSubOrderTaskComplete constructor(
     var isExpanded: Boolean = false
 )
 
+data class DomainResultTolerance(
+    var id: Int,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?
+)
+
 data class DomainResultComplete(
     var result: DomainResult,
     var resultsDecryption: DomainResultsDecryption,
     var metrix: DomainMetrix,
-    var subOrderTask: DomainSubOrderTaskComplete,
-    var itemTolerance: DomainItemTolerance? = null,
+    var resultTolerance: DomainResultTolerance,
     var detailsVisibility: Boolean = false
 )
-
-//ToDo just to test
-
-data class CompleteOrder constructor(
-    var order: DomainOrder,
-    var subOrders: ArrayList<CompleteSubOrder>,
-    var subOrderTasks: ArrayList<DomainSubOrderTask>
-) {
-    fun addSubOrder(order: CompleteSubOrder) {
-        subOrders.add(order)
-    }
-
-    fun addSubOrderTask(subOrderTask: DomainSubOrderTask) {
-        subOrderTasks.add(subOrderTask)
-    }
-}
-
-data class CompleteSubOrder constructor(
-    var subOrder: DomainSubOrder,
-    var samples: ArrayList<CompleteSample>
-) {
-    fun addSample(sample: CompleteSample) {
-        samples.add(sample)
-    }
-}
-
-
-data class CompleteSample constructor(
-    var sample: DomainSample,
-    var results: ArrayList<DomainResult>
-) {
-    fun addResult(result: DomainResult) {
-        results.add(result)
-    }
-}

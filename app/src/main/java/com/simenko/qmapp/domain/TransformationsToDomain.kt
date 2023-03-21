@@ -35,17 +35,13 @@ fun DatabaseSubDepartment.toDomainSubDepartment() =
     ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
 
 fun DatabaseManufacturingChannel.toDomainChannel() = ObjectTransformer(
-    DatabaseManufacturingChannel::class, DomainManufacturingChannel::class
-).transform(this)
+    DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
 
 fun DatabaseManufacturingLine.toDomainLine() =
-    ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(
-        this
-    )
+    ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
 
 fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(
-    DatabaseManufacturingOperation::class, DomainManufacturingOperation::class
-).transform(this)
+    DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
 
 fun DatabaseSubOrderTask.toDomainSubOrderTask() =
     ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
@@ -62,6 +58,9 @@ fun DatabaseResultsDecryption.toDomainResult() =
 fun DatabaseMetrix.toDomainMetrix() =
     ObjectTransformer(DatabaseMetrix::class, DomainMetrix::class).transform(this)
 
+fun DatabaseResultTolerance.toDomainResultTolerance() =
+    ObjectTransformer(DatabaseResultTolerance::class, DomainResultTolerance::class).transform(this)
+
 fun DatabaseSample.toDomainSample() =
     ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
 
@@ -69,24 +68,16 @@ fun DatabaseCharacteristic.toDomainCharacteristic() =
     ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
 
 fun DatabaseElementIshModel.toDomainCharacteristicGroup() =
-    ObjectTransformer(
-        DatabaseElementIshModel::class,
-        DomainElementIshModel::class
-    ).transform(this)
+    ObjectTransformer(DatabaseElementIshModel::class, DomainElementIshModel::class).transform(this)
 
 fun DatabaseIshSubCharacteristic.toDomainCharacteristicSubGroup() =
-    ObjectTransformer(
-        DatabaseIshSubCharacteristic::class,
-        DomainIshSubCharacteristic::class
-    ).transform(this)
+    ObjectTransformer(DatabaseIshSubCharacteristic::class, DomainIshSubCharacteristic::class).transform(this)
 
-fun DatabaseKey.toDomainKey() = ObjectTransformer(
-    DatabaseKey::class, DomainKey::class
-).transform(this)
+fun DatabaseKey.toDomainKey() =
+    ObjectTransformer(DatabaseKey::class, DomainKey::class).transform(this)
 
-fun DatabaseVersionStatus.toVersionStatus() = ObjectTransformer(
-    DatabaseVersionStatus::class, DomainVersionStatus::class
-).transform(this)
+fun DatabaseVersionStatus.toVersionStatus() =
+    ObjectTransformer(DatabaseVersionStatus::class, DomainVersionStatus::class).transform(this)
 
 
 fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<DomainOrderComplete> {
@@ -141,12 +132,7 @@ fun List<DatabaseResultComplete>.asDomainResults(): List<DomainResultComplete> {
             result = it.result.toDomainResult(),
             resultsDecryption = it.resultsDecryption.toDomainResult(),
             metrix = it.metrix.toDomainMetrix(),
-            subOrderTask = DomainSubOrderTaskComplete(
-                subOrderTask = it.subOrderTask.subOrderTask.toDomainSubOrderTask(),
-                characteristic = it.subOrderTask.characteristic.toDomainCharacteristicComplete(),
-                subOrder = it.subOrderTask.subOrder.toDomainSubOrder(),
-                status = it.subOrderTask.status.toDomainStatus()
-            )
+            resultTolerance = it.resultTolerance.toDomainResultTolerance()
         )
     }
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "eb35ae8b413af0817f1ddaa764054744",
+    "identityHash": "3e9b96a8fb7fcfc7bae1388271b502c0",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3329,11 +3329,15 @@
       {
         "viewName": "item_versions_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `item_versions`"
+      },
+      {
+        "viewName": "results_tolerances",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT r.id, it.nominal, it.lsl, it.usl FROM `14_8_results` AS r INNER JOIN `13_7_sub_order_tasks` AS t ON t.ID = r.taskID INNER JOIN `13_sub_orders` AS so ON t.subOrderID = so.ID INNER JOIN items_tolerances AS it ON r.metrixID = it.metrixID AND so.itemPreffix = it.fVersionID;"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eb35ae8b413af0817f1ddaa764054744')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3e9b96a8fb7fcfc7bae1388271b502c0')"
     ]
   }
 }

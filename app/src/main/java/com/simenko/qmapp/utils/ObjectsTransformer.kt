@@ -54,9 +54,6 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
             "toBeDeleted" -> {
                 false
             }
-            "itemTolerance" -> {
-                null
-            }
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
     }
@@ -120,9 +117,6 @@ class ListTransformer<in T : Any, out R : Any> constructor(
             }
             "toBeDeleted" -> {
                 false
-            }
-            "itemTolerance" -> {
-                null
             }
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
