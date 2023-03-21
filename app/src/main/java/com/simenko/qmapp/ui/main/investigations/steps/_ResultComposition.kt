@@ -37,6 +37,7 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_2_record_color
 import com.simenko.qmapp.ui.theme._level_2_record_color_details
 import com.simenko.qmapp.utils.StringUtils
+import kotlinx.coroutines.launch
 
 @Composable
 fun ResultsComposition(
@@ -47,11 +48,15 @@ fun ResultsComposition(
     val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
     val currentSample by appModel.currentSample.observeAsState()
 
-    observeResults?.first?.forEach { it ->
-        it.itemTolerance = appModel.itemsTolerances.value?.find { item ->
-            item.itemPrefix == it.subOrderTask.subOrder.itemPreffix &&
-                    item.versionId == it.subOrderTask.subOrder.itemVersionId &&
-                    item.metrixId == it.metrix.id
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            observeResults?.first?.forEach { it ->
+                it.itemTolerance = appModel.itemsTolerances.value?.find { item ->
+                    item.fVersionId == it.subOrderTask.subOrder.itemPreffix &&
+                            item.metrixId == it.metrix.id
+                }
+            }
         }
     }
 
@@ -76,6 +81,7 @@ fun ResultsComposition(
                                 appModel.changeResultsDetailsVisibility(it.result.id)
                             },
                             onChangeValue = {
+                                appModel.editResult(it.result)
                             }
                         )
                     }
@@ -134,13 +140,11 @@ fun ResultCard(
 fun Result(
     modifier: Modifier = Modifier,
     result: DomainResultComplete = getResults()[0],
-    onChangeValue: (String) -> Unit = {},
+    onChangeValue: (DomainResultComplete) -> Unit = {},
     onSelect: (DomainResultComplete) -> Unit,
 ) {
-    val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    var text: String by rememberSaveable { mutableStateOf("") }
-
+    var text: String by rememberSaveable { mutableStateOf(result.result.result.toString()) }
 
     Column(
         modifier = Modifier
@@ -191,13 +195,29 @@ fun Result(
                     textStyle = MaterialTheme.typography.titleSmall.copy(fontSize = 20.sp),
                     onValueChange = {
                         text = it
-                        onChangeValue(text)
                     },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
                     ),
                     keyboardActions = KeyboardActions(onDone = {
-                        Toast.makeText(context, "To save the record", Toast.LENGTH_SHORT).show()
+                        when {
+                            (text.toDouble() > (result.itemTolerance!!.usl ?: 0.0f)) -> {
+                                result.result.result = text.toFloat()
+                                result.result.isOk = false
+                                result.result.resultDecryptionId = 2
+                            }
+                            (text.toDouble() < (result.itemTolerance!!.lsl ?: 0.0f)) -> {
+                                result.result.result = text.toFloat()
+                                result.result.isOk = false
+                                result.result.resultDecryptionId = 3
+                            }
+                            else -> {
+                                result.result.result = text.toFloat()
+                                result.result.isOk = true
+                                result.result.resultDecryptionId = 1
+                            }
+                        }
+                        onChangeValue(result)
                         keyboardController?.hide()
                     })
                 )
@@ -353,7 +373,7 @@ fun getResult() = DomainResult(
     id = 0,
     sampleId = 1,
     metrixId = 2,
-    result = 2.4,
+    result = 2.4f,
     isOk = true,
     resultDecryptionId = 3,
     taskId = 4

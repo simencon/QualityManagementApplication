@@ -143,7 +143,7 @@ data class DomainResult constructor(
     var id: Int,
     var sampleId: Int,
     var metrixId: Int,
-    var result: Double? = null,
+    var result: Float? = null,
     var isOk: Boolean? = null,
     var resultDecryptionId: Int,
     var taskId: Int
@@ -171,7 +171,7 @@ data class DomainSubOrderComplete constructor(
     var channel: DomainManufacturingChannel,
     var line: DomainManufacturingLine,
     var operation: DomainManufacturingOperation,
-    var itemVersionComplete: DomainItemVersionComplete? = null,
+    var itemVersionComplete: DomainItemVersionComplete,
     var detailsVisibility: Boolean = false,
     var tasksVisibility: Boolean = false,
     var isExpanded: Boolean = false

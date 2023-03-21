@@ -172,9 +172,10 @@ data class DomainComponentInStageTolerance(
 
 data class DomainItemTolerance(
     var id: String,
-    var itemPrefix: String,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var fId: String,
+    var metrixId: Int,
+    var versionId: Int,
+    var fVersionId: String,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -236,15 +237,12 @@ data class DomainItemComplete(
 )
 
 data class DomainItemVersionComplete(
-    val itemPrefix: ItemType,
     val itemVersion: DomainItemVersion,
     val versionStatus: DomainVersionStatus,
     val itemComplete: DomainItemComplete,
     var isSelected: Boolean = false
 ) : DomainModel() {
-    override fun getRecordId() =
-        StringUtils.concatTwoStrings4(getItemPrefix(), itemVersion.id.toString())
-
+    override fun getRecordId() = itemVersion.fId
     override fun getParentOneId() = 0//is not the case with itemsVersions
     override fun hasParentOneId(pId: Int): Boolean {
         var result: Boolean = false
@@ -259,13 +257,5 @@ data class DomainItemVersionComplete(
 
     override fun setIsChecked(value: Boolean) {
         isSelected = value
-    }
-
-    fun getItemPrefix(): String {
-        return when (itemPrefix) {
-            ItemType.PRODUCT -> "p"
-            ItemType.COMPONENT -> "c"
-            ItemType.COMPONENT_IN_STAGE -> "s"
-        }
     }
 }

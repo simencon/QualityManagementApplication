@@ -64,3 +64,13 @@ fun DomainSample.toNetworkSampleWithoutId() = ObjectTransformer(
 fun DomainResult.toNetworkResultWithoutId() = ObjectTransformer(
     DomainResult::class, NetworkResult::class
 ).transform(this)
+
+fun DomainResult.toNetworkResultWithId() = NetworkResult(
+    id = id,
+    sampleId = sampleId,
+    metrixId = metrixId,
+    result = result,
+    isOk = isOk,
+    resultDecryptionId = resultDecryptionId,
+    taskId = taskId
+)

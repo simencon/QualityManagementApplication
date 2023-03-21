@@ -411,6 +411,28 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
+    fun editResult(result: DomainResult) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO){
+                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                        this,
+                        result
+                    )
+                    channel.consumeEach {
+
+                    }
+                }
+                isStatusDialogVisible.value = false
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
     /**
      *
      */

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4bd3c3e73aac9cd67ec1a1b8c3ff2f4a",
+    "identityHash": "eb35ae8b413af0817f1ddaa764054744",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2839,6 +2839,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_13_sub_orders_operationId` ON `${TABLE_NAME}` (`operationId`)"
+          },
+          {
+            "name": "index_13_sub_orders_itemPreffix",
+            "unique": false,
+            "columnNames": [
+              "itemPreffix"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_sub_orders_itemPreffix` ON `${TABLE_NAME}` (`itemPreffix`)"
           }
         ],
         "foreignKeys": [
@@ -3299,7 +3308,7 @@
       },
       {
         "viewName": "items_tolerances",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT substr('p', pt.id) as id, 'p' as itemPrefix , pt.metrixId, pt.versionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt UNION ALL SELECT substr('c', ct.id) as id,'c' as itemPrefix ,ct.metrixId,ct.versionId,ct.nominal,ct.LSL,ct.USL,ct.isActual FROM `10_8_component_tolerances` AS ct UNION ALL SELECT substr('s', st.id) as id, 's' as itemPrefix , st.metrixId, st.versionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pt.id, ('p' || pt.id) as fId, pt.metrixId, pt.versionId, ('p' || pt.versionId) as fVersionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt UNION ALL SELECT ct.id, ('c' || ct.id) as fId, ct.metrixId, ct.versionId, ('c' || ct.versionId) as fVersionId, ct.nominal, ct.LSL, ct.USL, ct.isActual FROM `10_8_component_tolerances` AS ct UNION ALL SELECT st.id, ('s' || st.id) as fId, st.metrixId, st.versionId, ('s' || st.versionId) as fVersionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
       },
       {
         "viewName": "characteristic_complete",
@@ -3324,7 +3333,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4bd3c3e73aac9cd67ec1a1b8c3ff2f4a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'eb35ae8b413af0817f1ddaa764054744')"
     ]
   }
 }

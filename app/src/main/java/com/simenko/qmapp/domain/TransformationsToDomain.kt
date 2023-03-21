@@ -114,7 +114,12 @@ fun List<DatabaseCompleteSubOrder>.asDomainSubOrderDetailed(parentId: Int): List
             subDepartment = it.subDepartment.toDomainSubDepartment(),
             channel = it.channel.toDomainChannel(),
             line = it.line.toDomainLine(),
-            operation = it.operation.toDomainOperation()
+            operation = it.operation.toDomainOperation(),
+            itemVersionComplete = DomainItemVersionComplete(
+                itemVersion = it.itemVersionComplete.itemVersion.toDomainItemVersion(),
+                versionStatus = it.itemVersionComplete.versionStatus.toVersionStatus(),
+                itemComplete = it.itemVersionComplete.itemComplete.toDomainItemComplete()
+            )
         )
     }
 }
@@ -189,11 +194,6 @@ fun DatabaseItemComplete.toDomainItemComplete() = DomainItemComplete(
 fun List<DatabaseItemVersionComplete>.asDomainItem(): List<DomainItemVersionComplete> {
     return map {
         DomainItemVersionComplete(
-            itemPrefix = when(it.itemVersion.fId.substring(0,1)) {
-                "p" -> ItemType.PRODUCT
-                "c" -> ItemType.COMPONENT
-                else -> ItemType.COMPONENT_IN_STAGE //means "s"
-            },
             itemVersion = it.itemVersion.toDomainItemVersion(),
             versionStatus = it.versionStatus.toVersionStatus(),
             itemComplete = it.itemComplete.toDomainItemComplete()

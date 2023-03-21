@@ -50,15 +50,6 @@ fun SubOrdersFlowColumn(
     showStatusDialog: (Int, DialogFor) -> Unit
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
-
-    observeSubOrders?.first?.forEach { it ->
-        it.itemVersionComplete =
-            appModel.itemVersionsComplete.value?.find { item ->
-                item.itemVersion.id == it.subOrder.itemVersionId &&
-                        item.itemVersion.fId.substring(0, 1) == it.subOrder.itemPreffix
-            }
-    }
-
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
@@ -640,7 +631,8 @@ fun getSubOrders() = List(30) { i ->
             equipment = "MTD-250"
         ),
         detailsVisibility = true,
-        tasksVisibility = true
+        tasksVisibility = true,
+        itemVersionComplete = getItemVersionComplete()
     )
 }
 
@@ -662,4 +654,43 @@ fun getSubOrder() = DomainSubOrder(
     itemTypeId = 1,
     itemVersionId = 1,
     samplesCount = (1..10).random()
+)
+
+fun getItemVersionComplete() = DomainItemVersionComplete(
+    itemVersion = DomainItemVersion(
+        id = 0,
+        fId = "c0",
+        itemId = 0,
+        fItemId = "c0",
+        versionDescription = "V.01",
+        versionDate = "2022-12-15T22:24:43",
+        statusId = 1,
+        isDefault = true
+    ),
+    versionStatus = DomainVersionStatus(
+        id = 0,
+        statusDescription = "Done"
+    ),
+    itemComplete = DomainItemComplete(
+        item = DomainItem(
+            id = 0,
+            fId = "c0",
+            keyId = 0,
+            itemDesignation = "32024"
+        ),
+        key = DomainKey(
+            id = 0,
+            projectId = 0,
+            componentKey = "IR",
+            componentKeyDescription = "Внутрішнє кільце після шліфувальної обробки"
+        ),
+        itemToLines = List(30) {i ->
+            DomainItemToLine(
+                id = 0,
+                lineId = 0,
+                itemId = 0
+            )
+        }
+    )
+
 )

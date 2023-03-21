@@ -83,15 +83,12 @@ fun VersionsSelection(
                     input = first!![item],
                     modifier = modifier,
                     onClick = {
-                        appModel.currentSubOrder.value?.subOrder?.itemPreffix = it.getItemPrefix()
+                        appModel.currentSubOrder.value?.subOrder?.itemPreffix = it.itemVersion.fId
                         appModel.currentSubOrder.value?.subOrder?.itemTypeId = it.itemComplete.item.id
                         appModel.currentSubOrder.value?.subOrder?.itemVersionId = it.itemVersion.id
                         filterAllAfterVersions(
                             appModel,
-                            StringUtils.concatTwoStrings4(
-                                it.getItemPrefix(),
-                                it.itemVersion.id.toString()
-                            ),
+                            it.itemVersion.fId,
                             true
                         )
                     }

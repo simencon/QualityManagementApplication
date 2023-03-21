@@ -54,9 +54,6 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
             "toBeDeleted" -> {
                 false
             }
-            "itemVersionComplete" -> {
-                null
-            }
             "itemTolerance" -> {
                 null
             }
@@ -123,9 +120,6 @@ class ListTransformer<in T : Any, out R : Any> constructor(
             }
             "toBeDeleted" -> {
                 false
-            }
-            "itemVersionComplete" -> {
-                null
             }
             "itemTolerance" -> {
                 null

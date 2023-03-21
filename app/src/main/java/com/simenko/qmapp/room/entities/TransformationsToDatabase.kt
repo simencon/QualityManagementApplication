@@ -1,9 +1,6 @@
 package com.simenko.qmapp.room.entities
 
-import com.simenko.qmapp.domain.DomainOrder
-import com.simenko.qmapp.domain.DomainSample
-import com.simenko.qmapp.domain.DomainSubOrder
-import com.simenko.qmapp.domain.DomainSubOrderTask
+import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
@@ -30,6 +27,9 @@ fun DomainSample.toDatabaseSample() =
 
 fun NetworkSample.toDatabaseSample() =
     ObjectTransformer(NetworkSample::class, DatabaseSample::class).transform(this)
+
+fun DomainResult.toDatabaseResult() =
+    ObjectTransformer(DomainResult::class, DatabaseResult::class).transform(this)
 
 fun NetworkResult.toDatabaseResult() =
     ObjectTransformer(NetworkResult::class, DatabaseResult::class).transform(this)

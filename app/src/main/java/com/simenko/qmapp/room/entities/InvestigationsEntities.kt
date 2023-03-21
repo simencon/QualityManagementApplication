@@ -217,6 +217,7 @@ data class DatabaseSubOrder constructor(
     var lineId: Int,
     @ColumnInfo(index = true)
     var operationId: Int,
+    @ColumnInfo(index = true)
     var itemPreffix: String,
     var itemTypeId: Int,
     var itemVersionId: Int,
@@ -332,7 +333,7 @@ data class DatabaseResult constructor(
     var sampleId: Int,
     @ColumnInfo(index = true)
     var metrixId: Int,
-    var result: Double? = null,
+    var result: Float? = null,
     var isOk: Boolean? = null,
     @ColumnInfo(index = true)
     var resultDecryptionId: Int,
@@ -430,7 +431,13 @@ data class DatabaseCompleteSubOrder constructor(
         parentColumn = "operationId",
         entityColumn = "id"
     )
-    var operation: DatabaseManufacturingOperation
+    var operation: DatabaseManufacturingOperation,
+    @Relation(
+        entity = DatabaseItemVersionComplete::class,
+        parentColumn = "itemPreffix",
+        entityColumn = "fId"
+    )
+    val itemVersionComplete: DatabaseItemVersionComplete
 )
 
 data class DatabaseSubOrderWithChildren constructor(

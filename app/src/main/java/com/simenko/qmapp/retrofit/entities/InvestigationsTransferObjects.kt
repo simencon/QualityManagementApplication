@@ -182,7 +182,7 @@ data class NetworkResultsDecryption constructor(
 data class NetworkResult constructor(
     var sampleId: Int,
     var metrixId: Int,
-    var result: Double? = null,
+    var result: Float? = null,
     var isOk: Boolean? = null,
     var resultDecryptionId: Int,
     var taskId: Int
@@ -193,7 +193,7 @@ data class NetworkResult constructor(
         id: Int,
         sampleId: Int,
         metrixId: Int,
-        result: Double?,
+        result: Float?,
         isOk: Boolean?,
         resultDecryptionId: Int,
         taskId: Int

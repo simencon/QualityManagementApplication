@@ -189,6 +189,13 @@ interface QualityManagementInvestigationsService {
         @Path("taskId") taskId: Int = 0,
         @Path("id") id: Int = 0
     ): Response<Unit>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("api/_148Result/{id}")
+    suspend fun editResult(
+        @Path("id") id: Int,
+        @Body body: NetworkResult
+    ): Response<Unit>
 }
 
 object QualityManagementNetwork {

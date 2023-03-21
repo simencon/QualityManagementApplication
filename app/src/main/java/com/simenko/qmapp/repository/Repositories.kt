@@ -937,6 +937,13 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         send(record)
     }
 
+    fun updateRecord(coroutineScope: CoroutineScope, record: DomainResult) = coroutineScope.produce {
+        val nNetwork = record.toNetworkResultWithId()
+        QualityManagementNetwork.serviceHolderInvestigations.editResult(record.id, nNetwork)
+        database.qualityManagementInvestigationsDao.updateResult(record.toDatabaseResult())
+        send(record)
+    }
+
     fun getRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) = coroutineScope.produce {
         val nSubOrderTask = QualityManagementNetwork.serviceHolderInvestigations.getSubOrderTask(record.id)
         database.qualityManagementInvestigationsDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())

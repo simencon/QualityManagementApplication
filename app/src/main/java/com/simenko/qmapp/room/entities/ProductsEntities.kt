@@ -434,21 +434,22 @@ data class DatabaseComponentInStageTolerance(
 
 @DatabaseView(
     viewName = "items_tolerances",
-    value = "SELECT substr('p', pt.id) as id, 'p' as itemPrefix , pt.metrixId, pt.versionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt " +
+    value = "SELECT pt.id, ('p' || pt.id) as fId, pt.metrixId, pt.versionId, ('p' || pt.versionId) as fVersionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt " +
             "UNION ALL " +
-            "SELECT substr('c', ct.id) as id,'c' as itemPrefix ,ct.metrixId,ct.versionId,ct.nominal,ct.LSL,ct.USL,ct.isActual FROM `10_8_component_tolerances` AS ct " +
+            "SELECT ct.id, ('c' || ct.id) as fId, ct.metrixId, ct.versionId, ('c' || ct.versionId) as fVersionId, ct.nominal, ct.LSL, ct.USL, ct.isActual FROM `10_8_component_tolerances` AS ct " +
             "UNION ALL " +
-            "SELECT substr('s', st.id) as id, 's' as itemPrefix , st.metrixId, st.versionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
+            "SELECT st.id, ('s' || st.id) as fId, st.metrixId, st.versionId, ('s' || st.versionId) as fVersionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
 )
 data class DatabaseItemTolerance(
-    var id: String,
-    var itemPrefix: String,
-    var metrixId: Int?,
-    var versionId: Int?,
-    var nominal: Float?,
-    var lsl: Float?,
-    var usl: Float?,
-    var isActual: Boolean
+    val id: String,
+    val fId: String,
+    val metrixId: Int,
+    val versionId: Int,
+    val fVersionId: String,
+    val nominal: Float?,
+    val lsl: Float?,
+    val usl: Float?,
+    val isActual: Boolean
 )
 
 @Entity(
