@@ -209,8 +209,10 @@ data class DomainItem(
 
 data class DomainItemToLine(
     var id: Int,
+    var fId: String,
     var lineId: Int,
-    var itemId: Int
+    var itemId: Int,
+    val fItemId: String
 )
 
 data class DomainItemVersion(
@@ -245,7 +247,7 @@ data class DomainItemVersionComplete(
     override fun getRecordId() = itemVersion.fId
     override fun getParentOneId() = 0//is not the case with itemsVersions
     override fun hasParentOneId(pId: Int): Boolean {
-        var result: Boolean = false
+        var result = false
         itemComplete.itemToLines.forEach runByBlock@{ it ->
             if (it.lineId == pId) {
                 result = true

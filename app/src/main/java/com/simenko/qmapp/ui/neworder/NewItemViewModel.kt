@@ -272,7 +272,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.getCreatedRecord(this, order)
+                    val channel =
+                        qualityManagementInvestigationsRepository.getCreatedRecord(this, order)
                     channel.consumeEach {
                         launchMainActivity(activity, it.id)
                         activity.finish()
@@ -315,7 +316,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.updateRecord(this, order)
+                    val channel =
+                        qualityManagementInvestigationsRepository.updateRecord(this, order)
                     channel.consumeEach {
                         launchMainActivity(activity, it.id)
                         activity.finish()
@@ -488,24 +490,19 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                         it.getRecordId() == mIt.lineId
                                     }
                                     FilteringStep.ITEM_VERSIONS -> {
-                                        it.getRecordId() == StringUtils.concatTwoStrings4(
-                                            mIt.itemPrefix,
-                                            mIt.itemVersionId.toString()
-                                        )
+                                        it.getRecordId() ==
+                                                mIt.itemPrefix +
+                                                mIt.itemVersionId.toString()
                                     }
                                     FilteringStep.OPERATIONS -> {
-                                        it.getRecordId() == mIt.operationId &&
-                                                p2Id == StringUtils.concatTwoStrings4(
-                                            mIt.itemPrefix,
-                                            mIt.itemVersionId.toString()
-                                        )
+                                        it.getRecordId() == mIt.operationId && p2Id ==
+                                                mIt.itemPrefix +
+                                                mIt.itemVersionId.toString()
                                     }
                                     FilteringStep.CHARACTERISTICS -> {
-                                        it.getRecordId() == mIt.charId &&
-                                                p2Id == StringUtils.concatTwoStrings4(
-                                            mIt.itemPrefix,
-                                            mIt.itemVersionId.toString()
-                                        )
+                                        it.getRecordId() == mIt.charId && p2Id ==
+                                                mIt.itemPrefix +
+                                                mIt.itemVersionId.toString()
                                                 &&
                                                 (p3Id == mIt.operationId || isOperationInFlow(
                                                     mIt.operationId,

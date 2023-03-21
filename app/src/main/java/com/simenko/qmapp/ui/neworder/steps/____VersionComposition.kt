@@ -22,7 +22,6 @@ import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
-import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 import kotlinx.coroutines.launch
@@ -35,11 +34,8 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
         s = appModel.operations,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subOrder?.lineId?:0,
-        p2Id = StringUtils.concatTwoStrings4(
-            appModel.currentSubOrder.value?.subOrder?.itemPreffix,
-            appModel.currentSubOrder.value?.subOrder?.itemVersionId.toString()
-        ),
+        p1Id = appModel.currentSubOrder.value?.subOrder?.lineId ?: 0,
+        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix?:"",
         m = appModel.inputForOrder,
         step = FilteringStep.OPERATIONS
     )
@@ -54,9 +50,9 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
         appModel.currentSubOrder.value?.subOrder?.operationId = 0
         appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
-        appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
+        appModel.currentSubOrder.value?.samples?.forEach { it.toBeDeleted = true }
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
-        appModel.currentSubOrder.value?.subOrderTasks?.forEach {it.toBeDeleted = true}
+        appModel.currentSubOrder.value?.subOrderTasks?.forEach { it.toBeDeleted = true }
     }
 }
 
@@ -84,7 +80,8 @@ fun VersionsSelection(
                     modifier = modifier,
                     onClick = {
                         appModel.currentSubOrder.value?.subOrder?.itemPreffix = it.itemVersion.fId
-                        appModel.currentSubOrder.value?.subOrder?.itemTypeId = it.itemComplete.item.id
+                        appModel.currentSubOrder.value?.subOrder?.itemTypeId =
+                            it.itemComplete.item.id
                         appModel.currentSubOrder.value?.subOrder?.itemVersionId = it.itemVersion.id
                         filterAllAfterVersions(
                             appModel,
@@ -129,7 +126,7 @@ fun VersionCard(
                 .height(56.dp),
             onClick = { onClick(input) },
 
-        ) {
+            ) {
             Text(
                 text = concatTwoStrings1(
                     concatTwoStrings3(

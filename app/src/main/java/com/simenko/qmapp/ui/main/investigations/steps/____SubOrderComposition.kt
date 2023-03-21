@@ -687,8 +687,10 @@ fun getItemVersionComplete() = DomainItemVersionComplete(
         itemToLines = List(30) {i ->
             DomainItemToLine(
                 id = 0,
+                fId = "c0",
                 lineId = 0,
-                itemId = 0
+                itemId = 0,
+                fItemId = "c0"
             )
         }
     )

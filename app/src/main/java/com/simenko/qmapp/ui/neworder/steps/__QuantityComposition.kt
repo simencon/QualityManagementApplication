@@ -33,10 +33,7 @@ fun filterAllAfterQuantity(
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
         p1Id = samplesQuantity,
-        p2Id = StringUtils.concatTwoStrings4(
-            appModel.currentSubOrder.value?.subOrder?.itemPreffix,
-            appModel.currentSubOrder.value?.subOrder?.itemVersionId.toString()
-        ),
+        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix ?: "",
         p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: 0,
         pFlow = appModel.operationsFlows.value,
         m = appModel.inputForOrder,

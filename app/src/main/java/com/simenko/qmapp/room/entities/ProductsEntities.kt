@@ -562,7 +562,7 @@ data class DatabaseItemToLine(
     val fId: String,
     val lineId: Int,
     val itemId: Int,
-    val fItemId: String,
+    val fItemId: String
 )
 
 @DatabaseView(
