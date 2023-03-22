@@ -327,7 +327,7 @@ interface QualityManagementInvestigationsDao {
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
-    fun getSubOrdersDetailed(): LiveData<List<DatabaseCompleteSubOrder>>
+    fun getSubOrdersDetailed(): LiveData<List<DatabaseSubOrderComplete>>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
@@ -406,8 +406,9 @@ interface QualityManagementInvestigationsDao {
 
         DatabaseResultTolerance::class,
 
+        DatabaseSubOrderResult::class,
+        DatabaseTaskResult::class,
         DatabaseSampleResult::class,
-        DatabaseTaskResult::class
     ],
     version = 1,
     exportSchema = true

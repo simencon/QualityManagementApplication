@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.room.entities.DatabaseSubOrderResult
+
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -108,6 +110,13 @@ data class DomainSubOrder constructor(
     var samplesCount: Int? = null
 )
 
+data class DomainSubOrderResult constructor(
+    var id: Int,
+    var isOk: Boolean?,
+    var good: Int?,
+    var total: Int?
+)
+
 data class DomainSubOrderWithChildren constructor(
     var subOrder: DomainSubOrder,
     var samples: MutableList<DomainSample> = mutableListOf(),
@@ -192,6 +201,7 @@ data class DomainSubOrderComplete constructor(
     var line: DomainManufacturingLine,
     var operation: DomainManufacturingOperation,
     var itemVersionComplete: DomainItemVersionComplete,
+    var subOrderResult: DomainSubOrderResult,
     var detailsVisibility: Boolean = false,
     var tasksVisibility: Boolean = false,
     var isExpanded: Boolean = false

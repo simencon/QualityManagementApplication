@@ -223,7 +223,7 @@ class QualityManagementViewModel @Inject constructor(
         changeResultsDetailsVisibility(currentResult.value ?: 0)
         var select = false
 
-        completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value}
+        completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
             ?.let { it ->
                 if (!it.detailsVisibility)
                     select = true
@@ -234,7 +234,7 @@ class QualityManagementViewModel @Inject constructor(
         completeSamples.value?.forEach { it.detailsVisibility = false }
 
         if (select)
-            completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value}
+            completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
                 ?.let { sample ->
                     currentSample.value = itemId
                     sample.detailsVisibility = !sample.detailsVisibility
@@ -338,7 +338,7 @@ class QualityManagementViewModel @Inject constructor(
                                 val subOrder =
                                     completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
                                 val metrixesToRecord: List<DomainMetrix?>? =
-                                    when (subOrder.itemPreffix) {
+                                    when (subOrder.itemPreffix.substring(0, 1)) {
                                         "p" -> {
                                             productTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
                                                 ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
@@ -358,7 +358,7 @@ class QualityManagementViewModel @Inject constructor(
                                     }
 
                                 completeSamples.value?.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
-                                    ?.forEach { sfIt ->
+                                    ?.distinctBy {sfIt -> sfIt.sample.id }?.forEach { sdIt ->
                                         metrixesToRecord?.forEach { mIt ->
                                             if (mIt != null) {
                                                 val channel3 =
@@ -366,7 +366,7 @@ class QualityManagementViewModel @Inject constructor(
                                                         this,
                                                         DomainResult(
                                                             id = 0,
-                                                            sampleId = sfIt.sample.id,
+                                                            sampleId = sdIt.sample.id,
                                                             metrixId = mIt.id,
                                                             result = null,
                                                             isOk = true,
@@ -387,9 +387,7 @@ class QualityManagementViewModel @Inject constructor(
                                 /**
                                  * Delete all results and change status
                                  * */
-                                qualityManagementInvestigationsRepository.deleteResults(charId = subOrderTask.id)
-                                qualityManagementInvestigationsRepository.refreshSamples()
-
+                                deleteResultsBasedOnTask(subOrderTask)
                                 Log.d(TAG, "editSubOrderTask: Delete all results")
                             }
                         }
@@ -415,7 +413,7 @@ class QualityManagementViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
-                withContext(Dispatchers.IO){
+                withContext(Dispatchers.IO) {
                     val channel = qualityManagementInvestigationsRepository.updateRecord(
                         this,
                         result
@@ -444,7 +442,7 @@ class QualityManagementViewModel @Inject constructor(
     /**
      *
      */
-    fun refreshOrdersFromRepository() {
+    fun syncOrders() {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
@@ -453,7 +451,7 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementInvestigationsRepository.refreshSubOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrderTasks()
                 qualityManagementInvestigationsRepository.refreshSamples()
-                qualityManagementInvestigationsRepository.refreshSamples()
+                qualityManagementInvestigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -464,7 +462,7 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    private fun refreshSubOrdersFromRepository() {
+    fun syncSubOrders() {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
@@ -472,7 +470,57 @@ class QualityManagementViewModel @Inject constructor(
                 qualityManagementInvestigationsRepository.refreshSubOrders()
                 qualityManagementInvestigationsRepository.refreshSubOrderTasks()
                 qualityManagementInvestigationsRepository.refreshSamples()
+                qualityManagementInvestigationsRepository.refreshResults()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncTasks() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
+                qualityManagementInvestigationsRepository.refreshResults()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncSamples() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
                 qualityManagementInvestigationsRepository.refreshSamples()
+                qualityManagementInvestigationsRepository.refreshResults()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncResults() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -489,7 +537,7 @@ class QualityManagementViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 qualityManagementInvestigationsRepository.deleteOrder(order.order)
-                refreshOrdersFromRepository()
+                syncOrders()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -506,7 +554,24 @@ class QualityManagementViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 qualityManagementInvestigationsRepository.deleteSubOrder(subOrder.subOrder)
-                refreshSubOrdersFromRepository()
+                syncSubOrders()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                qualityManagementInvestigationsRepository.deleteResults(charId = task.id)
+                syncResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

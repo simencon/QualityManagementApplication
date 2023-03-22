@@ -115,7 +115,7 @@ fun InvestigationsMainComposition(
 
                 val pullRefreshState = rememberPullRefreshState(
                     refreshing = observerLoadingProcess!!,
-                    onRefresh = { appModel.refreshOrdersFromRepository() }
+                    onRefresh = { appModel.syncOrders() }
                 )
 
                 Box(

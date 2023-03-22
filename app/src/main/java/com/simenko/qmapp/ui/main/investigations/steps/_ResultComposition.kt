@@ -189,20 +189,52 @@ fun Result(
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         when {
-                            (text.toDouble() > (result.resultTolerance.usl ?: 0.0f)) -> {
-                                result.result.result = text.toFloat()
-                                result.result.isOk = false
-                                result.result.resultDecryptionId = 2
+                            (result.resultTolerance.usl != null && result.resultTolerance.lsl != null) -> {
+                                when {
+                                    (text.toDouble() > result.resultTolerance.usl!!) -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = false
+                                        result.result.resultDecryptionId = 2
+                                    }
+                                    (text.toDouble() < result.resultTolerance.lsl!!) -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = false
+                                        result.result.resultDecryptionId = 3
+                                    }
+                                    else -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = true
+                                        result.result.resultDecryptionId = 1
+                                    }
+                                }
                             }
-                            (text.toDouble() < (result.resultTolerance.lsl ?: 0.0f)) -> {
-                                result.result.result = text.toFloat()
-                                result.result.isOk = false
-                                result.result.resultDecryptionId = 3
+                            (result.resultTolerance.usl == null && result.resultTolerance.lsl != null) -> {
+                                when {
+                                    (text.toDouble() < result.resultTolerance.lsl!!) -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = false
+                                        result.result.resultDecryptionId = 3
+                                    }
+                                    else -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = true
+                                        result.result.resultDecryptionId = 1
+                                    }
+                                }
                             }
-                            else -> {
-                                result.result.result = text.toFloat()
-                                result.result.isOk = true
-                                result.result.resultDecryptionId = 1
+                            (result.resultTolerance.usl != null && result.resultTolerance.lsl == null) -> {
+                                when {
+                                    (text.toDouble() > result.resultTolerance.usl!!) -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = false
+                                        result.result.resultDecryptionId = 2
+                                    }
+                                    else -> {
+                                        result.result.result = text.toFloat()
+                                        result.result.isOk = true
+                                        result.result.resultDecryptionId = 1
+                                    }
+                                }
                             }
                         }
                         onChangeValue(result)
@@ -281,7 +313,7 @@ fun Result(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = (result.resultTolerance.nominal ?: 0.0).toString(),
+                        text = (result.resultTolerance.nominal ?: "-").toString(),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -310,8 +342,8 @@ fun Result(
                 ) {
                     Text(
                         text = StringUtils.concatTwoStrings(
-                            (result.resultTolerance.lsl ?: 0.0).toString(),
-                            (result.resultTolerance.usl ?: 0.0).toString()
+                            (result.resultTolerance.lsl ?: "-").toString(),
+                            (result.resultTolerance.usl ?: "-").toString()
                         ),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp),
                         maxLines = 1,

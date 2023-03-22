@@ -224,6 +224,20 @@ data class DatabaseSubOrder constructor(
     var samplesCount: Int? = null
 )
 
+@DatabaseView(
+    viewName = "sub_orders_results",
+    value = "SELECT so.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_sub_orders` AS so " +
+            "LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId " +
+            "LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId " +
+            "GROUP BY so.id;"
+)
+data class DatabaseSubOrderResult constructor(
+    val id: Int,
+    val isOk: Boolean?,
+    val good: Int?,
+    val total: Int?
+)
+
 @Entity(
     tableName = "13_7_sub_order_tasks",
     indices = [
@@ -270,9 +284,9 @@ data class DatabaseSubOrderTask constructor(
 
 @DatabaseView(
     viewName = "tasks_results",
-    value = "SELECT t.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t " +
+    value = "SELECT t.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t " +
             "LEFT OUTER JOIN `14_8_results` AS r ON t.ID = r.taskId " +
-            "GROUP BY t.id, r.taskId;"
+            "GROUP BY t.id;"
 )
 data class DatabaseTaskResult constructor(
     val id: Int,
@@ -419,63 +433,70 @@ data class DatabaseOrderComplete constructor(
     var orderStatus: DatabaseOrdersStatus
 )
 
-data class DatabaseCompleteSubOrder constructor(
+data class DatabaseSubOrderComplete constructor(
     @Embedded
-    var subOrder: DatabaseSubOrder,
+    val subOrder: DatabaseSubOrder,
     @Relation(
         entity = DatabaseTeamMember::class,
         parentColumn = "orderedById",
         entityColumn = "id"
     )
-    var orderedBy: DatabaseTeamMember,
+    val orderedBy: DatabaseTeamMember,
     @Relation(
         entity = DatabaseTeamMember::class,
         parentColumn = "completedById",
         entityColumn = "id"
     )
-    var completedBy: DatabaseTeamMember?,
+    val completedBy: DatabaseTeamMember?,
     @Relation(
         entity = DatabaseOrdersStatus::class,
         parentColumn = "statusId",
         entityColumn = "id"
     )
-    var status: DatabaseOrdersStatus,
+    val status: DatabaseOrdersStatus,
     @Relation(
         entity = DatabaseDepartment::class,
         parentColumn = "departmentId",
         entityColumn = "id"
     )
-    var department: DatabaseDepartment,
+    val department: DatabaseDepartment,
     @Relation(
         entity = DatabaseSubDepartment::class,
         parentColumn = "subDepartmentId",
         entityColumn = "id"
     )
-    var subDepartment: DatabaseSubDepartment,
+    val subDepartment: DatabaseSubDepartment,
     @Relation(
         entity = DatabaseManufacturingChannel::class,
         parentColumn = "channelId",
         entityColumn = "id"
     )
-    var channel: DatabaseManufacturingChannel,
+    val channel: DatabaseManufacturingChannel,
     @Relation(
         entity = DatabaseManufacturingLine::class,
         parentColumn = "lineId",
         entityColumn = "id"
     )
-    var line: DatabaseManufacturingLine,
+    val line: DatabaseManufacturingLine,
     @Relation(
         entity = DatabaseManufacturingOperation::class,
         parentColumn = "operationId",
         entityColumn = "id"
     )
-    var operation: DatabaseManufacturingOperation,
+    val operation: DatabaseManufacturingOperation,
     @Relation(
         entity = DatabaseItemVersionComplete::class,
         parentColumn = "itemPreffix",
         entityColumn = "fId"
     )
-    val itemVersionComplete: DatabaseItemVersionComplete
+    val itemVersionComplete: DatabaseItemVersionComplete,
+
+    @Relation(
+        entity = DatabaseSubOrderResult::class,
+        parentColumn = "id",
+        entityColumn = "id"
+    )
+    val subOrderResult: DatabaseSubOrderResult
 )
 
 data class DatabaseSubOrderWithChildren constructor(
@@ -520,13 +541,12 @@ data class DatabaseSubOrderTaskComplete constructor(
         entityColumn = "id"
     )
     var status: DatabaseOrdersStatus,
-
     @Relation(
         entity = DatabaseTaskResult::class,
         parentColumn = "id",
         entityColumn = "id"
     )
-    val taskResult: DatabaseTaskResult
+    val taskResult: DatabaseTaskResult,
 )
 
 @DatabaseView(

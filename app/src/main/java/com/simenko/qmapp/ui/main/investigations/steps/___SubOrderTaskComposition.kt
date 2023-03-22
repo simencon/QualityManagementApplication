@@ -327,7 +327,6 @@ fun SubOrderTask(
                             contentColor = Primary900
                         )
                     )
-
                 }
 
                 Row(

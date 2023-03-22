@@ -8,9 +8,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -231,6 +230,7 @@ fun SubOrder(
             modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Column(
                 modifier = Modifier
                     .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
@@ -253,8 +253,8 @@ fun SubOrder(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(weight = 0.12f)
+                            .padding(top = 6.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
                         text = subOrder.subOrder.subOrderNumber.toString(),
@@ -274,7 +274,7 @@ fun SubOrder(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .weight(weight = 0.18f)
-                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            .padding(top = 6.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
                         text = subOrder.subOrder.samplesCount.toString(),
@@ -282,12 +282,12 @@ fun SubOrder(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.12f)
+                            .weight(weight = 0.09f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     TextButton(
                         modifier = Modifier
-                            .weight(weight = 0.4f)
+                            .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = { showStatusDialog(subOrder.subOrder.id, DialogFor.SUB_ORDER) },
                         content = {
@@ -299,6 +299,57 @@ fun SubOrder(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
+                            if(subOrder.subOrder.statusId == 3) {
+                                Text(
+                                    text = "(",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                )
+                                Icon(
+                                    imageVector = if (subOrder.subOrderResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
+                                    contentDescription = if (subOrder.subOrderResult.isOk != false) {
+                                        stringResource(R.string.show_less)
+                                    } else {
+                                        stringResource(R.string.show_more)
+                                    },
+                                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                    tint = if (subOrder.subOrderResult.isOk != false) {
+                                        Color.Green
+                                    } else {
+                                        Color.Red
+                                    },
+                                )
+                                val conformity = (subOrder.subOrderResult.total?.toFloat()?.let {
+                                    subOrder.subOrderResult.good?.toFloat()
+                                        ?.div(it)
+                                }?.times(100))?:0.0f
+
+                                Text(
+                                    text = when {
+                                        !conformity.isNaN() -> {conformity.roundToInt().toString() + "%"}
+                                        else -> {""}
+                                    },
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                )
+                                Text(
+                                    text = ")",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    textAlign = TextAlign.Start,
+                                    modifier = Modifier
+                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                )
+                            }
                         },
                         enabled = true,
                         shape = MaterialTheme.shapes.medium,
@@ -632,7 +683,8 @@ fun getSubOrders() = List(30) { i ->
         ),
         detailsVisibility = true,
         tasksVisibility = true,
-        itemVersionComplete = getItemVersionComplete()
+        itemVersionComplete = getItemVersionComplete(),
+        subOrderResult = getSubOrderResult()
     )
 }
 
@@ -694,5 +746,11 @@ fun getItemVersionComplete() = DomainItemVersionComplete(
             )
         }
     )
+)
 
+fun getSubOrderResult() = DomainSubOrderResult(
+    id = 0,
+    isOk = true,
+    good = 10,
+    total = 10
 )

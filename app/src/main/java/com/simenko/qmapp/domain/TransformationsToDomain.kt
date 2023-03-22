@@ -19,6 +19,9 @@ fun DatabaseMeasurementReason.toDomainReason() =
 fun DatabaseSubOrder.toDomainSubOrder() =
     ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
 
+fun DatabaseSubOrderResult.toDomainSubOrderResult() =
+    ObjectTransformer(DatabaseSubOrderResult::class, DomainSubOrderResult::class).transform(this)
+
 fun DatabaseSubOrder.toDomainSubOrderTask() =
     ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
 
@@ -100,7 +103,7 @@ fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<Doma
     }.sortedByDescending { it.order.orderNumber }
 }
 
-fun List<DatabaseCompleteSubOrder>.asDomainSubOrderDetailed(parentId: Int): List<DomainSubOrderComplete> {
+fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(parentId: Int): List<DomainSubOrderComplete> {
     return filter { it.subOrder.orderId == parentId || parentId == -1 }.map {
         DomainSubOrderComplete(
             subOrder = it.subOrder.toDomainSubOrder(),
@@ -116,7 +119,8 @@ fun List<DatabaseCompleteSubOrder>.asDomainSubOrderDetailed(parentId: Int): List
                 itemVersion = it.itemVersionComplete.itemVersion.toDomainItemVersion(),
                 versionStatus = it.itemVersionComplete.versionStatus.toVersionStatus(),
                 itemComplete = it.itemVersionComplete.itemComplete.toDomainItemComplete()
-            )
+            ),
+            subOrderResult = it.subOrderResult.toDomainSubOrderResult()
         )
     }
 }
