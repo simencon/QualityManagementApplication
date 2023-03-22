@@ -152,11 +152,14 @@ fun Sample(
                     Color.Red
                 },
             )
+
+            val conformity = (sample.sampleResult.total?.toFloat()?.let {
+                sample.sampleResult.good?.toFloat()
+                    ?.div(it)
+            }?.times(100))?:0.0f
+
             Text(
-                text = (sample.sampleResult.total?.toFloat()?.let {
-                    sample.sampleResult.good?.toFloat()
-                        ?.div(it)
-                }?.times(100)?.roundToInt()).toString() + "%",
+                text = conformity.roundToInt().toString() + "%",
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

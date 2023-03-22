@@ -274,7 +274,6 @@ fun SubOrderTask(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-//                                        .weight(weight = 0.5f)
                                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                                 )
                                 Icon(
@@ -291,17 +290,21 @@ fun SubOrderTask(
                                         Color.Red
                                     },
                                 )
+                                val conformity = (subOrderTask.taskResult.total?.toFloat()?.let {
+                                    subOrderTask.taskResult.good?.toFloat()
+                                        ?.div(it)
+                                }?.times(100))?:0.0f
+
                                 Text(
-                                    text = (subOrderTask.taskResult.total?.toFloat()?.let {
-                                        subOrderTask.taskResult.good?.toFloat()
-                                            ?.div(it)
-                                    }?.times(100)?.roundToInt()).toString() + "%",
+                                    text = when {
+                                        !conformity.isNaN() -> {conformity.roundToInt().toString() + "%"}
+                                        else -> {""}
+                                    },
                                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-//                                        .weight(weight = 0.5f)
                                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                                 )
                                 Text(
@@ -311,7 +314,6 @@ fun SubOrderTask(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-//                                        .weight(weight = 0.5f)
                                         .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                                 )
                             }
