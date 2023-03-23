@@ -60,7 +60,7 @@ fun SubOrdersFlowColumn(
                     it.subOrder.id == createdRecord.subOrderId
                 }
                 if (subOrder != null)
-                    appModel.changeCompleteSubOrdersDetailsVisibility(subOrder.subOrder.id)
+                    appModel.changeSubOrderDetailsVisibility(subOrder.subOrder.id)
 
             } else if (createdRecord != null && createdRecord.subOrderId != 0) {
             delay(50)
@@ -100,7 +100,7 @@ fun SubOrdersFlowColumn(
                                     viewModel = appModel,
                                     subOrder = subOrder,
                                     onClickDetails = { it ->
-                                        appModel.changeCompleteSubOrdersDetailsVisibility(it.subOrder.id)
+                                        appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
                                     },
                                     cardOffset = CARD_OFFSET.dp(),
                                     onChangeExpandState = {

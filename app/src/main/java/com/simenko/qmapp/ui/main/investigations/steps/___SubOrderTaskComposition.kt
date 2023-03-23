@@ -67,7 +67,7 @@ fun SubOrderTasksFlowColumn(
                                 modifier = modifier,
                                 subOrderTask = subOrder,
                                 onClickDetails = { it ->
-                                    appModel.changeCompleteSubOrderTasksDetailsVisibility(it.subOrderTask.id)
+                                    appModel.changeTaskDetailsVisibility(it.subOrderTask.id)
                                 },
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {
@@ -123,7 +123,7 @@ fun SubOrderTaskCard(
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
             if (subOrderTask.isExpanded) Accent200 else
-                if (subOrderTask.measurementsVisibility) {
+                if (subOrderTask.detailsVisibility) {
                     _level_3_record_color_details
                 } else {
                     _level_3_record_color
@@ -365,8 +365,8 @@ fun SubOrderTask(
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (subOrderTask.measurementsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext/*NavigateBefore*/,
-                    contentDescription = if (subOrderTask.measurementsVisibility) {
+                    imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext/*NavigateBefore*/,
+                    contentDescription = if (subOrderTask.detailsVisibility) {
                         stringResource(R.string.show_less)
                     } else {
                         stringResource(R.string.show_more)

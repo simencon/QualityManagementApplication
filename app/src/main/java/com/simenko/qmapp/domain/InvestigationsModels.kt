@@ -1,8 +1,5 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.room.entities.DatabaseOrderResult
-import com.simenko.qmapp.room.entities.DatabaseSubOrderResult
-
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -222,7 +219,6 @@ data class DomainSubOrderTaskComplete constructor(
     var status: DomainOrdersStatus,
     var subOrder: DomainSubOrder,
     var taskResult: DomainTaskResult,
-    var measurementsVisibility: Boolean = false,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
 )

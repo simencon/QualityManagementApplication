@@ -81,7 +81,7 @@ fun Orders(
                 }
 
                 if (order != null)
-                    appModel.changeCompleteOrdersDetailsVisibility(order.order.id)
+                    appModel.changeOrderDetailsVisibility(order.order.id)
 
             } else if (createdRecord != null && createdRecord.orderId != 0) {
             delay(50)
@@ -128,7 +128,7 @@ fun Orders(
                             viewModel = appModel,
                             order = order,
                             onClickDetails = { it ->
-                                appModel.changeCompleteOrdersDetailsVisibility(it.order.id)
+                                appModel.changeOrderDetailsVisibility(it.order.id)
                             },
                             modifier = modifier,
                             cardOffset = CARD_OFFSET.dp(),

@@ -31,18 +31,18 @@ class QualityManagementViewModel @Inject constructor(
 
     private val roomDatabase = getDatabase(context)
 
-    private val qualityManagementManufacturingRepository =
+    private val manufacturingRepository =
         QualityManagementManufacturingRepository(roomDatabase)
-    private val qualityManagementProductsRepository =
+    private val productsRepository =
         QualityManagementProductsRepository(roomDatabase)
-    private val qualityManagementInvestigationsRepository =
+    private val investigationsRepository =
         QualityManagementInvestigationsRepository(roomDatabase)
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
 
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    private val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    private val teamMembers = manufacturingRepository.teamMembers
     val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
             addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
@@ -56,30 +56,30 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    val departments = qualityManagementManufacturingRepository.departments
-    val departmentsDetailed = qualityManagementManufacturingRepository.departmentsDetailed
-    val subDepartments = qualityManagementManufacturingRepository.subDepartments
-    val channels = qualityManagementManufacturingRepository.channels
-    val lines = qualityManagementManufacturingRepository.lines
-    val operations = qualityManagementManufacturingRepository.operations
+    val departments = manufacturingRepository.departments
+    val departmentsDetailed = manufacturingRepository.departmentsDetailed
+    val subDepartments = manufacturingRepository.subDepartments
+    val channels = manufacturingRepository.channels
+    val lines = manufacturingRepository.lines
+    val operations = manufacturingRepository.operations
 
-    val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
-    val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
+    val inputForOrder = investigationsRepository.inputForOrder
+    val investigationReasons = investigationsRepository.investigationReasons
 
     val currentOrder = MutableLiveData(0)
 
-    private val completeOrders = qualityManagementInvestigationsRepository.completeOrders
+    private val completeOrders = investigationsRepository.completeOrders
     val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
             addSource(completeOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
         }
 
-    val itemVersionsComplete = qualityManagementProductsRepository.itemVersionsComplete
+    val itemVersionsComplete = productsRepository.itemVersionsComplete
 
     val currentSubOrder = MutableLiveData(0)
 
-    private val completeSubOrders = qualityManagementInvestigationsRepository.completeSubOrders
+    private val completeSubOrders = investigationsRepository.completeSubOrders
     val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>>().apply {
             addSource(completeSubOrders) { value = Pair(it, pairedTrigger.value) }
@@ -87,7 +87,7 @@ class QualityManagementViewModel @Inject constructor(
         }
 
     private val completeSubOrderTasks =
-        qualityManagementInvestigationsRepository.completeSubOrderTasks
+        investigationsRepository.completeSubOrderTasks
     val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
             addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
@@ -96,7 +96,7 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentSubOrderTask = MutableLiveData(0)
 
-    private val completeSamples = qualityManagementInvestigationsRepository.completeSamples
+    private val completeSamples = investigationsRepository.completeSamples
     val samplesMediator: MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>>().apply {
             addSource(completeSamples) { value = Pair(it, pairedTrigger.value) }
@@ -105,7 +105,7 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentSample = MutableLiveData(0)
 
-    private val completeResults = qualityManagementInvestigationsRepository.completeResults
+    private val completeResults = investigationsRepository.completeResults
     val completeResultsMediator: MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>>().apply {
             addSource(completeResults) { value = Pair(it, pairedTrigger.value) }
@@ -114,20 +114,17 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentResult = MutableLiveData(0)
 
-    fun changeCompleteOrdersDetailsVisibility(itemId: Int) {
-        changeCompleteSubOrdersDetailsVisibility(currentSubOrder.value ?: 0)
-        changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
-        changeSamplesDetailsVisibility(currentSample.value ?: 0)
-        changeResultsDetailsVisibility(0)
-
+    fun changeOrderDetailsVisibility(itemId: Int) {
         var select = false
 
         completeOrders.value?.find { it.order.id == itemId }
             ?.let { it ->
                 if (!it.detailsVisibility)
                     select = true
-                else
+                else {
                     currentOrder.value = 0
+                    investigationsRepository.setCurrentOrder(0)
+                }
             }
 
         completeOrders.value?.forEach { it.detailsVisibility = false }
@@ -136,26 +133,30 @@ class QualityManagementViewModel @Inject constructor(
             completeOrders.value?.find { it.order.id == itemId }
                 ?.let { order ->
                     currentOrder.value = itemId
+                    investigationsRepository.setCurrentOrder(itemId)
                     order.detailsVisibility = !order.detailsVisibility
                     pairedTrigger.value = !(pairedTrigger.value as Boolean)
                 }
         else
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
+
+        changeSubOrderDetailsVisibility(currentSubOrder.value ?: 0)
+        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
+        changeSampleDetailsVisibility(currentSample.value ?: 0)
+        changeResultDetailsVisibility(currentResult.value ?: 0)
     }
 
-    fun changeCompleteSubOrdersDetailsVisibility(itemId: Int) {
-
-        changeCompleteSubOrderTasksDetailsVisibility(currentSubOrderTask.value ?: 0)
-        changeSamplesDetailsVisibility(currentSample.value ?: 0)
-
+    fun changeSubOrderDetailsVisibility(itemId: Int) {
         var select = false
 
         completeSubOrders.value?.find { it.subOrder.id == itemId }
             ?.let { it ->
                 if (!it.detailsVisibility)
                     select = true
-                else
+                else {
                     currentSubOrder.value = 0
+                    investigationsRepository.setCurrentSubOrder(0)
+                }
             }
 
         completeSubOrders.value?.forEach { it.detailsVisibility = false }
@@ -164,33 +165,102 @@ class QualityManagementViewModel @Inject constructor(
             completeSubOrders.value?.find { it.subOrder.id == itemId }
                 ?.let { subOrder ->
                     currentSubOrder.value = itemId
+                    investigationsRepository.setCurrentSubOrder(itemId)
+
                     subOrder.detailsVisibility = !subOrder.detailsVisibility
                     pairedTrigger.value = !(pairedTrigger.value as Boolean)
                 }
         else
             pairedTrigger.value = !(pairedTrigger.value as Boolean)
 
+        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
+        changeSampleDetailsVisibility(currentSample.value ?: 0)
+        changeResultDetailsVisibility(currentResult.value ?: 0)
     }
 
-    fun changeCompleteSubOrderTasksDetailsVisibility(itemId: Int) {
-        changeSamplesDetailsVisibility(currentSample.value ?: 0)
+    fun changeTaskDetailsVisibility(itemId: Int) {
         var select = false
 
         completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
             ?.let { it ->
-                if (!it.measurementsVisibility)
+                if (!it.detailsVisibility)
                     select = true
-                else
+                else {
                     currentSubOrderTask.value = 0
+                    investigationsRepository.setCurrentTask(0)
+                }
             }
 
-        completeSubOrderTasks.value?.forEach { it.measurementsVisibility = false }
+        completeSubOrderTasks.value?.forEach { it.detailsVisibility = false }
 
         if (select)
             completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
                 ?.let { subOrderTask ->
-                    subOrderTask.measurementsVisibility = !subOrderTask.measurementsVisibility
                     currentSubOrderTask.value = itemId
+                    investigationsRepository.setCurrentTask(itemId)
+
+                    subOrderTask.detailsVisibility = !subOrderTask.detailsVisibility
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+
+        changeSampleDetailsVisibility(currentSample.value ?: 0)
+        changeResultDetailsVisibility(currentResult.value ?: 0)
+    }
+
+    fun changeSampleDetailsVisibility(itemId: Int) {
+        var select = false
+
+        completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
+            ?.let { it ->
+                if (!it.detailsVisibility)
+                    select = true
+                else {
+                    currentSample.value = 0
+                    investigationsRepository.setCurrentSample(0)
+                }
+            }
+
+        completeSamples.value?.forEach { it.detailsVisibility = false }
+
+        if (select)
+            completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
+                ?.let { sample ->
+                    currentSample.value = itemId
+                    investigationsRepository.setCurrentSample(itemId)
+
+                    sample.detailsVisibility = !sample.detailsVisibility
+                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                }
+        else
+            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+
+        changeResultDetailsVisibility(currentResult.value ?: 0)
+    }
+
+    fun changeResultDetailsVisibility(itemId: Int) {
+        var select = false
+
+        completeResults.value?.find { it.result.id == itemId }
+            ?.let { it ->
+                if (!it.detailsVisibility)
+                    select = true
+                else {
+                    currentResult.value = 0
+                    investigationsRepository.setCurrentResult(0)
+                }
+            }
+
+        completeResults.value?.forEach { it.detailsVisibility = false }
+
+        if (select)
+            completeResults.value?.find { it.result.id == itemId }
+                ?.let { result ->
+                    currentResult.value = itemId
+                    investigationsRepository.setCurrentResult(itemId)
+
+                    result.detailsVisibility = !result.detailsVisibility
                     pairedTrigger.value = !(pairedTrigger.value as Boolean)
                 }
         else
@@ -219,55 +289,6 @@ class QualityManagementViewModel @Inject constructor(
             }
     }
 
-    fun changeSamplesDetailsVisibility(itemId: Int) {
-        changeResultsDetailsVisibility(currentResult.value ?: 0)
-        var select = false
-
-        completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else
-                    currentSample.value = 0
-            }
-
-        completeSamples.value?.forEach { it.detailsVisibility = false }
-
-        if (select)
-            completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
-                ?.let { sample ->
-                    currentSample.value = itemId
-                    sample.detailsVisibility = !sample.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
-                }
-        else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-    }
-
-    fun changeResultsDetailsVisibility(itemId: Int) {
-        var select = false
-
-        completeResults.value?.find { it.result.id == itemId }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else
-                    currentResult.value = 0
-            }
-
-        completeResults.value?.forEach { it.detailsVisibility = false }
-
-        if (select)
-            completeResults.value?.find { it.result.id == itemId }
-                ?.let { result ->
-                    currentResult.value = itemId
-                    result.detailsVisibility = !result.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
-                }
-        else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
-    }
-
     /**
      *
      */
@@ -275,27 +296,27 @@ class QualityManagementViewModel @Inject constructor(
 
     val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER))
 
-    val investigationStatuses = qualityManagementInvestigationsRepository.investigationStatuses
+    val investigationStatuses = investigationsRepository.investigationStatuses
     val investigationStatusesMediator: MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>>().apply {
             addSource(investigationStatuses) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(investigationStatuses.value, it) }
         }
 
-    val productTolerances = qualityManagementProductsRepository.productTolerances
-    val componentTolerances = qualityManagementProductsRepository.componentTolerances
-    val componentInStageTolerances = qualityManagementProductsRepository.componentInStageTolerances
+    val productTolerances = productsRepository.productTolerances
+    val componentTolerances = productsRepository.componentTolerances
+    val componentInStageTolerances = productsRepository.componentInStageTolerances
 
-    val itemsTolerances = qualityManagementProductsRepository.itemsTolerances
+    val itemsTolerances = productsRepository.itemsTolerances
 
-    val metrixes = qualityManagementProductsRepository.metrixes
+    val metrixes = productsRepository.metrixes
 
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                    val channel = investigationsRepository.updateRecord(
                         this,
                         subOrder
                     )
@@ -324,7 +345,7 @@ class QualityManagementViewModel @Inject constructor(
                      * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
                      * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
                      * */
-                    val channel1 = qualityManagementInvestigationsRepository.getRecord(
+                    val channel1 = investigationsRepository.getRecord(
                         this,
                         subOrderTask
                     )
@@ -358,11 +379,11 @@ class QualityManagementViewModel @Inject constructor(
                                     }
 
                                 completeSamples.value?.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
-                                    ?.distinctBy {sfIt -> sfIt.sample.id }?.forEach { sdIt ->
+                                    ?.distinctBy { sfIt -> sfIt.sample.id }?.forEach { sdIt ->
                                         metrixesToRecord?.forEach { mIt ->
                                             if (mIt != null) {
                                                 val channel3 =
-                                                    qualityManagementInvestigationsRepository.getCreatedRecord(
+                                                    investigationsRepository.getCreatedRecord(
                                                         this,
                                                         DomainResult(
                                                             id = 0,
@@ -393,7 +414,7 @@ class QualityManagementViewModel @Inject constructor(
                         }
                     }
 
-                    val channel2 = qualityManagementInvestigationsRepository.updateRecord(
+                    val channel2 = investigationsRepository.updateRecord(
                         this,
                         subOrderTask
                     )
@@ -414,21 +435,34 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                    val channel = investigationsRepository.updateRecord(
                         this,
                         result
                     )
                     channel.consumeEach {
-
                     }
                 }
                 isStatusDialogVisible.value = false
                 isLoadingInProgress.value = false
+                printCurrentValues()
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
             }
         }
+    }
+
+    /**
+     *
+     * */
+    fun printCurrentValues() {
+        Log.d(
+            TAG, "printCurrentValues: \n" +
+                    "currentOrderId = ${currentOrder.value}\n" +
+                    "currentSubOrderId = ${currentSubOrder.value}\n" +
+                    "currentTaskId = ${currentSubOrderTask.value}\n" +
+                    "currentResultId = ${currentResult.value}\n"
+        )
     }
 
     /**
@@ -447,11 +481,11 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.refreshOrders()
-                qualityManagementInvestigationsRepository.refreshSubOrders()
-                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
-                qualityManagementInvestigationsRepository.refreshSamples()
-                qualityManagementInvestigationsRepository.refreshResults()
+                investigationsRepository.refreshOrders()
+                investigationsRepository.refreshSubOrders()
+                investigationsRepository.refreshSubOrderTasks()
+                investigationsRepository.refreshSamples()
+                investigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -467,10 +501,10 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.refreshSubOrders()
-                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
-                qualityManagementInvestigationsRepository.refreshSamples()
-                qualityManagementInvestigationsRepository.refreshResults()
+                investigationsRepository.refreshSubOrders()
+                investigationsRepository.refreshSubOrderTasks()
+                investigationsRepository.refreshSamples()
+                investigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -486,8 +520,8 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
-                qualityManagementInvestigationsRepository.refreshResults()
+                investigationsRepository.refreshSubOrderTasks()
+                investigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -503,8 +537,8 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.refreshSamples()
-                qualityManagementInvestigationsRepository.refreshResults()
+                investigationsRepository.refreshSamples()
+                investigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -520,7 +554,7 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.refreshResults()
+                investigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -536,7 +570,7 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.deleteOrder(order.order)
+                investigationsRepository.deleteOrder(order.order)
                 syncOrders()
 
                 isLoadingInProgress.value = false
@@ -553,7 +587,7 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.deleteSubOrder(subOrder.subOrder)
+                investigationsRepository.deleteSubOrder(subOrder.subOrder)
                 syncSubOrders()
 
                 isLoadingInProgress.value = false
@@ -570,7 +604,7 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.deleteResults(charId = task.id)
+                investigationsRepository.deleteResults(charId = task.id)
                 syncResults()
 
                 isLoadingInProgress.value = false
@@ -587,47 +621,47 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementManufacturingRepository.refreshPositionLevels()
-                qualityManagementManufacturingRepository.refreshTeamMembers()
-                qualityManagementManufacturingRepository.refreshCompanies()
-                qualityManagementManufacturingRepository.refreshDepartments()
-                qualityManagementManufacturingRepository.refreshSubDepartments()
-                qualityManagementManufacturingRepository.refreshManufacturingChannels()
-                qualityManagementManufacturingRepository.refreshManufacturingLines()
-                qualityManagementManufacturingRepository.refreshManufacturingOperations()
-                qualityManagementManufacturingRepository.refreshOperationsFlows()
+                manufacturingRepository.refreshPositionLevels()
+                manufacturingRepository.refreshTeamMembers()
+                manufacturingRepository.refreshCompanies()
+                manufacturingRepository.refreshDepartments()
+                manufacturingRepository.refreshSubDepartments()
+                manufacturingRepository.refreshManufacturingChannels()
+                manufacturingRepository.refreshManufacturingLines()
+                manufacturingRepository.refreshManufacturingOperations()
+                manufacturingRepository.refreshOperationsFlows()
 
-                qualityManagementProductsRepository.refreshElementIshModels()
-                qualityManagementProductsRepository.refreshIshSubCharacteristics()
-                qualityManagementProductsRepository.refreshManufacturingProjects()
-                qualityManagementProductsRepository.refreshCharacteristics()
-                qualityManagementProductsRepository.refreshMetrixes()
-                qualityManagementProductsRepository.refreshKeys()
-                qualityManagementProductsRepository.refreshProductBases()
-                qualityManagementProductsRepository.refreshProducts()
-                qualityManagementProductsRepository.refreshComponents()
-                qualityManagementProductsRepository.refreshComponentInStages()
-                qualityManagementProductsRepository.refreshVersionStatuses()
-                qualityManagementProductsRepository.refreshProductVersions()
-                qualityManagementProductsRepository.refreshComponentVersions()
-                qualityManagementProductsRepository.refreshComponentInStageVersions()
-                qualityManagementProductsRepository.refreshProductTolerances()
-                qualityManagementProductsRepository.refreshComponentTolerances()
-                qualityManagementProductsRepository.refreshComponentInStageTolerances()
-                qualityManagementProductsRepository.refreshProductsToLines()
-                qualityManagementProductsRepository.refreshComponentsToLines()
-                qualityManagementProductsRepository.refreshComponentInStagesToLines()
+                productsRepository.refreshElementIshModels()
+                productsRepository.refreshIshSubCharacteristics()
+                productsRepository.refreshManufacturingProjects()
+                productsRepository.refreshCharacteristics()
+                productsRepository.refreshMetrixes()
+                productsRepository.refreshKeys()
+                productsRepository.refreshProductBases()
+                productsRepository.refreshProducts()
+                productsRepository.refreshComponents()
+                productsRepository.refreshComponentInStages()
+                productsRepository.refreshVersionStatuses()
+                productsRepository.refreshProductVersions()
+                productsRepository.refreshComponentVersions()
+                productsRepository.refreshComponentInStageVersions()
+                productsRepository.refreshProductTolerances()
+                productsRepository.refreshComponentTolerances()
+                productsRepository.refreshComponentInStageTolerances()
+                productsRepository.refreshProductsToLines()
+                productsRepository.refreshComponentsToLines()
+                productsRepository.refreshComponentInStagesToLines()
 
-                qualityManagementInvestigationsRepository.refreshInputForOrder()
-                qualityManagementInvestigationsRepository.refreshOrdersStatuses()
-                qualityManagementInvestigationsRepository.refreshInvestigationReasons()
-                qualityManagementInvestigationsRepository.refreshInvestigationTypes()
-                qualityManagementInvestigationsRepository.refreshOrders()
-                qualityManagementInvestigationsRepository.refreshSubOrders()
-                qualityManagementInvestigationsRepository.refreshSubOrderTasks()
-                qualityManagementInvestigationsRepository.refreshSamples()
-                qualityManagementInvestigationsRepository.refreshResultsDecryptions()
-                qualityManagementInvestigationsRepository.refreshResults()
+                investigationsRepository.refreshInputForOrder()
+                investigationsRepository.refreshOrdersStatuses()
+                investigationsRepository.refreshInvestigationReasons()
+                investigationsRepository.refreshInvestigationTypes()
+                investigationsRepository.refreshOrders()
+                investigationsRepository.refreshSubOrders()
+                investigationsRepository.refreshSubOrderTasks()
+                investigationsRepository.refreshSamples()
+                investigationsRepository.refreshResultsDecryptions()
+                investigationsRepository.refreshResults()
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)

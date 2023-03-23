@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -24,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,7 +35,6 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_2_record_color
 import com.simenko.qmapp.ui.theme._level_2_record_color_details
 import com.simenko.qmapp.utils.StringUtils
-import kotlinx.coroutines.launch
 
 @Composable
 fun ResultsComposition(
@@ -65,8 +62,8 @@ fun ResultsComposition(
                         ResultCard(
                             modifier = modifier,
                             result = result,
-                            onSelect = { it ->
-                                appModel.changeResultsDetailsVisibility(it.result.id)
+                            onSelect = {
+                                appModel.changeResultDetailsVisibility(it.result.id)
                             },
                             onChangeValue = {
                                 appModel.editResult(it.result)
@@ -132,7 +129,14 @@ fun Result(
     onSelect: (DomainResultComplete) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var text: String by rememberSaveable { mutableStateOf(result.result.result.toString()) }
+    var text: String by rememberSaveable {
+        mutableStateOf(result.result.result.let {
+            when (it) {
+                null -> "-"
+                else -> it.toString()
+            }
+        })
+    }
 
     Column(
         modifier = Modifier
@@ -173,8 +177,12 @@ fun Result(
                     modifier = Modifier
                         .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                         .onFocusChanged {
-                            if (it.isFocused)
+                            if (it.isFocused) {
+                                if(text == "-") text = ""
                                 onSelect(result)
+                            }
+                            else
+                                if(text == "") text = "-"
                         },
                     value = text,
                     maxLines = 1,
@@ -380,7 +388,7 @@ fun MyResultPreview() {
     }
 }
 
-fun getResults() = List(30) { i ->
+fun getResults() = List(30) {
     DomainResultComplete(
         result = getResult(),
         resultsDecryption = getResultsDecryption(),

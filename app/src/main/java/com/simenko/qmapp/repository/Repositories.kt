@@ -1001,24 +1001,40 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             ).generateList()
         }
 
+    private var currentOrder = 0
+    fun setCurrentOrder(id: Int) {
+        currentOrder = id
+    }
     val completeOrders: LiveData<List<DomainOrderComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
-            it.asDomainOrdersComplete()
+            it.asDomainOrdersComplete(currentOrder)
         }
 
+    private var currentSubOrder = 0
+    fun setCurrentSubOrder(id: Int) {
+        currentSubOrder = id
+    }
     val completeSubOrders: LiveData<List<DomainSubOrderComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrdersDetailed()) {
-            it.asDomainSubOrderDetailed()
+            it.asDomainSubOrderDetailed(currentSubOrder)
         }
 
+    private var currentTask = 0
+    fun setCurrentTask(id: Int) {
+        currentTask = id
+    }
     val completeSubOrderTasks: LiveData<List<DomainSubOrderTaskComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderTasksDetailed()) {
-            it.asDomainSubOrderTask()
+            it.asDomainSubOrderTask(currentTask)
         }
 
+    private var currentSample = 0
+    fun setCurrentSample(id: Int) {
+        currentSample = id
+    }
     val completeSamples: LiveData<List<DomainSampleComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSamplesDetailed()) {
-            it.asDomainSamples()
+            it.asDomainSamples(currentSample)
         }
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderWithChildren>> =
@@ -1026,9 +1042,13 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.toDomainSubOrderWithChildren()
         }
 
+    private var currentResult = 0
+    fun setCurrentResult(id: Int) {
+        currentResult = id
+    }
     val completeResults: LiveData<List<DomainResultComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getResultsDetailed()) {
-            it.asDomainResults()
+            it.asDomainResults(currentResult)
         }
 
 }

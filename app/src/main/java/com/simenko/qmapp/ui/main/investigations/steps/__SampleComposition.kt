@@ -63,10 +63,10 @@ fun SampleComposition(
                             appModel = appModel,
                             sample = sample,
                             onClickDetails = { it ->
-                                appModel.changeSamplesDetailsVisibility(it.sample.id)
+                                appModel.changeSampleDetailsVisibility(it.sample.id)
                             },
                             onChangeExpandState = {
-                                appModel.changeSamplesDetailsVisibility(it.sample.id)
+                                appModel.changeSampleDetailsVisibility(it.sample.id)
                             }
                         )
                     }
