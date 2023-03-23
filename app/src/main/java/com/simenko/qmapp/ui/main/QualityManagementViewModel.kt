@@ -444,7 +444,6 @@ class QualityManagementViewModel @Inject constructor(
                 }
                 isStatusDialogVisible.value = false
                 isLoadingInProgress.value = false
-                printCurrentValues()
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true

@@ -282,19 +282,37 @@ data class DatabaseSubOrderResult constructor(
             childColumns = arrayOf("charId"),
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseTeamMember::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("orderedById"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        ),
+        ForeignKey(
+            entity = DatabaseTeamMember::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("completedById"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
         )]
 )
 data class DatabaseSubOrderTask constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     @ColumnInfo(index = true)
+    var subOrderId: Int,
+    @ColumnInfo(index = true)
+    var charId: Int,
+    @ColumnInfo(index = true)
     var statusId: Int,
     var createdDate: String? = null,
     var completedDate: String? = null,
     @ColumnInfo(index = true)
-    var subOrderId: Int,
+    var orderedById: Int? = null,
     @ColumnInfo(index = true)
-    var charId: Int
+    var completedById: Int? = null,
 )
 
 @DatabaseView(

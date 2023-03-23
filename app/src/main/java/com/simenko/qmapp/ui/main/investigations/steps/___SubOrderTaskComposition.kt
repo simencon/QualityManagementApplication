@@ -391,7 +391,7 @@ fun MySubOrderTaskPreview() {
     }
 }
 
-fun getSubOrderTasks() = List(30) { i ->
+fun getSubOrderTasks() = List(30) {
     DomainSubOrderTaskComplete(
         subOrderTask = DomainSubOrderTask(
             id = 1,

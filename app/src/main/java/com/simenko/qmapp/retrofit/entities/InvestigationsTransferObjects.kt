@@ -158,11 +158,13 @@ data class NetworkSubOrder constructor(
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrderTask constructor(
     var id: Int,
+    var subOrderId: Int,
+    var charId: Int,
     var statusId: Int,
     var createdDate: String? = null,
     var completedDate: String? = null,
-    var subOrderId: Int,
-    var charId: Int
+    var orderedById: Int? = null,
+    var completedById: Int? = null,
 )
 
 @JsonClass(generateAdapter = true)

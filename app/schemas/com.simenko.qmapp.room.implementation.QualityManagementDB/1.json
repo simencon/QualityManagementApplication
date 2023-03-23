@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1200eedd72a33514665b84d6f3e4a620",
+    "identityHash": "55065133c81ba6193d5041f4b9f0823d",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2954,11 +2954,23 @@
       },
       {
         "tableName": "13_7_sub_order_tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` TEXT, `completedDate` TEXT, `subOrderId` INTEGER NOT NULL, `charId` INTEGER NOT NULL, FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subOrderId`) REFERENCES `13_sub_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subOrderId` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` TEXT, `completedDate` TEXT, `orderedById` INTEGER, `completedById` INTEGER, FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subOrderId`) REFERENCES `13_sub_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subOrderId",
+            "columnName": "subOrderId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "charId",
+            "columnName": "charId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -2981,16 +2993,16 @@
             "notNull": false
           },
           {
-            "fieldPath": "subOrderId",
-            "columnName": "subOrderId",
+            "fieldPath": "orderedById",
+            "columnName": "orderedById",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
-            "fieldPath": "charId",
-            "columnName": "charId",
+            "fieldPath": "completedById",
+            "columnName": "completedById",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -3011,15 +3023,6 @@
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_13_7_sub_order_tasks_subOrderId_charId` ON `${TABLE_NAME}` (`subOrderId`, `charId`)"
           },
           {
-            "name": "index_13_7_sub_order_tasks_statusId",
-            "unique": false,
-            "columnNames": [
-              "statusId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_7_sub_order_tasks_statusId` ON `${TABLE_NAME}` (`statusId`)"
-          },
-          {
             "name": "index_13_7_sub_order_tasks_subOrderId",
             "unique": false,
             "columnNames": [
@@ -3036,6 +3039,33 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_13_7_sub_order_tasks_charId` ON `${TABLE_NAME}` (`charId`)"
+          },
+          {
+            "name": "index_13_7_sub_order_tasks_statusId",
+            "unique": false,
+            "columnNames": [
+              "statusId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_7_sub_order_tasks_statusId` ON `${TABLE_NAME}` (`statusId`)"
+          },
+          {
+            "name": "index_13_7_sub_order_tasks_orderedById",
+            "unique": false,
+            "columnNames": [
+              "orderedById"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_7_sub_order_tasks_orderedById` ON `${TABLE_NAME}` (`orderedById`)"
+          },
+          {
+            "name": "index_13_7_sub_order_tasks_completedById",
+            "unique": false,
+            "columnNames": [
+              "completedById"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_13_7_sub_order_tasks_completedById` ON `${TABLE_NAME}` (`completedById`)"
           }
         ],
         "foreignKeys": [
@@ -3067,6 +3097,28 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "charId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "8_team_members",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "orderedById"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "8_team_members",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "completedById"
             ],
             "referencedColumns": [
               "id"
@@ -3353,7 +3405,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1200eedd72a33514665b84d6f3e4a620')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '55065133c81ba6193d5041f4b9f0823d')"
     ]
   }
 }
