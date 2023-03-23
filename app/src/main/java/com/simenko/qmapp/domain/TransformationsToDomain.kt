@@ -8,6 +8,9 @@ import com.simenko.qmapp.utils.ObjectTransformer
 fun DatabaseOrder.toDomainOrder() =
     ObjectTransformer(DatabaseOrder::class, DomainOrder::class).transform(this)
 
+fun DatabaseOrderResult.toDomainOrderResult() =
+    ObjectTransformer(DatabaseOrderResult::class, DomainOrderResult::class).transform(this)
+
 fun DatabaseOrdersType.toDomainType() =
     ObjectTransformer(DatabaseOrdersType::class, DomainOrdersType::class).transform(this)
 
@@ -89,7 +92,7 @@ fun DatabaseVersionStatus.toVersionStatus() =
     ObjectTransformer(DatabaseVersionStatus::class, DomainVersionStatus::class).transform(this)
 
 
-fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<DomainOrderComplete> {
+fun List<DatabaseOrderComplete>.asDomainOrdersComplete(): List<DomainOrderComplete> {
 
     return map {
         DomainOrderComplete(
@@ -98,13 +101,14 @@ fun List<DatabaseOrderComplete>.asDomainOrdersComplete(parentId: Int): List<Doma
             orderReason = it.orderReason.toDomainReason(),
             customer = it.customer.toDomainDepartment(),
             orderPlacer = it.orderPlacer.toDomainTeamMember(),
-            orderStatus = it.orderStatus.toDomainStatus()
+            orderStatus = it.orderStatus.toDomainStatus(),
+            orderResult = it.orderResult.toDomainOrderResult()
         )
     }.sortedByDescending { it.order.orderNumber }
 }
 
-fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(parentId: Int): List<DomainSubOrderComplete> {
-    return filter { it.subOrder.orderId == parentId || parentId == -1 }.map {
+fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(): List<DomainSubOrderComplete> {
+    return map {
         DomainSubOrderComplete(
             subOrder = it.subOrder.toDomainSubOrder(),
             orderedBy = it.orderedBy.toDomainTeamMember(),
@@ -125,8 +129,8 @@ fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(parentId: Int): List
     }
 }
 
-fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(parentId: Int): List<DomainSubOrderTaskComplete> {
-    return filter { it.subOrderTask.subOrderId == parentId || parentId == -1 }.map {
+fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(): List<DomainSubOrderTaskComplete> {
+    return map {
         DomainSubOrderTaskComplete(
             subOrderTask = it.subOrderTask.toDomainSubOrderTask(),
             characteristic = it.characteristic.toDomainCharacteristicComplete(),

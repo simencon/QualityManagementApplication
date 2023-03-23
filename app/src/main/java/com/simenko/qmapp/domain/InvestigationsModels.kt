@@ -1,5 +1,6 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.room.entities.DatabaseOrderResult
 import com.simenko.qmapp.room.entities.DatabaseSubOrderResult
 
 data class DomainInputForOrder constructor(
@@ -88,6 +89,13 @@ data class DomainOrder constructor(
     var statusId: Int,
     var createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: String? = null
+)
+
+data class DomainOrderResult constructor(
+    var id: Int,
+    var isOk: Boolean?,
+    var good: Int?,
+    var total: Int?
 )
 
 data class DomainSubOrder constructor(
@@ -185,6 +193,7 @@ data class DomainOrderComplete constructor(
     var customer: DomainDepartment,
     var orderPlacer: DomainTeamMember,
     var orderStatus: DomainOrdersStatus,
+    var orderResult: DomainOrderResult,
     var detailsVisibility: Boolean = false,
     var subOrdersVisibility: Boolean = false,
     var isExpanded: Boolean = false

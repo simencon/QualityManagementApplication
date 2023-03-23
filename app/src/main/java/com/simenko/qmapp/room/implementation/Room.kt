@@ -406,6 +406,7 @@ interface QualityManagementInvestigationsDao {
 
         DatabaseResultTolerance::class,
 
+        DatabaseOrderResult::class,
         DatabaseSubOrderResult::class,
         DatabaseTaskResult::class,
         DatabaseSampleResult::class,

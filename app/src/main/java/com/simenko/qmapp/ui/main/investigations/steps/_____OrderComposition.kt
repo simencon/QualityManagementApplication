@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -20,8 +22,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -37,6 +41,7 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 private const val TAG = "OrderComposition"
@@ -288,15 +293,72 @@ fun Order(
                             .weight(weight = 0.13f)
                             .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
-                    Text(
-                        text = order.orderStatus.statusDescription ?: "",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    Row(
                         modifier = Modifier
-                            .weight(weight = 0.61f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(weight = 0.61f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = order.orderStatus.statusDescription ?: "",
+                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                        )
+                        if(order.order.statusId == 3) {
+                            Text(
+                                text = "(",
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Icon(
+                                imageVector = if (order.orderResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
+                                contentDescription = if (order.orderResult.isOk != false) {
+                                    stringResource(R.string.show_less)
+                                } else {
+                                    stringResource(R.string.show_more)
+                                },
+                                modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                tint = if (order.orderResult.isOk != false) {
+                                    Color.Green
+                                } else {
+                                    Color.Red
+                                },
+                            )
+                            val conformity = (order.orderResult.total?.toFloat()?.let {
+                                order.orderResult.good?.toFloat()
+                                    ?.div(it)
+                            }?.times(100))?:0.0f
+
+                            Text(
+                                text = when {
+                                    !conformity.isNaN() -> {(round(conformity * 10)/10).toString() + "%"}
+                                    else -> {""}
+                                },
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = ")",
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        }
+                    }
                 }
                 Row(
                     modifier = Modifier.padding(
@@ -533,6 +595,14 @@ fun getOrders() = List(30) { i ->
         ),
         orderStatus = DomainOrdersStatus(1, "In Progress"),
         detailsVisibility = true,
-        subOrdersVisibility = false
+        subOrdersVisibility = false,
+        orderResult = getOrderResult()
     )
 }
+
+fun getOrderResult() = DomainOrderResult(
+    id = 0,
+    isOk = true,
+    good = 10,
+    total = 10
+)

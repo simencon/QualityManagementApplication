@@ -1003,17 +1003,17 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     val completeOrders: LiveData<List<DomainOrderComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
-            it.asDomainOrdersComplete(-1)
+            it.asDomainOrdersComplete()
         }
 
     val completeSubOrders: LiveData<List<DomainSubOrderComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrdersDetailed()) {
-            it.asDomainSubOrderDetailed(-1)
+            it.asDomainSubOrderDetailed()
         }
 
     val completeSubOrderTasks: LiveData<List<DomainSubOrderTaskComplete>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderTasksDetailed()) {
-            it.asDomainSubOrderTask(-1)
+            it.asDomainSubOrderTask()
         }
 
     val completeSamples: LiveData<List<DomainSampleComplete>> =
