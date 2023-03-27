@@ -8,17 +8,10 @@ import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.retrofit.entities.*
-import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
-import com.simenko.qmapp.room.entities.toDatabaseOrder
-import com.simenko.qmapp.room.entities.toDatabaseSample
-import com.simenko.qmapp.room.entities.toDatabaseSubOrder
-import com.simenko.qmapp.room.entities.toDatabaseSubOrderTask
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.launchMainActivity
-import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.channels.produce
 import java.io.IOException
 import javax.inject.Inject
 
@@ -73,9 +66,9 @@ class NewItemViewModel @Inject constructor(
 
     val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
     val investigationReasonsMutable =
-        MutableLiveData<MutableList<DomainMeasurementReason>>(mutableListOf())
-    val investigationReasonsMediator: MediatorLiveData<Pair<MutableList<DomainMeasurementReason>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainMeasurementReason>?, Boolean?>>().apply {
+        MutableLiveData<MutableList<DomainReason>>(mutableListOf())
+    val investigationReasonsMediator: MediatorLiveData<Pair<MutableList<DomainReason>?, Boolean?>> =
+        MediatorLiveData<Pair<MutableList<DomainReason>?, Boolean?>>().apply {
             addSource(investigationReasonsMutable) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(investigationReasonsMutable.value, it) }
         }

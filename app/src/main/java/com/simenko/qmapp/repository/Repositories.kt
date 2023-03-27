@@ -755,7 +755,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             database.qualityManagementInvestigationsDao.insertMeasurementReasonsAll(
                 ListTransformer(
                     records,
-                    NetworkMeasurementReason::class, DatabaseMeasurementReason::class
+                    NetworkReason::class, DatabaseReason::class
                 ).generateList()
             )
             Log.d(
@@ -933,8 +933,10 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) = coroutineScope.produce {
         val nSubOrderTask = record.toNetworkSubOrderTaskWithId()
         QualityManagementNetwork.serviceHolderInvestigations.editSubOrderTask(record.id, nSubOrderTask)
+
         val dSubOrderTask = QualityManagementNetwork.serviceHolderInvestigations.getSubOrderTask(record.id).toDatabaseSubOrderTask()
         database.qualityManagementInvestigationsDao.updateSubOrderTask(dSubOrderTask)
+
         send(dSubOrderTask.toDomainSubOrderTask())
     }
 
@@ -943,6 +945,18 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         QualityManagementNetwork.serviceHolderInvestigations.editResult(record.id, nNetwork)
         database.qualityManagementInvestigationsDao.updateResult(record.toDatabaseResult())
         send(record)
+    }
+
+    fun getRecord(coroutineScope: CoroutineScope, record: DomainOrder) = coroutineScope.produce {
+        val nOrder = QualityManagementNetwork.serviceHolderInvestigations.getOrder(record.id)
+        database.qualityManagementInvestigationsDao.updateOrder(nOrder.toDatabaseOrder())
+        send(nOrder.toDomainOrder())
+    }
+
+    fun getRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) = coroutineScope.produce {
+        val nSubOrder = QualityManagementNetwork.serviceHolderInvestigations.getSubOrder(record.id)
+        database.qualityManagementInvestigationsDao.updateSubOrder(nSubOrder.toDatabaseSubOrder())
+        send(nSubOrder.toDomainSubOrder())
     }
 
     fun getRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) = coroutineScope.produce {
@@ -975,12 +989,12 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             ListTransformer(it, DatabaseOrdersType::class, DomainOrdersType::class).generateList()
         }
 
-    val investigationReasons: LiveData<List<DomainMeasurementReason>> =
+    val investigationReasons: LiveData<List<DomainReason>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getMeasurementReasons()) {
             ListTransformer(
                 it,
-                DatabaseMeasurementReason::class,
-                DomainMeasurementReason::class
+                DatabaseReason::class,
+                DomainReason::class
             ).generateList()
         }
 

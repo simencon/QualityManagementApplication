@@ -221,9 +221,9 @@ interface QualityManagementInvestigationsDao {
     fun getOrdersStatuses(): LiveData<List<DatabaseOrdersStatus>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMeasurementReasonsAll(company: List<DatabaseMeasurementReason>)
+    fun insertMeasurementReasonsAll(company: List<DatabaseReason>)
     @Query("SELECT * FROM `0_measurement_reasons` ORDER BY reasonOrder ASC")
-    fun getMeasurementReasons(): LiveData<List<DatabaseMeasurementReason>>
+    fun getMeasurementReasons(): LiveData<List<DatabaseReason>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrdersTypesAll(company: List<DatabaseOrdersType>)
@@ -381,7 +381,7 @@ interface QualityManagementInvestigationsDao {
 
         DatabaseInputForOrder::class,
         DatabaseOrdersStatus::class,
-        DatabaseMeasurementReason::class,
+        DatabaseReason::class,
         DatabaseOrdersType::class,
         DatabaseOrder::class,
         DatabaseSubOrder::class,

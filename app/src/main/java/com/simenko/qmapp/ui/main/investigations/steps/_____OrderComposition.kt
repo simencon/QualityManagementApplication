@@ -571,7 +571,7 @@ fun getOrders() = List(30) { i ->
             "2022-12-15T22:24:43"
         ),
         orderType = DomainOrdersType(1, "Incoming Inspection"),
-        orderReason = DomainMeasurementReason(1, "Налагоджульник", "FLI", 1),
+        orderReason = DomainReason(1, "Налагоджульник", "FLI", 1),
         customer = DomainDepartment(
             1,
             "ГШСК№1",

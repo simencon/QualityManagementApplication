@@ -62,7 +62,7 @@ data class DomainOrdersType constructor(
     }
 }
 
-data class DomainMeasurementReason constructor(
+data class DomainReason constructor(
     var id: Int,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
@@ -188,7 +188,7 @@ data class DomainResult constructor(
 data class DomainOrderComplete constructor(
     var order: DomainOrder,
     var orderType: DomainOrdersType,
-    var orderReason: DomainMeasurementReason,
+    var orderReason: DomainReason,
     var customer: DomainDepartment,
     var orderPlacer: DomainTeamMember,
     var orderStatus: DomainOrdersStatus,

@@ -53,7 +53,7 @@ data class DatabaseOrdersStatus constructor(
 )
 
 @Entity(tableName = "0_measurement_reasons")
-data class DatabaseMeasurementReason constructor(
+data class DatabaseReason constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var reasonDescription: String? = null,
@@ -79,7 +79,7 @@ data class DatabaseOrdersType constructor(
             onUpdate = ForeignKey.NO_ACTION
         ),
         ForeignKey(
-            entity = DatabaseMeasurementReason::class,
+            entity = DatabaseReason::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("reasonId"),
             onDelete = ForeignKey.NO_ACTION,
@@ -438,11 +438,11 @@ data class DatabaseOrderComplete constructor(
     val orderType: DatabaseOrdersType,
 
     @Relation(
-        entity = DatabaseMeasurementReason::class,
+        entity = DatabaseReason::class,
         parentColumn = "reasonId",
         entityColumn = "id"
     )
-    val orderReason: DatabaseMeasurementReason,
+    val orderReason: DatabaseReason,
 
     @Relation(
         entity = DatabaseDepartment::class,

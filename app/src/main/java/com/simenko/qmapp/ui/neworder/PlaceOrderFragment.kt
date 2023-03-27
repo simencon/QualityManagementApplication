@@ -20,7 +20,7 @@ import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentNewOrderBinding
 import com.simenko.qmapp.domain.DomainInputForOrder
-import com.simenko.qmapp.domain.DomainMeasurementReason
+import com.simenko.qmapp.domain.DomainReason
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -28,7 +28,7 @@ import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
-var listDomainMeasurementReasons = arrayListOf<DomainMeasurementReason>()
+var listDomainMeasurementReasons = arrayListOf<DomainReason>()
 private const val TAG = "OrderFragment"
 
 class PlaceOrderFragment : Fragment() {
@@ -99,7 +99,7 @@ class PlaceOrderFragment : Fragment() {
 
         viewModel.investigationReasons.observe(
             viewLifecycleOwner,
-            Observer<List<DomainMeasurementReason>> { items ->
+            Observer<List<DomainReason>> { items ->
                 items.apply {
                     items.forEach {
                         listDomainMeasurementReasons.add(it)
@@ -411,7 +411,7 @@ enum class TargetSpinner(
 fun <T> generateOptionsList(
     spinner: TargetSpinner,
     binding: FragmentNewOrderBinding,
-    originList1: List<DomainMeasurementReason>,
+    originList1: List<DomainReason>,
     originList2: List<DomainInputForOrder>,
     originList3: List<DomainTeamMember>
 ): List<OrderDialogItem> {
@@ -419,7 +419,7 @@ fun <T> generateOptionsList(
     var parentId: Int = 0
     var secondParentId: Int = 0
 
-    lateinit var finalList1: List<DomainMeasurementReason>
+    lateinit var finalList1: List<DomainReason>
     lateinit var finalList2: List<DomainInputForOrder>
     lateinit var finalList3: List<DomainTeamMember>
     lateinit var finalList4: List<Int>

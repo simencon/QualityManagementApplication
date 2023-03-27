@@ -198,7 +198,7 @@ fun CustomDialogUI(
                         modifier = Modifier.padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        /*Text(
+                        Text(
                             text = "Target id = ${dialogInput.recordId} \nAction will be with: ${dialogInput.target.name}",
                             textAlign = TextAlign.Center,
                             modifier = Modifier
@@ -207,7 +207,7 @@ fun CustomDialogUI(
                             style = MaterialTheme.typography.labelLarge,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
-                        )*/
+                        )
                         StatusesSelection(
                             modifier = Modifier
                                 .padding(top = 10.dp)

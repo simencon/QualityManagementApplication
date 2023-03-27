@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainMeasurementReason
+import com.simenko.qmapp.domain.DomainReason
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -83,9 +83,9 @@ fun ReasonsSelection(
 
 @Composable
 fun InvestigationReasonCard(
-    inputForOrder: DomainMeasurementReason,
+    inputForOrder: DomainReason,
     modifier: Modifier = Modifier,
-    onClick: (DomainMeasurementReason) -> Unit
+    onClick: (DomainReason) -> Unit
 ) {
 
     val btnBackgroundColor = if (inputForOrder.isSelected) Primary900 else StatusBar400

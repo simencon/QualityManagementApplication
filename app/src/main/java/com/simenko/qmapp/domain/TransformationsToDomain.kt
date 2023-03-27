@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
+import com.simenko.qmapp.retrofit.entities.NetworkSubOrder
 import com.simenko.qmapp.retrofit.entities.NetworkSubOrderTask
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ListTransformer
@@ -14,10 +16,8 @@ fun DatabaseOrderResult.toDomainOrderResult() =
 fun DatabaseOrdersType.toDomainType() =
     ObjectTransformer(DatabaseOrdersType::class, DomainOrdersType::class).transform(this)
 
-fun DatabaseMeasurementReason.toDomainReason() =
-    ObjectTransformer(DatabaseMeasurementReason::class, DomainMeasurementReason::class).transform(
-        this
-    )
+fun DatabaseReason.toDomainReason() =
+    ObjectTransformer(DatabaseReason::class, DomainReason::class).transform(this)
 
 fun DatabaseSubOrder.toDomainSubOrder() =
     ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
@@ -48,6 +48,12 @@ fun DatabaseManufacturingLine.toDomainLine() =
 
 fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(
     DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
+
+fun NetworkOrder.toDomainOrder() =
+    ObjectTransformer(NetworkOrder::class, DomainOrder::class).transform(this)
+
+fun NetworkSubOrder.toDomainSubOrder() =
+    ObjectTransformer(NetworkSubOrder::class, DomainSubOrder::class).transform(this)
 
 fun DatabaseSubOrderTask.toDomainSubOrderTask() =
     ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)

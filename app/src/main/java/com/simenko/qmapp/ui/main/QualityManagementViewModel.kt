@@ -332,7 +332,7 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
+    fun editSubOrderTask(subOrderTask: DomainSubOrderTask, editFromSubOrder: Boolean = false) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
@@ -356,7 +356,8 @@ class QualityManagementViewModel @Inject constructor(
                              * Collect/Post new results and change status
                              * */
                             {
-                                val subOrder = completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
+                                val subOrder =
+                                    completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
                                 val metrixesToRecord: List<DomainMetrix?>? =
                                     when (subOrder.itemPreffix.substring(0, 1)) {
                                         "p" -> {
@@ -417,7 +418,13 @@ class QualityManagementViewModel @Inject constructor(
                         this,
                         subOrderTask
                     )
-                    channel2.consumeEach {
+                    channel2.consumeEach { task ->
+                        if(!editFromSubOrder) {
+                            val subOrder = completeSubOrders.value!!.find { it.subOrder.id == task.subOrderId}!!.subOrder
+                            syncSubOrder(subOrder)
+                            val order = completeOrders.value!!.find { it.order.id == subOrder.orderId }!!.order
+                            syncOrder(order)
+                        }
                     }
                 }
                 isStatusDialogVisible.value = false
@@ -440,6 +447,46 @@ class QualityManagementViewModel @Inject constructor(
                     )
                     channel.consumeEach {
                     }
+                }
+                isStatusDialogVisible.value = false
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncOrder(order: DomainOrder) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = investigationsRepository.getRecord(
+                        this,
+                        order
+                    )
+                    channel.consumeEach { }
+                }
+                isStatusDialogVisible.value = false
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncSubOrder(subOrder: DomainSubOrder) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = investigationsRepository.getRecord(
+                        this,
+                        subOrder
+                    )
+                    channel.consumeEach { }
                 }
                 isStatusDialogVisible.value = false
                 isLoadingInProgress.value = false

@@ -44,7 +44,7 @@ data class NetworkOrdersStatus constructor(
 )
 
 @JsonClass(generateAdapter = true)
-data class NetworkMeasurementReason(
+data class NetworkReason(
     var id: Int,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,

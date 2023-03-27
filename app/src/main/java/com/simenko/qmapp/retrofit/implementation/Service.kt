@@ -113,7 +113,7 @@ interface QualityManagementInvestigationsService {
     suspend fun getOrdersStatuses(): List<NetworkOrdersStatus>
 
     @GET("api/_0MeasurementReason")
-    suspend fun getMeasurementReasons(): List<NetworkMeasurementReason>
+    suspend fun getMeasurementReasons(): List<NetworkReason>
 
     @GET("api/_0OrdersType")
     suspend fun getOrdersTypes(): List<NetworkOrdersType>
@@ -131,6 +131,9 @@ interface QualityManagementInvestigationsService {
     @PUT("api/_12Order/{id}")
     suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<Unit>
 
+    @GET("api/_12Order/{id}")
+    suspend fun getOrder(@Path("id") id: Int): NetworkOrder
+
     @GET("api/_13SubOrder")
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
@@ -144,6 +147,9 @@ interface QualityManagementInvestigationsService {
     @PUT("api/_13SubOrder/{id}")
     suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<Unit>
 
+    @GET("api/_13SubOrder/{id}")
+    suspend fun getSubOrder(@Path("id") id: Int): NetworkSubOrder
+
     @GET("api/_137SubOrderTask")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
@@ -151,17 +157,11 @@ interface QualityManagementInvestigationsService {
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
 
     @DELETE("api/_137SubOrderTask/{subOrderId}/{charId}")
-    suspend fun deleteSubOrderTask(
-        @Path("subOrderId") subOrderId: Int,
-        @Path("charId") charId: Int
-    ): Response<Unit>
+    suspend fun deleteSubOrderTask(@Path("subOrderId") subOrderId: Int, @Path("charId") charId: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("api/_137SubOrderTask/{id}")
-    suspend fun editSubOrderTask(
-        @Path("id") id: Int,
-        @Body body: NetworkSubOrderTask
-    ): Response<Unit>
+    suspend fun editSubOrderTask(@Path("id") id: Int, @Body body: NetworkSubOrderTask): Response<Unit>
 
     @GET("api/_137SubOrderTask/{id}")
     suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
