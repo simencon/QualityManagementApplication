@@ -915,6 +915,20 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         send(newRecord.toDomainResult()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
+    fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) = coroutineScope.produce {
+        val newRecords = QualityManagementNetwork.serviceHolderInvestigations.createResults(
+            records.map {
+                it.toNetworkResultWithoutId()
+            }
+        )
+
+        newRecords.forEach { nIt->
+            database.qualityManagementInvestigationsDao.insertResult(nIt.toDatabaseResult())
+        }
+
+        send(newRecords) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
+
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainOrder) = coroutineScope.produce {
         val nOrder = record.toNetworkOrderWithId()

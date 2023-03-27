@@ -11,11 +11,8 @@ import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 
@@ -317,24 +314,23 @@ class QualityManagementViewModel @Inject constructor(
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
 
-                    val tasks = completeTasks.value!!.filter { it.subOrderTask.subOrderId == subOrder.id }.map { it.subOrderTask }
-                    tasks.forEach {
-                        it.statusId = subOrder.statusId
-                        it.completedById = subOrder.completedById
-                        editSubOrderTask(it)
-                    }
-                    delay(500)
+                    completeTasks.value!!
+                        .filter { it.subOrderTask.subOrderId == subOrder.id }
+                        .map { it.subOrderTask }
+                        .forEach {
+                            it.statusId = subOrder.statusId
+                            it.completedById = subOrder.completedById
+                            editTask(it, this)
+                        }
 
-                    /*val channel = investigationsRepository.updateRecord(
-                        this,
-                        subOrder
-                    )
-                    channel.consumeEach {
-                        val order = completeOrders.value!!.find { it.order.id == subOrder.orderId }!!.order
-                        syncOrder(order)
-                    }*/
+                    syncSubOrder(subOrder)
+
+                    val order = completeOrders.value!!
+                        .find { it.order.id == subOrder.orderId }!!.order
+                    syncOrder(order)
                 }
                 isStatusDialogVisible.value = false
+                isNetworkError.value = false
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
@@ -343,107 +339,123 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    fun editSubOrderTask(subOrderTask: DomainSubOrderTask, editFromSubOrder: Boolean = false) {
+    fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    /**
-                     * 1.Get latest status task
-                     * 2.Compare with new status
-                     * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
-                     * 4.If change is "Done" -> "To Do" = Delete all results
-                     * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
-                     * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
-                     * */
-                    val channel1 = investigationsRepository.getRecord(
-                        this,
-                        subOrderTask
-                    )
-                    channel1.consumeEach {
-                        if (it.statusId == 1 || it.statusId == 4) {
-                            if (subOrderTask.statusId == 3)
-                            /**
-                             * Collect/Post new results and change status
-                             * */
-                            {
-                                val subOrder =
-                                    completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
-                                val metrixesToRecord: List<DomainMetrix?>? =
-                                    when (subOrder.itemPreffix.substring(0, 1)) {
-                                        "p" -> {
-                                            productTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                        }
-                                        "c" -> {
-                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                        }
-                                        "s" -> {
-                                            componentInStageTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                        }
-                                        else -> {
-                                            componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                                ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                        }
-                                    }
 
-                                completeSamples.value?.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
-                                    ?.distinctBy { sfIt -> sfIt.sample.id }?.forEach { sdIt ->
-                                        metrixesToRecord?.forEach { mIt ->
-                                            if (mIt != null) {
-                                                val channel3 =
-                                                    investigationsRepository.getCreatedRecord(
-                                                        this,
-                                                        DomainResult(
-                                                            id = 0,
-                                                            sampleId = sdIt.sample.id,
-                                                            metrixId = mIt.id,
-                                                            result = null,
-                                                            isOk = true,
-                                                            resultDecryptionId = 1,
-                                                            taskId = subOrderTask.id
-                                                        )
-                                                    )
-                                                channel3.consumeEach { nResIt ->
-                                                    Log.d(TAG, "editSubOrderTask: $nResIt")
-                                                }
-                                            }
-                                        }
-                                    }
-                                Log.d(TAG, "editSubOrderTask: Collect/Post new results")
-                            }
-                        } else if (it.statusId == 3) {
-                            if (subOrderTask.statusId == 1) {
-                                /**
-                                 * Delete all results and change status
-                                 * */
-                                deleteResultsBasedOnTask(subOrderTask)
-                                Log.d(TAG, "editSubOrderTask: Delete all results")
-                            }
-                        }
-                    }
+                    editTask(subOrderTask, this)
 
-                    val channel2 = investigationsRepository.updateRecord(
-                        this,
-                        subOrderTask
-                    )
-                    channel2.consumeEach { task ->
-                        if(!editFromSubOrder) {
-                            val subOrder = completeSubOrders.value!!.find { it.subOrder.id == task.subOrderId}!!.subOrder
-                            syncSubOrder(subOrder)
-                            val order = completeOrders.value!!.find { it.order.id == subOrder.orderId }!!.order
-                            syncOrder(order)
-                        }
-                    }
+                    val subOrder = completeSubOrders.value!!
+                        .find { it.subOrder.id == subOrderTask.subOrderId }!!.subOrder
+                    syncSubOrder(subOrder)
+
+                    val order = completeOrders.value!!
+                        .find { it.order.id == subOrder.orderId }!!.order
+                    syncOrder(order)
                 }
                 isStatusDialogVisible.value = false
+                isNetworkError.value = false
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
             }
+        }
+    }
+
+    private suspend fun editTask(subOrderTask: DomainSubOrderTask, coroutineScope: CoroutineScope) {
+        val listOfResults: MutableList<DomainResult> = mutableListOf()
+        /**
+         * 1.Get latest status task
+         * 2.Compare with new status
+         * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
+         * 4.If change is "Done" -> "To Do" = Delete all results
+         * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
+         * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
+         * */
+        val channel1 = investigationsRepository.getRecord(
+            coroutineScope,
+            subOrderTask
+        )
+        channel1.consumeEach {
+            if (it.statusId == 1 || it.statusId == 4) {
+                if (subOrderTask.statusId == 3)
+                /**
+                 * Collect/Post new results and change status
+                 * */
+                {
+                    val subOrder =
+                        completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
+                    val metrixesToRecord: List<DomainMetrix?>? =
+                        when (subOrder.itemPreffix.substring(0, 1)) {
+                            "p" -> {
+                                productTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                    ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                            }
+                            "c" -> {
+                                componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                    ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                            }
+                            "s" -> {
+                                componentInStageTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                    ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                            }
+                            else -> {
+                                componentTolerances.value?.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                    ?.map { pfIt -> metrixes.value?.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                            }
+                        }
+
+                    completeSamples.value?.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
+                        ?.distinctBy { sfIt -> sfIt.sample.id }?.forEach { sdIt ->
+                            metrixesToRecord?.forEach { mIt ->
+                                if (mIt != null) {
+                                    listOfResults.add(
+                                        DomainResult(
+                                            id = 0,
+                                            sampleId = sdIt.sample.id,
+                                            metrixId = mIt.id,
+                                            result = null,
+                                            isOk = true,
+                                            resultDecryptionId = 1,
+                                            taskId = subOrderTask.id
+                                        )
+                                    )
+                                }
+                            }
+                        }
+
+                    val channel3 =
+                        investigationsRepository.getCreatedRecords(
+                            coroutineScope,
+                            listOfResults
+                            )
+                    channel3.consumeEach { nResultsIt ->
+                        nResultsIt.forEach { nResultIt ->
+                            Log.d(TAG, "editSubOrderTask: $nResultIt")
+                        }
+                    }
+
+                    Log.d(TAG, "editSubOrderTask: Collect/Post new results")
+                }
+            } else if (it.statusId == 3) {
+                if (subOrderTask.statusId == 1) {
+                    /**
+                     * Delete all results and change status
+                     * */
+                    deleteResultsBasedOnTask(subOrderTask)
+                    Log.d(TAG, "editSubOrderTask: Delete all results")
+                }
+            }
+        }
+
+        val channel2 = investigationsRepository.updateRecord(
+            coroutineScope,
+            subOrderTask
+        )
+        channel2.consumeEach {
         }
     }
 
@@ -468,10 +480,9 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    fun syncOrder(order: DomainOrder) {
+    private fun syncOrder(order: DomainOrder) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     val channel = investigationsRepository.getRecord(
                         this,
@@ -479,8 +490,7 @@ class QualityManagementViewModel @Inject constructor(
                     )
                     channel.consumeEach { }
                 }
-                isStatusDialogVisible.value = false
-                isLoadingInProgress.value = false
+                isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
@@ -488,10 +498,9 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    fun syncSubOrder(subOrder: DomainSubOrder) {
+    private fun syncSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     val channel = investigationsRepository.getRecord(
                         this,
@@ -499,8 +508,7 @@ class QualityManagementViewModel @Inject constructor(
                     )
                     channel.consumeEach { }
                 }
-                isStatusDialogVisible.value = false
-                isLoadingInProgress.value = false
+                isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true

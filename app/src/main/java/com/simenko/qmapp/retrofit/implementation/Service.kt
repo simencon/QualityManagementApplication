@@ -184,6 +184,9 @@ interface QualityManagementInvestigationsService {
     @POST("api/_148Result")
     suspend fun createResult(@Body networkResult: NetworkResult): NetworkResult
 
+    @POST("api/_148Result/records")
+    fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>
+
     @DELETE("api/_148Result/{taskId}/{id}")
     suspend fun deleteResults(
         @Path("taskId") taskId: Int = 0,
