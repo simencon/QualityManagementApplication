@@ -50,11 +50,13 @@ fun DomainSubOrderTask.toNetworkSubOrderTaskWithoutId() = ObjectTransformer(
 
 fun DomainSubOrderTask.toNetworkSubOrderTaskWithId() = NetworkSubOrderTask(
     id = id,
+    subOrderId = subOrderId,
+    charId = charId,
     statusId = statusId,
     createdDate = createdDate,
     completedDate = completedDate,
-    subOrderId = subOrderId,
-    charId = charId
+    orderedById = orderedById,
+    completedById = completedById
 )
 
 fun DomainSample.toNetworkSampleWithoutId() = ObjectTransformer(

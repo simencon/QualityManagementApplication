@@ -18,11 +18,17 @@ object StringUtils {
 
     @JvmStatic
     fun getDateTime(original: String?): String {
-        return if (original != null) {
+        var result = if (original != null) {
             original.split("T").toTypedArray()[0] + " " + original.split("T").toTypedArray()[1]
         } else {
             "-"
         }
+        if (result != "-")
+        {
+            result = result.split(".").toTypedArray()[0]
+        }
+
+        return result
     }
 
     @JvmStatic

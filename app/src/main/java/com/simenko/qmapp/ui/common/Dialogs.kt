@@ -93,8 +93,8 @@ fun CustomDialogUI(
         )
     }
 
-    val context = LocalContext.current
-    val enableToEdit by rememberSaveable { mutableStateOf(false)}
+    var enableToEdit by rememberSaveable { mutableStateOf(false) }
+    var placeHolder by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         selectSingleRecordI(
@@ -112,6 +112,16 @@ fun CustomDialogUI(
                 }
             }
         )
+        enableToEdit = when (dialogInput.performerId) {
+            null -> {
+                placeHolder = "Виберіть виконавця"
+                false
+            }
+            else -> {
+                placeHolder = appModel.teamMembers.value!!.find { it.id == dialogInput.performerId }!!.fullName
+                true
+            }
+        }
     }
 
     fun changeStatus(id: Int) {
@@ -169,14 +179,11 @@ fun CustomDialogUI(
                 ) {
                     SearchableExpandedDropDownMenu(
                         listOfItems = appModel.teamMembers.value!!,
+                        placeholder = placeHolder,
                         modifier = Modifier.fillMaxWidth(),
                         onDropDownItemSelected = { item ->
-                            Toast.makeText(
-                                context,
-                                item.fullName + ", id = " + item.id.toString(),
-                                Toast.LENGTH_SHORT
-                            ).show()
                             dialogInput.performerId = item.id
+                            enableToEdit = true
                         },
                         dropdownItem = { test ->
                             DropDownItem(test = test)
@@ -186,28 +193,29 @@ fun CustomDialogUI(
 
                 }
 
-                Column(
-                    modifier = Modifier.padding(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    /*Text(
-                        text = "Target id = ${dialogInput.recordId} \nAction will be with: ${dialogInput.target.name}",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .fillMaxWidth(),
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )*/
-                    StatusesSelection(
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .height(50.dp),
-                        appModel = appModel,
-                        onSelectStatus = { changeStatus(it) }
-                    )
-                }
+                if (enableToEdit)
+                    Column(
+                        modifier = Modifier.padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        /*Text(
+                            text = "Target id = ${dialogInput.recordId} \nAction will be with: ${dialogInput.target.name}",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                                .fillMaxWidth(),
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )*/
+                        StatusesSelection(
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                                .height(50.dp),
+                            appModel = appModel,
+                            onSelectStatus = { changeStatus(it) }
+                        )
+                    }
                 //.......................................................................
                 Row(
                     Modifier
@@ -228,25 +236,27 @@ fun CustomDialogUI(
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
-                    TextButton(onClick = {
-                        when (dialogInput.target) {
-                            DialogFor.ORDER -> {
-                                openDialogCustom.value = false
+                    TextButton(
+                        enabled = enableToEdit,
+                        onClick = {
+                            when (dialogInput.target) {
+                                DialogFor.ORDER -> {
+                                    openDialogCustom.value = false
+                                }
+                                DialogFor.SUB_ORDER -> {
+                                    currentSubOrder.subOrder.completedById = dialogInput.performerId
+                                    appModel.editSubOrder(currentSubOrder.subOrder)
+                                }
+                                DialogFor.CHARACTERISTIC -> {
+                                    currentSubOrderTask.subOrderTask.completedById = dialogInput.performerId
+                                    appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
+                                }
                             }
-                            DialogFor.SUB_ORDER -> {
-                                currentSubOrder.subOrder.completedById = dialogInput.performerId
-                                appModel.editSubOrder(currentSubOrder.subOrder)
-                            }
-                            DialogFor.CHARACTERISTIC -> {
-                                currentSubOrderTask.subOrderTask.completedById = dialogInput.performerId
-                                appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
-                            }
-                        }
-                    }) {
+                        }) {
                         Text(
                             "Save",
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
+                            color = when(enableToEdit) {true -> Color.White false -> Color.Gray},
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }

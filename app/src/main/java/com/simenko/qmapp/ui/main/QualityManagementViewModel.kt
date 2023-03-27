@@ -356,8 +356,7 @@ class QualityManagementViewModel @Inject constructor(
                              * Collect/Post new results and change status
                              * */
                             {
-                                val subOrder =
-                                    completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
+                                val subOrder = completeSubOrders.value?.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
                                 val metrixesToRecord: List<DomainMetrix?>? =
                                     when (subOrder.itemPreffix.substring(0, 1)) {
                                         "p" -> {
