@@ -46,7 +46,7 @@ fun SubOrdersFlowColumn(
     appModel: QualityManagementViewModel,
     context: Context,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -153,7 +153,7 @@ fun SubOrderCard(
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderComplete) -> Unit,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(subOrder.isExpanded).apply {
@@ -214,7 +214,7 @@ fun SubOrder(
     viewModel: QualityManagementViewModel? = null,
     onClickDetails: () -> Unit = {},
     subOrder: DomainSubOrderComplete = getSubOrders()[0],
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -289,7 +289,7 @@ fun SubOrder(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = { showStatusDialog(subOrder.subOrder.id, DialogFor.SUB_ORDER) },
+                        onClick = { showStatusDialog(subOrder.subOrder.id, DialogFor.SUB_ORDER, subOrder.subOrder.completedById) },
                         content = {
                             Text(
                                 text = subOrder.status.statusDescription ?: "-",
@@ -491,7 +491,7 @@ fun SubOrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     subOrder: DomainSubOrderComplete = getSubOrders()[0],
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     if (subOrder.detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -605,7 +605,7 @@ fun MySubOrderPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            showStatusDialog = { a, b -> statusDialog(a, b) }
+            showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
         )
     }
 }

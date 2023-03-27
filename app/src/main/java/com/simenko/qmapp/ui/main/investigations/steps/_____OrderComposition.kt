@@ -53,7 +53,7 @@ fun Orders(
     appModel: QualityManagementViewModel,
     onListEnd: (FabPosition) -> Unit,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -167,7 +167,7 @@ fun OrderCard(
     onChangeExpandState: (DomainOrderComplete) -> Unit,
     context: Context,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
@@ -232,7 +232,7 @@ fun Order(
     onClickDetails: () -> Unit = {},
     context: Context,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -456,7 +456,7 @@ fun OrderDetails(
     order: DomainOrderComplete = getOrders()[0],
     context: Context,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
 
     if (order.detailsVisibility) {

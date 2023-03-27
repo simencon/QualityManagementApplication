@@ -28,6 +28,10 @@ data class DomainTeamMember(
         isSelected = value
     }
 
+    override fun getName(): String {
+        return fullName
+    }
+
     override fun selectedRecord(): String {
         return "$fullName ($department)"
     }

@@ -42,7 +42,7 @@ class QualityManagementViewModel @Inject constructor(
 
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    private val teamMembers = manufacturingRepository.teamMembers
+    val teamMembers = manufacturingRepository.teamMembers
     val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
             addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
@@ -294,7 +294,7 @@ class QualityManagementViewModel @Inject constructor(
      */
     var isStatusDialogVisible = MutableLiveData(false)
 
-    val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER))
+    val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER, null))
 
     val investigationStatuses = investigationsRepository.investigationStatuses
     val investigationStatusesMediator: MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>> =

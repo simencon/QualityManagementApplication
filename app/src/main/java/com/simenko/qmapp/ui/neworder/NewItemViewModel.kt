@@ -235,6 +235,7 @@ class NewItemViewModel @Inject constructor(
                     qualityManagementInvestigationsRepository.deleteSubOrderTask(it)
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
+                    it.orderedById = subOrder.subOrder.orderedById
                     val channel =
                         qualityManagementInvestigationsRepository.getCreatedRecord(this, it)
                     channel.consumeEach { }

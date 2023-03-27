@@ -49,19 +49,21 @@ class _InvestigationsFragment(
                         viewModel.componentInStageTolerances.observe(viewLifecycleOwner) {
                             viewModel.itemsTolerances.observe(viewLifecycleOwner) {
                                 viewModel.metrixes.observe(viewLifecycleOwner) {
-                                    binding.composeView.apply {
-                                        setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                                        setContent {
-                                            InvestigationsMainComposition(
-                                                modifier = Modifier
-                                                    .padding(
-                                                        vertical = 2.dp,
-                                                        horizontal = 2.dp
-                                                    ),
-                                                appModel = viewModel,
-                                                context = context,
-                                                createdRecord = createdRecord
-                                            )
+                                    viewModel.teamMembers.observe(viewLifecycleOwner) {
+                                        binding.composeView.apply {
+                                            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                                            setContent {
+                                                InvestigationsMainComposition(
+                                                    modifier = Modifier
+                                                        .padding(
+                                                            vertical = 2.dp,
+                                                            horizontal = 2.dp
+                                                        ),
+                                                    appModel = viewModel,
+                                                    context = context,
+                                                    createdRecord = createdRecord
+                                                )
+                                            }
                                         }
                                     }
                                 }

@@ -44,7 +44,7 @@ fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
     appModel: QualityManagementViewModel,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val observeSubOrderTasks by appModel.completeSubOrderTasksMediator.observeAsState()
     var clickCounter = 0
@@ -102,7 +102,7 @@ fun SubOrderTaskCard(
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit,
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(subOrderTask.isExpanded).apply {
@@ -161,7 +161,7 @@ fun SubOrderTask(
     modifier: Modifier = Modifier,
     onClickDetails: () -> Unit = {},
     subOrderTask: DomainSubOrderTaskComplete = getSubOrderTasks()[0],
-    showStatusDialog: (Int, DialogFor) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -256,7 +256,7 @@ fun SubOrderTask(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = { showStatusDialog(subOrderTask.subOrderTask.id, DialogFor.CHARACTERISTIC) },
+                        onClick = { showStatusDialog(subOrderTask.subOrderTask.id, DialogFor.CHARACTERISTIC, subOrderTask.subOrderTask.completedById) },
                         content = {
                             Text(
                                 text = subOrderTask.status.statusDescription ?: "-",
@@ -386,7 +386,7 @@ fun MySubOrderTaskPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            showStatusDialog = { a, b -> statusDialog(a, b) }
+            showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
         )
     }
 }

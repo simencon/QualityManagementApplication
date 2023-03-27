@@ -6,4 +6,5 @@ abstract class DomainModel {
     open fun hasParentOneId(pId: Int): Boolean = false
     abstract fun setIsChecked(value: Boolean)
     open fun changeCheckedState(): Boolean = false
+    open fun getName(): String = "will be returned any string"
 }

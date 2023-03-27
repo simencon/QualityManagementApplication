@@ -1,31 +1,41 @@
 package com.simenko.qmapp.ui.common
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.Task
+import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.MutableLiveData
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
@@ -41,7 +51,8 @@ enum class DialogFor {
 
 data class DialogInput(
     var recordId: Int,
-    var target: DialogFor
+    var target: DialogFor,
+    var performerId: Int?
 )
 
 fun findCurrentObject(id: Int, items: List<DomainOrderComplete>): DomainOrderComplete {
@@ -52,12 +63,15 @@ fun findCurrentObject(id: Int, items: List<DomainSubOrderComplete>): DomainSubOr
     return items.find { it.subOrder.id == id }!!
 }
 
-fun findCurrentObject(id: Int, items: List<DomainSubOrderTaskComplete>): DomainSubOrderTaskComplete {
+fun findCurrentObject(
+    id: Int,
+    items: List<DomainSubOrderTaskComplete>
+): DomainSubOrderTaskComplete {
     return items.find { it.subOrderTask.id == id }!!
 }
 
 //Layout
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomDialogUI(
     modifier: Modifier = Modifier,
@@ -65,6 +79,7 @@ fun CustomDialogUI(
     openDialogCustom: MutableLiveData<Boolean>,
     appModel: QualityManagementViewModel
 ) {
+
     val currentOrder by lazy {
         findCurrentObject(dialogInput.recordId, appModel.completeOrdersMediator.value?.first!!)
     }
@@ -72,8 +87,14 @@ fun CustomDialogUI(
         findCurrentObject(dialogInput.recordId, appModel.completeSubOrdersMediator.value?.first!!)
     }
     val currentSubOrderTask by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.completeSubOrderTasksMediator.value?.first!!)
+        findCurrentObject(
+            dialogInput.recordId,
+            appModel.completeSubOrderTasksMediator.value?.first!!
+        )
     }
+
+    val context = LocalContext.current
+    val enableToEdit by rememberSaveable { mutableStateOf(false)}
 
     LaunchedEffect(Unit) {
         selectSingleRecordI(
@@ -131,23 +152,45 @@ fun CustomDialogUI(
 
                 //.......................................................................
                 Image(
-                    painter = painterResource(id = R.drawable.ic_status),
+                    imageVector = Icons.Filled.TaskAlt,
                     contentDescription = null, // decorative
                     contentScale = ContentScale.Fit,
                     colorFilter = ColorFilter.tint(
                         color = Primary900
                     ),
                     modifier = Modifier
-                        .padding(top = 35.dp)
-                        .height(70.dp)
+                        .padding(vertical = 20.dp)
+                        .height(50.dp)
                         .fillMaxWidth(),
                 )
+
+                Column(
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    SearchableExpandedDropDownMenu(
+                        listOfItems = appModel.teamMembers.value!!,
+                        modifier = Modifier.fillMaxWidth(),
+                        onDropDownItemSelected = { item ->
+                            Toast.makeText(
+                                context,
+                                item.fullName + ", id = " + item.id.toString(),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            dialogInput.performerId = item.id
+                        },
+                        dropdownItem = { test ->
+                            DropDownItem(test = test)
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                }
 
                 Column(
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
+                    /*Text(
                         text = "Target id = ${dialogInput.recordId} \nAction will be with: ${dialogInput.target.name}",
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -156,7 +199,7 @@ fun CustomDialogUI(
                         style = MaterialTheme.typography.labelLarge,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
-                    )
+                    )*/
                     StatusesSelection(
                         modifier = Modifier
                             .padding(top = 10.dp)
@@ -186,14 +229,16 @@ fun CustomDialogUI(
                         )
                     }
                     TextButton(onClick = {
-                        when(dialogInput.target) {
+                        when (dialogInput.target) {
                             DialogFor.ORDER -> {
                                 openDialogCustom.value = false
                             }
                             DialogFor.SUB_ORDER -> {
+                                currentSubOrder.subOrder.completedById = dialogInput.performerId
                                 appModel.editSubOrder(currentSubOrder.subOrder)
                             }
                             DialogFor.CHARACTERISTIC -> {
+                                currentSubOrderTask.subOrderTask.completedById = dialogInput.performerId
                                 appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                             }
                         }
@@ -284,5 +329,18 @@ fun InvestigationStatusCard(
             colors = btnColors
         )
 
+    }
+}
+
+@Composable
+fun DropDownItem(test: DomainTeamMember) {
+    Row(
+        modifier = Modifier
+            .padding(8.dp)
+            .wrapContentSize()
+    ) {
+        androidx.compose.material.Text(text = test.fullName)
+        Spacer(modifier = Modifier.width(12.dp))
+        androidx.compose.material.Text("")
     }
 }

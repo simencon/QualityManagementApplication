@@ -38,7 +38,7 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 
 private const val TAG = "InvestigationsMai"
 
-fun statusDialog(recordId: Int, dialogFor: DialogFor) {
+fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -61,8 +61,8 @@ fun InvestigationsMainComposition(
     val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
     val dialogInput by appModel.dialogInput.observeAsState()
 
-    fun statusDialog(recordId: Int, dialogFor: DialogFor) {
-        appModel.dialogInput.value = DialogInput(recordId, dialogFor)
+    fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
+        appModel.dialogInput.value = DialogInput(recordId, dialogFor, performerId)
         appModel.isStatusDialogVisible.value = true
     }
 
@@ -151,7 +151,7 @@ fun InvestigationsMainComposition(
                             appModel = appModel,
                             onListEnd = { changeFlaBtnPosition(it) },
                             createdRecord = createdRecord,
-                            showStatusDialog = { a, b -> statusDialog(a, b) }
+                            showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
                         )
                         SampleComposition(
                             modifier.width((screenWidth * (0.38 + 0.5) * isSamplesNumVisible).dp),
@@ -165,7 +165,7 @@ fun InvestigationsMainComposition(
 
                     if (showStatusChangeDialog.value == true)
                         CustomDialogUI(
-                            dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER),
+                            dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER, null),
                             openDialogCustom = appModel.isStatusDialogVisible,
                             appModel = appModel
                         )
