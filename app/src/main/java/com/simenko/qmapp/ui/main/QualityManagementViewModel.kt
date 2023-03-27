@@ -86,12 +86,12 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
         }
 
-    private val completeSubOrderTasks =
+    val completeTasks =
         investigationsRepository.completeSubOrderTasks
     val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
-            addSource(completeSubOrderTasks) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeSubOrderTasks.value, it) }
+            addSource(completeTasks) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(completeTasks.value, it) }
         }
 
     val currentSubOrderTask = MutableLiveData(0)
@@ -181,7 +181,7 @@ class QualityManagementViewModel @Inject constructor(
     fun changeTaskDetailsVisibility(itemId: Int) {
         var select = false
 
-        completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
+        completeTasks.value?.find { it.subOrderTask.id == itemId }
             ?.let { it ->
                 if (!it.detailsVisibility)
                     select = true
@@ -191,10 +191,10 @@ class QualityManagementViewModel @Inject constructor(
                 }
             }
 
-        completeSubOrderTasks.value?.forEach { it.detailsVisibility = false }
+        completeTasks.value?.forEach { it.detailsVisibility = false }
 
         if (select)
-            completeSubOrderTasks.value?.find { it.subOrderTask.id == itemId }
+            completeTasks.value?.find { it.subOrderTask.id == itemId }
                 ?.let { subOrderTask ->
                     currentSubOrderTask.value = itemId
                     investigationsRepository.setCurrentTask(itemId)
@@ -282,7 +282,7 @@ class QualityManagementViewModel @Inject constructor(
     }
 
     fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete) {
-        completeSubOrderTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
+        completeTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
             ?.let { subOrderTask ->
                 subOrderTask.isExpanded = !subOrderTask.isExpanded
                 pairedTrigger.value = !(pairedTrigger.value as Boolean)
@@ -316,12 +316,23 @@ class QualityManagementViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.updateRecord(
+
+                    val tasks = completeTasks.value!!.filter { it.subOrderTask.subOrderId == subOrder.id }.map { it.subOrderTask }
+                    tasks.forEach {
+                        it.statusId = subOrder.statusId
+                        it.completedById = subOrder.completedById
+                        editSubOrderTask(it)
+                    }
+                    delay(500)
+
+                    /*val channel = investigationsRepository.updateRecord(
                         this,
                         subOrder
                     )
                     channel.consumeEach {
-                    }
+                        val order = completeOrders.value!!.find { it.order.id == subOrder.orderId }!!.order
+                        syncOrder(order)
+                    }*/
                 }
                 isStatusDialogVisible.value = false
                 isLoadingInProgress.value = false
