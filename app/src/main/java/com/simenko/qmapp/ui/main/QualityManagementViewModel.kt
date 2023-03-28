@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
+import com.simenko.qmapp.repository.syncSubOrderTasks
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
@@ -697,6 +698,23 @@ class QualityManagementViewModel @Inject constructor(
 
                 investigationsRepository.deleteSubOrder(subOrder.subOrder)
                 syncSubOrders()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun deleteSubOrderTask(task: DomainSubOrderTaskComplete) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                investigationsRepository.deleteSubOrderTask(task.subOrderTask)
+                syncTasks()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

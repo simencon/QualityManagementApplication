@@ -52,19 +52,22 @@ fun SubOrderTasksFlowColumn(
     observeSubOrderTasks?.apply {
         if (observeSubOrderTasks!!.first != null) {
             FlowRow(modifier = modifier) {
-                observeSubOrderTasks!!.first!!.forEach { subOrder ->
-                    if (subOrder.subOrderTask.subOrderId == parentId) {
+                observeSubOrderTasks!!.first!!.forEach { task ->
+                    if (task.subOrderTask.subOrderId == parentId) {
 
                         Box(Modifier.fillMaxWidth()) {
                             ActionsRow(
+                                subOrderTask = task,
                                 actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDeleteOrder = {},
+                                onDeleteSubOrderTask = {
+                                    appModel.deleteSubOrderTask(it)
+                                },
                                 onEdit = {},
                             )
 
                             SubOrderTaskCard(
                                 modifier = modifier,
-                                subOrderTask = subOrder,
+                                subOrderTask = task,
                                 onClickDetails = { it ->
                                     appModel.changeTaskDetailsVisibility(it.subOrderTask.id)
                                 },
@@ -255,7 +258,13 @@ fun SubOrderTask(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = { showStatusDialog(subOrderTask.subOrderTask.id, DialogFor.CHARACTERISTIC, subOrderTask.subOrderTask.completedById) },
+                        onClick = {
+                            showStatusDialog(
+                                subOrderTask.subOrderTask.id,
+                                DialogFor.CHARACTERISTIC,
+                                subOrderTask.subOrderTask.completedById
+                            )
+                        },
                         content = {
                             Text(
                                 text = subOrderTask.status.statusDescription ?: "-",
@@ -265,7 +274,7 @@ fun SubOrderTask(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
-                            if(subOrderTask.subOrderTask.statusId == 3) {
+                            if (subOrderTask.subOrderTask.statusId == 3) {
                                 Text(
                                     text = "(",
                                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -273,7 +282,12 @@ fun SubOrderTask(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
                                 Icon(
                                     imageVector = if (subOrderTask.taskResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
@@ -282,7 +296,12 @@ fun SubOrderTask(
                                     } else {
                                         stringResource(R.string.show_more)
                                     },
-                                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                    modifier = Modifier.padding(
+                                        top = 0.dp,
+                                        start = 0.dp,
+                                        end = 0.dp,
+                                        bottom = 0.dp
+                                    ),
                                     tint = if (subOrderTask.taskResult.isOk != false) {
                                         Color.Green
                                     } else {
@@ -292,19 +311,28 @@ fun SubOrderTask(
                                 val conformity = (subOrderTask.taskResult.total?.toFloat()?.let {
                                     subOrderTask.taskResult.good?.toFloat()
                                         ?.div(it)
-                                }?.times(100))?:0.0f
+                                }?.times(100)) ?: 0.0f
 
                                 Text(
                                     text = when {
-                                        !conformity.isNaN() -> {conformity.roundToInt().toString() + "%"}
-                                        else -> {""}
+                                        !conformity.isNaN() -> {
+                                            conformity.roundToInt().toString() + "%"
+                                        }
+                                        else -> {
+                                            ""
+                                        }
                                     },
                                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
                                 Text(
                                     text = ")",
@@ -313,7 +341,12 @@ fun SubOrderTask(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
                             }
                         },
