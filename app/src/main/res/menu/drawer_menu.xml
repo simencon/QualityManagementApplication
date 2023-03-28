@@ -34,9 +34,9 @@
                     android:icon="@drawable/ic_status"
                     android:title="Process control only" />
                 <item
-                    android:id="@+id/nav_inv_orders_status_monitoring"
-                    android:icon="@drawable/ic_monitor"
-                    android:title="Investigations monitoring" />
+                    android:id="@+id/nav_scrap_level"
+                    android:icon="@drawable/ic_money"
+                    android:title="Scrap level" />
             </menu>
         </item>
         <item android:title="General">

@@ -190,7 +190,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         ___InvestigationsContainerFragment(createdRecord)
                     }
 
-                    R.id.nav_inv_orders_status_monitoring -> {
+                    R.id.nav_scrap_level -> {
                         TODO("Will be monitoring page")
                     }
                     R.id.nav_settings -> {
