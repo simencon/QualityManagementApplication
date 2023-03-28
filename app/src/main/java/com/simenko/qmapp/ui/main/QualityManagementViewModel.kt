@@ -64,6 +64,9 @@ class QualityManagementViewModel @Inject constructor(
     val inputForOrder = investigationsRepository.inputForOrder
     val investigationReasons = investigationsRepository.investigationReasons
 
+    /**
+     * Filters
+     * */
     var showWithStatus = MutableLiveData<Int> (0)
     fun setCurrentStatusToShow(status: String){
         when(status) {
@@ -84,6 +87,10 @@ class QualityManagementViewModel @Inject constructor(
             }
         }
     }
+    var showOrderNumber = MutableLiveData<String> ("")
+    /**
+     * Filters
+     * */
 
     val currentOrder = MutableLiveData(0)
 

@@ -5,10 +5,12 @@ import android.content.Intent
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -56,6 +58,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         (application as BaseApplication).appComponent.mainComponent().create().inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
+        viewModel.showOrderNumber.observe(this) {
+//            do nothing, just observe
+        }
+
         super.onCreate(savedInstanceState)
         createdRecord = CreatedRecord(
             intent.extras?.getInt(KEY_ARG_CREATED_ORDER_ID) ?: 0,
@@ -96,12 +102,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu____filter_top, menu)
-        return super.onCreateOptionsMenu(menu)
+        val searchItem = menu?.findItem(R.id.search)
+
+        val searchView = searchItem?.actionView as SearchView
+        searchView.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // Handle search query submission
+                viewModel.syncOrders()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Handle search query text change
+                viewModel.showOrderNumber.value = newText?:"0"
+                return true
+            }
+
+        })
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         try {
             when (item.itemId) {
+                R.id.search -> {
+//                    is implemented within on search listener
+                }
                 R.id.upload_all_data -> {
                     viewModel.refreshDataFromRepository()
                 }
@@ -128,10 +156,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var mPreviousMenuItem: MenuItem? = null
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        item.setCheckable(true)
-        item.setChecked(true)
+        item.isCheckable = true
+        item.isChecked = true
         if (mPreviousMenuItem != null && mPreviousMenuItem != item) {
-            mPreviousMenuItem?.setChecked(false)
+            mPreviousMenuItem?.isChecked = false
         }
         mPreviousMenuItem = item
 
@@ -167,7 +195,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be monitoring page")
                     }
                 }
-            this.title = "Make specific title later"
+            this.title = item.title.toString()
 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, selectedFragment).commit()

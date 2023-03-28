@@ -28,7 +28,7 @@
                 <item
                     android:id="@+id/nav_inv_orders_general"
                     android:icon="@drawable/ic_investigations"
-                    android:title="Investigations (all types)" />
+                    android:title="All investigations" />
                 <item
                     android:id="@+id/nav_inv_orders_process_control"
                     android:icon="@drawable/ic_status"
