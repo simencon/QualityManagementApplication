@@ -425,6 +425,28 @@ data class DatabaseResult constructor(
     @ColumnInfo(index = true)
     var taskId: Int
 )
+@DatabaseView(
+    viewName = "orders_short",
+    value = "SELECT * FROM `12_orders` ORDER BY orderNumber;"
+)
+data class DatabaseOrderShort constructor(
+    @Embedded
+    val order: DatabaseOrder,
+
+    @Relation(
+        entity = DatabaseOrdersType::class,
+        parentColumn = "orderTypeId",
+        entityColumn = "id"
+    )
+    val orderType: DatabaseOrdersType,
+
+    @Relation(
+        entity = DatabaseReason::class,
+        parentColumn = "reasonId",
+        entityColumn = "id"
+    )
+    val orderReason: DatabaseReason
+)
 
 data class DatabaseOrderComplete constructor(
     @Embedded
@@ -476,6 +498,14 @@ data class DatabaseOrderComplete constructor(
 data class DatabaseSubOrderComplete constructor(
     @Embedded
     val subOrder: DatabaseSubOrder,
+
+    @Relation(
+        entity = DatabaseOrderShort::class,
+        parentColumn = "orderId",
+        entityColumn = "id"
+    )
+    val orderShort: DatabaseOrderShort,
+
     @Relation(
         entity = DatabaseTeamMember::class,
         parentColumn = "orderedById",

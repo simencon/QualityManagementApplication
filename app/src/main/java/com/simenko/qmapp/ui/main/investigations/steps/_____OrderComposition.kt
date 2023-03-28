@@ -107,51 +107,53 @@ fun Orders(
                 state = listState
             ) {
                 items(items = observeOrders!!.first!!) { order ->
-                    if(showCurrentStatus!=null && showOrderNumber != null)
-                    if(order.order.statusId == showCurrentStatus || showCurrentStatus == 0)
-                    if(order.order.orderNumber.toString().contains(showOrderNumber!!) || showOrderNumber == "0")
-                    Box(Modifier.fillMaxWidth()) {
-                        ActionsRow(
-                            order = order,
-                            actionIconSize = ACTION_ITEM_SIZE.dp,
-                            onDeleteOrder = {
-                                appModel.deleteOrder(it)
-                            },
-                            onEdit = {
-                                launchNewItemActivity(
-                                    context,
-                                    ActionType.EDIT_ORDER,
-                                    order.order.id
-                                )
-                            }
-                        )
+                    if (showCurrentStatus != null && showOrderNumber != null)
+                        if (order.order.statusId == showCurrentStatus || showCurrentStatus == 0)
+                            if (order.order.orderNumber.toString()
+                                    .contains(showOrderNumber!!) || showOrderNumber == "0"
+                            )
+                                Box(Modifier.fillMaxWidth()) {
+                                    ActionsRow(
+                                        order = order,
+                                        actionIconSize = ACTION_ITEM_SIZE.dp,
+                                        onDeleteOrder = {
+                                            appModel.deleteOrder(it)
+                                        },
+                                        onEdit = {
+                                            launchNewItemActivity(
+                                                context,
+                                                ActionType.EDIT_ORDER,
+                                                order.order.id
+                                            )
+                                        }
+                                    )
 
-                        OrderCard(
-                            viewModel = appModel,
-                            order = order,
-                            onClickDetails = { it ->
-                                appModel.changeOrderDetailsVisibility(it.order.id)
-                            },
-                            modifier = modifier,
-                            cardOffset = CARD_OFFSET.dp(),
-                            onChangeExpandState = {
-                                clickCounter++
-                                if (clickCounter == 1) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        delay(200)
-                                        clickCounter = 0
-                                    }
+                                    OrderCard(
+                                        viewModel = appModel,
+                                        order = order,
+                                        onClickDetails = { it ->
+                                            appModel.changeOrderDetailsVisibility(it.order.id)
+                                        },
+                                        modifier = modifier,
+                                        cardOffset = CARD_OFFSET.dp(),
+                                        onChangeExpandState = {
+                                            clickCounter++
+                                            if (clickCounter == 1) {
+                                                CoroutineScope(Dispatchers.Main).launch {
+                                                    delay(200)
+                                                    clickCounter = 0
+                                                }
+                                            }
+                                            if (clickCounter == 2) {
+                                                clickCounter = 0
+                                                appModel.changeCompleteOrdersExpandState(it)
+                                            }
+                                        },
+                                        context = context,
+                                        createdRecord = createdRecord,
+                                        showStatusDialog = showStatusDialog
+                                    )
                                 }
-                                if (clickCounter == 2) {
-                                    clickCounter = 0
-                                    appModel.changeCompleteOrdersExpandState(it)
-                                }
-                            },
-                            context = context,
-                            createdRecord = createdRecord,
-                            showStatusDialog = showStatusDialog
-                        )
-                    }
                 }
             }
         }
@@ -309,7 +311,7 @@ fun Order(
                             modifier = Modifier
                                 .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                         )
-                        if(order.order.statusId == 3) {
+                        if (order.order.statusId == 3) {
                             Text(
                                 text = "(",
                                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -326,7 +328,12 @@ fun Order(
                                 } else {
                                     stringResource(R.string.show_more)
                                 },
-                                modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                modifier = Modifier.padding(
+                                    top = 0.dp,
+                                    start = 0.dp,
+                                    end = 0.dp,
+                                    bottom = 0.dp
+                                ),
                                 tint = if (order.orderResult.isOk != false) {
                                     Color.Green
                                 } else {
@@ -336,12 +343,16 @@ fun Order(
                             val conformity = (order.orderResult.total?.toFloat()?.let {
                                 order.orderResult.good?.toFloat()
                                     ?.div(it)
-                            }?.times(100))?:0.0f
+                            }?.times(100)) ?: 0.0f
 
                             Text(
                                 text = when {
-                                    !conformity.isNaN() -> {(round(conformity * 10)/10).toString() + "%"}
-                                    else -> {""}
+                                    !conformity.isNaN() -> {
+                                        (round(conformity * 10) / 10).toString() + "%"
+                                    }
+                                    else -> {
+                                        ""
+                                    }
                                 },
                                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
                                 maxLines = 1,
@@ -561,19 +572,9 @@ fun MyOrderPreview() {
 fun getOrders() = List(30) { i ->
 
     DomainOrderComplete(
-        order = DomainOrder(
-            id = i,
-            1,
-            1,
-            orderNumber = (100..300).random(),
-            1,
-            1,
-            1,
-            "2022-12-15T22:24:43",
-            "2022-12-15T22:24:43"
-        ),
-        orderType = DomainOrdersType(1, "Incoming Inspection"),
-        orderReason = DomainReason(1, "Налагоджульник", "FLI", 1),
+        order = getOrder(i),
+        orderType = getType(),
+        orderReason = getReason(),
         customer = DomainDepartment(
             1,
             "ГШСК№1",
@@ -601,6 +602,30 @@ fun getOrders() = List(30) { i ->
         orderResult = getOrderResult()
     )
 }
+
+fun getOrder(i: Int) = DomainOrder(
+    id = i,
+    1,
+    1,
+    orderNumber = (100..300).random(),
+    1,
+    1,
+    1,
+    "2022-12-15T22:24:43",
+    "2022-12-15T22:24:43"
+)
+
+fun getType() = DomainOrdersType(
+    1,
+    "Incoming Inspection"
+)
+
+fun getReason() = DomainReason(
+    1,
+    "Налагоджульник",
+    "FLI",
+    1
+)
 
 fun getOrderResult() = DomainOrderResult(
     id = 0,

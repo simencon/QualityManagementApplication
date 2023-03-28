@@ -410,6 +410,8 @@ interface QualityManagementInvestigationsDao {
         DatabaseSubOrderResult::class,
         DatabaseTaskResult::class,
         DatabaseSampleResult::class,
+
+        DatabaseOrderShort::class,
     ],
     version = 1,
     exportSchema = true

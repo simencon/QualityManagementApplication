@@ -85,7 +85,8 @@ fun SubOrdersStandAlone(
                 items(items = observeSubOrders!!.first!!) { subOrder ->
                     if(showCurrentStatus!=null && showOrderNumber != null)
                     if(subOrder.subOrder.statusId == showCurrentStatus || showCurrentStatus == 0)
-                    if(subOrder.subOrder.subOrderNumber.toString().contains(showOrderNumber!!) || showOrderNumber == "0")
+                    if(subOrder.orderShort.order.orderNumber.toString().contains(showOrderNumber!!) || showOrderNumber == "0")
+                    if(subOrder.orderShort.order.orderTypeId == 3)
                     Box(Modifier.fillMaxWidth()) {
                         ActionsRow(
                             subOrder = subOrder,

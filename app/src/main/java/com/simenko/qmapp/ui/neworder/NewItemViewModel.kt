@@ -442,7 +442,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             }
         }
         FilteringMode.ADD_ALL_FROM_META_TABLE -> {
-            if (m != null && m.value != null) {
+            if ((m != null) && (m.value != null)) {
                 m.value!!.forEach { mIt ->
                     val item = s?.value?.find { it.getRecordId() == mIt.id }
                     if (d.value?.find { it.getRecordId() == item?.getRecordId() } == null) {
@@ -455,7 +455,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             selectSingleRecord(d, trigger)
             d.value?.clear()
 
-            if (m != null && m.value != null) {
+            if ((m != null) && (m.value != null)) {
                 val mSorted = m.value!!.sortedBy {
                     when (step) {
                         FilteringStep.NOT_FROM_META_TABLE -> it.depOrder

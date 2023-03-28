@@ -1,5 +1,12 @@
 package com.simenko.qmapp.domain
 
+import androidx.room.Embedded
+import androidx.room.Relation
+import com.simenko.qmapp.room.entities.DatabaseOrder
+import com.simenko.qmapp.room.entities.DatabaseOrderShort
+import com.simenko.qmapp.room.entities.DatabaseOrdersType
+import com.simenko.qmapp.room.entities.DatabaseReason
+
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -185,6 +192,12 @@ data class DomainResult constructor(
     var taskId: Int
 )
 
+data class DomainOrderShort constructor(
+    val order: DomainOrder,
+    val orderType: DomainOrdersType,
+    val orderReason: DomainReason
+)
+
 data class DomainOrderComplete constructor(
     var order: DomainOrder,
     var orderType: DomainOrdersType,
@@ -200,6 +213,7 @@ data class DomainOrderComplete constructor(
 
 data class DomainSubOrderComplete constructor(
     var subOrder: DomainSubOrder,
+    var orderShort: DomainOrderShort,
     var orderedBy: DomainTeamMember,
     var completedBy: DomainTeamMember?,
     var status: DomainOrdersStatus,

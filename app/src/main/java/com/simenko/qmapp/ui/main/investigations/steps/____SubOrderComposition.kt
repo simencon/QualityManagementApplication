@@ -199,10 +199,10 @@ fun SubOrderCard(
     ) {
         SubOrder(
             modifier = modifier,
-            viewModel = viewModel,
+            appModel = viewModel,
             subOrder = subOrder,
             onClickDetails = { onClickDetails(subOrder) },
-            showStatusDialog = showStatusDialog
+            showStatusDialog = showStatusDialog,
         )
     }
 }
@@ -210,10 +210,10 @@ fun SubOrderCard(
 @Composable
 fun SubOrder(
     modifier: Modifier = Modifier,
-    viewModel: QualityManagementViewModel? = null,
+    appModel: QualityManagementViewModel? = null,
     onClickDetails: () -> Unit = {},
     subOrder: DomainSubOrderComplete = getSubOrders()[0],
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    showStatusDialog: (Int, DialogFor, Int?) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -236,59 +236,115 @@ fun SubOrder(
                     .weight(0.90f),
             ) {
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier
+                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Num.:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    Column(
                         modifier = Modifier
-                            .weight(weight = 0.12f)
-                            .padding(top = 6.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = subOrder.subOrder.subOrderNumber.toString(),
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = "Quantity:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.18f)
-                            .padding(top = 6.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = subOrder.subOrder.samplesCount.toString(),
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.09f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(0.54f),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Num.:",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.2f)
+                                    .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = when (appModel?.showAllInvestigations?.value) {
+                                    true -> subOrder.subOrder.subOrderNumber.toString()
+                                    else -> subOrder.orderShort.order.orderNumber.toString()
+                                },
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.3f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = "Quantity:",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.33f)
+                                    .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = subOrder.subOrder.samplesCount.toString(),
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(weight = 0.17f)
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        }
+                        if (appModel?.showAllInvestigations?.value == false)
+                            Row(
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Reason:",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontSize = 10.sp
+                                    ),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .weight(weight = 0.27f)
+                                        .padding(
+                                            top = 5.dp,
+                                            start = 0.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
+                                )
+                                Text(
+                                    text = subOrder.orderShort.orderReason.reasonFormalDescript ?: "",
+                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .weight(weight = 0.73f)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
+                                )
+                            }
+
+                    }
+
                     TextButton(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = { showStatusDialog(subOrder.subOrder.id, DialogFor.SUB_ORDER, subOrder.subOrder.completedById) },
+                        onClick = {
+                            showStatusDialog(
+                                subOrder.subOrder.id,
+                                DialogFor.SUB_ORDER,
+                                subOrder.subOrder.completedById
+                            )
+                        },
                         content = {
                             Text(
                                 text = subOrder.status.statusDescription ?: "-",
@@ -298,7 +354,7 @@ fun SubOrder(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
-                            if(subOrder.subOrder.statusId == 3) {
+                            if (subOrder.subOrder.statusId == 3) {
                                 Text(
                                     text = "(",
                                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -306,7 +362,12 @@ fun SubOrder(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
                                 Icon(
                                     imageVector = if (subOrder.subOrderResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
@@ -315,7 +376,12 @@ fun SubOrder(
                                     } else {
                                         stringResource(R.string.show_more)
                                     },
-                                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                                    modifier = Modifier.padding(
+                                        top = 0.dp,
+                                        start = 0.dp,
+                                        end = 0.dp,
+                                        bottom = 0.dp
+                                    ),
                                     tint = if (subOrder.subOrderResult.isOk != false) {
                                         Color.Green
                                     } else {
@@ -325,19 +391,28 @@ fun SubOrder(
                                 val conformity = (subOrder.subOrderResult.total?.toFloat()?.let {
                                     subOrder.subOrderResult.good?.toFloat()
                                         ?.div(it)
-                                }?.times(100))?:0.0f
+                                }?.times(100)) ?: 0.0f
 
                                 Text(
                                     text = when {
-                                        !conformity.isNaN() -> {conformity.roundToInt().toString() + "%"}
-                                        else -> {""}
+                                        !conformity.isNaN() -> {
+                                            conformity.roundToInt().toString() + "%"
+                                        }
+                                        else -> {
+                                            ""
+                                        }
                                     },
                                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
                                 Text(
                                     text = ")",
@@ -346,7 +421,12 @@ fun SubOrder(
                                     overflow = TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Start,
                                     modifier = Modifier
-                                        .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                        .padding(
+                                            top = 0.dp,
+                                            start = 3.dp,
+                                            end = 0.dp,
+                                            bottom = 0.dp
+                                        )
                                 )
                             }
                         },
@@ -414,9 +494,9 @@ fun SubOrder(
                     Text(
                         text = StringUtils.concatTwoStrings1(
                             StringUtils.concatTwoStrings3(
-                                subOrder.itemVersionComplete?.itemComplete?.key?.componentKey,
-                                subOrder.itemVersionComplete?.itemComplete?.item?.itemDesignation
-                            ), subOrder.itemVersionComplete?.itemVersion?.versionDescription
+                                subOrder.itemVersionComplete.itemComplete.key.componentKey,
+                                subOrder.itemVersionComplete.itemComplete.item.itemDesignation
+                            ), subOrder.itemVersionComplete.itemVersion.versionDescription
                         ),
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         maxLines = 1,
@@ -478,7 +558,7 @@ fun SubOrder(
 
         SubOrderDetails(
             modifier = modifier,
-            viewModel = viewModel,
+            viewModel = appModel,
             subOrder = subOrder,
             showStatusDialog = showStatusDialog
         )
@@ -613,6 +693,11 @@ fun getSubOrders() = List(30) { i ->
 
     DomainSubOrderComplete(
         subOrder = getSubOrder(),
+        orderShort = DomainOrderShort(
+            order = getOrder(50),
+            orderType = getType(),
+            orderReason = getReason()
+        ),
         orderedBy = DomainTeamMember(
             id = 1,
             departmentId = 1,
@@ -735,7 +820,7 @@ fun getItemVersionComplete() = DomainItemVersionComplete(
             componentKey = "IR",
             componentKeyDescription = "Внутрішнє кільце після шліфувальної обробки"
         ),
-        itemToLines = List(30) {i ->
+        itemToLines = List(30) { i ->
             DomainItemToLine(
                 id = 0,
                 fId = "c0",

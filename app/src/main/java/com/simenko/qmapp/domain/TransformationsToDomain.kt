@@ -127,6 +127,11 @@ fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int 
 
         DomainSubOrderComplete(
             subOrder = it.subOrder.toDomainSubOrder(),
+            orderShort =  DomainOrderShort(
+                order = it.orderShort.order.toDomainOrder(),
+                orderType = it.orderShort.orderType.toDomainType(),
+                orderReason = it.orderShort.orderReason.toDomainReason()
+            ),
             orderedBy = it.orderedBy.toDomainTeamMember(),
             completedBy = it.completedBy?.toDomainTeamMember(),
             status = it.status.toDomainStatus(),
@@ -143,7 +148,7 @@ fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int 
             subOrderResult = it.subOrderResult.toDomainSubOrderResult(),
             detailsVisibility = detailsVisibility
         )
-    }
+    }.sortedByDescending { it.orderShort.order.orderNumber }
 }
 
 fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(lastSelectedId: Int = 0): List<DomainSubOrderTaskComplete> {

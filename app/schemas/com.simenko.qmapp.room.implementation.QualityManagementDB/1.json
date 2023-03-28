@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "55065133c81ba6193d5041f4b9f0823d",
+    "identityHash": "853516d7e33956ba6721ad9db94e78c5",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3391,6 +3391,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId GROUP BY s.id, r.taskId;"
       },
       {
+        "viewName": "orders_short",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `12_orders` ORDER BY orderNumber;"
+      },
+      {
         "viewName": "items_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `items`"
       },
@@ -3405,7 +3409,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '55065133c81ba6193d5041f4b9f0823d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '853516d7e33956ba6721ad9db94e78c5')"
     ]
   }
 }

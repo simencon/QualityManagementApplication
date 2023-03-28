@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.main
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -21,7 +20,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.___InvestigationsContainerFragment
-import com.simenko.qmapp.ui.main.investigations._InvestigationsFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -133,17 +131,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.upload_all_data -> {
                     viewModel.refreshDataFromRepository()
                 }
-                R.id.incoming_inspection -> {
+                R.id.ppap -> {
                     TODO("Will filter accordingly")
                 }
-                R.id.ppap -> {
+                R.id.incoming_inspection -> {
                     TODO("Will filter accordingly")
                 }
                 R.id.process_control -> {
                     TODO("Will filter accordingly")
                 }
-                else -> {
+                R.id.product_audit -> {
                     TODO("Will filter accordingly")
+                }
+                R.id.custom_filter -> {
+                    TODO("Will filter accordingly")
+                }
+                else -> {
                 }
             }
         } catch (e: Error) {

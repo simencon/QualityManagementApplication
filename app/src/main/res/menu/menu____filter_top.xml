@@ -8,24 +8,41 @@
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
 
-    <item
-        android:id="@+id/upload_all_data"
-        android:title="Upload all data"
-        app:showAsAction = "never"/>
-    <item
-        android:id="@+id/ppap"
-        android:title="PPAP"
-        app:showAsAction = "never"/>
-    <item
-        android:id="@+id/incoming_inspection"
-        android:title="Incoming inspection"
-        app:showAsAction = "never"/>
-    <item
-        android:id="@+id/process_control"
-        android:title="Process control"
-        app:showAsAction = "never"/>
-    <item
-        android:id="@+id/product_audit"
-        android:title="Product audit"
-        app:showAsAction = "never"/>
+    <group>
+        <item
+            android:title="Actions">
+            <menu>
+                <item
+                    android:id="@+id/upload_all_data"
+                    android:icon="@drawable/ic_refresh"
+                    android:title="Upload all data"
+                    app:showAsAction = "never"/>
+            </menu>
+        </item>
+        <item android:title="Filter">
+            <menu>
+                <item
+                    android:id="@+id/ppap"
+                    android:title="PPAP"
+                    app:showAsAction = "never"/>
+                <item
+                    android:id="@+id/incoming_inspection"
+                    android:title="Incoming inspection"
+                    app:showAsAction = "never"/>
+                <item
+                    android:id="@+id/process_control"
+                    android:title="Process control"
+                    app:showAsAction = "never"/>
+                <item
+                    android:id="@+id/product_audit"
+                    android:title="Product audit"
+                    app:showAsAction = "never"/>
+                <item
+                    android:id="@+id/custom_filter"
+                    android:icon="@drawable/ic_filter"
+                    android:title="Custom"
+                    app:showAsAction = "never"/>
+            </menu>
+        </item>
+    </group>
 </menu>
