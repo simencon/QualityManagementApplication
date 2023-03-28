@@ -16,7 +16,8 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
 
-class ___InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) : Fragment() {
+class ___InvestigationsContainerFragment(private val createdRecord: CreatedRecord? = null) :
+    Fragment() {
 
     private lateinit var binding: FragmentPagerContainerBinding
     private lateinit var viewPager: ViewPager2
@@ -48,13 +49,29 @@ class ___InvestigationsContainerFragment(private val createdRecord: CreatedRecor
         val tabLayout: TabLayout = binding.tabs
         TabLayoutMediator(tabLayout, viewPager, true, true) { tab, position ->
             tab.text = StringUtils.getWithSpaces(TargetInv.values()[position].name)
+            tab.tag = TargetInv.values()[position].name
         }.attach()
 
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                viewModel.setCurrentStatusToShow(tab?.tag.toString())
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+//                TODO("Not yet implemented")
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+//                TODO("Not yet implemented")
+            }
+
+        })
 
         return binding.root
     }
 
     enum class TargetInv {
+        ALL,
         TO_DO,
         IN_PROGRESS,
         DONE

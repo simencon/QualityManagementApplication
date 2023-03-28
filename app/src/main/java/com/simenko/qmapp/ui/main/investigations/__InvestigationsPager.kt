@@ -22,13 +22,17 @@ class OrderSectionPagerAdapter(
         return when (position) {
             0 -> _InvestigationsFragment(
                 createdRecord,
-                ___InvestigationsContainerFragment.TargetInv.TO_DO.name
+                ___InvestigationsContainerFragment.TargetInv.ALL.name
             )
             1 -> _InvestigationsFragment(
                 createdRecord,
+                ___InvestigationsContainerFragment.TargetInv.TO_DO.name
+            )
+            2 -> _InvestigationsFragment(
+                createdRecord,
                 ___InvestigationsContainerFragment.TargetInv.IN_PROGRESS.name
             )
-            1 -> _InvestigationsFragment(
+            3 -> _InvestigationsFragment(
                 createdRecord,
                 ___InvestigationsContainerFragment.TargetInv.DONE.name
             )

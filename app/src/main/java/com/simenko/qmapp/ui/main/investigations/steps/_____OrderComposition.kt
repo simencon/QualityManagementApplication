@@ -58,6 +58,7 @@ fun Orders(
     val context = LocalContext.current
 
     val observeOrders by appModel.completeOrdersMediator.observeAsState()
+    val showCurrentStatus by appModel.showWithStatus.observeAsState()
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -107,6 +108,8 @@ fun Orders(
                 state = listState
             ) {
                 items(items = observeOrders!!.first!!) { order ->
+                    if(showCurrentStatus!=null)
+                    if(order.order.statusId == showCurrentStatus || showCurrentStatus == 0)
                     Box(Modifier.fillMaxWidth()) {
                         ActionsRow(
                             order = order,

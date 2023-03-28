@@ -11,6 +11,7 @@ import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
+import com.simenko.qmapp.ui.main.investigations.___InvestigationsContainerFragment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import java.io.IOException
@@ -62,6 +63,27 @@ class QualityManagementViewModel @Inject constructor(
 
     val inputForOrder = investigationsRepository.inputForOrder
     val investigationReasons = investigationsRepository.investigationReasons
+
+    var showWithStatus = MutableLiveData<Int> (0)
+    fun setCurrentStatusToShow(status: String){
+        when(status) {
+            ___InvestigationsContainerFragment.TargetInv.ALL.name -> {
+                showWithStatus.value = 0
+            }
+            ___InvestigationsContainerFragment.TargetInv.TO_DO.name -> {
+                showWithStatus.value = 1
+            }
+            ___InvestigationsContainerFragment.TargetInv.IN_PROGRESS.name -> {
+                showWithStatus.value = 2
+            }
+            ___InvestigationsContainerFragment.TargetInv.DONE.name -> {
+                showWithStatus.value = 3
+            }
+            else -> {
+                showWithStatus.value = 0
+            }
+        }
+    }
 
     val currentOrder = MutableLiveData(0)
 
@@ -367,6 +389,7 @@ class QualityManagementViewModel @Inject constructor(
 
     private suspend fun editTask(subOrderTask: DomainSubOrderTask, coroutineScope: CoroutineScope) {
         val listOfResults: MutableList<DomainResult> = mutableListOf()
+
         /**
          * 1.Get latest status task
          * 2.Compare with new status
@@ -427,7 +450,18 @@ class QualityManagementViewModel @Inject constructor(
                             }
                         }
 
-                    val channel3 =
+                    listOfResults.forEach { dResult ->
+                        val channel3 =
+                            investigationsRepository.getCreatedRecord(
+                                coroutineScope,
+                                dResult
+                            )
+                        channel3.consumeEach { nResultIt ->
+                            Log.d(TAG, "editSubOrderTask: $nResultIt")
+                        }
+                    }
+
+                    /*val channel3 =
                         investigationsRepository.getCreatedRecords(
                             coroutineScope,
                             listOfResults
@@ -436,7 +470,7 @@ class QualityManagementViewModel @Inject constructor(
                         nResultsIt.forEach { nResultIt ->
                             Log.d(TAG, "editSubOrderTask: $nResultIt")
                         }
-                    }
+                    }*/
 
                     Log.d(TAG, "editSubOrderTask: Collect/Post new results")
                 }

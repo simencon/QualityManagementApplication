@@ -52,7 +52,9 @@ class _InvestigationsFragment(
                                     viewModel.teamMembers.observe(viewLifecycleOwner) {
                                         viewModel.completeTasks.observe(viewLifecycleOwner) {
                                             binding.composeView.apply {
-                                                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                                                setViewCompositionStrategy(
+                                                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                                                )
                                                 setContent {
                                                     InvestigationsMainComposition(
                                                         modifier = Modifier
