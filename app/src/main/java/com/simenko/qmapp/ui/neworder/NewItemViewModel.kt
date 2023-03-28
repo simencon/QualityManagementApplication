@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
+import com.simenko.qmapp.repository.syncSubOrders
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.launchMainActivity
@@ -27,7 +28,7 @@ class NewItemViewModel @Inject constructor(
         QualityManagementManufacturingRepository(roomDatabase)
     private val qualityManagementProductsRepository =
         QualityManagementProductsRepository(roomDatabase)
-    private val qualityManagementInvestigationsRepository =
+    private val investigationsRepository =
         QualityManagementInvestigationsRepository(roomDatabase)
 
     val isLoadingInProgress = MutableLiveData(false)
@@ -35,8 +36,8 @@ class NewItemViewModel @Inject constructor(
 
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    val investigationOrders = qualityManagementInvestigationsRepository.orders
-    val subOrdersWithChildren = qualityManagementInvestigationsRepository.subOrdersWithChildren
+    val investigationOrders = investigationsRepository.orders
+    val subOrdersWithChildren = investigationsRepository.subOrdersWithChildren
 
     val currentOrder = MutableLiveData(getEmptyOrder())
     val currentSubOrder = MutableLiveData(DomainSubOrderWithChildren(getEmptySubOrder()))
@@ -56,7 +57,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
         }
 
-    val investigationTypes = qualityManagementInvestigationsRepository.investigationTypes
+    val investigationTypes = investigationsRepository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
     val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>>().apply {
@@ -64,7 +65,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(investigationTypesMutable.value, it) }
         }
 
-    val investigationReasons = qualityManagementInvestigationsRepository.investigationReasons
+    val investigationReasons = investigationsRepository.investigationReasons
     val investigationReasonsMutable =
         MutableLiveData<MutableList<DomainReason>>(mutableListOf())
     val investigationReasonsMediator: MediatorLiveData<Pair<MutableList<DomainReason>?, Boolean?>> =
@@ -89,7 +90,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(orderPlacersMutable.value, it) }
         }
 
-    val inputForOrder = qualityManagementInvestigationsRepository.inputForOrder
+    val inputForOrder = investigationsRepository.inputForOrder
 
     val departments = qualityManagementManufacturingRepository.departments
     val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
@@ -183,9 +184,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                qualityManagementInvestigationsRepository.refreshInvestigationTypes()
-                qualityManagementInvestigationsRepository.refreshInvestigationReasons()
-                qualityManagementInvestigationsRepository.refreshInputForOrder()
+                investigationsRepository.refreshInvestigationTypes()
+                investigationsRepository.refreshInvestigationReasons()
+                investigationsRepository.refreshInputForOrder()
                 qualityManagementManufacturingRepository.refreshDepartments()
                 qualityManagementManufacturingRepository.refreshTeamMembers()
 
@@ -207,11 +208,11 @@ class NewItemViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             subOrder.samples.forEach {
                 if (it.toBeDeleted) {
-                    qualityManagementInvestigationsRepository.deleteSample(it)
+                    investigationsRepository.deleteSample(it)
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     val channel =
-                        qualityManagementInvestigationsRepository.getCreatedRecord(this, it)
+                        investigationsRepository.getCreatedRecord(this, it)
                     channel.consumeEach { }
                 }
             }
@@ -225,12 +226,12 @@ class NewItemViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             subOrder.subOrderTasks.forEach {
                 if (it.toBeDeleted) {
-                    qualityManagementInvestigationsRepository.deleteSubOrderTask(it)
+                    investigationsRepository.deleteSubOrderTask(it)
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
                     val channel =
-                        qualityManagementInvestigationsRepository.getCreatedRecord(this, it)
+                        investigationsRepository.getCreatedRecord(this, it)
                     channel.consumeEach { }
                 }
             }
@@ -242,7 +243,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.getCreatedRecord(
+                    val channel = investigationsRepository.getCreatedRecord(
                         this,
                         subOrder.subOrder
                     )
@@ -267,7 +268,7 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     val channel =
-                        qualityManagementInvestigationsRepository.getCreatedRecord(this, order)
+                        investigationsRepository.getCreatedRecord(this, order)
                     channel.consumeEach {
                         launchMainActivity(activity, it.id)
                         activity.finish()
@@ -286,7 +287,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = qualityManagementInvestigationsRepository.updateRecord(
+                    val channel = investigationsRepository.updateRecord(
                         this,
                         subOrder.subOrder
                     )
@@ -296,6 +297,10 @@ class NewItemViewModel @Inject constructor(
                         launchMainActivity(activity, it.orderId, it.id)
                         activity.finish()
                     }
+
+                    syncTasks()
+                    syncSamples()
+                    syncResults()
                 }
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
@@ -311,13 +316,63 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     val channel =
-                        qualityManagementInvestigationsRepository.updateRecord(this, order)
+                        investigationsRepository.updateRecord(this, order)
                     channel.consumeEach {
                         launchMainActivity(activity, it.id)
                         activity.finish()
                     }
                 }
                 isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncTasks() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                investigationsRepository.refreshSubOrderTasks()
+                investigationsRepository.refreshResults()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncSamples() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                investigationsRepository.refreshSamples()
+                investigationsRepository.refreshResults()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncResults() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+
+                investigationsRepository.refreshResults()
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true

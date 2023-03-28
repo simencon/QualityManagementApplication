@@ -804,8 +804,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     suspend fun deleteSubOrderTask(subOrderTask: DomainSubOrderTask) {
         withContext(Dispatchers.IO) {
             QualityManagementNetwork.serviceHolderInvestigations.deleteSubOrderTask(
-                subOrderTask.subOrderId,
-                subOrderTask.charId
+                subOrderTask.id
             )
         }
     }

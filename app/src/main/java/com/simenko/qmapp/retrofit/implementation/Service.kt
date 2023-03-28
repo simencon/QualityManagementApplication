@@ -156,8 +156,8 @@ interface QualityManagementInvestigationsService {
     @POST("api/_137SubOrderTask")
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
 
-    @DELETE("api/_137SubOrderTask/{subOrderId}/{charId}")
-    suspend fun deleteSubOrderTask(@Path("subOrderId") subOrderId: Int, @Path("charId") charId: Int): Response<Unit>
+    @DELETE("api/_137SubOrderTask/{id}")
+    suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("api/_137SubOrderTask/{id}")
