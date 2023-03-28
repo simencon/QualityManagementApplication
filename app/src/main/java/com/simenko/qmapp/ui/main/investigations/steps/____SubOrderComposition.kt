@@ -91,8 +91,7 @@ fun SubOrdersFlowColumn(
                                             subOrder.subOrder.orderId,
                                             subOrder.subOrder.id
                                         )
-                                    },
-                                    onFavorite = {}
+                                    }
                                 )
 
                                 SubOrderCard(

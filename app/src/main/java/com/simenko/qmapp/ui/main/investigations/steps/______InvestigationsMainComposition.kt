@@ -49,6 +49,7 @@ fun InvestigationsMainComposition(
     context: Context,
     createdRecord: CreatedRecord?
 ) {
+    val showAllInvestigations by appModel.showAllInvestigations.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
@@ -146,13 +147,23 @@ fun InvestigationsMainComposition(
                                 )
                         }
 
-                        Orders(
-                            modifier = modifier.width(screenWidth.dp),
-                            appModel = appModel,
-                            onListEnd = { changeFlaBtnPosition(it) },
-                            createdRecord = createdRecord,
-                            showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
-                        )
+                        if (showAllInvestigations == true)
+                            Orders(
+                                modifier = modifier.width(screenWidth.dp),
+                                appModel = appModel,
+                                onListEnd = { changeFlaBtnPosition(it) },
+                                createdRecord = createdRecord,
+                                showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
+                            )
+                        else
+                            SubOrdersStandAlone(
+                                modifier = modifier.width(screenWidth.dp),
+                                appModel = appModel,
+                                onListEnd = { changeFlaBtnPosition(it) },
+                                createdRecord = createdRecord,
+                                showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
+                            )
+
                         SampleComposition(
                             modifier.width((screenWidth * (0.38 + 0.5) * isSamplesNumVisible).dp),
                             appModel

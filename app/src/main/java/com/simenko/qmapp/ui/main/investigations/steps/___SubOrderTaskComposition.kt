@@ -60,7 +60,6 @@ fun SubOrderTasksFlowColumn(
                                 actionIconSize = ACTION_ITEM_SIZE.dp,
                                 onDeleteOrder = {},
                                 onEdit = {},
-                                onFavorite = {}
                             )
 
                             SubOrderTaskCard(

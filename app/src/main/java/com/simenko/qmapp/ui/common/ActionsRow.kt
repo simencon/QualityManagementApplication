@@ -29,8 +29,7 @@ fun ActionsRow(
     actionIconSize: Dp,
     onDeleteOrder: (DomainOrderComplete) -> Unit = {},
     onDeleteSubOrder: (DomainSubOrderComplete) -> Unit = {},
-    onEdit: () -> Unit,
-    onFavorite: () -> Unit,
+    onEdit: () -> Unit
 ) {
     Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
         IconButton(
@@ -64,16 +63,5 @@ fun ActionsRow(
                 )
             },
         )
-//        IconButton(
-//            modifier = Modifier.size(actionIconSize),
-//            onClick = onFavorite,
-//            content = {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_favorite),
-//                    tint = Color.Red,
-//                    contentDescription = "Expandable Arrow",
-//                )
-//            }
-//        )
     }
 }

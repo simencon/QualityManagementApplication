@@ -67,6 +67,8 @@ class QualityManagementViewModel @Inject constructor(
     /**
      * Filters
      * */
+    var showAllInvestigations = MutableLiveData(true)
+
     var showWithStatus = MutableLiveData<Int> (0)
     fun setCurrentStatusToShow(status: String){
         when(status) {

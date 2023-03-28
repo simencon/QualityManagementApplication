@@ -179,10 +179,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
+                        viewModel.showAllInvestigations.value = true
                         ___InvestigationsContainerFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        _InvestigationsFragment(createdRecord)
+                        viewModel.showAllInvestigations.value = false
+                        ___InvestigationsContainerFragment(createdRecord)
                     }
 
                     R.id.nav_inv_orders_status_monitoring -> {

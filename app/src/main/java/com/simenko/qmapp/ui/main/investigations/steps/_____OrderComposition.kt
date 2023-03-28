@@ -66,8 +66,6 @@ fun Orders(
 
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(lookForRecord) {
-        Log.d(TAG, "Orders: lookForRecord")
-
         if (observeOrders?.first != null && createdRecord != null)
             coroutineScope.launch {
 
@@ -125,8 +123,7 @@ fun Orders(
                                     ActionType.EDIT_ORDER,
                                     order.order.id
                                 )
-                            },
-                            onFavorite = {}
+                            }
                         )
 
                         OrderCard(
