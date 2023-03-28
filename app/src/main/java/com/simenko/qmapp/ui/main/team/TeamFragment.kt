@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.FragmentComposeBinding
+import com.simenko.qmapp.databinding.FragmentTeamBinding
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -32,9 +32,9 @@ class TeamFragment : Fragment() {
             .inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
-        val binding: FragmentComposeBinding = DataBindingUtil.inflate(
+        val binding: FragmentTeamBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment____compose,
+            R.layout.fragment____team,
             container,
             false
         )

@@ -2,8 +2,6 @@ package com.simenko.qmapp.ui.main.manufacturing
 
 import android.os.Bundle
 import android.view.*
-import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -11,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.databinding.FragmentRvBinding
+import com.simenko.qmapp.databinding.FragmentManufacturingBinding
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class ManufacturingFragment : Fragment() {
@@ -42,9 +40,9 @@ class ManufacturingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        val binding: FragmentRvBinding = DataBindingUtil.inflate(
+        val binding: FragmentManufacturingBinding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_____rv,
+            R.layout.fragment_____manufacturing,
             container,
             false
         )

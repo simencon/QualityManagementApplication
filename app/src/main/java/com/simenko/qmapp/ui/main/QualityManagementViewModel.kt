@@ -11,7 +11,7 @@ import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
-import com.simenko.qmapp.ui.main.investigations.___InvestigationsContainerFragment
+import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import java.io.IOException
@@ -67,21 +67,22 @@ class QualityManagementViewModel @Inject constructor(
     /**
      * Filters
      * */
+    var currentTitle = MutableLiveData("")
     var showAllInvestigations = MutableLiveData(true)
 
     var showWithStatus = MutableLiveData<Int> (0)
     fun setCurrentStatusToShow(status: String){
         when(status) {
-            ___InvestigationsContainerFragment.TargetInv.ALL.name -> {
+            InvestigationsFragment.TargetInv.ALL.name -> {
                 showWithStatus.value = 0
             }
-            ___InvestigationsContainerFragment.TargetInv.TO_DO.name -> {
+            InvestigationsFragment.TargetInv.TO_DO.name -> {
                 showWithStatus.value = 1
             }
-            ___InvestigationsContainerFragment.TargetInv.IN_PROGRESS.name -> {
+            InvestigationsFragment.TargetInv.IN_PROGRESS.name -> {
                 showWithStatus.value = 2
             }
-            ___InvestigationsContainerFragment.TargetInv.DONE.name -> {
+            InvestigationsFragment.TargetInv.DONE.name -> {
                 showWithStatus.value = 3
             }
             else -> {

@@ -19,7 +19,7 @@ import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
-import com.simenko.qmapp.ui.main.investigations.___InvestigationsContainerFragment
+import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -56,9 +56,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         (application as BaseApplication).appComponent.mainComponent().create().inject(this)
         viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
 
-        viewModel.showOrderNumber.observe(this) {
-//            do nothing, just observe
-        }
+        viewModel.showOrderNumber.observe(this) {}
+        viewModel.currentTitle.observe(this) {}
 
         super.onCreate(savedInstanceState)
         createdRecord = CreatedRecord(
@@ -183,11 +182,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                     R.id.nav_inv_orders_general -> {
                         viewModel.showAllInvestigations.value = true
-                        ___InvestigationsContainerFragment(createdRecord)
+                        InvestigationsFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
                         viewModel.showAllInvestigations.value = false
-                        ___InvestigationsContainerFragment(createdRecord)
+                        InvestigationsFragment(createdRecord)
                     }
 
                     R.id.nav_scrap_level -> {
@@ -200,6 +199,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be monitoring page")
                     }
                 }
+            viewModel.currentTitle.value = item.title.toString()
             this.title = item.title.toString()
 
             supportFragmentManager.beginTransaction()
@@ -210,6 +210,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         drawer.closeDrawer(GravityCompat.START)
         return true
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        this.title = viewModel.currentTitle.value
     }
 
     override fun onDestroy() {
