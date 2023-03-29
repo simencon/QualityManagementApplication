@@ -1,9 +1,14 @@
 package com.simenko.qmapp.utils
 
+import android.util.Log
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
+
+private const val TAG = "ObjectsTransformer"
 
 open class ObjectTransformer<in T : Any, out R : Any>
 constructor(inClass: KClass<T>, outClass: KClass<R>) {
@@ -19,6 +24,7 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
     }
 
     open fun argFor(parameter: KParameter, data: T): Any? {
+        Log.d(TAG, "argFor: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         return when (parameter.name) {
 //            Fields added only in domain model
             "channelsVisibility" -> {
@@ -83,6 +89,7 @@ class ListTransformer<in T : Any, out R : Any> constructor(
     }
 
     fun argFor(parameter: KParameter, data: T): Any? {
+        Log.d(TAG, "argFor: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         return when (parameter.name) {
 //            Fields added only in domain model
             "channelsVisibility" -> {

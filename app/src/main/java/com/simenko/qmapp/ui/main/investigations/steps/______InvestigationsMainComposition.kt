@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -39,6 +40,8 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
 }
 
+private const val TAG = "InvestigationsMainComposition"
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InvestigationsMainComposition(
@@ -50,6 +53,7 @@ fun InvestigationsMainComposition(
     val showAllInvestigations by appModel.showAllInvestigations.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    Log.d(TAG, "InvestigationsMainComposition: windowWidth = $screenWidth")
 
     val currentTask by appModel.currentSubOrderTask.observeAsState()
 
@@ -127,7 +131,14 @@ fun InvestigationsMainComposition(
                         Modifier
                             .horizontalScroll(rowState)
                             .width(
-                                (screenWidth * (1 + 0.38 * isSamplesNumVisible + 0.5 * isResultsVisible)).dp
+                                when {
+                                    screenWidth >720 -> {
+                                        screenWidth.dp
+                                    }
+                                    else -> {
+                                        (screenWidth * (1 + 0.38 * isSamplesNumVisible + 0.5 * isResultsVisible)).dp
+                                    }
+                                }
                             )
                             .animateContentSize(
                                 tween(
@@ -148,7 +159,16 @@ fun InvestigationsMainComposition(
 
                         if (showAllInvestigations == true)
                             Orders(
-                                modifier = modifier.width(screenWidth.dp),
+                                modifier = modifier.width(
+                                    when(isSamplesNumVisible) {
+                                        0 -> {
+                                            screenWidth.dp
+                                        }
+                                        else -> {
+                                            (screenWidth*0.57).dp
+                                        }
+                                    }
+                                ),
                                 appModel = appModel,
                                 onListEnd = { changeFlaBtnPosition(it) },
                                 createdRecord = createdRecord,
@@ -156,7 +176,16 @@ fun InvestigationsMainComposition(
                             )
                         else
                             SubOrdersStandAlone(
-                                modifier = modifier.width(screenWidth.dp),
+                                modifier = modifier.width(
+                                    when(isSamplesNumVisible) {
+                                        0 -> {
+                                            screenWidth.dp
+                                        }
+                                        else -> {
+                                            (screenWidth*0.57).dp
+                                        }
+                                    }
+                                ),
                                 appModel = appModel,
                                 onListEnd = { changeFlaBtnPosition(it) },
                                 createdRecord = createdRecord,
@@ -164,13 +193,19 @@ fun InvestigationsMainComposition(
                             )
 
                         SampleComposition(
-                            modifier.width((screenWidth * (0.38 + 0.5) * isSamplesNumVisible).dp),
+                            modifier.width(
+                                when {
+                                    screenWidth >720 -> {
+                                        (screenWidth*0.43).dp
+                                    }
+                                    else -> {
+                                        (screenWidth * (0.38 + 0.5) * isSamplesNumVisible).dp
+                                    }
+                                }
+
+                            ),
                             appModel
                         )
-//                        ResultsComposition(
-//                            modifier.width((screenWidth * 0.5 * isResultsVisible).dp),
-//                            appModel
-//                        )
                     }
 
                     if (showStatusChangeDialog.value == true)
