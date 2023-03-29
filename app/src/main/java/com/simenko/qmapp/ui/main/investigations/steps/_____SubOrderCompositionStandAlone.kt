@@ -97,7 +97,7 @@ fun SubOrdersStandAlone(
                             onEdit = {
                                 launchNewItemActivity(
                                     context,
-                                    ActionType.EDIT_SUB_ORDER,
+                                    ActionType.EDIT_SUB_ORDER_STAND_ALONE,
                                     subOrder.subOrder.orderId,
                                     subOrder.subOrder.id
                                 )

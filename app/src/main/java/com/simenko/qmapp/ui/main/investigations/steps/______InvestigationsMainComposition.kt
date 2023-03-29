@@ -95,7 +95,10 @@ fun InvestigationsMainComposition(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        launchNewItemActivity(context, ActionType.ADD_ORDER)
+                        if (showAllInvestigations == true)
+                            launchNewItemActivity(context, ActionType.ADD_ORDER)
+                        else
+                            launchNewItemActivity(context, ActionType.ADD_SUB_ORDER_STAND_ALONE)
 //                        ToDo while adding new item Main activity still added in the run stack
                         (context as MainActivity).finish()
                     },

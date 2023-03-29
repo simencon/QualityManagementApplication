@@ -41,10 +41,66 @@ fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int, clear: Bo
     }
 }
 
+fun filterAllAfterReasonsForSubOrderStandAlone(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
+    appModel.departmentsMutable.performFiltration(
+        s = appModel.departments,
+        action = FilteringMode.ADD_ALL_FROM_META_TABLE,
+        trigger = appModel.pairedTrigger,
+        m = appModel.inputForOrder
+    )
+    appModel.subDepartmentsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.subOrderPlacersMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.channelsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.linesMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.itemVersionsCompleteMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.operationsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    appModel.characteristicsMutable.performFiltration(
+        action = FilteringMode.REMOVE_ALL,
+        trigger = appModel.pairedTrigger
+    )
+    selectSingleRecord(appModel.investigationReasonsMutable, appModel.pairedTrigger, selectedId)
+
+    if (clear) {
+        appModel.currentSubOrder.value?.subOrder?.departmentId = 0
+        appModel.currentSubOrder.value?.subOrder?.subDepartmentId = 0
+        appModel.currentSubOrder.value?.subOrder?.orderedById = 0
+        appModel.currentSubOrder.value?.subOrder?.channelId = 0
+        appModel.currentSubOrder.value?.subOrder?.lineId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
+        appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
+        appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
+        appModel.currentSubOrder.value?.subOrderTasks?.forEach {it.toBeDeleted = true}
+    }
+}
+
 @Composable
 fun ReasonsSelection(
     modifier: Modifier = Modifier,
-    appModel: NewItemViewModel
+    appModel: NewItemViewModel,
+    actionType: ActionType = ActionType.ADD_ORDER
 ) {
     val observeInputForOrder by appModel.investigationReasonsMediator.observeAsState()
     val gritState = rememberLazyGridState()
@@ -65,7 +121,10 @@ fun ReasonsSelection(
                     modifier = modifier.padding(top = 0.dp),
                     onClick = {
                         appModel.currentOrder.value?.reasonId = it.id
-                        filterAllAfterReasons(appModel, it.id, true)
+                        if (actionType == ActionType.ADD_SUB_ORDER_STAND_ALONE)
+                            filterAllAfterReasonsForSubOrderStandAlone(appModel, it.id, true)
+                        else
+                            filterAllAfterReasons(appModel, it.id, true)
                     }
                 )
             }

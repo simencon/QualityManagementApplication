@@ -42,6 +42,16 @@ fun SubOrderForm(
             modifier
                 .verticalScroll(rememberScrollState())
         ) {
+            if (actionType == ActionType.ADD_SUB_ORDER_STAND_ALONE ||
+                actionType == ActionType.EDIT_SUB_ORDER_STAND_ALONE) {
+                ButtonsSection(title = R.string.select_reason) {
+                    ReasonsSelection(
+                        modifier = Modifier.padding(top = 0.dp),
+                        appModel = viewModel,
+                        actionType = actionType
+                    )
+                }
+            }
             ButtonsSection(title = R.string.select_department) {
                 DepartmentsSelection(
                     modifier = Modifier.padding(top = 0.dp),
