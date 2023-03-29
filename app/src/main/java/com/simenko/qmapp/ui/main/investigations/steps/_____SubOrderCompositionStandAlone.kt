@@ -17,7 +17,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.launchNewItemActivity
+import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
@@ -96,9 +96,9 @@ fun SubOrdersStandAlone(
                                 appModel.deleteSubOrder(it)
                             },
                             onEdit = {
-                                launchNewItemActivity(
-                                    context,
-                                    ActionType.EDIT_SUB_ORDER_STAND_ALONE,
+                                launchNewItemActivityForResult(
+                                    context as MainActivity,
+                                    ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
                                     subOrder.subOrder.orderId,
                                     subOrder.subOrder.id
                                 )

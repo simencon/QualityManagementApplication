@@ -32,11 +32,9 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.launchNewItemActivity
+import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.QMAppTheme
-
-private const val TAG = "InvestigationsMai"
 
 fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
 }
@@ -96,11 +94,9 @@ fun InvestigationsMainComposition(
                 FloatingActionButton(
                     onClick = {
                         if (showAllInvestigations == true)
-                            launchNewItemActivity(context, ActionType.ADD_ORDER)
+                            launchNewItemActivityForResult(context as MainActivity, ActionType.ADD_ORDER.ordinal)
                         else
-                            launchNewItemActivity(context, ActionType.ADD_SUB_ORDER_STAND_ALONE)
-//                        ToDo while adding new item Main activity still added in the run stack
-                        (context as MainActivity).finish()
+                            launchNewItemActivityForResult((context as MainActivity), ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal)
                     },
                     content = {
                         Icon(

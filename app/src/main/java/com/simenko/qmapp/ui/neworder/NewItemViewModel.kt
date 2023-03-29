@@ -9,13 +9,12 @@ import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.implementation.getDatabase
-import com.simenko.qmapp.ui.main.launchMainActivity
+import com.simenko.qmapp.ui.main.setMainActivityResult
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import java.io.IOException
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @NewItemScope
 class NewItemViewModel @Inject constructor(
     context: Context
@@ -249,7 +248,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        launchMainActivity(activity, activity.actionTypeEnum, it.orderId, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.orderId, it.id)
                         activity.finish()
                     }
                 }
@@ -269,7 +268,7 @@ class NewItemViewModel @Inject constructor(
                     val channel =
                         investigationsRepository.getCreatedRecord(this, order)
                     channel.consumeEach {
-                        launchMainActivity(activity, activity.actionTypeEnum, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.id)
                         activity.finish()
                     }
                 }
@@ -297,7 +296,7 @@ class NewItemViewModel @Inject constructor(
                         channel1.consumeEach { soIt ->
                             postDeleteSubOrderTasks(soIt.id, subOrder)
                             postDeleteSamples(soIt.id, subOrder)
-                            launchMainActivity(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
+                            setMainActivityResult(activity, activity.actionTypeEnum.ordinal, soIt.orderId, soIt.id)
                             activity.finish()
                         }
                     }
@@ -322,7 +321,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        launchMainActivity(activity, activity.actionTypeEnum, it.orderId, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.orderId, it.id)
                         activity.finish()
                     }
 
@@ -346,7 +345,7 @@ class NewItemViewModel @Inject constructor(
                     val channel =
                         investigationsRepository.updateRecord(this, order)
                     channel.consumeEach {
-                        launchMainActivity(activity, activity.actionTypeEnum, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.id)
                         activity.finish()
                     }
                 }

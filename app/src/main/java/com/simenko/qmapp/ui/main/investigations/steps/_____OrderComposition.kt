@@ -36,7 +36,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.launchNewItemActivity
+import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
@@ -120,9 +120,9 @@ fun Orders(
                                             appModel.deleteOrder(it)
                                         },
                                         onEdit = {
-                                            launchNewItemActivity(
-                                                context,
-                                                ActionType.EDIT_ORDER,
+                                            launchNewItemActivityForResult(
+                                                context as MainActivity,
+                                                ActionType.EDIT_ORDER.ordinal,
                                                 order.order.id
                                             )
                                         }

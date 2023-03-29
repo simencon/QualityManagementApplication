@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
 import com.simenko.qmapp.ui.neworder.assemblers.disassembleOrder
@@ -31,8 +33,6 @@ import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import java.util.*
 import javax.inject.Inject
 
-private const val TAG = "NewItemActivity"
-
 enum class ActionType {
     ADD_ORDER,
     EDIT_ORDER,
@@ -42,51 +42,27 @@ enum class ActionType {
     EDIT_SUB_ORDER_STAND_ALONE
 }
 
-fun getActionType(actionType: String) = when (actionType) {
-    ActionType.ADD_ORDER.name -> {
-        ActionType.ADD_ORDER
-    }
-    ActionType.EDIT_ORDER.name -> {
-        ActionType.EDIT_ORDER
-    }
-    ActionType.ADD_SUB_ORDER.name -> {
-        ActionType.ADD_SUB_ORDER
-    }
-    ActionType.EDIT_SUB_ORDER.name -> {
-        ActionType.EDIT_SUB_ORDER
-    }
-    ActionType.ADD_SUB_ORDER_STAND_ALONE.name -> {
-        ActionType.ADD_SUB_ORDER_STAND_ALONE
-    }
-    ActionType.EDIT_SUB_ORDER_STAND_ALONE.name -> {
-        ActionType.EDIT_SUB_ORDER_STAND_ALONE
-    }
-    else -> {
-        ActionType.ADD_ORDER
-    }
-}
-
-internal const val KEY_ARG_ACTION_TYPE = "KEY_ARG_ACTION_TYPE"
+internal const val KEY_ARG_REQUEST_CODE = "KEY_ARG_REQUEST_CODE"
 internal const val KEY_ARG_ORDER_ID = "KEY_ARG_ORDER_ID"
 internal const val KEY_ARG_SUB_ORDER_ID = "KEY_ARG_SUB_ORDER_ID"
 
-fun launchNewItemActivity(
-    context: Context,
-    actionType: ActionType,
+fun launchNewItemActivityForResult(
+    activity: MainActivity,
+    actionType: Int,
     orderId: Int = 0,
     subOrderId: Int = 0
 ) {
-    context.startActivity(createNewItemActivityIntent(context, actionType, orderId, subOrderId))
+    activity.startActivityForResult (createNewItemActivityIntent(activity, actionType, orderId, subOrderId), actionType)
 }
 
 fun createNewItemActivityIntent(
     context: Context,
-    actionType: ActionType,
+    actionType: Int,
     orderId: Int,
     subOrderId: Int
 ): Intent {
     val intent = Intent(context, NewItemActivity::class.java)
-    intent.putExtra(KEY_ARG_ACTION_TYPE, actionType.name)
+    intent.putExtra(KEY_ARG_REQUEST_CODE, actionType)
     intent.putExtra(KEY_ARG_ORDER_ID, orderId)
     intent.putExtra(KEY_ARG_SUB_ORDER_ID, subOrderId)
     return intent
@@ -110,7 +86,7 @@ class NewItemActivity : ComponentActivity() {
         viewModel = ViewModelProvider(this, providerFactory)[NewItemViewModel::class.java]
 
         super.onCreate(savedInstanceState)
-        actionTypeEnum = getActionType(intent.extras?.getString(KEY_ARG_ACTION_TYPE) ?: "")
+        actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, -1)]
 
         orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: 0
         subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: 0
@@ -386,7 +362,6 @@ class NewItemActivity : ComponentActivity() {
         }
     }
 }
-
 
 @Composable
 fun ButtonsSection(

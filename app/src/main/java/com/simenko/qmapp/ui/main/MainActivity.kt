@@ -21,52 +21,47 @@ import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
-import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
-import com.simenko.qmapp.ui.neworder.getActionType
+import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
-internal const val MAIN_KEY_ARG_ACTION_TYPE = "MAIN_KEY_ARG_ACTION_TYPE"
 
 data class CreatedRecord(val orderId: Int = 0, val subOrderId: Int = 0)
 
-fun launchMainActivity(
-    context: Context,
-    actionType: ActionType,
+fun setMainActivityResult(
+    activity: NewItemActivity,
+    actionType: Int,
     orderId: Int = 0,
     subOrderId: Int = 0
 ) {
-    context.startActivity(createMainActivityIntent(context, actionType, orderId, subOrderId))
+    activity.setResult(actionType, createMainActivityIntent(activity, orderId, subOrderId))
 }
 
 fun createMainActivityIntent(
     context: Context,
-    actionType: ActionType,
     orderId: Int,
     subOrderId: Int
 ): Intent {
     val intent = Intent(context, MainActivity::class.java)
-    intent.putExtra(MAIN_KEY_ARG_ACTION_TYPE, actionType.name)
     intent.putExtra(MAIN_KEY_ARG_ORDER_ID, orderId)
     intent.putExtra(MAIN_KEY_ARG_SUB_ORDER_ID, subOrderId)
     return intent
 }
 
-private lateinit var createdRecord: CreatedRecord
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    lateinit var actionTypeEnum: ActionType
 
     lateinit var viewModel: QualityManagementViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawer: DrawerLayout
+    private lateinit var navigationView: NavigationView
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
+
+    private var createdRecord = CreatedRecord(-1,-1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as BaseApplication).appComponent.mainComponent().create().inject(this)
@@ -76,12 +71,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.currentTitle.observe(this) {}
 
         super.onCreate(savedInstanceState)
-        actionTypeEnum = getActionType(intent.extras?.getString(MAIN_KEY_ARG_ACTION_TYPE) ?: "")
-
-        createdRecord = CreatedRecord(
-            intent.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
-            intent.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
-        )
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -91,7 +80,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         this.drawer = binding.drawerLayout
 
-        val toggle: ActionBarDrawerToggle = ActionBarDrawerToggle(
+        val toggle = ActionBarDrawerToggle(
             this, drawer, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
@@ -99,20 +88,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         toggle.syncState()
 
-        val navigationView: NavigationView = binding.navView
+        navigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
-            if (actionTypeEnum == ActionType.ADD_ORDER
-                || actionTypeEnum == ActionType.EDIT_ORDER
-                || actionTypeEnum == ActionType.ADD_SUB_ORDER
-                || actionTypeEnum == ActionType.EDIT_SUB_ORDER
-            )
-                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
-            else if (actionTypeEnum == ActionType.ADD_SUB_ORDER_STAND_ALONE
-                || actionTypeEnum == ActionType.EDIT_SUB_ORDER_STAND_ALONE
-            )
-                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
+            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+
+        createdRecord = CreatedRecord(
+            intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
+            intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
+        )
+
+        if (
+            requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||
+            requestCode == ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal
+        ) {
+            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
+        } else if(
+            requestCode == ActionType.ADD_ORDER.ordinal ||
+            requestCode == ActionType.EDIT_ORDER.ordinal ||
+            requestCode == ActionType.ADD_SUB_ORDER.ordinal ||
+            requestCode == ActionType.EDIT_SUB_ORDER.ordinal
+        ) {
+            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
         }
     }
 

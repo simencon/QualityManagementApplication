@@ -48,6 +48,8 @@ fun filterAllAfterReasonsForSubOrderStandAlone(appModel: NewItemViewModel, selec
         trigger = appModel.pairedTrigger,
         m = appModel.inputForOrder
     )
+    selectSingleRecord(appModel.departmentsMutable, appModel.pairedTrigger)
+
     appModel.subDepartmentsMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger
