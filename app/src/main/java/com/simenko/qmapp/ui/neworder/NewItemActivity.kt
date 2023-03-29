@@ -42,6 +42,30 @@ enum class ActionType {
     EDIT_SUB_ORDER_STAND_ALONE
 }
 
+fun getActionType(actionType: String) = when (actionType) {
+    ActionType.ADD_ORDER.name -> {
+        ActionType.ADD_ORDER
+    }
+    ActionType.EDIT_ORDER.name -> {
+        ActionType.EDIT_ORDER
+    }
+    ActionType.ADD_SUB_ORDER.name -> {
+        ActionType.ADD_SUB_ORDER
+    }
+    ActionType.EDIT_SUB_ORDER.name -> {
+        ActionType.EDIT_SUB_ORDER
+    }
+    ActionType.ADD_SUB_ORDER_STAND_ALONE.name -> {
+        ActionType.ADD_SUB_ORDER_STAND_ALONE
+    }
+    ActionType.EDIT_SUB_ORDER_STAND_ALONE.name -> {
+        ActionType.EDIT_SUB_ORDER_STAND_ALONE
+    }
+    else -> {
+        ActionType.ADD_ORDER
+    }
+}
+
 internal const val KEY_ARG_ACTION_TYPE = "KEY_ARG_ACTION_TYPE"
 internal const val KEY_ARG_ORDER_ID = "KEY_ARG_ORDER_ID"
 internal const val KEY_ARG_SUB_ORDER_ID = "KEY_ARG_SUB_ORDER_ID"
@@ -68,12 +92,11 @@ fun createNewItemActivityIntent(
     return intent
 }
 
-private lateinit var actionType: String
-private lateinit var actionTypeEnum: ActionType
-private var orderId = 0
-private var subOrderId = 0
-
 class NewItemActivity : ComponentActivity() {
+
+    lateinit var actionTypeEnum: ActionType
+    private var orderId = 0
+    private var subOrderId = 0
 
     lateinit var viewModel: NewItemViewModel
 
@@ -87,30 +110,7 @@ class NewItemActivity : ComponentActivity() {
         viewModel = ViewModelProvider(this, providerFactory)[NewItemViewModel::class.java]
 
         super.onCreate(savedInstanceState)
-        actionType = intent.extras?.getString(KEY_ARG_ACTION_TYPE) ?: ""
-        actionTypeEnum = when (actionType) {
-            ActionType.ADD_ORDER.name -> {
-                ActionType.ADD_ORDER
-            }
-            ActionType.EDIT_ORDER.name -> {
-                ActionType.EDIT_ORDER
-            }
-            ActionType.ADD_SUB_ORDER.name -> {
-                ActionType.ADD_SUB_ORDER
-            }
-            ActionType.EDIT_SUB_ORDER.name -> {
-                ActionType.EDIT_SUB_ORDER
-            }
-            ActionType.ADD_SUB_ORDER_STAND_ALONE.name -> {
-                ActionType.ADD_SUB_ORDER_STAND_ALONE
-            }
-            ActionType.EDIT_SUB_ORDER_STAND_ALONE.name -> {
-                ActionType.EDIT_SUB_ORDER_STAND_ALONE
-            }
-            else -> {
-                ActionType.ADD_ORDER
-            }
-        }
+        actionTypeEnum = getActionType(intent.extras?.getString(KEY_ARG_ACTION_TYPE) ?: "")
 
         orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: 0
         subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: 0
@@ -122,7 +122,7 @@ class NewItemActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 Text(
-                                    StringUtils.getWithSpaces(actionType),
+                                    StringUtils.getWithSpaces(actionTypeEnum.name),
                                     color = Color.White
                                 )
                             },

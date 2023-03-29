@@ -21,29 +21,45 @@ import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.team.TeamFragment
+import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.PlaceOrderFragment
+import com.simenko.qmapp.ui.neworder.getActionType
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
-internal const val KEY_ARG_CREATED_ORDER_ID = "KEY_ARG_CREATED_ORDER_ID"
-internal const val KEY_ARG_CREATED_SUB_ORDER_ID = "KEY_ARG_CREATED_SUB_ORDER_ID"
+internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
+internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
+internal const val MAIN_KEY_ARG_ACTION_TYPE = "MAIN_KEY_ARG_ACTION_TYPE"
 
 data class CreatedRecord(val orderId: Int = 0, val subOrderId: Int = 0)
 
-fun launchMainActivity(context: Context, orderId: Int = 0, subOrderId: Int = 0) {
-    context.startActivity(createMainActivityIntent(context, orderId, subOrderId))
+fun launchMainActivity(
+    context: Context,
+    actionType: ActionType,
+    orderId: Int = 0,
+    subOrderId: Int = 0
+) {
+    context.startActivity(createMainActivityIntent(context, actionType, orderId, subOrderId))
 }
 
-fun createMainActivityIntent(context: Context, orderId: Int, subOrderId: Int): Intent {
+fun createMainActivityIntent(
+    context: Context,
+    actionType: ActionType,
+    orderId: Int,
+    subOrderId: Int
+): Intent {
     val intent = Intent(context, MainActivity::class.java)
-    intent.putExtra(KEY_ARG_CREATED_ORDER_ID, orderId)
-    intent.putExtra(KEY_ARG_CREATED_SUB_ORDER_ID, subOrderId)
+    intent.putExtra(MAIN_KEY_ARG_ACTION_TYPE, actionType.name)
+    intent.putExtra(MAIN_KEY_ARG_ORDER_ID, orderId)
+    intent.putExtra(MAIN_KEY_ARG_SUB_ORDER_ID, subOrderId)
     return intent
 }
 
 private lateinit var createdRecord: CreatedRecord
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    lateinit var actionTypeEnum: ActionType
 
     lateinit var viewModel: QualityManagementViewModel
     private lateinit var binding: ActivityMainBinding
@@ -60,9 +76,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewModel.currentTitle.observe(this) {}
 
         super.onCreate(savedInstanceState)
+        actionTypeEnum = getActionType(intent.extras?.getString(MAIN_KEY_ARG_ACTION_TYPE) ?: "")
+
         createdRecord = CreatedRecord(
-            intent.extras?.getInt(KEY_ARG_CREATED_ORDER_ID) ?: 0,
-            intent.extras?.getInt(KEY_ARG_CREATED_SUB_ORDER_ID) ?: 0
+            intent.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
+            intent.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
         )
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -85,7 +103,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
-            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+            if (actionTypeEnum == ActionType.ADD_ORDER
+                || actionTypeEnum == ActionType.EDIT_ORDER
+                || actionTypeEnum == ActionType.ADD_SUB_ORDER
+                || actionTypeEnum == ActionType.EDIT_SUB_ORDER
+            )
+                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+            else if (actionTypeEnum == ActionType.ADD_SUB_ORDER_STAND_ALONE
+                || actionTypeEnum == ActionType.EDIT_SUB_ORDER_STAND_ALONE
+            )
+                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
         }
     }
 
@@ -113,7 +140,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
-                viewModel.showOrderNumber.value = newText?:"0"
+                viewModel.showOrderNumber.value = newText ?: "0"
                 return true
             }
 

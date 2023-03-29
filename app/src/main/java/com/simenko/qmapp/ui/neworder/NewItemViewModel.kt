@@ -249,7 +249,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        launchMainActivity(activity, it.orderId, it.id)
+                        launchMainActivity(activity, activity.actionTypeEnum, it.orderId, it.id)
                         activity.finish()
                     }
                 }
@@ -269,7 +269,7 @@ class NewItemViewModel @Inject constructor(
                     val channel =
                         investigationsRepository.getCreatedRecord(this, order)
                     channel.consumeEach {
-                        launchMainActivity(activity, it.id)
+                        launchMainActivity(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
                 }
@@ -297,7 +297,7 @@ class NewItemViewModel @Inject constructor(
                         channel1.consumeEach { soIt ->
                             postDeleteSubOrderTasks(soIt.id, subOrder)
                             postDeleteSamples(soIt.id, subOrder)
-                            launchMainActivity(activity, soIt.orderId, soIt.id)
+                            launchMainActivity(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
                             activity.finish()
                         }
                     }
@@ -322,7 +322,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        launchMainActivity(activity, it.orderId, it.id)
+                        launchMainActivity(activity, activity.actionTypeEnum, it.orderId, it.id)
                         activity.finish()
                     }
 
@@ -346,7 +346,7 @@ class NewItemViewModel @Inject constructor(
                     val channel =
                         investigationsRepository.updateRecord(this, order)
                     channel.consumeEach {
-                        launchMainActivity(activity, it.id)
+                        launchMainActivity(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
                 }

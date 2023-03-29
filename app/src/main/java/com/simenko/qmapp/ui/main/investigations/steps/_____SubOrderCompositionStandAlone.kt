@@ -33,6 +33,7 @@ fun SubOrdersStandAlone(
 ) {
     val context = LocalContext.current
 
+    val observeOrders by appModel.completeOrdersMediator.observeAsState()
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
