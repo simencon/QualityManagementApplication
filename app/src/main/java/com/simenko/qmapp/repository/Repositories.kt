@@ -1065,9 +1065,9 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSamples(currentSample)
         }
 
-    val subOrdersWithChildren: LiveData<List<DomainSubOrderWithChildren>> =
+    val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderWithChildren()) {
-            it.toDomainSubOrderWithChildren()
+            it.toDomainSubOrderShort()
         }
 
     private var currentResult = 0

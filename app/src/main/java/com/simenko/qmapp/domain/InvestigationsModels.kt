@@ -1,12 +1,5 @@
 package com.simenko.qmapp.domain
 
-import androidx.room.Embedded
-import androidx.room.Relation
-import com.simenko.qmapp.room.entities.DatabaseOrder
-import com.simenko.qmapp.room.entities.DatabaseOrderShort
-import com.simenko.qmapp.room.entities.DatabaseOrdersType
-import com.simenko.qmapp.room.entities.DatabaseReason
-
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -129,12 +122,6 @@ data class DomainSubOrderResult constructor(
     var total: Int?
 )
 
-data class DomainSubOrderWithChildren constructor(
-    var subOrder: DomainSubOrder,
-    var samples: MutableList<DomainSample> = mutableListOf(),
-    var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
-)
-
 data class DomainSubOrderTask constructor(
     var id: Int,
     var subOrderId: Int,
@@ -196,6 +183,13 @@ data class DomainOrderShort constructor(
     val order: DomainOrder,
     val orderType: DomainOrdersType,
     val orderReason: DomainReason
+)
+
+data class DomainSubOrderShort constructor(
+    var subOrder: DomainSubOrder,
+    var order: DomainOrder,
+    var samples: MutableList<DomainSample> = mutableListOf(),
+    var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
 )
 
 data class DomainOrderComplete constructor(

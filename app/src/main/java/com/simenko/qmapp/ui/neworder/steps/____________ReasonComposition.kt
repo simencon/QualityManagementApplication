@@ -120,11 +120,14 @@ fun ReasonsSelection(
                     inputForOrder = first!![item],
                     modifier = modifier.padding(top = 0.dp),
                     onClick = {
-                        appModel.currentOrder.value?.reasonId = it.id
-                        if (actionType == ActionType.ADD_SUB_ORDER_STAND_ALONE)
+                        if (actionType == ActionType.ADD_SUB_ORDER_STAND_ALONE) {
+                            appModel.currentSubOrder.value?.order?.reasonId = it.id
                             filterAllAfterReasonsForSubOrderStandAlone(appModel, it.id, true)
-                        else
+                        }
+                        else {
+                            appModel.currentOrder.value?.reasonId = it.id
                             filterAllAfterReasons(appModel, it.id, true)
+                        }
                     }
                 )
             }

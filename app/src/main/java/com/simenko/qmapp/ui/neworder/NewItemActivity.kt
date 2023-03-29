@@ -133,9 +133,8 @@ class NewItemActivity : ComponentActivity() {
                         FloatingActionButton(
                             modifier = Modifier.padding(end = 29.dp),
                             onClick = {
-                                if (checkCurrentOrder(viewModel) == null && checkCurrentSubOrder(
-                                        viewModel
-                                    ) == null
+                                if (checkCurrentOrder(viewModel) == null
+                                    && checkCurrentSubOrder(viewModel) == null
                                 ) {
                                     Toast.makeText(
                                         this,
@@ -170,7 +169,10 @@ class NewItemActivity : ComponentActivity() {
                                             )
                                         }
                                         ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
-//                                            ToDo
+                                            viewModel.postNewOrderWithSubOrder(
+                                                this,
+                                                checkCurrentSubOrder(viewModel)!!
+                                            )
                                         }
                                         ActionType.EDIT_SUB_ORDER_STAND_ALONE -> {
 //                                            ToDo
@@ -286,7 +288,8 @@ class NewItemActivity : ComponentActivity() {
                                                                     }
 
                                                                     ActionType.ADD_SUB_ORDER -> {
-                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId = orderId
+                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId =
+                                                                            orderId
                                                                         viewModel.departmentsMutable.performFiltration(
                                                                             s = viewModel.departments,
                                                                             action = FilteringMode.ADD_ALL_FROM_META_TABLE,
@@ -355,7 +358,7 @@ class NewItemActivity : ComponentActivity() {
                                                                     }
 
                                                                     ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
-                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId = orderId
+//                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId = orderId
                                                                         viewModel.investigationReasonsMutable.performFiltration(
                                                                             viewModel.investigationReasons,
                                                                             FilteringMode.ADD_ALL,

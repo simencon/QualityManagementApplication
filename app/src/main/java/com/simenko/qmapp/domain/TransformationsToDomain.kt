@@ -251,10 +251,11 @@ fun List<DatabaseItemVersionComplete>.asDomainItem(): List<DomainItemVersionComp
     }
 }
 
-fun List<DatabaseSubOrderWithChildren>.toDomainSubOrderWithChildren(): List<DomainSubOrderWithChildren> {
+fun List<DatabaseSubOrderShort>.toDomainSubOrderShort(): List<DomainSubOrderShort> {
     return map {
-        DomainSubOrderWithChildren(
+        DomainSubOrderShort(
             subOrder = it.subOrder.toDomainSubOrder(),
+            order = it.order.toDomainOrder(),
             samples = mutableListOf<DomainSample>().apply {
                 addAll(
                     ListTransformer(

@@ -1,7 +1,7 @@
 package com.simenko.qmapp.ui.neworder.assemblers
 
 import com.simenko.qmapp.domain.DomainOrder
-import com.simenko.qmapp.domain.DomainSubOrderWithChildren
+import com.simenko.qmapp.domain.DomainSubOrderShort
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 
 fun checkCurrentOrder(viewModel: NewItemViewModel): DomainOrder? {
@@ -17,7 +17,9 @@ fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
     viewModel.currentOrder.value = viewModel.investigationOrders.value?.find { it.id == orderId }
 }
 
-fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderWithChildren? {
+fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderShort? {
+
+    if(viewModel.currentSubOrder.value!!.order.reasonId == 0) return null
 
     val subOrder = viewModel.currentSubOrder.value!!.subOrder
 

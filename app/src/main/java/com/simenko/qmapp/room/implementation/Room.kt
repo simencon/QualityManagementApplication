@@ -331,7 +331,7 @@ interface QualityManagementInvestigationsDao {
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
-    fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderWithChildren>>
+    fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderShort>>
 
     @Transaction
     @Query("SELECT * FROM sub_order_task_complete")

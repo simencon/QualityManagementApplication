@@ -569,9 +569,15 @@ data class DatabaseSubOrderComplete constructor(
     val subOrderResult: DatabaseSubOrderResult
 )
 
-data class DatabaseSubOrderWithChildren constructor(
+data class DatabaseSubOrderShort constructor(
     @Embedded
     var subOrder: DatabaseSubOrder,
+    @Relation(
+        entity = DatabaseOrder::class,
+        parentColumn = "orderId",
+        entityColumn = "id"
+    )
+    var order: DatabaseOrder,
     @Relation(
         entity = DatabaseSample::class,
         parentColumn = "id",

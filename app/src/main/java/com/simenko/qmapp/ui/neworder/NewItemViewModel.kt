@@ -7,7 +7,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.repository.syncSubOrders
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.launchMainActivity
@@ -40,7 +39,7 @@ class NewItemViewModel @Inject constructor(
     val subOrdersWithChildren = investigationsRepository.subOrdersWithChildren
 
     val currentOrder = MutableLiveData(getEmptyOrder())
-    val currentSubOrder = MutableLiveData(DomainSubOrderWithChildren(getEmptySubOrder()))
+    val currentSubOrder = MutableLiveData(DomainSubOrderShort(getEmptySubOrder(), getEmptyOrder()))
 
     fun loadCurrentSubOrder(subOrderId: Int) {
         subOrdersWithChildren.value?.forEach rubByBlock@{
@@ -51,8 +50,8 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderWithChildren?, Boolean?>> =
-        MediatorLiveData<Pair<DomainSubOrderWithChildren?, Boolean?>>().apply {
+    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderShort?, Boolean?>> =
+        MediatorLiveData<Pair<DomainSubOrderShort?, Boolean?>>().apply {
             addSource(currentSubOrder) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
         }
@@ -204,7 +203,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    private suspend fun postDeleteSamples(subOrderId: Int, subOrder: DomainSubOrderWithChildren) {
+    private suspend fun postDeleteSamples(subOrderId: Int, subOrder: DomainSubOrderShort) {
         withContext(Dispatchers.IO) {
             subOrder.samples.forEach {
                 if (it.toBeDeleted) {
@@ -221,7 +220,7 @@ class NewItemViewModel @Inject constructor(
 
     private suspend fun postDeleteSubOrderTasks(
         subOrderId: Int,
-        subOrder: DomainSubOrderWithChildren
+        subOrder: DomainSubOrderShort
     ) {
         withContext(Dispatchers.IO) {
             subOrder.subOrderTasks.forEach {
@@ -238,7 +237,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderWithChildren) {
+    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
@@ -282,7 +281,36 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun editSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderWithChildren) {
+    fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel =
+                        investigationsRepository.getCreatedRecord(this, subOrder.order)
+                    channel.consumeEach {
+                        subOrder.subOrder.orderId = it.id
+                        val channel1 = investigationsRepository.getCreatedRecord(
+                            this,
+                            subOrder.subOrder
+                        )
+                        channel1.consumeEach { soIt ->
+                            postDeleteSubOrderTasks(soIt.id, subOrder)
+                            postDeleteSamples(soIt.id, subOrder)
+                            launchMainActivity(activity, soIt.orderId, soIt.id)
+                            activity.finish()
+                        }
+                    }
+                }
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun editSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
@@ -575,10 +603,12 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
 }
 
 fun getEmptyOrder() = DomainOrder(
-    id = 0, orderTypeId = 0, reasonId = 0,
+    id = 0,
+    orderTypeId = 3,
+    reasonId = 0,
     orderNumber = null,
-    customerId = 0,
-    orderedById = 0,
+    customerId = 4,
+    orderedById = 62,
     statusId = 1,
     createdDate = "2022-01-30T15:30:00",
     completedDate = null
