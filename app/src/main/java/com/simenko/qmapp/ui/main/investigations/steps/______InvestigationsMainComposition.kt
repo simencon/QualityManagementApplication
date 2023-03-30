@@ -53,7 +53,6 @@ fun InvestigationsMainComposition(
     val showAllInvestigations by appModel.showAllInvestigations.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    Log.d(TAG, "InvestigationsMainComposition: windowWidth = $screenWidth")
 
     val currentTask by appModel.currentSubOrderTask.observeAsState()
 
@@ -86,10 +85,6 @@ fun InvestigationsMainComposition(
                 true -> 1
                 false -> 0
             }
-            isResultsVisible = when ((currentTask ?: 0) > 0) {
-                true -> 1
-                false -> 0
-            }
         }
 
         Scaffold(
@@ -98,9 +93,15 @@ fun InvestigationsMainComposition(
                 FloatingActionButton(
                     onClick = {
                         if (showAllInvestigations == true)
-                            launchNewItemActivityForResult(context as MainActivity, ActionType.ADD_ORDER.ordinal)
+                            launchNewItemActivityForResult(
+                                context as MainActivity,
+                                ActionType.ADD_ORDER.ordinal
+                            )
                         else
-                            launchNewItemActivityForResult((context as MainActivity), ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal)
+                            launchNewItemActivityForResult(
+                                (context as MainActivity),
+                                ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal
+                            )
                     },
                     content = {
                         Icon(
@@ -126,17 +127,16 @@ fun InvestigationsMainComposition(
                     Modifier
                         .pullRefresh(pullRefreshState)
                 ) {
-
                     Row(
                         Modifier
                             .horizontalScroll(rowState)
                             .width(
                                 when {
-                                    screenWidth >720 -> {
+                                    screenWidth > 720 -> {
                                         screenWidth.dp
                                     }
                                     else -> {
-                                        (screenWidth * (1 + 0.38 * isSamplesNumVisible + 0.5 * isResultsVisible)).dp
+                                        (screenWidth * (1 + 0.88 * isSamplesNumVisible)).dp
                                     }
                                 }
                             )
@@ -160,12 +160,19 @@ fun InvestigationsMainComposition(
                         if (showAllInvestigations == true)
                             Orders(
                                 modifier = modifier.width(
-                                    when(isSamplesNumVisible) {
+                                    when (isSamplesNumVisible) {
                                         0 -> {
                                             screenWidth.dp
                                         }
                                         else -> {
-                                            (screenWidth*0.57).dp
+                                            when {
+                                                screenWidth > 720 -> {
+                                                    (screenWidth * 0.57).dp
+                                                }
+                                                else -> {
+                                                    screenWidth.dp
+                                                }
+                                            }
                                         }
                                     }
                                 ),
@@ -177,12 +184,19 @@ fun InvestigationsMainComposition(
                         else
                             SubOrdersStandAlone(
                                 modifier = modifier.width(
-                                    when(isSamplesNumVisible) {
+                                    when (isSamplesNumVisible) {
                                         0 -> {
                                             screenWidth.dp
                                         }
                                         else -> {
-                                            (screenWidth*0.57).dp
+                                            when {
+                                                screenWidth > 720 -> {
+                                                    (screenWidth * 0.57).dp
+                                                }
+                                                else -> {
+                                                    screenWidth.dp
+                                                }
+                                            }
                                         }
                                     }
                                 ),
@@ -195,11 +209,11 @@ fun InvestigationsMainComposition(
                         SampleComposition(
                             modifier.width(
                                 when {
-                                    screenWidth >720 -> {
-                                        (screenWidth*0.43).dp
+                                    screenWidth > 720 -> {
+                                        (screenWidth * 0.43 * isSamplesNumVisible).dp
                                     }
                                     else -> {
-                                        (screenWidth * (0.38 + 0.5) * isSamplesNumVisible).dp
+                                        (screenWidth * 0.88 * isSamplesNumVisible).dp
                                     }
                                 }
 

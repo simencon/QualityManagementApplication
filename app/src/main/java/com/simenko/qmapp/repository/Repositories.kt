@@ -30,10 +30,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabasePositionLevel::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshPositionLevels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshPositionLevels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -47,7 +44,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseTeamMember::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -61,7 +58,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseCompany::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshCompanies: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshCompanies: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -75,7 +72,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseDepartment::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -89,10 +86,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseSubDepartment::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshSubDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshSubDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -107,10 +101,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseManufacturingChannel::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingChannels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshManufacturingChannels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -124,10 +115,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseManufacturingLine::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshManufacturingLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -142,10 +130,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseManufacturingOperation::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingOperations: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshManufacturingOperations: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -159,10 +144,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
                     DatabaseOperationsFlow::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshOperationsFlows: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshOperationsFlows: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -253,10 +235,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     NetworkElementIshModel::class, DatabaseElementIshModel::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -270,10 +249,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     NetworkIshSubCharacteristic::class, DatabaseIshSubCharacteristic::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -287,10 +263,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     NetworkManufacturingProject::class, DatabaseManufacturingProject::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -304,10 +277,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseCharacteristic::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -321,7 +291,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseMetrix::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshMetrixes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshMetrixes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -335,7 +305,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseKey::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshKeys: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshKeys: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -349,10 +319,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductBase::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -366,7 +333,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProduct::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshProducts: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshProducts: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -380,7 +347,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponent::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshComponents: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshComponents: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -394,10 +361,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStage::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -411,10 +375,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseVersionStatus::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -428,10 +389,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductVersion::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -445,10 +403,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentVersion::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -462,10 +417,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStageVersion::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -479,10 +431,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductTolerance::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -496,10 +445,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentTolerance::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -514,10 +460,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStageTolerance::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -531,10 +474,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseProductToLine::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -548,10 +488,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentToLine::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -565,10 +502,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                     DatabaseComponentInStageToLine::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -725,10 +659,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                     DatabaseInputForOrder::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshInputForOrder: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshInputForOrder: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -742,10 +673,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                     DatabaseOrdersStatus::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshOrdersStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshOrdersStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -758,10 +686,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                     NetworkReason::class, DatabaseReason::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshMeasurementReasons: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshMeasurementReasons: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -775,7 +700,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                     DatabaseOrdersType::class
                 ).generateList()
             )
-            Log.d(TAG, "refreshOrdersTypes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshOrdersTypes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -785,7 +710,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             val dbOrders = database.qualityManagementInvestigationsDao.getOrdersByList()
 
             syncOrders(dbOrders, ntOrders, database)
-            Log.d(TAG, "refreshOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -828,7 +753,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
             syncSubOrders(dbSubOrders, ntSubOrder, database)
 
-            Log.d(TAG, "refreshSubOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshSubOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -839,7 +764,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
             syncSubOrderTasks(dbSubOrderTasks, ntSubOrderTasks, database)
 
-            Log.d(TAG,"refreshSubOrderTasks: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG,"refreshSubOrderTasks: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -850,7 +775,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
             syncSamples(dbSamples, ntSamples, database)
 
-            Log.d(TAG, "refreshSamples: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshSamples: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -864,10 +789,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                     NetworkResultsDecryption::class, DatabaseResultsDecryption::class
                 ).generateList()
             )
-            Log.d(
-                TAG,
-                "refreshResultsDecryptions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+//            Log.d(TAG, "refreshResultsDecryptions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -878,7 +800,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
             syncResults(dbResults, ntResults, database)
 
-            Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
+//            Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -1096,7 +1018,7 @@ fun syncOrders(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.insertOrder(ntIt.toDatabaseOrder())
-            Log.d(TAG, "syncOrders: Order has been inserted / id = ${ntIt.id}")
+//            Log.d(TAG, "syncOrders: Order has been inserted / id = ${ntIt.id}")
         }
     }
     ntOrders.forEach byBlock1@{ ntIt ->
@@ -1110,7 +1032,7 @@ fun syncOrders(
         }
         if (recordStatusChanged) {
             database.qualityManagementInvestigationsDao.updateOrder(ntIt.toDatabaseOrder())
-            Log.d(TAG, "syncOrders: Order status has been changed / id = ${ntIt.id}")
+//            Log.d(TAG, "syncOrders: Order status has been changed / id = ${ntIt.id}")
         }
     }
     dbOrders.forEach byBlock1@{ dbIt ->
@@ -1123,7 +1045,7 @@ fun syncOrders(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteOrder(dbIt)
-            Log.d(TAG, "syncOrders: Order deleted from SQLite / id = ${dbIt.id}")
+//            Log.d(TAG, "syncOrders: Order deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }
@@ -1143,7 +1065,7 @@ fun syncSubOrders(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.insertSubOrder(ntIt.toDatabaseSubOrder())
-            Log.d(TAG, "syncSubOrders: Sub order has been inserted / id = ${ntIt.id}")
+//            Log.d(TAG, "syncSubOrders: Sub order has been inserted / id = ${ntIt.id}")
         }
     }
     ntSubOrders.forEach byBlock1@{ ntIt ->
@@ -1157,7 +1079,7 @@ fun syncSubOrders(
         }
         if (recordStatusChanged) {
             database.qualityManagementInvestigationsDao.updateSubOrder(ntIt.toDatabaseSubOrder())
-            Log.d(TAG, "syncSubOrders: Sub order status has been changed / id = ${ntIt.id}")
+//            Log.d(TAG, "syncSubOrders: Sub order status has been changed / id = ${ntIt.id}")
         }
     }
     dbSubOrders.forEach byBlock1@{ dbIt ->
@@ -1170,7 +1092,7 @@ fun syncSubOrders(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteSubOrder(dbIt)
-            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
+//            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }
@@ -1190,7 +1112,7 @@ fun syncSubOrderTasks(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
-            Log.d(TAG, "syncSubOrders: Sub order task has been inserted / id = ${ntIt.id}")
+//            Log.d(TAG, "syncSubOrders: Sub order task has been inserted / id = ${ntIt.id}")
         }
     }
     ntSubOrderTasks.forEach byBlock1@{ ntIt ->
@@ -1204,7 +1126,7 @@ fun syncSubOrderTasks(
         }
         if (recordStatusChanged) {
             database.qualityManagementInvestigationsDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
-            Log.d(TAG, "syncSubOrders: Sub order task status has been changed / id = ${ntIt.id}")
+//            Log.d(TAG, "syncSubOrders: Sub order task status has been changed / id = ${ntIt.id}")
         }
     }
     dbSubOrderTasks.forEach byBlock1@{ dbIt ->
@@ -1217,7 +1139,7 @@ fun syncSubOrderTasks(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteSubOrderTask(dbIt)
-            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
+//            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }
@@ -1237,7 +1159,7 @@ fun syncSamples(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.insertSample(ntIt.toDatabaseSample())
-            Log.d(TAG, "syncSamples: Sample has been inserted / id = ${ntIt.id}")
+//            Log.d(TAG, "syncSamples: Sample has been inserted / id = ${ntIt.id}")
         }
     }
     dbSamples.forEach byBlock1@{ dbIt ->
@@ -1250,7 +1172,7 @@ fun syncSamples(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteSample(dbIt)
-            Log.d(TAG, "syncSamples: Sample deleted from SQLite / id = ${dbIt.id}")
+//            Log.d(TAG, "syncSamples: Sample deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }
@@ -1270,7 +1192,7 @@ fun syncResults(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.insertResult(ntIt.toDatabaseResult())
-            Log.d(TAG, "syncSamples: Result has been inserted / id = ${ntIt.id}")
+//            Log.d(TAG, "syncSamples: Result has been inserted / id = ${ntIt.id}")
         }
     }
     dbResults.forEach byBlock1@{ dbIt ->
@@ -1283,7 +1205,7 @@ fun syncResults(
         }
         if (!recordExists) {
             database.qualityManagementInvestigationsDao.deleteResult(dbIt)
-            Log.d(TAG, "syncSamples: Result deleted from SQLite / id = ${dbIt.id}")
+//            Log.d(TAG, "syncSamples: Result deleted from SQLite / id = ${dbIt.id}")
         }
     }
 }

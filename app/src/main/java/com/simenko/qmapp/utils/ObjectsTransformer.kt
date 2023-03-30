@@ -24,7 +24,6 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
     }
 
     open fun argFor(parameter: KParameter, data: T): Any? {
-        Log.d(TAG, "argFor: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         return when (parameter.name) {
 //            Fields added only in domain model
             "channelsVisibility" -> {
@@ -89,7 +88,6 @@ class ListTransformer<in T : Any, out R : Any> constructor(
     }
 
     fun argFor(parameter: KParameter, data: T): Any? {
-        Log.d(TAG, "argFor: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         return when (parameter.name) {
 //            Fields added only in domain model
             "channelsVisibility" -> {

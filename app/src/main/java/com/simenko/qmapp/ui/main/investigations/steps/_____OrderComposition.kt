@@ -100,6 +100,12 @@ fun Orders(
 
     var clickCounter = 0
 
+    val onClickDetailsLambda = remember <(DomainOrderComplete) -> Unit> {
+        {
+            appModel.changeOrderDetailsVisibility(it.order.id)
+        }
+    }
+
     observeOrders?.apply {
         if (observeOrders!!.first != null) {
             LazyColumn(
@@ -132,7 +138,7 @@ fun Orders(
                                         viewModel = appModel,
                                         order = order,
                                         onClickDetails = { it ->
-                                            appModel.changeOrderDetailsVisibility(it.order.id)
+                                            onClickDetailsLambda(it)
                                         },
                                         modifier = modifier,
                                         cardOffset = CARD_OFFSET.dp(),
@@ -434,7 +440,8 @@ fun Order(
                 }
             }
             IconButton(
-                onClick = onClickDetails, modifier = Modifier
+                onClick = onClickDetails,
+                modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(0.dp)
                     .fillMaxWidth()

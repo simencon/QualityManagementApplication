@@ -72,14 +72,12 @@ class PlaceOrderFragment : Fragment() {
         binding.root.findViewById<TextView>(R.id.text_item_type_spinner)
             .setOnClickListener(createOnClickListener<DomainInputForOrder>(TargetSpinner.PRODUCT_TYPES))
 
-        Log.d(TAG, "onCreateView done")
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d(TAG, "viewModel set first observer: $viewModel")
         viewModel.inputForOrder.observe(
             viewLifecycleOwner,
             Observer<List<DomainInputForOrder>> { items ->
@@ -89,13 +87,7 @@ class PlaceOrderFragment : Fragment() {
                     }
                 }
             })
-        Log.d(TAG, "viewModel set first observer: ${listDomainInputForOrder.toString()}")
 
-        Log.d(TAG, "viewModel set second observer: $viewModel")
-
-        viewModel.investigationReasons.value?.forEach {
-            Log.d(TAG, "measurementReasons item: $it")
-        }
 
         viewModel.investigationReasons.observe(
             viewLifecycleOwner,
@@ -107,8 +99,6 @@ class PlaceOrderFragment : Fragment() {
                 }
             }
         )
-        Log.d(TAG, "viewModel set second observer: ${listDomainMeasurementReasons.toString()}")
-        Log.d(TAG, "onViewCreated done")
     }
 
     private fun <T> createOnClickListener(targetSpinner: TargetSpinner): View.OnClickListener {

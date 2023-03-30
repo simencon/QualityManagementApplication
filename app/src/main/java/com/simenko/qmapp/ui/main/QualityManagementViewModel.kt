@@ -466,9 +466,7 @@ class QualityManagementViewModel @Inject constructor(
                                 coroutineScope,
                                 dResult
                             )
-                        channel3.consumeEach { nResultIt ->
-                            Log.d(TAG, "editSubOrderTask: $nResultIt")
-                        }
+                        channel3.consumeEach { }
                     }
 
                     /*val channel3 =
@@ -476,13 +474,9 @@ class QualityManagementViewModel @Inject constructor(
                             coroutineScope,
                             listOfResults
                             )
-                    channel3.consumeEach { nResultsIt ->
-                        nResultsIt.forEach { nResultIt ->
-                            Log.d(TAG, "editSubOrderTask: $nResultIt")
-                        }
+                    channel3.consumeEach {
+                        nResultsIt.forEach { }
                     }*/
-
-                    Log.d(TAG, "editSubOrderTask: Collect/Post new results")
                 }
             } else if (it.statusId == 3) {
                 if (subOrderTask.statusId == 1) {
@@ -490,7 +484,6 @@ class QualityManagementViewModel @Inject constructor(
                      * Delete all results and change status
                      * */
                     deleteResultsBasedOnTask(subOrderTask)
-                    Log.d(TAG, "editSubOrderTask: Delete all results")
                 }
             }
         }
