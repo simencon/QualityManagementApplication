@@ -33,10 +33,15 @@ fun SubOrdersStandAlone(
 ) {
     val context = LocalContext.current
 
-    val observeOrders by appModel.completeOrdersMediator.observeAsState()
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
+
+    val onClickDetailsLambda = remember <(DomainSubOrderComplete) -> Unit> {
+        {
+            appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
+        }
+    }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -58,7 +63,7 @@ fun SubOrdersStandAlone(
                 }
 
                 if (subOrder != null)
-                    appModel.changeSubOrderDetailsVisibility(subOrder.subOrder.id)
+                    onClickDetailsLambda(subOrder)
 
             } else if (createdRecord != null && createdRecord.subOrderId != 0) {
             delay(50)
@@ -110,7 +115,7 @@ fun SubOrdersStandAlone(
                             viewModel = appModel,
                             subOrder = subOrder,
                             onClickDetails = { it ->
-                                appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
+                                onClickDetailsLambda(it)
                             },
                             cardOffset = CARD_OFFSET.dp(),
                             onChangeExpandState = {

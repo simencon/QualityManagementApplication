@@ -52,6 +52,12 @@ fun SubOrdersFlowColumn(
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
+    val onClickDetailsLambda = remember <(DomainSubOrderComplete) -> Unit> {
+        {
+            appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
+        }
+    }
+
     LaunchedEffect(lookForRecord) {
         if (observeSubOrders?.first != null && createdRecord != null)
             coroutineScope.launch {
@@ -60,7 +66,7 @@ fun SubOrdersFlowColumn(
                     it.subOrder.id == createdRecord.subOrderId
                 }
                 if (subOrder != null)
-                    appModel.changeSubOrderDetailsVisibility(subOrder.subOrder.id)
+                    onClickDetailsLambda(subOrder)
 
             } else if (createdRecord != null && createdRecord.subOrderId != 0) {
             delay(50)
@@ -99,7 +105,7 @@ fun SubOrdersFlowColumn(
                                     viewModel = appModel,
                                     subOrder = subOrder,
                                     onClickDetails = { it ->
-                                        appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
+                                        onClickDetailsLambda(it)
                                     },
                                     cardOffset = CARD_OFFSET.dp(),
                                     onChangeExpandState = {

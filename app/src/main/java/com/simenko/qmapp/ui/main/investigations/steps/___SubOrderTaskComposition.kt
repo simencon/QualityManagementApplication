@@ -47,6 +47,13 @@ fun SubOrderTasksFlowColumn(
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val observeSubOrderTasks by appModel.completeSubOrderTasksMediator.observeAsState()
+
+    val onClickDetailsLambda = remember <(DomainSubOrderTaskComplete) -> Unit> {
+        {
+            appModel.changeTaskDetailsVisibility(it.subOrderTask.id)
+        }
+    }
+
     var clickCounter = 0
 
     observeSubOrderTasks?.apply {
@@ -69,7 +76,7 @@ fun SubOrderTasksFlowColumn(
                                 modifier = modifier,
                                 subOrderTask = task,
                                 onClickDetails = { it ->
-                                    appModel.changeTaskDetailsVisibility(it.subOrderTask.id)
+                                    onClickDetailsLambda(it)
                                 },
                                 cardOffset = CARD_OFFSET.dp(),
                                 onChangeExpandState = {

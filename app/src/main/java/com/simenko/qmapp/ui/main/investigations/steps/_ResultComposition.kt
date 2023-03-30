@@ -45,6 +45,17 @@ fun ResultsComposition(
     val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
     val currentSample by appModel.currentSample.observeAsState()
 
+    val onClickDetailsLambda = remember <(DomainResultComplete) -> Unit> {
+        {
+            appModel.changeResultDetailsVisibility(it.result.id)
+        }
+    }
+    val onChangeValueLambda = remember <(DomainResultComplete) -> Unit> {
+        {
+            appModel.editResult(it.result)
+        }
+    }
+
     observeResults?.apply {
         if (observeResults!!.first != null) {
             FlowRow(
@@ -63,10 +74,10 @@ fun ResultsComposition(
                             modifier = modifier,
                             result = result,
                             onSelect = {
-                                appModel.changeResultDetailsVisibility(it.result.id)
+                                onClickDetailsLambda(it)
                             },
                             onChangeValue = {
-                                appModel.editResult(it.result)
+                                onChangeValueLambda(it)
                             }
                         )
                     }

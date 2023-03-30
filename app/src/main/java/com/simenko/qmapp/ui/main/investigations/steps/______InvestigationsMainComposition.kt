@@ -57,7 +57,6 @@ fun InvestigationsMainComposition(
     val currentTask by appModel.currentSubOrderTask.observeAsState()
 
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
-    var isResultsVisible by rememberSaveable { mutableStateOf(1) }
     val rowState = rememberScrollState()
 
     val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()

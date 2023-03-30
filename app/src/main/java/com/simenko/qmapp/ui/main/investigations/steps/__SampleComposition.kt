@@ -31,6 +31,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSampleComplete
 import com.simenko.qmapp.domain.DomainSampleResult
+import com.simenko.qmapp.domain.DomainSubOrderTaskComplete
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -44,6 +45,12 @@ fun SampleComposition(
 ) {
     val observeSamples by appModel.samplesMediator.observeAsState()
     val observeCurrentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
+
+    val onClickDetailsLambda = remember <(DomainSampleComplete) -> Unit> {
+        {
+            appModel.changeSampleDetailsVisibility(it.sample.id)
+        }
+    }
 
     observeSamples?.apply {
         if (observeSamples!!.first != null) {
@@ -63,10 +70,10 @@ fun SampleComposition(
                             appModel = appModel,
                             sample = sample,
                             onClickDetails = { it ->
-                                appModel.changeSampleDetailsVisibility(it.sample.id)
+                                onClickDetailsLambda(it)
                             },
                             onChangeExpandState = {
-                                appModel.changeSampleDetailsVisibility(it.sample.id)
+                                onClickDetailsLambda(it)
                             }
                         )
                     }

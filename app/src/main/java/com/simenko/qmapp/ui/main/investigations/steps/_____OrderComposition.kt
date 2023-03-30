@@ -61,6 +61,12 @@ fun Orders(
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
+    val onClickDetailsLambda = remember <(DomainOrderComplete) -> Unit> {
+        {
+            appModel.changeOrderDetailsVisibility(it.order.id)
+        }
+    }
+
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -99,12 +105,6 @@ fun Orders(
     }
 
     var clickCounter = 0
-
-    val onClickDetailsLambda = remember <(DomainOrderComplete) -> Unit> {
-        {
-            appModel.changeOrderDetailsVisibility(it.order.id)
-        }
-    }
 
     observeOrders?.apply {
         if (observeOrders!!.first != null) {
