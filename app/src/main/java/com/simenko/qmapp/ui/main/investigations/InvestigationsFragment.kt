@@ -46,7 +46,7 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
         )
 
         val tabLayout: TabLayout = binding.tabs
-        for(position in TargetInv.values().iterator()) {
+        for (position in TargetInv.values().iterator()) {
             tabLayout.addTab(
                 tabLayout.newTab()
                     .setText(StringUtils.getWithSpaces(position.name))
@@ -78,40 +78,22 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
 
         requireContext().theme
 
-        viewModel.itemVersionsComplete.observe(viewLifecycleOwner) {
-            viewModel.investigationStatuses.observe(viewLifecycleOwner) {
-                viewModel.productTolerances.observe(viewLifecycleOwner) {
-                    viewModel.componentTolerances.observe(viewLifecycleOwner) {
-                        viewModel.componentInStageTolerances.observe(viewLifecycleOwner) {
-                            viewModel.itemsTolerances.observe(viewLifecycleOwner) {
-                                viewModel.metrixes.observe(viewLifecycleOwner) {
-                                    viewModel.teamMembers.observe(viewLifecycleOwner) {
-                                        viewModel.completeTasks.observe(viewLifecycleOwner) {
-                                            binding.composeView.apply {
-                                                setViewCompositionStrategy(
-                                                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
-                                                )
-                                                setContent {
-                                                    Log.d(TAG, "onViewCreated: $createdRecord")
-                                                    InvestigationsMainComposition(
-                                                        modifier = Modifier
-                                                            .padding(
-                                                                vertical = 2.dp,
-                                                                horizontal = 2.dp
-                                                            ),
-                                                        appModel = viewModel,
-                                                        context = context,
-                                                        createdRecord = createdRecord
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        binding.composeView.apply {
+            setViewCompositionStrategy(
+                ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+            )
+            setContent {
+                Log.d(TAG, "onViewCreated: $createdRecord")
+                InvestigationsMainComposition(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 2.dp,
+                            horizontal = 2.dp
+                        ),
+                    appModel = viewModel,
+                    context = context,
+                    createdRecord = createdRecord
+                )
             }
         }
     }

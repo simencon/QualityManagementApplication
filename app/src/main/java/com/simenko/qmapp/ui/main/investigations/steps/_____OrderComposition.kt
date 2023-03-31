@@ -86,8 +86,9 @@ fun Orders(
                     it.order.id == createdRecord.orderId
                 }
 
-                if (order != null)
-                    appModel.changeOrderDetailsVisibility(order.order.id)
+                if (order != null && !order.detailsVisibility) {
+                    onClickDetailsLambda(order)
+                }
 
             } else if (createdRecord != null && createdRecord.orderId != 0) {
             delay(50)

@@ -50,6 +50,14 @@ fun InvestigationsMainComposition(
     context: Context,
     createdRecord: CreatedRecord?
 ) {
+    appModel.investigationStatuses.observeAsState()
+    appModel.productTolerances.observeAsState()
+    appModel.componentTolerances.observeAsState()
+    appModel.componentInStageTolerances.observeAsState()
+    appModel.metrixes.observeAsState()
+    appModel.teamMembers.observeAsState()
+    appModel.completeTasks.observeAsState()
+
     val showAllInvestigations by appModel.showAllInvestigations.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
