@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,8 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.utils.StringUtils
+
+private const val TAG = "InvestigationsFragment"
 
 class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
     Fragment() {
@@ -71,7 +74,6 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding.lifecycleOwner = viewLifecycleOwner
 
         requireContext().theme
@@ -90,6 +92,7 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
                                                     ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
                                                 )
                                                 setContent {
+                                                    Log.d(TAG, "onViewCreated: $createdRecord")
                                                     InvestigationsMainComposition(
                                                         modifier = Modifier
                                                             .padding(

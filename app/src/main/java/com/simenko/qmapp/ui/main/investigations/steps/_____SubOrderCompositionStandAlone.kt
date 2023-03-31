@@ -33,11 +33,12 @@ fun SubOrdersStandAlone(
 ) {
     val context = LocalContext.current
 
+    val observeOrders by appModel.completeOrdersMediator.observeAsState() //have to start to observe here for further work with completeOrders while saving new subOrder status.
     val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
-    val onClickDetailsLambda = remember <(DomainSubOrderComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
         {
             appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
         }
@@ -89,51 +90,53 @@ fun SubOrdersStandAlone(
                 state = listState
             ) {
                 items(items = observeSubOrders!!.first!!) { subOrder ->
-                    if(showCurrentStatus!=null && showOrderNumber != null)
-                    if(subOrder.subOrder.statusId == showCurrentStatus || showCurrentStatus == 0)
-                    if(subOrder.orderShort.order.orderNumber.toString().contains(showOrderNumber!!) || showOrderNumber == "0")
-                    if(subOrder.orderShort.order.orderTypeId == 3)
-                    Box(Modifier.fillMaxWidth()) {
-                        ActionsRow(
-                            subOrder = subOrder,
-                            actionIconSize = ACTION_ITEM_SIZE.dp,
-                            onDeleteSubOrder = {
-                                appModel.deleteSubOrder(it)
-                            },
-                            onEdit = {
-                                launchNewItemActivityForResult(
-                                    context as MainActivity,
-                                    ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
-                                    subOrder.subOrder.orderId,
-                                    subOrder.subOrder.id
-                                )
-                            }
-                        )
+                    if (showCurrentStatus != null && showOrderNumber != null)
+                        if (subOrder.subOrder.statusId == showCurrentStatus || showCurrentStatus == 0)
+                            if (subOrder.orderShort.order.orderNumber.toString()
+                                    .contains(showOrderNumber!!) || showOrderNumber == "0"
+                            )
+                                if (subOrder.orderShort.order.orderTypeId == 3)
+                                    Box(Modifier.fillMaxWidth()) {
+                                        ActionsRow(
+                                            subOrder = subOrder,
+                                            actionIconSize = ACTION_ITEM_SIZE.dp,
+                                            onDeleteSubOrder = {
+                                                appModel.deleteSubOrder(it)
+                                            },
+                                            onEdit = {
+                                                launchNewItemActivityForResult(
+                                                    context as MainActivity,
+                                                    ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
+                                                    subOrder.subOrder.orderId,
+                                                    subOrder.subOrder.id
+                                                )
+                                            }
+                                        )
 
-                        SubOrderCard(
-                            modifier = modifier,
-                            viewModel = appModel,
-                            subOrder = subOrder,
-                            onClickDetails = { it ->
-                                onClickDetailsLambda(it)
-                            },
-                            cardOffset = CARD_OFFSET.dp(),
-                            onChangeExpandState = {
-                                clickCounter++
-                                if (clickCounter == 1) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        delay(200)
-                                        clickCounter--
+                                        SubOrderCard(
+                                            modifier = modifier,
+                                            viewModel = appModel,
+                                            subOrder = subOrder,
+                                            onClickDetails = { it ->
+                                                onClickDetailsLambda(it)
+                                            },
+                                            cardOffset = CARD_OFFSET.dp(),
+                                            onChangeExpandState = {
+                                                clickCounter++
+                                                if (clickCounter == 1) {
+                                                    CoroutineScope(Dispatchers.Main).launch {
+                                                        delay(200)
+                                                        clickCounter--
+                                                    }
+                                                }
+                                                if (clickCounter == 2) {
+                                                    clickCounter = 0
+                                                    appModel.changeCompleteSubOrdersExpandState(it)
+                                                }
+                                            },
+                                            showStatusDialog = showStatusDialog
+                                        )
                                     }
-                                }
-                                if (clickCounter == 2) {
-                                    clickCounter = 0
-                                    appModel.changeCompleteSubOrdersExpandState(it)
-                                }
-                            },
-                            showStatusDialog = showStatusDialog
-                        )
-                    }
                 }
             }
         }

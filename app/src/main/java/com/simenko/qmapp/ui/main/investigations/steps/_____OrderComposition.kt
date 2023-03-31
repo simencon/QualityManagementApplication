@@ -113,6 +113,7 @@ fun Orders(
                 state = listState
             ) {
                 items(items = observeOrders!!.first!!) { order ->
+//                    var orderM by remember { mutableStateOf(order) }
                     if (showCurrentStatus != null && showOrderNumber != null)
                         if (order.order.statusId == showCurrentStatus || showCurrentStatus == 0)
                             if (order.order.orderNumber.toString()

@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -24,6 +25,8 @@ import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
+
+private const val TAG = "MainActivity"
 
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
@@ -61,6 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
 
+    var requestCode: Int = -1
     private var createdRecord = CreatedRecord(-1,-1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,10 +103,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
 
-        createdRecord = CreatedRecord(
+        this.requestCode = resultCode
+
+        this.createdRecord = CreatedRecord(
             intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
             intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
         )
+
+        Log.d(TAG, "onActivityResult: $createdRecord")
 
         if (
             requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||
@@ -188,6 +196,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     var mPreviousMenuItem: MenuItem? = null
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
         item.isCheckable = true
         item.isChecked = true
         if (mPreviousMenuItem != null && mPreviousMenuItem != item) {
@@ -211,10 +220,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
+                        Log.d(TAG, "onNavigationItemSelected in \"all\": $createdRecord")
                         viewModel.showAllInvestigations.value = true
                         InvestigationsFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
+                        Log.d(TAG, "onNavigationItemSelected in \"process\": $createdRecord")
                         viewModel.showAllInvestigations.value = false
                         InvestigationsFragment(createdRecord)
                     }

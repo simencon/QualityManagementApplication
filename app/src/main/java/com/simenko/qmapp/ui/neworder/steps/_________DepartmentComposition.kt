@@ -98,6 +98,7 @@ fun DepartmentsSelection(
                     modifier = modifier,
                     onClick = {
                         appModel.currentSubOrder.value?.subOrder?.departmentId = it.id
+                        appModel.currentSubOrder.value?.order?.reasonId = -1 //to avoid check error while saving the new record.
                         filterAllAfterDepartments(appModel, it.id, true)
                     }
                 )

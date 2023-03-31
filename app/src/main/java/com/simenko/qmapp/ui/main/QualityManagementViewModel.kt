@@ -358,7 +358,9 @@ class QualityManagementViewModel @Inject constructor(
 
                     syncSubOrder(subOrder)
 
-                    val order = completeOrders.value!!.find { it.order.id == subOrder.orderId }!!.order
+                    val order = completeOrders.value!!.find {
+                        it.order.id == subOrder.orderId
+                    }!!.order
                     syncOrder(order)
                 }
                 isStatusDialogVisible.value = false

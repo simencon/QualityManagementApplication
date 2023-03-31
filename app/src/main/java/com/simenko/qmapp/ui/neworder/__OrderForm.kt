@@ -70,16 +70,6 @@ fun OrderForm(
                 )
             }
 
-            ButtonsSection(title = R.string.select_item_type) {
-                SearchBarProducts(Modifier.padding(horizontal = 16.dp))
-                Spacer(Modifier.height(16.dp))
-                ProductsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel,
-                    parentId = parentId
-                )
-            }
-
             Spacer(Modifier.height((16 + 56).dp))
         }
         PullRefreshIndicator(

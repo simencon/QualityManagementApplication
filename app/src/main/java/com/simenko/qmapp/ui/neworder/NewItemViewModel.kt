@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.neworder
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
@@ -14,6 +15,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import java.io.IOException
 import javax.inject.Inject
+
+private const val TAG = "NewItemViewModel"
 
 @NewItemScope
 class NewItemViewModel @Inject constructor(
@@ -248,6 +251,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
+                        Log.d(TAG, "postNewSubOrder: orderId = ${it.orderId}")
                         setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.orderId, it.id)
                         activity.finish()
                     }
