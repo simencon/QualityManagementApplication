@@ -251,7 +251,6 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        Log.d(TAG, "postNewSubOrder: orderId = ${it.orderId}")
                         setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.orderId, it.id)
                         activity.finish()
                     }

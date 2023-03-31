@@ -26,8 +26,6 @@ import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
-private const val TAG = "MainActivity"
-
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
 
@@ -109,8 +107,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
             intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
         )
-
-        Log.d(TAG, "onActivityResult: $createdRecord")
 
         if (
             requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||
@@ -220,12 +216,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
-                        Log.d(TAG, "onNavigationItemSelected in \"all\": $createdRecord")
                         viewModel.showAllInvestigations.value = true
                         InvestigationsFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        Log.d(TAG, "onNavigationItemSelected in \"process\": $createdRecord")
                         viewModel.showAllInvestigations.value = false
                         InvestigationsFragment(createdRecord)
                     }

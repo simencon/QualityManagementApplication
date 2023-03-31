@@ -37,7 +37,7 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment______investigations,
