@@ -158,12 +158,6 @@ data class DomainSampleResult constructor(
     var total: Int?
 )
 
-data class DomainSampleComplete constructor(
-    var sampleResult: DomainSampleResult,
-    var sample: DomainSample,
-    var detailsVisibility: Boolean = false
-)
-
 data class DomainResultsDecryption constructor(
     var id: Int,
     var resultDecryption: String? = null
@@ -203,7 +197,21 @@ data class DomainOrderComplete constructor(
     var detailsVisibility: Boolean = false,
     var subOrdersVisibility: Boolean = false,
     var isExpanded: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        val otherM: DomainOrderComplete = other as DomainOrderComplete
+        return order.id == otherM.order.id &&
+                orderType.id == otherM.orderType.id &&
+                orderReason.id == otherM.orderReason.id &&
+                customer.id == otherM.customer.id &&
+                orderPlacer.id == otherM.orderPlacer.id &&
+                orderStatus.id == otherM.orderStatus.id &&
+                orderResult.id == otherM.orderResult.id &&
+                detailsVisibility == otherM.detailsVisibility &&
+                subOrdersVisibility == otherM.subOrdersVisibility &&
+                isExpanded == otherM.isExpanded
+    }
+}
 
 data class DomainSubOrderComplete constructor(
     var subOrder: DomainSubOrder,
@@ -221,7 +229,14 @@ data class DomainSubOrderComplete constructor(
     var detailsVisibility: Boolean = false,
     var tasksVisibility: Boolean = false,
     var isExpanded: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        val otherM: DomainSubOrderComplete = other as DomainSubOrderComplete
+        return detailsVisibility == otherM.detailsVisibility &&
+                tasksVisibility == otherM.tasksVisibility &&
+                isExpanded == otherM.isExpanded
+    }
+}
 
 data class DomainSubOrderTaskComplete constructor(
     var subOrderTask: DomainSubOrderTask,
@@ -231,14 +246,24 @@ data class DomainSubOrderTaskComplete constructor(
     var taskResult: DomainTaskResult,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        val otherM: DomainSubOrderTaskComplete = other as DomainSubOrderTaskComplete
+        return detailsVisibility == otherM.detailsVisibility &&
+                isExpanded == otherM.isExpanded
+    }
+}
 
-data class DomainResultTolerance(
-    var id: Int,
-    var nominal: Float?,
-    var lsl: Float?,
-    var usl: Float?
-)
+data class DomainSampleComplete constructor(
+    var sampleResult: DomainSampleResult,
+    var sample: DomainSample,
+    var detailsVisibility: Boolean = false
+) {
+    override fun equals(other: Any?): Boolean {
+        val otherM: DomainSampleComplete = other as DomainSampleComplete
+        return detailsVisibility == otherM.detailsVisibility
+    }
+}
 
 data class DomainResultComplete(
     var result: DomainResult,
@@ -246,4 +271,9 @@ data class DomainResultComplete(
     var metrix: DomainMetrix,
     var resultTolerance: DomainResultTolerance,
     var detailsVisibility: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        val otherM: DomainResultComplete = other as DomainResultComplete
+        return detailsVisibility == otherM.detailsVisibility
+    }
+}

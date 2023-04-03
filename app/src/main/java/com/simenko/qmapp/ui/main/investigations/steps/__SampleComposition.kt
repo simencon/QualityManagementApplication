@@ -14,10 +14,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +29,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSampleComplete
 import com.simenko.qmapp.domain.DomainSampleResult
-import com.simenko.qmapp.domain.DomainSubOrderTaskComplete
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -43,40 +40,38 @@ fun SampleComposition(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
-    val observeSamples by appModel.samplesMediator.observeAsState()
+    val observeSamples by appModel.completeSamples.observeAsState()
     val observeCurrentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
 
-    val onClickDetailsLambda = remember <(DomainSampleComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {
             appModel.changeSampleDetailsVisibility(it.sample.id)
         }
     }
 
     observeSamples?.apply {
-        if (observeSamples!!.first != null) {
-            LazyColumn(
-                modifier = modifier.animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
+        LazyColumn(
+            modifier = modifier.animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
                 )
-            ) {
+            )
+        ) {
 
-                items(items = observeSamples!!.first!!) { sample ->
-                    if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
-                        SampleCard(
-                            modifier = modifier,
-                            appModel = appModel,
-                            sample = sample,
-                            onClickDetails = { it ->
-                                onClickDetailsLambda(it)
-                            },
-                            onChangeExpandState = {
-                                onClickDetailsLambda(it)
-                            }
-                        )
-                    }
+            items(items = observeSamples!!) { sample ->
+                if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
+                    SampleCard(
+                        modifier = modifier,
+                        appModel = appModel,
+                        sample = sample,
+                        onClickDetails = { it ->
+                            onClickDetailsLambda(it)
+                        },
+                        onChangeExpandState = {
+                            onClickDetailsLambda(it)
+                        }
+                    )
                 }
             }
         }
@@ -93,6 +88,10 @@ fun SampleCard(
     onClickDetails: (DomainSampleComplete) -> Unit,
     onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
+    val trigger by appModel.completeSamplesMediator.observeAsState()
+
+    LaunchedEffect(trigger) {}
+
     val transitionState = remember {
         MutableTransitionState(sample.detailsVisibility).apply {
             targetState = !sample.detailsVisibility
@@ -163,7 +162,7 @@ fun Sample(
             val conformity = (sample.sampleResult.total?.toFloat()?.let {
                 sample.sampleResult.good?.toFloat()
                     ?.div(it)
-            }?.times(100))?:0.0f
+            }?.times(100)) ?: 0.0f
 
             Text(
                 text = conformity.roundToInt().toString() + "%",

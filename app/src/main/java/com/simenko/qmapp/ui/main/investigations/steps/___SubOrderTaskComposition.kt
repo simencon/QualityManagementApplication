@@ -12,10 +12,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,9 +44,9 @@ fun SubOrderTasksFlowColumn(
     appModel: QualityManagementViewModel,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
-    val observeSubOrderTasks by appModel.completeSubOrderTasksMediator.observeAsState()
+    val observeSubOrderTasks by appModel.completeTasks.observeAsState()
 
-    val onClickDetailsLambda = remember <(DomainSubOrderTaskComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
             appModel.changeTaskDetailsVisibility(it.subOrderTask.id)
         }
@@ -57,46 +55,45 @@ fun SubOrderTasksFlowColumn(
     var clickCounter = 0
 
     observeSubOrderTasks?.apply {
-        if (observeSubOrderTasks!!.first != null) {
-            FlowRow(modifier = modifier) {
-                observeSubOrderTasks!!.first!!.forEach { task ->
-                    if (task.subOrderTask.subOrderId == parentId) {
+        FlowRow(modifier = modifier) {
+            observeSubOrderTasks!!.forEach { task ->
+                if (task.subOrderTask.subOrderId == parentId) {
 
-                        Box(Modifier.fillMaxWidth()) {
-                            ActionsRow(
-                                subOrderTask = task,
-                                actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDeleteSubOrderTask = {
-                                    appModel.deleteSubOrderTask(it)
-                                },
-                                onEdit = {},
-                            )
+                    Box(Modifier.fillMaxWidth()) {
+                        ActionsRow(
+                            subOrderTask = task,
+                            actionIconSize = ACTION_ITEM_SIZE.dp,
+                            onDeleteSubOrderTask = {
+                                appModel.deleteSubOrderTask(it)
+                            },
+                            onEdit = {},
+                        )
 
-                            SubOrderTaskCard(
-                                modifier = modifier,
-                                subOrderTask = task,
-                                onClickDetails = { it ->
-                                    onClickDetailsLambda(it)
-                                },
-                                cardOffset = CARD_OFFSET.dp(),
-                                onChangeExpandState = {
-                                    clickCounter++
-                                    if (clickCounter == 1) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(200)
-                                            clickCounter--
-                                        }
+                        SubOrderTaskCard(
+                            modifier = modifier,
+                            appModel = appModel,
+                            task = task,
+                            onClickDetails = { it ->
+                                onClickDetailsLambda(it)
+                            },
+                            cardOffset = CARD_OFFSET.dp(),
+                            onChangeExpandState = {
+                                clickCounter++
+                                if (clickCounter == 1) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(200)
+                                        clickCounter--
                                     }
-                                    if (clickCounter == 2) {
-                                        clickCounter = 0
-                                        appModel.changeCompleteSubOrderTasksExpandState(it)
-                                    }
-                                },
-                                showStatusDialog = showStatusDialog
-                            )
-                        }
-                        Divider(thickness = 4.dp, color = Color.Transparent)
+                                }
+                                if (clickCounter == 2) {
+                                    clickCounter = 0
+                                    appModel.changeCompleteSubOrderTasksExpandState(it)
+                                }
+                            },
+                            showStatusDialog = showStatusDialog
+                        )
                     }
+                    Divider(thickness = 4.dp, color = Color.Transparent)
                 }
             }
         }
@@ -107,15 +104,20 @@ fun SubOrderTasksFlowColumn(
 @Composable
 fun SubOrderTaskCard(
     modifier: Modifier = Modifier,
-    subOrderTask: DomainSubOrderTaskComplete,
+    appModel: QualityManagementViewModel? = null,
+    task: DomainSubOrderTaskComplete,
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
+    val trigger by appModel!!.pairedTrigger.observeAsState()
+
+    LaunchedEffect(trigger) {}
+
     val transitionState = remember {
-        MutableTransitionState(subOrderTask.isExpanded).apply {
-            targetState = !subOrderTask.isExpanded
+        MutableTransitionState(task.isExpanded).apply {
+            targetState = !task.isExpanded
         }
     }
 
@@ -124,15 +126,15 @@ fun SubOrderTaskCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (subOrderTask.isExpanded) cardOffset else 0f },
+        targetValueByState = { if (task.isExpanded) cardOffset else 0f },
     )
 
     val cardBgColor by transition.animateColor(
         label = "cardBgColorTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = {
-            if (subOrderTask.isExpanded) Accent200 else
-                if (subOrderTask.detailsVisibility) {
+            if (task.isExpanded) Accent200 else
+                if (task.detailsVisibility) {
                     _level_3_record_color_details
                 } else {
                     _level_3_record_color
@@ -143,7 +145,7 @@ fun SubOrderTaskCard(
     val cardElevation by transition.animateDp(
         label = "cardElevation",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (subOrderTask.isExpanded) 40.dp else 2.dp }
+        targetValueByState = { if (task.isExpanded) 40.dp else 2.dp }
     )
 
     Card(
@@ -153,13 +155,13 @@ fun SubOrderTaskCard(
         modifier = modifier
             .fillMaxWidth()
             .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-            .clickable { onChangeExpandState(subOrderTask) },
+            .clickable { onChangeExpandState(task) },
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {
         SubOrderTask(
             modifier = modifier,
-            subOrderTask = subOrderTask,
-            onClickDetails = { onClickDetails(subOrderTask) },
+            subOrderTask = task,
+            onClickDetails = { onClickDetails(task) },
             showStatusDialog = showStatusDialog
         )
     }

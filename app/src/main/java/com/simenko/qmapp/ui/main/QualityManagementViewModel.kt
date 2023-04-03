@@ -8,7 +8,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.repository.syncSubOrderTasks
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
@@ -98,27 +97,24 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentOrder = MutableLiveData(0)
 
-    private val completeOrders = investigationsRepository.completeOrders
+    val completeOrders = investigationsRepository.completeOrders
     val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
             addSource(completeOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
         }
 
-//    val itemVersionsComplete = productsRepository.itemVersionsComplete
-
     val currentSubOrder = MutableLiveData(0)
 
-    private val completeSubOrders = investigationsRepository.completeSubOrders
+    val completeSubOrders = investigationsRepository.completeSubOrders
     val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>>().apply {
             addSource(completeSubOrders) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
         }
 
-    val completeTasks =
-        investigationsRepository.completeSubOrderTasks
-    val completeSubOrderTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
+    val completeTasks = investigationsRepository.completeSubOrderTasks
+    val completeTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
             addSource(completeTasks) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeTasks.value, it) }
@@ -126,8 +122,8 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentSubOrderTask = MutableLiveData(0)
 
-    private val completeSamples = investigationsRepository.completeSamples
-    val samplesMediator: MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>> =
+    val completeSamples = investigationsRepository.completeSamples
+    val completeSamplesMediator: MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>>().apply {
             addSource(completeSamples) { value = Pair(it, pairedTrigger.value) }
             addSource(pairedTrigger) { value = Pair(completeSamples.value, it) }
@@ -135,7 +131,7 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentSample = MutableLiveData(0)
 
-    private val completeResults = investigationsRepository.completeResults
+    val completeResults = investigationsRepository.completeResults
     val completeResultsMediator: MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>>().apply {
             addSource(completeResults) { value = Pair(it, pairedTrigger.value) }

@@ -140,6 +140,13 @@ data class DomainComponentInStageVersion(
     var isDefault: Boolean
 )
 
+data class DomainResultTolerance(
+    var id: Int,
+    var nominal: Float?,
+    var lsl: Float?,
+    var usl: Float?
+)
+
 data class DomainProductTolerance(
     var id: Int,
     var metrixId: Int?,

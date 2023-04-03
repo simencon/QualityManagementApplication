@@ -115,7 +115,7 @@ fun SubOrdersStandAlone(
 
                                         SubOrderCard(
                                             modifier = modifier,
-                                            viewModel = appModel,
+                                            appModel = appModel,
                                             subOrder = subOrder,
                                             onClickDetails = { it ->
                                                 onClickDetailsLambda(it)

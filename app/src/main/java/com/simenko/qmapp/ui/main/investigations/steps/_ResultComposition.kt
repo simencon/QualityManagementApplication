@@ -41,46 +41,45 @@ fun ResultsComposition(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
-    val observeResults by appModel.completeResultsMediator.observeAsState()
+    val observeResults by appModel.completeResults.observeAsState()
     val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
     val currentSample by appModel.currentSample.observeAsState()
 
-    val onClickDetailsLambda = remember <(DomainResultComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
         {
             appModel.changeResultDetailsVisibility(it.result.id)
         }
     }
-    val onChangeValueLambda = remember <(DomainResultComplete) -> Unit> {
+    val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> {
         {
             appModel.editResult(it.result)
         }
     }
 
     observeResults?.apply {
-        if (observeResults!!.first != null) {
-            FlowRow(
-                modifier = modifier.animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
+        FlowRow(
+            modifier = modifier.animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
                 )
-            ) {
-                observeResults!!.first!!.forEach { result ->
-                    if (result.result.taskId == currentSubOrderTask &&
-                        result.result.sampleId == currentSample
-                    ) {
-                        ResultCard(
-                            modifier = modifier,
-                            result = result,
-                            onSelect = {
-                                onClickDetailsLambda(it)
-                            },
-                            onChangeValue = {
-                                onChangeValueLambda(it)
-                            }
-                        )
-                    }
+            )
+        ) {
+            observeResults!!.forEach { result ->
+                if (result.result.taskId == currentSubOrderTask &&
+                    result.result.sampleId == currentSample
+                ) {
+                    ResultCard(
+                        modifier = modifier,
+                        appModel = appModel,
+                        result = result,
+                        onSelect = {
+                            onClickDetailsLambda(it)
+                        },
+                        onChangeValue = {
+                            onChangeValueLambda(it)
+                        }
+                    )
                 }
             }
         }
@@ -91,10 +90,15 @@ fun ResultsComposition(
 @Composable
 fun ResultCard(
     modifier: Modifier = Modifier,
+    appModel: QualityManagementViewModel,
     result: DomainResultComplete,
     onSelect: (DomainResultComplete) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
+    val trigger by appModel.completeResultsMediator.observeAsState()
+
+    LaunchedEffect(trigger) {}
+
     val transitionState = remember {
         MutableTransitionState(result.detailsVisibility).apply {
             targetState = !result.detailsVisibility
@@ -189,11 +193,10 @@ fun Result(
                         .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                         .onFocusChanged {
                             if (it.isFocused) {
-                                if(text == "-") text = ""
+                                if (text == "-") text = ""
                                 onSelect(result)
-                            }
-                            else
-                                if(text == "") text = "-"
+                            } else
+                                if (text == "") text = "-"
                         },
                     value = text,
                     maxLines = 1,
