@@ -69,15 +69,15 @@ fun CustomDialogUI(
 ) {
 
     val currentOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.completeOrdersMediator.value?.first!!)
+        findCurrentObject(dialogInput.recordId, appModel.completeOrders.value!!)
     }
     val currentSubOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.completeSubOrdersMediator.value?.first!!)
+        findCurrentObject(dialogInput.recordId, appModel.completeSubOrders.value!!)
     }
     val currentSubOrderTask by lazy {
         findCurrentObject(
             dialogInput.recordId,
-            appModel.completeTasksMediator.value?.first!!
+            appModel.completeTasks.value!!
         )
     }
 

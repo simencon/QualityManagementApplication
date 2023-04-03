@@ -95,7 +95,7 @@ fun ResultCard(
     onSelect: (DomainResultComplete) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
-    val trigger by appModel.completeResultsMediator.observeAsState()
+    val trigger by appModel.pairedTrigger.observeAsState()
 
     LaunchedEffect(trigger) {}
 

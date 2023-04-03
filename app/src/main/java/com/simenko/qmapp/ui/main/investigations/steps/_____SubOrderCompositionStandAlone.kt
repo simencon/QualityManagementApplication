@@ -33,8 +33,8 @@ fun SubOrdersStandAlone(
 ) {
     val context = LocalContext.current
 
-    val observeOrders by appModel.completeOrdersMediator.observeAsState() //have to start to observe here for further work with completeOrders while saving new subOrder status.
-    val observeSubOrders by appModel.completeSubOrdersMediator.observeAsState()
+    val observeOrders by appModel.completeOrders.observeAsState() //have to start to observe here for further work with completeOrders while saving new subOrder status.
+    val observeSubOrders by appModel.completeSubOrders.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
@@ -49,17 +49,17 @@ fun SubOrdersStandAlone(
 
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(lookForRecord) {
-        if (observeSubOrders?.first != null && createdRecord != null)
+        if (observeSubOrders != null && createdRecord != null)
             coroutineScope.launch {
 
                 listState.scrollToSelectedItem(
-                    list = observeSubOrders?.first!!.map { it.subOrder.id }.toList(),
+                    list = observeSubOrders!!.map { it.subOrder.id }.toList(),
                     selectedId = createdRecord.orderId
                 )
 
                 delay(200)
 
-                val subOrder = observeSubOrders?.first!!.find {
+                val subOrder = observeSubOrders!!.find {
                     it.subOrder.id == createdRecord.subOrderId
                 }
 
@@ -84,60 +84,58 @@ fun SubOrdersStandAlone(
     var clickCounter = 0
 
     observeSubOrders?.apply {
-        if (observeSubOrders!!.first != null) {
-            LazyColumn(
-                modifier = modifier,
-                state = listState
-            ) {
-                items(items = observeSubOrders!!.first!!) { subOrder ->
-                    if (showCurrentStatus != null && showOrderNumber != null)
-                        if (subOrder.subOrder.statusId == showCurrentStatus || showCurrentStatus == 0)
-                            if (subOrder.orderShort.order.orderNumber.toString()
-                                    .contains(showOrderNumber!!) || showOrderNumber == "0"
-                            )
-                                if (subOrder.orderShort.order.orderTypeId == 3)
-                                    Box(Modifier.fillMaxWidth()) {
-                                        ActionsRow(
-                                            subOrder = subOrder,
-                                            actionIconSize = ACTION_ITEM_SIZE.dp,
-                                            onDeleteSubOrder = {
-                                                appModel.deleteSubOrder(it)
-                                            },
-                                            onEdit = {
-                                                launchNewItemActivityForResult(
-                                                    context as MainActivity,
-                                                    ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
-                                                    subOrder.subOrder.orderId,
-                                                    subOrder.subOrder.id
-                                                )
-                                            }
-                                        )
+        LazyColumn(
+            modifier = modifier,
+            state = listState
+        ) {
+            items(items = observeSubOrders!!) { subOrder ->
+                if (showCurrentStatus != null && showOrderNumber != null)
+                    if (subOrder.subOrder.statusId == showCurrentStatus || showCurrentStatus == 0)
+                        if (subOrder.orderShort.order.orderNumber.toString()
+                                .contains(showOrderNumber!!) || showOrderNumber == "0"
+                        )
+                            if (subOrder.orderShort.order.orderTypeId == 3)
+                                Box(Modifier.fillMaxWidth()) {
+                                    ActionsRow(
+                                        subOrder = subOrder,
+                                        actionIconSize = ACTION_ITEM_SIZE.dp,
+                                        onDeleteSubOrder = {
+                                            appModel.deleteSubOrder(it)
+                                        },
+                                        onEdit = {
+                                            launchNewItemActivityForResult(
+                                                context as MainActivity,
+                                                ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
+                                                subOrder.subOrder.orderId,
+                                                subOrder.subOrder.id
+                                            )
+                                        }
+                                    )
 
-                                        SubOrderCard(
-                                            modifier = modifier,
-                                            appModel = appModel,
-                                            subOrder = subOrder,
-                                            onClickDetails = { it ->
-                                                onClickDetailsLambda(it)
-                                            },
-                                            cardOffset = CARD_OFFSET.dp(),
-                                            onChangeExpandState = {
-                                                clickCounter++
-                                                if (clickCounter == 1) {
-                                                    CoroutineScope(Dispatchers.Main).launch {
-                                                        delay(200)
-                                                        clickCounter--
-                                                    }
+                                    SubOrderCard(
+                                        modifier = modifier,
+                                        appModel = appModel,
+                                        subOrder = subOrder,
+                                        onClickDetails = { it ->
+                                            onClickDetailsLambda(it)
+                                        },
+                                        cardOffset = CARD_OFFSET.dp(),
+                                        onChangeExpandState = {
+                                            clickCounter++
+                                            if (clickCounter == 1) {
+                                                CoroutineScope(Dispatchers.Main).launch {
+                                                    delay(200)
+                                                    clickCounter--
                                                 }
-                                                if (clickCounter == 2) {
-                                                    clickCounter = 0
-                                                    appModel.changeCompleteSubOrdersExpandState(it)
-                                                }
-                                            },
-                                            showStatusDialog = showStatusDialog
-                                        )
-                                    }
-                }
+                                            }
+                                            if (clickCounter == 2) {
+                                                clickCounter = 0
+                                                appModel.changeCompleteSubOrdersExpandState(it)
+                                            }
+                                        },
+                                        showStatusDialog = showStatusDialog
+                                    )
+                                }
             }
         }
     }
