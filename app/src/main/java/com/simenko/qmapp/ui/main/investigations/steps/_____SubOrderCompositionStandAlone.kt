@@ -45,16 +45,20 @@ fun SubOrdersStandAlone(
     }
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
-    var lookForRecord by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(lookForRecord) {
-        if (observeSubOrders != null && createdRecord != null)
+    val needScrollToItem by remember {
+        derivedStateOf {
+            observeSubOrders != null && createdRecord != null
+        }
+    }
+
+    if(needScrollToItem) {
+        val coroutineScope = rememberCoroutineScope()
+        SideEffect {
             coroutineScope.launch {
-
                 listState.scrollToSelectedItem(
                     list = observeSubOrders!!.map { it.subOrder.id }.toList(),
-                    selectedId = createdRecord.orderId
+                    selectedId = createdRecord!!.orderId
                 )
 
                 delay(200)
@@ -63,23 +67,21 @@ fun SubOrdersStandAlone(
                     it.subOrder.id == createdRecord.subOrderId
                 }
 
-                if (subOrder != null)
+                if (subOrder != null && !subOrder.detailsVisibility) {
                     onClickDetailsLambda(subOrder)
-
-            } else if (createdRecord != null && createdRecord.subOrderId != 0) {
-            delay(50)
-            lookForRecord = !lookForRecord
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.Main) {
-            for (i in generateSequence(0) { it }) {
-                checkIfEndOfList(listState, onListEnd)
-                delay(50)
+                }
             }
         }
     }
+
+    val lastItemIsVisible by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
+
 
     var clickCounter = 0
 

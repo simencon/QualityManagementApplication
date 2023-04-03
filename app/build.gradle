@@ -152,6 +152,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended"
 
     implementation("androidx.compose.runtime:runtime-livedata")
+//    implementation "androidx.lifecycle:lifecycle-runtime-compose"
 //    implementation "androidx.lifecycle:lifecycle-viewmodel-compose"
 
 

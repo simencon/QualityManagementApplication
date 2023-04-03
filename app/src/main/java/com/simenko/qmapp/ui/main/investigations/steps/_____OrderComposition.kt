@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.asFlow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
@@ -72,16 +73,20 @@ fun Orders(
     }
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
-    var lookForRecord by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(lookForRecord) {
-        if (observeOrders != null && createdRecord != null)
+    val needScrollToItem by remember {
+        derivedStateOf {
+            observeOrders != null && createdRecord != null
+        }
+    }
+
+    if(needScrollToItem) {
+        val coroutineScope = rememberCoroutineScope()
+        SideEffect {
             coroutineScope.launch {
-
                 listState.scrollToSelectedItem(
                     list = observeOrders!!.map { it.order.id }.toList(),
-                    selectedId = createdRecord.orderId
+                    selectedId = createdRecord!!.orderId
                 )
 
                 delay(200)
@@ -93,21 +98,19 @@ fun Orders(
                 if (order != null && !order.detailsVisibility) {
                     onClickDetailsLambda(order)
                 }
-
-            } else if (createdRecord != null && createdRecord.orderId != 0) {
-            delay(50)
-            lookForRecord = !lookForRecord
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.Main) {
-            for (i in generateSequence(0) { it }) {
-                checkIfEndOfList(listState, onListEnd)
-                delay(50)
             }
         }
     }
+
+
+    val lastItemIsVisible by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
+
 
     var clickCounter = 0
 

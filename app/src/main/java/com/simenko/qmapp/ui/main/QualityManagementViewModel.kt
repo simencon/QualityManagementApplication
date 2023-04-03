@@ -359,6 +359,7 @@ class QualityManagementViewModel @Inject constructor(
                     }!!.order
                     syncOrder(order)
                 }
+                pairedTrigger.value = !pairedTrigger.value!!
                 isStatusDialogVisible.value = false
                 isNetworkError.value = false
                 isLoadingInProgress.value = false
@@ -385,6 +386,7 @@ class QualityManagementViewModel @Inject constructor(
                         .find { it.order.id == subOrder.orderId }!!.order
                     syncOrder(order)
                 }
+                pairedTrigger.value = !pairedTrigger.value!!
                 isStatusDialogVisible.value = false
                 isNetworkError.value = false
                 isLoadingInProgress.value = false

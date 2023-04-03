@@ -33,6 +33,8 @@ import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
 import java.util.*
 import javax.inject.Inject
 
+private const val TAG = "NewItemActivity"
+
 enum class ActionType {
     ADD_ORDER,
     EDIT_ORDER,
@@ -145,6 +147,7 @@ class NewItemActivity : ComponentActivity() {
                                             )
                                         }
                                         ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
+                                            Log.d(TAG, "onCreate: ${viewModel.currentSubOrder.value?.order?.reasonId}")
                                             viewModel.postNewOrderWithSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
@@ -224,7 +227,6 @@ class NewItemActivity : ComponentActivity() {
                                                     viewModel.operations.observe(this) {
                                                         viewModel.operationsFlows.observe(this) {
                                                             viewModel.characteristics.observe(this) {
-
                                                                 when (actionTypeEnum) {
                                                                     ActionType.ADD_ORDER -> {
                                                                         viewModel.investigationTypesMutable.performFiltration(
@@ -334,7 +336,6 @@ class NewItemActivity : ComponentActivity() {
                                                                     }
 
                                                                     ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
-//                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId = orderId
                                                                         viewModel.investigationReasonsMutable.performFiltration(
                                                                             viewModel.investigationReasons,
                                                                             FilteringMode.ADD_ALL,

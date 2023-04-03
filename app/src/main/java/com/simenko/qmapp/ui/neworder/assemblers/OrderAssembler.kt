@@ -1,8 +1,11 @@
 package com.simenko.qmapp.ui.neworder.assemblers
 
+import android.util.Log
 import com.simenko.qmapp.domain.DomainOrder
 import com.simenko.qmapp.domain.DomainSubOrderShort
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
+
+private const val TAG = "OrderAssembler"
 
 fun checkCurrentOrder(viewModel: NewItemViewModel): DomainOrder? {
     if (viewModel.currentOrder.value?.orderTypeId == 0) return null
@@ -18,6 +21,8 @@ fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
 }
 
 fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderShort? {
+
+    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value?.order?.reasonId}")
 
     if(viewModel.currentSubOrder.value!!.order.reasonId == 0) return null
 

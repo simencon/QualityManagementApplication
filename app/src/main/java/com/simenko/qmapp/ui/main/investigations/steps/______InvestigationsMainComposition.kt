@@ -76,15 +76,12 @@ fun InvestigationsMainComposition(
     }
 
     QMAppTheme {
-        var fabPositionToRemember by remember { mutableStateOf(FabPosition.End) }
+
         var fabPositionToSet by remember { mutableStateOf(FabPosition.End) }
 
         fun changeFlaBtnPosition(position: FabPosition) {
-            fabPositionToRemember = position
-        }
-
-        LaunchedEffect(fabPositionToRemember) {
-            fabPositionToSet = fabPositionToRemember
+            Log.d(TAG, "changeFlaBtnPosition: $position")
+            fabPositionToSet = position
         }
 
         LaunchedEffect(currentTask) {
@@ -95,7 +92,6 @@ fun InvestigationsMainComposition(
         }
 
         Scaffold(
-
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {

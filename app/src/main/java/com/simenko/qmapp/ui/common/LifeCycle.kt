@@ -37,22 +37,6 @@ fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) ->
     }
 }
 
-fun LazyListState.isScrolledToTheEnd() =
-    layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
-
-@OptIn(ExperimentalMaterial3Api::class)
-suspend fun checkIfEndOfList(listState: LazyListState, onListEnd: (FabPosition) -> Unit) {
-    withContext(Dispatchers.Main) {
-        if (listState.isScrollInProgress) {
-            if (listState.isScrolledToTheEnd()) {
-                onListEnd(FabPosition.Center)
-            } else {
-                onListEnd(FabPosition.End)
-            }
-        }
-    }
-}
-
 suspend fun < T : ScrollableState> T.scrollToSelectedItem(
     list: List<Int>,
     selectedId: Int,

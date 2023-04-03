@@ -268,8 +268,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel =
-                        investigationsRepository.getCreatedRecord(this, order)
+                    val channel = investigationsRepository.getCreatedRecord(this, order)
                     channel.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.id)
                         activity.finish()
@@ -284,12 +283,12 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
+        Log.d(TAG, "postNewOrderWithSubOrder: ${subOrder.order}")
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel =
-                        investigationsRepository.getCreatedRecord(this, subOrder.order)
+                    val channel = investigationsRepository.getCreatedRecord(this, subOrder.order)
                     channel.consumeEach {
                         subOrder.subOrder.orderId = it.id
                         val channel1 = investigationsRepository.getCreatedRecord(
