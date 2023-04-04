@@ -1,5 +1,8 @@
 package com.simenko.qmapp.domain
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+
 interface ListOfItems {
     fun selectedRecord(): String
 }
@@ -9,6 +12,7 @@ data class DomainPositionLevel(
     var levelDescription: String
 )
 
+@Stable
 data class DomainTeamMember(
     val id: Int,
     val departmentId: Int,

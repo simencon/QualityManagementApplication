@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.team
 
+
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -13,9 +14,9 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +26,7 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
-import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 private const val TAG = "TeamComposition"
 
@@ -34,74 +35,38 @@ fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
-    val observeTeam by appModel.team.observeAsState()
+    Log.d(TAG, "TeamMembersLiveData: Parent is build!")
+    val itemsVM by appModel.teamMediator.observeAsState()
 
-    val onClickDetailsLambda: (DomainTeamMember) -> Unit = {
+    val onClickDetailsLambda: (Int) -> Unit = {
         appModel.changeTeamMembersDetailsVisibility(it)
     }
 
-    val coroutine = rememberCoroutineScope()
+    val items = appModel.teamS
 
-    val globalTrigger by appModel.pairedTeamTrigger.observeAsState()
-
-    Log.d(TAG, "TeamMembersLiveData: Parent is build!")
-
-    observeTeam?.apply {
+    itemsVM?.apply {
         LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-            items(items = observeTeam!!, key = { teamMember ->
-                teamMember.id
-            }
-            ) { teamMember ->
-                var itemM by remember {
-                    Log.d(TAG, "TeamMembersLiveData: item is remembered: ${teamMember.id}")
-                    mutableStateOf(teamMember)
+            if (itemsVM!!.first != null)
+                items(items = itemsVM!!.first!!, key = { it.hashCode() }
+                ) { teamMember ->
+                    TeamMemberCard(
+                        teamMember = teamMember,
+                        onClickDetails = { onClickDetailsLambda(it) }
+                    )
                 }
-
-                var localTrigger by rememberSaveable {
-                    mutableStateOf(globalTrigger)
-                }
-
-                val needToCheck by remember {
-                    derivedStateOf {
-                        localTrigger != globalTrigger
-                    }
-                }
-
-                if (needToCheck) {
-                    SideEffect {
-                        coroutine.launch {
-                            Log.d(TAG, "TeamMembersLiveData: SideEffect for ${itemM.fullName}")
-                            val newItem = appModel.team.value?.find { it.id == itemM.id }
-                            Log.d(TAG, "TeamMembersLiveData: fount item with id = ${itemM.id}")
-                            if (newItem != null && !itemM.equals(newItem)) {
-                                Log.d(TAG, "TeamMemberCard: is changed ${itemM.fullName}")
-                                itemM = newItem
-                            }
-                            localTrigger = globalTrigger
-                        }
-                    }
-                }
-
-                TeamMemberCard(
-                    appModel = appModel,
-                    teamMember = itemM,
-                    onClickDetails = { it ->
-                        onClickDetailsLambda(it)
-                    }
-                )
-            }
         }
     }
 }
 
 @Composable
 fun TeamMemberCard(
-    appModel: QualityManagementViewModel,
     teamMember: DomainTeamMember,
-    onClickDetails: (DomainTeamMember) -> Unit
+    onClickDetails: (Int) -> Unit
 ) {
+    Log.d(TAG, "TeamMemberCard: ${teamMember.fullName}")
     Card(
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+        modifier = Modifier
+            .padding(vertical = 4.dp, horizontal = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiary.copy(0.3f),
         ),
@@ -114,7 +79,7 @@ fun TeamMemberCard(
             jobRole = teamMember.jobRole,
             detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {
-                onClickDetails(teamMember)
+                onClickDetails(teamMember.id)
             }
         )
     }
@@ -134,12 +99,13 @@ fun TeamMember(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.animateContentSize(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
-        ),
+        modifier = Modifier
+            .animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
+            ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
@@ -170,7 +136,6 @@ fun TeamMember(
                     }
                 )
             }
-
         }
 
         if (detailsVisibility) {
@@ -190,7 +155,6 @@ fun TeamMember(
                         .padding(start = 8.dp)
                 )
                 Text(
-
                     text = StringUtils.getMail(email),
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 1,
@@ -292,3 +256,10 @@ fun getTeamMembers() = List(30) { i ->
         }
     }
 }
+
+fun randomColor() = Color(
+    Random.nextInt(256),
+    Random.nextInt(256),
+    Random.nextInt(256),
+    alpha = 255
+)

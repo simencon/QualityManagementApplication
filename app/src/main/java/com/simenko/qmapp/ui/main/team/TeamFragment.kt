@@ -41,6 +41,10 @@ class TeamFragment : Fragment() {
 
         binding.lifecycleOwner = viewLifecycleOwner
 
+        viewModel.team.observe(viewLifecycleOwner) {
+            viewModel.addTeamToSnapShot(it)
+        }
+
         binding.composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {

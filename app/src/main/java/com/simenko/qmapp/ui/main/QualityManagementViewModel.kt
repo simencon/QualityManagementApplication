@@ -2,6 +2,8 @@ package com.simenko.qmapp.ui.main
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.main.MainScope
 import com.simenko.qmapp.domain.*
@@ -52,10 +54,27 @@ class QualityManagementViewModel @Inject constructor(
             addSource(pairedTeamTrigger) { value = Pair(team.value, it) }
         }
 
-    fun changeTeamMembersDetailsVisibility(item: DomainTeamMember) {
-        team.value?.find { it.id == item.id }?.let { member ->
-            member.detailsVisibility = !member.detailsVisibility
-            pairedTeamTrigger.value = !(pairedTeamTrigger.value as Boolean)
+    val teamS: SnapshotStateList<DomainTeamMember> = mutableStateListOf()
+    val teamListS: List<DomainTeamMember> = teamS
+
+    fun addTeamToSnapShot(team: List<DomainTeamMember>) {
+        teamS.apply {
+            addAll(team)
+        }
+    }
+
+//    var teamVS by mutableStateOf<ViewState>()
+
+    fun changeTeamMembersDetailsVisibility(itemId: Int) {
+        val iterator = teamS.listIterator()
+
+        while(iterator.hasNext()) {
+            val current = iterator.next()
+            if (current.id == itemId) {
+                iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
+            } else {
+                iterator.set(current.copy(detailsVisibility = false))
+            }
         }
     }
 
