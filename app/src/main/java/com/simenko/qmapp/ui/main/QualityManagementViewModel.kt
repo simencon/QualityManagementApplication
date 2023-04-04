@@ -55,15 +55,12 @@ class QualityManagementViewModel @Inject constructor(
         }
 
     val teamS: SnapshotStateList<DomainTeamMember> = mutableStateListOf()
-    val teamListS: List<DomainTeamMember> = teamS
-
     fun addTeamToSnapShot(team: List<DomainTeamMember>) {
         teamS.apply {
+            clear()
             addAll(team)
         }
     }
-
-//    var teamVS by mutableStateOf<ViewState>()
 
     fun changeTeamMembersDetailsVisibility(itemId: Int) {
         val iterator = teamS.listIterator()

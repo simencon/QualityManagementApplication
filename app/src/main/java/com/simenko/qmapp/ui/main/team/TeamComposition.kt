@@ -8,6 +8,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -36,24 +37,28 @@ fun TeamMembersLiveData(
     appModel: QualityManagementViewModel
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
-    val itemsVM by appModel.teamMediator.observeAsState()
+
+    val itemsVM by appModel.team.observeAsState()
+    if (itemsVM != null)
+        appModel.addTeamToSnapShot(itemsVM!!)
+
+    val items = appModel.teamS
 
     val onClickDetailsLambda: (Int) -> Unit = {
         appModel.changeTeamMembersDetailsVisibility(it)
     }
+    val listState = rememberLazyListState()
 
-    val items = appModel.teamS
-
-    itemsVM?.apply {
-        LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-            if (itemsVM!!.first != null)
-                items(items = itemsVM!!.first!!, key = { it.hashCode() }
-                ) { teamMember ->
-                    TeamMemberCard(
-                        teamMember = teamMember,
-                        onClickDetails = { onClickDetailsLambda(it) }
-                    )
-                }
+    LazyColumn(
+        state = listState,
+        modifier = modifier.padding(vertical = 4.dp)
+    ) {
+        items(items = items, key = { it.hashCode() }
+        ) { teamMember ->
+            TeamMemberCard(
+                teamMember = teamMember,
+                onClickDetails = { onClickDetailsLambda(it) }
+            )
         }
     }
 }
