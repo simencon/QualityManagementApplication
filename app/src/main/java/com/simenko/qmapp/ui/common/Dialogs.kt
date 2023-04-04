@@ -87,7 +87,7 @@ fun CustomDialogUI(
     LaunchedEffect(Unit) {
         selectSingleRecordI(
             appModel.investigationStatuses,
-            appModel.pairedTrigger,
+            appModel.pairedOrderTrigger,
             when (dialogInput.target) {
                 DialogFor.ORDER -> {
                     currentOrder.order.statusId
@@ -106,7 +106,7 @@ fun CustomDialogUI(
                 false
             }
             else -> {
-                placeHolder = appModel.teamMembers.value!!.find { it.id == dialogInput.performerId }!!.fullName
+                placeHolder = appModel.team.value!!.find { it.id == dialogInput.performerId }!!.fullName
                 true
             }
         }
@@ -126,7 +126,7 @@ fun CustomDialogUI(
         }
         selectSingleRecordI(
             appModel.investigationStatuses,
-            appModel.pairedTrigger,
+            appModel.pairedOrderTrigger,
             id
         )
     }
@@ -166,7 +166,7 @@ fun CustomDialogUI(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     SearchableExpandedDropDownMenu(
-                        listOfItems = appModel.teamMembers.value!!,
+                        listOfItems = appModel.team.value!!,
                         placeholder = placeHolder,
                         modifier = Modifier.fillMaxWidth(),
                         onDropDownItemSelected = { item ->

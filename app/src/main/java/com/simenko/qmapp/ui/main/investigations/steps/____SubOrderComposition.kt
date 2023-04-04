@@ -161,7 +161,7 @@ fun SubOrderCard(
     onChangeExpandState: (DomainSubOrderComplete) -> Unit,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
-    val trigger by appModel!!.pairedTrigger.observeAsState()
+    val trigger by appModel!!.pairedSubOrderTrigger.observeAsState()
     LaunchedEffect(trigger) {}
 
     val transitionState = remember {

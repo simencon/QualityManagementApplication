@@ -88,7 +88,7 @@ fun SampleCard(
     onClickDetails: (DomainSampleComplete) -> Unit,
     onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
-    val trigger by appModel.pairedTrigger.observeAsState()
+    val trigger by appModel.pairedSampleTrigger.observeAsState()
 
     LaunchedEffect(trigger) {}
 

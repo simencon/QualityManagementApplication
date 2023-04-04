@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,53 +26,31 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
 
-fun getTeamMembers() = List(30) { i ->
-
-    when (i) {
-        0 -> {
-            DomainTeamMember(
-                id = 0,
-                departmentId = 1,
-                department = "Quality",
-                email = "roman.semenyshyn@skf.com",
-                fullName = "Роман Семенишин",
-                jobRole = "Заступник начальника УЯк",
-                roleLevelId = 5,
-                passWord = "13050513",
-                companyId = 1
-            )
-        }
-        else -> {
-            DomainTeamMember(
-                id = i,
-                departmentId = i + 1,
-                department = "Department num. $i",
-                email = "mail_$i@skf.com",
-                fullName = "NameSurname_$i",
-                jobRole = "Job role $i",
-                roleLevelId = (0..5).random(),
-                passWord = (1000..9999).random().toString(),
-                companyId = 1
-            )
-        }
-    }
-}
+private const val TAG = "TeamComposition"
 
 @Composable
 fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
-    val observeTeam by appModel.teamMembersMediator.observeAsState()
+    val observeTeam by appModel.teamMediator.observeAsState()
 
-    observeTeam?.apply {
-        if (observeTeam!!.first != null) {
+    val onClickDetailsLambda: (DomainTeamMember) -> Unit = {
+        appModel.changeTeamMembersDetailsVisibility(it)
+    }
+
+    if (observeTeam != null) {
+        observeTeam?.apply {
             LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-                items(items = observeTeam!!.first!!) { teamMember ->
+                items(items = observeTeam!!.first!!, key = { teamMember ->
+                    teamMember.id
+                }
+                ) { teamMember ->
                     TeamMemberCard(
+                        appModel = appModel,
                         teamMember = teamMember,
                         onClickDetails = { it ->
-                            appModel.changeTeamMembersDetailsVisibility(it)
+                            onClickDetailsLambda(it)
                         }
                     )
                 }
@@ -81,20 +60,33 @@ fun TeamMembersLiveData(
 }
 
 @Composable
-fun TeamMemberCard(teamMember: DomainTeamMember, onClickDetails: (DomainTeamMember) -> Unit) {
+fun TeamMemberCard(
+    appModel: QualityManagementViewModel,
+    teamMember: DomainTeamMember,
+    onClickDetails: (DomainTeamMember) -> Unit
+) {
     Card(
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiary.copy(0.3f),
         ),
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-    ) {
+
+        ) {
+
+        var isDetailsVisible by rememberSaveable {
+            mutableStateOf(false)
+        }
+
         TeamMember(
             fullName = teamMember.fullName,
             email = teamMember.email,
             department = teamMember.department,
             jobRole = teamMember.jobRole,
-            detailsVisibility = teamMember.detailsVisibility,
-            onClickDetails = { onClickDetails(teamMember) }
+            detailsVisibility = isDetailsVisible,
+            onClickDetails = {
+                onClickDetails(teamMember)
+                isDetailsVisible = !isDetailsVisible
+            }
         )
     }
 }
@@ -122,21 +114,13 @@ fun TeamMember(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
+        Log.d(TAG, "TeamMember: $fullName")
 
         Row(
             modifier = modifier,
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            /*Text(
-                text = "Ім'я:",
-                style = MaterialTheme.typography.labelSmall,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(columnOneWeight)
-                    .padding(start = 8.dp)
-            )*/
             Text(
                 text = fullName,
                 style = MaterialTheme.typography.titleMedium,
@@ -245,6 +229,37 @@ fun TeamMember(
 @Composable
 fun MyAppPreview() {
     QMAppTheme {
+    }
+}
 
+fun getTeamMembers() = List(30) { i ->
+
+    when (i) {
+        0 -> {
+            DomainTeamMember(
+                id = 0,
+                departmentId = 1,
+                department = "Quality",
+                email = "roman.semenyshyn@skf.com",
+                fullName = "Роман Семенишин",
+                jobRole = "Заступник начальника УЯк",
+                roleLevelId = 5,
+                passWord = "13050513",
+                companyId = 1
+            )
+        }
+        else -> {
+            DomainTeamMember(
+                id = i,
+                departmentId = i + 1,
+                department = "Department num. $i",
+                email = "mail_$i@skf.com",
+                fullName = "NameSurname_$i",
+                jobRole = "Job role $i",
+                roleLevelId = (0..5).random(),
+                passWord = (1000..9999).random().toString(),
+                companyId = 1
+            )
+        }
     }
 }

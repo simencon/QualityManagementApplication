@@ -111,7 +111,7 @@ fun SubOrderTaskCard(
     onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
-    val trigger by appModel!!.pairedTrigger.observeAsState()
+    val trigger by appModel!!.pairedTaskTrigger.observeAsState()
 
     LaunchedEffect(trigger) {}
 

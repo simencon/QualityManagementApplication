@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.asFlow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
@@ -80,7 +79,7 @@ fun Orders(
         }
     }
 
-    if(needScrollToItem) {
+    if (needScrollToItem) {
         val coroutineScope = rememberCoroutineScope()
         SideEffect {
             coroutineScope.launch {
@@ -111,7 +110,6 @@ fun Orders(
 
     if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
 
-
     var clickCounter = 0
 
     observeOrders?.apply {
@@ -120,7 +118,6 @@ fun Orders(
             state = listState
         ) {
             items(items = observeOrders!!) { order ->
-//                Log.d(TAG, "Orders: added to lazy list: ${order.order.id}")
                 if (showCurrentStatus != null && showOrderNumber != null)
                     if (order.order.statusId == showCurrentStatus || showCurrentStatus == 0)
                         if (order.order.orderNumber.toString()
@@ -187,31 +184,9 @@ fun OrderCard(
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
 
-    val trigger by viewModel.pairedTrigger.observeAsState()
+    val trigger by viewModel.pairedOrderTrigger.observeAsState()
 
-    var triggerM by rememberSaveable {
-        mutableStateOf(true)
-    }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver{ _, event ->
-            if(event == Lifecycle.Event.ON_RESUME) {
-//                Log.d(TAG, "OrderCard: is resumed on_resume: $trigger")
-                triggerM = trigger!!
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
-    LaunchedEffect(trigger) {
-//        Log.d(TAG, "OrderCard: trigger changed: $trigger")
-    }
+    LaunchedEffect(trigger) {}
 
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {

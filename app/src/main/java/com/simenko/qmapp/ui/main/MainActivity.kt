@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
-            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+            this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
         }
     }
 

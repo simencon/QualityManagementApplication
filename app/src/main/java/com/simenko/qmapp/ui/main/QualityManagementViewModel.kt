@@ -38,19 +38,24 @@ class QualityManagementViewModel @Inject constructor(
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
 
-    val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedTeamTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedOrderTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedSubOrderTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedTaskTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedSampleTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
+    val pairedResultTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    val teamMembers = manufacturingRepository.teamMembers
-    val teamMembersMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
+    val team = manufacturingRepository.teamMembers
+    val teamMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(teamMembers) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(teamMembers.value, it) }
+            addSource(team) { value = Pair(it, pairedTeamTrigger.value) }
+            addSource(pairedTeamTrigger) { value = Pair(team.value, it) }
         }
 
     fun changeTeamMembersDetailsVisibility(item: DomainTeamMember) {
-        teamMembers.value?.find { it.id == item.id }?.let { member ->
+        team.value?.find { it.id == item.id }?.let { member ->
             member.detailsVisibility = !member.detailsVisibility
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedTeamTrigger.value = !(pairedTeamTrigger.value as Boolean)
         }
     }
 
@@ -98,45 +103,20 @@ class QualityManagementViewModel @Inject constructor(
     val currentOrder = MutableLiveData(0)
 
     val completeOrders = investigationsRepository.completeOrders
-    val completeOrdersMediator: MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainOrderComplete>?, Boolean?>>().apply {
-            addSource(completeOrders) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeOrders.value, it) }
-        }
 
     val currentSubOrder = MutableLiveData(0)
 
     val completeSubOrders = investigationsRepository.completeSubOrders
-    val completeSubOrdersMediator: MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainSubOrderComplete>?, Boolean?>>().apply {
-            addSource(completeSubOrders) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeSubOrders.value, it) }
-        }
 
     val completeTasks = investigationsRepository.completeSubOrderTasks
-    val completeTasksMediator: MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainSubOrderTaskComplete>?, Boolean?>>().apply {
-            addSource(completeTasks) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeTasks.value, it) }
-        }
 
     val currentSubOrderTask = MutableLiveData(0)
 
     val completeSamples = investigationsRepository.completeSamples
-    val completeSamplesMediator: MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainSampleComplete>?, Boolean?>>().apply {
-            addSource(completeSamples) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeSamples.value, it) }
-        }
 
     val currentSample = MutableLiveData(0)
 
     val completeResults = investigationsRepository.completeResults
-    val completeResultsMediator: MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainResultComplete>?, Boolean?>>().apply {
-            addSource(completeResults) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(completeResults.value, it) }
-        }
 
     val currentResult = MutableLiveData(0)
 
@@ -155,16 +135,19 @@ class QualityManagementViewModel @Inject constructor(
 
         completeOrders.value?.forEach { it.detailsVisibility = false }
 
+        Log.d(TAG, "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}")
         if (select)
             completeOrders.value?.find { it.order.id == itemId }
                 ?.let { order ->
                     currentOrder.value = itemId
                     investigationsRepository.setCurrentOrder(itemId)
                     order.detailsVisibility = !order.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                    pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
                 }
         else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
+
+        Log.d(TAG, "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}")
 
         changeSubOrderDetailsVisibility(currentSubOrder.value ?: 0)
         changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
@@ -194,10 +177,10 @@ class QualityManagementViewModel @Inject constructor(
                     investigationsRepository.setCurrentSubOrder(itemId)
 
                     subOrder.detailsVisibility = !subOrder.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                    pairedSubOrderTrigger.value = !(pairedSubOrderTrigger.value as Boolean)
                 }
         else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedSubOrderTrigger.value = !(pairedSubOrderTrigger.value as Boolean)
 
         changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
         changeSampleDetailsVisibility(currentSample.value ?: 0)
@@ -226,10 +209,10 @@ class QualityManagementViewModel @Inject constructor(
                     investigationsRepository.setCurrentTask(itemId)
 
                     subOrderTask.detailsVisibility = !subOrderTask.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                    pairedTaskTrigger.value = !(pairedTaskTrigger.value as Boolean)
                 }
         else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedTaskTrigger.value = !(pairedTaskTrigger.value as Boolean)
 
         changeSampleDetailsVisibility(currentSample.value ?: 0)
         changeResultDetailsVisibility(currentResult.value ?: 0)
@@ -257,10 +240,10 @@ class QualityManagementViewModel @Inject constructor(
                     investigationsRepository.setCurrentSample(itemId)
 
                     sample.detailsVisibility = !sample.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                    pairedSampleTrigger.value = !(pairedSampleTrigger.value as Boolean)
                 }
         else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedSampleTrigger.value = !(pairedSampleTrigger.value as Boolean)
 
         changeResultDetailsVisibility(currentResult.value ?: 0)
     }
@@ -287,23 +270,23 @@ class QualityManagementViewModel @Inject constructor(
                     investigationsRepository.setCurrentResult(itemId)
 
                     result.detailsVisibility = !result.detailsVisibility
-                    pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                    pairedResultTrigger.value = !(pairedResultTrigger.value as Boolean)
                 }
         else
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedResultTrigger.value = !(pairedResultTrigger.value as Boolean)
     }
 
     fun changeCompleteOrdersExpandState(item: DomainOrderComplete) {
         completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
             order.isExpanded = !order.isExpanded
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
         }
     }
 
     fun changeCompleteSubOrdersExpandState(item: DomainSubOrderComplete) {
         completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
             subOrder.isExpanded = !subOrder.isExpanded
-            pairedTrigger.value = !(pairedTrigger.value as Boolean)
+            pairedSubOrderTrigger.value = !(pairedSubOrderTrigger.value as Boolean)
         }
     }
 
@@ -311,7 +294,7 @@ class QualityManagementViewModel @Inject constructor(
         completeTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
             ?.let { subOrderTask ->
                 subOrderTask.isExpanded = !subOrderTask.isExpanded
-                pairedTrigger.value = !(pairedTrigger.value as Boolean)
+                pairedTaskTrigger.value = !(pairedTaskTrigger.value as Boolean)
             }
     }
 
@@ -325,8 +308,8 @@ class QualityManagementViewModel @Inject constructor(
     val investigationStatuses = investigationsRepository.investigationStatuses
     val investigationStatusesMediator: MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainOrdersStatus>?, Boolean?>>().apply {
-            addSource(investigationStatuses) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(investigationStatuses.value, it) }
+            addSource(investigationStatuses) { value = Pair(it, pairedOrderTrigger.value) }
+            addSource(pairedOrderTrigger) { value = Pair(investigationStatuses.value, it) }
         }
 
     val productTolerances = productsRepository.productTolerances
@@ -359,7 +342,8 @@ class QualityManagementViewModel @Inject constructor(
                     }!!.order
                     syncOrder(order)
                 }
-                pairedTrigger.value = !pairedTrigger.value!!
+                pairedOrderTrigger.value = !pairedOrderTrigger.value!!
+                pairedSubOrderTrigger.value = !pairedSubOrderTrigger.value!!
                 isStatusDialogVisible.value = false
                 isNetworkError.value = false
                 isLoadingInProgress.value = false
@@ -386,7 +370,9 @@ class QualityManagementViewModel @Inject constructor(
                         .find { it.order.id == subOrder.orderId }!!.order
                     syncOrder(order)
                 }
-                pairedTrigger.value = !pairedTrigger.value!!
+                pairedOrderTrigger.value = !pairedOrderTrigger.value!!
+                pairedSubOrderTrigger.value = !pairedSubOrderTrigger.value!!
+                pairedTaskTrigger.value = !pairedTaskTrigger.value!!
                 isStatusDialogVisible.value = false
                 isNetworkError.value = false
                 isLoadingInProgress.value = false

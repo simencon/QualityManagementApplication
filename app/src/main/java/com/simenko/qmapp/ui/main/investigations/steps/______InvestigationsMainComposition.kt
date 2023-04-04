@@ -55,7 +55,7 @@ fun InvestigationsMainComposition(
     appModel.componentTolerances.observeAsState()
     appModel.componentInStageTolerances.observeAsState()
     appModel.metrixes.observeAsState()
-    appModel.teamMembers.observeAsState()
+    appModel.team.observeAsState()
     appModel.completeTasks.observeAsState()
 
     val showAllInvestigations by appModel.showAllInvestigations.observeAsState()
