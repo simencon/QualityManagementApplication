@@ -25,6 +25,7 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
+import kotlinx.coroutines.launch
 
 private const val TAG = "TeamComposition"
 
@@ -33,27 +34,61 @@ fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel
 ) {
-    val observeTeam by appModel.teamMediator.observeAsState()
+    val observeTeam by appModel.team.observeAsState()
 
     val onClickDetailsLambda: (DomainTeamMember) -> Unit = {
         appModel.changeTeamMembersDetailsVisibility(it)
     }
 
-    if (observeTeam != null) {
-        observeTeam?.apply {
-            LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-                items(items = observeTeam!!.first!!, key = { teamMember ->
-                    teamMember.id
+    val coroutine = rememberCoroutineScope()
+
+    val globalTrigger by appModel.pairedTeamTrigger.observeAsState()
+
+    Log.d(TAG, "TeamMembersLiveData: Parent is build!")
+
+    observeTeam?.apply {
+        LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+            items(items = observeTeam!!, key = { teamMember ->
+                teamMember.id
+            }
+            ) { teamMember ->
+                var itemM by remember {
+                    Log.d(TAG, "TeamMembersLiveData: item is remembered: ${teamMember.id}")
+                    mutableStateOf(teamMember)
                 }
-                ) { teamMember ->
-                    TeamMemberCard(
-                        appModel = appModel,
-                        teamMember = teamMember,
-                        onClickDetails = { it ->
-                            onClickDetailsLambda(it)
+
+                var localTrigger by rememberSaveable {
+                    mutableStateOf(globalTrigger)
+                }
+
+                val needToCheck by remember {
+                    derivedStateOf {
+                        localTrigger != globalTrigger
+                    }
+                }
+
+                if (needToCheck) {
+                    SideEffect {
+                        coroutine.launch {
+                            Log.d(TAG, "TeamMembersLiveData: SideEffect for ${itemM.fullName}")
+                            val newItem = appModel.team.value?.find { it.id == itemM.id }
+                            Log.d(TAG, "TeamMembersLiveData: fount item with id = ${itemM.id}")
+                            if (newItem != null && !itemM.equals(newItem)) {
+                                Log.d(TAG, "TeamMemberCard: is changed ${itemM.fullName}")
+                                itemM = newItem
+                            }
+                            localTrigger = globalTrigger
                         }
-                    )
+                    }
                 }
+
+                TeamMemberCard(
+                    appModel = appModel,
+                    teamMember = itemM,
+                    onClickDetails = { it ->
+                        onClickDetailsLambda(it)
+                    }
+                )
             }
         }
     }
@@ -72,20 +107,14 @@ fun TeamMemberCard(
         ),
 
         ) {
-
-        var isDetailsVisible by rememberSaveable {
-            mutableStateOf(false)
-        }
-
         TeamMember(
             fullName = teamMember.fullName,
             email = teamMember.email,
             department = teamMember.department,
             jobRole = teamMember.jobRole,
-            detailsVisibility = isDetailsVisible,
+            detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {
                 onClickDetails(teamMember)
-                isDetailsVisible = !isDetailsVisible
             }
         )
     }
