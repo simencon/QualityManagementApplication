@@ -34,6 +34,9 @@ fun DatabaseTeamMember.toDomainTeamMember() =
 fun DatabaseOrdersStatus.toDomainStatus() =
     ObjectTransformer(DatabaseOrdersStatus::class, DomainOrdersStatus::class).transform(this)
 
+fun DatabaseCompany.toDomainCompany() =
+    ObjectTransformer(DatabaseCompany::class, DomainCompany::class).transform(this)
+
 fun DatabaseDepartment.toDomainDepartment() =
     ObjectTransformer(DatabaseDepartment::class, DomainDepartment::class).transform(this)
 
@@ -201,7 +204,16 @@ fun List<DatabaseResultComplete>.asDomainResults(lastSelectedId: Int = 0): List<
     }
 }
 
-fun List<DatabaseDepartmentsDetailed>.asDepartmentsDetailedDomainModel(): List<DomainDepartmentComplete> {
+fun List<DatabaseTeamMemberComplete>.asTeamCompleteDomainModel(): List<DomainTeamMemberComplete> {
+    return map {
+        DomainTeamMemberComplete(
+            teamMember = it.teamMember.toDomainTeamMember(),
+            department = it.department.toDomainDepartment(),
+            company = it.company.toDomainCompany(),
+        )
+    }
+}
+fun List<DatabaseDepartmentsComplete>.asDepartmentsDetailedDomainModel(): List<DomainDepartmentComplete> {
     return map {
         DomainDepartmentComplete(
             departments = ListTransformer(

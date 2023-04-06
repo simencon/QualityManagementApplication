@@ -107,6 +107,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
             intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
         )
+        viewModel.createdRecord.value = createdRecord
 
         if (
             requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||

@@ -54,6 +54,8 @@ fun Orders(
     createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
+    val context = LocalContext.current
+
     val observeOrders by appModel.orders.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
@@ -65,6 +67,12 @@ fun Orders(
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
             appModel.changeOrdersDetailsVisibility(it)
+        }
+    }
+
+    val onChangeExpandStateLambda = remember<(Int) -> Unit> {
+        {
+            appModel.changeCompleteOrdersExpandState(it)
         }
     }
 
@@ -114,20 +122,20 @@ fun Orders(
     ) {
         items(items = items, key = {it.hashCode()}) { order ->
             Box(Modifier.fillMaxWidth()) {
-//                ActionsRow(
-//                    order = order,
-//                    actionIconSize = ACTION_ITEM_SIZE.dp,
-//                    onDeleteOrder = {
-//                        appModel.deleteOrder(it)
-//                    },
-//                    onEdit = {
-//                        launchNewItemActivityForResult(
-//                            context as MainActivity,
-//                            ActionType.EDIT_ORDER.ordinal,
-//                            order.order.id
-//                        )
-//                    }
-//                )
+                ActionsRow(
+                    order = order,
+                    actionIconSize = ACTION_ITEM_SIZE.dp,
+                    onDeleteOrder = {
+                        appModel.deleteOrder(it)
+                    },
+                    onEdit = {
+                        launchNewItemActivityForResult(
+                            context as MainActivity,
+                            ActionType.EDIT_ORDER.ordinal,
+                            order.order.id
+                        )
+                    }
+                )
                 OrderCard(
                     viewModel = appModel,
                     order = order,
@@ -146,10 +154,9 @@ fun Orders(
                         }
                         if (clickCounter == 2) {
                             clickCounter = 0
-                            appModel.changeCompleteOrdersExpandState(it)
+                            onChangeExpandStateLambda(it.order.id)
                         }
                     },
-                    createdRecord = createdRecord,
                     showStatusDialog = showStatusDialog
                 )
             }
@@ -166,7 +173,6 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
-    createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     Log.d(TAG, "OrderCard: ${order.order.orderNumber}")
@@ -216,9 +222,25 @@ fun OrderCard(
         Order(
             modifier = modifier,
             viewModel = viewModel,
-            order = order,
+
+            orderId = order.order.id,
+
+            orderNumber = order.order.orderNumber.toString(),
+            statusId = order.order.statusId,
+            statusDescription = order.orderStatus.statusDescription?:"-",
+            isOk = order.orderResult.isOk?:true,
+            total = order.orderResult.total,
+            good = order.orderResult.good,
+            typeDescription = order.orderType.typeDescription?:"-",
+            reasonFormalDescript = order.orderReason.reasonFormalDescript?:"-",
+            customerDepAbbr = order.customer.depAbbr?:"-",
+
+            detailsVisibility = order.detailsVisibility,
+            placerFullName = order.orderPlacer.fullName,
+            createdDate = order.order.createdDate,
+            completedDate = order.order.completedDate,
+
             onClickDetails = { onClickDetails(order.order.id) },
-            createdRecord = createdRecord,
             showStatusDialog = showStatusDialog
         )
     }
@@ -228,19 +250,35 @@ fun OrderCard(
 fun Order(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
-    order: DomainOrderComplete = getOrders()[0],
+
+    orderId: Int = 0,
+
+    orderNumber: String = "",
+    statusId: Int = 0,
+    statusDescription: String = "",
+    isOk: Boolean = true,
+    total: Int? = 1,
+    good: Int? = 1,
+    typeDescription: String = "",
+    reasonFormalDescript: String = "",
+    customerDepAbbr: String = "",
+
+    detailsVisibility: Boolean = false,
+    placerFullName: String = "",
+    createdDate: String = "2022-12-15T22:24:43.666",
+    completedDate: String? = "2022-12-15T22:24:43.666",
+
     onClickDetails: () -> Unit = {},
-    createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     Column(
         modifier = Modifier
-            /*.animateContentSize(
+            .animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessLow
                 )
-            )*/
+            )
             .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
     ) {
         Row(
@@ -273,7 +311,7 @@ fun Order(
                             .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = order.order.orderNumber.toString(),
+                        text = orderNumber,
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -299,14 +337,14 @@ fun Order(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = order.orderStatus.statusDescription ?: "",
+                            text = statusDescription,
                             style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier
                                 .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                         )
-                        if (order.order.statusId == 3) {
+                        if (statusId == 3) {
                             Text(
                                 text = "(",
                                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -317,8 +355,8 @@ fun Order(
                                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Icon(
-                                imageVector = if (order.orderResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
-                                contentDescription = if (order.orderResult.isOk != false) {
+                                imageVector = if (isOk) Icons.Filled.Check else Icons.Filled.Close,
+                                contentDescription = if (isOk) {
                                     stringResource(R.string.show_less)
                                 } else {
                                     stringResource(R.string.show_more)
@@ -329,14 +367,14 @@ fun Order(
                                     end = 0.dp,
                                     bottom = 0.dp
                                 ),
-                                tint = if (order.orderResult.isOk != false) {
+                                tint = if (isOk) {
                                     Color.Green
                                 } else {
                                     Color.Red
                                 },
                             )
-                            val conformity = (order.orderResult.total?.toFloat()?.let {
-                                order.orderResult.good?.toFloat()
+                            val conformity = (total?.toFloat()?.let {
+                                good?.toFloat()
                                     ?.div(it)
                             }?.times(100)) ?: 0.0f
 
@@ -387,10 +425,7 @@ fun Order(
                             .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = StringUtils.concatTwoStrings(
-                            order.orderType.typeDescription,
-                            order.orderReason.reasonFormalDescript
-                        ),
+                        text = StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript),
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -418,7 +453,7 @@ fun Order(
                             .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = order.customer.depAbbr ?: "",
+                        text = customerDepAbbr,
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -436,8 +471,8 @@ fun Order(
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (order.detailsVisibility) {
+                    imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (detailsVisibility) {
                         stringResource(R.string.show_less)
                     } else {
                         stringResource(R.string.show_more)
@@ -450,8 +485,11 @@ fun Order(
         OrderDetails(
             viewModel = viewModel,
             modifier = modifier,
-            order = order,
-            createdRecord = createdRecord,
+            orderId = orderId,
+            detailsVisibility = detailsVisibility,
+            placerFullName = placerFullName,
+            createdDate = createdDate,
+            completedDate = completedDate,
             showStatusDialog = showStatusDialog
         )
     }
@@ -461,12 +499,15 @@ fun Order(
 fun OrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
-    order: DomainOrderComplete = getOrders()[0],
-    createdRecord: CreatedRecord? = null,
+    orderId: Int = 0,
+    detailsVisibility: Boolean = false,
+    placerFullName: String = "",
+    createdDate: String = "",
+    completedDate: String? = "",
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
 
-    if (order.detailsVisibility) {
+    if (detailsVisibility) {
 
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
 
@@ -484,7 +525,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = order.orderPlacer.fullName,
+                text = placerFullName,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -507,7 +548,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = StringUtils.getDateTime(order.order.createdDate),
+                text = StringUtils.getDateTime(createdDate),
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -530,7 +571,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = StringUtils.getDateTime(order.order.completedDate),
+                text = StringUtils.getDateTime(completedDate),
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -539,15 +580,13 @@ fun OrderDetails(
                     .padding(start = 3.dp)
             )
         }
-        /*if (viewModel != null)
+        if (viewModel != null)
             SubOrdersFlowColumn(
                 modifier = Modifier,
-                parentId = order.order.id,
+                parentId = orderId,
                 appModel = viewModel,
-                context = context,
-                createdRecord = createdRecord,
                 showStatusDialog = showStatusDialog
-            )*/
+            )
     }
 }
 

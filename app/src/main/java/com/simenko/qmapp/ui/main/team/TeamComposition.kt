@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.DomainTeamMemberComplete
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
 
@@ -63,10 +64,10 @@ fun TeamMembersLiveData(
 
 @Composable
 fun TeamMemberCard(
-    teamMember: DomainTeamMember,
+    teamMember: DomainTeamMemberComplete,
     onClickDetails: (Int) -> Unit
 ) {
-    Log.d(TAG, "TeamMemberCard: ${teamMember.fullName}")
+    Log.d(TAG, "TeamMemberCard: ${teamMember.teamMember.fullName}")
     Card(
         modifier = Modifier
             .padding(vertical = 4.dp, horizontal = 8.dp),
@@ -76,13 +77,13 @@ fun TeamMemberCard(
 
         ) {
         TeamMember(
-            fullName = teamMember.fullName,
-            email = teamMember.email,
-            department = teamMember.department,
-            jobRole = teamMember.jobRole,
+            fullName = teamMember.teamMember.fullName,
+            email = teamMember.teamMember.email,
+            department = teamMember.department.depName?:"-",
+            jobRole = teamMember.teamMember.jobRole,
             detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {
-                onClickDetails(teamMember.id)
+                onClickDetails(teamMember.teamMember.id)
             }
         )
     }

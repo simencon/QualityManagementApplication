@@ -30,6 +30,7 @@ data class DomainTeamMember(
     override fun getName(): String {
         return fullName
     }
+
     override fun equals(other: Any?): Boolean {
         val otherM = other as DomainTeamMember
 
@@ -73,7 +74,7 @@ data class DomainDepartment(
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id
-    override fun getParentOneId() = companyId?:0
+    override fun getParentOneId() = companyId ?: 0
     override fun setIsChecked(value: Boolean) {
         isSelected = value
     }
@@ -149,6 +150,28 @@ data class DomainOperationsFlow(
     var currentOperationId: Int,
     var previousOperationId: Int
 )
+
+@Stable
+data class DomainTeamMemberComplete(
+    val teamMember: DomainTeamMember,
+    val department: DomainDepartment,
+    val company: DomainCompany,
+    var detailsVisibility: Boolean = false,
+    var isSelected: Boolean = false
+) : DomainModel() {
+    override fun getRecordId(): Any {
+        return teamMember.id
+    }
+
+    override fun getParentOneId(): Int {
+        return teamMember.departmentId
+    }
+
+    override fun setIsChecked(value: Boolean) {
+        isSelected = value
+    }
+
+}
 
 data class DomainDepartmentComplete(
     val departments: DomainDepartment,

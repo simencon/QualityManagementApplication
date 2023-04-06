@@ -46,9 +46,9 @@ class QualityManagementViewModel @Inject constructor(
     val pairedSampleTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
     val pairedResultTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    val team = manufacturingRepository.teamMembers
-    val teamS: SnapshotStateList<DomainTeamMember> = mutableStateListOf()
-    fun addTeamToSnapShot(list: List<DomainTeamMember>) {
+    val team = manufacturingRepository.teamComplete
+    val teamS: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
+    fun addTeamToSnapShot(list: List<DomainTeamMemberComplete>) {
         teamS.apply {
             clear()
             addAll(list)
@@ -60,7 +60,7 @@ class QualityManagementViewModel @Inject constructor(
 
         while (iterator.hasNext()) {
             val current = iterator.next()
-            if (current.id == itemId) {
+            if (current.teamMember.id == itemId) {
                 iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
             } else {
                 iterator.set(current.copy(detailsVisibility = false))
@@ -111,6 +111,8 @@ class QualityManagementViewModel @Inject constructor(
      * Filters
      * */
 
+    val createdRecord = MutableLiveData(CreatedRecord())
+
     val currentOrder = MutableLiveData(0)
 
     val orders = investigationsRepository.completeOrders
@@ -120,12 +122,10 @@ class QualityManagementViewModel @Inject constructor(
         currentStatus: Int = 0,
         lookUpNumber: String = ""
     ) {
-
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 ordersS.apply {
                     this.clear()
-                    this.addAll(orders.value!!)
                     list.forEach {
                         if (it.order.statusId == currentStatus || currentStatus == 0)
                             if (it.order.orderNumber.toString()
@@ -156,18 +156,22 @@ class QualityManagementViewModel @Inject constructor(
 
     fun changeOrdersDetailsVisibility(itemId: Int) {
         val iterator = ordersS.listIterator()
-
-        while (iterator.hasNext()) {
-            val current = iterator.next()
-            if (current.order.id == itemId) {
-                iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-//                if(!current.detailsVisibility) {
-//                    currentOrder.value = itemId
-//                } else {
-//                    currentOrder.value = 0
-//                }
-            } else {
-                iterator.set(current.copy(detailsVisibility = false))
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                while (iterator.hasNext()) {
+                    val current = iterator.next()
+                    if (current.order.id == itemId) {
+                        iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
+/*                        if (!current.detailsVisibility) {
+                            currentOrder.value = itemId
+                        } else {
+                            currentOrder.value = 0
+                        }*/
+                    } else {
+                        if (current.detailsVisibility)
+                            iterator.set(current.copy(detailsVisibility = false))
+                    }
+                }
             }
         }
     }
@@ -334,10 +338,21 @@ class QualityManagementViewModel @Inject constructor(
             pairedResultTrigger.value = !(pairedResultTrigger.value as Boolean)
     }
 
-    fun changeCompleteOrdersExpandState(item: DomainOrderComplete) {
-        orders.value?.find { it.order.id == item.order.id }?.let { order ->
-            order.isExpanded = !order.isExpanded
-            pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
+    fun changeCompleteOrdersExpandState(itemId: Int) {
+
+        val iterator = ordersS.listIterator()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                while (iterator.hasNext()) {
+                    val current = iterator.next()
+                    if (current.order.id == itemId) {
+                        iterator.set(current.copy(isExpanded = !current.isExpanded))
+                    } else {
+                        if (current.isExpanded)
+                            iterator.set(current.copy(isExpanded = false))
+                    }
+                }
+            }
         }
     }
 

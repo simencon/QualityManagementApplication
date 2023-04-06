@@ -225,7 +225,24 @@ data class DatabaseOperationsFlow(
     var previousOperationId: Int
 )
 
-data class DatabaseDepartmentsDetailed(
+data class DatabaseTeamMemberComplete(
+    @Embedded
+    val teamMember: DatabaseTeamMember,
+    @Relation(
+        entity = DatabaseDepartment::class,
+        parentColumn = "departmentId",
+        entityColumn = "id"
+    )
+    val department: DatabaseDepartment,
+    @Relation(
+        entity = DatabaseCompany::class,
+        parentColumn = "companyId",
+        entityColumn = "id"
+    )
+    val company: DatabaseCompany
+)
+
+data class DatabaseDepartmentsComplete(
     @Embedded
     val departments: DatabaseDepartment,
     @Relation(

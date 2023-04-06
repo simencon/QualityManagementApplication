@@ -58,11 +58,18 @@ interface QualityManagementManufacturingDao {
 
     @Transaction
     @Query(
+        "SELECT tm.* FROM '8_team_members' AS tm " +
+                "ORDER BY tm.fullName ASC"
+    )
+    fun getTeamDetailed(): LiveData<List<DatabaseTeamMemberComplete>>
+
+    @Transaction
+    @Query(
         "SELECT dp.* FROM '8_team_members' AS tm " +
                 "JOIN '10_departments' AS dp ON tm.id = dp.depManager " +
                 "ORDER BY dp.depOrder ASC"
     )
-    fun getDepartmentsDetailed(): LiveData<List<DatabaseDepartmentsDetailed>>
+    fun getDepartmentsDetailed(): LiveData<List<DatabaseDepartmentsComplete>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOperationsFlowsAll(department: List<DatabaseOperationsFlow>)

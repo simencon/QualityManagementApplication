@@ -160,6 +160,11 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
             ).generateList()
         }
 
+    val teamComplete: LiveData<List<DomainTeamMemberComplete>> =
+        Transformations.map(database.qualityManagementManufacturingDao.getTeamDetailed()) {
+            it.asTeamCompleteDomainModel()
+        }
+
     val departments: LiveData<List<DomainDepartment>> =
         Transformations.map(database.qualityManagementManufacturingDao.getDepartments()) {
             ListTransformer(

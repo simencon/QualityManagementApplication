@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,10 +45,12 @@ fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
     appModel: QualityManagementViewModel,
-    context: Context,
-    createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
+    val context = LocalContext.current
+
+    val createdRecord by appModel.createdRecord.observeAsState()
+
     val observeSubOrders by appModel.completeSubOrders.observeAsState()
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
@@ -63,12 +66,12 @@ fun SubOrdersFlowColumn(
             coroutineScope.launch {
                 delay(200)
                 val subOrder = observeSubOrders!!.find {
-                    it.subOrder.id == createdRecord.subOrderId
+                    it.subOrder.id == createdRecord?.subOrderId
                 }
                 if (subOrder != null)
                     onClickDetailsLambda(subOrder)
 
-            } else if (createdRecord != null && createdRecord.subOrderId != 0) {
+            } else if (createdRecord != null && createdRecord?.subOrderId != 0) {
             delay(50)
             lookForRecord = !lookForRecord
         }

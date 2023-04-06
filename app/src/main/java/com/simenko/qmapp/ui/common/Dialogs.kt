@@ -31,6 +31,7 @@ import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.neworder.selectSingleRecordI
 import com.simenko.qmapp.ui.theme.*
 
+@Stable
 enum class DialogFor {
     ORDER,
     SUB_ORDER,
@@ -106,7 +107,7 @@ fun CustomDialogUI(
                 false
             }
             else -> {
-                placeHolder = appModel.team.value!!.find { it.id == dialogInput.performerId }!!.fullName
+                placeHolder = appModel.team.value!!.find { it.teamMember.id == dialogInput.performerId }!!.teamMember.fullName
                 true
             }
         }
@@ -170,7 +171,7 @@ fun CustomDialogUI(
                         placeholder = placeHolder,
                         modifier = Modifier.fillMaxWidth(),
                         onDropDownItemSelected = { item ->
-                            dialogInput.performerId = item.id
+                            dialogInput.performerId = item.teamMember.id
                             enableToEdit = true
                         },
                         dropdownItem = { test ->
@@ -321,13 +322,13 @@ fun InvestigationStatusCard(
 }
 
 @Composable
-fun DropDownItem(test: DomainTeamMember) {
+fun DropDownItem(test: DomainTeamMemberComplete) {
     Row(
         modifier = Modifier
             .padding(8.dp)
             .wrapContentSize()
     ) {
-        androidx.compose.material.Text(text = test.fullName)
+        androidx.compose.material.Text(text = test.teamMember.fullName)
         Spacer(modifier = Modifier.width(12.dp))
         androidx.compose.material.Text("")
     }

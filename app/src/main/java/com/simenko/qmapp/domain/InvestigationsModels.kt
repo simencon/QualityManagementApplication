@@ -205,7 +205,7 @@ data class DomainOrderComplete constructor(
     var subOrdersVisibility: Boolean = false,
     var isExpanded: Boolean = false
 ) {
-    override fun equals(other: Any?): Boolean {
+    /*override fun equals(other: Any?): Boolean {
         val otherM: DomainOrderComplete = other as DomainOrderComplete
         return order.id == otherM.order.id &&
                 orderType.id == otherM.orderType.id &&
@@ -218,6 +218,9 @@ data class DomainOrderComplete constructor(
                 subOrdersVisibility == otherM.subOrdersVisibility &&
                 isExpanded == otherM.isExpanded
     }
+    override fun hashCode(): Int {
+        return order.id
+    }*/
 }
 
 data class DomainSubOrderComplete constructor(
