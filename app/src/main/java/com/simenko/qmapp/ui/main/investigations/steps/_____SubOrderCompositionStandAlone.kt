@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,7 @@ fun SubOrdersStandAlone(
 ) {
     val context = LocalContext.current
 
-    val observeOrders by appModel.completeOrders.observeAsState() //have to start to observe here for further work with completeOrders while saving new subOrder status.
+    val observeOrders by appModel.orders.observeAsState() //have to start to observe here for further work with completeOrders while saving new subOrder status.
     val observeSubOrders by appModel.completeSubOrders.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()

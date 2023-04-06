@@ -1,5 +1,7 @@
 package com.simenko.qmapp.domain
 
+import androidx.compose.runtime.Stable
+
 data class DomainInputForOrder constructor(
     var id: Int,
     var depAbbr: String,
@@ -32,6 +34,7 @@ data class DomainInputForOrder constructor(
     var charOrder: Int
 )
 
+@Stable
 data class DomainOrdersStatus constructor(
     var id: Int,
     var statusDescription: String? = null,
@@ -50,6 +53,7 @@ data class DomainOrdersStatus constructor(
     }
 }
 
+@Stable
 data class DomainOrdersType constructor(
     var id: Int,
     var typeDescription: String? = null,
@@ -62,6 +66,7 @@ data class DomainOrdersType constructor(
     }
 }
 
+@Stable
 data class DomainReason constructor(
     var id: Int,
     var reasonDescription: String? = null,
@@ -75,7 +80,7 @@ data class DomainReason constructor(
         isSelected = value
     }
 }
-
+@Stable
 data class DomainOrder constructor(
     var id: Int,
     var orderTypeId: Int,
@@ -88,6 +93,7 @@ data class DomainOrder constructor(
     var completedDate: String? = null
 )
 
+@Stable
 data class DomainOrderResult constructor(
     var id: Int,
     var isOk: Boolean?,
@@ -186,6 +192,7 @@ data class DomainSubOrderShort constructor(
     var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
 )
 
+@Stable
 data class DomainOrderComplete constructor(
     var order: DomainOrder,
     var orderType: DomainOrdersType,

@@ -17,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,7 +26,6 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
-import kotlin.random.Random
 
 private const val TAG = "TeamComposition"
 
@@ -261,10 +259,3 @@ fun getTeamMembers() = List(30) { i ->
         }
     }
 }
-
-fun randomColor() = Color(
-    Random.nextInt(256),
-    Random.nextInt(256),
-    Random.nextInt(256),
-    alpha = 255
-)

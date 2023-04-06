@@ -40,7 +40,6 @@ class QualityManagementViewModel @Inject constructor(
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
 
-    val pairedTeamTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
     val pairedOrderTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
     val pairedSubOrderTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
     val pairedTaskTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
@@ -48,24 +47,18 @@ class QualityManagementViewModel @Inject constructor(
     val pairedResultTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val team = manufacturingRepository.teamMembers
-    val teamMediator: MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(team) { value = Pair(it, pairedTeamTrigger.value) }
-            addSource(pairedTeamTrigger) { value = Pair(team.value, it) }
-        }
-
     val teamS: SnapshotStateList<DomainTeamMember> = mutableStateListOf()
-    fun addTeamToSnapShot(team: List<DomainTeamMember>) {
+    fun addTeamToSnapShot(list: List<DomainTeamMember>) {
         teamS.apply {
             clear()
-            addAll(team)
+            addAll(list)
         }
     }
 
     fun changeTeamMembersDetailsVisibility(itemId: Int) {
         val iterator = teamS.listIterator()
 
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             val current = iterator.next()
             if (current.id == itemId) {
                 iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
@@ -91,9 +84,9 @@ class QualityManagementViewModel @Inject constructor(
     var currentTitle = MutableLiveData("")
     var showAllInvestigations = MutableLiveData(true)
 
-    var showWithStatus = MutableLiveData<Int> (0)
-    fun setCurrentStatusToShow(status: String){
-        when(status) {
+    var showWithStatus = MutableLiveData<Int>(0)
+    fun setCurrentStatusToShow(status: String) {
+        when (status) {
             InvestigationsFragment.TargetInv.ALL.name -> {
                 showWithStatus.value = 0
             }
@@ -111,14 +104,39 @@ class QualityManagementViewModel @Inject constructor(
             }
         }
     }
-    var showOrderNumber = MutableLiveData<String> ("")
+
+    var showOrderNumber = MutableLiveData<String>("0")
+
     /**
      * Filters
      * */
 
     val currentOrder = MutableLiveData(0)
 
-    val completeOrders = investigationsRepository.completeOrders
+    val orders = investigationsRepository.completeOrders
+    val ordersS: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
+    fun addOrdersToSnapShot(
+        list: List<DomainOrderComplete>,
+        currentStatus: Int = 0,
+        lookUpNumber: String = ""
+    ) {
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                ordersS.apply {
+                    this.clear()
+                    this.addAll(orders.value!!)
+                    list.forEach {
+                        if (it.order.statusId == currentStatus || currentStatus == 0)
+                            if (it.order.orderNumber.toString()
+                                    .contains(lookUpNumber) || lookUpNumber == "0"
+                            )
+                                this.add(it)
+                    }
+                }
+            }
+        }
+    }
 
     val currentSubOrder = MutableLiveData(0)
 
@@ -136,10 +154,28 @@ class QualityManagementViewModel @Inject constructor(
 
     val currentResult = MutableLiveData(0)
 
+    fun changeOrdersDetailsVisibility(itemId: Int) {
+        val iterator = ordersS.listIterator()
+
+        while (iterator.hasNext()) {
+            val current = iterator.next()
+            if (current.order.id == itemId) {
+                iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
+//                if(!current.detailsVisibility) {
+//                    currentOrder.value = itemId
+//                } else {
+//                    currentOrder.value = 0
+//                }
+            } else {
+                iterator.set(current.copy(detailsVisibility = false))
+            }
+        }
+    }
+
     fun changeOrderDetailsVisibility(itemId: Int) {
         var select = false
 
-        completeOrders.value?.find { it.order.id == itemId }
+        orders.value?.find { it.order.id == itemId }
             ?.let { it ->
                 if (!it.detailsVisibility)
                     select = true
@@ -149,11 +185,14 @@ class QualityManagementViewModel @Inject constructor(
                 }
             }
 
-        completeOrders.value?.forEach { it.detailsVisibility = false }
+        orders.value?.forEach { it.detailsVisibility = false }
 
-        Log.d(TAG, "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}")
+        Log.d(
+            TAG,
+            "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}"
+        )
         if (select)
-            completeOrders.value?.find { it.order.id == itemId }
+            orders.value?.find { it.order.id == itemId }
                 ?.let { order ->
                     currentOrder.value = itemId
                     investigationsRepository.setCurrentOrder(itemId)
@@ -163,7 +202,10 @@ class QualityManagementViewModel @Inject constructor(
         else
             pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
 
-        Log.d(TAG, "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}")
+        Log.d(
+            TAG,
+            "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}"
+        )
 
         changeSubOrderDetailsVisibility(currentSubOrder.value ?: 0)
         changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
@@ -293,7 +335,7 @@ class QualityManagementViewModel @Inject constructor(
     }
 
     fun changeCompleteOrdersExpandState(item: DomainOrderComplete) {
-        completeOrders.value?.find { it.order.id == item.order.id }?.let { order ->
+        orders.value?.find { it.order.id == item.order.id }?.let { order ->
             order.isExpanded = !order.isExpanded
             pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
         }
@@ -353,7 +395,7 @@ class QualityManagementViewModel @Inject constructor(
 
                     syncSubOrder(subOrder)
 
-                    val order = completeOrders.value!!.find {
+                    val order = orders.value!!.find {
                         it.order.id == subOrder.orderId
                     }!!.order
                     syncOrder(order)
@@ -382,7 +424,7 @@ class QualityManagementViewModel @Inject constructor(
                         .find { it.subOrder.id == subOrderTask.subOrderId }!!.subOrder
                     syncSubOrder(subOrder)
 
-                    val order = completeOrders.value!!
+                    val order = orders.value!!
                         .find { it.order.id == subOrder.orderId }!!.order
                     syncOrder(order)
                 }

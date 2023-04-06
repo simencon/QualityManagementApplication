@@ -19,12 +19,10 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,9 +30,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.asFlow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
@@ -59,15 +54,17 @@ fun Orders(
     createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
-    val context = LocalContext.current
-
-    val observeOrders by appModel.completeOrders.observeAsState()
+    val observeOrders by appModel.orders.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
-    val onClickDetailsLambda = remember<(DomainOrderComplete) -> Unit> {
+    val items = appModel.ordersS
+    if (observeOrders != null && showCurrentStatus != null && showOrderNumber != null)
+        appModel.addOrdersToSnapShot(observeOrders!!, showCurrentStatus!!, showOrderNumber!!)
+
+    val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.changeOrderDetailsVisibility(it.order.id)
+            appModel.changeOrdersDetailsVisibility(it)
         }
     }
 
@@ -95,12 +92,11 @@ fun Orders(
                 }
 
                 if (order != null && !order.detailsVisibility) {
-                    onClickDetailsLambda(order)
+                    onClickDetailsLambda(order.order.id)
                 }
             }
         }
     }
-
 
     val lastItemIsVisible by remember {
         derivedStateOf {
@@ -112,59 +108,50 @@ fun Orders(
 
     var clickCounter = 0
 
-    observeOrders?.apply {
-        LazyColumn(
-            modifier = modifier,
-            state = listState
-        ) {
-            items(items = observeOrders!!) { order ->
-                if (showCurrentStatus != null && showOrderNumber != null)
-                    if (order.order.statusId == showCurrentStatus || showCurrentStatus == 0)
-                        if (order.order.orderNumber.toString()
-                                .contains(showOrderNumber!!) || showOrderNumber == "0"
-                        )
-                            Box(Modifier.fillMaxWidth()) {
-                                ActionsRow(
-                                    order = order,
-                                    actionIconSize = ACTION_ITEM_SIZE.dp,
-                                    onDeleteOrder = {
-                                        appModel.deleteOrder(it)
-                                    },
-                                    onEdit = {
-                                        launchNewItemActivityForResult(
-                                            context as MainActivity,
-                                            ActionType.EDIT_ORDER.ordinal,
-                                            order.order.id
-                                        )
-                                    }
-                                )
-
-                                OrderCard(
-                                    viewModel = appModel,
-                                    order = order,
-                                    onClickDetails = { it ->
-                                        onClickDetailsLambda(it)
-                                    },
-                                    modifier = modifier,
-                                    cardOffset = CARD_OFFSET.dp(),
-                                    onChangeExpandState = {
-                                        clickCounter++
-                                        if (clickCounter == 1) {
-                                            CoroutineScope(Dispatchers.Main).launch {
-                                                delay(200)
-                                                clickCounter = 0
-                                            }
-                                        }
-                                        if (clickCounter == 2) {
-                                            clickCounter = 0
-                                            appModel.changeCompleteOrdersExpandState(it)
-                                        }
-                                    },
-                                    context = context,
-                                    createdRecord = createdRecord,
-                                    showStatusDialog = showStatusDialog
-                                )
+    LazyColumn(
+        modifier = modifier,
+        state = listState
+    ) {
+        items(items = items, key = {it.hashCode()}) { order ->
+            Box(Modifier.fillMaxWidth()) {
+//                ActionsRow(
+//                    order = order,
+//                    actionIconSize = ACTION_ITEM_SIZE.dp,
+//                    onDeleteOrder = {
+//                        appModel.deleteOrder(it)
+//                    },
+//                    onEdit = {
+//                        launchNewItemActivityForResult(
+//                            context as MainActivity,
+//                            ActionType.EDIT_ORDER.ordinal,
+//                            order.order.id
+//                        )
+//                    }
+//                )
+                OrderCard(
+                    viewModel = appModel,
+                    order = order,
+                    onClickDetails = {
+                        onClickDetailsLambda(it)
+                    },
+                    modifier = modifier,
+                    cardOffset = CARD_OFFSET.dp(),
+                    onChangeExpandState = {
+                        clickCounter++
+                        if (clickCounter == 1) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                delay(200)
+                                clickCounter = 0
                             }
+                        }
+                        if (clickCounter == 2) {
+                            clickCounter = 0
+                            appModel.changeCompleteOrdersExpandState(it)
+                        }
+                    },
+                    createdRecord = createdRecord,
+                    showStatusDialog = showStatusDialog
+                )
             }
         }
     }
@@ -175,19 +162,14 @@ fun Orders(
 fun OrderCard(
     viewModel: QualityManagementViewModel,
     order: DomainOrderComplete,
-    onClickDetails: (DomainOrderComplete) -> Unit,
+    onClickDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
     cardOffset: Float,
     onChangeExpandState: (DomainOrderComplete) -> Unit,
-    context: Context,
     createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
-
-    val trigger by viewModel.pairedOrderTrigger.observeAsState()
-
-    LaunchedEffect(trigger) {}
-
+    Log.d(TAG, "OrderCard: ${order.order.orderNumber}")
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
             targetState = !order.isExpanded
@@ -235,8 +217,7 @@ fun OrderCard(
             modifier = modifier,
             viewModel = viewModel,
             order = order,
-            onClickDetails = { onClickDetails(order) },
-            context = context,
+            onClickDetails = { onClickDetails(order.order.id) },
             createdRecord = createdRecord,
             showStatusDialog = showStatusDialog
         )
@@ -249,18 +230,17 @@ fun Order(
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
     onClickDetails: () -> Unit = {},
-    context: Context,
     createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .animateContentSize(
+            /*.animateContentSize(
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessLow
                 )
-            )
+            )*/
             .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
     ) {
         Row(
@@ -471,7 +451,6 @@ fun Order(
             viewModel = viewModel,
             modifier = modifier,
             order = order,
-            context = context,
             createdRecord = createdRecord,
             showStatusDialog = showStatusDialog
         )
@@ -483,7 +462,6 @@ fun OrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
     order: DomainOrderComplete = getOrders()[0],
-    context: Context,
     createdRecord: CreatedRecord? = null,
     showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
@@ -561,7 +539,7 @@ fun OrderDetails(
                     .padding(start = 3.dp)
             )
         }
-        if (viewModel != null)
+        /*if (viewModel != null)
             SubOrdersFlowColumn(
                 modifier = Modifier,
                 parentId = order.order.id,
@@ -569,7 +547,7 @@ fun OrderDetails(
                 context = context,
                 createdRecord = createdRecord,
                 showStatusDialog = showStatusDialog
-            )
+            )*/
     }
 }
 

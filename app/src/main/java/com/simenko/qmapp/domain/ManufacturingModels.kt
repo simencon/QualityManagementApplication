@@ -1,11 +1,6 @@
 package com.simenko.qmapp.domain
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-
-interface ListOfItems {
-    fun selectedRecord(): String
-}
 
 data class DomainPositionLevel(
     var id: Int,
@@ -14,18 +9,18 @@ data class DomainPositionLevel(
 
 @Stable
 data class DomainTeamMember(
-    val id: Int,
-    val departmentId: Int,
-    val department: String,
-    val email: String? = null,
-    val fullName: String,
-    val jobRole: String,
-    val roleLevelId: Int,
-    val passWord: String? = null,
-    val companyId: Int,
+    var id: Int,
+    var departmentId: Int,
+    var department: String,
+    var email: String? = null,
+    var fullName: String,
+    var jobRole: String,
+    var roleLevelId: Int,
+    var passWord: String? = null,
+    var companyId: Int,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
-) : DomainModel(), ListOfItems {
+) : DomainModel() {
     override fun getRecordId() = id
     override fun getParentOneId() = departmentId
     override fun setIsChecked(value: Boolean) {
@@ -35,11 +30,6 @@ data class DomainTeamMember(
     override fun getName(): String {
         return fullName
     }
-
-    override fun selectedRecord(): String {
-        return "$fullName ($department)"
-    }
-
     override fun equals(other: Any?): Boolean {
         val otherM = other as DomainTeamMember
 
@@ -71,24 +61,21 @@ data class DomainCompany(
     var companyManagerId: Int
 )
 
+@Stable
 data class DomainDepartment(
-    val id: Int,
-    val depAbbr: String?,
-    val depName: String?,
-    val depManager: Int?,
-    val depOrganization: String?,
-    val depOrder: Int?,
-    val companyId: Int?,
+    var id: Int,
+    var depAbbr: String?,
+    var depName: String?,
+    var depManager: Int?,
+    var depOrganization: String?,
+    var depOrder: Int?,
+    var companyId: Int?,
     var isSelected: Boolean = false
-) : DomainModel(), ListOfItems {
+) : DomainModel() {
     override fun getRecordId() = id
     override fun getParentOneId() = companyId?:0
     override fun setIsChecked(value: Boolean) {
         isSelected = value
-    }
-
-    override fun selectedRecord(): String {
-        return "$depName ($depAbbr)"
     }
 }
 
@@ -100,15 +87,11 @@ data class DomainSubDepartment(
     var subDepOrder: Int? = null,
     var channelsVisibility: Boolean = false,
     var isSelected: Boolean = false
-) : DomainModel(), ListOfItems {
+) : DomainModel() {
     override fun getRecordId() = id
     override fun getParentOneId() = depId
     override fun setIsChecked(value: Boolean) {
         isSelected = value
-    }
-
-    override fun selectedRecord(): String {
-        return "$subDepDesignation ($subDepAbbr)"
     }
 }
 
@@ -172,8 +155,4 @@ data class DomainDepartmentComplete(
     val depManagerDetails: List<DomainTeamMember>,
     val companies: List<DomainCompany>,
     var departmentDetailsVisibility: Boolean = false
-) : ListOfItems {
-    override fun selectedRecord(): String {
-        return "${depManagerDetails[0].fullName} (${departments.depName})"
-    }
-}
+)
