@@ -133,8 +133,7 @@ fun SubOrdersStandAlone(
                                                 clickCounter = 0
                                                 appModel.changeCompleteSubOrdersExpandState(it)
                                             }
-                                        },
-                                        showStatusDialog = showStatusDialog
+                                        }
                                     )
                                 }
             }

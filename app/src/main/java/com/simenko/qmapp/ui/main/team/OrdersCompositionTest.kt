@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
@@ -17,7 +19,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +30,7 @@ import com.simenko.qmapp.domain.DomainOrderComplete
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.SubOrdersFlowColumn
 import com.simenko.qmapp.utils.StringUtils
+import kotlin.math.round
 
 private const val TAG = "TeamComposition"
 
@@ -130,35 +135,206 @@ fun Order(
                     dampingRatio = Spring.DampingRatioMediumBouncy,
                     stiffness = Spring.StiffnessLow
                 )
-            ),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+            )
+            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
     ) {
-        Log.d(TAG, "Order: $orderNumber")
-
         Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = orderNumber,
-                style = MaterialTheme.typography.titleMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 16.dp)
-            )
+                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
+                    .weight(0.90f),
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        top = 0.dp,
+                        start = 0.dp,
+                        end = 0.dp,
+                        bottom = 4.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Num.:",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 10.sp
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.11f)
+                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                        text = orderNumber,
+                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.15f)
+                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                        text = "Status:",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 10.sp
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.13f)
+                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .weight(weight = 0.61f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = statusDescription,
+                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                        )
+                        if (statusId == 3) {
+                            Text(
+                                text = "(",
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Icon(
+                                imageVector = if (isOk) Icons.Filled.Check else Icons.Filled.Close,
+                                contentDescription = if (isOk) {
+                                    stringResource(R.string.show_less)
+                                } else {
+                                    stringResource(R.string.show_more)
+                                },
+                                modifier = Modifier.padding(
+                                    top = 0.dp,
+                                    start = 0.dp,
+                                    end = 0.dp,
+                                    bottom = 0.dp
+                                ),
+                                tint = if (isOk) {
+                                    Color.Green
+                                } else {
+                                    Color.Red
+                                },
+                            )
+                            val conformity = (total?.toFloat()?.let {
+                                good?.toFloat()
+                                    ?.div(it)
+                            }?.times(100)) ?: 0.0f
 
-            IconButton(onClick = onClickDetails) {
+                            Text(
+                                text = when {
+                                    !conformity.isNaN() -> {
+                                        (round(conformity * 10) / 10).toString() + "%"
+                                    }
+                                    else -> {
+                                        ""
+                                    }
+                                },
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                            Text(
+                                text = ")",
+                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.padding(
+                        top = 0.dp,
+                        start = 0.dp,
+                        end = 0.dp,
+                        bottom = 4.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Type/reason:",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.22f)
+                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                        text = StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript),
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.78f)
+                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier.padding(
+                        top = 0.dp,
+                        start = 0.dp,
+                        end = 0.dp,
+                        bottom = 4.dp
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Customer:",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.22f)
+                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                    Text(
+                        text = customerDepAbbr,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(weight = 0.78f)
+                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                }
+            }
+            IconButton(
+                onClick = onClickDetails,
+                modifier = Modifier
+                    .weight(weight = 0.10f)
+                    .padding(0.dp)
+                    .fillMaxWidth()
+            ) {
                 Icon(
                     imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (detailsVisibility) {
                         stringResource(R.string.show_less)
                     } else {
                         stringResource(R.string.show_more)
-                    }
+                    },
+                    modifier = Modifier.padding(0.dp)
                 )
             }
         }
@@ -169,7 +345,7 @@ fun Order(
             detailsVisibility = detailsVisibility,
             placerFullName = placerFullName,
             createdDate = createdDate,
-            completedDate = completedDate,
+            completedDate = completedDate
         )
     }
 }

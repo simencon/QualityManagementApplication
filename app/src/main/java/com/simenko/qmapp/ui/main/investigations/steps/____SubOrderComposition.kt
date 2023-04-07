@@ -43,11 +43,10 @@ import kotlin.math.roundToInt
 @Composable
 fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
-    parentId: Int = 0,
-    appModel: QualityManagementViewModel,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    parentId: Int = 0
 ) {
     val context = LocalContext.current
+    val appModel = (context as MainActivity).viewModel
 
     val createdRecord by appModel.createdRecord.observeAsState()
 
@@ -122,8 +121,7 @@ fun SubOrdersFlowColumn(
                                         clickCounter = 0
                                         appModel.changeCompleteSubOrdersExpandState(it)
                                     }
-                                },
-                                showStatusDialog = showStatusDialog
+                                }
                             )
                         }
                         Divider(thickness = 4.dp, color = Color.Transparent)
@@ -161,8 +159,7 @@ fun SubOrderCard(
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
-    onChangeExpandState: (DomainSubOrderComplete) -> Unit,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    onChangeExpandState: (DomainSubOrderComplete) -> Unit
 ) {
     val trigger by appModel!!.pairedSubOrderTrigger.observeAsState()
     LaunchedEffect(trigger) {}
@@ -215,7 +212,6 @@ fun SubOrderCard(
             appModel = appModel,
             subOrder = subOrder,
             onClickDetails = { onClickDetails(subOrder) },
-            showStatusDialog = showStatusDialog,
         )
     }
 }
@@ -225,8 +221,7 @@ fun SubOrder(
     modifier: Modifier = Modifier,
     appModel: QualityManagementViewModel? = null,
     onClickDetails: () -> Unit = {},
-    subOrder: DomainSubOrderComplete = getSubOrders()[0],
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit,
+    subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
     Column(
         modifier = Modifier
@@ -353,7 +348,7 @@ fun SubOrder(
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = {
-                            showStatusDialog(
+                            appModel?.statusDialog(
                                 subOrder.subOrder.id,
                                 DialogFor.SUB_ORDER,
                                 subOrder.subOrder.completedById
@@ -573,8 +568,7 @@ fun SubOrder(
         SubOrderDetails(
             modifier = modifier,
             viewModel = appModel,
-            subOrder = subOrder,
-            showStatusDialog = showStatusDialog
+            subOrder = subOrder
         )
     }
 }
@@ -583,8 +577,7 @@ fun SubOrder(
 fun SubOrderDetails(
     modifier: Modifier = Modifier,
     viewModel: QualityManagementViewModel? = null,
-    subOrder: DomainSubOrderComplete = getSubOrders()[0],
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
     if (subOrder.detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -684,8 +677,7 @@ fun SubOrderDetails(
             SubOrderTasksFlowColumn(
                 modifier = Modifier,
                 parentId = subOrder.subOrder.id,
-                appModel = viewModel,
-                showStatusDialog = showStatusDialog
+                appModel = viewModel
             )
     }
 }
@@ -698,7 +690,6 @@ fun MySubOrderPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
         )
     }
 }

@@ -51,7 +51,6 @@ fun Orders(
     appModel: QualityManagementViewModel,
     onListEnd: (FabPosition) -> Unit,
     createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -119,7 +118,7 @@ fun Orders(
         modifier = modifier,
         state = listState
     ) {
-        items(items = items, key = {it.order.id}) { order ->
+        items(items = items, key = { it.order.id }) { order ->
             Box(Modifier.fillMaxWidth()) {
                 ActionsRow(
                     order = order,
@@ -136,7 +135,6 @@ fun Orders(
                     }
                 )
                 OrderCard(
-//                    viewModel = appModel,
                     order = order,
                     onClickDetails = {
                         onClickDetailsLambda(it)
@@ -155,8 +153,7 @@ fun Orders(
                             clickCounter = 0
                             onChangeExpandStateLambda(it.order.id)
                         }
-                    },
-                    showStatusDialog = showStatusDialog
+                    }
                 )
             }
         }
@@ -166,13 +163,11 @@ fun Orders(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
-//    viewModel: QualityManagementViewModel,
     order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
     cardOffset: Float,
-    onChangeExpandState: (DomainOrderComplete) -> Unit,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    onChangeExpandState: (DomainOrderComplete) -> Unit
 ) {
     Log.d(TAG, "OrderCard: ${order.order.orderNumber}")
     val transitionState = remember {
@@ -220,27 +215,25 @@ fun OrderCard(
     ) {
         Order(
             modifier = modifier,
-//            viewModel = viewModel,
 
             orderId = order.order.id,
 
             orderNumber = order.order.orderNumber.toString(),
             statusId = order.order.statusId,
-            statusDescription = order.orderStatus.statusDescription?:"-",
-            isOk = order.orderResult.isOk?:true,
+            statusDescription = order.orderStatus.statusDescription ?: "-",
+            isOk = order.orderResult.isOk ?: true,
             total = order.orderResult.total,
             good = order.orderResult.good,
-            typeDescription = order.orderType.typeDescription?:"-",
-            reasonFormalDescript = order.orderReason.reasonFormalDescript?:"-",
-            customerDepAbbr = order.customer.depAbbr?:"-",
+            typeDescription = order.orderType.typeDescription ?: "-",
+            reasonFormalDescript = order.orderReason.reasonFormalDescript ?: "-",
+            customerDepAbbr = order.customer.depAbbr ?: "-",
 
             detailsVisibility = order.detailsVisibility,
             placerFullName = order.orderPlacer.fullName,
             createdDate = order.order.createdDate,
             completedDate = order.order.completedDate,
 
-            onClickDetails = { onClickDetails(order.order.id) },
-            showStatusDialog = showStatusDialog
+            onClickDetails = { onClickDetails(order.order.id) }
         )
     }
 }
@@ -248,7 +241,6 @@ fun OrderCard(
 @Composable
 fun Order(
     modifier: Modifier = Modifier,
-//    viewModel: QualityManagementViewModel? = null,
 
     orderId: Int = 0,
 
@@ -267,8 +259,7 @@ fun Order(
     createdDate: String = "2022-12-15T22:24:43.666",
     completedDate: String? = "2022-12-15T22:24:43.666",
 
-    onClickDetails: () -> Unit = {},
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    onClickDetails: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -482,14 +473,12 @@ fun Order(
         }
 
         OrderDetails(
-//            appModel = viewModel,
             modifier = modifier,
             orderId = orderId,
             detailsVisibility = detailsVisibility,
             placerFullName = placerFullName,
             createdDate = createdDate,
-            completedDate = completedDate,
-            showStatusDialog = showStatusDialog
+            completedDate = completedDate
         )
     }
 }
@@ -497,13 +486,11 @@ fun Order(
 @Composable
 fun OrderDetails(
     modifier: Modifier = Modifier,
-//    appModel: QualityManagementViewModel? = null,
     orderId: Int = 0,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
     createdDate: String = "",
-    completedDate: String? = "",
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    completedDate: String? = ""
 ) {
 
     if (detailsVisibility) {
@@ -579,13 +566,11 @@ fun OrderDetails(
                     .padding(start = 3.dp)
             )
         }
-        /*if (appModel != null)
-            SubOrdersFlowColumn(
-                modifier = Modifier,
-                parentId = orderId,
-                appModel = appModel,
-                showStatusDialog = showStatusDialog
-            )*/
+
+        SubOrdersFlowColumn(
+            modifier = Modifier,
+            parentId = orderId
+        )
     }
 }
 

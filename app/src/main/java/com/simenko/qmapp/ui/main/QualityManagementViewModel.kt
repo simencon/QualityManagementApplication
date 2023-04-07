@@ -393,6 +393,10 @@ class QualityManagementViewModel @Inject constructor(
 
     val metrixes = productsRepository.metrixes
 
+    fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
+        dialogInput.value = DialogInput(recordId, dialogFor, performerId)
+        isStatusDialogVisible.value = true
+    }
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {

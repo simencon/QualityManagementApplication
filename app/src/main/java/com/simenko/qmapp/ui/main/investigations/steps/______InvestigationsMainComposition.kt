@@ -70,10 +70,7 @@ fun InvestigationsMainComposition(
     val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
     val dialogInput by appModel.dialogInput.observeAsState()
 
-    fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
-        appModel.dialogInput.value = DialogInput(recordId, dialogFor, performerId)
-        appModel.isStatusDialogVisible.value = true
-    }
+
 
     QMAppTheme {
 
@@ -181,8 +178,7 @@ fun InvestigationsMainComposition(
                                 ),
                                 appModel = appModel,
                                 onListEnd = { changeFlaBtnPosition(it) },
-                                createdRecord = createdRecord,
-                                showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
+                                createdRecord = createdRecord
                             )
                         else
                             SubOrdersStandAlone(

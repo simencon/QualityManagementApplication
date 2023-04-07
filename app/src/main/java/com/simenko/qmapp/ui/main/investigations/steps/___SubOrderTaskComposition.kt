@@ -41,8 +41,7 @@ import kotlin.math.roundToInt
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
-    appModel: QualityManagementViewModel,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    appModel: QualityManagementViewModel
 ) {
     val observeSubOrderTasks by appModel.completeTasks.observeAsState()
 
@@ -89,8 +88,7 @@ fun SubOrderTasksFlowColumn(
                                     clickCounter = 0
                                     appModel.changeCompleteSubOrderTasksExpandState(it)
                                 }
-                            },
-                            showStatusDialog = showStatusDialog
+                            }
                         )
                     }
                     Divider(thickness = 4.dp, color = Color.Transparent)
@@ -108,8 +106,7 @@ fun SubOrderTaskCard(
     task: DomainSubOrderTaskComplete,
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
-    onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit
 ) {
     val trigger by appModel!!.pairedTaskTrigger.observeAsState()
 
@@ -162,7 +159,7 @@ fun SubOrderTaskCard(
             modifier = modifier,
             subOrderTask = task,
             onClickDetails = { onClickDetails(task) },
-            showStatusDialog = showStatusDialog
+            showStatusDialog = { a, b, c -> appModel?.statusDialog(a,b,c) }
         )
     }
 }
