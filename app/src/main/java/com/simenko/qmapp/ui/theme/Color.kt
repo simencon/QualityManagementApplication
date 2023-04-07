@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.theme
 
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -45,5 +46,7 @@ val _level_3_record_color_details = Color(0xFFAE9CCF)
 val _level_2_record_color = Color(0xFFB4C8D1)
 val _level_2_record_color_details = Color(0xFFBDB4D1)
 
+@Stable
 val _level_1_record_color = Color(0xFFDCE1E4)
+@Stable
 val _level_1_record_color_details = Color(0xFFE0DCE4)
