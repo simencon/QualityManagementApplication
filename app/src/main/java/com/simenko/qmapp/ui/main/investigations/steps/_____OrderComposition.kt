@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
@@ -120,7 +119,7 @@ fun Orders(
         modifier = modifier,
         state = listState
     ) {
-        items(items = items, key = {it.hashCode()}) { order ->
+        items(items = items, key = {it.order.id}) { order ->
             Box(Modifier.fillMaxWidth()) {
                 ActionsRow(
                     order = order,
@@ -137,7 +136,7 @@ fun Orders(
                     }
                 )
                 OrderCard(
-                    viewModel = appModel,
+//                    viewModel = appModel,
                     order = order,
                     onClickDetails = {
                         onClickDetailsLambda(it)
@@ -167,7 +166,7 @@ fun Orders(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
-    viewModel: QualityManagementViewModel,
+//    viewModel: QualityManagementViewModel,
     order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -221,7 +220,7 @@ fun OrderCard(
     ) {
         Order(
             modifier = modifier,
-            viewModel = viewModel,
+//            viewModel = viewModel,
 
             orderId = order.order.id,
 
@@ -249,7 +248,7 @@ fun OrderCard(
 @Composable
 fun Order(
     modifier: Modifier = Modifier,
-    viewModel: QualityManagementViewModel? = null,
+//    viewModel: QualityManagementViewModel? = null,
 
     orderId: Int = 0,
 
@@ -483,7 +482,7 @@ fun Order(
         }
 
         OrderDetails(
-            viewModel = viewModel,
+//            appModel = viewModel,
             modifier = modifier,
             orderId = orderId,
             detailsVisibility = detailsVisibility,
@@ -498,7 +497,7 @@ fun Order(
 @Composable
 fun OrderDetails(
     modifier: Modifier = Modifier,
-    viewModel: QualityManagementViewModel? = null,
+//    appModel: QualityManagementViewModel? = null,
     orderId: Int = 0,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
@@ -580,13 +579,13 @@ fun OrderDetails(
                     .padding(start = 3.dp)
             )
         }
-        if (viewModel != null)
+        /*if (appModel != null)
             SubOrdersFlowColumn(
                 modifier = Modifier,
                 parentId = orderId,
-                appModel = viewModel,
+                appModel = appModel,
                 showStatusDialog = showStatusDialog
-            )
+            )*/
     }
 }
 
