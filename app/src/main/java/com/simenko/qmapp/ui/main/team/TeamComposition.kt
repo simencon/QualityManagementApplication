@@ -52,7 +52,7 @@ fun TeamMembersLiveData(
         state = listState,
         modifier = modifier.padding(vertical = 4.dp)
     ) {
-        items(items = items, key = { it.hashCode() }
+        items(items = items, key = { it.teamMember.id }
         ) { teamMember ->
             TeamMemberCard(
                 teamMember = teamMember,

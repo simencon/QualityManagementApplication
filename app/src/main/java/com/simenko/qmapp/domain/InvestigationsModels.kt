@@ -204,24 +204,7 @@ data class DomainOrderComplete constructor(
     var detailsVisibility: Boolean = false,
     var subOrdersVisibility: Boolean = false,
     var isExpanded: Boolean = false
-) {
-    /*override fun equals(other: Any?): Boolean {
-        val otherM: DomainOrderComplete = other as DomainOrderComplete
-        return order.id == otherM.order.id &&
-                orderType.id == otherM.orderType.id &&
-                orderReason.id == otherM.orderReason.id &&
-                customer.id == otherM.customer.id &&
-                orderPlacer.id == otherM.orderPlacer.id &&
-                orderStatus.id == otherM.orderStatus.id &&
-                orderResult.id == otherM.orderResult.id &&
-                detailsVisibility == otherM.detailsVisibility &&
-                subOrdersVisibility == otherM.subOrdersVisibility &&
-                isExpanded == otherM.isExpanded
-    }
-    override fun hashCode(): Int {
-        return order.id
-    }*/
-}
+)
 
 data class DomainSubOrderComplete constructor(
     var subOrder: DomainSubOrder,
