@@ -17,7 +17,7 @@ class ManufacturingFragment : Fragment() {
     private val viewModel: QualityManagementViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
-        val model = (activity as MainActivity).viewModel
+        val model = (activity as MainActivity).appModel
         model
     }
 

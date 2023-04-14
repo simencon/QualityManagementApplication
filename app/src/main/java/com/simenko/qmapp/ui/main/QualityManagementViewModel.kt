@@ -43,30 +43,8 @@ class QualityManagementViewModel @Inject constructor(
     val pairedOrderTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
     val pairedSubOrderTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
     val pairedTaskTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
-    val pairedSampleTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
-    val pairedResultTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val team = manufacturingRepository.teamComplete
-    private val teamS: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
-    fun addTeamToSnapShot(list: List<DomainTeamMemberComplete>) {
-        teamS.apply {
-            clear()
-            addAll(list)
-        }
-    }
-
-    fun changeTeamMembersDetailsVisibility(itemId: Int) {
-        val iterator = teamS.listIterator()
-
-        while (iterator.hasNext()) {
-            val current = iterator.next()
-            if (current.teamMember.id == itemId) {
-                iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-            } else {
-                iterator.set(current.copy(detailsVisibility = false))
-            }
-        }
-    }
 
     val departments = manufacturingRepository.departments
     val departmentsDetailed = manufacturingRepository.departmentsDetailed
@@ -82,61 +60,14 @@ class QualityManagementViewModel @Inject constructor(
      * Filters
      * */
     var currentTitle = MutableLiveData("")
-    var showAllInvestigations = MutableLiveData(true)
-
-    var showWithStatus = MutableLiveData<Int>(0)
-    fun setCurrentStatusToShow(status: String) {
-        when (status) {
-            InvestigationsFragment.TargetInv.ALL.name -> {
-                showWithStatus.value = 0
-            }
-            InvestigationsFragment.TargetInv.TO_DO.name -> {
-                showWithStatus.value = 1
-            }
-            InvestigationsFragment.TargetInv.IN_PROGRESS.name -> {
-                showWithStatus.value = 2
-            }
-            InvestigationsFragment.TargetInv.DONE.name -> {
-                showWithStatus.value = 3
-            }
-            else -> {
-                showWithStatus.value = 0
-            }
-        }
-    }
-
-    var showOrderNumber = MutableLiveData<String>("0")
 
     /**
      * Filters
      * */
 
-    val createdRecord = MutableLiveData(CreatedRecord())
-
     val currentOrder = MutableLiveData(0)
 
     val orders = investigationsRepository.completeOrders
-    val ordersS: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
-    fun addOrdersToSnapShot(
-        list: List<DomainOrderComplete>,
-        currentStatus: Int = 0,
-        lookUpNumber: String = ""
-    ) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                ordersS.apply {
-                    this.clear()
-                    list.forEach {
-                        if (it.order.statusId == currentStatus || currentStatus == 0)
-                            if (it.order.orderNumber.toString()
-                                    .contains(lookUpNumber) || lookUpNumber == "0"
-                            )
-                                this.add(it)
-                    }
-                }
-            }
-        }
-    }
 
     val currentSubOrder = MutableLiveData(0)
 
@@ -144,232 +75,7 @@ class QualityManagementViewModel @Inject constructor(
 
     val completeTasks = investigationsRepository.completeSubOrderTasks
 
-    val currentSubOrderTask = MutableLiveData(0)
-
     val completeSamples = investigationsRepository.completeSamples
-
-    val currentSample = MutableLiveData(0)
-
-    val completeResults = investigationsRepository.completeResults
-
-    val currentResult = MutableLiveData(0)
-
-    fun changeOrdersDetailsVisibility(itemId: Int) {
-        val iterator = ordersS.listIterator()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.order.id == itemId) {
-                        iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-/*                        if (!current.detailsVisibility) {
-                            currentOrder.value = itemId
-                        } else {
-                            currentOrder.value = 0
-                        }*/
-                    } else {
-                        if (current.detailsVisibility)
-                            iterator.set(current.copy(detailsVisibility = false))
-                    }
-                }
-            }
-        }
-    }
-
-    fun changeOrderDetailsVisibility(itemId: Int) {
-        var select = false
-
-        orders.value?.find { it.order.id == itemId }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else {
-                    currentOrder.value = 0
-                    investigationsRepository.setCurrentOrder(0)
-                }
-            }
-
-        orders.value?.forEach { it.detailsVisibility = false }
-
-        Log.d(
-            TAG,
-            "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}"
-        )
-        if (select)
-            orders.value?.find { it.order.id == itemId }
-                ?.let { order ->
-                    currentOrder.value = itemId
-                    investigationsRepository.setCurrentOrder(itemId)
-                    order.detailsVisibility = !order.detailsVisibility
-                    pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
-                }
-        else
-            pairedOrderTrigger.value = !(pairedOrderTrigger.value as Boolean)
-
-        Log.d(
-            TAG,
-            "changeOrderDetailsVisibility: ${pairedOrderTrigger.value}, hasActiveObservers: ${pairedOrderTrigger.hasActiveObservers()}"
-        )
-
-        changeSubOrderDetailsVisibility(currentSubOrder.value ?: 0)
-        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
-        changeSampleDetailsVisibility(currentSample.value ?: 0)
-        changeResultDetailsVisibility(currentResult.value ?: 0)
-    }
-
-    fun changeSubOrderDetailsVisibility(itemId: Int) {
-        var select = false
-
-        completeSubOrders.value?.find { it.subOrder.id == itemId }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else {
-                    currentSubOrder.value = 0
-                    investigationsRepository.setCurrentSubOrder(0)
-                }
-            }
-
-        completeSubOrders.value?.forEach { it.detailsVisibility = false }
-
-        if (select)
-            completeSubOrders.value?.find { it.subOrder.id == itemId }
-                ?.let { subOrder ->
-                    currentSubOrder.value = itemId
-                    investigationsRepository.setCurrentSubOrder(itemId)
-
-                    subOrder.detailsVisibility = !subOrder.detailsVisibility
-                    pairedSubOrderTrigger.value = !(pairedSubOrderTrigger.value as Boolean)
-                }
-        else
-            pairedSubOrderTrigger.value = !(pairedSubOrderTrigger.value as Boolean)
-
-        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
-        changeSampleDetailsVisibility(currentSample.value ?: 0)
-        changeResultDetailsVisibility(currentResult.value ?: 0)
-    }
-
-    fun changeTaskDetailsVisibility(itemId: Int) {
-        var select = false
-
-        completeTasks.value?.find { it.subOrderTask.id == itemId }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else {
-                    currentSubOrderTask.value = 0
-                    investigationsRepository.setCurrentTask(0)
-                }
-            }
-
-        completeTasks.value?.forEach { it.detailsVisibility = false }
-
-        if (select)
-            completeTasks.value?.find { it.subOrderTask.id == itemId }
-                ?.let { subOrderTask ->
-                    currentSubOrderTask.value = itemId
-                    investigationsRepository.setCurrentTask(itemId)
-
-                    subOrderTask.detailsVisibility = !subOrderTask.detailsVisibility
-                    pairedTaskTrigger.value = !(pairedTaskTrigger.value as Boolean)
-                }
-        else
-            pairedTaskTrigger.value = !(pairedTaskTrigger.value as Boolean)
-
-        changeSampleDetailsVisibility(currentSample.value ?: 0)
-        changeResultDetailsVisibility(currentResult.value ?: 0)
-    }
-
-    fun changeSampleDetailsVisibility(itemId: Int) {
-        var select = false
-
-        completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else {
-                    currentSample.value = 0
-                    investigationsRepository.setCurrentSample(0)
-                }
-            }
-
-        completeSamples.value?.forEach { it.detailsVisibility = false }
-
-        if (select)
-            completeSamples.value?.find { it.sample.id == itemId && it.sampleResult.taskId == currentSubOrderTask.value }
-                ?.let { sample ->
-                    currentSample.value = itemId
-                    investigationsRepository.setCurrentSample(itemId)
-
-                    sample.detailsVisibility = !sample.detailsVisibility
-                    pairedSampleTrigger.value = !(pairedSampleTrigger.value as Boolean)
-                }
-        else
-            pairedSampleTrigger.value = !(pairedSampleTrigger.value as Boolean)
-
-        changeResultDetailsVisibility(currentResult.value ?: 0)
-    }
-
-    fun changeResultDetailsVisibility(itemId: Int) {
-        var select = false
-
-        completeResults.value?.find { it.result.id == itemId }
-            ?.let { it ->
-                if (!it.detailsVisibility)
-                    select = true
-                else {
-                    currentResult.value = 0
-                    investigationsRepository.setCurrentResult(0)
-                }
-            }
-
-        completeResults.value?.forEach { it.detailsVisibility = false }
-
-        if (select)
-            completeResults.value?.find { it.result.id == itemId }
-                ?.let { result ->
-                    currentResult.value = itemId
-                    investigationsRepository.setCurrentResult(itemId)
-
-                    result.detailsVisibility = !result.detailsVisibility
-                    pairedResultTrigger.value = !(pairedResultTrigger.value as Boolean)
-                }
-        else
-            pairedResultTrigger.value = !(pairedResultTrigger.value as Boolean)
-    }
-
-    fun changeCompleteOrdersExpandState(itemId: Int) {
-
-        val iterator = ordersS.listIterator()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.order.id == itemId) {
-                        iterator.set(current.copy(isExpanded = !current.isExpanded))
-                    } else {
-                        if (current.isExpanded)
-                            iterator.set(current.copy(isExpanded = false))
-                    }
-                }
-            }
-        }
-    }
-
-    fun changeCompleteSubOrdersExpandState(item: DomainSubOrderComplete) {
-        completeSubOrders.value?.find { it.subOrder.id == item.subOrder.id }?.let { subOrder ->
-            subOrder.isExpanded = !subOrder.isExpanded
-            pairedSubOrderTrigger.value = !(pairedSubOrderTrigger.value as Boolean)
-        }
-    }
-
-    fun changeCompleteSubOrderTasksExpandState(item: DomainSubOrderTaskComplete) {
-        completeTasks.value?.find { it.subOrderTask.id == item.subOrderTask.id }
-            ?.let { subOrderTask ->
-                subOrderTask.isExpanded = !subOrderTask.isExpanded
-                pairedTaskTrigger.value = !(pairedTaskTrigger.value as Boolean)
-            }
-    }
 
     /**
      *
@@ -559,27 +265,6 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    fun editResult(result: DomainResult) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.updateRecord(
-                        this,
-                        result
-                    )
-                    channel.consumeEach {
-                    }
-                }
-                isStatusDialogVisible.value = false
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
     private fun syncOrder(order: DomainOrder) {
         viewModelScope.launch {
             try {
@@ -616,22 +301,6 @@ class QualityManagementViewModel @Inject constructor(
         }
     }
 
-    /**
-     *
-     * */
-    fun printCurrentValues() {
-        Log.d(
-            TAG, "printCurrentValues: \n" +
-                    "currentOrderId = ${currentOrder.value}\n" +
-                    "currentSubOrderId = ${currentSubOrder.value}\n" +
-                    "currentTaskId = ${currentSubOrderTask.value}\n" +
-                    "currentResultId = ${currentResult.value}\n"
-        )
-    }
-
-    /**
-     *
-     */
     fun onNetworkErrorShown() {
         isLoadingInProgress.value = false
         isNetworkError.value = false
@@ -640,78 +309,6 @@ class QualityManagementViewModel @Inject constructor(
     /**
      *
      */
-    fun syncOrders() {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.refreshOrders()
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
-    fun syncSubOrders() {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
-    fun syncTasks() {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshResults()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
-    fun syncSamples() {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
 
     fun syncResults() {
         viewModelScope.launch {
@@ -719,57 +316,6 @@ class QualityManagementViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository.refreshResults()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
-    fun deleteOrder(order: DomainOrderComplete) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.deleteOrder(order.order)
-                syncOrders()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
-    fun deleteSubOrder(subOrder: DomainSubOrderComplete) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.deleteSubOrder(subOrder.subOrder)
-                syncSubOrders()
-
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
-        }
-    }
-
-    fun deleteSubOrderTask(task: DomainSubOrderTaskComplete) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-
-                investigationsRepository.deleteSubOrderTask(task.subOrderTask)
-                syncTasks()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

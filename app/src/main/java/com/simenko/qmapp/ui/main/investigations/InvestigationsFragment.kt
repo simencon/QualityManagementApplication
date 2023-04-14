@@ -6,21 +6,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayout
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
-import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import javax.inject.Inject
 
 private const val TAG = "InvestigationsFragment"
 
@@ -28,10 +30,11 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
     Fragment() {
 
     private lateinit var binding: FragmentInvestigationsBinding
-    private val viewModel: QualityManagementViewModel by lazy {
+
+    private val viewModel: InvestigationsViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
-        val model = (activity as MainActivity).viewModel
+        val model = (activity as MainActivity).investigationsModel
         model
     }
 
@@ -92,8 +95,6 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
                             vertical = 2.dp,
                             horizontal = 2.dp
                         ),
-                    appModel = viewModel,
-                    context = context,
                     createdRecord = createdRecord
                 )
             }

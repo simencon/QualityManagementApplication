@@ -349,6 +349,10 @@ interface QualityManagementInvestigationsDao {
     fun getSubOrdersDetailed(): LiveData<List<DatabaseSubOrderComplete>>
 
     @Transaction
+    @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
+    fun getSubOrdersDetailedFlow(): Flow<List<DatabaseSubOrderComplete>>
+
+    @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
     fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderShort>>
 
@@ -357,12 +361,24 @@ interface QualityManagementInvestigationsDao {
     fun getSubOrderTasksDetailed(): LiveData<List<DatabaseSubOrderTaskComplete>>
 
     @Transaction
+    @Query("SELECT * FROM sub_order_task_complete")
+    fun getSubOrderTasksDetailedFlow(): Flow<List<DatabaseSubOrderTaskComplete>>
+
+    @Transaction
     @Query("SELECT * FROM `samples_results`")
     fun getSamplesDetailed(): LiveData<List<DatabaseSampleComplete>>
 
     @Transaction
+    @Query("SELECT * FROM `samples_results`")
+    fun getSamplesDetailedFlow(): Flow<List<DatabaseSampleComplete>>
+
+    @Transaction
     @Query("SELECT * FROM result_complete")
     fun getResultsDetailed(): LiveData<List<DatabaseResultComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM result_complete")
+    fun getResultsDetailedFlow(): Flow<List<DatabaseResultComplete>>
 }
 
 @Database(

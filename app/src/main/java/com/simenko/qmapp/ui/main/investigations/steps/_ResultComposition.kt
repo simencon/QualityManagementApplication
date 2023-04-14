@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.*
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,7 +31,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_2_record_color
 import com.simenko.qmapp.ui.theme._level_2_record_color_details
@@ -39,11 +42,17 @@ import com.simenko.qmapp.utils.StringUtils
 @Composable
 fun ResultsComposition(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel
 ) {
-    val observeResults by appModel.completeResults.observeAsState()
+    val context = LocalContext.current
+    val appModel = (context as MainActivity).investigationsModel
+
+//    val observeResults by appModel.completeResults.observeAsState()
+
     val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
     val currentSample by appModel.currentSample.observeAsState()
+
+    val items = appModel.results
+    appModel.addResultsToSnapShot()
 
     val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
         {
@@ -56,31 +65,29 @@ fun ResultsComposition(
         }
     }
 
-    observeResults?.apply {
-        FlowRow(
-            modifier = modifier.animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
+    FlowRow(
+        modifier = modifier.animateContentSize(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
             )
-        ) {
-            observeResults!!.forEach { result ->
-                if (result.result.taskId == currentSubOrderTask &&
-                    result.result.sampleId == currentSample
-                ) {
-                    ResultCard(
-                        modifier = modifier,
-                        appModel = appModel,
-                        result = result,
-                        onSelect = {
-                            onClickDetailsLambda(it)
-                        },
-                        onChangeValue = {
-                            onChangeValueLambda(it)
-                        }
-                    )
-                }
+        )
+    ) {
+        items.forEach { result ->
+            if (result.result.taskId == currentSubOrderTask &&
+                result.result.sampleId == currentSample
+            ) {
+                ResultCard(
+                    modifier = modifier,
+                    appModel = appModel,
+                    result = result,
+                    onSelect = {
+                        onClickDetailsLambda(it)
+                    },
+                    onChangeValue = {
+                        onChangeValueLambda(it)
+                    }
+                )
             }
         }
     }
@@ -90,15 +97,11 @@ fun ResultsComposition(
 @Composable
 fun ResultCard(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel,
+    appModel: InvestigationsViewModel,
     result: DomainResultComplete,
     onSelect: (DomainResultComplete) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
-    val trigger by appModel.pairedResultTrigger.observeAsState()
-
-    LaunchedEffect(trigger) {}
-
     val transitionState = remember {
         MutableTransitionState(result.detailsVisibility).apply {
             targetState = !result.detailsVisibility
@@ -135,7 +138,7 @@ fun ResultCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Result(
     modifier: Modifier = Modifier,

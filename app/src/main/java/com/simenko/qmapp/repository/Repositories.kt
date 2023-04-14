@@ -983,6 +983,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSubOrderDetailed(currentSubOrder)
         }
 
+    fun completeSubOrders(): Flow<List<DomainSubOrderComplete>> =
+        database.qualityManagementInvestigationsDao.getSubOrdersDetailedFlow().map {
+            it.asDomainSubOrderDetailed(currentSubOrder)
+        }
+
     private var currentTask = 0
     fun setCurrentTask(id: Int) {
         currentTask = id
@@ -992,12 +997,21 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             it.asDomainSubOrderTask(currentTask)
         }
 
+    fun completeSubOrderTasks(): Flow<List<DomainSubOrderTaskComplete>> =
+        database.qualityManagementInvestigationsDao.getSubOrderTasksDetailedFlow().map {
+            it.asDomainSubOrderTask(currentTask)
+        }
+
     private var currentSample = 0
     fun setCurrentSample(id: Int) {
         currentSample = id
     }
     val completeSamples: LiveData<List<DomainSampleComplete>> =
         database.qualityManagementInvestigationsDao.getSamplesDetailed().map {
+            it.asDomainSamples(currentSample)
+        }
+    fun completeSamples(): Flow<List<DomainSampleComplete>> =
+        database.qualityManagementInvestigationsDao.getSamplesDetailedFlow().map {
             it.asDomainSamples(currentSample)
         }
 
@@ -1012,6 +1026,11 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
     }
     val completeResults: LiveData<List<DomainResultComplete>> =
         database.qualityManagementInvestigationsDao.getResultsDetailed().map {
+            it.asDomainResults(currentResult)
+        }
+
+    fun completeResults(): Flow<List<DomainResultComplete>> =
+        database.qualityManagementInvestigationsDao.getResultsDetailedFlow().map {
             it.asDomainResults(currentResult)
         }
 

@@ -19,6 +19,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,18 +31,24 @@ import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSampleComplete
 import com.simenko.qmapp.domain.DomainSampleResult
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
 
 
 @Composable
 fun SampleComposition(
-    modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel
+    modifier: Modifier = Modifier
 ) {
-    val observeSamples by appModel.completeSamples.observeAsState()
+    val context = LocalContext.current
+    val appModel = (context as MainActivity).investigationsModel
+
     val observeCurrentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
+
+    val items = appModel.samples
+    appModel.addSamplesToSnapShot()
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {
@@ -49,30 +56,29 @@ fun SampleComposition(
         }
     }
 
-    observeSamples?.apply {
-        LazyColumn(
-            modifier = modifier.animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
+    LazyColumn(
+        modifier = modifier.animateContentSize(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
             )
-        ) {
-
-            items(items = observeSamples!!) { sample ->
-                if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
-                    SampleCard(
-                        modifier = modifier,
-                        appModel = appModel,
-                        sample = sample,
-                        onClickDetails = { it ->
-                            onClickDetailsLambda(it)
-                        },
-                        onChangeExpandState = {
-                            onClickDetailsLambda(it)
-                        }
-                    )
-                }
+        )
+    ) {
+        items(
+            items = items,
+            key = { (it.sampleResult.id.toString() + (it.sampleResult.taskId?:0).toString()).toInt() }) { sample ->
+            if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
+                SampleCard(
+                    modifier = modifier,
+                    appModel = appModel,
+                    sample = sample,
+                    onClickDetails = { it ->
+                        onClickDetailsLambda(it)
+                    },
+                    onChangeExpandState = {
+                        onClickDetailsLambda(it)
+                    }
+                )
             }
         }
     }
@@ -83,15 +89,11 @@ fun SampleComposition(
 @Composable
 fun SampleCard(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel,
+    appModel: InvestigationsViewModel,
     sample: DomainSampleComplete,
     onClickDetails: (DomainSampleComplete) -> Unit,
     onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
-    val trigger by appModel.pairedSampleTrigger.observeAsState()
-
-    LaunchedEffect(trigger) {}
-
     val transitionState = remember {
         MutableTransitionState(sample.detailsVisibility).apply {
             targetState = !sample.detailsVisibility
@@ -132,7 +134,7 @@ fun SampleCard(
 @Composable
 fun Sample(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel? = null,
+    appModel: InvestigationsViewModel? = null,
     sample: DomainSampleComplete = getSamplesComplete()[0],
     onClickDetails: () -> Unit = {},
 ) {
@@ -231,8 +233,7 @@ fun Sample(
 
         if (appModel != null && sample.detailsVisibility)
             ResultsComposition(
-                modifier,
-                appModel
+                modifier
             )
     }
 }

@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
@@ -24,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.CustomDialogUI
@@ -31,7 +31,7 @@ import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.Primary900
@@ -46,29 +46,31 @@ private const val TAG = "InvestigationsMainComposition"
 @Composable
 fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel,
-    context: Context,
     createdRecord: CreatedRecord?
 ) {
-    appModel.investigationStatuses.observeAsState()
-    appModel.productTolerances.observeAsState()
-    appModel.componentTolerances.observeAsState()
-    appModel.componentInStageTolerances.observeAsState()
-    appModel.metrixes.observeAsState()
-    appModel.team.observeAsState()
-    appModel.completeTasks.observeAsState()
+//    appModel.investigationStatuses.observeAsState()
+//    appModel.productTolerances.observeAsState()
+//    appModel.componentTolerances.observeAsState()
+//    appModel.componentInStageTolerances.observeAsState()
+//    appModel.metrixes.observeAsState()
+//    appModel.team.observeAsState()
+//    appModel.completeTasks.observeAsState()
 
-    val showAllInvestigations by appModel.showAllInvestigations.observeAsState()
+    val context = LocalContext.current
+    val appModel = (context as MainActivity).appModel
+    val viewModel = (context as MainActivity).investigationsModel
+
+    val showAllInvestigations by viewModel.showAllInvestigations.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    val currentTask by appModel.currentSubOrderTask.observeAsState()
+    val currentTask by viewModel.currentSubOrderTask.observeAsState()
 
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     val rowState = rememberScrollState()
 
-    val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
-    val dialogInput by appModel.dialogInput.observeAsState()
+    val showStatusChangeDialog = viewModel.isStatusDialogVisible.observeAsState()
+    val dialogInput by viewModel.dialogInput.observeAsState()
 
 
 
@@ -115,12 +117,12 @@ fun InvestigationsMainComposition(
             floatingActionButtonPosition = fabPositionToSet,
             content = { padding ->
 
-                val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
-                val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+                val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
+                val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
 
                 val pullRefreshState = rememberPullRefreshState(
                     refreshing = observerLoadingProcess!!,
-                    onRefresh = { appModel.syncOrders() }
+                    onRefresh = { viewModel.syncOrders() }
                 )
 
                 Box(
@@ -176,7 +178,7 @@ fun InvestigationsMainComposition(
                                         }
                                     }
                                 ),
-                                appModel = appModel,
+                                appModel = viewModel,
                                 onListEnd = { changeFlaBtnPosition(it) },
                                 createdRecord = createdRecord
                             )
@@ -199,7 +201,6 @@ fun InvestigationsMainComposition(
                                         }
                                     }
                                 ),
-                                appModel = appModel,
                                 onListEnd = { changeFlaBtnPosition(it) },
                                 createdRecord = createdRecord,
                                 showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
@@ -216,15 +217,14 @@ fun InvestigationsMainComposition(
                                     }
                                 }
 
-                            ),
-                            appModel
+                            )
                         )
                     }
 
                     if (showStatusChangeDialog.value == true)
                         CustomDialogUI(
                             dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER, null),
-                            openDialogCustom = appModel.isStatusDialogVisible,
+                            openDialogCustom = viewModel.isStatusDialogVisible,
                             appModel = appModel
                         )
 
@@ -238,7 +238,7 @@ fun InvestigationsMainComposition(
 
                 if (observerIsNetworkError == true) {
                     Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
-                    appModel.onNetworkErrorShown()
+                    viewModel.onNetworkErrorShown()
                 }
             }
         )

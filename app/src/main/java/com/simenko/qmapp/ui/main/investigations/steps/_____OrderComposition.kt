@@ -33,6 +33,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
@@ -44,23 +45,21 @@ import kotlin.math.roundToInt
 
 private const val TAG = "OrderComposition"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Orders(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel,
+    appModel: InvestigationsViewModel,
     onListEnd: (FabPosition) -> Unit,
     createdRecord: CreatedRecord? = null,
 ) {
     val context = LocalContext.current
 
-    val observeOrders by appModel.orders.observeAsState()
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
-    val items = appModel.ordersS
-    if (observeOrders != null && showCurrentStatus != null && showOrderNumber != null)
-        appModel.addOrdersToSnapShot(observeOrders!!, showCurrentStatus!!, showOrderNumber!!)
+    val items = appModel.orders
+    if (showCurrentStatus != null && showOrderNumber != null)
+        appModel.addOrdersToSnapShot(showCurrentStatus!!, showOrderNumber!!)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
@@ -78,7 +77,8 @@ fun Orders(
 
     val needScrollToItem by remember {
         derivedStateOf {
-            observeOrders != null && createdRecord != null
+//            observeOrders != null &&
+            createdRecord != null
         }
     }
 
@@ -87,13 +87,15 @@ fun Orders(
         SideEffect {
             coroutineScope.launch {
                 listState.scrollToSelectedItem(
-                    list = observeOrders!!.map { it.order.id }.toList(),
+//                    list = observeOrders!!.map { it.order.id }.toList(),
+                    list = items.map { it.order.id }.toList(),
                     selectedId = createdRecord!!.orderId
                 )
 
                 delay(200)
 
-                val order = observeOrders!!.find {
+//                val order = observeOrders!!.find {
+                val order = items.find {
                     it.order.id == createdRecord.orderId
                 }
 

@@ -17,6 +17,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,6 +30,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.CoroutineScope
@@ -41,9 +43,13 @@ import kotlin.math.roundToInt
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
-    appModel: QualityManagementViewModel
 ) {
-    val observeSubOrderTasks by appModel.completeTasks.observeAsState()
+    val context = LocalContext.current
+    val appModel = (context as MainActivity).investigationsModel
+
+//    val observeSubOrderTasks by appModel.completeTasks.observeAsState()
+    val items = appModel.tasks
+    appModel.addTasksToSnapShot()
 
     val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
@@ -53,9 +59,8 @@ fun SubOrderTasksFlowColumn(
 
     var clickCounter = 0
 
-    observeSubOrderTasks?.apply {
         FlowRow(modifier = modifier) {
-            observeSubOrderTasks!!.forEach { task ->
+            items.forEach { task ->
                 if (task.subOrderTask.subOrderId == parentId) {
 
                     Box(Modifier.fillMaxWidth()) {
@@ -86,7 +91,7 @@ fun SubOrderTasksFlowColumn(
                                 }
                                 if (clickCounter == 2) {
                                     clickCounter = 0
-                                    appModel.changeCompleteSubOrderTasksExpandState(it)
+                                    appModel.changeCompleteSubOrderTasksExpandState(it.subOrderTask.id)
                                 }
                             }
                         )
@@ -95,23 +100,18 @@ fun SubOrderTasksFlowColumn(
                 }
             }
         }
-    }
 }
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SubOrderTaskCard(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel? = null,
+    appModel: InvestigationsViewModel? = null,
     task: DomainSubOrderTaskComplete,
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit
 ) {
-    val trigger by appModel!!.pairedTaskTrigger.observeAsState()
-
-    LaunchedEffect(trigger) {}
-
     val transitionState = remember {
         MutableTransitionState(task.isExpanded).apply {
             targetState = !task.isExpanded

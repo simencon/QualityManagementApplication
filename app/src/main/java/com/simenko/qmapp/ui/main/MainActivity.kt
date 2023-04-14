@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -21,6 +20,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
@@ -54,7 +54,8 @@ fun createMainActivityIntent(
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    lateinit var viewModel: QualityManagementViewModel
+    lateinit var appModel: QualityManagementViewModel
+    lateinit var investigationsModel: InvestigationsViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
@@ -67,10 +68,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as BaseApplication).appComponent.mainComponent().create().inject(this)
-        viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
+        appModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
+        investigationsModel = ViewModelProvider(this, providerFactory)[InvestigationsViewModel::class.java]
 
-        viewModel.showOrderNumber.observe(this) {}
-        viewModel.currentTitle.observe(this) {}
+        investigationsModel.showOrderNumber.observe(this) {}
+        appModel.currentTitle.observe(this) {}
 
         super.onCreate(savedInstanceState)
 
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
             intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
         )
-        viewModel.createdRecord.value = createdRecord
+        investigationsModel.createdRecord.value = createdRecord
 
         if (
             requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||
@@ -142,13 +144,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 // Handle search query submission
-                viewModel.syncOrders()
+                investigationsModel.syncOrders()
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
-                viewModel.showOrderNumber.value = newText ?: "0"
+                investigationsModel.showOrderNumber.value = newText ?: "0"
                 return true
             }
 
@@ -163,7 +165,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    is implemented within on search listener
                 }
                 R.id.upload_all_data -> {
-                    viewModel.refreshDataFromRepository()
+                    investigationsModel.refreshDataFromRepository()
                 }
                 R.id.ppap -> {
                     TODO("Will filter accordingly")
@@ -217,11 +219,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
-                        viewModel.showAllInvestigations.value = true
+                        investigationsModel.showAllInvestigations.value = true
                         InvestigationsFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        viewModel.showAllInvestigations.value = false
+                        investigationsModel.showAllInvestigations.value = false
                         InvestigationsFragment(createdRecord)
                     }
 
@@ -235,7 +237,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be monitoring page")
                     }
                 }
-            viewModel.currentTitle.value = item.title.toString()
+            appModel.currentTitle.value = item.title.toString()
             this.title = item.title.toString()
 
             supportFragmentManager.beginTransaction()
@@ -250,11 +252,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        this.title = viewModel.currentTitle.value
+        this.title = appModel.currentTitle.value
     }
 
     override fun onDestroy() {
-        viewModel.isStatusDialogVisible.value = false
+        appModel.isStatusDialogVisible.value = false
         super.onDestroy()
     }
 }

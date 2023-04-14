@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -30,6 +29,7 @@ import com.simenko.qmapp.utils.StringUtils
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
@@ -46,11 +46,14 @@ fun SubOrdersFlowColumn(
     parentId: Int = 0
 ) {
     val context = LocalContext.current
-    val appModel = (context as MainActivity).viewModel
+    val appModel = (context as MainActivity).investigationsModel
 
     val createdRecord by appModel.createdRecord.observeAsState()
 
-    val observeSubOrders by appModel.completeSubOrders.observeAsState()
+//    val observeSubOrders by appModel.completeSubOrders.observeAsState()
+    val items = appModel.subOrders
+    appModel.addSubOrdersToSnapShot()
+
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
@@ -61,10 +64,10 @@ fun SubOrdersFlowColumn(
     }
 
     LaunchedEffect(lookForRecord) {
-        if (observeSubOrders != null && createdRecord != null)
+        if (createdRecord != null)
             coroutineScope.launch {
                 delay(200)
-                val subOrder = observeSubOrders!!.find {
+                val subOrder = items.find {
                     it.subOrder.id == createdRecord?.subOrderId
                 }
                 if (subOrder != null)
@@ -78,76 +81,74 @@ fun SubOrdersFlowColumn(
 
     var clickCounter = 0
 
-    observeSubOrders?.apply {
-        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-            FlowRow(modifier = modifier) {
-                observeSubOrders!!.forEach { subOrder ->
-                    if (subOrder.subOrder.orderId == parentId) {
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+        FlowRow(modifier = modifier) {
+            items.forEach { subOrder ->
+                if (subOrder.subOrder.orderId == parentId) {
 
-                        Box(Modifier.fillMaxWidth()) {
-                            ActionsRow(
-                                subOrder = subOrder,
-                                actionIconSize = ACTION_ITEM_SIZE.dp,
-                                onDeleteSubOrder = {
-                                    appModel.deleteSubOrder(it)
-                                },
-                                onEdit = {
-                                    launchNewItemActivityForResult(
-                                        context as MainActivity,
-                                        ActionType.EDIT_SUB_ORDER.ordinal,
-                                        subOrder.subOrder.orderId,
-                                        subOrder.subOrder.id
-                                    )
-                                }
-                            )
+                    Box(Modifier.fillMaxWidth()) {
+                        ActionsRow(
+                            subOrder = subOrder,
+                            actionIconSize = ACTION_ITEM_SIZE.dp,
+                            onDeleteSubOrder = {
+                                appModel.deleteSubOrder(it)
+                            },
+                            onEdit = {
+                                launchNewItemActivityForResult(
+                                    context as MainActivity,
+                                    ActionType.EDIT_SUB_ORDER.ordinal,
+                                    subOrder.subOrder.orderId,
+                                    subOrder.subOrder.id
+                                )
+                            }
+                        )
 
-                            SubOrderCard(
-                                modifier = modifier,
-                                appModel = appModel,
-                                subOrder = subOrder,
-                                onClickDetails = { it ->
-                                    onClickDetailsLambda(it)
-                                },
-                                cardOffset = CARD_OFFSET.dp(),
-                                onChangeExpandState = {
-                                    clickCounter++
-                                    if (clickCounter == 1) {
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            delay(200)
-                                            clickCounter--
-                                        }
-                                    }
-                                    if (clickCounter == 2) {
-                                        clickCounter = 0
-                                        appModel.changeCompleteSubOrdersExpandState(it)
+                        SubOrderCard(
+                            modifier = modifier,
+                            appModel = appModel,
+                            subOrder = subOrder,
+                            onClickDetails = { it ->
+                                onClickDetailsLambda(it)
+                            },
+                            cardOffset = CARD_OFFSET.dp(),
+                            onChangeExpandState = {
+                                clickCounter++
+                                if (clickCounter == 1) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(200)
+                                        clickCounter--
                                     }
                                 }
-                            )
-                        }
-                        Divider(thickness = 4.dp, color = Color.Transparent)
+                                if (clickCounter == 2) {
+                                    clickCounter = 0
+                                    appModel.changeCompleteSubOrdersExpandState(it.subOrder.id)
+                                }
+                            }
+                        )
                     }
+                    Divider(thickness = 4.dp, color = Color.Transparent)
                 }
             }
-            Divider(modifier = modifier.height(0.dp))
-            FloatingActionButton(
-                containerColor = _level_2_record_color,
-                modifier = Modifier.padding(vertical = 4.dp),
-                onClick = {
-                    launchNewItemActivityForResult(
-                        context as MainActivity,
-                        ActionType.ADD_SUB_ORDER.ordinal,
-                        parentId
-                    )
-                },
-                content = {
-                    androidx.compose.material.Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = Primary900
-                    )
-                }
-            )
         }
+        Divider(modifier = modifier.height(0.dp))
+        FloatingActionButton(
+            containerColor = _level_2_record_color,
+            modifier = Modifier.padding(vertical = 4.dp),
+            onClick = {
+                launchNewItemActivityForResult(
+                    context as MainActivity,
+                    ActionType.ADD_SUB_ORDER.ordinal,
+                    parentId
+                )
+            },
+            content = {
+                androidx.compose.material.Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Primary900
+                )
+            }
+        )
     }
 }
 
@@ -155,14 +156,12 @@ fun SubOrdersFlowColumn(
 @Composable
 fun SubOrderCard(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel? = null,
+    appModel: InvestigationsViewModel? = null,
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
     onChangeExpandState: (DomainSubOrderComplete) -> Unit
 ) {
-    val trigger by appModel!!.pairedSubOrderTrigger.observeAsState()
-    LaunchedEffect(trigger) {}
 
     val transitionState = remember {
         MutableTransitionState(subOrder.isExpanded).apply {
@@ -219,7 +218,7 @@ fun SubOrderCard(
 @Composable
 fun SubOrder(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel? = null,
+    appModel: InvestigationsViewModel? = null,
     onClickDetails: () -> Unit = {},
     subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
@@ -576,7 +575,7 @@ fun SubOrder(
 @Composable
 fun SubOrderDetails(
     modifier: Modifier = Modifier,
-    viewModel: QualityManagementViewModel? = null,
+    viewModel: InvestigationsViewModel? = null,
     subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
     if (subOrder.detailsVisibility) {
@@ -676,8 +675,7 @@ fun SubOrderDetails(
         if (viewModel != null)
             SubOrderTasksFlowColumn(
                 modifier = Modifier,
-                parentId = subOrder.subOrder.id,
-                appModel = viewModel
+                parentId = subOrder.subOrder.id
             )
     }
 }
