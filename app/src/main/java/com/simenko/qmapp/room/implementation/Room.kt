@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QualityManagementManufacturingDao {
@@ -62,6 +63,13 @@ interface QualityManagementManufacturingDao {
                 "ORDER BY tm.fullName ASC"
     )
     fun getTeamDetailed(): LiveData<List<DatabaseTeamMemberComplete>>
+
+    @Transaction
+    @Query(
+        "SELECT tm.* FROM '8_team_members' AS tm " +
+                "ORDER BY tm.fullName ASC"
+    )
+    fun getTeamDetailedFlow(): Flow<List<DatabaseTeamMemberComplete>>
 
     @Transaction
     @Query(
@@ -331,6 +339,10 @@ interface QualityManagementInvestigationsDao {
     @Transaction
     @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
     fun getOrdersDetailed(): LiveData<List<DatabaseOrderComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
+    fun getOrdersDetailedFlow(): Flow<List<DatabaseOrderComplete>>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")

@@ -233,13 +233,13 @@ data class DatabaseTeamMemberComplete(
         parentColumn = "departmentId",
         entityColumn = "id"
     )
-    val department: DatabaseDepartment,
+    val department: DatabaseDepartment?,
     @Relation(
         entity = DatabaseCompany::class,
         parentColumn = "companyId",
         entityColumn = "id"
     )
-    val company: DatabaseCompany
+    val company: DatabaseCompany?
 )
 
 data class DatabaseDepartmentsComplete(

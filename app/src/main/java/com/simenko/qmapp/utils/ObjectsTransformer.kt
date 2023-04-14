@@ -1,8 +1,5 @@
 package com.simenko.qmapp.utils
 
-import android.util.Log
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties

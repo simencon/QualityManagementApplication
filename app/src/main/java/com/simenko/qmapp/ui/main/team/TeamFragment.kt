@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class TeamFragment : Fragment() {
 
-    private lateinit var viewModel: QualityManagementViewModel
+    private lateinit var viewModel: TeamViewModel
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
@@ -30,7 +30,7 @@ class TeamFragment : Fragment() {
     ): View {
         (activity?.application as BaseApplication).appComponent.mainComponent().create()
             .inject(this)
-        viewModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
+        viewModel = ViewModelProvider(this, providerFactory)[TeamViewModel::class.java]
 
         val binding: FragmentTeamBinding = DataBindingUtil.inflate(
             inflater,

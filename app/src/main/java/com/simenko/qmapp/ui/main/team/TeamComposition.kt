@@ -33,13 +33,11 @@ private const val TAG = "TeamComposition"
 @Composable
 fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel
+    appModel: TeamViewModel
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
 
-    val itemsVM by appModel.team.observeAsState()
-    if (itemsVM != null)
-        appModel.addTeamToSnapShot(itemsVM!!)
+    appModel.addTeamToSnapShot()
 
     val items = appModel.teamS
 

@@ -44,13 +44,17 @@ fun DatabaseSubDepartment.toDomainSubDepartment() =
     ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
 
 fun DatabaseManufacturingChannel.toDomainChannel() = ObjectTransformer(
-    DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
+    DatabaseManufacturingChannel::class, DomainManufacturingChannel::class
+).transform(this)
 
 fun DatabaseManufacturingLine.toDomainLine() =
-    ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
+    ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(
+        this
+    )
 
 fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(
-    DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
+    DatabaseManufacturingOperation::class, DomainManufacturingOperation::class
+).transform(this)
 
 fun NetworkOrder.toDomainOrder() =
     ObjectTransformer(NetworkOrder::class, DomainOrder::class).transform(this)
@@ -68,7 +72,9 @@ fun DatabaseResult.toDomainResult() =
     ObjectTransformer(DatabaseResult::class, DomainResult::class).transform(this)
 
 fun DatabaseResultsDecryption.toDomainResult() =
-    ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(this)
+    ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(
+        this
+    )
 
 fun DatabaseTaskResult.toDomainTaskResult() =
     ObjectTransformer(DatabaseTaskResult::class, DomainTaskResult::class).transform(this)
@@ -92,7 +98,10 @@ fun DatabaseElementIshModel.toDomainCharacteristicGroup() =
     ObjectTransformer(DatabaseElementIshModel::class, DomainElementIshModel::class).transform(this)
 
 fun DatabaseIshSubCharacteristic.toDomainCharacteristicSubGroup() =
-    ObjectTransformer(DatabaseIshSubCharacteristic::class, DomainIshSubCharacteristic::class).transform(this)
+    ObjectTransformer(
+        DatabaseIshSubCharacteristic::class,
+        DomainIshSubCharacteristic::class
+    ).transform(this)
 
 fun DatabaseKey.toDomainKey() =
     ObjectTransformer(DatabaseKey::class, DomainKey::class).transform(this)
@@ -130,7 +139,7 @@ fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int 
 
         DomainSubOrderComplete(
             subOrder = it.subOrder.toDomainSubOrder(),
-            orderShort =  DomainOrderShort(
+            orderShort = DomainOrderShort(
                 order = it.orderShort.order.toDomainOrder(),
                 orderType = it.orderShort.orderType.toDomainType(),
                 orderReason = it.orderShort.orderReason.toDomainReason()
@@ -208,11 +217,39 @@ fun List<DatabaseTeamMemberComplete>.asTeamCompleteDomainModel(): List<DomainTea
     return map {
         DomainTeamMemberComplete(
             teamMember = it.teamMember.toDomainTeamMember(),
-            department = it.department.toDomainDepartment(),
-            company = it.company.toDomainCompany(),
+            department = it.department.let { dep ->
+                dep?.toDomainDepartment()
+                    ?: DomainDepartment(
+                        id = 0,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+
+            },
+            company = it.company.let { comp ->
+                comp?.toDomainCompany()
+                    ?: DomainCompany(
+                        id = 0,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        0,
+                        null,
+                        0
+                    )
+            }
         )
     }
 }
+
 fun List<DatabaseDepartmentsComplete>.asDepartmentsDetailedDomainModel(): List<DomainDepartmentComplete> {
     return map {
         DomainDepartmentComplete(

@@ -1,8 +1,7 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.QualityManagementNetwork
@@ -11,8 +10,8 @@ import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
-import java.time.Instant
-import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 private const val TAG = "Repositories"
 
@@ -152,7 +151,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
      * Connecting with LiveData for ViewModel
      */
     val teamMembers: LiveData<List<DomainTeamMember>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getTeamMembers()) {
+        database.qualityManagementManufacturingDao.getTeamMembers().map {
             ListTransformer(
                 it,
                 DatabaseTeamMember::class,
@@ -161,12 +160,17 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val teamComplete: LiveData<List<DomainTeamMemberComplete>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getTeamDetailed()) {
+        database.qualityManagementManufacturingDao.getTeamDetailed().map {
             it.asTeamCompleteDomainModel()
         }
 
+    fun teamComplete(): Flow<List<DomainTeamMemberComplete>> =
+        database.qualityManagementManufacturingDao.getTeamDetailedFlow().map {
+        it.asTeamCompleteDomainModel()
+    }
+
     val departments: LiveData<List<DomainDepartment>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getDepartments()) {
+        database.qualityManagementManufacturingDao.getDepartments().map {
             ListTransformer(
                 it,
                 DatabaseDepartment::class,
@@ -175,7 +179,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val subDepartments: LiveData<List<DomainSubDepartment>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getSubDepartments()) {
+        database.qualityManagementManufacturingDao.getSubDepartments().map {
             ListTransformer(
                 it,
                 DatabaseSubDepartment::class,
@@ -184,7 +188,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val channels: LiveData<List<DomainManufacturingChannel>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getManufacturingChannels()) {
+        database.qualityManagementManufacturingDao.getManufacturingChannels().map {
             ListTransformer(
                 it,
                 DatabaseManufacturingChannel::class,
@@ -193,7 +197,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val lines: LiveData<List<DomainManufacturingLine>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getManufacturingLines()) {
+        database.qualityManagementManufacturingDao.getManufacturingLines().map {
             ListTransformer(
                 it,
                 DatabaseManufacturingLine::class,
@@ -202,7 +206,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val operations: LiveData<List<DomainManufacturingOperation>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getManufacturingOperations()) {
+        database.qualityManagementManufacturingDao.getManufacturingOperations().map {
             ListTransformer(
                 it,
                 DatabaseManufacturingOperation::class,
@@ -211,7 +215,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val operationsFlows: LiveData<List<DomainOperationsFlow>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getOperationsFlows()) {
+        database.qualityManagementManufacturingDao.getOperationsFlows().map {
             ListTransformer(
                 it,
                 DatabaseOperationsFlow::class,
@@ -220,7 +224,7 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         }
 
     val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> =
-        Transformations.map(database.qualityManagementManufacturingDao.getDepartmentsDetailed()) {
+        database.qualityManagementManufacturingDao.getDepartmentsDetailed().map {
             it.asDepartmentsDetailedDomainModel()
         }
 }
@@ -512,7 +516,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
     }
 
     val characteristics: LiveData<List<DomainCharacteristic>> =
-        Transformations.map(database.qualityManagementProductsDao.getCharacteristics()) {
+        database.qualityManagementProductsDao.getCharacteristics().map {
             ListTransformer(
                 it,
                 DatabaseCharacteristic::class,
@@ -521,7 +525,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         }
 
     val metrixes: LiveData<List<DomainMetrix>> =
-        Transformations.map(database.qualityManagementProductsDao.getMetrixes()) {
+        database.qualityManagementProductsDao.getMetrixes().map {
             ListTransformer(
                 it,
                 DatabaseMetrix::class,
@@ -530,23 +534,23 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
         }
 
     val keys: LiveData<List<DomainKey>> =
-        Transformations.map(database.qualityManagementProductsDao.getKeys()) {
+        database.qualityManagementProductsDao.getKeys().map {
             ListTransformer(it, DatabaseKey::class, DomainKey::class).generateList()
         }
     val productBases: LiveData<List<DomainProductBase>> =
-        Transformations.map(database.qualityManagementProductsDao.getProductBases()) {
+        database.qualityManagementProductsDao.getProductBases().map {
             ListTransformer(it, DatabaseProductBase::class, DomainProductBase::class).generateList()
         }
     val products: LiveData<List<DomainProduct>> =
-        Transformations.map(database.qualityManagementProductsDao.getProducts()) {
+        database.qualityManagementProductsDao.getProducts().map {
             ListTransformer(it, DatabaseProduct::class, DomainProduct::class).generateList()
         }
     val components: LiveData<List<DomainComponent>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponents()) {
+        database.qualityManagementProductsDao.getComponents().map {
             ListTransformer(it, DatabaseComponent::class, DomainComponent::class).generateList()
         }
     val componentInStages: LiveData<List<DomainComponentInStage>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentInStages()) {
+        database.qualityManagementProductsDao.getComponentInStages().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStage::class,
@@ -554,7 +558,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val versionStatuses: LiveData<List<DomainVersionStatus>> =
-        Transformations.map(database.qualityManagementProductsDao.getVersionStatuses()) {
+        database.qualityManagementProductsDao.getVersionStatuses().map {
             ListTransformer(
                 it,
                 DatabaseVersionStatus::class,
@@ -562,7 +566,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val productVersions: LiveData<List<DomainProductVersion>> =
-        Transformations.map(database.qualityManagementProductsDao.getProductVersions()) {
+        database.qualityManagementProductsDao.getProductVersions().map {
             ListTransformer(
                 it,
                 DatabaseProductVersion::class,
@@ -570,7 +574,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val componentVersions: LiveData<List<DomainComponentVersion>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentVersions()) {
+        database.qualityManagementProductsDao.getComponentVersions().map {
             ListTransformer(
                 it,
                 DatabaseComponentVersion::class,
@@ -578,7 +582,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val componentInStageVersions: LiveData<List<DomainComponentInStageVersion>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentInStageVersions()) {
+        database.qualityManagementProductsDao.getComponentInStageVersions().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageVersion::class,
@@ -586,7 +590,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val productTolerances: LiveData<List<DomainProductTolerance>> =
-        Transformations.map(database.qualityManagementProductsDao.getProductTolerances()) {
+        database.qualityManagementProductsDao.getProductTolerances().map {
             ListTransformer(
                 it,
                 DatabaseProductTolerance::class,
@@ -594,7 +598,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val componentTolerances: LiveData<List<DomainComponentTolerance>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentTolerances()) {
+        database.qualityManagementProductsDao.getComponentTolerances().map {
             ListTransformer(
                 it,
                 DatabaseComponentTolerance::class,
@@ -602,7 +606,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val componentInStageTolerances: LiveData<List<DomainComponentInStageTolerance>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentInStageTolerances()) {
+        database.qualityManagementProductsDao.getComponentInStageTolerances().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageTolerance::class,
@@ -610,7 +614,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val productsToLines: LiveData<List<DomainProductToLine>> =
-        Transformations.map(database.qualityManagementProductsDao.getProductsToLines()) {
+        database.qualityManagementProductsDao.getProductsToLines().map {
             ListTransformer(
                 it,
                 DatabaseProductToLine::class,
@@ -618,7 +622,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val componentsToLines: LiveData<List<DomainComponentToLine>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentsToLines()) {
+        database.qualityManagementProductsDao.getComponentsToLines().map {
             ListTransformer(
                 it,
                 DatabaseComponentToLine::class,
@@ -626,7 +630,7 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val componentInStagesToLines: LiveData<List<DomainComponentInStageToLine>> =
-        Transformations.map(database.qualityManagementProductsDao.getComponentInStagesToLines()) {
+        database.qualityManagementProductsDao.getComponentInStagesToLines().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageToLine::class,
@@ -634,12 +638,12 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
     val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
-        Transformations.map(database.qualityManagementProductsDao.getItemVersionsComplete()) {
+        database.qualityManagementProductsDao.getItemVersionsComplete().map {
             it.asDomainItem()
         }
 
     val itemsTolerances: LiveData<List<DomainItemTolerance>> =
-        Transformations.map(database.qualityManagementProductsDao.getItemsTolerances()) {
+        database.qualityManagementProductsDao.getItemsTolerances().map {
             ListTransformer(
                 it,
                 DatabaseItemTolerance::class,
@@ -916,7 +920,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
 
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getInputForOrder()) {
+        database.qualityManagementInvestigationsDao.getInputForOrder().map {
             ListTransformer(
                 it,
                 DatabaseInputForOrder::class,
@@ -925,12 +929,12 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
 
     val investigationTypes: LiveData<List<DomainOrdersType>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getOrdersTypes()) {
+        database.qualityManagementInvestigationsDao.getOrdersTypes().map {
             ListTransformer(it, DatabaseOrdersType::class, DomainOrdersType::class).generateList()
         }
 
     val investigationReasons: LiveData<List<DomainReason>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getMeasurementReasons()) {
+        database.qualityManagementInvestigationsDao.getMeasurementReasons().map {
             ListTransformer(
                 it,
                 DatabaseReason::class,
@@ -939,7 +943,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
 
     val investigationStatuses: LiveData<List<DomainOrdersStatus>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getOrdersStatuses()) {
+        database.qualityManagementInvestigationsDao.getOrdersStatuses().map {
             ListTransformer(
                 it,
                 DatabaseOrdersStatus::class,
@@ -948,7 +952,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
 
     val orders: LiveData<List<DomainOrder>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getOrders()) {
+        database.qualityManagementInvestigationsDao.getOrders().map {
             ListTransformer(
                 it,
                 DatabaseOrder::class,
@@ -961,8 +965,13 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         currentOrder = id
     }
     val completeOrders: LiveData<List<DomainOrderComplete>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getOrdersDetailed()) {
+        database.qualityManagementInvestigationsDao.getOrdersDetailed().map {
             it.asDomainOrdersComplete(currentOrder)
+        }
+
+    fun completeOrders(): Flow<List<DomainOrderComplete>> =
+        database.qualityManagementInvestigationsDao.getOrdersDetailedFlow().map {
+            it.asDomainOrdersComplete()
         }
 
     private var currentSubOrder = 0
@@ -970,7 +979,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         currentSubOrder = id
     }
     val completeSubOrders: LiveData<List<DomainSubOrderComplete>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getSubOrdersDetailed()) {
+        database.qualityManagementInvestigationsDao.getSubOrdersDetailed().map {
             it.asDomainSubOrderDetailed(currentSubOrder)
         }
 
@@ -979,7 +988,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         currentTask = id
     }
     val completeSubOrderTasks: LiveData<List<DomainSubOrderTaskComplete>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderTasksDetailed()) {
+        database.qualityManagementInvestigationsDao.getSubOrderTasksDetailed().map {
             it.asDomainSubOrderTask(currentTask)
         }
 
@@ -988,12 +997,12 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         currentSample = id
     }
     val completeSamples: LiveData<List<DomainSampleComplete>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getSamplesDetailed()) {
+        database.qualityManagementInvestigationsDao.getSamplesDetailed().map {
             it.asDomainSamples(currentSample)
         }
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getSubOrderWithChildren()) {
+        database.qualityManagementInvestigationsDao.getSubOrderWithChildren().map {
             it.toDomainSubOrderShort()
         }
 
@@ -1002,7 +1011,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         currentResult = id
     }
     val completeResults: LiveData<List<DomainResultComplete>> =
-        Transformations.map(database.qualityManagementInvestigationsDao.getResultsDetailed()) {
+        database.qualityManagementInvestigationsDao.getResultsDetailed().map {
             it.asDomainResults(currentResult)
         }
 

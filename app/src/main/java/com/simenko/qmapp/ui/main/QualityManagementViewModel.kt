@@ -47,7 +47,7 @@ class QualityManagementViewModel @Inject constructor(
     val pairedResultTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val team = manufacturingRepository.teamComplete
-    val teamS: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
+    private val teamS: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
     fun addTeamToSnapShot(list: List<DomainTeamMemberComplete>) {
         teamS.apply {
             clear()
