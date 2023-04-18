@@ -48,14 +48,6 @@ fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
     createdRecord: CreatedRecord?
 ) {
-//    appModel.investigationStatuses.observeAsState()
-//    appModel.productTolerances.observeAsState()
-//    appModel.componentTolerances.observeAsState()
-//    appModel.componentInStageTolerances.observeAsState()
-//    appModel.metrixes.observeAsState()
-//    appModel.team.observeAsState()
-//    appModel.completeTasks.observeAsState()
-
     val context = LocalContext.current
     val appModel = (context as MainActivity).appModel
     val viewModel = (context as MainActivity).investigationsModel
@@ -225,7 +217,7 @@ fun InvestigationsMainComposition(
                         CustomDialogUI(
                             dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER, null),
                             openDialogCustom = viewModel.isStatusDialogVisible,
-                            appModel = appModel
+                            appModel = viewModel
                         )
 
                     PullRefreshIndicator(

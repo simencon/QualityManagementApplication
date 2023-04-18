@@ -8,7 +8,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
 import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.setMainActivityResult
 import kotlinx.coroutines.*
@@ -440,18 +439,6 @@ fun <T : DomainModel> changeRecordSelection(
 
 fun <T : DomainModel> selectSingleRecord(
     d: MutableLiveData<MutableList<T>>,
-    pairedTrigger: MutableLiveData<Boolean>,
-    selectedId: Any = 0,
-) {
-    d.value?.forEach {
-        it.setIsChecked(false)
-    }
-    d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
-    pairedTrigger.value = !(pairedTrigger.value as Boolean)
-}
-
-fun <T : DomainModel> selectSingleRecordI(
-    d: LiveData<List<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
     selectedId: Any = 0,
 ) {

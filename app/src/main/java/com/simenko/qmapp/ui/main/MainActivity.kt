@@ -256,7 +256,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
-        appModel.isStatusDialogVisible.value = false
+        investigationsModel.isStatusDialogVisible.value = false
         super.onDestroy()
     }
 }

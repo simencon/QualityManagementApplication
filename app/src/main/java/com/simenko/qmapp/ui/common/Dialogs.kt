@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.common
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -27,9 +28,10 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.MutableLiveData
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
-import com.simenko.qmapp.ui.neworder.selectSingleRecordI
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
+
+private const val TAG = "Dialogs"
 
 @Stable
 enum class DialogFor {
@@ -60,35 +62,31 @@ fun findCurrentObject(
 }
 
 //Layout
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CustomDialogUI(
     modifier: Modifier = Modifier,
     dialogInput: DialogInput,
     openDialogCustom: MutableLiveData<Boolean>,
-    appModel: QualityManagementViewModel
+    appModel: InvestigationsViewModel
 ) {
+    val statuses = appModel.investigationStatuses
+    val team = appModel.team
 
     val currentOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.orders.value!!)
+        findCurrentObject(dialogInput.recordId, appModel.orders)
     }
     val currentSubOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.completeSubOrders.value!!)
+        findCurrentObject(dialogInput.recordId, appModel.subOrders)
     }
     val currentSubOrderTask by lazy {
-        findCurrentObject(
-            dialogInput.recordId,
-            appModel.completeTasks.value!!
-        )
+        findCurrentObject(dialogInput.recordId, appModel.tasks)
     }
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        selectSingleRecordI(
-            appModel.investigationStatuses,
-            appModel.pairedOrderTrigger,
+    LaunchedEffect(team) {
+        appModel.selectStatus(
             when (dialogInput.target) {
                 DialogFor.ORDER -> {
                     currentOrder.order.statusId
@@ -107,7 +105,9 @@ fun CustomDialogUI(
                 false
             }
             else -> {
-                placeHolder = appModel.team.value!!.find { it.teamMember.id == dialogInput.performerId }!!.teamMember.fullName
+                placeHolder =
+                    team.find { it.teamMember.id == dialogInput.performerId }!!.teamMember.fullName
+                Log.d(TAG, "CustomDialogUI: $placeHolder")
                 true
             }
         }
@@ -125,11 +125,7 @@ fun CustomDialogUI(
                 currentSubOrderTask.subOrderTask.statusId = id
             }
         }
-        selectSingleRecordI(
-            appModel.investigationStatuses,
-            appModel.pairedOrderTrigger,
-            id
-        )
+        appModel.selectStatus(id)
     }
 
     Dialog(
@@ -167,11 +163,11 @@ fun CustomDialogUI(
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     SearchableExpandedDropDownMenu(
-                        listOfItems = appModel.team.value!!,
+                        listOfItems = team.map { it.teamMember },
                         placeholder = placeHolder,
                         modifier = Modifier.fillMaxWidth(),
                         onDropDownItemSelected = { item ->
-                            dialogInput.performerId = item.teamMember.id
+                            dialogInput.performerId = item.id
                             enableToEdit = true
                         },
                         dropdownItem = { test ->
@@ -191,7 +187,7 @@ fun CustomDialogUI(
                             modifier = Modifier
                                 .padding(top = 10.dp)
                                 .height(50.dp),
-                            appModel = appModel,
+                            statuses = statuses,
                             onSelectStatus = { changeStatus(it) }
                         )
                     }
@@ -227,7 +223,8 @@ fun CustomDialogUI(
                                     appModel.editSubOrder(currentSubOrder.subOrder)
                                 }
                                 DialogFor.CHARACTERISTIC -> {
-                                    currentSubOrderTask.subOrderTask.completedById = dialogInput.performerId
+                                    currentSubOrderTask.subOrderTask.completedById =
+                                        dialogInput.performerId
                                     appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                                 }
                             }
@@ -235,7 +232,10 @@ fun CustomDialogUI(
                         Text(
                             "Save",
                             fontWeight = FontWeight.ExtraBold,
-                            color = when(enableToEdit) {true -> Color.White false -> Color.Gray},
+                            color = when (enableToEdit) {
+                                true -> Color.White
+                                false -> Color.Gray
+                            },
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
@@ -248,31 +248,28 @@ fun CustomDialogUI(
 @Composable
 fun StatusesSelection(
     modifier: Modifier = Modifier,
-    appModel: QualityManagementViewModel,
+    statuses: List<DomainOrdersStatus>,
     onSelectStatus: (Int) -> Unit
 ) {
-    val observeInputForOrder by appModel.investigationStatusesMediator.observeAsState()
     val gritState = rememberLazyGridState()
 
-    observeInputForOrder?.apply {
-        LazyHorizontalGrid(
-            rows = GridCells.Fixed(1),
-            state = gritState,
-            contentPadding = PaddingValues(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(2.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            modifier = modifier.height(60.dp)
-        ) {
-            items(first!!.size) { item ->
-                if (first!![item].id != 2) //To remove In Progress
-                    InvestigationStatusCard(
-                        input = first!![item],
-                        modifier = modifier.padding(top = 0.dp),
-                        onClick = {
-                            onSelectStatus(first!![item].id)
-                        }
-                    )
-            }
+    LazyHorizontalGrid(
+        rows = GridCells.Fixed(1),
+        state = gritState,
+        contentPadding = PaddingValues(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = modifier.height(60.dp)
+    ) {
+        items(statuses.size) { item ->
+            if (statuses[item].id != 2) //To remove In Progress
+                InvestigationStatusCard(
+                    input = statuses[item],
+                    modifier = modifier.padding(top = 0.dp),
+                    onClick = {
+                        onSelectStatus(statuses[item].id)
+                    }
+                )
         }
     }
 }
@@ -322,13 +319,13 @@ fun InvestigationStatusCard(
 }
 
 @Composable
-fun DropDownItem(test: DomainTeamMemberComplete) {
+fun DropDownItem(test: DomainTeamMember) {
     Row(
         modifier = Modifier
             .padding(8.dp)
             .wrapContentSize()
     ) {
-        androidx.compose.material.Text(text = test.teamMember.fullName)
+        androidx.compose.material.Text(text = test.fullName)
         Spacer(modifier = Modifier.width(12.dp))
         androidx.compose.material.Text("")
     }

@@ -533,6 +533,15 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
             ).generateList()
         }
 
+    fun metrixes(): Flow<List<DomainMetrix>> =
+        database.qualityManagementProductsDao.getMetrixesFlow().map {
+            ListTransformer(
+                it,
+                DatabaseMetrix::class,
+                DomainMetrix::class
+            ).generateList()
+        }
+
     val keys: LiveData<List<DomainKey>> =
         database.qualityManagementProductsDao.getKeys().map {
             ListTransformer(it, DatabaseKey::class, DomainKey::class).generateList()
@@ -597,6 +606,14 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                 DomainProductTolerance::class
             ).generateList()
         }
+    fun productTolerances(): Flow<List<DomainProductTolerance>> =
+        database.qualityManagementProductsDao.getProductTolerancesFlow().map {
+            ListTransformer(
+                it,
+                DatabaseProductTolerance::class,
+                DomainProductTolerance::class
+            ).generateList()
+        }
     val componentTolerances: LiveData<List<DomainComponentTolerance>> =
         database.qualityManagementProductsDao.getComponentTolerances().map {
             ListTransformer(
@@ -605,8 +622,25 @@ class QualityManagementProductsRepository(private val database: QualityManagemen
                 DomainComponentTolerance::class
             ).generateList()
         }
+
+    fun componentTolerances(): Flow<List<DomainComponentTolerance>> =
+        database.qualityManagementProductsDao.getComponentTolerancesFlow().map {
+            ListTransformer(
+                it,
+                DatabaseComponentTolerance::class,
+                DomainComponentTolerance::class
+            ).generateList()
+        }
     val componentInStageTolerances: LiveData<List<DomainComponentInStageTolerance>> =
         database.qualityManagementProductsDao.getComponentInStageTolerances().map {
+            ListTransformer(
+                it,
+                DatabaseComponentInStageTolerance::class,
+                DomainComponentInStageTolerance::class
+            ).generateList()
+        }
+    fun componentInStageTolerances(): Flow<List<DomainComponentInStageTolerance>> =
+        database.qualityManagementProductsDao.getComponentInStageTolerancesFlow().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageTolerance::class,
@@ -951,6 +985,15 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
             ).generateList()
         }
 
+    fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
+        database.qualityManagementInvestigationsDao.getOrdersStatusesFlow().map {
+            ListTransformer(
+                it,
+                DatabaseOrdersStatus::class,
+                DomainOrdersStatus::class
+            ).generateList()
+        }
+
     val orders: LiveData<List<DomainOrder>> =
         database.qualityManagementInvestigationsDao.getOrders().map {
             ListTransformer(
@@ -971,7 +1014,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
 
     fun completeOrders(): Flow<List<DomainOrderComplete>> =
         database.qualityManagementInvestigationsDao.getOrdersDetailedFlow().map {
-            it.asDomainOrdersComplete()
+            it.asDomainOrdersComplete(currentOrder)
         }
 
     private var currentSubOrder = 0

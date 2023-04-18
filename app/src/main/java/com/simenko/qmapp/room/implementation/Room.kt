@@ -119,6 +119,9 @@ interface QualityManagementProductsDao {
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
     fun getMetrixes(): LiveData<List<DatabaseMetrix>>
 
+    @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
+    fun getMetrixesFlow(): Flow<List<DatabaseMetrix>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertKeysAll(list: List<DatabaseKey>)
 
@@ -179,17 +182,26 @@ interface QualityManagementProductsDao {
     @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
     fun getProductTolerances(): LiveData<List<DatabaseProductTolerance>>
 
+    @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
+    fun getProductTolerancesFlow(): Flow<List<DatabaseProductTolerance>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertComponentTolerancesAll(list: List<DatabaseComponentTolerance>)
 
     @Query("SELECT * FROM `10_8_component_tolerances` ORDER BY id ASC")
     fun getComponentTolerances(): LiveData<List<DatabaseComponentTolerance>>
 
+    @Query("SELECT * FROM `10_8_component_tolerances` ORDER BY id ASC")
+    fun getComponentTolerancesFlow(): Flow<List<DatabaseComponentTolerance>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertComponentInStageTolerancesAll(list: List<DatabaseComponentInStageTolerance>)
 
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
     fun getComponentInStageTolerances(): LiveData<List<DatabaseComponentInStageTolerance>>
+
+    @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
+    fun getComponentInStageTolerancesFlow(): Flow<List<DatabaseComponentInStageTolerance>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertProductsToLinesAll(list: List<DatabaseProductToLine>)
@@ -234,6 +246,9 @@ interface QualityManagementInvestigationsDao {
     fun insertOrdersStatusesAll(company: List<DatabaseOrdersStatus>)
     @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
     fun getOrdersStatuses(): LiveData<List<DatabaseOrdersStatus>>
+
+    @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
+    fun getOrdersStatusesFlow(): Flow<List<DatabaseOrdersStatus>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMeasurementReasonsAll(company: List<DatabaseReason>)

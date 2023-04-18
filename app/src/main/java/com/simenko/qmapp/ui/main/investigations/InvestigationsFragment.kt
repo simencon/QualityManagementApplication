@@ -81,6 +81,13 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
 
+        viewModel.addStatusesToSnapShot()
+        viewModel.addTeamToSnapShot()
+        viewModel.addMetrixesToSnapShot()
+        viewModel.addProductTolerancesToSnapShot()
+        viewModel.addComponentTolerancesToSnapShot()
+        viewModel.addComponentInStageTolerancesToSnapShot()
+
         requireContext().theme
 
         binding.composeView.apply {
