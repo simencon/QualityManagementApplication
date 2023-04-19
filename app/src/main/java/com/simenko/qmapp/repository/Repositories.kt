@@ -11,6 +11,8 @@ import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 private const val TAG = "Repositories"
@@ -757,9 +759,9 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         }
     }
 
-    suspend fun deleteOrder(order: DomainOrder) {
+    suspend fun deleteOrder(orderId: Int) {
         withContext(Dispatchers.IO) {
-            QualityManagementNetwork.serviceHolderInvestigations.deleteOrder(order.id)
+            QualityManagementNetwork.serviceHolderInvestigations.deleteOrder(orderId)
         }
     }
 
@@ -992,7 +994,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
                 DatabaseOrdersStatus::class,
                 DomainOrdersStatus::class
             ).generateList()
-        }
+        }.flowOn(Dispatchers.IO).conflate()
 
     val orders: LiveData<List<DomainOrder>> =
         database.qualityManagementInvestigationsDao.getOrders().map {
@@ -1016,6 +1018,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         database.qualityManagementInvestigationsDao.getOrdersDetailedFlow().map {
             it.asDomainOrdersComplete(currentOrder)
         }
+            .flowOn(Dispatchers.IO).conflate()
 
     private var currentSubOrder = 0
     fun setCurrentSubOrder(id: Int) {
@@ -1030,6 +1033,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         database.qualityManagementInvestigationsDao.getSubOrdersDetailedFlow().map {
             it.asDomainSubOrderDetailed(currentSubOrder)
         }
+            .flowOn(Dispatchers.IO).conflate()
 
     private var currentTask = 0
     fun setCurrentTask(id: Int) {
@@ -1044,6 +1048,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         database.qualityManagementInvestigationsDao.getSubOrderTasksDetailedFlow().map {
             it.asDomainSubOrderTask(currentTask)
         }
+            .flowOn(Dispatchers.IO).conflate()
 
     private var currentSample = 0
     fun setCurrentSample(id: Int) {
@@ -1057,6 +1062,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         database.qualityManagementInvestigationsDao.getSamplesDetailedFlow().map {
             it.asDomainSamples(currentSample)
         }
+            .flowOn(Dispatchers.IO).conflate()
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         database.qualityManagementInvestigationsDao.getSubOrderWithChildren().map {
@@ -1076,6 +1082,7 @@ class QualityManagementInvestigationsRepository(private val database: QualityMan
         database.qualityManagementInvestigationsDao.getResultsDetailedFlow().map {
             it.asDomainResults(currentResult)
         }
+            .flowOn(Dispatchers.IO).conflate()
 
 }
 

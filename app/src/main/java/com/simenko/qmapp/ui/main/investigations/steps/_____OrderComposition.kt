@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -73,6 +70,22 @@ fun Orders(
         }
     }
 
+    val onDeleteOrderLambda = remember<(Int) -> Unit> {
+        {
+            appModel.deleteOrder(it)
+        }
+    }
+
+    val onEditOrderLambda = remember<(Int) -> Unit> {
+        {
+            launchNewItemActivityForResult(
+                context as MainActivity,
+                ActionType.EDIT_ORDER.ordinal,
+                it
+            )
+        }
+    }
+
     val listState = rememberLazyListState()
 
     val needScrollToItem by remember {
@@ -119,33 +132,24 @@ fun Orders(
         state = listState
     ) {
         items(items = items, key = { it.order.id }) { order ->
-            Box(Modifier.fillMaxWidth()) {
-                ActionsRow(
-                    order = order,
-                    actionIconSize = ACTION_ITEM_SIZE.dp,
-                    onDeleteOrder = {
-                        appModel.deleteOrder(it)
-                    },
-                    onEdit = {
-                        launchNewItemActivityForResult(
-                            context as MainActivity,
-                            ActionType.EDIT_ORDER.ordinal,
-                            order.order.id
-                        )
-                    }
-                )
-                OrderCard(
-                    order = order,
-                    onClickDetails = {
-                        onClickDetailsLambda(it)
-                    },
-                    modifier = modifier,
-                    cardOffset = CARD_OFFSET.dp(),
-                    onChangeExpandState = {
-                        onChangeExpandStateLambda(it.order.id)
-                    }
-                )
-            }
+
+            OrderCard(
+                order = order,
+                onClickDetails = {
+                    onClickDetailsLambda(it)
+                },
+                modifier = modifier,
+                cardOffset = CARD_OFFSET.dp(),
+                onChangeExpandState = {
+                    onChangeExpandStateLambda(it.order.id)
+                },
+                onDeleteOrder = {
+                    onDeleteOrderLambda(it)
+                },
+                onEditOrder = {
+                    onEditOrderLambda(it)
+                }
+            )
         }
     }
 }
@@ -157,7 +161,9 @@ fun OrderCard(
     onClickDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
     cardOffset: Float,
-    onChangeExpandState: (DomainOrderComplete) -> Unit
+    onChangeExpandState: (DomainOrderComplete) -> Unit,
+    onDeleteOrder: (Int) -> Unit,
+    onEditOrder: (Int) -> Unit
 ) {
     Log.d(TAG, "OrderCard: ${order.order.orderNumber}")
     val transitionState = remember {
@@ -185,47 +191,81 @@ fun OrderCard(
             }
         }
 
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = cardBgColor,
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onDoubleTap = { onChangeExpandState(order) }
-                )
-            },
-        elevation = CardDefaults.cardElevation(
-            when (order.isExpanded) {
-                true -> 40.dp
-                false -> 0.dp
-            }
-        ),
-    ) {
-        Order(
-            modifier = modifier,
 
-            orderId = order.order.id,
+    Box(Modifier.fillMaxWidth()) {
+        Log.d(TAG, "OrderCard: Action row for ${order.order.orderNumber}")
+        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+            IconButton(
+                modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                onClick = {
+                    onDeleteOrder(order.order.id)
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        tint = PrimaryVariant900,
+                        contentDescription = "delete action",
+                    )
+                }
+            )
 
-            orderNumber = order.order.orderNumber.toString(),
-            statusId = order.order.statusId,
-            statusDescription = order.orderStatus.statusDescription ?: "-",
-            isOk = order.orderResult.isOk ?: true,
-            total = order.orderResult.total,
-            good = order.orderResult.good,
-            typeDescription = order.orderType.typeDescription ?: "-",
-            reasonFormalDescript = order.orderReason.reasonFormalDescript ?: "-",
-            customerDepAbbr = order.customer.depAbbr ?: "-",
+            IconButton(
+                modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                onClick = {
+                    onEditOrder(order.order.id)
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        tint = PrimaryVariant900,
+                        contentDescription = "edit action",
+                    )
+                },
+            )
+        }
 
-            detailsVisibility = order.detailsVisibility,
-            placerFullName = order.orderPlacer.fullName,
-            createdDate = order.order.createdDate,
-            completedDate = order.order.completedDate,
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = cardBgColor,
+            ),
+            modifier = modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = { onChangeExpandState(order) }
+                    )
+                },
+            elevation = CardDefaults.cardElevation(
+                when (order.isExpanded) {
+                    true -> 40.dp
+                    false -> 0.dp
+                }
+            ),
+        ) {
+            Order(
+                modifier = modifier,
 
-            onClickDetails = { onClickDetails(order.order.id) }
-        )
+                orderId = order.order.id,
+
+                orderNumber = order.order.orderNumber.toString(),
+                statusId = order.order.statusId,
+                statusDescription = order.orderStatus.statusDescription ?: "-",
+                isOk = order.orderResult.isOk ?: true,
+                total = order.orderResult.total,
+                good = order.orderResult.good,
+                typeDescription = order.orderType.typeDescription ?: "-",
+                reasonFormalDescript = order.orderReason.reasonFormalDescript ?: "-",
+                customerDepAbbr = order.customer.depAbbr ?: "-",
+
+                detailsVisibility = order.detailsVisibility,
+                placerFullName = order.orderPlacer.fullName,
+                createdDate = order.order.createdDate,
+                completedDate = order.order.completedDate,
+
+                onClickDetails = { onClickDetails(order.order.id) }
+            )
+        }
     }
 }
 

@@ -88,3 +88,39 @@ fun ActionsRow(
             )
     }
 }
+
+@Composable
+fun OrderOnlyActionsRow(
+    order: DomainOrderComplete? = null,
+    onDeleteOrder: (DomainOrderComplete) -> Unit = {},
+    onEdit: () -> Unit
+) {
+    Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        IconButton(
+            modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+            onClick = {
+                if (order != null)
+                    onDeleteOrder(order)
+            },
+            content = {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    tint = PrimaryVariant900,
+                    contentDescription = "delete action",
+                )
+            }
+        )
+
+        IconButton(
+            modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+            onClick = onEdit,
+            content = {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    tint = PrimaryVariant900,
+                    contentDescription = "edit action",
+                )
+            },
+        )
+    }
+}

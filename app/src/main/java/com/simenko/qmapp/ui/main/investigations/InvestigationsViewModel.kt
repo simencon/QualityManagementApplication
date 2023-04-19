@@ -237,12 +237,12 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    fun deleteOrder(order: DomainOrderComplete) {
+    fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.deleteOrder(order.order)
+                investigationsRepository.deleteOrder(orderId)
                 syncOrders()
 
                 isLoadingInProgress.value = false
