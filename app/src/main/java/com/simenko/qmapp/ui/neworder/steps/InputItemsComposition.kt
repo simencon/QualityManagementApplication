@@ -66,8 +66,8 @@ fun ProductsSelection(
         if (observeInputForOrder!!.first != null) {
             litOfInput.clear()
 
-            observeInputForOrder!!.first!!.filter { it.id > parentId }.forEach { input ->
-                if (litOfInput.find { it.recordId == input.recordId } == null) {
+            observeInputForOrder!!.first!!.filter { it.depId > parentId }.forEach { input ->
+                if (litOfInput.find { it.id == input.id } == null) {
                     litOfInput.add(input)
                 }
             }

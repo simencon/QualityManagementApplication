@@ -14,7 +14,7 @@ import androidx.room.*
     ]
 )
 data class DatabaseInputForOrder constructor(
-    var id: Int,
+    var depId: Int,
     var depAbbr: String,
     var depOrder: Int,
     var subDepId: Int,
@@ -26,7 +26,7 @@ data class DatabaseInputForOrder constructor(
     var lineId: Int,
     var lineAbbr: String,
     var lineOrder: Int,
-    var recordId: String,
+    var id: String,
     var itemPrefix: String,
     var itemId: Int,
     var itemVersionId: Int,

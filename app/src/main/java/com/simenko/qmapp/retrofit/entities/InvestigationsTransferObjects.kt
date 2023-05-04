@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NetworkInputForOrder constructor(
-    var id: Int,
+    var depId: Int,
     var depAbbr: String,
     var depOrder: Int,
     var subDepId: Int,
@@ -17,7 +17,7 @@ data class NetworkInputForOrder constructor(
     var lineId: Int,
     var lineAbbr: String,
     var lineOrder: Int,
-    var recordId: String,
+    var id: String,
     @Json(name = "itemPreffix")
     var itemPrefix: String,
     var itemId: Int,

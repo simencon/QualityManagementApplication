@@ -260,7 +260,7 @@ fun OrderCard(
 
                 detailsVisibility = order.detailsVisibility,
                 placerFullName = order.orderPlacer.fullName,
-                createdDate = order.order.createdDate,
+                createdDate = order.order.createdDate.toString(),
                 completedDate = order.order.completedDate,
 
                 onClickDetails = { onClickDetails(order.order.id) }

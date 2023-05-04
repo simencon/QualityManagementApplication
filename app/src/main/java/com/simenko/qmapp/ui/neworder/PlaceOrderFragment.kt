@@ -6,7 +6,6 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,7 +123,7 @@ class PlaceOrderFragment : Fragment() {
                     TargetSpinner.DEPARTMENTS -> {}
                     TargetSpinner.SUB_DEPARTMENTS -> {
                         finalList =
-                            ((originalList as List<DomainInputForOrder>).filter { it.id == parentId }).toList()
+                            ((originalList as List<DomainInputForOrder>).filter { it.depId == parentId }).toList()
                                 .sortedBy { it.subDepOrder }
                     }
                     TargetSpinner.CHANNELS -> {
@@ -153,7 +152,7 @@ class PlaceOrderFragment : Fragment() {
 //                save currently interested id for decision if it needs to be added
                 val keyId = when (targetSpinner) {
                     TargetSpinner.DEPARTMENTS -> {
-                        mainIterator.id
+                        mainIterator.depId
                     }
                     TargetSpinner.SUB_DEPARTMENTS -> {
                         mainIterator.subDepId
@@ -165,7 +164,7 @@ class PlaceOrderFragment : Fragment() {
                         mainIterator.itemVersionId
                     }
                     else -> {
-                        mainIterator.id
+                        mainIterator.depId
                     }
                 }
 //                if currently interested id not exists - add item to the list
@@ -174,7 +173,7 @@ class PlaceOrderFragment : Fragment() {
                         when (targetSpinner) {
                             TargetSpinner.DEPARTMENTS -> {
                                 OrderDialogItem(
-                                    mainIterator.id,
+                                    mainIterator.depId,
                                     mainIterator.depOrder.toString(),
                                     mainIterator.depAbbr
                                 )
@@ -202,7 +201,7 @@ class PlaceOrderFragment : Fragment() {
                             }
                             else -> {
                                 OrderDialogItem(
-                                    mainIterator.id,
+                                    mainIterator.depId,
                                     mainIterator.depOrder.toString(),
                                     mainIterator.depAbbr
                                 )
@@ -433,7 +432,7 @@ fun <T> generateOptionsList(
             }
             TargetSpinner.SUB_DEPARTMENTS -> {
                 finalList2 =
-                    (originList2.filter { it.id == parentId }).toList()
+                    (originList2.filter { it.depId == parentId }).toList()
                         .sortedBy { it.subDepOrder }
             }
             TargetSpinner.ORDER_PLACERS -> {

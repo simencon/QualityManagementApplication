@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "853516d7e33956ba6721ad9db94e78c5",
+    "identityHash": "ac31103947ab17134a190887d098fb89",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2196,11 +2196,11 @@
       },
       {
         "tableName": "1_1_inputForMeasurementRegister",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `depAbbr` TEXT NOT NULL, `depOrder` INTEGER NOT NULL, `subDepId` INTEGER NOT NULL, `subDepAbbr` TEXT NOT NULL, `subDepOrder` INTEGER NOT NULL, `chId` INTEGER NOT NULL, `channelAbbr` TEXT NOT NULL, `channelOrder` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `lineAbbr` TEXT NOT NULL, `lineOrder` INTEGER NOT NULL, `recordId` TEXT NOT NULL, `itemPrefix` TEXT NOT NULL, `itemId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, `itemKey` TEXT NOT NULL, `itemDesignation` TEXT NOT NULL, `operationId` INTEGER NOT NULL, `operationAbbr` TEXT NOT NULL, `operationDesignation` TEXT NOT NULL, `operationOrder` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `ishCharId` INTEGER NOT NULL, `ishSubChar` INTEGER NOT NULL, `charDescription` TEXT NOT NULL, `charDesignation` TEXT, `charOrder` INTEGER NOT NULL, PRIMARY KEY(`itemPrefix`, `itemVersionId`, `operationId`, `charId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`depId` INTEGER NOT NULL, `depAbbr` TEXT NOT NULL, `depOrder` INTEGER NOT NULL, `subDepId` INTEGER NOT NULL, `subDepAbbr` TEXT NOT NULL, `subDepOrder` INTEGER NOT NULL, `chId` INTEGER NOT NULL, `channelAbbr` TEXT NOT NULL, `channelOrder` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `lineAbbr` TEXT NOT NULL, `lineOrder` INTEGER NOT NULL, `id` TEXT NOT NULL, `itemPrefix` TEXT NOT NULL, `itemId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, `itemKey` TEXT NOT NULL, `itemDesignation` TEXT NOT NULL, `operationId` INTEGER NOT NULL, `operationAbbr` TEXT NOT NULL, `operationDesignation` TEXT NOT NULL, `operationOrder` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `ishCharId` INTEGER NOT NULL, `ishSubChar` INTEGER NOT NULL, `charDescription` TEXT NOT NULL, `charDesignation` TEXT, `charOrder` INTEGER NOT NULL, PRIMARY KEY(`itemPrefix`, `itemVersionId`, `operationId`, `charId`))",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
+            "fieldPath": "depId",
+            "columnName": "depId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -2271,8 +2271,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "recordId",
-            "columnName": "recordId",
+            "fieldPath": "id",
+            "columnName": "id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -3409,7 +3409,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '853516d7e33956ba6721ad9db94e78c5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ac31103947ab17134a190887d098fb89')"
     ]
   }
 }

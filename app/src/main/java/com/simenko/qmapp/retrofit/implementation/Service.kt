@@ -15,186 +15,186 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface QualityManagementManufacturingService {
-    @GET("api/_0PositionLevel")
+    @GET("positionLevels")
     suspend fun getPositionLevels(): List<NetworkPositionLevel>
 
-    @GET("api/_8TeamMember")
+    @GET("teamMembers")
     suspend fun getTeamMembers(): List<NetworkTeamMembers>
 
-    @GET("api/_0Company")
+    @GET("companies")
     suspend fun getCompanies(): List<NetworkCompany>
 
-    @GET("api/_10department")
+    @GET("departments")
     suspend fun getDepartments(): List<NetworkDepartment>
 
-    @GET("api/_11SubDepartment")
+    @GET("subDepartments")
     suspend fun getSubDepartments(): List<NetworkSubDepartment>
 
-    @GET("api/_12ManufacturingChannel")
+    @GET("manufacturingChannels")
     suspend fun getManufacturingChannels(): List<NetworkManufacturingChannel>
 
-    @GET("api/_13ManufacturingLine")
+    @GET("manufacturingLines")
     suspend fun getManufacturingLines(): List<NetworkManufacturingLine>
 
-    @GET("api/_14ManufacturingOperation")
+    @GET("manufacturingOperations")
     suspend fun getManufacturingOperations(): List<NetworkManufacturingOperation>
 
-    @GET("api/_1414ManufacturingOperationsFlow")
+    @GET("manufacturingOperationsFlows")
     suspend fun getOperationsFlows(): List<NetworkOperationsFlow>
 }
 
 interface QualityManagementProductsService {
-    @GET("api/_101DElementIshModel")
+    @GET("characteristicGroups")
     suspend fun getElementIshModels(): List<NetworkElementIshModel>
 
-    @GET("api/_0IshSubCharacteristic")
+    @GET("characteristicSubGroups")
     suspend fun getIshSubCharacteristics(): List<NetworkIshSubCharacteristic>
 
-    @GET("api/_0ManufacturingProject")
+    @GET("manufacturingProjects")
     suspend fun getManufacturingProjects(): List<NetworkManufacturingProject>
 
-    @GET("api/_7Characteristic")
+    @GET("characteristics")
     suspend fun getCharacteristics(): List<NetworkCharacteristic>
 
-    @GET("api/_8Metrix")
+    @GET("metrics")
     suspend fun getMetrixes(): List<NetworkMetrix>
 
-    @GET("api/_0Key")
+    @GET("productsKeys")
     suspend fun getKeys(): List<NetworkKey>
 
-    @GET("api/_0ProductsBasis")
+    @GET("productBases")
     suspend fun getProductBases(): List<NetworkProductBase>
 
-    @GET("api/_2Product")
+    @GET("products")
     suspend fun getProducts(): List<NetworkProduct>
 
-    @GET("api/_4Component")
+    @GET("components")
     suspend fun getComponents(): List<NetworkComponent>
 
-    @GET("api/_6ComponentsInStage")
+    @GET("componentsInStage")
     suspend fun getComponentInStages(): List<NetworkComponentInStage>
 
-    @GET("api/_0VesrionsStatus")
+    @GET("versionStatuses")
     suspend fun getVersionStatuses(): List<NetworkVersionStatus>
 
-    @GET("api/_9ProductsVersion")
+    @GET("productVersions")
     suspend fun getProductVersions(): List<NetworkProductVersion>
 
-    @GET("api/_10ComponentsVersion")
+    @GET("componentVersions")
     suspend fun getComponentVersions(): List<NetworkComponentVersion>
 
-    @GET("api/_11ComponentInStageVersion")
+    @GET("componentInStageVersions")
     suspend fun getComponentInStageVersions(): List<NetworkComponentInStageVersion>
 
-    @GET("api/_98ProductTolerance")
+    @GET("productTolerances")
     suspend fun getProductTolerances(): List<NetworkProductTolerance>
 
-    @GET("api/_108ComponentTolerance")
+    @GET("componentTolerances")
     suspend fun getComponentTolerances(): List<NetworkComponentTolerance>
 
-    @GET("api/_118ComponentInStageTolerance")
+    @GET("componentInStageTolerances")
     suspend fun getComponentInStageTolerances(): List<NetworkComponentInStageTolerance>
 
-    @GET("api/_131ProductsToLine")
+    @GET("productsToLines")
     suspend fun getProductsToLines(): List<NetworkProductToLine>
 
-    @GET("api/_133ComponentsToLine")
+    @GET("componentsToLines")
     suspend fun getComponentsToLines(): List<NetworkComponentToLine>
 
-    @GET("api/_135ComponentInStagesToLine")
+    @GET("componentsInStageToLines")
     suspend fun getComponentInStagesToLines(): List<NetworkComponentInStageToLine>
 }
 
 interface QualityManagementInvestigationsService {
-    @GET("api/orderinput")
+    @GET("inputsForMeasurementRegister")
     suspend fun getInputForOrder(): List<NetworkInputForOrder>
 
-    @GET("api/_0OrdersStatus")
+    @GET("ordersStatuses")
     suspend fun getOrdersStatuses(): List<NetworkOrdersStatus>
 
-    @GET("api/_0MeasurementReason")
+    @GET("measurementReasons")
     suspend fun getMeasurementReasons(): List<NetworkReason>
 
-    @GET("api/_0OrdersType")
+    @GET("ordersTypes")
     suspend fun getOrdersTypes(): List<NetworkOrdersType>
 
-    @GET("api/_12Order")
+    @GET("orders")
     suspend fun getOrders(): List<NetworkOrder>
 
-    @POST("api/_12Order")
+    @POST("orders")
     suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder
 
-    @DELETE("api/_12Order/{id}")
+    @DELETE("orders/{id}")
     suspend fun deleteOrder(@Path("id") id: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
-    @PUT("api/_12Order/{id}")
+    @PUT("orders/{id}")
     suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<Unit>
 
-    @GET("api/_12Order/{id}")
+    @GET("orders/{id}")
     suspend fun getOrder(@Path("id") id: Int): NetworkOrder
 
-    @GET("api/_13SubOrder")
+    @GET("subOrders")
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
-    @POST("api/_13SubOrder")
+    @POST("subOrders")
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
 
-    @DELETE("api/_13SubOrder/{id}")
+    @DELETE("subOrders/{id}")
     suspend fun deleteSubOrder(@Path("id") id: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
-    @PUT("api/_13SubOrder/{id}")
+    @PUT("subOrders/{id}")
     suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<Unit>
 
-    @GET("api/_13SubOrder/{id}")
+    @GET("subOrders/{id}")
     suspend fun getSubOrder(@Path("id") id: Int): NetworkSubOrder
 
-    @GET("api/_137SubOrderTask")
+    @GET("subOrderTasks")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
-    @POST("api/_137SubOrderTask")
+    @POST("subOrderTasks")
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
 
-    @DELETE("api/_137SubOrderTask/{id}")
+    @DELETE("subOrderTasks/{id}")
     suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
-    @PUT("api/_137SubOrderTask/{id}")
+    @PUT("subOrderTasks/{id}")
     suspend fun editSubOrderTask(@Path("id") id: Int, @Body body: NetworkSubOrderTask): Response<Unit>
 
-    @GET("api/_137SubOrderTask/{id}")
+    @GET("subOrderTasks/{id}")
     suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
 
-    @GET("api/_14Sample")
+    @GET("samples")
     suspend fun getSamples(): List<NetworkSample>
 
-    @POST("api/_14Sample")
+    @POST("samples")
     suspend fun createSample(@Body networkSample: NetworkSample): NetworkSample
 
-    @DELETE("api/_14Sample/{id}")
+    @DELETE("samples/{id}")
     suspend fun deleteSample(@Path("id") id: Int): Response<Unit>
 
-    @GET("api/_0ResultsDecryption")
+    @GET("resultsDecriptions")
     suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>
 
-    @GET("api/_148Result")
+    @GET("results")
     suspend fun getResults(): List<NetworkResult>
 
-    @POST("api/_148Result")
+    @POST("results")
     suspend fun createResult(@Body networkResult: NetworkResult): NetworkResult
 
-    @POST("api/_148Result/records")
+    @POST("results/records")
     fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>
 
-    @DELETE("api/_148Result/{taskId}/{id}")
+    @DELETE("results/{taskId}/{id}")
     suspend fun deleteResults(
         @Path("taskId") taskId: Int = 0,
         @Path("id") id: Int = 0
     ): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
-    @PUT("api/_148Result/{id}")
+    @PUT("results/{id}")
     suspend fun editResult(
         @Path("id") id: Int,
         @Body body: NetworkResult
@@ -203,7 +203,7 @@ interface QualityManagementInvestigationsService {
 
 object QualityManagementNetwork {
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://restapiforqualityappv120221213121016.azurewebsites.net/")
+        .baseUrl("https://qualityappspring.azurewebsites.net/api/v1/")
         .addConverterFactory(
             MoshiConverterFactory.create(
                 Moshi.Builder()

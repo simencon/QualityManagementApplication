@@ -3,7 +3,7 @@ package com.simenko.qmapp.domain
 import androidx.compose.runtime.Stable
 
 data class DomainInputForOrder constructor(
-    var id: Int,
+    var depId: Int,
     var depAbbr: String,
     var depOrder: Int,
     var subDepId: Int,
@@ -15,7 +15,7 @@ data class DomainInputForOrder constructor(
     var lineId: Int,
     var lineAbbr: String,
     var lineOrder: Int,
-    var recordId: String,
+    var id: String,
     var itemPrefix: String,
     var itemId: Int,
     var itemVersionId: Int,

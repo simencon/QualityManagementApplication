@@ -12,6 +12,7 @@ import com.simenko.qmapp.room.implementation.getDatabase
 import com.simenko.qmapp.ui.main.setMainActivityResult
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
+import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
@@ -277,6 +278,8 @@ class NewItemViewModel @Inject constructor(
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
+            } catch (e: HttpException) {
+                Log.d(TAG, "postNewOrder: ${e.code()}")
             }
         }
     }
@@ -515,7 +518,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
         FilteringMode.ADD_ALL_FROM_META_TABLE -> {
             if ((m != null) && (m.value != null)) {
                 m.value!!.forEach { mIt ->
-                    val item = s?.value?.find { it.getRecordId() == mIt.id }
+                    val item = s?.value?.find { it.getRecordId() == mIt.depId }
                     if (d.value?.find { it.getRecordId() == item?.getRecordId() } == null) {
                         d.value?.add(item!!)
                     }
@@ -598,7 +601,7 @@ fun getEmptyOrder() = DomainOrder(
     customerId = 4,
     orderedById = 62,
     statusId = 1,
-    createdDate = "2022-01-30T15:30:00",
+    createdDate = "2022-01-30T15:30:00+02:00",
     completedDate = null
 )
 
@@ -609,7 +612,7 @@ fun getEmptySubOrder() = DomainSubOrder(
     orderedById = 0,
     completedById = null,
     statusId = 1,
-    createdDate = "2022-01-30T15:30:00",
+    createdDate = "2022-01-30T15:30:00+02:00",
     completedDate = null,
     departmentId = 0,
     subDepartmentId = 0,
@@ -625,7 +628,7 @@ fun getEmptySubOrder() = DomainSubOrder(
 fun getEmptySubOrderTask(charId: Int, subOrderId: Int = 0) = DomainSubOrderTask(
     id = 0,
     statusId = 1,
-    createdDate = "2022-01-30T15:30:00",
+    createdDate = "2022-01-30T15:30:00+02:00",
     completedDate = null,
     subOrderId = subOrderId,
     charId = charId,
