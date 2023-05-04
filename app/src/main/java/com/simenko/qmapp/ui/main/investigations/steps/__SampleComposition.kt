@@ -32,7 +32,6 @@ import com.simenko.qmapp.domain.DomainSampleComplete
 import com.simenko.qmapp.domain.DomainSampleResult
 import com.simenko.qmapp.ui.common.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
@@ -66,7 +65,7 @@ fun SampleComposition(
     ) {
         items(
             items = items,
-            key = { (it.sampleResult.id.toString() + (it.sampleResult.taskId?:0).toString()).toInt() }) { sample ->
+            key = { it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId?:0).toString() }) { sample ->
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
                 SampleCard(
                     modifier = modifier,
