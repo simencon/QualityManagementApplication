@@ -7,10 +7,12 @@ import androidx.room.*
 @Entity(
     tableName = "1_1_inputForMeasurementRegister",
     primaryKeys = [
-        "itemPrefix",
-        "itemVersionId",
+        "lineId",
         "operationId",
-        "charId"
+        "itemId",
+        "itemVersionId",
+        "charId",
+        "itemPrefix"
     ]
 )
 data class DatabaseInputForOrder constructor(
