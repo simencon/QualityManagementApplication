@@ -9,7 +9,10 @@ import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.ManufacturingDao
 import com.simenko.qmapp.utils.ListTransformer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -19,6 +22,7 @@ import javax.inject.Inject
 
 private const val TAG = "ManufacturingRepository"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ManufacturingRepository @Inject constructor(
     private val manufacturingDao: ManufacturingDao,
     private val manufacturingService: ManufacturingService
@@ -49,13 +53,40 @@ class ManufacturingRepository @Inject constructor(
             manufacturingDao.insertTeamMembersAll(
                 ListTransformer(
                     list,
-                    NetworkTeamMembers::class,
+                    NetworkTeamMember::class,
                     DatabaseTeamMember::class
                 ).generateList()
             )
             Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
+
+    suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
+        coroutineScope.produce {
+            val newRecord = manufacturingService.insertTeamMember(
+                record.toNetworkWithoutId()
+            ).body()?.toDatabase()
+
+            newRecord?.let { manufacturingDao.insertTeamMember(it) }
+            newRecord?.let { send(it.toDomainTeamMember()) }
+        }
+
+    suspend fun deleteRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
+        coroutineScope.produce {
+            val response = manufacturingService.deleteTeamMember(record.id)
+            Log.d(TAG, "deleteRecord: $response")
+            send(response)
+        }
+
+    fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
+        coroutineScope.produce {
+            val newRecord = manufacturingService
+                .updateTeamMember(record.id, record.toNetworkWithId()).body()
+                ?.toDatabase()
+
+            newRecord?.let { manufacturingDao.updateTeamMember(it) }
+            newRecord?.let { send(it.toDomainTeamMember()) }
+        }
 
     suspend fun refreshCompanies() {
         withContext(Dispatchers.IO) {

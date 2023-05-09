@@ -9,7 +9,7 @@ data class NetworkPositionLevel(
 )
 
 @JsonClass(generateAdapter = true)
-data class NetworkTeamMembers(
+data class NetworkTeamMember(
     var id: Int,
     var departmentId: Int,
     var department: String,

@@ -4,103 +4,50 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
+import androidx.lifecycle.map
+import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.domain.DomainTeamMemberComplete
+import com.simenko.qmapp.domain.changeDetails
 import com.simenko.qmapp.repository.ManufacturingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
 
 
 @JvmInline
-value class SwitchState(val number: Int)
+value class CurrentMember(val id: Int)
 
-val FirstValue = SwitchState(-1)
-val SecondValue = SwitchState(4)
+val NoCurrentMember = CurrentMember(-1)
 
 private const val TAG = "TeamViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
-    private val manufacturingRepository: ManufacturingRepository
+    private val repository: ManufacturingRepository
 ) : ViewModel() {
 
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
 
-    fun flipTheSwitch() {
-        if (latestSwitchState.value == FirstValue)
-            latestSwitchState.value = SecondValue
-        else
-            latestSwitchState.value = FirstValue
+    fun onNetworkErrorShown() {
+        isLoadingInProgress.value = false
+        isNetworkError.value = false
     }
 
-    private val latestSwitchState = MutableStateFlow<SwitchState>(FirstValue);
-
-    private val _teamFow1: MutableLiveData<List<DomainTeamMemberComplete>> =
-        MutableLiveData(mutableListOf())
-    private val _teamFow2: MutableLiveData<List<DomainTeamMemberComplete>> =
-        MutableLiveData(mutableListOf())
-
-    private val teamFlow: Flow<List<DomainTeamMemberComplete>> =
-        latestSwitchState.flatMapLatest { switchState ->
-            Log.d(TAG, "switchMap is applied")
-            when (switchState) {
-                FirstValue -> manufacturingRepository.teamComplete()
-                else -> manufacturingRepository.teamCompleteByDepartment(switchState.number)
-            }
-        }
-
-    val teamS: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
-    lateinit var teamJob: Job
-
-    fun addTeamToSnapShot() {
-        teamJob = viewModelScope.launch {
-            teamFlow.cancellable().collect() {
-                teamS.apply {
-                    clear()
-                    addAll(it)
-                }
-                this.coroutineContext.job.cancel()
-            }
-        }
-    }
-
-    fun changeTeamMembersDetailsVisibility(itemId: Int) {
-        val iterator = teamS.listIterator()
-
-        while (iterator.hasNext()) {
-            val current = iterator.next()
-            if (current.teamMember.id == itemId) {
-                iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-            } else {
-                iterator.set(current.copy(detailsVisibility = false))
-            }
-        }
-    }
-
-    fun syncTeam() {
+    fun insertRecord(record: DomainTeamMember) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
-                flipTheSwitch()
-
-                repeat(10) {
-                    delay(1000L)
-                    manufacturingRepository.refreshCompanies()
-                    manufacturingRepository.refreshDepartments()
-                    manufacturingRepository.refreshTeamMembers()
+                withContext(Dispatchers.IO) {
+                    val channel = repository.insertRecord(this, record)
+                    channel.consumeEach {
+                    }
                 }
-
                 isLoadingInProgress.value = false
-                isNetworkError.value = false
-                teamJob.start()
-
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
@@ -108,8 +55,72 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    fun onNetworkErrorShown() {
-        isLoadingInProgress.value = false
-        isNetworkError.value = false
+    fun deleteRecord(record: DomainTeamMember) = viewModelScope.launch {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = repository.deleteRecord(this, record)
+                    channel.consumeEach {
+                    }
+                }
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    fun updateRecord(record: DomainTeamMember) = viewModelScope.launch {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    val channel = repository.updateRecord(this, record)
+                    channel.consumeEach {
+                    }
+                }
+                isLoadingInProgress.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
+    }
+
+    private val _currentMember = MutableStateFlow<CurrentMember>(NoCurrentMember)
+
+    private val _teamF = repository.teamComplete()
+
+    fun changeCurrentTeamMember(id: Int) {
+        _currentMember.value = CurrentMember(id)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val teamSF: Flow<List<DomainTeamMemberComplete>> = _currentMember.flatMapLatest { currentMember ->
+        _teamF.map {
+            it.changeDetails(currentMember.id)
+        }
+    }
+
+    fun syncTeam() {
+        viewModelScope.launch {
+            try {
+                isLoadingInProgress.value = true
+                repeat(10) {
+                    delay(1000L)
+                    repository.refreshCompanies()
+                    repository.refreshDepartments()
+                    repository.refreshTeamMembers()
+                }
+
+                isLoadingInProgress.value = false
+                isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                isNetworkError.value = true
+            }
+        }
     }
 }

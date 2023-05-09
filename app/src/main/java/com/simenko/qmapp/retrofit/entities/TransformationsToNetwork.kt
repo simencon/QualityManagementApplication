@@ -67,7 +67,7 @@ fun DomainResult.toNetworkResultWithoutId() = ObjectTransformer(
     DomainResult::class, NetworkResult::class
 ).transform(this)
 
-fun DomainResult.toNetworkResultWithId() = NetworkResult(
+fun DomainResult.toNetworkWithId() = NetworkResult(
     id = id,
     sampleId = sampleId,
     metrixId = metrixId,
@@ -75,4 +75,20 @@ fun DomainResult.toNetworkResultWithId() = NetworkResult(
     isOk = isOk,
     resultDecryptionId = resultDecryptionId,
     taskId = taskId
+)
+
+fun DomainTeamMember.toNetworkWithoutId() = ObjectTransformer(
+    DomainTeamMember::class, NetworkTeamMember::class
+).transform(this)
+
+fun DomainTeamMember.toNetworkWithId() = NetworkTeamMember(
+    id = id,
+    departmentId = departmentId,
+    department = department,
+    email = email,
+    fullName = fullName,
+    jobRole = jobRole,
+    roleLevelId = roleLevelId,
+    passWord = passWord,
+    companyId = companyId
 )

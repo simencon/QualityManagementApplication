@@ -500,7 +500,7 @@ class InvestigationsRepository @Inject constructor(
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainResult) =
         coroutineScope.produce {
-            val nNetwork = record.toNetworkResultWithId()
+            val nNetwork = record.toNetworkWithId()
             investigationsService.editResult(record.id, nNetwork)
             investigationsDao.updateResult(record.toDatabaseResult())
             send(record)

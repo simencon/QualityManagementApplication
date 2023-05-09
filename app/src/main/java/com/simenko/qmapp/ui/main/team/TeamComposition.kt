@@ -37,31 +37,21 @@ private const val TAG = "TeamComposition"
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TeamMembersLiveData(
+fun TeamComposition(
     modifier: Modifier = Modifier,
     appModel: TeamViewModel
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
 
     val context = LocalContext.current
-    appModel.addTeamToSnapShot()
 
     val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by appModel.isNetworkError.observeAsState()
 
-    /*val coroutineScope = rememberCoroutineScope()
-
-    SideEffect {
-        coroutineScope.launch {
-            Log.d(TAG, "TeamMembersLiveData: SideEffect effected")
-            appModel.teamFlow.collect() {}
-        }
-    }*/
-
-    val items = appModel.teamS
+    val items by appModel.teamSF.collectAsState(initial = listOf())
 
     val onClickDetailsLambda: (Int) -> Unit = {
-        appModel.changeTeamMembersDetailsVisibility(it)
+        appModel.changeCurrentTeamMember(it)
     }
     val listState = rememberLazyListState()
 
@@ -116,13 +106,14 @@ fun TeamMemberCard(
 
         ) {
         TeamMember(
+            id = teamMember.teamMember.id,
             fullName = teamMember.teamMember.fullName,
             email = teamMember.teamMember.email,
             department = teamMember.department.depName ?: "-",
             jobRole = teamMember.teamMember.jobRole,
             detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {
-                onClickDetails(teamMember.teamMember.id)
+                onClickDetails(it)
             }
         )
     }
@@ -133,12 +124,13 @@ private const val columnSecondWeight = 0.75f
 
 @Composable
 fun TeamMember(
+    id: Int,
     fullName: String,
     email: String?,
     department: String,
     jobRole: String,
     detailsVisibility: Boolean,
-    onClickDetails: () -> Unit,
+    onClickDetails: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -169,7 +161,7 @@ fun TeamMember(
                     .padding(start = 16.dp)
             )
 
-            IconButton(onClick = onClickDetails) {
+            IconButton(onClick = { if (detailsVisibility) onClickDetails(-1) else onClickDetails(id) }) {
                 Icon(
                     imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (detailsVisibility) {

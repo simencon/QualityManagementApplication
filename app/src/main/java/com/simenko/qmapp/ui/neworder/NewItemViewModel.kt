@@ -269,8 +269,6 @@ class NewItemViewModel @Inject constructor(
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
-            } catch (e: HttpException) {
-                Log.d(TAG, "postNewOrder: ${e.code()}")
             }
         }
     }

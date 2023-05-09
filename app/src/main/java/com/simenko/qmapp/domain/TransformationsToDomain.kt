@@ -334,3 +334,14 @@ fun DatabaseCharacteristicComplete.toDomainCharacteristicComplete(): DomainChara
         characteristicSubGroup = characteristicSubGroup.toDomainCharacteristicSubGroup()
     )
 }
+
+fun List<DomainTeamMemberComplete>.changeDetails(id: Int): List<DomainTeamMemberComplete> {
+    return map {
+        if(id == it.teamMember.id) {
+            it.detailsVisibility = !it.detailsVisibility
+        } else {
+            it.detailsVisibility= false
+        }
+        it
+    }
+}
