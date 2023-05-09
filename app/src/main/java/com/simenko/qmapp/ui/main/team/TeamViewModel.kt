@@ -3,7 +3,7 @@ package com.simenko.qmapp.ui.main.team
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.domain.DomainTeamMemberComplete
-import com.simenko.qmapp.domain.changeDetails
+import com.simenko.qmapp.domain.changeVisibility
 import com.simenko.qmapp.repository.ManufacturingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -13,9 +13,12 @@ import java.io.IOException
 import javax.inject.Inject
 
 @JvmInline
-value class CurrentRecord(val id: Int)
+value class SelectedRecord(val num: Int)
+val NoSelectedRecord = SelectedRecord(-1)
 
-val NoCurrentRecord = CurrentRecord(-1)
+@JvmInline
+value class SelectedString(val str: String)
+val NoSelectedString = SelectedString("0")
 
 private const val TAG = "TeamViewModel"
 
@@ -84,18 +87,18 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _currentMember = MutableStateFlow<CurrentRecord>(NoCurrentRecord)
+    private val _currentMember = MutableStateFlow<SelectedRecord>(NoSelectedRecord)
 
     private val _teamF = repository.teamComplete()
 
     fun changeCurrentTeamMember(id: Int) {
-        _currentMember.value = CurrentRecord(id)
+        _currentMember.value = SelectedRecord(id)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val teamSF: Flow<List<DomainTeamMemberComplete>> = _currentMember.flatMapLatest { currentMember ->
         _teamF.map {
-            it.changeDetails(currentMember.id)
+            it.changeVisibility(currentMember.num)
         }
     }
 

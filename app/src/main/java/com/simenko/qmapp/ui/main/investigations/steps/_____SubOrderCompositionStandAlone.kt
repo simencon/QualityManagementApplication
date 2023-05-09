@@ -33,14 +33,9 @@ fun SubOrdersStandAlone(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
-//    val observeOrders by appModel.orders.observeAsState() //have to start to observe here for further work with completeOrders while saving new subOrder status.
-//    val observeSubOrders by appModel.completeSubOrders.observeAsState()
-    val showCurrentStatus by appModel.showWithStatus.observeAsState()
-    val showOrderNumber by appModel.showOrderNumber.observeAsState()
-
     val items = appModel.subOrders
-    if (showCurrentStatus != null && showOrderNumber != null)
-        appModel.addSubOrdersToSnapShot(showCurrentStatus!!, showOrderNumber!!)
+
+    appModel.addSubOrdersToSnapShot(-1, "0")
 
     val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
         {

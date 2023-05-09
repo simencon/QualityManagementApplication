@@ -586,7 +586,7 @@ class InvestigationsRepository @Inject constructor(
             ).generateList()
         }
 
-    private var currentOrder = 0
+    private var currentOrder = -1
     fun setCurrentOrder(id: Int) {
         currentOrder = id
     }
@@ -602,7 +602,7 @@ class InvestigationsRepository @Inject constructor(
         }
             .flowOn(Dispatchers.IO).conflate()
 
-    private var currentSubOrder = 0
+    private var currentSubOrder = -1
     fun setCurrentSubOrder(id: Int) {
         currentSubOrder = id
     }
@@ -618,7 +618,7 @@ class InvestigationsRepository @Inject constructor(
         }
             .flowOn(Dispatchers.IO).conflate()
 
-    private var currentTask = 0
+    private var currentTask = -1
     fun setCurrentTask(id: Int) {
         currentTask = id
     }
@@ -634,7 +634,7 @@ class InvestigationsRepository @Inject constructor(
         }
             .flowOn(Dispatchers.IO).conflate()
 
-    private var currentSample = 0
+    private var currentSample = -1
     fun setCurrentSample(id: Int) {
         currentSample = id
     }

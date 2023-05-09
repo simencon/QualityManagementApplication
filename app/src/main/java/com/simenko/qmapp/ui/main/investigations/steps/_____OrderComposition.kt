@@ -51,26 +51,26 @@ fun Orders(
 ) {
     val context = LocalContext.current
 
-    val showCurrentStatus by appModel.showWithStatus.observeAsState()
-    val showOrderNumber by appModel.showOrderNumber.observeAsState()
+//    val showCurrentStatus by appModel.showWithStatus.observeAsState()
+//    val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
-//    val items by appModel.ordersSF.collectAsState(initial = listOf())
-    val items = appModel.orders
+    val items by appModel.ordersSF.collectAsState(initial = listOf())
+//    val items = appModel.orders
 
-    if (showCurrentStatus != null && showOrderNumber != null)
-        appModel.addOrdersToSnapShot(showCurrentStatus!!, showOrderNumber!!)
+//    if (showCurrentStatus != null && showOrderNumber != null)
+//        appModel.addOrdersToSnapShot(showCurrentStatus!!, showOrderNumber!!)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-//            appModel.setOrderDetailsVisibility(it)
-            appModel.changeOrdersDetailsVisibility(it)
+            appModel.setOrderDetailsVisibility(it)
+//            appModel.changeOrdersDetailsVisibility(it)
         }
     }
 
     val onChangeExpandStateLambda = remember<(Int) -> Unit> {
         {
-//            appModel.setOrderActionsVisibility(it)
-            appModel.changeCompleteOrdersExpandState(it)
+            appModel.setOrderActionsVisibility(it)
+//            appModel.changeCompleteOrdersExpandState(it)
         }
     }
 
@@ -104,14 +104,12 @@ fun Orders(
         SideEffect {
             coroutineScope.launch {
                 listState.scrollToSelectedItem(
-//                    list = observeOrders!!.map { it.order.id }.toList(),
                     list = items.map { it.order.id }.toList(),
                     selectedId = createdRecord!!.orderId
                 )
 
                 delay(200)
 
-//                val order = observeOrders!!.find {
                 val order = items.find {
                     it.order.id == createdRecord.orderId
                 }
@@ -267,7 +265,6 @@ fun OrderCard(
                 createdDate = order.order.createdDate.toString(),
                 completedDate = order.order.completedDate,
 
-//                onClickDetails = { onClickDetails(it) }
                 onClickDetails = { onClickDetails(order.order.id) }
             )
         }
@@ -294,8 +291,6 @@ fun Order(
     placerFullName: String = "",
     createdDate: String = "2022-12-15T22:24:43.666",
     completedDate: String? = "2022-12-15T22:24:43.666",
-
-//    onClickDetails: (Int) -> Unit = {}
     onClickDetails: () -> Unit = {}
 ) {
     Column(
@@ -491,7 +486,6 @@ fun Order(
                 }
             }
             IconButton(
-//                onClick = { if (detailsVisibility) onClickDetails(-1) else onClickDetails(orderId) },
                 onClick = onClickDetails,
                 modifier = Modifier
                     .weight(weight = 0.10f)

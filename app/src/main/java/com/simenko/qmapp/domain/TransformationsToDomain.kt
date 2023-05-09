@@ -1,6 +1,5 @@
 package com.simenko.qmapp.domain
 
-import android.util.Log
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.retrofit.entities.NetworkSubOrder
 import com.simenko.qmapp.retrofit.entities.NetworkSubOrderTask
@@ -336,7 +335,7 @@ fun DatabaseCharacteristicComplete.toDomainCharacteristicComplete(): DomainChara
     )
 }
 
-fun List<DomainTeamMemberComplete>.changeDetails(id: Int): List<DomainTeamMemberComplete> {
+fun List<DomainTeamMemberComplete>.changeVisibility(id: Int): List<DomainTeamMemberComplete> {
     return map {
         if (id == it.teamMember.id) {
             it.detailsVisibility = !it.detailsVisibility
@@ -348,25 +347,28 @@ fun List<DomainTeamMemberComplete>.changeDetails(id: Int): List<DomainTeamMember
 }
 
 private const val TAG = "TransformationsToDomain"
-fun List<DomainOrderComplete>.changeDetails(
+fun List<DomainOrderComplete>.changeVisibility(
     detailsId: Int,
     actionsId: Int
 ): List<DomainOrderComplete> {
     return map {
-        Log.d(TAG, "changeDetails: $detailsId")
-        Log.d(TAG, "changeActions: $actionsId")
 
-            if (detailsId == it.order.id) {
-                it.detailsVisibility = !it.detailsVisibility
-            } else {
-                it.detailsVisibility = false
-            }
+        it.detailsVisibility = detailsId == it.order.id
+        it.isExpanded = actionsId == it.order.id
 
-            if (actionsId == it.order.id) {
-                it.isExpanded = !it.isExpanded
-            } else {
-                it.isExpanded = false
-            }
         it
+    }
+}
+
+fun List<DomainOrderComplete>.filterByStatusAndNumber(
+    statusId: Int,
+    orderNumber: String
+): List<DomainOrderComplete> {
+    return filter {
+        (it.order.statusId == statusId || statusId == -1)
+                &&
+                (it.order.orderNumber.toString().contains(orderNumber)
+                        ||
+                        (orderNumber == "0"))
     }
 }

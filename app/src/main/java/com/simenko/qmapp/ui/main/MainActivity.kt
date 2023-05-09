@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         appModel = ViewModelProvider(this)[QualityManagementViewModel::class.java]
         investigationsModel = ViewModelProvider(this)[InvestigationsViewModel::class.java]
 
-        investigationsModel.showOrderNumber.observe(this) {}
         appModel.currentTitle.observe(this) {}
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -146,7 +145,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
-                investigationsModel.showOrderNumber.value = newText ?: "0"
+                investigationsModel.setCurrentOrderToShow(newText ?: "0")
                 return true
             }
 
