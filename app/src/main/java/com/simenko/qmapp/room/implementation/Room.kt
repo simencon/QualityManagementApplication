@@ -7,7 +7,7 @@ import com.simenko.qmapp.room.entities.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface QualityManagementManufacturingDao {
+interface ManufacturingDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertPositionLevelsAll(teamMember: List<DatabasePositionLevel>)
@@ -87,7 +87,7 @@ interface QualityManagementManufacturingDao {
 }
 
 @Dao
-interface QualityManagementProductsDao {
+interface ProductsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertElementIshModelsAll(list: List<DatabaseElementIshModel>)
@@ -235,7 +235,7 @@ interface QualityManagementProductsDao {
 }
 
 @Dao
-interface QualityManagementInvestigationsDao {
+interface InvestigationsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertInputForOrderAll(company: List<DatabaseInputForOrder>)
@@ -467,22 +467,7 @@ interface QualityManagementInvestigationsDao {
     exportSchema = true
 )
 abstract class QualityManagementDB : RoomDatabase() {
-    abstract val qualityManagementManufacturingDao: QualityManagementManufacturingDao
-    abstract val qualityManagementProductsDao: QualityManagementProductsDao
-    abstract val qualityManagementInvestigationsDao: QualityManagementInvestigationsDao
-}
-
-private lateinit var INSTANCE: QualityManagementDB
-
-fun getDatabase(context: Context): QualityManagementDB {
-    synchronized(QualityManagementDB::class.java) {
-        if (!::INSTANCE.isInitialized) {
-            INSTANCE = Room.databaseBuilder(
-                context.applicationContext,
-                QualityManagementDB::class.java,
-                "QualityManagementDB"
-            ).build()
-        }
-    }
-    return INSTANCE
+    abstract val manufacturingDao: ManufacturingDao
+    abstract val productsDao: ProductsDao
+    abstract val investigationsDao: InvestigationsDao
 }

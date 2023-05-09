@@ -6,36 +6,28 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
-import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
-import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.room.implementation.getDatabase
+import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.cancellable
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapLatest
 import java.io.IOException
 import javax.inject.Inject
 
 private const val TAG = "InvestigationsViewModel"
 
+@HiltViewModel
 class InvestigationsViewModel @Inject constructor(
-    context: Context
+    private val manufacturingRepository: ManufacturingRepository,
+    private val productsRepository: ProductsRepository,
+    private val investigationsRepository: InvestigationsRepository
 ) : ViewModel() {
-    private val roomDatabase = getDatabase(context)
-
-    private val manufacturingRepository =
-        QualityManagementManufacturingRepository(roomDatabase)
-    private val productsRepository =
-        QualityManagementProductsRepository(roomDatabase)
-    private val investigationsRepository =
-        QualityManagementInvestigationsRepository(roomDatabase)
 
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)

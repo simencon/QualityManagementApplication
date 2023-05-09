@@ -1,15 +1,13 @@
 package com.simenko.qmapp.ui.neworder
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.*
-import com.simenko.qmapp.di.neworder.NewItemScope
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
-import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
-import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.room.implementation.getDatabase
+import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.setMainActivityResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import retrofit2.HttpException
@@ -18,19 +16,12 @@ import javax.inject.Inject
 
 private const val TAG = "NewItemViewModel"
 
-@NewItemScope
+@HiltViewModel
 class NewItemViewModel @Inject constructor(
-    context: Context
+    private val manufacturingRepository: ManufacturingRepository,
+    private val productsRepository: ProductsRepository,
+    private val investigationsRepository: InvestigationsRepository
 ) : ViewModel() {
-
-    private val roomDatabase = getDatabase(context)
-
-    private val qualityManagementManufacturingRepository =
-        QualityManagementManufacturingRepository(roomDatabase)
-    private val qualityManagementProductsRepository =
-        QualityManagementProductsRepository(roomDatabase)
-    private val investigationsRepository =
-        QualityManagementInvestigationsRepository(roomDatabase)
 
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
@@ -75,7 +66,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(investigationReasonsMutable.value, it) }
         }
 
-    val customers = qualityManagementManufacturingRepository.departments
+    val customers = manufacturingRepository.departments
     val customersMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
     val customersMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
@@ -83,7 +74,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(customersMutable.value, it) }
         }
 
-    val teamMembers = qualityManagementManufacturingRepository.teamMembers
+    val teamMembers = manufacturingRepository.teamMembers
     val orderPlacersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
     val teamMembersMediator: MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>>().apply {
@@ -93,7 +84,7 @@ class NewItemViewModel @Inject constructor(
 
     val inputForOrder = investigationsRepository.inputForOrder
 
-    val departments = qualityManagementManufacturingRepository.departments
+    val departments = manufacturingRepository.departments
     val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
     val departmentsMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
@@ -101,7 +92,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(departmentsMutable.value, it) }
         }
 
-    val subDepartments = qualityManagementManufacturingRepository.subDepartments
+    val subDepartments = manufacturingRepository.subDepartments
     val subDepartmentsMutable = MutableLiveData<MutableList<DomainSubDepartment>>(mutableListOf())
     val subDepartmentsMediator: MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>>().apply {
@@ -116,7 +107,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(subOrderPlacersMutable.value, it) }
         }
 
-    val channels = qualityManagementManufacturingRepository.channels
+    val channels = manufacturingRepository.channels
     val channelsMutable = MutableLiveData<MutableList<DomainManufacturingChannel>>(mutableListOf())
     val channelsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingChannel>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainManufacturingChannel>?, Boolean?>>().apply {
@@ -124,7 +115,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(channelsMutable.value, it) }
         }
 
-    val lines = qualityManagementManufacturingRepository.lines
+    val lines = manufacturingRepository.lines
     val linesMutable = MutableLiveData<MutableList<DomainManufacturingLine>>(mutableListOf())
     val linesMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>>().apply {
@@ -132,7 +123,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
         }
 
-    val itemVersionsComplete = qualityManagementProductsRepository.itemVersionsComplete
+    val itemVersionsComplete = productsRepository.itemVersionsComplete
 
     val itemVersionsCompleteMutable =
         MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
@@ -142,7 +133,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(itemVersionsCompleteMutable.value, it) }
         }
 
-    val operations = qualityManagementManufacturingRepository.operations
+    val operations = manufacturingRepository.operations
     val operationsMutable =
         MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
     val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
@@ -151,9 +142,9 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(operationsMutable.value, it) }
         }
 
-    val operationsFlows = qualityManagementManufacturingRepository.operationsFlows
+    val operationsFlows = manufacturingRepository.operationsFlows
 
-    val characteristics = qualityManagementProductsRepository.characteristics
+    val characteristics = productsRepository.characteristics
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
     val characteristicsMediator: MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>>().apply {
@@ -188,13 +179,13 @@ class NewItemViewModel @Inject constructor(
                 investigationsRepository.refreshInvestigationTypes()
                 investigationsRepository.refreshInvestigationReasons()
                 investigationsRepository.refreshInputForOrder()
-                qualityManagementManufacturingRepository.refreshDepartments()
-                qualityManagementManufacturingRepository.refreshTeamMembers()
+                manufacturingRepository.refreshDepartments()
+                manufacturingRepository.refreshTeamMembers()
 
-                qualityManagementProductsRepository.refreshKeys()
-                qualityManagementProductsRepository.refreshComponents()
-                qualityManagementProductsRepository.refreshVersionStatuses()
-                qualityManagementProductsRepository.refreshComponentVersions()
+                productsRepository.refreshKeys()
+                productsRepository.refreshComponents()
+                productsRepository.refreshVersionStatuses()
+                productsRepository.refreshComponentVersions()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

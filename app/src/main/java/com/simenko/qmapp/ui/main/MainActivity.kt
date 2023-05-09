@@ -23,8 +23,7 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
-import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
@@ -52,6 +51,7 @@ fun createMainActivityIntent(
 }
 
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var appModel: QualityManagementViewModel
@@ -60,21 +60,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
 
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-
     var requestCode: Int = -1
     private var createdRecord = CreatedRecord(-1,-1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        (application as BaseApplication).appComponent.mainComponent().create().inject(this)
-        appModel = ViewModelProvider(this, providerFactory)[QualityManagementViewModel::class.java]
-        investigationsModel = ViewModelProvider(this, providerFactory)[InvestigationsViewModel::class.java]
+        super.onCreate(savedInstanceState)
+
+        appModel = ViewModelProvider(this)[QualityManagementViewModel::class.java]
+        investigationsModel = ViewModelProvider(this)[InvestigationsViewModel::class.java]
 
         investigationsModel.showOrderNumber.observe(this) {}
         appModel.currentTitle.observe(this) {}
-
-        super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

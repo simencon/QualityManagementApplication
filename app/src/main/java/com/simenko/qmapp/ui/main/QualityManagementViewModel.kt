@@ -1,34 +1,26 @@
 package com.simenko.qmapp.ui.main
 
-import android.content.Context
 import androidx.lifecycle.*
-import com.simenko.qmapp.di.main.MainScope
-import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
-import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
-import com.simenko.qmapp.repository.QualityManagementProductsRepository
-import com.simenko.qmapp.room.implementation.getDatabase
+import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.repository.ProductsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.io.IOException
 import javax.inject.Inject
 
 private const val TAG = "QualityManagementViewMo"
 
-@MainScope
+@HiltViewModel
 class QualityManagementViewModel @Inject constructor(
-    context: Context
+    private val manufacturingRepository: ManufacturingRepository,
+    private val productsRepository: ProductsRepository,
+    private val investigationsRepository: InvestigationsRepository
 ) : ViewModel() {
     /**
      * Gets data from Repositories - which is live data with list
      */
 
-    private val roomDatabase = getDatabase(context)
-
-    private val manufacturingRepository =
-        QualityManagementManufacturingRepository(roomDatabase)
-    private val productsRepository =
-        QualityManagementProductsRepository(roomDatabase)
-    private val investigationsRepository =
-        QualityManagementInvestigationsRepository(roomDatabase)
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
 

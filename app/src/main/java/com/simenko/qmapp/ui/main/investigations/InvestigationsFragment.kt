@@ -11,18 +11,13 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayout
-import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.utils.StringUtils
-import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
-import javax.inject.Inject
 
 private const val TAG = "InvestigationsFragment"
 

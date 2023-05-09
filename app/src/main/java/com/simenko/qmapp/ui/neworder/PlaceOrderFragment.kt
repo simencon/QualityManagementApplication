@@ -22,7 +22,7 @@ import com.simenko.qmapp.domain.DomainInputForOrder
 import com.simenko.qmapp.domain.DomainReason
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.main.QualityManagementViewModel
-import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -30,6 +30,8 @@ var listDomainInputForOrder = arrayListOf<DomainInputForOrder>()
 var listDomainMeasurementReasons = arrayListOf<DomainReason>()
 private const val TAG = "OrderFragment"
 
+
+@AndroidEntryPoint
 class PlaceOrderFragment : Fragment() {
 
     /**
@@ -37,13 +39,8 @@ class PlaceOrderFragment : Fragment() {
      * until the moment the view is created
      */
 //    Custom way to obtain view model instance -----------------------------------
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-
     private val viewModel: QualityManagementViewModel by lazy {
-        ViewModelProvider(
-            this, providerFactory
-        )[QualityManagementViewModel::class.java]
+        ViewModelProvider(this)[QualityManagementViewModel::class.java]
     }
 //    Simple way to obtain view model instance-----------------------------------
 //    private val viewModel: QualityManagementViewModel by viewModels()
@@ -52,8 +49,6 @@ class PlaceOrderFragment : Fragment() {
     private lateinit var dialog: Dialog
 
     override fun onCreateView(p0: LayoutInflater, p1: ViewGroup?, p2: Bundle?): View? {
-        (context?.applicationContext as BaseApplication).appComponent.mainComponent().create().inject(this)
-
         binding = DataBindingUtil.inflate(p0, R.layout.fragment___new_order, p1, false)
                 as FragmentNewOrderBinding
 

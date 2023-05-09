@@ -1,13 +1,12 @@
 package com.simenko.qmapp.ui.main.team
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.DomainTeamMemberComplete
-import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
-import com.simenko.qmapp.room.implementation.getDatabase
+import com.simenko.qmapp.repository.ManufacturingRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,13 +25,10 @@ val SecondValue = SwitchState(4)
 private const val TAG = "TeamViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
 class TeamViewModel @Inject constructor(
-    context: Context
+    private val manufacturingRepository: ManufacturingRepository
 ) : ViewModel() {
-    private val roomDatabase = getDatabase(context)
-
-    private val manufacturingRepository =
-        QualityManagementManufacturingRepository(roomDatabase)
 
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)

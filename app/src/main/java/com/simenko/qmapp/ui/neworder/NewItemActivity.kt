@@ -29,7 +29,7 @@ import com.simenko.qmapp.ui.neworder.assemblers.disassembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
-import com.simenko.qmapp.viewmodels.ViewModelProviderFactory
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject
 
@@ -54,7 +54,14 @@ fun launchNewItemActivityForResult(
     orderId: Int = 0,
     subOrderId: Int = 0
 ) {
-    activity.startActivityForResult (createNewItemActivityIntent(activity, actionType, orderId, subOrderId), actionType)
+    activity.startActivityForResult(
+        createNewItemActivityIntent(
+            activity,
+            actionType,
+            orderId,
+            subOrderId
+        ), actionType
+    )
 }
 
 fun createNewItemActivityIntent(
@@ -70,6 +77,7 @@ fun createNewItemActivityIntent(
     return intent
 }
 
+@AndroidEntryPoint
 class NewItemActivity : ComponentActivity() {
 
     lateinit var actionTypeEnum: ActionType
@@ -78,16 +86,12 @@ class NewItemActivity : ComponentActivity() {
 
     lateinit var viewModel: NewItemViewModel
 
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-
-        (application as BaseApplication).appComponent.newItemComponent().create().inject(this)
-        viewModel = ViewModelProvider(this, providerFactory)[NewItemViewModel::class.java]
-
         super.onCreate(savedInstanceState)
+
+        viewModel = ViewModelProvider(this)[NewItemViewModel::class.java]
+
         actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, -1)]
 
         orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: 0
@@ -147,7 +151,10 @@ class NewItemActivity : ComponentActivity() {
                                             )
                                         }
                                         ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
-                                            Log.d(TAG, "onCreate: ${viewModel.currentSubOrder.value?.order?.reasonId}")
+                                            Log.d(
+                                                TAG,
+                                                "onCreate: ${viewModel.currentSubOrder.value?.order?.reasonId}"
+                                            )
                                             viewModel.postNewOrderWithSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
