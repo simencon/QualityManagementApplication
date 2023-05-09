@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -12,11 +11,13 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.ui.main.team.CurrentRecord
+import com.simenko.qmapp.ui.main.team.NoCurrentRecord
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
 
@@ -26,21 +27,20 @@ private const val TAG = "InvestigationsViewModel"
 class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val investigationsRepository: InvestigationsRepository
+    private val repository: InvestigationsRepository
 ) : ViewModel() {
 
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
+    fun onNetworkErrorShown() {
+        isLoadingInProgress.value = false
+        isNetworkError.value = false
+    }
 
     var showAllInvestigations = MutableLiveData(true)
 
     var showWithStatus = MutableLiveData<Int>(0)
     var showOrderNumber = MutableLiveData<String>("0")
-
-    fun onNetworkErrorShown() {
-        isLoadingInProgress.value = false
-        isNetworkError.value = false
-    }
 
     fun setCurrentStatusToShow(status: String) {
         when (status) {
@@ -72,7 +72,7 @@ class InvestigationsViewModel @Inject constructor(
     val investigationStatuses: SnapshotStateList<DomainOrdersStatus> = mutableStateListOf()
     fun addStatusesToSnapShot() {
         viewModelScope.launch {
-            investigationsRepository.investigationStatuses().collect() { it ->
+            repository.investigationStatuses().collect() { it ->
                 investigationStatuses.apply {
                     this.clear()
                     this.addAll(it)
@@ -166,12 +166,33 @@ class InvestigationsViewModel @Inject constructor(
     val currentOrder = MutableLiveData(0)
     val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
 
+    private val _currentOrderDetails = MutableStateFlow<CurrentRecord>(NoCurrentRecord)
+    private val _currentOrderActions = MutableStateFlow<CurrentRecord>(NoCurrentRecord)
+
+    private val _orderF = repository.completeOrders()
+
+    fun setOrderDetailsVisibility(id: Int) {
+        _currentOrderDetails.value = CurrentRecord(id)
+    }
+
+    fun setOrderActionsVisibility(id: Int) {
+        _currentOrderActions.value = CurrentRecord(id)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val ordersSF: Flow<List<DomainOrderComplete>> =
+        _currentOrderDetails.flatMapLatest { details ->
+            _currentOrderActions.flatMapLatest { actions ->
+                _orderF.map { it.changeDetails(details.id, actions.id) }
+            }
+        }
+
     fun addOrdersToSnapShot(
         currentStatus: Int = 0,
         lookUpNumber: String = ""
     ) {
         viewModelScope.launch {
-            investigationsRepository.completeOrders().cancellable().collect() { it ->
+            repository.completeOrders().cancellable().collect() { it ->
                 Log.d(TAG, "addOrdersToSnapShot: list of Investigations are updated!")
                 orders.apply {
                     this.clear()
@@ -184,7 +205,6 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
             }
-            this.coroutineContext.job.cancel()
         }
     }
 
@@ -209,7 +229,7 @@ class InvestigationsViewModel @Inject constructor(
                 send(currentItem)
             }
             channel.consumeEach {
-                investigationsRepository.setCurrentOrder(it)
+                repository.setCurrentOrder(it)
                 currentOrder.value = it
             }
         }
@@ -243,7 +263,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.deleteOrder(orderId)
+                repository.deleteOrder(orderId)
                 syncOrders()
 
                 isLoadingInProgress.value = false
@@ -260,11 +280,11 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshOrders()
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
+                repository.refreshOrders()
+                repository.refreshSubOrders()
+                repository.refreshSubOrderTasks()
+                repository.refreshSamples()
+                repository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -279,7 +299,7 @@ class InvestigationsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.getRecord(
+                    val channel = repository.getRecord(
                         this,
                         order
                     )
@@ -301,7 +321,7 @@ class InvestigationsViewModel @Inject constructor(
         lookUpNumber: String = ""
     ) {
         viewModelScope.launch {
-            investigationsRepository.completeSubOrders().collect() { it ->
+            repository.completeSubOrders().collect() { it ->
                 subOrders.apply {
                     this.clear()
                     it.forEach { itF ->
@@ -337,7 +357,7 @@ class InvestigationsViewModel @Inject constructor(
                 send(currentItem)
             }
             channel.consumeEach {
-                investigationsRepository.setCurrentSubOrder(it)
+                repository.setCurrentSubOrder(it)
                 currentSubOrder.value = it
             }
         }
@@ -369,7 +389,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.deleteSubOrder(subOrder.subOrder)
+                repository.deleteSubOrder(subOrder.subOrder)
                 syncSubOrders()
 
                 isLoadingInProgress.value = false
@@ -386,10 +406,10 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
+                repository.refreshSubOrders()
+                repository.refreshSubOrderTasks()
+                repository.refreshSamples()
+                repository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -405,7 +425,7 @@ class InvestigationsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.getRecord(
+                    val channel = repository.getRecord(
                         this,
                         subOrder
                     )
@@ -424,7 +444,7 @@ class InvestigationsViewModel @Inject constructor(
 
     fun addTasksToSnapShot() {
         viewModelScope.launch {
-            investigationsRepository.completeSubOrderTasks().collect() { it ->
+            repository.completeSubOrderTasks().collect() { it ->
                 tasks.apply {
                     this.clear()
                     addAll(it)
@@ -454,7 +474,7 @@ class InvestigationsViewModel @Inject constructor(
                 send(currentItem)
             }
             channel.consumeEach {
-                investigationsRepository.setCurrentTask(it)
+                repository.setCurrentTask(it)
                 currentSubOrderTask.value = it
             }
         }
@@ -485,7 +505,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.deleteSubOrderTask(task.subOrderTask)
+                repository.deleteSubOrderTask(task.subOrderTask)
                 syncTasks()
 
                 isLoadingInProgress.value = false
@@ -502,8 +522,8 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshResults()
+                repository.refreshSubOrderTasks()
+                repository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -519,7 +539,7 @@ class InvestigationsViewModel @Inject constructor(
 
     fun addSamplesToSnapShot() {
         viewModelScope.launch {
-            investigationsRepository.completeSamples().collect() { it ->
+            repository.completeSamples().collect() { it ->
                 samples.apply {
                     this.clear()
                     addAll(it)
@@ -549,7 +569,7 @@ class InvestigationsViewModel @Inject constructor(
                 send(currentItem)
             }
             channel.consumeEach {
-                investigationsRepository.setCurrentSample(it)
+                repository.setCurrentSample(it)
                 currentSample.value = it
             }
         }
@@ -562,7 +582,7 @@ class InvestigationsViewModel @Inject constructor(
 
     fun addResultsToSnapShot() {
         viewModelScope.launch {
-            investigationsRepository.completeResults().collect() { it ->
+            repository.completeResults().collect() { it ->
                 results.apply {
                     this.clear()
                     addAll(it)
@@ -592,7 +612,7 @@ class InvestigationsViewModel @Inject constructor(
                 send(currentItem)
             }
             channel.consumeEach {
-                investigationsRepository.setCurrentResult(it)
+                repository.setCurrentResult(it)
                 currentResult.value = it
             }
         }
@@ -603,7 +623,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.deleteResults(charId = task.id)
+                repository.deleteResults(charId = task.id)
                 syncResults()
 
                 isLoadingInProgress.value = false
@@ -620,7 +640,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshResults()
+                repository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -700,7 +720,7 @@ class InvestigationsViewModel @Inject constructor(
          * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
          * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
          * */
-        val channel1 = investigationsRepository.getRecord(
+        val channel1 = repository.getRecord(
             coroutineScope,
             subOrderTask
         )
@@ -753,7 +773,7 @@ class InvestigationsViewModel @Inject constructor(
                         }
 
                     listOfResults.forEach { dResult ->
-                        val channel3 = investigationsRepository.getCreatedRecord(
+                        val channel3 = repository.getCreatedRecord(
                             coroutineScope,
                             dResult
                         )
@@ -779,7 +799,7 @@ class InvestigationsViewModel @Inject constructor(
             }
         }
 
-        val channel2 = investigationsRepository.updateRecord(
+        val channel2 = repository.updateRecord(
             coroutineScope,
             subOrderTask
         )
@@ -792,7 +812,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.updateRecord(
+                    val channel = repository.updateRecord(
                         this,
                         result
                     )
@@ -844,16 +864,16 @@ class InvestigationsViewModel @Inject constructor(
                 productsRepository.refreshComponentsToLines()
                 productsRepository.refreshComponentInStagesToLines()
 
-                investigationsRepository.refreshInputForOrder()
-                investigationsRepository.refreshOrdersStatuses()
-                investigationsRepository.refreshInvestigationReasons()
-                investigationsRepository.refreshInvestigationTypes()
-                investigationsRepository.refreshOrders()
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResultsDecryptions()
-                investigationsRepository.refreshResults()
+                repository.refreshInputForOrder()
+                repository.refreshOrdersStatuses()
+                repository.refreshInvestigationReasons()
+                repository.refreshInvestigationTypes()
+                repository.refreshOrders()
+                repository.refreshSubOrders()
+                repository.refreshSubOrderTasks()
+                repository.refreshSamples()
+                repository.refreshResultsDecryptions()
+                repository.refreshResults()
                 isLoadingInProgress.value = false
 
             } catch (networkError: IOException) {

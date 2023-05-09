@@ -54,18 +54,22 @@ fun Orders(
     val showCurrentStatus by appModel.showWithStatus.observeAsState()
     val showOrderNumber by appModel.showOrderNumber.observeAsState()
 
+//    val items by appModel.ordersSF.collectAsState(initial = listOf())
     val items = appModel.orders
+
     if (showCurrentStatus != null && showOrderNumber != null)
         appModel.addOrdersToSnapShot(showCurrentStatus!!, showOrderNumber!!)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
+//            appModel.setOrderDetailsVisibility(it)
             appModel.changeOrdersDetailsVisibility(it)
         }
     }
 
     val onChangeExpandStateLambda = remember<(Int) -> Unit> {
         {
+//            appModel.setOrderActionsVisibility(it)
             appModel.changeCompleteOrdersExpandState(it)
         }
     }
@@ -263,6 +267,7 @@ fun OrderCard(
                 createdDate = order.order.createdDate.toString(),
                 completedDate = order.order.completedDate,
 
+//                onClickDetails = { onClickDetails(it) }
                 onClickDetails = { onClickDetails(order.order.id) }
             )
         }
@@ -290,6 +295,7 @@ fun Order(
     createdDate: String = "2022-12-15T22:24:43.666",
     completedDate: String? = "2022-12-15T22:24:43.666",
 
+//    onClickDetails: (Int) -> Unit = {}
     onClickDetails: () -> Unit = {}
 ) {
     Column(
@@ -485,6 +491,7 @@ fun Order(
                 }
             }
             IconButton(
+//                onClick = { if (detailsVisibility) onClickDetails(-1) else onClickDetails(orderId) },
                 onClick = onClickDetails,
                 modifier = Modifier
                     .weight(weight = 0.10f)

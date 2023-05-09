@@ -13,9 +13,9 @@ import java.io.IOException
 import javax.inject.Inject
 
 @JvmInline
-value class CurrentMember(val id: Int)
+value class CurrentRecord(val id: Int)
 
-val NoCurrentMember = CurrentMember(-1)
+val NoCurrentRecord = CurrentRecord(-1)
 
 private const val TAG = "TeamViewModel"
 
@@ -84,12 +84,12 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _currentMember = MutableStateFlow<CurrentMember>(NoCurrentMember)
+    private val _currentMember = MutableStateFlow<CurrentRecord>(NoCurrentRecord)
 
     private val _teamF = repository.teamComplete()
 
     fun changeCurrentTeamMember(id: Int) {
-        _currentMember.value = CurrentMember(id)
+        _currentMember.value = CurrentRecord(id)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

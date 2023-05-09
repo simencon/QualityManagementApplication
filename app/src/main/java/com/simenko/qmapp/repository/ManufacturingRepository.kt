@@ -9,6 +9,7 @@ import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.ManufacturingDao
 import com.simenko.qmapp.utils.ListTransformer
+import com.simenko.qmapp.utils.ObjectTransformer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,13 +20,14 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 private const val TAG = "ManufacturingRepository"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ManufacturingRepository @Inject constructor(
     private val manufacturingDao: ManufacturingDao,
-    private val manufacturingService: ManufacturingService
+    public val manufacturingService: ManufacturingService
 ) {
     /**
      * Update Manufacturing from the network
@@ -75,10 +77,11 @@ class ManufacturingRepository @Inject constructor(
             }
         }
 
+
     suspend fun deleteRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
             val response = manufacturingService.deleteTeamMember(record.id)
-            if(response.isSuccessful) {
+            if (response.isSuccessful) {
                 manufacturingDao.deleteTeamMember(record.toDatabase())
             }
             send(response)
@@ -86,12 +89,12 @@ class ManufacturingRepository @Inject constructor(
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
-            val newRecord = manufacturingService
+            val response = manufacturingService
                 .updateTeamMember(record.id, record.toNetworkWithId()).body()
                 ?.toDatabase()
 
-            newRecord?.let { manufacturingDao.updateTeamMember(it) }
-            newRecord?.let { send(it.toDomainTeamMember()) }
+            response?.let { manufacturingDao.updateTeamMember(it) }
+            response?.let { send(it.toDomainTeamMember()) }
         }
 
     suspend fun refreshCompanies() {

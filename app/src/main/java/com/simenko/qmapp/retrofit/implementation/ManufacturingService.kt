@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.implementation
 
+import com.simenko.qmapp.other.Constants.TEAM_URL
 import com.simenko.qmapp.retrofit.entities.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -7,9 +8,18 @@ import retrofit2.http.*
 interface ManufacturingService {
     @GET("positionLevels")
     suspend fun getPositionLevels(): List<NetworkPositionLevel>
-
-    @GET("teamMembersTesting")
+    @GET(TEAM_URL)
     suspend fun getTeamMembers(): List<NetworkTeamMember>
+
+    @POST(TEAM_URL)
+    suspend fun insertTeamMember(@Body teamMember: NetworkTeamMember): Response<NetworkTeamMember>
+
+    @DELETE("$TEAM_URL/{id}")
+    suspend fun deleteTeamMember(@Path("id") id: Int): Response<Unit>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$TEAM_URL/{id}")
+    suspend fun updateTeamMember(@Path("id") id: Int, @Body body: NetworkTeamMember): Response<NetworkTeamMember>
 
     @GET("companies")
     suspend fun getCompanies(): List<NetworkCompany>
@@ -31,14 +41,4 @@ interface ManufacturingService {
 
     @GET("manufacturingOperationsFlows")
     suspend fun getOperationsFlows(): List<NetworkOperationsFlow>
-
-    @POST("teamMembersTesting")
-    suspend fun insertTeamMember(@Body teamMember: NetworkTeamMember): Response<NetworkTeamMember>
-
-    @DELETE("teamMembersTesting/{id}")
-    suspend fun deleteTeamMember(@Path("id") id: Int): Response<Unit>
-
-    @Headers(value = ["Content-Type: application/json"])
-    @PUT("teamMembersTesting/{id}")
-    suspend fun updateTeamMember(@Path("id") id: Int, @Body body: NetworkTeamMember): Response<NetworkTeamMember>
 }
