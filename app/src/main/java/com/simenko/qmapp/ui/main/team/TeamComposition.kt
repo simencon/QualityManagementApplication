@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,6 +55,12 @@ fun TeamComposition(
     val onClickDetailsLambda: (Int) -> Unit = {
         appModel.changeCurrentTeamMember(it)
     }
+    val onDoubleClickLambda = remember<(DomainTeamMember) -> Unit> {
+        {
+            appModel.deleteRecord(it)
+        }
+    }
+
     val listState = rememberLazyListState()
 
     val pullRefreshState = rememberPullRefreshState(
@@ -72,7 +80,10 @@ fun TeamComposition(
             ) { teamMember ->
                 TeamMemberCard(
                     teamMember = teamMember,
-                    onClickDetails = { onClickDetailsLambda(it) }
+                    onClickDetails = { onClickDetailsLambda(it) },
+                    onDoubleClick = {
+                        onDoubleClickLambda(it.teamMember)
+                    }
                 )
             }
         }
@@ -94,12 +105,18 @@ fun TeamComposition(
 @Composable
 fun TeamMemberCard(
     teamMember: DomainTeamMemberComplete,
-    onClickDetails: (Int) -> Unit
+    onClickDetails: (Int) -> Unit,
+    onDoubleClick: (DomainTeamMemberComplete) -> Unit
 ) {
     Log.d(TAG, "TeamMemberCard: ${teamMember.teamMember.fullName}")
     Card(
         modifier = Modifier
-            .padding(vertical = 4.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = { onDoubleClick(teamMember) }
+                )
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiary.copy(0.3f),
         ),

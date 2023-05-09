@@ -1,10 +1,6 @@
 package com.simenko.qmapp.ui.main.team
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
-import androidx.lifecycle.map
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.domain.DomainTeamMemberComplete
 import com.simenko.qmapp.domain.changeDetails
@@ -15,7 +11,6 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
-
 
 @JvmInline
 value class CurrentMember(val id: Int)

@@ -8,7 +8,7 @@ interface ManufacturingService {
     @GET("positionLevels")
     suspend fun getPositionLevels(): List<NetworkPositionLevel>
 
-    @GET("teamMembers")
+    @GET("teamMembersTesting")
     suspend fun getTeamMembers(): List<NetworkTeamMember>
 
     @GET("companies")
@@ -32,13 +32,13 @@ interface ManufacturingService {
     @GET("manufacturingOperationsFlows")
     suspend fun getOperationsFlows(): List<NetworkOperationsFlow>
 
-    @POST("teamMembers")
+    @POST("teamMembersTesting")
     suspend fun insertTeamMember(@Body teamMember: NetworkTeamMember): Response<NetworkTeamMember>
 
-    @DELETE("teamMembers/{id}")
+    @DELETE("teamMembersTesting/{id}")
     suspend fun deleteTeamMember(@Path("id") id: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
-    @PUT("teamMembers/{id}")
+    @PUT("teamMembersTesting/{id}")
     suspend fun updateTeamMember(@Path("id") id: Int, @Body body: NetworkTeamMember): Response<NetworkTeamMember>
 }

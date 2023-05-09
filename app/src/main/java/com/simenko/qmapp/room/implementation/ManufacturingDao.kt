@@ -75,7 +75,7 @@ interface ManufacturingDao {
     @Transaction
     @Query(
         "SELECT tm.* FROM '8_team_members' AS tm " +
-                "ORDER BY tm.fullName ASC"
+                "ORDER BY tm.id ASC"
     )
     fun getTeamDetailedFlow(): Flow<List<DatabaseTeamMemberComplete>>
 

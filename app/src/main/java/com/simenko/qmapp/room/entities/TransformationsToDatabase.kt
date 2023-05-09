@@ -36,3 +36,6 @@ fun NetworkResult.toDatabaseResult() =
 
 fun NetworkTeamMember.toDatabase() =
     ObjectTransformer(NetworkTeamMember::class, DatabaseTeamMember::class).transform(this)
+
+fun DomainTeamMember.toDatabase() =
+    ObjectTransformer(DomainTeamMember::class, DatabaseTeamMember::class).transform(this)

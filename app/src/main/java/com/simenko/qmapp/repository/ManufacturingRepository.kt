@@ -63,18 +63,24 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
-            val newRecord = manufacturingService.insertTeamMember(
+            val response = manufacturingService.insertTeamMember(
                 record.toNetworkWithoutId()
-            ).body()?.toDatabase()
+            )
 
-            newRecord?.let { manufacturingDao.insertTeamMember(it) }
-            newRecord?.let { send(it.toDomainTeamMember()) }
+            if (response.isSuccessful) {
+                response.body()?.let { manufacturingDao.insertTeamMember(it.toDatabase()) }
+                response.body()?.toDatabase()?.let { send(it.toDomainTeamMember()) }
+            } else {
+                Log.d(TAG, "insertRecord: ${response.errorBody()}")
+            }
         }
 
     suspend fun deleteRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
             val response = manufacturingService.deleteTeamMember(record.id)
-            Log.d(TAG, "deleteRecord: $response")
+            if(response.isSuccessful) {
+                manufacturingDao.deleteTeamMember(record.toDatabase())
+            }
             send(response)
         }
 

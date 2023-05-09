@@ -165,13 +165,12 @@ class InvestigationsViewModel @Inject constructor(
 
     val currentOrder = MutableLiveData(0)
     val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
-    lateinit var ordersJob: Job
 
     fun addOrdersToSnapShot(
         currentStatus: Int = 0,
         lookUpNumber: String = ""
     ) {
-        ordersJob = viewModelScope.launch {
+        viewModelScope.launch {
             investigationsRepository.completeOrders().cancellable().collect() { it ->
                 Log.d(TAG, "addOrdersToSnapShot: list of Investigations are updated!")
                 orders.apply {
@@ -261,16 +260,11 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                repeat(10) {
-                    delay(1000L)
-                    investigationsRepository.refreshOrders()
-                    investigationsRepository.refreshSubOrders()
-                    investigationsRepository.refreshSubOrderTasks()
-                    investigationsRepository.refreshSamples()
-                    investigationsRepository.refreshResults()
-                }
-
-                ordersJob.start()
+                investigationsRepository.refreshOrders()
+                investigationsRepository.refreshSubOrders()
+                investigationsRepository.refreshSubOrderTasks()
+                investigationsRepository.refreshSamples()
+                investigationsRepository.refreshResults()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -861,8 +855,6 @@ class InvestigationsViewModel @Inject constructor(
                 investigationsRepository.refreshResultsDecryptions()
                 investigationsRepository.refreshResults()
                 isLoadingInProgress.value = false
-
-                ordersJob.start()
 
             } catch (networkError: IOException) {
                 delay(500)
