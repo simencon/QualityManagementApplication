@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.team
 
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -9,14 +10,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,11 +31,11 @@ import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainTeamMemberComplete
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "TeamComposition"
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TeamMembersLiveData(
     modifier: Modifier = Modifier,
@@ -37,7 +43,20 @@ fun TeamMembersLiveData(
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
 
+    val context = LocalContext.current
     appModel.addTeamToSnapShot()
+
+    val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
+    val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+
+    /*val coroutineScope = rememberCoroutineScope()
+
+    SideEffect {
+        coroutineScope.launch {
+            Log.d(TAG, "TeamMembersLiveData: SideEffect effected")
+            appModel.teamFlow.collect() {}
+        }
+    }*/
 
     val items = appModel.teamS
 
@@ -46,17 +65,39 @@ fun TeamMembersLiveData(
     }
     val listState = rememberLazyListState()
 
-    LazyColumn(
-        state = listState,
-        modifier = modifier.padding(vertical = 4.dp)
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = observerLoadingProcess!!,
+        onRefresh = { appModel.syncTeam() }
+    )
+
+    Box(
+        Modifier
+            .pullRefresh(pullRefreshState)
     ) {
-        items(items = items, key = { it.teamMember.id }
-        ) { teamMember ->
-            TeamMemberCard(
-                teamMember = teamMember,
-                onClickDetails = { onClickDetailsLambda(it) }
-            )
+        LazyColumn(
+            state = listState,
+            modifier = modifier.padding(vertical = 4.dp)
+        ) {
+            items(items = items, key = { it.teamMember.id }
+            ) { teamMember ->
+                TeamMemberCard(
+                    teamMember = teamMember,
+                    onClickDetails = { onClickDetailsLambda(it) }
+                )
+            }
         }
+
+        PullRefreshIndicator(
+            observerLoadingProcess!!,
+            pullRefreshState,
+            Modifier.align(Alignment.TopCenter),
+            contentColor = ProgressIndicatorDefaults.circularColor
+        )
+    }
+
+    if (observerIsNetworkError == true) {
+        Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
+        appModel.onNetworkErrorShown()
     }
 }
 
@@ -77,7 +118,7 @@ fun TeamMemberCard(
         TeamMember(
             fullName = teamMember.teamMember.fullName,
             email = teamMember.teamMember.email,
-            department = teamMember.department.depName?:"-",
+            department = teamMember.department.depName ?: "-",
             jobRole = teamMember.teamMember.jobRole,
             detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {

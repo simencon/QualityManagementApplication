@@ -174,6 +174,11 @@ class QualityManagementManufacturingRepository(private val database: QualityMana
         it.asTeamCompleteDomainModel()
     }
 
+    fun teamCompleteByDepartment(depId:Int): Flow<List<DomainTeamMemberComplete>> =
+        database.qualityManagementManufacturingDao.getTeamDetailedFlow().map {
+            it.asTeamCompleteDomainModel().filter { itd -> itd.teamMember.departmentId == depId }
+        }
+
     val departments: LiveData<List<DomainDepartment>> =
         database.qualityManagementManufacturingDao.getDepartments().map {
             ListTransformer(

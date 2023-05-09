@@ -1,11 +1,10 @@
 package com.simenko.qmapp.ui.main.investigations
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.QualityManagementInvestigationsRepository
 import com.simenko.qmapp.repository.QualityManagementManufacturingRepository
@@ -17,8 +16,14 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
 import java.io.IOException
 import javax.inject.Inject
+
+private const val TAG = "InvestigationsViewModel"
 
 class InvestigationsViewModel @Inject constructor(
     context: Context
@@ -137,7 +142,9 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val componentInStageTolerances: SnapshotStateList<DomainComponentInStageTolerance> = mutableStateListOf()
+    val componentInStageTolerances: SnapshotStateList<DomainComponentInStageTolerance> =
+        mutableStateListOf()
+
     fun addComponentInStageTolerancesToSnapShot() {
         viewModelScope.launch {
             productsRepository.componentInStageTolerances().collect() { it ->
@@ -166,13 +173,15 @@ class InvestigationsViewModel @Inject constructor(
 
     val currentOrder = MutableLiveData(0)
     val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
+    lateinit var ordersJob: Job
 
     fun addOrdersToSnapShot(
         currentStatus: Int = 0,
         lookUpNumber: String = ""
     ) {
-        viewModelScope.launch {
-            investigationsRepository.completeOrders().collect() { it ->
+        ordersJob = viewModelScope.launch {
+            investigationsRepository.completeOrders().cancellable().collect() { it ->
+                Log.d(TAG, "addOrdersToSnapShot: list of Investigations are updated!")
                 orders.apply {
                     this.clear()
                     it.forEach { itF ->
@@ -184,6 +193,7 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
             }
+            this.coroutineContext.job.cancel()
         }
     }
 
@@ -191,7 +201,7 @@ class InvestigationsViewModel @Inject constructor(
     fun changeOrdersDetailsVisibility(itemId: Int) {
         val iterator = orders.listIterator()
         viewModelScope.launch {
-            val channel  = CoroutineScope(Dispatchers.IO).produce<Int> {
+            val channel = CoroutineScope(Dispatchers.IO).produce<Int> {
                 var currentItem = 0
                 while (iterator.hasNext()) {
                     val current = iterator.next()
@@ -259,11 +269,16 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshOrders()
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
+                repeat(10) {
+                    delay(1000L)
+                    investigationsRepository.refreshOrders()
+                    investigationsRepository.refreshSubOrders()
+                    investigationsRepository.refreshSubOrderTasks()
+                    investigationsRepository.refreshSamples()
+                    investigationsRepository.refreshResults()
+                }
+
+                ordersJob.start()
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -392,6 +407,7 @@ class InvestigationsViewModel @Inject constructor(
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
+
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
@@ -709,7 +725,8 @@ class InvestigationsViewModel @Inject constructor(
                  * Collect/Post new results and change status
                  * */
                 {
-                    val subOrder = subOrders.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
+                    val subOrder =
+                        subOrders.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
                     val metrixesToRecord: List<DomainMetrix?>? =
                         when (subOrder.itemPreffix.substring(0, 1)) {
                             "p" -> {
@@ -751,9 +768,9 @@ class InvestigationsViewModel @Inject constructor(
 
                     listOfResults.forEach { dResult ->
                         val channel3 = investigationsRepository.getCreatedRecord(
-                                coroutineScope,
-                                dResult
-                            )
+                            coroutineScope,
+                            dResult
+                        )
                         channel3.consumeEach { }
                     }
 
@@ -852,6 +869,9 @@ class InvestigationsViewModel @Inject constructor(
                 investigationsRepository.refreshResultsDecryptions()
                 investigationsRepository.refreshResults()
                 isLoadingInProgress.value = false
+
+                ordersJob.start()
+
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true

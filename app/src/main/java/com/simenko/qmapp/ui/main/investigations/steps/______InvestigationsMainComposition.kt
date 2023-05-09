@@ -65,7 +65,6 @@ fun InvestigationsMainComposition(
     val dialogInput by viewModel.dialogInput.observeAsState()
 
 
-
     QMAppTheme {
 
         var fabPositionToSet by remember { mutableStateOf(FabPosition.End) }
