@@ -732,28 +732,13 @@ class InvestigationsViewModel @Inject constructor(
                                 }
                             }
 
-                        repository.getCreatedRecords(
+                        val channel3 =  repository.getCreatedRecords(
                             coroutineScope,
                             listOfResults
                         )
-
-                        listOfResults.forEach { dResult ->
-                            val channel3 = repository.getCreatedRecord(
-                                coroutineScope,
-                                dResult
-                            )
-                            channel3.consumeEach {
-                            }
+                        channel3.consumeEach {
                         }
                     }
-                    /*val channel3 =
-                        investigationsRepository.getCreatedRecords(
-                            coroutineScope,
-                            listOfResults
-                            )
-                    channel3.consumeEach {
-                        nResultsIt.forEach { }
-                    }*/
                 }
             } else if (it.statusId == 3) {
                 if (subOrderTask.statusId == 1) {
@@ -769,8 +754,8 @@ class InvestigationsViewModel @Inject constructor(
             coroutineScope,
             subOrderTask
         )
-        channel2.consumeEach {
-        }
+//        channel2.consumeEach {
+//        }
     }
 
     fun editResult(result: DomainResult) {

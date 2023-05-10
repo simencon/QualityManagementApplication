@@ -453,19 +453,15 @@ class InvestigationsRepository @Inject constructor(
             send(newRecord.toDomainResult()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) =
+    suspend fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) =
         coroutineScope.produce {
             val newRecords = investigationsService.createResults(
                 records.map {
                     it.toNetworkResultWithoutId()
                 }
-            )
-
-            newRecords.forEach { nIt ->
-                investigationsDao.insertResult(nIt.toDatabaseResult())
-            }
-
-            send(newRecords) //cold send, can be this.trySend(l).isSuccess //hot send
+            ).map { it.toDatabaseResult() }
+            investigationsDao.insertResultsAll(newRecords)
+            send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
 

@@ -84,7 +84,7 @@ interface InvestigationsService {
     suspend fun createResult(@Body networkResult: NetworkResult): NetworkResult
 
     @POST("results/records")
-    fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>
+    suspend fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>
 
     @DELETE("results/{taskId}/{id}")
     suspend fun deleteResults(
