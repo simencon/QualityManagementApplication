@@ -5,6 +5,7 @@ import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -17,6 +18,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -47,59 +49,51 @@ fun SubOrderTasksFlowColumn(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
-//    val observeSubOrderTasks by appModel.completeTasks.observeAsState()
-    val items = appModel.tasks
-    appModel.addTasksToSnapShot()
+    val items by appModel.tasksSF.collectAsState(listOf())
 
     val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
-            appModel.changeTaskDetailsVisibility(it.subOrderTask.id)
+            appModel.setTaskDetailsVisibility(it.subOrderTask.id)
         }
     }
 
-    var clickCounter = 0
+    val onChangeExpandStateLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
+        {
+            appModel.setTaskActionsVisibility(it.subOrderTask.id)
+        }
+    }
 
-        FlowRow(modifier = modifier) {
-            items.forEach { task ->
-                if (task.subOrderTask.subOrderId == parentId) {
+    FlowRow(modifier = modifier) {
+        items.forEach { task ->
+            if (task.subOrderTask.subOrderId == parentId) {
 
-                    Box(Modifier.fillMaxWidth()) {
-                        ActionsRow(
-                            subOrderTask = task,
-                            actionIconSize = ACTION_ITEM_SIZE.dp,
-                            onDeleteSubOrderTask = {
-                                appModel.deleteSubOrderTask(it)
-                            },
-                            onEdit = {},
-                        )
+                Box(Modifier.fillMaxWidth()) {
+                    ActionsRow(
+                        subOrderTask = task,
+                        actionIconSize = ACTION_ITEM_SIZE.dp,
+                        onDeleteSubOrderTask = {
+                            appModel.deleteSubOrderTask(it)
+                        },
+                        onEdit = {},
+                    )
 
-                        SubOrderTaskCard(
-                            modifier = modifier,
-                            appModel = appModel,
-                            task = task,
-                            onClickDetails = { it ->
-                                onClickDetailsLambda(it)
-                            },
-                            cardOffset = CARD_OFFSET.dp(),
-                            onChangeExpandState = {
-                                clickCounter++
-                                if (clickCounter == 1) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        delay(200)
-                                        clickCounter--
-                                    }
-                                }
-                                if (clickCounter == 2) {
-                                    clickCounter = 0
-                                    appModel.changeCompleteSubOrderTasksExpandState(it.subOrderTask.id)
-                                }
-                            }
-                        )
-                    }
-                    Divider(thickness = 4.dp, color = Color.Transparent)
+                    SubOrderTaskCard(
+                        modifier = modifier,
+                        appModel = appModel,
+                        task = task,
+                        onClickDetails = { it ->
+                            onClickDetailsLambda(it)
+                        },
+                        cardOffset = CARD_OFFSET.dp(),
+                        onClickActions = {
+                            onChangeExpandStateLambda(it)
+                        }
+                    )
                 }
+                Divider(thickness = 4.dp, color = Color.Transparent)
             }
         }
+    }
 }
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
@@ -110,7 +104,7 @@ fun SubOrderTaskCard(
     task: DomainSubOrderTaskComplete,
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
-    onChangeExpandState: (DomainSubOrderTaskComplete) -> Unit
+    onClickActions: (DomainSubOrderTaskComplete) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(task.isExpanded).apply {
@@ -152,14 +146,18 @@ fun SubOrderTaskCard(
         modifier = modifier
             .fillMaxWidth()
             .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-            .clickable { onChangeExpandState(task) },
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = { onClickActions(task) }
+                )
+            },
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {
         SubOrderTask(
             modifier = modifier,
             subOrderTask = task,
             onClickDetails = { onClickDetails(task) },
-            showStatusDialog = { a, b, c -> appModel?.statusDialog(a,b,c) }
+            showStatusDialog = { a, b, c -> appModel?.statusDialog(a, b, c) }
         )
     }
 }

@@ -46,17 +46,14 @@ fun ResultsComposition(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
-//    val observeResults by appModel.completeResults.observeAsState()
+    val currentSubOrderTask by appModel.currentTaskDetails.observeAsState()
+    val currentSample by appModel.currentSampleDetails.observeAsState()
 
-    val currentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
-    val currentSample by appModel.currentSample.observeAsState()
-
-    val items = appModel.results
-    appModel.addResultsToSnapShot()
+    val items by appModel.resultsSF.collectAsState(initial = listOf())
 
     val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
         {
-            appModel.changeResultDetailsVisibility(it.result.id)
+            appModel.setResultDetailsVisibility(it.result.id)
         }
     }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> {
@@ -74,8 +71,8 @@ fun ResultsComposition(
         )
     ) {
         items.forEach { result ->
-            if (result.result.taskId == currentSubOrderTask &&
-                result.result.sampleId == currentSample
+            if (result.result.taskId == currentSubOrderTask?.num &&
+                result.result.sampleId == currentSample?.num
             ) {
                 ResultCard(
                     modifier = modifier,

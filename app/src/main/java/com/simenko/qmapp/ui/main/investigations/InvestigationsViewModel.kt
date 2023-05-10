@@ -161,7 +161,7 @@ class InvestigationsViewModel @Inject constructor(
             repository.setCurrentOrder(id)
         } else {
             _currentOrderDetails.value = NoSelectedRecord
-            repository.setCurrentOrder(-1)
+            repository.setCurrentOrder(NoSelectedRecord.num)
         }
     }
 
@@ -210,9 +210,9 @@ class InvestigationsViewModel @Inject constructor(
                 _showWithStatus.flatMapLatest { status ->
                     _showOrderNumber.flatMapLatest { number ->
                         setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
-                        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
-                        changeSampleDetailsVisibility(currentSample.value ?: 0)
-                        changeResultDetailsVisibility(currentResult.value ?: 0)
+                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
+                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                        setResultDetailsVisibility(_currentResultDetails.value.num)
 
                         _ordersF.map {
                             it.changeOrderVisibility(details.num, actions.num)
@@ -281,7 +281,6 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val currentOrder = MutableLiveData(0)
     val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
     /**
      * End of operations with orders _______________________________________________________
@@ -303,7 +302,7 @@ class InvestigationsViewModel @Inject constructor(
             repository.setCurrentSubOrder(id)
         } else {
             _currentSubOrderDetails.value = NoSelectedRecord
-            repository.setCurrentSubOrder(-1)
+            repository.setCurrentSubOrder(NoSelectedRecord.num)
         }
     }
 
@@ -351,9 +350,9 @@ class InvestigationsViewModel @Inject constructor(
             _currentSubOrderActions.flatMapLatest { actions ->
                 _showSubOrderWithStatus.flatMapLatest { status ->
                     _showSubOrderNumber.flatMapLatest { number ->
-                        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
-                        changeSampleDetailsVisibility(currentSample.value ?: 0)
-                        changeResultDetailsVisibility(currentResult.value ?: 0)
+                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
+                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                        setResultDetailsVisibility(_currentResultDetails.value.num)
 
                         _subOrdersF.map {
                             it.changeSubOrderVisibility(details.num, actions.num)
@@ -422,73 +421,60 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val currentSubOrder = MutableLiveData(0)
     val subOrders: SnapshotStateList<DomainSubOrderComplete> = mutableStateListOf()
 
     /**
      * End of operations with orders _______________________________________________________
      * */
-    val currentSubOrderTask = MutableLiveData(0)
-    val tasks: SnapshotStateList<DomainSubOrderTaskComplete> = mutableStateListOf()
 
-    fun addTasksToSnapShot() {
-        viewModelScope.launch {
-            repository.completeSubOrderTasks().collect() { it ->
-                tasks.apply {
-                    this.clear()
-                    addAll(it)
-                }
-            }
+    /**
+     * Operations with tasks __________________________________________________________
+     * */
+    private val _tasksF = repository.completeSubOrderTasks()
+
+    /**
+     * Visibility operations
+     * */
+    private val _currentTaskDetails = MutableStateFlow(NoSelectedRecord)
+    val currentTaskDetails: LiveData<SelectedNumber>
+        get() = _currentTaskDetails.asLiveData()
+
+    private val _currentTaskActions = MutableStateFlow(NoSelectedRecord)
+    fun setTaskDetailsVisibility(id: Int) {
+        if (_currentTaskDetails.value.num != id) {
+            _currentTaskDetails.value = SelectedNumber(id)
+            repository.setCurrentTask(id)
+        } else {
+            _currentTaskDetails.value = NoSelectedRecord
+            repository.setCurrentTask(NoSelectedRecord.num)
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun changeTaskDetailsVisibility(itemId: Int) {
-        val iterator = tasks.listIterator()
-        viewModelScope.launch {
-            val channel = CoroutineScope(Dispatchers.IO).produce<Int> {
-                var currentItem = 0
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.subOrderTask.id == itemId) {
-                        iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-                        if (!current.detailsVisibility) {
-                            currentItem = itemId
-                        }
-                    } else {
-                        if (current.detailsVisibility)
-                            iterator.set(current.copy(detailsVisibility = false))
-                    }
-                }
-                send(currentItem)
-            }
-            channel.consumeEach {
-                repository.setCurrentTask(it)
-                currentSubOrderTask.value = it
-            }
-        }
-
-        changeSampleDetailsVisibility(currentSample.value ?: 0)
-        changeResultDetailsVisibility(currentResult.value ?: 0)
+    fun setTaskActionsVisibility(id: Int) {
+        if (_currentTaskActions.value.num != id)
+            _currentTaskActions.value = SelectedNumber(id)
+        else
+            _currentTaskActions.value = NoSelectedRecord
     }
 
-    fun changeCompleteSubOrderTasksExpandState(itemId: Int) {
-        val iterator = tasks.listIterator()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.subOrderTask.id == itemId) {
-                        iterator.set(current.copy(isExpanded = !current.isExpanded))
-                    } else {
-                        if (current.isExpanded)
-                            iterator.set(current.copy(isExpanded = false))
-                    }
+    /**
+     * The result flow
+     * */
+    val tasksSF: Flow<List<DomainSubOrderTaskComplete>> =
+        _currentTaskDetails.flatMapLatest { details ->
+            _currentTaskActions.flatMapLatest { actions ->
+                setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                setResultDetailsVisibility(_currentResultDetails.value.num)
+
+                _tasksF.map {
+                    it.changeTaskVisibility(details.num, actions.num)
                 }
             }
-        }
-    }
+        }.flowOn(Dispatchers.IO).conflate()
 
+    /**
+     * REST operations
+     * */
     fun deleteSubOrderTask(task: DomainSubOrderTaskComplete) {
         viewModelScope.launch {
             try {
@@ -523,89 +509,87 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val currentSample = MutableLiveData(0)
+    val tasks: SnapshotStateList<DomainSubOrderTaskComplete> = mutableStateListOf()
+
+    /**
+     * End of operations with tasks _______________________________________________________
+     * */
+
+    /**
+     * Operations with samples __________________________________________________________
+     * */
+    private val _samplesF = repository.completeSamples()
+
+    /**
+     * Visibility operations
+     * */
+    private val _currentSampleDetails = MutableStateFlow(NoSelectedRecord)
+    val currentSampleDetails: LiveData<SelectedNumber>
+        get() = _currentSampleDetails.asLiveData()
+
+    fun setSampleDetailsVisibility(id: Int) {
+        if (_currentSampleDetails.value.num != id) {
+            _currentSampleDetails.value = SelectedNumber(id)
+            repository.setCurrentSample(id)
+        } else {
+            _currentSampleDetails.value = NoSelectedRecord
+            repository.setCurrentTask(NoSelectedRecord.num)
+        }
+    }
+
+    /**
+     * The result flow
+     * */
+    val samplesSF: Flow<List<DomainSampleComplete>> =
+        _currentSampleDetails.flatMapLatest { details ->
+            setResultDetailsVisibility(_currentResultDetails.value.num)
+
+            _samplesF.map {
+                it.changeSampleVisibility(details.num)
+            }
+        }.flowOn(Dispatchers.IO).conflate()
+
+    /**
+     * REST operations
+     * "no operations for now"
+     * */
     val samples: SnapshotStateList<DomainSampleComplete> = mutableStateListOf()
+    /**
+     * End of operations with samples _______________________________________________________
+     * */
 
-    fun addSamplesToSnapShot() {
-        viewModelScope.launch {
-            repository.completeSamples().collect() { it ->
-                samples.apply {
-                    this.clear()
-                    addAll(it)
-                }
-            }
+    /**
+     * Operations with results __________________________________________________________
+     * */
+    private val _resultsF = repository.completeResults()
+
+    /**
+     * Visibility operations
+     * */
+    private val _currentResultDetails = MutableStateFlow(NoSelectedRecord)
+    fun setResultDetailsVisibility(id: Int) {
+        if (_currentResultDetails.value.num != id) {
+            _currentResultDetails.value = SelectedNumber(id)
+            repository.setCurrentResult(id)
+        } else {
+            _currentResultDetails.value = NoSelectedRecord
+            repository.setCurrentResult(NoSelectedRecord.num)
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun changeSampleDetailsVisibility(itemId: Int) {
-        val iterator = samples.listIterator()
-        viewModelScope.launch {
-            val channel = CoroutineScope(Dispatchers.IO).produce<Int> {
-                var currentItem = 0
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.sample.id == itemId) {
-                        iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-                        if (!current.detailsVisibility) {
-                            currentItem = itemId
-                        }
-                    } else {
-                        if (current.detailsVisibility)
-                            iterator.set(current.copy(detailsVisibility = false))
-                    }
-                }
-                send(currentItem)
+    /**
+     * The result flow
+     * */
+    val resultsSF: Flow<List<DomainResultComplete>> =
+        _currentSampleDetails.flatMapLatest { details ->
+            _resultsF.map {
+                it.changeResultVisibility(details.num)
             }
-            channel.consumeEach {
-                repository.setCurrentSample(it)
-                currentSample.value = it
-            }
-        }
+        }.flowOn(Dispatchers.IO).conflate()
 
-        changeResultDetailsVisibility(currentResult.value ?: 0)
-    }
-
-    val currentResult = MutableLiveData(0)
-    val results: SnapshotStateList<DomainResultComplete> = mutableStateListOf()
-
-    fun addResultsToSnapShot() {
-        viewModelScope.launch {
-            repository.completeResults().collect() { it ->
-                results.apply {
-                    this.clear()
-                    addAll(it)
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun changeResultDetailsVisibility(itemId: Int) {
-        val iterator = results.listIterator()
-        viewModelScope.launch {
-            val channel = CoroutineScope(Dispatchers.IO).produce<Int> {
-                var currentItem = 0
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.result.id == itemId) {
-                        iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-                        if (!current.detailsVisibility) {
-                            currentItem = itemId
-                        }
-                    } else {
-                        if (current.detailsVisibility)
-                            iterator.set(current.copy(detailsVisibility = false))
-                    }
-                }
-                send(currentItem)
-            }
-            channel.consumeEach {
-                repository.setCurrentResult(it)
-                currentResult.value = it
-            }
-        }
-    }
+    /**
+     * End of operations with results _______________________________________________________
+     * */
 
     fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {

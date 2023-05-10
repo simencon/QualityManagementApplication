@@ -398,3 +398,38 @@ fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
                         (orderNumber == "0"))
     }
 }
+
+fun List<DomainSubOrderTaskComplete>.changeTaskVisibility(
+    detailsId: Int,
+    actionsId: Int
+): List<DomainSubOrderTaskComplete> {
+    return map {
+
+        it.detailsVisibility = detailsId == it.subOrderTask.id
+        it.isExpanded = actionsId == it.subOrderTask.id
+
+        it
+    }
+}
+
+fun List<DomainSampleComplete>.changeSampleVisibility(
+    detailsId: Int
+): List<DomainSampleComplete> {
+    return map {
+
+        it.detailsVisibility = detailsId == it.sample.id
+
+        it
+    }
+}
+
+fun List<DomainResultComplete>.changeResultVisibility(
+    detailsId: Int
+): List<DomainResultComplete> {
+    return map {
+
+        it.detailsVisibility = detailsId == it.result.id
+
+        it
+    }
+}

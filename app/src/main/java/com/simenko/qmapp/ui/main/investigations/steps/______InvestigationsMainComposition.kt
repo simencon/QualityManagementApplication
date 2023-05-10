@@ -55,7 +55,7 @@ fun InvestigationsMainComposition(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    val currentTask by viewModel.currentSubOrderTask.observeAsState()
+    val currentTask by viewModel.currentTaskDetails.observeAsState()
 
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     val rowState = rememberScrollState()
@@ -74,7 +74,7 @@ fun InvestigationsMainComposition(
         }
 
         LaunchedEffect(currentTask) {
-            isSamplesNumVisible = when ((currentTask ?: 0) > 0) {
+            isSamplesNumVisible = when ((currentTask?.num ?: 0) > 0) {
                 true -> 1
                 false -> 0
             }

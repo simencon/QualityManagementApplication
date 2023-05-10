@@ -44,14 +44,13 @@ fun SampleComposition(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
-    val observeCurrentSubOrderTask by appModel.currentSubOrderTask.observeAsState()
+    val observeCurrentSubOrderTask by appModel.currentTaskDetails.observeAsState()
 
-    val items = appModel.samples
-    appModel.addSamplesToSnapShot()
+    val items by appModel.samplesSF.collectAsState(listOf())
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {
-            appModel.changeSampleDetailsVisibility(it.sample.id)
+            appModel.setSampleDetailsVisibility(it.sample.id)
         }
     }
 
@@ -66,7 +65,7 @@ fun SampleComposition(
         items(
             items = items,
             key = { it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId?:0).toString() }) { sample ->
-            if (sample.sampleResult.taskId == observeCurrentSubOrderTask) {
+            if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
                 SampleCard(
                     modifier = modifier,
                     appModel = appModel,
