@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,8 +35,6 @@ import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -50,16 +49,20 @@ fun SubOrdersFlowColumn(
 
     val createdRecord by appModel.createdRecord.observeAsState()
 
-//    val observeSubOrders by appModel.completeSubOrders.observeAsState()
-    val items = appModel.subOrders
-    appModel.addSubOrdersToSnapShot()
+    val items by appModel.subOrdersSF.collectAsState(listOf())
 
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
     val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
         {
-            appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
+            appModel.setSubOrderDetailsVisibility(it.subOrder.id)
+        }
+    }
+
+    val onChangeExpandStateLambda = remember<(DomainSubOrderComplete) -> Unit> {
+        {
+            appModel.setSubOrderActionsVisibility(it.subOrder.id)
         }
     }
 
@@ -78,8 +81,6 @@ fun SubOrdersFlowColumn(
             lookForRecord = !lookForRecord
         }
     }
-
-    var clickCounter = 0
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow(modifier = modifier) {
@@ -107,22 +108,12 @@ fun SubOrdersFlowColumn(
                             modifier = modifier,
                             appModel = appModel,
                             subOrder = subOrder,
-                            onClickDetails = { it ->
+                            onClickDetails = {
                                 onClickDetailsLambda(it)
                             },
                             cardOffset = CARD_OFFSET.dp(),
-                            onChangeExpandState = {
-                                clickCounter++
-                                if (clickCounter == 1) {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        delay(200)
-                                        clickCounter--
-                                    }
-                                }
-                                if (clickCounter == 2) {
-                                    clickCounter = 0
-                                    appModel.changeCompleteSubOrdersExpandState(it.subOrder.id)
-                                }
+                            onClickActions = {
+                                onChangeExpandStateLambda(it)
                             }
                         )
                     }
@@ -160,7 +151,7 @@ fun SubOrderCard(
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
-    onChangeExpandState: (DomainSubOrderComplete) -> Unit
+    onClickActions: (DomainSubOrderComplete) -> Unit
 ) {
 
     val transitionState = remember {
@@ -203,7 +194,11 @@ fun SubOrderCard(
         modifier = modifier
             .fillMaxWidth()
             .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-            .clickable { onChangeExpandState(subOrder) },
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = { onClickActions(subOrder) }
+                )
+            },
         elevation = CardDefaults.cardElevation(cardElevation),
     ) {
         SubOrder(
@@ -269,8 +264,8 @@ fun SubOrder(
                                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
-                                text = when (appModel?.showAllInvestigations?.value) {
-                                    true -> subOrder.subOrder.subOrderNumber.toString()
+                                text = when (appModel?.getProcessControlOnly()) {
+                                    false -> subOrder.subOrder.subOrderNumber.toString()
                                     else -> subOrder.orderShort.order.orderNumber.toString()
                                 },
                                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -301,7 +296,7 @@ fun SubOrder(
                                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             )
                         }
-                        if (appModel?.showAllInvestigations?.value == false)
+                        if (appModel?.getProcessControlOnly() == true)
                             Row(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),

@@ -8,14 +8,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
@@ -33,13 +31,17 @@ fun SubOrdersStandAlone(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
-    val items = appModel.subOrders
-
-    appModel.addSubOrdersToSnapShot(-1, "0")
+    val items by appModel.subOrdersSF.collectAsState(listOf())
 
     val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
         {
-            appModel.changeSubOrderDetailsVisibility(it.subOrder.id)
+            appModel.setSubOrderDetailsVisibility(it.subOrder.id)
+        }
+    }
+
+    val onChangeExpandStateLambda = remember<(DomainSubOrderComplete) -> Unit> {
+        {
+            appModel.setSubOrderActionsVisibility(it.subOrder.id)
         }
     }
 
@@ -81,9 +83,6 @@ fun SubOrdersStandAlone(
 
     if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
 
-
-    var clickCounter = 0
-
     LazyColumn(
         modifier = modifier,
         state = listState
@@ -115,18 +114,8 @@ fun SubOrdersStandAlone(
                             onClickDetailsLambda(it)
                         },
                         cardOffset = CARD_OFFSET.dp(),
-                        onChangeExpandState = {
-                            clickCounter++
-                            if (clickCounter == 1) {
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    delay(200)
-                                    clickCounter--
-                                }
-                            }
-                            if (clickCounter == 2) {
-                                clickCounter = 0
-                                appModel.changeCompleteSubOrdersExpandState(it.subOrder.id)
-                            }
+                        onClickActions = {
+                            onChangeExpandStateLambda(it)
                         }
                     )
                 }

@@ -56,7 +56,10 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                viewModel.setCurrentStatusToShow(tab?.tag.toString())
+                if (!viewModel.getProcessControlOnly())
+                    viewModel.setOrderStatusToShow(tab?.tag.toString())
+                else
+                    viewModel.setSubOrderStatusToShow(tab?.tag.toString())
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {

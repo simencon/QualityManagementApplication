@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,26 +50,17 @@ fun Orders(
 ) {
     val context = LocalContext.current
 
-//    val showCurrentStatus by appModel.showWithStatus.observeAsState()
-//    val showOrderNumber by appModel.showOrderNumber.observeAsState()
-
     val items by appModel.ordersSF.collectAsState(initial = listOf())
-//    val items = appModel.orders
-
-//    if (showCurrentStatus != null && showOrderNumber != null)
-//        appModel.addOrdersToSnapShot(showCurrentStatus!!, showOrderNumber!!)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
             appModel.setOrderDetailsVisibility(it)
-//            appModel.changeOrdersDetailsVisibility(it)
         }
     }
 
     val onChangeExpandStateLambda = remember<(Int) -> Unit> {
         {
             appModel.setOrderActionsVisibility(it)
-//            appModel.changeCompleteOrdersExpandState(it)
         }
     }
 
@@ -94,7 +84,6 @@ fun Orders(
 
     val needScrollToItem by remember {
         derivedStateOf {
-//            observeOrders != null &&
             createdRecord != null
         }
     }
@@ -142,7 +131,7 @@ fun Orders(
                 },
                 modifier = modifier,
                 cardOffset = CARD_OFFSET.dp(),
-                onChangeExpandState = {
+                onClickActions = {
                     onChangeExpandStateLambda(it.order.id)
                 },
                 onDeleteOrder = {
@@ -159,11 +148,11 @@ fun Orders(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
+    modifier: Modifier = Modifier,
     order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit,
-    modifier: Modifier = Modifier,
     cardOffset: Float,
-    onChangeExpandState: (DomainOrderComplete) -> Unit,
+    onClickActions: (DomainOrderComplete) -> Unit,
     onDeleteOrder: (Int) -> Unit,
     onEditOrder: (Int) -> Unit
 ) {
@@ -235,7 +224,7 @@ fun OrderCard(
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onDoubleTap = { onChangeExpandState(order) }
+                        onDoubleTap = { onClickActions(order) }
                     )
                 },
             elevation = CardDefaults.cardElevation(

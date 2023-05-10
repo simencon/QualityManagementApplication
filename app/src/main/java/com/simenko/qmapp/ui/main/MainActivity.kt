@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -15,7 +16,6 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
-import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
@@ -50,6 +50,7 @@ fun createMainActivityIntent(
     return intent
 }
 
+private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navigationView: NavigationView
 
     var requestCode: Int = -1
-    private var createdRecord = CreatedRecord(-1,-1)
+    private var createdRecord = CreatedRecord(-1, -1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,7 +112,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             requestCode == ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal
         ) {
             this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
-        } else if(
+        } else if (
             requestCode == ActionType.ADD_ORDER.ordinal ||
             requestCode == ActionType.EDIT_ORDER.ordinal ||
             requestCode == ActionType.ADD_SUB_ORDER.ordinal ||
@@ -145,7 +146,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
-                investigationsModel.setCurrentOrderToShow(newText ?: "0")
+                if (investigationsModel.getProcessControlOnly())
+                    investigationsModel.setSubOrderNumberToShow(newText ?: "0")
+                else
+                    investigationsModel.setOrderNumberToShow(newText ?: "0")
+                Log.d(TAG, "onQueryTextChange: $newText")
                 return true
             }
 
@@ -214,11 +219,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
-                        investigationsModel.showAllInvestigations.value = true
+                        investigationsModel.setProcessControlOnly(false)
                         InvestigationsFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        investigationsModel.showAllInvestigations.value = false
+                        investigationsModel.setProcessControlOnly(true)
                         InvestigationsFragment(createdRecord)
                     }
 

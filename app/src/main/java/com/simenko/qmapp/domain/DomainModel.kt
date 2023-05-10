@@ -17,3 +17,11 @@ abstract class DomainModel {
     @Stable
     open fun getName(): String = "will be returned any string"
 }
+
+@JvmInline
+value class SelectedNumber(val num: Int)
+val NoSelectedRecord = SelectedNumber(-1)
+
+@JvmInline
+value class SelectedString(val str: String)
+val NoSelectedString = SelectedString("0")

@@ -335,7 +335,7 @@ fun DatabaseCharacteristicComplete.toDomainCharacteristicComplete(): DomainChara
     )
 }
 
-fun List<DomainTeamMemberComplete>.changeVisibility(id: Int): List<DomainTeamMemberComplete> {
+fun List<DomainTeamMemberComplete>.changeOrderVisibility(id: Int): List<DomainTeamMemberComplete> {
     return map {
         if (id == it.teamMember.id) {
             it.detailsVisibility = !it.detailsVisibility
@@ -347,7 +347,7 @@ fun List<DomainTeamMemberComplete>.changeVisibility(id: Int): List<DomainTeamMem
 }
 
 private const val TAG = "TransformationsToDomain"
-fun List<DomainOrderComplete>.changeVisibility(
+fun List<DomainOrderComplete>.changeOrderVisibility(
     detailsId: Int,
     actionsId: Int
 ): List<DomainOrderComplete> {
@@ -368,6 +368,32 @@ fun List<DomainOrderComplete>.filterByStatusAndNumber(
         (it.order.statusId == statusId || statusId == -1)
                 &&
                 (it.order.orderNumber.toString().contains(orderNumber)
+                        ||
+                        (orderNumber == "0"))
+    }
+}
+
+fun List<DomainSubOrderComplete>.changeSubOrderVisibility(
+    detailsId: Int,
+    actionsId: Int
+): List<DomainSubOrderComplete> {
+    return map {
+
+        it.detailsVisibility = detailsId == it.subOrder.id
+        it.isExpanded = actionsId == it.subOrder.id
+
+        it
+    }
+}
+
+fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
+    statusId: Int,
+    orderNumber: String
+): List<DomainSubOrderComplete> {
+    return filter {
+        (it.subOrder.statusId == statusId || statusId == -1)
+                &&
+                (it.orderShort.order.orderNumber.toString().contains(orderNumber)
                         ||
                         (orderNumber == "0"))
     }

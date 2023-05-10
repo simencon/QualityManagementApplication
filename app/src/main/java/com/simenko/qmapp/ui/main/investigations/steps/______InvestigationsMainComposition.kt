@@ -31,7 +31,6 @@ import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.Primary900
@@ -52,7 +51,7 @@ fun InvestigationsMainComposition(
     val appModel = (context as MainActivity).appModel
     val viewModel = (context as MainActivity).investigationsModel
 
-    val showAllInvestigations by viewModel.showAllInvestigations.observeAsState()
+    val showProcessControlOnly by viewModel.showProcessControlOnly.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
@@ -85,7 +84,7 @@ fun InvestigationsMainComposition(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (showAllInvestigations == true)
+                        if (showProcessControlOnly == false)
                             launchNewItemActivityForResult(
                                 context as MainActivity,
                                 ActionType.ADD_ORDER.ordinal
@@ -150,7 +149,7 @@ fun InvestigationsMainComposition(
                                 )
                         }
 
-                        if (showAllInvestigations == true)
+                        if (showProcessControlOnly == false)
                             Orders(
                                 modifier = modifier.width(
                                     when (isSamplesNumVisible) {

@@ -10,10 +10,6 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
-import com.simenko.qmapp.ui.main.team.SelectedRecord
-import com.simenko.qmapp.ui.main.team.NoSelectedRecord
-import com.simenko.qmapp.ui.main.team.NoSelectedString
-import com.simenko.qmapp.ui.main.team.SelectedString
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -22,8 +18,7 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
 
-private const val TAG = "InvestigationsViewModel"
-
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
@@ -38,7 +33,16 @@ class InvestigationsViewModel @Inject constructor(
         isNetworkError.value = false
     }
 
-    var showAllInvestigations = MutableLiveData(true)
+    private val _showProcessControlOnly = MutableLiveData(true)
+
+    val showProcessControlOnly: LiveData<Boolean>
+        get() = _showProcessControlOnly
+
+    fun setProcessControlOnly(value: Boolean) {
+        _showProcessControlOnly.value = value
+    }
+
+    fun getProcessControlOnly(): Boolean = _showProcessControlOnly.value ?: false
 
     var isStatusDialogVisible = MutableLiveData(false)
     val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER, null))
@@ -141,17 +145,19 @@ class InvestigationsViewModel @Inject constructor(
 
     val createdRecord = MutableLiveData(CreatedRecord())
 
-    val currentOrder = MutableLiveData(0)
-    val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
+    /**
+     * Operations with orders ______________________________________________________________
+     * */
+    private val _ordersF = repository.completeOrders()
 
-    private val _orderF = repository.completeOrders()
-
-    private val _currentOrderDetails = MutableStateFlow<SelectedRecord>(NoSelectedRecord)
-    private val _currentOrderActions = MutableStateFlow<SelectedRecord>(NoSelectedRecord)
-
+    /**
+     * Visibility operations
+     * */
+    private val _currentOrderDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
+    private val _currentOrderActions = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     fun setOrderDetailsVisibility(id: Int) {
         if (_currentOrderDetails.value.num != id) {
-            _currentOrderDetails.value = SelectedRecord(id)
+            _currentOrderDetails.value = SelectedNumber(id)
             repository.setCurrentOrder(id)
         } else {
             _currentOrderDetails.value = NoSelectedRecord
@@ -161,27 +167,29 @@ class InvestigationsViewModel @Inject constructor(
 
     fun setOrderActionsVisibility(id: Int) {
         if (_currentOrderActions.value.num != id)
-            _currentOrderActions.value = SelectedRecord(id)
+            _currentOrderActions.value = SelectedNumber(id)
         else
             _currentOrderActions.value = NoSelectedRecord
     }
 
-    private val _showWithStatus = MutableStateFlow(NoSelectedRecord)
-    private val _showOrderNumber = MutableStateFlow(NoSelectedString)
-
-    fun setCurrentStatusToShow(status: String) {
+    /**
+     * Filtering operations
+     * */
+    private val _showWithStatus = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
+    private val _showOrderNumber = MutableStateFlow<SelectedString>(NoSelectedString)
+    fun setOrderStatusToShow(status: String) {
         when (status) {
             InvestigationsFragment.TargetInv.ALL.name -> {
                 _showWithStatus.value = NoSelectedRecord
             }
             InvestigationsFragment.TargetInv.TO_DO.name -> {
-                _showWithStatus.value = SelectedRecord(1)
+                _showWithStatus.value = SelectedNumber(1)
             }
             InvestigationsFragment.TargetInv.IN_PROGRESS.name -> {
-                _showWithStatus.value = SelectedRecord(2)
+                _showWithStatus.value = SelectedNumber(2)
             }
             InvestigationsFragment.TargetInv.DONE.name -> {
-                _showWithStatus.value = SelectedRecord(3)
+                _showWithStatus.value = SelectedNumber(3)
             }
             else -> {
                 _showWithStatus.value = NoSelectedRecord
@@ -189,32 +197,35 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    fun setCurrentOrderToShow(orderNumber: String) {
+    fun setOrderNumberToShow(orderNumber: String) {
         _showOrderNumber.value = SelectedString(orderNumber)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    /**
+     * The result flow
+     * */
     val ordersSF: Flow<List<DomainOrderComplete>> =
         _currentOrderDetails.flatMapLatest { details ->
             _currentOrderActions.flatMapLatest { actions ->
                 _showWithStatus.flatMapLatest { status ->
                     _showOrderNumber.flatMapLatest { number ->
-                        changeSubOrderDetailsVisibility(currentSubOrder.value ?: 0)
+                        setOrderDetailsVisibility(_currentSubOrderDetails.value.num)
                         changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
                         changeSampleDetailsVisibility(currentSample.value ?: 0)
                         changeResultDetailsVisibility(currentResult.value ?: 0)
 
-                        _orderF.map {
-                            it.changeVisibility(details.num, actions.num)
+                        _ordersF.map {
+                            it.changeOrderVisibility(details.num, actions.num)
                                 .filterByStatusAndNumber(status.num, number.str)
                         }
                     }
                 }
-
-
             }
         }.flowOn(Dispatchers.IO).conflate()
 
+    /**
+     * REST operations
+     * */
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
             try {
@@ -270,77 +281,92 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val currentSubOrder = MutableLiveData(0)
-    val subOrders: SnapshotStateList<DomainSubOrderComplete> = mutableStateListOf()
+    val currentOrder = MutableLiveData(0)
+    val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
+    /**
+     * End of operations with orders _______________________________________________________
+     * */
 
-    fun addSubOrdersToSnapShot(
-        currentStatus: Int = 0,
-        lookUpNumber: String = ""
-    ) {
-        viewModelScope.launch {
-            repository.completeSubOrders().collect() { it ->
-                subOrders.apply {
-                    this.clear()
-                    it.forEach { itF ->
-                        if (itF.subOrder.statusId == currentStatus || currentStatus == 0)
-                            if (itF.orderShort.order.orderNumber.toString()
-                                    .contains(lookUpNumber) || lookUpNumber == "0"
-                            )
-                                this.add(itF)
-                    }
-                }
+    /**
+     * Operations with sub orders __________________________________________________________
+     * */
+    private val _subOrdersF = repository.completeSubOrders()
+
+    /**
+     * Visibility operations
+     * */
+    private val _currentSubOrderDetails = MutableStateFlow(NoSelectedRecord)
+    private val _currentSubOrderActions = MutableStateFlow(NoSelectedRecord)
+    fun setSubOrderDetailsVisibility(id: Int) {
+        if (_currentSubOrderDetails.value.num != id) {
+            _currentSubOrderDetails.value = SelectedNumber(id)
+            repository.setCurrentSubOrder(id)
+        } else {
+            _currentSubOrderDetails.value = NoSelectedRecord
+            repository.setCurrentSubOrder(-1)
+        }
+    }
+
+    fun setSubOrderActionsVisibility(id: Int) {
+        if (_currentSubOrderActions.value.num != id)
+            _currentSubOrderActions.value = SelectedNumber(id)
+        else
+            _currentSubOrderActions.value = NoSelectedRecord
+    }
+
+    /**
+     * Filtering operations
+     * */
+    private val _showSubOrderWithStatus = MutableStateFlow(NoSelectedRecord)
+    private val _showSubOrderNumber = MutableStateFlow(NoSelectedString)
+    fun setSubOrderStatusToShow(status: String) {
+        when (status) {
+            InvestigationsFragment.TargetInv.ALL.name -> {
+                _showSubOrderWithStatus.value = NoSelectedRecord
+            }
+            InvestigationsFragment.TargetInv.TO_DO.name -> {
+                _showSubOrderWithStatus.value = SelectedNumber(1)
+            }
+            InvestigationsFragment.TargetInv.IN_PROGRESS.name -> {
+                _showSubOrderWithStatus.value = SelectedNumber(2)
+            }
+            InvestigationsFragment.TargetInv.DONE.name -> {
+                _showSubOrderWithStatus.value = SelectedNumber(3)
+            }
+            else -> {
+                _showSubOrderWithStatus.value = NoSelectedRecord
             }
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun changeSubOrderDetailsVisibility(itemId: Int) {
-        val iterator = subOrders.listIterator()
-        viewModelScope.launch {
-            val channel = CoroutineScope(Dispatchers.IO).produce<Int> {
-                var currentItem = 0
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.subOrder.id == itemId) {
-                        iterator.set(current.copy(detailsVisibility = !current.detailsVisibility))
-                        if (!current.detailsVisibility) {
-                            currentItem = itemId
+    fun setSubOrderNumberToShow(orderNumber: String) {
+        _showSubOrderNumber.value = SelectedString(orderNumber)
+    }
+
+    /**
+     * The result flow
+     * */
+    val subOrdersSF: Flow<List<DomainSubOrderComplete>> =
+        _currentSubOrderDetails.flatMapLatest { details ->
+            _currentSubOrderActions.flatMapLatest { actions ->
+                _showSubOrderWithStatus.flatMapLatest { status ->
+                    _showSubOrderNumber.flatMapLatest { number ->
+                        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
+                        changeSampleDetailsVisibility(currentSample.value ?: 0)
+                        changeResultDetailsVisibility(currentResult.value ?: 0)
+
+                        _subOrdersF.map {
+                            it.changeSubOrderVisibility(details.num, actions.num)
+                                .filterSubOrderByStatusAndNumber(status.num, number.str)
                         }
-                    } else {
-                        if (current.detailsVisibility)
-                            iterator.set(current.copy(detailsVisibility = false))
-                    }
-                }
-                send(currentItem)
-            }
-            channel.consumeEach {
-                repository.setCurrentSubOrder(it)
-                currentSubOrder.value = it
-            }
-        }
-
-        changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
-        changeSampleDetailsVisibility(currentSample.value ?: 0)
-        changeResultDetailsVisibility(currentResult.value ?: 0)
-    }
-
-    fun changeCompleteSubOrdersExpandState(itemId: Int) {
-        val iterator = subOrders.listIterator()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.subOrder.id == itemId) {
-                        iterator.set(current.copy(isExpanded = !current.isExpanded))
-                    } else {
-                        if (current.isExpanded)
-                            iterator.set(current.copy(isExpanded = false))
                     }
                 }
             }
-        }
-    }
+        }.flowOn(Dispatchers.IO).conflate()
 
+    /**
+     * REST operations
+     * */
     fun deleteSubOrder(subOrder: DomainSubOrderComplete) {
         viewModelScope.launch {
             try {
@@ -396,6 +422,12 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
+    val currentSubOrder = MutableLiveData(0)
+    val subOrders: SnapshotStateList<DomainSubOrderComplete> = mutableStateListOf()
+
+    /**
+     * End of operations with orders _______________________________________________________
+     * */
     val currentSubOrderTask = MutableLiveData(0)
     val tasks: SnapshotStateList<DomainSubOrderTaskComplete> = mutableStateListOf()
 
