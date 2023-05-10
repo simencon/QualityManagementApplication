@@ -20,7 +20,7 @@ import javax.inject.Inject
 private const val TAG = "ProductsRepository"
 
 class ProductsRepository @Inject constructor(
-    private val qualityManagementProductsDao: ProductsDao,
+    private val productsDao: ProductsDao,
     private val productsService: ProductsService
 ) {
     /**
@@ -31,7 +31,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val elementIshModels =
                 productsService.getElementIshModels()
-            qualityManagementProductsDao.insertElementIshModelsAll(
+            productsDao.insertElementIshModelsAll(
                 ListTransformer(
                     elementIshModels,
                     NetworkElementIshModel::class, DatabaseElementIshModel::class
@@ -48,7 +48,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val ishSubCharacteristics =
                 productsService.getIshSubCharacteristics()
-            qualityManagementProductsDao.insertIshSubCharacteristicsAll(
+            productsDao.insertIshSubCharacteristicsAll(
                 ListTransformer(
                     ishSubCharacteristics,
                     NetworkIshSubCharacteristic::class, DatabaseIshSubCharacteristic::class
@@ -65,7 +65,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val manufacturingProjects =
                 productsService.getManufacturingProjects()
-            qualityManagementProductsDao.insertManufacturingProjectsAll(
+            productsDao.insertManufacturingProjectsAll(
                 ListTransformer(
                     manufacturingProjects,
                     NetworkManufacturingProject::class, DatabaseManufacturingProject::class
@@ -82,7 +82,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val characteristics =
                 productsService.getCharacteristics()
-            qualityManagementProductsDao.insertCharacteristicsAll(
+            productsDao.insertCharacteristicsAll(
                 ListTransformer(
                     characteristics, NetworkCharacteristic::class,
                     DatabaseCharacteristic::class
@@ -98,7 +98,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshMetrixes() {
         withContext(Dispatchers.IO) {
             val metrixes = productsService.getMetrixes()
-            qualityManagementProductsDao.insertMetrixesAll(
+            productsDao.insertMetrixesAll(
                 ListTransformer(
                     metrixes,
                     NetworkMetrix::class,
@@ -112,7 +112,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshKeys() {
         withContext(Dispatchers.IO) {
             val list = productsService.getKeys()
-            qualityManagementProductsDao.insertKeysAll(
+            productsDao.insertKeysAll(
                 ListTransformer(
                     list,
                     NetworkKey::class,
@@ -126,7 +126,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshProductBases() {
         withContext(Dispatchers.IO) {
             val list = productsService.getProductBases()
-            qualityManagementProductsDao.insertProductBasesAll(
+            productsDao.insertProductBasesAll(
                 ListTransformer(
                     list,
                     NetworkProductBase::class,
@@ -143,7 +143,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshProducts() {
         withContext(Dispatchers.IO) {
             val list = productsService.getProducts()
-            qualityManagementProductsDao.insertProductsAll(
+            productsDao.insertProductsAll(
                 ListTransformer(
                     list,
                     NetworkProduct::class,
@@ -157,7 +157,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponents() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponents()
-            qualityManagementProductsDao.insertComponentsAll(
+            productsDao.insertComponentsAll(
                 ListTransformer(
                     list,
                     NetworkComponent::class,
@@ -171,7 +171,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponentInStages() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStages()
-            qualityManagementProductsDao.insertComponentInStagesAll(
+            productsDao.insertComponentInStagesAll(
                 ListTransformer(
                     list,
                     NetworkComponentInStage::class,
@@ -188,7 +188,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshVersionStatuses() {
         withContext(Dispatchers.IO) {
             val list = productsService.getVersionStatuses()
-            qualityManagementProductsDao.insertVersionStatusesAll(
+            productsDao.insertVersionStatusesAll(
                 ListTransformer(
                     list,
                     NetworkVersionStatus::class,
@@ -205,7 +205,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshProductVersions() {
         withContext(Dispatchers.IO) {
             val list = productsService.getProductVersions()
-            qualityManagementProductsDao.insertProductVersionsAll(
+            productsDao.insertProductVersionsAll(
                 ListTransformer(
                     list,
                     NetworkProductVersion::class,
@@ -222,7 +222,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponentVersions() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentVersions()
-            qualityManagementProductsDao.insertComponentVersionsAll(
+            productsDao.insertComponentVersionsAll(
                 ListTransformer(
                     list,
                     NetworkComponentVersion::class,
@@ -239,7 +239,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponentInStageVersions() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStageVersions()
-            qualityManagementProductsDao.insertComponentInStageVersionsAll(
+            productsDao.insertComponentInStageVersionsAll(
                 ListTransformer(
                     list,
                     NetworkComponentInStageVersion::class,
@@ -256,7 +256,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshProductTolerances() {
         withContext(Dispatchers.IO) {
             val list = productsService.getProductTolerances()
-            qualityManagementProductsDao.insertProductTolerancesAll(
+            productsDao.insertProductTolerancesAll(
                 ListTransformer(
                     list,
                     NetworkProductTolerance::class,
@@ -273,7 +273,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponentTolerances() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentTolerances()
-            qualityManagementProductsDao.insertComponentTolerancesAll(
+            productsDao.insertComponentTolerancesAll(
                 ListTransformer(
                     list,
                     NetworkComponentTolerance::class,
@@ -291,7 +291,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list =
                 productsService.getComponentInStageTolerances()
-            qualityManagementProductsDao.insertComponentInStageTolerancesAll(
+            productsDao.insertComponentInStageTolerancesAll(
                 ListTransformer(
                     list,
                     NetworkComponentInStageTolerance::class,
@@ -308,7 +308,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshProductsToLines() {
         withContext(Dispatchers.IO) {
             val list = productsService.getProductsToLines()
-            qualityManagementProductsDao.insertProductsToLinesAll(
+            productsDao.insertProductsToLinesAll(
                 ListTransformer(
                     list,
                     NetworkProductToLine::class,
@@ -325,7 +325,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponentsToLines() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentsToLines()
-            qualityManagementProductsDao.insertComponentsToLinesAll(
+            productsDao.insertComponentsToLinesAll(
                 ListTransformer(
                     list,
                     NetworkComponentToLine::class,
@@ -342,7 +342,7 @@ class ProductsRepository @Inject constructor(
     suspend fun refreshComponentInStagesToLines() {
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStagesToLines()
-            qualityManagementProductsDao.insertComponentInStagesToLinesAll(
+            productsDao.insertComponentInStagesToLinesAll(
                 ListTransformer(
                     list,
                     NetworkComponentInStageToLine::class,
@@ -357,7 +357,7 @@ class ProductsRepository @Inject constructor(
     }
 
     val characteristics: LiveData<List<DomainCharacteristic>> =
-        qualityManagementProductsDao.getCharacteristics().map {
+        productsDao.getCharacteristics().map {
             ListTransformer(
                 it,
                 DatabaseCharacteristic::class,
@@ -366,7 +366,7 @@ class ProductsRepository @Inject constructor(
         }
 
     val metrixes: LiveData<List<DomainMetrix>> =
-        qualityManagementProductsDao.getMetrixes().map {
+        productsDao.getMetrixes().map {
             ListTransformer(
                 it,
                 DatabaseMetrix::class,
@@ -374,8 +374,23 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
 
+    suspend fun getMetricsByPrefixVersionIdActualityCharId(
+        prefix: String,
+        versionId: Int,
+        actual: Boolean,
+        charId: Int
+    ): List<DomainMetrix> {
+        val list = productsDao.getMetricsByPrefixVersionIdActualityCharId(
+            prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()
+        )
+        return ListTransformer(
+            list,
+            DatabaseMetrix::class, DomainMetrix::class
+        ).generateList()
+    }
+
     fun metrixes(): Flow<List<DomainMetrix>> =
-        qualityManagementProductsDao.getMetrixesFlow().map {
+        productsDao.getMetrixesFlow().map {
             ListTransformer(
                 it,
                 DatabaseMetrix::class,
@@ -384,23 +399,23 @@ class ProductsRepository @Inject constructor(
         }
 
     val keys: LiveData<List<DomainKey>> =
-        qualityManagementProductsDao.getKeys().map {
+        productsDao.getKeys().map {
             ListTransformer(it, DatabaseKey::class, DomainKey::class).generateList()
         }
     val productBases: LiveData<List<DomainProductBase>> =
-        qualityManagementProductsDao.getProductBases().map {
+        productsDao.getProductBases().map {
             ListTransformer(it, DatabaseProductBase::class, DomainProductBase::class).generateList()
         }
     val products: LiveData<List<DomainProduct>> =
-        qualityManagementProductsDao.getProducts().map {
+        productsDao.getProducts().map {
             ListTransformer(it, DatabaseProduct::class, DomainProduct::class).generateList()
         }
     val components: LiveData<List<DomainComponent>> =
-        qualityManagementProductsDao.getComponents().map {
+        productsDao.getComponents().map {
             ListTransformer(it, DatabaseComponent::class, DomainComponent::class).generateList()
         }
     val componentInStages: LiveData<List<DomainComponentInStage>> =
-        qualityManagementProductsDao.getComponentInStages().map {
+        productsDao.getComponentInStages().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStage::class,
@@ -408,7 +423,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val versionStatuses: LiveData<List<DomainVersionStatus>> =
-        qualityManagementProductsDao.getVersionStatuses().map {
+        productsDao.getVersionStatuses().map {
             ListTransformer(
                 it,
                 DatabaseVersionStatus::class,
@@ -416,7 +431,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val productVersions: LiveData<List<DomainProductVersion>> =
-        qualityManagementProductsDao.getProductVersions().map {
+        productsDao.getProductVersions().map {
             ListTransformer(
                 it,
                 DatabaseProductVersion::class,
@@ -424,7 +439,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val componentVersions: LiveData<List<DomainComponentVersion>> =
-        qualityManagementProductsDao.getComponentVersions().map {
+        productsDao.getComponentVersions().map {
             ListTransformer(
                 it,
                 DatabaseComponentVersion::class,
@@ -432,7 +447,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val componentInStageVersions: LiveData<List<DomainComponentInStageVersion>> =
-        qualityManagementProductsDao.getComponentInStageVersions().map {
+        productsDao.getComponentInStageVersions().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageVersion::class,
@@ -440,7 +455,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val productTolerances: LiveData<List<DomainProductTolerance>> =
-        qualityManagementProductsDao.getProductTolerances().map {
+        productsDao.getProductTolerances().map {
             ListTransformer(
                 it,
                 DatabaseProductTolerance::class,
@@ -449,7 +464,7 @@ class ProductsRepository @Inject constructor(
         }
 
     fun productTolerances(): Flow<List<DomainProductTolerance>> =
-        qualityManagementProductsDao.getProductTolerancesFlow().map {
+        productsDao.getProductTolerancesFlow().map {
             ListTransformer(
                 it,
                 DatabaseProductTolerance::class,
@@ -458,7 +473,7 @@ class ProductsRepository @Inject constructor(
         }
 
     val componentTolerances: LiveData<List<DomainComponentTolerance>> =
-        qualityManagementProductsDao.getComponentTolerances().map {
+        productsDao.getComponentTolerances().map {
             ListTransformer(
                 it,
                 DatabaseComponentTolerance::class,
@@ -467,7 +482,7 @@ class ProductsRepository @Inject constructor(
         }
 
     fun componentTolerances(): Flow<List<DomainComponentTolerance>> =
-        qualityManagementProductsDao.getComponentTolerancesFlow().map {
+        productsDao.getComponentTolerancesFlow().map {
             ListTransformer(
                 it,
                 DatabaseComponentTolerance::class,
@@ -476,7 +491,7 @@ class ProductsRepository @Inject constructor(
         }
 
     val componentInStageTolerances: LiveData<List<DomainComponentInStageTolerance>> =
-        qualityManagementProductsDao.getComponentInStageTolerances().map {
+        productsDao.getComponentInStageTolerances().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageTolerance::class,
@@ -485,7 +500,7 @@ class ProductsRepository @Inject constructor(
         }
 
     fun componentInStageTolerances(): Flow<List<DomainComponentInStageTolerance>> =
-        qualityManagementProductsDao.getComponentInStageTolerancesFlow().map {
+        productsDao.getComponentInStageTolerancesFlow().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageTolerance::class,
@@ -494,7 +509,7 @@ class ProductsRepository @Inject constructor(
         }
 
     val productsToLines: LiveData<List<DomainProductToLine>> =
-        qualityManagementProductsDao.getProductsToLines().map {
+        productsDao.getProductsToLines().map {
             ListTransformer(
                 it,
                 DatabaseProductToLine::class,
@@ -502,7 +517,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val componentsToLines: LiveData<List<DomainComponentToLine>> =
-        qualityManagementProductsDao.getComponentsToLines().map {
+        productsDao.getComponentsToLines().map {
             ListTransformer(
                 it,
                 DatabaseComponentToLine::class,
@@ -510,7 +525,7 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val componentInStagesToLines: LiveData<List<DomainComponentInStageToLine>> =
-        qualityManagementProductsDao.getComponentInStagesToLines().map {
+        productsDao.getComponentInStagesToLines().map {
             ListTransformer(
                 it,
                 DatabaseComponentInStageToLine::class,
@@ -518,12 +533,12 @@ class ProductsRepository @Inject constructor(
             ).generateList()
         }
     val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
-        qualityManagementProductsDao.getItemVersionsComplete().map {
+        productsDao.getItemVersionsComplete().map {
             it.asDomainItem()
         }
 
     val itemsTolerances: LiveData<List<DomainItemTolerance>> =
-        qualityManagementProductsDao.getItemsTolerances().map {
+        productsDao.getItemsTolerances().map {
             ListTransformer(
                 it,
                 DatabaseItemTolerance::class,

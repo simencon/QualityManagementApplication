@@ -28,7 +28,6 @@ private const val TAG = "InvestigationsRepository"
 @OptIn(ExperimentalCoroutinesApi::class)
 class InvestigationsRepository @Inject constructor(
     private val investigationsDao: InvestigationsDao,
-    private val productsDao: ProductsDao,
     private val investigationsService: InvestigationsService
 ) {
 
@@ -548,21 +547,6 @@ class InvestigationsRepository @Inject constructor(
         return ListTransformer(
             list,
             DatabaseSubOrderTask::class, DomainSubOrderTask::class
-        ).generateList()
-    }
-
-    suspend fun getMetricsByPrefixVersionIdActualityCharId(
-        prefix: String,
-        versionId: Int,
-        actual: Boolean,
-        charId: Int
-    ): List<DomainMetrix> {
-        val list = productsDao.getMetricsByPrefixVersionIdActualityCharId(
-            prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()
-        )
-        return ListTransformer(
-            list,
-            DatabaseMetrix::class, DomainMetrix::class
         ).generateList()
     }
 

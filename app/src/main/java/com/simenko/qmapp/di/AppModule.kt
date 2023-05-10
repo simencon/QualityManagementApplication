@@ -93,9 +93,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideInvestigationsRepository(
-        iDao: InvestigationsDao,
-        pDao: ProductsDao,
-        service: InvestigationsService
-    ) = InvestigationsRepository(iDao, pDao, service)
+    fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService) =
+        InvestigationsRepository(dao, service)
 }

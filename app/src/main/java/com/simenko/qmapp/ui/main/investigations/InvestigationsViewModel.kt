@@ -80,56 +80,6 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val metrixes: SnapshotStateList<DomainMetrix> = mutableStateListOf()
-    fun addMetrixesToSnapShot() {
-        viewModelScope.launch {
-            productsRepository.metrixes().collect() { it ->
-                metrixes.apply {
-                    this.clear()
-                    this.addAll(it)
-                }
-            }
-        }
-    }
-
-    val productTolerances: SnapshotStateList<DomainProductTolerance> = mutableStateListOf()
-    fun addProductTolerancesToSnapShot() {
-        viewModelScope.launch {
-            productsRepository.productTolerances().collect() { it ->
-                productTolerances.apply {
-                    this.clear()
-                    this.addAll(it)
-                }
-            }
-        }
-    }
-
-    val componentTolerances: SnapshotStateList<DomainComponentTolerance> = mutableStateListOf()
-    fun addComponentTolerancesToSnapShot() {
-        viewModelScope.launch {
-            productsRepository.componentTolerances().collect() { it ->
-                componentTolerances.apply {
-                    this.clear()
-                    this.addAll(it)
-                }
-            }
-        }
-    }
-
-    val componentInStageTolerances: SnapshotStateList<DomainComponentInStageTolerance> =
-        mutableStateListOf()
-
-    fun addComponentInStageTolerancesToSnapShot() {
-        viewModelScope.launch {
-            productsRepository.componentInStageTolerances().collect() { it ->
-                componentInStageTolerances.apply {
-                    this.clear()
-                    this.addAll(it)
-                }
-            }
-        }
-    }
-
     val team: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
 
     fun addTeamToSnapShot() {
@@ -707,7 +657,7 @@ class InvestigationsViewModel @Inject constructor(
                         /**
                          * second - extract list of metrixes to record
                          * */
-                        val metrixesToRecord = repository.getMetricsByPrefixVersionIdActualityCharId(
+                        val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
                             prefix = subOrder.itemPreffix.substring(0, 1),
                             versionId = subOrder.itemVersionId,
                             actual = true,
@@ -754,8 +704,9 @@ class InvestigationsViewModel @Inject constructor(
             coroutineScope,
             subOrderTask
         )
-//        channel2.consumeEach {
-//        }
+
+        channel2.consumeEach {
+        }
     }
 
     fun editResult(result: DomainResult) {

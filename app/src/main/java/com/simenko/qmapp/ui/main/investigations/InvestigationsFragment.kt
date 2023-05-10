@@ -85,10 +85,6 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
 
         viewModel.addStatusesToSnapShot()
         viewModel.addTeamToSnapShot()
-        viewModel.addMetrixesToSnapShot()
-        viewModel.addProductTolerancesToSnapShot()
-        viewModel.addComponentTolerancesToSnapShot()
-        viewModel.addComponentInStageTolerancesToSnapShot()
 
         requireContext().theme
 
