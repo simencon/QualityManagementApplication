@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
@@ -17,7 +16,6 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
-
 
 private const val TAG = "InvestigationsViewModel"
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -695,7 +693,6 @@ class InvestigationsViewModel @Inject constructor(
             subOrderTask
         )
         channel1.consumeEach {
-            Log.d(TAG, "editTask: task are found = $it")
             if (it.statusId == 1 || it.statusId == 4) {
                 if (subOrderTask.statusId == 3)
                 /**
@@ -707,67 +704,45 @@ class InvestigationsViewModel @Inject constructor(
                          * first find subOrder
                          * */
                         val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
-                        Log.d(TAG, "editTask: proper sub order are found: $subOrder")
                         /**
                          * second - extract list of metrixes to record
                          * */
-                        val testList = repository.getMetricsByPrefixVersionIdActualityCharId(
+                        val metrixesToRecord = repository.getMetricsByPrefixVersionIdActualityCharId(
                             prefix = subOrder.itemPreffix.substring(0, 1),
                             versionId = subOrder.itemVersionId,
                             actual = true,
                             charId = subOrderTask.charId
                         )
-                        Log.d(TAG, "editTask - the testList: $testList")
-                        val metrixesToRecord: List<DomainMetrix?>? =
-                            when (subOrder.itemPreffix.substring(0, 1)) {
-                                "p" -> {
-                                    productTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                        .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                }
-                                "c" -> {
-                                    componentTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                        .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                }
-                                "s" -> {
-                                    componentInStageTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                        .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                }
-                                else -> {
-                                    componentTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                        .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                                }
-                            }
-                        Log.d(TAG, "editTask - the metrixesToRecord: $metrixesToRecord")
                         /**
                          * third - generate the final list of result to record
                          * */
-                        repository.getAllSamples().filter { sIt -> sIt.sample.subOrderId == subOrder.id }
-                            .distinctBy { sfIt -> sfIt.sample.id }.forEach { sdIt ->
-                                metrixesToRecord?.forEach { mIt ->
-                                    if (mIt != null) {
-                                        listOfResults.add(
-                                            DomainResult(
-                                                id = 0,
-                                                sampleId = sdIt.sample.id,
-                                                metrixId = mIt.id,
-                                                result = null,
-                                                isOk = true,
-                                                resultDecryptionId = 1,
-                                                taskId = subOrderTask.id
-                                            )
+                        repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
+                                metrixesToRecord.forEach { mIt ->
+                                    listOfResults.add(
+                                        DomainResult(
+                                            id = 0,
+                                            sampleId = sdIt.id,
+                                            metrixId = mIt.id,
+                                            result = null,
+                                            isOk = true,
+                                            resultDecryptionId = 1,
+                                            taskId = subOrderTask.id
                                         )
-                                    }
+                                    )
                                 }
                             }
 
-                        Log.d(TAG, "editTask: final list are assembled, size = ${listOfResults.size}")
+                        repository.getCreatedRecords(
+                            coroutineScope,
+                            listOfResults
+                        )
+
                         listOfResults.forEach { dResult ->
                             val channel3 = repository.getCreatedRecord(
                                 coroutineScope,
                                 dResult
                             )
-                            channel3.consumeEach { rIt->
-                                Log.d(TAG, "editTask: result are stored $rIt")
+                            channel3.consumeEach {
                             }
                         }
                     }
@@ -786,7 +761,6 @@ class InvestigationsViewModel @Inject constructor(
                      * Delete all results and change status
                      * */
                     deleteResultsBasedOnTask(subOrderTask)
-                    Log.d(TAG, "editTask: results belongs to taskId = ${subOrderTask.id} - was deleted")
                 }
             }
         }
@@ -800,7 +774,6 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     fun editResult(result: DomainResult) {
-        Log.d(TAG, "editResult: start of function")
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true

@@ -102,8 +102,9 @@ interface InvestigationsDao {
     @Query("SELECT * FROM `14_samples` ORDER BY sampleNumber ASC")
     suspend fun getSamplesByList(): List<DatabaseSample>
     @Transaction
-    @Query("SELECT * FROM `samples_results`")
-    suspend fun getAllSamplesDetailed(): List<DatabaseSampleComplete>
+    @Query("SELECT s.* FROM `14_samples` as s " +
+            "where s.subOrderId = :subOrderId")
+    suspend fun getSamplesBySubOrderId(subOrderId: Int): List<DatabaseSample>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -112,7 +113,7 @@ interface InvestigationsDao {
     fun getResultsDecryptions(): LiveData<List<DatabaseResultsDecryption>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertResultsAll(company: List<DatabaseResult>)
+    fun insertResultsAll(records: List<DatabaseResult>)
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     fun getResults(): LiveData<List<DatabaseResult>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)

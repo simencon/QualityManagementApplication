@@ -570,8 +570,12 @@ class InvestigationsRepository @Inject constructor(
         ).generateList()
     }
 
-    suspend fun getAllSamples(): List<DomainSampleComplete> {
-        return investigationsDao.getAllSamplesDetailed().asDomainSamples()
+    suspend fun getSamplesBySubOrderId(subOrderId: Int): List<DomainSample> {
+        val list = investigationsDao.getSamplesBySubOrderId(subOrderId)
+        return ListTransformer(
+            list,
+            DatabaseSample::class, DomainSample::class
+        ).generateList()
     }
 
 //    -------------------------------------------------------------
