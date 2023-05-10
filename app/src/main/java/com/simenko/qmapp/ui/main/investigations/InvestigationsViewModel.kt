@@ -209,7 +209,7 @@ class InvestigationsViewModel @Inject constructor(
             _currentOrderActions.flatMapLatest { actions ->
                 _showWithStatus.flatMapLatest { status ->
                     _showOrderNumber.flatMapLatest { number ->
-                        setOrderDetailsVisibility(_currentSubOrderDetails.value.num)
+                        setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
                         changeTaskDetailsVisibility(currentSubOrderTask.value ?: 0)
                         changeSampleDetailsVisibility(currentSample.value ?: 0)
                         changeResultDetailsVisibility(currentResult.value ?: 0)
