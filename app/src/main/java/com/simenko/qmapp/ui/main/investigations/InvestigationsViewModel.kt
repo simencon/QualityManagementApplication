@@ -281,7 +281,6 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val orders: SnapshotStateList<DomainOrderComplete> = mutableStateListOf()
     /**
      * End of operations with orders _______________________________________________________
      * */
@@ -421,8 +420,6 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val subOrders: SnapshotStateList<DomainSubOrderComplete> = mutableStateListOf()
-
     /**
      * End of operations with orders _______________________________________________________
      * */
@@ -509,8 +506,6 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val tasks: SnapshotStateList<DomainSubOrderTaskComplete> = mutableStateListOf()
-
     /**
      * End of operations with tasks _______________________________________________________
      * */
@@ -551,9 +546,10 @@ class InvestigationsViewModel @Inject constructor(
 
     /**
      * REST operations
+     *
      * "no operations for now"
      * */
-    val samples: SnapshotStateList<DomainSampleComplete> = mutableStateListOf()
+
     /**
      * End of operations with samples _______________________________________________________
      * */
@@ -630,21 +626,26 @@ class InvestigationsViewModel @Inject constructor(
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
 
-                    tasks
-                        .filter { it.subOrderTask.subOrderId == subOrder.id }
-                        .map { it.subOrderTask }
-                        .forEach {
-                            it.statusId = subOrder.statusId
-                            it.completedById = subOrder.completedById
-                            editTask(it, this)
-                        }
+                    _tasksF.collect() {itF->
+                        itF
+                            .filter { it.subOrderTask.subOrderId == subOrder.id }
+                            .map { it.subOrderTask }
+                            .forEach {
+                                it.statusId = subOrder.statusId
+                                it.completedById = subOrder.completedById
+                                editTask(it, this)
+                            }
+                    }
 
                     syncSubOrder(subOrder)
 
-                    val order = orders.find {
-                        it.order.id == subOrder.orderId
-                    }!!.order
-                    syncOrder(order)
+                    _ordersF.collect { itF->
+                        itF.find {
+                            it.order.id == subOrder.orderId
+                        }?.apply {
+                            syncOrder(order)
+                        }
+                    }
                 }
                 isStatusDialogVisible.value = false
                 isNetworkError.value = false
@@ -663,14 +664,27 @@ class InvestigationsViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
 
                     editTask(subOrderTask, this)
+                    /**
+                     * find & sync sub order from a flow
+                     * */
+                    _subOrdersF.collect { itF->
+                        itF.find {
+                            it.subOrder.id == subOrderTask.subOrderId
+                        }?.apply {
+                            syncSubOrder(subOrder)
+                            /**
+                             * based on found sub order find & sync order from a flow
+                             * */
+                            _ordersF.collect { itF->
+                                itF.find {
+                                    it.order.id == subOrder.orderId
+                                }?.apply {
+                                    syncOrder(order)
+                                }
+                            }
 
-                    val subOrder = subOrders
-                        .find { it.subOrder.id == subOrderTask.subOrderId }!!.subOrder
-                    syncSubOrder(subOrder)
-
-                    val order = orders
-                        .find { it.order.id == subOrder.orderId }!!.order
-                    syncOrder(order)
+                        }
+                    }
                 }
                 isStatusDialogVisible.value = false
                 isNetworkError.value = false
@@ -704,46 +718,60 @@ class InvestigationsViewModel @Inject constructor(
                  * Collect/Post new results and change status
                  * */
                 {
-                    val subOrder =
-                        subOrders.find { sIt -> sIt.subOrder.id == subOrderTask.subOrderId }?.subOrder!!
-                    val metrixesToRecord: List<DomainMetrix?>? =
-                        when (subOrder.itemPreffix.substring(0, 1)) {
-                            "p" -> {
-                                productTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                    .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                            }
-                            "c" -> {
-                                componentTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                    .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                            }
-                            "s" -> {
-                                componentInStageTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                    .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                            }
-                            else -> {
-                                componentTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
-                                    .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
-                            }
-                        }
-
-                    samples.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
-                        .distinctBy { sfIt -> sfIt.sample.id }.forEach { sdIt ->
-                            metrixesToRecord?.forEach { mIt ->
-                                if (mIt != null) {
-                                    listOfResults.add(
-                                        DomainResult(
-                                            id = 0,
-                                            sampleId = sdIt.sample.id,
-                                            metrixId = mIt.id,
-                                            result = null,
-                                            isOk = true,
-                                            resultDecryptionId = 1,
-                                            taskId = subOrderTask.id
-                                        )
-                                    )
+                    /**
+                     * first find subOrder
+                     * */
+                    _subOrdersF.collect { itF ->
+                        itF.find { itS ->
+                            itS.subOrder.id == subOrderTask.subOrderId
+                        }?.apply {
+                            /**
+                             * second - extract list of metrixes to record
+                             * */
+                            val metrixesToRecord: List<DomainMetrix?> =
+                                when (subOrder.itemPreffix.substring(0, 1)) {
+                                    "p" -> {
+                                        productTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                            .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                    }
+                                    "c" -> {
+                                        componentTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                            .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                    }
+                                    "s" -> {
+                                        componentInStageTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                            .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                    }
+                                    else -> {
+                                        componentTolerances.filter { pIt -> pIt.versionId == subOrder.itemVersionId && pIt.isActual }
+                                            .map { pfIt -> metrixes.findLast { mIt -> mIt.id == pfIt.metrixId && mIt.charId == subOrderTask.charId } }
+                                    }
                                 }
+                            /**
+                             * third - generate the final list of result to record
+                             * */
+                            _samplesF.collect { itS->
+                                itS.filter { sIt -> sIt.sample.subOrderId == subOrder.id }
+                                    .distinctBy { sfIt -> sfIt.sample.id }.forEach { sdIt ->
+                                        metrixesToRecord.forEach { mIt ->
+                                            if (mIt != null) {
+                                                listOfResults.add(
+                                                    DomainResult(
+                                                        id = 0,
+                                                        sampleId = sdIt.sample.id,
+                                                        metrixId = mIt.id,
+                                                        result = null,
+                                                        isOk = true,
+                                                        resultDecryptionId = 1,
+                                                        taskId = subOrderTask.id
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
                             }
                         }
+                    }
 
                     listOfResults.forEach { dResult ->
                         val channel3 = repository.getCreatedRecord(
