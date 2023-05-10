@@ -8,6 +8,7 @@ import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
+import com.simenko.qmapp.room.implementation.ProductsDao
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,7 @@ private const val TAG = "InvestigationsRepository"
 @OptIn(ExperimentalCoroutinesApi::class)
 class InvestigationsRepository @Inject constructor(
     private val investigationsDao: InvestigationsDao,
+    private val productsDao: ProductsDao,
     private val investigationsService: InvestigationsService
 ) {
 
@@ -534,6 +536,45 @@ class InvestigationsRepository @Inject constructor(
             investigationsDao.insertSample(newRecord)
             send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
+
+//    ToDO - change this part to return exactly what is needed
+
+    suspend fun getOrderById(id: Int): DomainOrder {
+        return investigationsDao.getOrderById(id.toString()).toDomainOrder()
+    }
+
+    suspend fun getSubOrderById(id: Int): DomainSubOrder {
+        return investigationsDao.getSubOrderById(id.toString()).toDomainSubOrder()
+    }
+
+    suspend fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
+        val list = investigationsDao.getTasksBySubOrderId(subOrderId.toString())
+        return ListTransformer(
+            list,
+            DatabaseSubOrderTask::class, DomainSubOrderTask::class
+        ).generateList()
+    }
+
+    suspend fun getMetricsByPrefixVersionIdActualityCharId(
+        prefix: String,
+        versionId: Int,
+        actual: Boolean,
+        charId: Int
+    ): List<DomainMetrix> {
+        val list = productsDao.getMetricsByPrefixVersionIdActualityCharId(
+            prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()
+        )
+        return ListTransformer(
+            list,
+            DatabaseMetrix::class, DomainMetrix::class
+        ).generateList()
+    }
+
+    suspend fun getAllSamples(): List<DomainSampleComplete> {
+        return investigationsDao.getAllSamplesDetailed().asDomainSamples()
+    }
+
+//    -------------------------------------------------------------
 
 
     val inputForOrder: LiveData<List<DomainInputForOrder>> =

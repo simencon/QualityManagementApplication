@@ -73,13 +73,13 @@ fun CustomDialogUI(
     val team = appModel.team
 
     val currentOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.orders)
+        findCurrentObject(dialogInput.recordId, appModel.orders.value!!)
     }
     val currentSubOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.subOrders)
+        findCurrentObject(dialogInput.recordId, appModel.subOrders.value!!)
     }
     val currentSubOrderTask by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.tasks)
+        findCurrentObject(dialogInput.recordId, appModel.tasks.value!!)
     }
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }

@@ -22,6 +22,9 @@ fun DatabaseReason.toDomainReason() =
 fun DatabaseSubOrder.toDomainSubOrder() =
     ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
 
+fun DatabaseSubOrderTask.toDomainTask() =
+    ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
+
 fun DatabaseSubOrderResult.toDomainSubOrderResult() =
     ObjectTransformer(DatabaseSubOrderResult::class, DomainSubOrderResult::class).transform(this)
 

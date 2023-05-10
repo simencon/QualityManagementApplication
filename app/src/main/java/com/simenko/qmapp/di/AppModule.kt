@@ -83,13 +83,19 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideManufacturingRepository(dao: ManufacturingDao, service: ManufacturingService) = ManufacturingRepository(dao, service)
+    fun provideManufacturingRepository(dao: ManufacturingDao, service: ManufacturingService) =
+        ManufacturingRepository(dao, service)
 
     @Singleton
     @Provides
-    fun provideProductsRepository(dao: ProductsDao, service: ProductsService) = ProductsRepository(dao, service)
+    fun provideProductsRepository(dao: ProductsDao, service: ProductsService) =
+        ProductsRepository(dao, service)
 
     @Singleton
     @Provides
-    fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService) = InvestigationsRepository(dao, service)
+    fun provideInvestigationsRepository(
+        iDao: InvestigationsDao,
+        pDao: ProductsDao,
+        service: InvestigationsService
+    ) = InvestigationsRepository(iDao, pDao, service)
 }

@@ -2,6 +2,7 @@ package com.simenko.qmapp.room.implementation
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.simenko.qmapp.domain.DomainOrder
 import com.simenko.qmapp.room.entities.*
 import kotlinx.coroutines.flow.Flow
 
@@ -40,6 +41,20 @@ interface ProductsDao {
 
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
     fun getMetrixesFlow(): Flow<List<DatabaseMetrix>>
+
+    @Query("select m.* from items_tolerances as it " +
+            "left join `8_metrixes` as m on it.metrixId = m.id " +
+            "where " +
+            "it.versionId = :versionId and " +
+            "it.isActual = :actual and " +
+            "charId = :charId and " +
+            "substr(it.fId, 1, 1) = :prefix")
+    suspend fun getMetricsByPrefixVersionIdActualityCharId(
+        prefix: String,
+        versionId: String,
+        actual: String,
+        charId: String
+    ): List<DatabaseMetrix>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertKeysAll(list: List<DatabaseKey>)

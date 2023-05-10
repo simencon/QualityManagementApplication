@@ -44,9 +44,10 @@ interface InvestigationsDao {
     fun updateOrder(record: DatabaseOrder)
     @Delete
     fun deleteOrder(record: DatabaseOrder)
-
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber ASC")
     fun getOrdersByList(): List<DatabaseOrder>
+    @Query("SELECT * FROM `12_orders` WHERE id=:id ")
+    suspend fun getOrderById(id: String): DatabaseOrder
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -59,21 +60,18 @@ interface InvestigationsDao {
     fun insertSubOrder(record: DatabaseSubOrder)
     @Update
     fun updateSubOrder(record: DatabaseSubOrder)
-    @Query("SELECT * FROM `12_orders` WHERE id=:id ")
-    fun getOrder(id: String): LiveData<DatabaseOrder>
     @Delete
     fun deleteSubOrder(record: DatabaseSubOrder)
-
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrdersByList(): List<DatabaseSubOrder>
+    @Query("SELECT * FROM `13_sub_orders` WHERE id=:id ")
+    suspend fun getSubOrderById(id: String): DatabaseSubOrder
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrderTasksAll(records: List<DatabaseSubOrderTask>)
     @Query("DELETE FROM `13_7_sub_order_tasks`")
     fun deleteSubOrderTasksAll()
-    @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
-    fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrderTask(record: DatabaseSubOrderTask)
     @Update
@@ -83,6 +81,10 @@ interface InvestigationsDao {
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY id ASC")
     fun getSubOrderTasksByList(): List<DatabaseSubOrderTask>
+    @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
+    fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
+    @Query("SELECT * FROM `13_7_sub_order_tasks` WHERE subOrderId=:sunOrderId ")
+    suspend fun getTasksBySubOrderId(sunOrderId: String): List<DatabaseSubOrderTask>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -97,9 +99,11 @@ interface InvestigationsDao {
     fun updateSample(record: DatabaseSample)
     @Delete
     fun deleteSample(record: DatabaseSample)
-
     @Query("SELECT * FROM `14_samples` ORDER BY sampleNumber ASC")
-    fun getSamplesByList(): List<DatabaseSample>
+    suspend fun getSamplesByList(): List<DatabaseSample>
+    @Transaction
+    @Query("SELECT * FROM `samples_results`")
+    suspend fun getAllSamplesDetailed(): List<DatabaseSampleComplete>
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
