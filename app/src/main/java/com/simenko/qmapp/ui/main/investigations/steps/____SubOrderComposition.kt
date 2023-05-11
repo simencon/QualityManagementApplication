@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -41,6 +42,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+private const val TAG = "SubOrderComposition"
+
 @Composable
 fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
@@ -57,15 +60,15 @@ fun SubOrdersFlowColumn(
     val coroutineScope = rememberCoroutineScope()
     var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
-    val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setSubOrderDetailsVisibility(it.subOrder.id)
+            appModel.setSubOrderDetailsVisibility(it)
         }
     }
 
-    val onClickActionsLambda = remember<(DomainSubOrderComplete) -> Unit> {
+    val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setSubOrderActionsVisibility(it.subOrder.id)
+            appModel.setSubOrderActionsVisibility(it)
         }
     }
 
@@ -104,7 +107,7 @@ fun SubOrdersFlowColumn(
                     it.subOrder.id == createdRecord?.subOrderId
                 }
                 if (subOrder != null)
-                    onClickDetailsLambda(subOrder)
+                    onClickDetailsLambda(subOrder.subOrder.id)
 
             } else if (createdRecord != null && createdRecord?.subOrderId != 0) {
             delay(50)
@@ -119,7 +122,7 @@ fun SubOrdersFlowColumn(
 
                     SubOrderCard(
                         modifier = modifier,
-                        parentOrderTypeId = parentOrderTypeId?: NoSelectedRecord,
+                        parentOrderTypeId = parentOrderTypeId ?: NoSelectedRecord,
                         subOrder = subOrder,
                         onClickDetails = { it ->
                             onClickDetailsLambda(it)
@@ -175,13 +178,14 @@ fun SubOrderCard(
     modifier: Modifier = Modifier,
     parentOrderTypeId: SelectedNumber,
     subOrder: DomainSubOrderComplete,
-    onClickDetails: (DomainSubOrderComplete) -> Unit,
+    onClickDetails: (Int) -> Unit,
     cardOffset: Float,
-    onClickActions: (DomainSubOrderComplete) -> Unit,
+    onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int, Int) -> Unit,
     onClickStatus: (Int, Int?) -> Unit
 ) {
+    Log.d(TAG, "SubOrderCard: ${subOrder.orderShort.order.orderNumber}")
 
     val transitionState = remember {
         MutableTransitionState(subOrder.isExpanded).apply {
@@ -249,7 +253,7 @@ fun SubOrderCard(
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onDoubleTap = { onClickActions(subOrder) }
+                        onDoubleTap = { onClickActions(subOrder.subOrder.id) }
                     )
                 },
             elevation = CardDefaults.cardElevation(
@@ -263,7 +267,7 @@ fun SubOrderCard(
                 modifier = modifier,
                 parentOrderTypeId = parentOrderTypeId,
                 subOrder = subOrder,
-                onClickDetails = { onClickDetails(subOrder) },
+                onClickDetails = { onClickDetails(it) },
                 onClickStatus = { subOrderId, completedById ->
                     onClickStatus(
                         subOrderId,
@@ -280,7 +284,7 @@ fun SubOrder(
     modifier: Modifier = Modifier,
     parentOrderTypeId: SelectedNumber,
     subOrder: DomainSubOrderComplete = getSubOrders()[0],
-    onClickDetails: () -> Unit = {},
+    onClickDetails: (Int) -> Unit = {},
     onClickStatus: (Int, Int?) -> Unit,
 ) {
     Column(
@@ -607,7 +611,8 @@ fun SubOrder(
                 }
             }
             IconButton(
-                onClick = onClickDetails, modifier = Modifier
+                onClick = { onClickDetails(subOrder.subOrder.id) },
+                modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     .fillMaxWidth()
@@ -828,7 +833,6 @@ fun getSubOrders() = List(30) { i ->
             equipment = "MTD-250"
         ),
         detailsVisibility = true,
-        tasksVisibility = true,
         itemVersionComplete = getItemVersionComplete(),
         subOrderResult = getSubOrderResult()
     )

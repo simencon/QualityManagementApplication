@@ -126,7 +126,7 @@ fun Orders(
         state = listState
     ) {
         items(items = items, key = { it.order.id }) { order ->
-
+            Log.d(TAG, "OrdersLog: ${order.order.orderNumber}")
             OrderCard(
                 order = order,
                 onClickDetails = {
@@ -135,7 +135,7 @@ fun Orders(
                 modifier = modifier,
                 cardOffset = CARD_OFFSET.dp(),
                 onClickActions = {
-                    onClickActionsLambda(it.order.id)
+                    onClickActionsLambda(it)
                 },
                 onClickDelete = {
                     onClickDeleteLambda(it)
@@ -155,11 +155,11 @@ fun OrderCard(
     order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit,
     cardOffset: Float,
-    onClickActions: (DomainOrderComplete) -> Unit,
+    onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    Log.d(TAG, "OrderCard: ${order.order.orderNumber}")
+    Log.d(TAG, "OrderCardLog: ${order.order.orderNumber}")
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
             targetState = !order.isExpanded
@@ -187,7 +187,6 @@ fun OrderCard(
 
 
     Box(Modifier.fillMaxWidth()) {
-        Log.d(TAG, "OrderCard: Action row for ${order.order.orderNumber}")
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
@@ -227,7 +226,7 @@ fun OrderCard(
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onDoubleTap = { onClickActions(order) }
+                        onDoubleTap = { onClickActions(order.order.id) }
                     )
                 },
             elevation = CardDefaults.cardElevation(
@@ -257,7 +256,7 @@ fun OrderCard(
                 createdDate = order.order.createdDate.toString(),
                 completedDate = order.order.completedDate,
 
-                onClickDetails = { onClickDetails(order.order.id) }
+                onClickDetails = {it-> onClickDetails(it) }
             )
         }
     }
@@ -283,7 +282,7 @@ fun Order(
     placerFullName: String = "",
     createdDate: String = "2022-12-15T22:24:43.666",
     completedDate: String? = "2022-12-15T22:24:43.666",
-    onClickDetails: () -> Unit = {}
+    onClickDetails: (Int) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -478,7 +477,7 @@ fun Order(
                 }
             }
             IconButton(
-                onClick = onClickDetails,
+                onClick = {onClickDetails(orderId)},
                 modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(0.dp)
@@ -639,7 +638,6 @@ fun getOrders() = List(30) { i ->
         ),
         orderStatus = DomainOrdersStatus(1, "In Progress"),
         detailsVisibility = true,
-        subOrdersVisibility = false,
         orderResult = getOrderResult()
     )
 }

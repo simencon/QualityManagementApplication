@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -17,6 +18,8 @@ import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
+private const val TAG = "SubOrdersStandAlone"
+
 @Composable
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
@@ -27,17 +30,17 @@ fun SubOrdersStandAlone(
     val appModel = (context as MainActivity).investigationsModel
 
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
-    val items by appModel.subOrdersSF.collectAsState(listOf())
+    val items by appModel.subOrdersSF.collectAsState(initial = listOf())
 
-    val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setSubOrderDetailsVisibility(it.subOrder.id)
+            appModel.setSubOrderDetailsVisibility(it)
         }
     }
 
-    val onClickActionsLambda = remember<(DomainSubOrderComplete) -> Unit> {
+    val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setSubOrderActionsVisibility(it.subOrder.id)
+            appModel.setSubOrderActionsVisibility(it)
         }
     }
 
@@ -92,7 +95,7 @@ fun SubOrdersStandAlone(
                 }
 
                 if (subOrder != null && !subOrder.detailsVisibility) {
-                    onClickDetailsLambda(subOrder)
+                    onClickDetailsLambda(subOrder.subOrder.id)
                 }
             }
         }
@@ -111,6 +114,7 @@ fun SubOrdersStandAlone(
         state = listState
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
+            Log.d(TAG, "SubOrdersStandAlone: ${subOrder.orderShort.order.orderNumber}")
                 SubOrderCard(
                     modifier = modifier,
                     parentOrderTypeId = parentOrderTypeId?: NoSelectedRecord,

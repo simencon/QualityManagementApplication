@@ -35,15 +35,6 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
             "detailsVisibility" -> {
                 false
             }
-            "subOrdersVisibility" -> {
-                false
-            }
-            "tasksVisibility" -> {
-                false
-            }
-            "measurementsVisibility" -> {
-                false
-            }
             "isExpanded" -> {
                 false
             }
@@ -97,15 +88,6 @@ class ListTransformer<in T : Any, out R : Any> constructor(
                 false
             }
             "detailsVisibility" -> {
-                false
-            }
-            "subOrdersVisibility" -> {
-                false
-            }
-            "tasksVisibility" -> {
-                false
-            }
-            "measurementsVisibility" -> {
                 false
             }
             "isExpanded" -> {

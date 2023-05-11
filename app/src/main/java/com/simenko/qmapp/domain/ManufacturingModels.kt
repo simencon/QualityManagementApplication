@@ -30,22 +30,6 @@ data class DomainTeamMember(
     override fun getName(): String {
         return fullName
     }
-
-    override fun equals(other: Any?): Boolean {
-        val otherM = other as DomainTeamMember
-
-        return id == otherM.id &&
-                departmentId == otherM.departmentId &&
-                department == otherM.department &&
-                email == otherM.email &&
-                fullName == otherM.fullName &&
-                jobRole == otherM.jobRole &&
-                roleLevelId == otherM.roleLevelId &&
-                passWord == otherM.passWord &&
-                companyId == otherM.companyId &&
-                detailsVisibility == otherM.detailsVisibility &&
-                isSelected == otherM.isSelected
-    }
 }
 
 data class DomainCompany(

@@ -1,6 +1,9 @@
 package com.simenko.qmapp.domain
 
+import android.util.Log
 import androidx.compose.runtime.Stable
+
+private const val TAG = "InvestigationsModels"
 
 data class DomainInputForOrder constructor(
     var depId: Int,
@@ -80,6 +83,7 @@ data class DomainReason constructor(
         isSelected = value
     }
 }
+
 @Stable
 data class DomainOrder constructor(
     var id: Int,
@@ -211,9 +215,29 @@ data class DomainOrderComplete constructor(
     var orderStatus: DomainOrdersStatus,
     var orderResult: DomainOrderResult,
     var detailsVisibility: Boolean = false,
-    var subOrdersVisibility: Boolean = false,
     var isExpanded: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) return false
+
+        other as DomainOrderComplete
+
+        if (order != other.order) return false
+        if (orderResult != other.orderResult) return false
+        if (detailsVisibility != other.detailsVisibility) return false
+        if (isExpanded != other.isExpanded) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = order.hashCode()
+        result = 31 * result + orderResult.hashCode()
+        result = 31 * result + detailsVisibility.hashCode()
+        result = 31 * result + isExpanded.hashCode()
+        return result
+    }
+}
 
 @Stable
 data class DomainSubOrderComplete constructor(
@@ -230,9 +254,29 @@ data class DomainSubOrderComplete constructor(
     var itemVersionComplete: DomainItemVersionComplete,
     var subOrderResult: DomainSubOrderResult,
     var detailsVisibility: Boolean = false,
-    var tasksVisibility: Boolean = false,
     var isExpanded: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) return false
+
+        other as DomainSubOrderComplete
+
+        if (subOrder != other.subOrder) return false
+        if (subOrderResult != other.subOrderResult) return false
+        if (detailsVisibility != other.detailsVisibility) return false
+        if (isExpanded != other.isExpanded) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = subOrder.hashCode()
+        result = 31 * result + subOrderResult.hashCode()
+        result = 31 * result + detailsVisibility.hashCode()
+        result = 31 * result + isExpanded.hashCode()
+        return result
+    }
+}
 
 @Stable
 data class DomainSubOrderTaskComplete constructor(
@@ -243,7 +287,28 @@ data class DomainSubOrderTaskComplete constructor(
     var taskResult: DomainTaskResult,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) return false
+
+        other as DomainSubOrderTaskComplete
+
+        if (subOrderTask != other.subOrderTask) return false
+        if (taskResult != other.taskResult) return false
+        if (detailsVisibility != other.detailsVisibility) return false
+        if (isExpanded != other.isExpanded) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = subOrderTask.hashCode()
+        result = 31 * result + taskResult.hashCode()
+        result = 31 * result + detailsVisibility.hashCode()
+        result = 31 * result + isExpanded.hashCode()
+        return result
+    }
+}
 
 @Stable
 data class DomainSampleComplete constructor(
@@ -259,4 +324,21 @@ data class DomainResultComplete(
     var metrix: DomainMetrix,
     var resultTolerance: DomainResultTolerance,
     var detailsVisibility: Boolean = false
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) return false
+
+        other as DomainResultComplete
+
+        if (result != other.result) return false
+        if (detailsVisibility != other.detailsVisibility) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result1 = result.hashCode()
+        result1 = 31 * result1 + detailsVisibility.hashCode()
+        return result1
+    }
+}
