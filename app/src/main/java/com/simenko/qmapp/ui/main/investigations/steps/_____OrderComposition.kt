@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
+import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel

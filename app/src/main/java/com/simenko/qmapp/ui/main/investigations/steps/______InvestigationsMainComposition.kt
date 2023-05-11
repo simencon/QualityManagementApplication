@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.CustomDialogUI
 import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput

@@ -331,11 +331,9 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteSubOrderTask(subOrderTask: DomainSubOrderTask) {
+    suspend fun deleteSubOrderTask(taskId: Int) {
         withContext(Dispatchers.IO) {
-            investigationsService.deleteSubOrderTask(
-                subOrderTask.id
-            )
+            investigationsService.deleteSubOrderTask(taskId)
         }
     }
 

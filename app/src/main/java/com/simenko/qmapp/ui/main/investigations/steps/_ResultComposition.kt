@@ -30,9 +30,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.theme._level_2_record_color

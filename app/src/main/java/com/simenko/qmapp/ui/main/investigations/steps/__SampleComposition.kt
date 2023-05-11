@@ -30,7 +30,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSampleComplete
 import com.simenko.qmapp.domain.DomainSampleResult
-import com.simenko.qmapp.ui.common.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*

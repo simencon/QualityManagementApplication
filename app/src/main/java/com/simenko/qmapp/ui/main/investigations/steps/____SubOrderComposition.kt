@@ -28,6 +28,9 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
 import com.google.accompanist.flowlayout.FlowRow
+import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
+import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -108,15 +111,20 @@ fun SubOrdersFlowColumn(
                         modifier = modifier,
                         appModel = appModel,
                         subOrder = subOrder,
-                        onClickDetails = {
+                        onClickDetails = { it ->
                             onClickDetailsLambda(it)
                         },
                         cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = {
+                        onClickActions = { it ->
                             onClickActionsLambda(it)
                         },
                         onClickDelete = { it -> onClickDeleteLambda(it) },
-                        onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) }
+                        onClickEdit = { orderId, subOrderId ->
+                            onClickEditLambda(
+                                orderId,
+                                subOrderId
+                            )
+                        }
                     )
 
                     Divider(thickness = 4.dp, color = Color.Transparent)

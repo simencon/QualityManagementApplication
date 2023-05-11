@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.neworder.ActionType

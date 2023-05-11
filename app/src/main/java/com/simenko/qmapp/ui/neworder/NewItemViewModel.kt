@@ -218,7 +218,7 @@ class NewItemViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             subOrder.subOrderTasks.forEach {
                 if (it.toBeDeleted) {
-                    investigationsRepository.deleteSubOrderTask(it)
+                    investigationsRepository.deleteSubOrderTask(it.id)
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
