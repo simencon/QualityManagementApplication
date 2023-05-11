@@ -1,12 +1,14 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.utils.StringUtils
+import androidx.compose.runtime.Stable
 
+@Stable
 data class DomainElementIshModel constructor(
     var id: Int,
     var ishElement: String? = null
 )
 
+@Stable
 data class DomainIshSubCharacteristic constructor(
     var id: Int,
     var ishElement: String? = null,
@@ -30,6 +32,7 @@ data class DomainManufacturingProject(
     var confLevel: Int? = null
 )
 
+@Stable
 data class DomainCharacteristic constructor(
     var id: Int,
     var ishCharId: Int,
@@ -59,12 +62,14 @@ data class DomainCharacteristic constructor(
     }
 }
 
+@Stable
 data class DomainCharacteristicComplete(
     val characteristic: DomainCharacteristic,
     val characteristicGroup: DomainElementIshModel,
     val characteristicSubGroup: DomainIshSubCharacteristic
 )
 
+@Stable
 data class DomainMetrix constructor(
     var id: Int,
     var charId: Int,
@@ -140,6 +145,7 @@ data class DomainComponentInStageVersion(
     var isDefault: Boolean
 )
 
+@Stable
 data class DomainResultTolerance(
     var id: Int,
     var nominal: Float?,
@@ -245,6 +251,7 @@ data class DomainItemComplete(
     val itemToLines: List<DomainItemToLine>
 )
 
+@Stable
 data class DomainItemVersionComplete(
     val itemVersion: DomainItemVersion,
     val versionStatus: DomainVersionStatus,

@@ -80,6 +80,7 @@ data class DomainDepartment(
     }
 }
 
+@Stable
 data class DomainSubDepartment(
     var id: Int,
     var depId: Int,
@@ -96,6 +97,7 @@ data class DomainSubDepartment(
     }
 }
 
+@Stable
 data class DomainManufacturingChannel(
     var id: Int,
     var subDepId: Int,
@@ -112,6 +114,7 @@ data class DomainManufacturingChannel(
     }
 }
 
+@Stable
 data class DomainManufacturingLine(
     var id: Int,
     var chId: Int,
@@ -128,6 +131,7 @@ data class DomainManufacturingLine(
     }
 }
 
+@Stable
 data class DomainManufacturingOperation(
     var id: Int,
     var lineId: Int,
