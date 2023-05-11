@@ -297,12 +297,12 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * REST operations
      * */
-    fun deleteSubOrder(subOrder: DomainSubOrderComplete) {
+    fun deleteSubOrder(subOrderId: Int) {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
 
-                repository.deleteSubOrder(subOrder.subOrder)
+                repository.deleteSubOrder(subOrderId)
                 syncSubOrders()
 
                 isLoadingInProgress.value = false

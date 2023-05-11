@@ -1,26 +1,20 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
-import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
@@ -39,9 +33,26 @@ fun SubOrdersStandAlone(
         }
     }
 
-    val onChangeExpandStateLambda = remember<(DomainSubOrderComplete) -> Unit> {
+    val onClickActionsLambda = remember<(DomainSubOrderComplete) -> Unit> {
         {
             appModel.setSubOrderActionsVisibility(it.subOrder.id)
+        }
+    }
+
+    val onClickDeleteLambda = remember<(Int) -> Unit> {
+        {
+            appModel.deleteSubOrder(it)
+        }
+    }
+
+    val onClickEditLambda = remember<(Int, Int) -> Unit> {
+        { orderId, subOrderId ->
+            launchNewItemActivityForResult(
+                context as MainActivity,
+                ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
+                orderId,
+                subOrderId
+            )
         }
     }
 
@@ -89,36 +100,21 @@ fun SubOrdersStandAlone(
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
             if (subOrder.orderShort.order.orderTypeId == 3) // means to show only Process Control
-                Box(Modifier.fillMaxWidth()) {
-                    ActionsRow(
-                        subOrder = subOrder,
-                        actionIconSize = ACTION_ITEM_SIZE.dp,
-                        onDeleteSubOrder = {
-                            appModel.deleteSubOrder(it)
-                        },
-                        onEdit = {
-                            launchNewItemActivityForResult(
-                                context as MainActivity,
-                                ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
-                                subOrder.subOrder.orderId,
-                                subOrder.subOrder.id
-                            )
-                        }
-                    )
 
-                    SubOrderCard(
-                        modifier = modifier,
-                        appModel = appModel,
-                        subOrder = subOrder,
-                        onClickDetails = { it ->
-                            onClickDetailsLambda(it)
-                        },
-                        cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = {
-                            onChangeExpandStateLambda(it)
-                        }
-                    )
-                }
+                SubOrderCard(
+                    modifier = modifier,
+                    appModel = appModel,
+                    subOrder = subOrder,
+                    onClickDetails = { it ->
+                        onClickDetailsLambda(it)
+                    },
+                    cardOffset = CARD_OFFSET.dp(),
+                    onClickActions = {
+                        onClickActionsLambda(it)
+                    },
+                    onClickDelete = { it -> onClickDeleteLambda(it) },
+                    onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) }
+                )
         }
     }
 }

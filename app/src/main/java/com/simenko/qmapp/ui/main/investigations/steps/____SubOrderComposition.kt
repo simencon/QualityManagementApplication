@@ -60,9 +60,26 @@ fun SubOrdersFlowColumn(
         }
     }
 
-    val onChangeExpandStateLambda = remember<(DomainSubOrderComplete) -> Unit> {
+    val onClickActionsLambda = remember<(DomainSubOrderComplete) -> Unit> {
         {
             appModel.setSubOrderActionsVisibility(it.subOrder.id)
+        }
+    }
+
+    val onClickDeleteLambda = remember<(Int) -> Unit> {
+        {
+            appModel.deleteSubOrder(it)
+        }
+    }
+
+    val onClickEditLambda = remember<(Int, Int) -> Unit> {
+        { orderId, subOrderId ->
+            launchNewItemActivityForResult(
+                context as MainActivity,
+                ActionType.EDIT_SUB_ORDER.ordinal,
+                orderId,
+                subOrderId
+            )
         }
     }
 
@@ -87,36 +104,21 @@ fun SubOrdersFlowColumn(
             items.forEach { subOrder ->
                 if (subOrder.subOrder.orderId == parentId) {
 
-                    Box(Modifier.fillMaxWidth()) {
-                        ActionsRow(
-                            subOrder = subOrder,
-                            actionIconSize = ACTION_ITEM_SIZE.dp,
-                            onDeleteSubOrder = {
-                                appModel.deleteSubOrder(it)
-                            },
-                            onEdit = {
-                                launchNewItemActivityForResult(
-                                    context as MainActivity,
-                                    ActionType.EDIT_SUB_ORDER.ordinal,
-                                    subOrder.subOrder.orderId,
-                                    subOrder.subOrder.id
-                                )
-                            }
-                        )
+                    SubOrderCard(
+                        modifier = modifier,
+                        appModel = appModel,
+                        subOrder = subOrder,
+                        onClickDetails = {
+                            onClickDetailsLambda(it)
+                        },
+                        cardOffset = CARD_OFFSET.dp(),
+                        onClickActions = {
+                            onClickActionsLambda(it)
+                        },
+                        onClickDelete = { it -> onClickDeleteLambda(it) },
+                        onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) }
+                    )
 
-                        SubOrderCard(
-                            modifier = modifier,
-                            appModel = appModel,
-                            subOrder = subOrder,
-                            onClickDetails = {
-                                onClickDetailsLambda(it)
-                            },
-                            cardOffset = CARD_OFFSET.dp(),
-                            onClickActions = {
-                                onChangeExpandStateLambda(it)
-                            }
-                        )
-                    }
                     Divider(thickness = 4.dp, color = Color.Transparent)
                 }
             }
@@ -151,7 +153,9 @@ fun SubOrderCard(
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
-    onClickActions: (DomainSubOrderComplete) -> Unit
+    onClickActions: (DomainSubOrderComplete) -> Unit,
+    onClickDelete: (Int) -> Unit,
+    onClickEdit: (Int, Int) -> Unit
 ) {
 
     val transitionState = remember {
@@ -187,26 +191,59 @@ fun SubOrderCard(
         targetValueByState = { if (subOrder.isExpanded) 40.dp else 2.dp }
     )
 
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = cardBgColor,
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onDoubleTap = { onClickActions(subOrder) }
-                )
-            },
-        elevation = CardDefaults.cardElevation(cardElevation),
-    ) {
-        SubOrder(
-            modifier = modifier,
-            appModel = appModel,
-            subOrder = subOrder,
-            onClickDetails = { onClickDetails(subOrder) },
-        )
+    Box(Modifier.fillMaxWidth()) {
+
+        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+            IconButton(
+                modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                onClick = {
+                    onClickDelete(subOrder.subOrder.id)
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        tint = PrimaryVariant900,
+                        contentDescription = "delete action",
+                    )
+                }
+            )
+
+            IconButton(
+                modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                onClick = {
+                    onClickEdit(subOrder.subOrder.orderId, subOrder.subOrder.id)
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        tint = PrimaryVariant900,
+                        contentDescription = "edit action",
+                    )
+                },
+            )
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = cardBgColor,
+            ),
+            modifier = modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onDoubleTap = { onClickActions(subOrder) }
+                    )
+                },
+            elevation = CardDefaults.cardElevation(cardElevation),
+        ) {
+            SubOrder(
+                modifier = modifier,
+                appModel = appModel,
+                subOrder = subOrder,
+                onClickDetails = { onClickDetails(subOrder) },
+            )
+        }
     }
 }
 

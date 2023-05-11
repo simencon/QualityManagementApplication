@@ -325,9 +325,9 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun deleteSubOrder(subOrder: DomainSubOrder) {
+    suspend fun deleteSubOrder(subOrderId: Int) {
         withContext(Dispatchers.IO) {
-            investigationsService.deleteSubOrder(subOrder.id)
+            investigationsService.deleteSubOrder(subOrderId)
         }
     }
 

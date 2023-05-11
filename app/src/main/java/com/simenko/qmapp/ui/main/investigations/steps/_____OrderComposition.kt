@@ -58,19 +58,19 @@ fun Orders(
         }
     }
 
-    val onChangeExpandStateLambda = remember<(Int) -> Unit> {
+    val onClickActionsLambda = remember<(Int) -> Unit> {
         {
             appModel.setOrderActionsVisibility(it)
         }
     }
 
-    val onDeleteOrderLambda = remember<(Int) -> Unit> {
+    val onClickDeleteLambda = remember<(Int) -> Unit> {
         {
             appModel.deleteOrder(it)
         }
     }
 
-    val onEditOrderLambda = remember<(Int) -> Unit> {
+    val onClickEditLambda = remember<(Int) -> Unit> {
         {
             launchNewItemActivityForResult(
                 context as MainActivity,
@@ -132,13 +132,13 @@ fun Orders(
                 modifier = modifier,
                 cardOffset = CARD_OFFSET.dp(),
                 onClickActions = {
-                    onChangeExpandStateLambda(it.order.id)
+                    onClickActionsLambda(it.order.id)
                 },
-                onDeleteOrder = {
-                    onDeleteOrderLambda(it)
+                onClickDelete = {
+                    onClickDeleteLambda(it)
                 },
-                onEditOrder = {
-                    onEditOrderLambda(it)
+                onClickEdit = {
+                    onClickEditLambda(it)
                 }
             )
         }
@@ -153,8 +153,8 @@ fun OrderCard(
     onClickDetails: (Int) -> Unit,
     cardOffset: Float,
     onClickActions: (DomainOrderComplete) -> Unit,
-    onDeleteOrder: (Int) -> Unit,
-    onEditOrder: (Int) -> Unit
+    onClickDelete: (Int) -> Unit,
+    onClickEdit: (Int) -> Unit
 ) {
     Log.d(TAG, "OrderCard: ${order.order.orderNumber}")
     val transitionState = remember {
@@ -189,7 +189,7 @@ fun OrderCard(
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = {
-                    onDeleteOrder(order.order.id)
+                    onClickDelete(order.order.id)
                 },
                 content = {
                     Icon(
@@ -203,7 +203,7 @@ fun OrderCard(
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = {
-                    onEditOrder(order.order.id)
+                    onClickEdit(order.order.id)
                 },
                 content = {
                     Icon(
