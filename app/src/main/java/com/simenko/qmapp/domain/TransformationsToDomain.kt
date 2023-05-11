@@ -364,11 +364,14 @@ fun List<DomainOrderComplete>.changeOrderVisibility(
 }
 
 fun List<DomainOrderComplete>.filterByStatusAndNumber(
+    typeId: Int,
     statusId: Int,
     orderNumber: String
 ): List<DomainOrderComplete> {
     return filter {
-        (it.order.statusId == statusId || statusId == -1)
+        (it.order.orderTypeId == typeId || typeId == -1)
+                &&
+                (it.order.statusId == statusId || statusId == -1)
                 &&
                 (it.order.orderNumber.toString().contains(orderNumber)
                         ||
@@ -390,11 +393,14 @@ fun List<DomainSubOrderComplete>.changeSubOrderVisibility(
 }
 
 fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
+    typeId: Int,
     statusId: Int,
     orderNumber: String
 ): List<DomainSubOrderComplete> {
     return filter {
-        (it.subOrder.statusId == statusId || statusId == -1)
+        (it.orderShort.order.orderTypeId == typeId || typeId == -1)
+                &&
+                (it.subOrder.statusId == statusId || statusId == -1)
                 &&
                 (it.orderShort.order.orderNumber.toString().contains(orderNumber)
                         ||

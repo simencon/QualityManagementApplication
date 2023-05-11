@@ -21,6 +21,7 @@ abstract class DomainModel {
 @JvmInline
 value class SelectedNumber(val num: Int)
 val NoSelectedRecord = SelectedNumber(-1)
+val OrderTypeProcessOnly = SelectedNumber(3)
 
 @JvmInline
 value class SelectedString(val str: String)

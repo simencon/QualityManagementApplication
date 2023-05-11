@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.simenko.qmapp.domain.*
@@ -20,12 +21,12 @@ import kotlinx.coroutines.*
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
     onListEnd: (FabPosition) -> Unit,
-    createdRecord: CreatedRecord? = null,
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    createdRecord: CreatedRecord? = null
 ) {
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
+    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val items by appModel.subOrdersSF.collectAsState(listOf())
 
     val onClickDetailsLambda = remember<(DomainSubOrderComplete) -> Unit> {
@@ -53,6 +54,16 @@ fun SubOrdersStandAlone(
                 ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
                 orderId,
                 subOrderId
+            )
+        }
+    }
+
+    val onClickStatusLambda = remember<(Int, Int?) -> Unit> {
+        { subOrderId, completedById ->
+            appModel.statusDialog(
+                subOrderId,
+                DialogFor.SUB_ORDER,
+                completedById
             )
         }
     }
@@ -100,11 +111,9 @@ fun SubOrdersStandAlone(
         state = listState
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
-            if (subOrder.orderShort.order.orderTypeId == 3) // means to show only Process Control
-
                 SubOrderCard(
                     modifier = modifier,
-                    appModel = appModel,
+                    parentOrderTypeId = parentOrderTypeId?: NoSelectedRecord,
                     subOrder = subOrder,
                     onClickDetails = { it ->
                         onClickDetailsLambda(it)
@@ -114,7 +123,13 @@ fun SubOrdersStandAlone(
                         onClickActionsLambda(it)
                     },
                     onClickDelete = { it -> onClickDeleteLambda(it) },
-                    onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) }
+                    onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
+                    onClickStatus = { subOrderId, completedById ->
+                        onClickStatusLambda(
+                            subOrderId,
+                            completedById
+                        )
+                    }
                 )
         }
     }

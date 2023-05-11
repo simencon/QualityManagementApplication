@@ -18,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
+import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -146,7 +148,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
-                if (investigationsModel.getProcessControlOnly())
+                if (investigationsModel.showSubOrderWithOrderType.value == OrderTypeProcessOnly)
                     investigationsModel.setSubOrderNumberToShow(newText ?: "0")
                 else
                     investigationsModel.setOrderNumberToShow(newText ?: "0")
@@ -219,11 +221,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
-                        investigationsModel.setProcessControlOnly(false)
+                        investigationsModel.setSubOrderWithOrderTypeToShow(NoSelectedRecord)
                         InvestigationsFragment(createdRecord)
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        investigationsModel.setProcessControlOnly(true)
+                        investigationsModel.setSubOrderWithOrderTypeToShow(OrderTypeProcessOnly)
                         InvestigationsFragment(createdRecord)
                     }
 

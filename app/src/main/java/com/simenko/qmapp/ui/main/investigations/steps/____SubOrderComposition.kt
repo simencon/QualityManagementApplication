@@ -49,6 +49,7 @@ fun SubOrdersFlowColumn(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
+    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by appModel.createdRecord.observeAsState()
 
     val items by appModel.subOrdersSF.collectAsState(listOf())
@@ -85,6 +86,16 @@ fun SubOrdersFlowColumn(
         }
     }
 
+    val onClickStatusLambda = remember<(Int, Int?) -> Unit> {
+        { subOrderId, completedById ->
+            appModel.statusDialog(
+                subOrderId,
+                DialogFor.SUB_ORDER,
+                completedById
+            )
+        }
+    }
+
     LaunchedEffect(lookForRecord) {
         if (createdRecord != null)
             coroutineScope.launch {
@@ -108,7 +119,7 @@ fun SubOrdersFlowColumn(
 
                     SubOrderCard(
                         modifier = modifier,
-                        appModel = appModel,
+                        parentOrderTypeId = parentOrderTypeId?: NoSelectedRecord,
                         subOrder = subOrder,
                         onClickDetails = { it ->
                             onClickDetailsLambda(it)
@@ -122,6 +133,12 @@ fun SubOrdersFlowColumn(
                             onClickEditLambda(
                                 orderId,
                                 subOrderId
+                            )
+                        },
+                        onClickStatus = { subOrderId, completedById ->
+                            onClickStatusLambda(
+                                subOrderId,
+                                completedById
                             )
                         }
                     )
@@ -156,13 +173,14 @@ fun SubOrdersFlowColumn(
 @Composable
 fun SubOrderCard(
     modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel? = null,
+    parentOrderTypeId: SelectedNumber,
     subOrder: DomainSubOrderComplete,
     onClickDetails: (DomainSubOrderComplete) -> Unit,
     cardOffset: Float,
     onClickActions: (DomainSubOrderComplete) -> Unit,
     onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int, Int) -> Unit
+    onClickEdit: (Int, Int) -> Unit,
+    onClickStatus: (Int, Int?) -> Unit
 ) {
 
     val transitionState = remember {
@@ -243,9 +261,15 @@ fun SubOrderCard(
         ) {
             SubOrder(
                 modifier = modifier,
-                appModel = appModel,
+                parentOrderTypeId = parentOrderTypeId,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetails(subOrder) },
+                onClickStatus = { subOrderId, completedById ->
+                    onClickStatus(
+                        subOrderId,
+                        completedById
+                    )
+                }
             )
         }
     }
@@ -254,9 +278,10 @@ fun SubOrderCard(
 @Composable
 fun SubOrder(
     modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel? = null,
+    parentOrderTypeId: SelectedNumber,
+    subOrder: DomainSubOrderComplete = getSubOrders()[0],
     onClickDetails: () -> Unit = {},
-    subOrder: DomainSubOrderComplete = getSubOrders()[0]
+    onClickStatus: (Int, Int?) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -305,7 +330,7 @@ fun SubOrder(
                                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
-                                text = when (appModel?.getProcessControlOnly()) {
+                                text = when (parentOrderTypeId == OrderTypeProcessOnly) {
                                     false -> subOrder.subOrder.subOrderNumber.toString()
                                     else -> subOrder.orderShort.order.orderNumber.toString()
                                 },
@@ -337,7 +362,7 @@ fun SubOrder(
                                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             )
                         }
-                        if (appModel?.getProcessControlOnly() == true)
+                        if (parentOrderTypeId == OrderTypeProcessOnly)
                             Row(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
@@ -383,9 +408,8 @@ fun SubOrder(
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = {
-                            appModel?.statusDialog(
+                            onClickStatus(
                                 subOrder.subOrder.id,
-                                DialogFor.SUB_ORDER,
                                 subOrder.subOrder.completedById
                             )
                         },
@@ -602,7 +626,6 @@ fun SubOrder(
 
         SubOrderDetails(
             modifier = modifier,
-            viewModel = appModel,
             subOrder = subOrder
         )
     }
@@ -611,7 +634,6 @@ fun SubOrder(
 @Composable
 fun SubOrderDetails(
     modifier: Modifier = Modifier,
-    viewModel: InvestigationsViewModel? = null,
     subOrder: DomainSubOrderComplete = getSubOrders()[0]
 ) {
     if (subOrder.detailsVisibility) {
@@ -708,15 +730,15 @@ fun SubOrderDetails(
                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
             )
         }
-        if (viewModel != null)
-            SubOrderTasksFlowColumn(
-                modifier = Modifier,
-                parentId = subOrder.subOrder.id
-            )
+
+        SubOrderTasksFlowColumn(
+            modifier = Modifier,
+            parentId = subOrder.subOrder.id
+        )
     }
 }
 
-@Preview(name = "Light Mode SubOrder", showBackground = true, widthDp = 409)
+/*@Preview(name = "Light Mode SubOrder", showBackground = true, widthDp = 409)
 @Composable
 fun MySubOrderPreview() {
     QMAppTheme {
@@ -724,9 +746,10 @@ fun MySubOrderPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
+            onClickStatus = {}
         )
     }
-}
+}*/
 
 fun getSubOrders() = List(30) { i ->
 

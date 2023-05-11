@@ -34,17 +34,6 @@ class InvestigationsViewModel @Inject constructor(
         isNetworkError.value = false
     }
 
-    private val _showProcessControlOnly = MutableLiveData(true)
-
-    val showProcessControlOnly: LiveData<Boolean>
-        get() = _showProcessControlOnly
-
-    fun setProcessControlOnly(value: Boolean) {
-        _showProcessControlOnly.value = value
-    }
-
-    fun getProcessControlOnly(): Boolean = _showProcessControlOnly.value ?: false
-
     var isStatusDialogVisible = MutableLiveData(false)
     val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER, null))
     fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
@@ -137,8 +126,13 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Filtering operations
      * */
+    private val _showWithType = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _showWithStatus = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _showOrderNumber = MutableStateFlow<SelectedString>(NoSelectedString)
+
+    fun setOrderTypeToShow(type: SelectedNumber) {
+        _showWithType.value = type
+    }
 
     fun setOrderStatusToShow(status: String) {
         _showWithStatus.value = getStatus(status)
@@ -154,16 +148,18 @@ class InvestigationsViewModel @Inject constructor(
     val ordersSF: Flow<List<DomainOrderComplete>> =
         _currentOrderDetails.flatMapLatest { details ->
             _currentOrderActions.flatMapLatest { actions ->
-                _showWithStatus.flatMapLatest { status ->
-                    _showOrderNumber.flatMapLatest { number ->
-                        setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
-                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
-                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
-                        setResultDetailsVisibility(_currentResultDetails.value.num)
+                _showWithType.flatMapLatest { type ->
+                    _showWithStatus.flatMapLatest { status ->
+                        _showOrderNumber.flatMapLatest { number ->
+                            setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
+                            setTaskDetailsVisibility(_currentTaskDetails.value.num)
+                            setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                            setResultDetailsVisibility(_currentResultDetails.value.num)
 
-                        _ordersF.map {
-                            it.changeOrderVisibility(details.num, actions.num)
-                                .filterByStatusAndNumber(status.num, number.str)
+                            _ordersF.map {
+                                it.changeOrderVisibility(details.num, actions.num)
+                                    .filterByStatusAndNumber(type.num, status.num, number.str)
+                            }
                         }
                     }
                 }
@@ -263,14 +259,21 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Filtering operations
      * */
+    private val _showSubOrderWithOrderType = MutableStateFlow(NoSelectedRecord)
+    val showSubOrderWithOrderType: LiveData<SelectedNumber>
+        get() = _showSubOrderWithOrderType.asLiveData()
+
     private val _showSubOrderWithStatus = MutableStateFlow(NoSelectedRecord)
-    private val _showSubOrderNumber = MutableStateFlow(NoSelectedString)
+    private val _showSubOrderWithOrderNumber = MutableStateFlow(NoSelectedString)
+
+    fun setSubOrderWithOrderTypeToShow(type: SelectedNumber) {
+        _showSubOrderWithOrderType.value = type
+    }
     fun setSubOrderStatusToShow(status: String) {
         _showSubOrderWithStatus.value = getStatus(status)
     }
-
     fun setSubOrderNumberToShow(orderNumber: String) {
-        _showSubOrderNumber.value = SelectedString(orderNumber)
+        _showSubOrderWithOrderNumber.value = SelectedString(orderNumber)
     }
 
     /**
@@ -279,15 +282,21 @@ class InvestigationsViewModel @Inject constructor(
     val subOrdersSF: Flow<List<DomainSubOrderComplete>> =
         _currentSubOrderDetails.flatMapLatest { details ->
             _currentSubOrderActions.flatMapLatest { actions ->
-                _showSubOrderWithStatus.flatMapLatest { status ->
-                    _showSubOrderNumber.flatMapLatest { number ->
-                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
-                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
-                        setResultDetailsVisibility(_currentResultDetails.value.num)
+                _showSubOrderWithOrderType.flatMapLatest { type ->
+                    _showSubOrderWithStatus.flatMapLatest { status ->
+                        _showSubOrderWithOrderNumber.flatMapLatest { number ->
+                            setTaskDetailsVisibility(_currentTaskDetails.value.num)
+                            setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                            setResultDetailsVisibility(_currentResultDetails.value.num)
 
-                        _subOrdersF.map {
-                            it.changeSubOrderVisibility(details.num, actions.num)
-                                .filterSubOrderByStatusAndNumber(status.num, number.str)
+                            _subOrdersF.map {
+                                it.changeSubOrderVisibility(details.num, actions.num)
+                                    .filterSubOrderByStatusAndNumber(
+                                        type.num,
+                                        status.num,
+                                        number.str
+                                    )
+                            }
                         }
                     }
                 }

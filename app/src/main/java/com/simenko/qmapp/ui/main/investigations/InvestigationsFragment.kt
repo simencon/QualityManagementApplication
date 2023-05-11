@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
+import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -56,7 +57,7 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                if (!viewModel.getProcessControlOnly())
+                if (viewModel.showSubOrderWithOrderType.value != OrderTypeProcessOnly)
                     viewModel.setOrderStatusToShow(tab?.tag.toString())
                 else
                     viewModel.setSubOrderStatusToShow(tab?.tag.toString())

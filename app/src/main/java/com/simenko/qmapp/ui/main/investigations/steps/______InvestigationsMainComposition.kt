@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.CustomDialogUI
 import com.simenko.qmapp.ui.common.DialogFor
@@ -41,27 +42,26 @@ fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
 
 private const val TAG = "InvestigationsMainComposition"
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
     createdRecord: CreatedRecord?
 ) {
     val context = LocalContext.current
-    val appModel = (context as MainActivity).appModel
-    val viewModel = (context as MainActivity).investigationsModel
+    val appModel = (context as MainActivity).investigationsModel
 
-    val showProcessControlOnly by viewModel.showProcessControlOnly.observeAsState()
+    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    val currentTask by viewModel.currentTaskDetails.observeAsState()
+    val currentTask by appModel.currentTaskDetails.observeAsState()
 
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     val rowState = rememberScrollState()
 
-    val showStatusChangeDialog = viewModel.isStatusDialogVisible.observeAsState()
-    val dialogInput by viewModel.dialogInput.observeAsState()
+    val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
+    val dialogInput by appModel.dialogInput.observeAsState()
 
 
     QMAppTheme {
@@ -84,7 +84,7 @@ fun InvestigationsMainComposition(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (showProcessControlOnly == false)
+                        if (parentOrderTypeId != OrderTypeProcessOnly)
                             launchNewItemActivityForResult(
                                 context as MainActivity,
                                 ActionType.ADD_ORDER.ordinal
@@ -107,12 +107,12 @@ fun InvestigationsMainComposition(
             floatingActionButtonPosition = fabPositionToSet,
             content = { padding ->
 
-                val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-                val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
+                val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
+                val observerIsNetworkError by appModel.isNetworkError.observeAsState()
 
                 val pullRefreshState = rememberPullRefreshState(
                     refreshing = observerLoadingProcess!!,
-                    onRefresh = { viewModel.syncOrders() }
+                    onRefresh = { appModel.syncOrders() }
                 )
 
                 Box(
@@ -149,7 +149,7 @@ fun InvestigationsMainComposition(
                                 )
                         }
 
-                        if (showProcessControlOnly == false)
+                        if (parentOrderTypeId != OrderTypeProcessOnly)
                             Orders(
                                 modifier = modifier.width(
                                     when (isSamplesNumVisible) {
@@ -168,7 +168,7 @@ fun InvestigationsMainComposition(
                                         }
                                     }
                                 ),
-                                appModel = viewModel,
+                                appModel = appModel,
                                 onListEnd = { changeFlaBtnPosition(it) },
                                 createdRecord = createdRecord
                             )
@@ -192,8 +192,7 @@ fun InvestigationsMainComposition(
                                     }
                                 ),
                                 onListEnd = { changeFlaBtnPosition(it) },
-                                createdRecord = createdRecord,
-                                showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
+                                createdRecord = createdRecord
                             )
 
                         SampleComposition(
@@ -214,8 +213,8 @@ fun InvestigationsMainComposition(
                     if (showStatusChangeDialog.value == true)
                         CustomDialogUI(
                             dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER, null),
-                            openDialogCustom = viewModel.isStatusDialogVisible,
-                            appModel = viewModel
+                            openDialogCustom = appModel.isStatusDialogVisible,
+                            appModel = appModel
                         )
 
                     PullRefreshIndicator(
@@ -228,7 +227,7 @@ fun InvestigationsMainComposition(
 
                 if (observerIsNetworkError == true) {
                     Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
-                    viewModel.onNetworkErrorShown()
+                    appModel.onNetworkErrorShown()
                 }
             }
         )
