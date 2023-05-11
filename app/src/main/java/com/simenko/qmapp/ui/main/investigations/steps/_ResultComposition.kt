@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -30,12 +29,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
-import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.theme._level_2_record_color
-import com.simenko.qmapp.ui.theme._level_2_record_color_details
+import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 
 @Composable
@@ -98,25 +94,11 @@ fun ResultCard(
     onSelect: (DomainResultComplete) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
-    val transitionState = remember {
-        MutableTransitionState(result.detailsVisibility).apply {
-            targetState = !result.detailsVisibility
+    val cardBgColor =
+        when (result.detailsVisibility) {
+            true -> _level_2_record_color_details
+            else -> _level_2_record_color
         }
-    }
-
-    val transition = updateTransition(transitionState, "cardTransition")
-
-    val cardBgColor by transition.animateColor(
-        label = "cardBgColorTransition",
-        transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = {
-            if (result.detailsVisibility) {
-                _level_2_record_color_details
-            } else {
-                _level_2_record_color
-            }
-        }
-    )
 
     Card(
         colors = CardDefaults.cardColors(

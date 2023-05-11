@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -180,24 +179,16 @@ fun SubOrderCard(
         targetValueByState = { if (subOrder.isExpanded) cardOffset else 0f },
     )
 
-    val cardBgColor by transition.animateColor(
-        label = "cardBgColorTransition",
-        transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = {
-            if (subOrder.isExpanded) Accent200 else
-                if (subOrder.detailsVisibility) {
-                    _level_2_record_color_details
-                } else {
-                    _level_2_record_color
+    val cardBgColor =
+        when (subOrder.isExpanded) {
+            true -> Accent200
+            false -> {
+                when (subOrder.detailsVisibility) {
+                    true -> _level_2_record_color_details
+                    else -> _level_2_record_color
                 }
+            }
         }
-    )
-
-    val cardElevation by transition.animateDp(
-        label = "cardElevation",
-        transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (subOrder.isExpanded) 40.dp else 2.dp }
-    )
 
     Box(Modifier.fillMaxWidth()) {
 
@@ -243,7 +234,12 @@ fun SubOrderCard(
                         onDoubleTap = { onClickActions(subOrder) }
                     )
                 },
-            elevation = CardDefaults.cardElevation(cardElevation),
+            elevation = CardDefaults.cardElevation(
+                when (subOrder.isExpanded) {
+                    true -> 40.dp
+                    false -> 0.dp
+                }
+            ),
         ) {
             SubOrder(
                 modifier = modifier,

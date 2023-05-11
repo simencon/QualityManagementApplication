@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -30,7 +29,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSampleComplete
 import com.simenko.qmapp.domain.DomainSampleResult
-import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -64,7 +62,9 @@ fun SampleComposition(
     ) {
         items(
             items = items,
-            key = { it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId?:0).toString() }) { sample ->
+            key = {
+                it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString()
+            }) { sample ->
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
                 SampleCard(
                     modifier = modifier,
@@ -92,25 +92,11 @@ fun SampleCard(
     onClickDetails: (DomainSampleComplete) -> Unit,
     onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
-    val transitionState = remember {
-        MutableTransitionState(sample.detailsVisibility).apply {
-            targetState = !sample.detailsVisibility
+    val cardBgColor =
+        when (sample.detailsVisibility) {
+            true -> _level_1_record_color_details
+            else -> _level_1_record_color
         }
-    }
-
-    val transition = updateTransition(transitionState, "cardTransition")
-
-    val cardBgColor by transition.animateColor(
-        label = "cardBgColorTransition",
-        transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = {
-            if (sample.detailsVisibility) {
-                _level_1_record_color_details
-            } else {
-                _level_1_record_color
-            }
-        }
-    )
 
     Card(
         colors = CardDefaults.cardColors(
