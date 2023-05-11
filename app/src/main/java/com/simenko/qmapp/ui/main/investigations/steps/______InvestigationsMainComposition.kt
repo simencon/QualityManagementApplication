@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.CustomDialogUI
-import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
@@ -36,9 +35,6 @@ import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.QMAppTheme
-
-fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
-}
 
 private const val TAG = "InvestigationsMainComposition"
 
@@ -212,7 +208,7 @@ fun InvestigationsMainComposition(
 
                     if (showStatusChangeDialog.value == true)
                         CustomDialogUI(
-                            dialogInput = dialogInput ?: DialogInput(0, DialogFor.ORDER, null),
+                            dialogInput = dialogInput ?: DialogInput(),
                             openDialogCustom = appModel.isStatusDialogVisible,
                             appModel = appModel
                         )

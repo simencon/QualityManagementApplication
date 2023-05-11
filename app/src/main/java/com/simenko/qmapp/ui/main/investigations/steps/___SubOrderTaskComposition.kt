@@ -62,6 +62,15 @@ fun SubOrderTasksFlowColumn(
         }
     }
 
+    val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, Int?) -> Unit> {
+        { subOrderComplete, completedById ->
+            appModel.statusDialog(
+                currentSubOrderTask = subOrderComplete,
+                performerId = completedById
+            )
+        }
+    }
+
     FlowRow(modifier = modifier) {
         items.forEach { task ->
             if (task.subOrderTask.subOrderId == parentId) {
@@ -75,8 +84,14 @@ fun SubOrderTasksFlowColumn(
                             onClickDetailsLambda(it)
                         },
                         cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = {it-> onClickActionsLambda(it) },
-                        onClickDelete = { it -> onClickDeleteLambda(it) }
+                        onClickActions = { it -> onClickActionsLambda(it) },
+                        onClickDelete = { it -> onClickDeleteLambda(it) },
+                        onClickStatus = { taskComplete, completedById ->
+                            onClickStatusLambda(
+                                taskComplete,
+                                completedById
+                            )
+                        }
                     )
                 }
                 Divider(thickness = 4.dp, color = Color.Transparent)
@@ -94,7 +109,8 @@ fun SubOrderTaskCard(
     onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
     cardOffset: Float,
     onClickActions: (DomainSubOrderTaskComplete) -> Unit,
-    onClickDelete: (Int) -> Unit
+    onClickDelete: (Int) -> Unit,
+    onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(task.isExpanded).apply {
@@ -173,7 +189,12 @@ fun SubOrderTaskCard(
                 modifier = modifier,
                 subOrderTask = task,
                 onClickDetails = { onClickDetails(task) },
-                showStatusDialog = { a, b, c -> appModel?.statusDialog(a, b, c) }
+                onClickStatus = { taskComplete, performedById ->
+                    onClickStatus(
+                        taskComplete,
+                        performedById
+                    )
+                }
             )
         }
     }
@@ -184,7 +205,7 @@ fun SubOrderTask(
     modifier: Modifier = Modifier,
     onClickDetails: () -> Unit = {},
     subOrderTask: DomainSubOrderTaskComplete = getSubOrderTasks()[0],
-    showStatusDialog: (Int, DialogFor, Int?) -> Unit
+    onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -280,9 +301,8 @@ fun SubOrderTask(
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = {
-                            showStatusDialog(
-                                subOrderTask.subOrderTask.id,
-                                DialogFor.CHARACTERISTIC,
+                            onClickStatus(
+                                subOrderTask,
                                 subOrderTask.subOrderTask.completedById
                             )
                         },
@@ -439,7 +459,7 @@ fun MySubOrderTaskPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            showStatusDialog = { a, b, c -> statusDialog(a, b, c) }
+            onClickStatus = { a, b -> }
         )
     }
 }

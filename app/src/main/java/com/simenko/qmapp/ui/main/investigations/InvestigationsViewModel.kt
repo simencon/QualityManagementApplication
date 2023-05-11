@@ -7,7 +7,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
-import com.simenko.qmapp.ui.common.DialogFor
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,9 +34,15 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     var isStatusDialogVisible = MutableLiveData(false)
-    val dialogInput = MutableLiveData(DialogInput(0, DialogFor.ORDER, null))
-    fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
-        dialogInput.value = DialogInput(recordId, dialogFor, performerId)
+    val dialogInput = MutableLiveData(DialogInput())
+    fun statusDialog(
+        currentOrder: DomainOrderComplete? = null,
+        currentSubOrder: DomainSubOrderComplete? = null,
+        currentSubOrderTask: DomainSubOrderTaskComplete? = null,
+        performerId: Int? = null
+    ) {
+        dialogInput.value =
+            DialogInput(currentOrder, currentSubOrder, currentSubOrderTask, performerId)
         isStatusDialogVisible.value = true
     }
 
@@ -99,7 +104,6 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with orders ______________________________________________________________
      * */
     private val _ordersF = repository.completeOrders()
-    val orders = _ordersF.asLiveData()
 
     /**
      * Visibility operations
@@ -232,7 +236,6 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with sub orders __________________________________________________________
      * */
     private val _subOrdersF = repository.completeSubOrders()
-    val subOrders = _subOrdersF.asLiveData()
 
     /**
      * Visibility operations
@@ -269,9 +272,11 @@ class InvestigationsViewModel @Inject constructor(
     fun setSubOrderWithOrderTypeToShow(type: SelectedNumber) {
         _showSubOrderWithOrderType.value = type
     }
+
     fun setSubOrderStatusToShow(status: String) {
         _showSubOrderWithStatus.value = getStatus(status)
     }
+
     fun setSubOrderNumberToShow(orderNumber: String) {
         _showSubOrderWithOrderNumber.value = SelectedString(orderNumber)
     }
@@ -369,7 +374,6 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with tasks __________________________________________________________
      * */
     private val _tasksF = repository.completeSubOrderTasks()
-    val tasks = _tasksF.asLiveData()
 
     /**
      * Visibility operations

@@ -12,10 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -33,33 +31,12 @@ import com.simenko.qmapp.ui.theme.*
 
 private const val TAG = "Dialogs"
 
-@Stable
-enum class DialogFor {
-    ORDER,
-    SUB_ORDER,
-    CHARACTERISTIC
-}
-
 data class DialogInput(
-    var recordId: Int,
-    var target: DialogFor,
-    var performerId: Int?
+    var currentOrder: DomainOrderComplete? = null,
+    var currentSubOrder: DomainSubOrderComplete? = null,
+    var currentSubOrderTask: DomainSubOrderTaskComplete? = null,
+    var performerId: Int? = null
 )
-
-fun findCurrentObject(id: Int, items: List<DomainOrderComplete>): DomainOrderComplete {
-    return items.find { it.order.id == id }!!
-}
-
-fun findCurrentObject(id: Int, items: List<DomainSubOrderComplete>): DomainSubOrderComplete {
-    return items.find { it.subOrder.id == id }!!
-}
-
-fun findCurrentObject(
-    id: Int,
-    items: List<DomainSubOrderTaskComplete>
-): DomainSubOrderTaskComplete {
-    return items.find { it.subOrderTask.id == id }!!
-}
 
 //Layout
 @Composable
@@ -69,34 +46,29 @@ fun CustomDialogUI(
     openDialogCustom: MutableLiveData<Boolean>,
     appModel: InvestigationsViewModel
 ) {
+    val currentOrder = dialogInput.currentOrder
+    val currentSubOrder = dialogInput.currentSubOrder
+    val currentSubOrderTask = dialogInput.currentSubOrderTask
+
     val statuses = appModel.investigationStatuses
     val team = appModel.team
-
-    val currentOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.orders.value!!)
-    }
-    val currentSubOrder by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.subOrders.value!!)
-    }
-    val currentSubOrderTask by lazy {
-        findCurrentObject(dialogInput.recordId, appModel.tasks.value!!)
-    }
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(team) {
         appModel.selectStatus(
-            when (dialogInput.target) {
-                DialogFor.ORDER -> {
+            when {
+                currentOrder != null ->
                     currentOrder.order.statusId
-                }
-                DialogFor.SUB_ORDER -> {
+
+                currentSubOrder != null ->
                     currentSubOrder.subOrder.statusId
-                }
-                DialogFor.CHARACTERISTIC -> {
+
+                currentSubOrderTask != null ->
                     currentSubOrderTask.subOrderTask.statusId
-                }
+
+                else ->  -1
             }
         )
         enableToEdit = when (dialogInput.performerId) {
@@ -114,16 +86,15 @@ fun CustomDialogUI(
     }
 
     fun changeStatus(id: Int) {
-        when (dialogInput.target) {
-            DialogFor.ORDER -> {
+        when {
+            currentOrder != null ->
                 currentOrder.order.statusId = id
-            }
-            DialogFor.SUB_ORDER -> {
+
+            currentSubOrder != null ->
                 currentSubOrder.subOrder.statusId = id
-            }
-            DialogFor.CHARACTERISTIC -> {
+
+            currentSubOrderTask != null ->
                 currentSubOrderTask.subOrderTask.statusId = id
-            }
         }
         appModel.selectStatus(id)
     }
@@ -214,17 +185,17 @@ fun CustomDialogUI(
                     TextButton(
                         enabled = enableToEdit,
                         onClick = {
-                            when (dialogInput.target) {
-                                DialogFor.ORDER -> {
+                            when {
+                                currentOrder != null ->
                                     openDialogCustom.value = false
-                                }
-                                DialogFor.SUB_ORDER -> {
+
+                                currentSubOrder != null -> {
                                     currentSubOrder.subOrder.completedById = dialogInput.performerId
                                     appModel.editSubOrder(currentSubOrder.subOrder)
                                 }
-                                DialogFor.CHARACTERISTIC -> {
-                                    currentSubOrderTask.subOrderTask.completedById =
-                                        dialogInput.performerId
+
+                                currentSubOrderTask != null -> {
+                                    currentSubOrderTask.subOrderTask.completedById = dialogInput.performerId
                                     appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                                 }
                             }

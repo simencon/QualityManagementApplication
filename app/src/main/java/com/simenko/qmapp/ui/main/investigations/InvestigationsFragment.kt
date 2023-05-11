@@ -80,10 +80,6 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel.orders.observe(viewLifecycleOwner) {}
-        viewModel.subOrders.observe(viewLifecycleOwner) {}
-        viewModel.tasks.observe(viewLifecycleOwner) {}
-
         viewModel.addStatusesToSnapShot()
         viewModel.addTeamToSnapShot()
 

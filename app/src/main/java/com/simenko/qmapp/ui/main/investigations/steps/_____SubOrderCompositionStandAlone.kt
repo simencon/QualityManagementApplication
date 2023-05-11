@@ -61,12 +61,11 @@ fun SubOrdersStandAlone(
         }
     }
 
-    val onClickStatusLambda = remember<(Int, Int?) -> Unit> {
-        { subOrderId, completedById ->
+    val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
+        { subOrderComplete, completedById ->
             appModel.statusDialog(
-                subOrderId,
-                DialogFor.SUB_ORDER,
-                completedById
+                currentSubOrder = subOrderComplete,
+                performerId = completedById
             )
         }
     }
@@ -115,26 +114,26 @@ fun SubOrdersStandAlone(
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
             Log.d(TAG, "SubOrdersStandAlone: ${subOrder.orderShort.order.orderNumber}")
-                SubOrderCard(
-                    modifier = modifier,
-                    parentOrderTypeId = parentOrderTypeId?: NoSelectedRecord,
-                    subOrder = subOrder,
-                    onClickDetails = { it ->
-                        onClickDetailsLambda(it)
-                    },
-                    cardOffset = CARD_OFFSET.dp(),
-                    onClickActions = {
-                        onClickActionsLambda(it)
-                    },
-                    onClickDelete = { it -> onClickDeleteLambda(it) },
-                    onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
-                    onClickStatus = { subOrderId, completedById ->
-                        onClickStatusLambda(
-                            subOrderId,
-                            completedById
-                        )
-                    }
-                )
+            SubOrderCard(
+                modifier = modifier,
+                parentOrderTypeId = parentOrderTypeId ?: NoSelectedRecord,
+                subOrder = subOrder,
+                onClickDetails = { it ->
+                    onClickDetailsLambda(it)
+                },
+                cardOffset = CARD_OFFSET.dp(),
+                onClickActions = {
+                    onClickActionsLambda(it)
+                },
+                onClickDelete = { it -> onClickDeleteLambda(it) },
+                onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
+                onClickStatus = { subOrderComplete, completedById ->
+                    onClickStatusLambda(
+                        subOrderComplete,
+                        completedById
+                    )
+                }
+            )
         }
     }
 }

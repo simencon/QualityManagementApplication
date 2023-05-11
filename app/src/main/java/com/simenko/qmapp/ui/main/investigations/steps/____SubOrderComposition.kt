@@ -89,12 +89,11 @@ fun SubOrdersFlowColumn(
         }
     }
 
-    val onClickStatusLambda = remember<(Int, Int?) -> Unit> {
-        { subOrderId, completedById ->
+    val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
+        { subOrderComplete, completedById ->
             appModel.statusDialog(
-                subOrderId,
-                DialogFor.SUB_ORDER,
-                completedById
+                currentSubOrder = subOrderComplete,
+                performerId = completedById
             )
         }
     }
@@ -138,9 +137,9 @@ fun SubOrdersFlowColumn(
                                 subOrderId
                             )
                         },
-                        onClickStatus = { subOrderId, completedById ->
+                        onClickStatus = { subOrderComplete, completedById ->
                             onClickStatusLambda(
-                                subOrderId,
+                                subOrderComplete,
                                 completedById
                             )
                         }
@@ -183,7 +182,7 @@ fun SubOrderCard(
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int, Int) -> Unit,
-    onClickStatus: (Int, Int?) -> Unit
+    onClickStatus: (DomainSubOrderComplete, Int?) -> Unit
 ) {
     Log.d(TAG, "SubOrderCard: ${subOrder.orderShort.order.orderNumber}")
 
@@ -268,9 +267,9 @@ fun SubOrderCard(
                 parentOrderTypeId = parentOrderTypeId,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetails(it) },
-                onClickStatus = { subOrderId, completedById ->
+                onClickStatus = { subOrderComplete, completedById ->
                     onClickStatus(
-                        subOrderId,
+                        subOrderComplete,
                         completedById
                     )
                 }
@@ -285,7 +284,7 @@ fun SubOrder(
     parentOrderTypeId: SelectedNumber,
     subOrder: DomainSubOrderComplete = getSubOrders()[0],
     onClickDetails: (Int) -> Unit = {},
-    onClickStatus: (Int, Int?) -> Unit,
+    onClickStatus: (DomainSubOrderComplete, Int?) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -413,7 +412,7 @@ fun SubOrder(
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = {
                             onClickStatus(
-                                subOrder.subOrder.id,
+                                subOrder,
                                 subOrder.subOrder.completedById
                             )
                         },
