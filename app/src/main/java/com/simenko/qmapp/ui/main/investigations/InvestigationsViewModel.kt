@@ -18,6 +18,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 private const val TAG = "InvestigationsViewModel"
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
@@ -49,6 +50,16 @@ class InvestigationsViewModel @Inject constructor(
     fun statusDialog(recordId: Int, dialogFor: DialogFor, performerId: Int?) {
         dialogInput.value = DialogInput(recordId, dialogFor, performerId)
         isStatusDialogVisible.value = true
+    }
+
+    private fun getStatus(status: String): SelectedNumber {
+        return when (status) {
+            InvestigationsFragment.TargetInv.ALL.name -> NoSelectedRecord
+            InvestigationsFragment.TargetInv.TO_DO.name -> SelectedNumber(1)
+            InvestigationsFragment.TargetInv.IN_PROGRESS.name -> SelectedNumber(2)
+            InvestigationsFragment.TargetInv.DONE.name -> SelectedNumber(3)
+            else -> NoSelectedRecord
+        }
     }
 
     val investigationStatuses: SnapshotStateList<DomainOrdersStatus> = mutableStateListOf()
@@ -128,24 +139,9 @@ class InvestigationsViewModel @Inject constructor(
      * */
     private val _showWithStatus = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _showOrderNumber = MutableStateFlow<SelectedString>(NoSelectedString)
+
     fun setOrderStatusToShow(status: String) {
-        when (status) {
-            InvestigationsFragment.TargetInv.ALL.name -> {
-                _showWithStatus.value = NoSelectedRecord
-            }
-            InvestigationsFragment.TargetInv.TO_DO.name -> {
-                _showWithStatus.value = SelectedNumber(1)
-            }
-            InvestigationsFragment.TargetInv.IN_PROGRESS.name -> {
-                _showWithStatus.value = SelectedNumber(2)
-            }
-            InvestigationsFragment.TargetInv.DONE.name -> {
-                _showWithStatus.value = SelectedNumber(3)
-            }
-            else -> {
-                _showWithStatus.value = NoSelectedRecord
-            }
-        }
+        _showWithStatus.value = getStatus(status)
     }
 
     fun setOrderNumberToShow(orderNumber: String) {
@@ -270,23 +266,7 @@ class InvestigationsViewModel @Inject constructor(
     private val _showSubOrderWithStatus = MutableStateFlow(NoSelectedRecord)
     private val _showSubOrderNumber = MutableStateFlow(NoSelectedString)
     fun setSubOrderStatusToShow(status: String) {
-        when (status) {
-            InvestigationsFragment.TargetInv.ALL.name -> {
-                _showSubOrderWithStatus.value = NoSelectedRecord
-            }
-            InvestigationsFragment.TargetInv.TO_DO.name -> {
-                _showSubOrderWithStatus.value = SelectedNumber(1)
-            }
-            InvestigationsFragment.TargetInv.IN_PROGRESS.name -> {
-                _showSubOrderWithStatus.value = SelectedNumber(2)
-            }
-            InvestigationsFragment.TargetInv.DONE.name -> {
-                _showSubOrderWithStatus.value = SelectedNumber(3)
-            }
-            else -> {
-                _showSubOrderWithStatus.value = NoSelectedRecord
-            }
-        }
+        _showSubOrderWithStatus.value = getStatus(status)
     }
 
     fun setSubOrderNumberToShow(orderNumber: String) {
@@ -654,35 +634,37 @@ class InvestigationsViewModel @Inject constructor(
                          * first find subOrder
                          * */
                         val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+
                         /**
                          * second - extract list of metrixes to record
                          * */
-                        val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                            prefix = subOrder.itemPreffix.substring(0, 1),
-                            versionId = subOrder.itemVersionId,
-                            actual = true,
-                            charId = subOrderTask.charId
-                        )
+                        val metrixesToRecord =
+                            productsRepository.getMetricsByPrefixVersionIdActualityCharId(
+                                prefix = subOrder.itemPreffix.substring(0, 1),
+                                versionId = subOrder.itemVersionId,
+                                actual = true,
+                                charId = subOrderTask.charId
+                            )
                         /**
                          * third - generate the final list of result to record
                          * */
                         repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
-                                metrixesToRecord.forEach { mIt ->
-                                    listOfResults.add(
-                                        DomainResult(
-                                            id = 0,
-                                            sampleId = sdIt.id,
-                                            metrixId = mIt.id,
-                                            result = null,
-                                            isOk = true,
-                                            resultDecryptionId = 1,
-                                            taskId = subOrderTask.id
-                                        )
+                            metrixesToRecord.forEach { mIt ->
+                                listOfResults.add(
+                                    DomainResult(
+                                        id = 0,
+                                        sampleId = sdIt.id,
+                                        metrixId = mIt.id,
+                                        result = null,
+                                        isOk = true,
+                                        resultDecryptionId = 1,
+                                        taskId = subOrderTask.id
                                     )
-                                }
+                                )
                             }
+                        }
 
-                        val channel3 =  repository.getCreatedRecords(
+                        val channel3 = repository.getCreatedRecords(
                             coroutineScope,
                             listOfResults
                         )
