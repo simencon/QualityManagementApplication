@@ -75,18 +75,23 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _currentMember = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
+    private val _currentMemberDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
 
     private val _teamF = repository.teamComplete()
 
     fun changeCurrentTeamMember(id: Int) {
-        _currentMember.value = SelectedNumber(id)
+        if (_currentMemberDetails.value.num != id) {
+            _currentMemberDetails.value = SelectedNumber(id)
+        } else {
+            _currentMemberDetails.value = NoSelectedRecord
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val teamSF: Flow<List<DomainTeamMemberComplete>> = _currentMember.flatMapLatest { currentMember ->
+    val teamSF: Flow<List<DomainTeamMemberComplete>> = _currentMemberDetails.flatMapLatest { currentMember ->
         _teamF.map {
-            it.changeOrderVisibility(currentMember.num)
+            val result = it.changeOrderVisibility(currentMember.num)
+            result
         }
     }
 

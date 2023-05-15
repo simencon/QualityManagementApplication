@@ -338,13 +338,9 @@ fun DatabaseCharacteristicComplete.toDomainCharacteristicComplete(): DomainChara
     )
 }
 
-fun List<DomainTeamMemberComplete>.changeOrderVisibility(id: Int): List<DomainTeamMemberComplete> {
+fun List<DomainTeamMemberComplete>.changeOrderVisibility(detailsId: Int): List<DomainTeamMemberComplete> {
     return map {
-        if (id == it.teamMember.id) {
-            it.detailsVisibility = !it.detailsVisibility
-        } else {
-            it.detailsVisibility = false
-        }
+        it.detailsVisibility = detailsId == it.teamMember.id
         it
     }
 }
