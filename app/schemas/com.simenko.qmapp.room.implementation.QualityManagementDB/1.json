@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "457301f44a098f09495e8d2bb721a7c3",
+    "identityHash": "e6c5b58bc230178895ac1b09439e3e7a",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3378,19 +3378,19 @@
       },
       {
         "viewName": "orders_results",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT o.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `12_orders` AS o LEFT OUTER JOIN `13_sub_orders` AS so ON o.id = so.orderId LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId GROUP BY o.id;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT o.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) when 1 then 1 else 0 end) AS good, COUNT(r.isOk) AS total  FROM `12_orders` AS o LEFT OUTER JOIN `13_sub_orders` AS so ON o.id = so.orderId LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId GROUP BY o.id;"
       },
       {
         "viewName": "sub_orders_results",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT so.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_sub_orders` AS so LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId GROUP BY so.id;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT so.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) when 1 then 1 else 0 end) AS good, COUNT(r.isOk) AS total  FROM `13_sub_orders` AS so LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId GROUP BY so.id;"
       },
       {
         "viewName": "tasks_results",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT t.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t LEFT OUTER JOIN `14_8_results` AS r ON t.ID = r.taskId GROUP BY t.id;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT t.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) when 1 then 1 else 0 end) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t LEFT OUTER JOIN `14_8_results` AS r ON t.ID = r.taskId GROUP BY t.id;"
       },
       {
         "viewName": "samples_results",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId GROUP BY s.id, r.taskId;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) when 1 then 1 else 0 end) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId GROUP BY s.id, r.taskId;"
       },
       {
         "viewName": "orders_short",
@@ -3411,7 +3411,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '457301f44a098f09495e8d2bb721a7c3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e6c5b58bc230178895ac1b09439e3e7a')"
     ]
   }
 }

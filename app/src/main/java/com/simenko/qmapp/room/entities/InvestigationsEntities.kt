@@ -129,7 +129,7 @@ data class DatabaseOrder constructor(
 
 @DatabaseView(
     viewName = "orders_results",
-    value = "SELECT o.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `12_orders` AS o " +
+    value = "SELECT o.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `12_orders` AS o " +
             "LEFT OUTER JOIN `13_sub_orders` AS so ON o.id = so.orderId " +
             "LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId " +
             "LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId " +
@@ -243,7 +243,7 @@ data class DatabaseSubOrder constructor(
 
 @DatabaseView(
     viewName = "sub_orders_results",
-    value = "SELECT so.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_sub_orders` AS so " +
+    value = "SELECT so.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `13_sub_orders` AS so " +
             "LEFT OUTER JOIN `13_7_sub_order_tasks` AS t ON so.id = t.subOrderId " +
             "LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId " +
             "GROUP BY so.id;"
@@ -319,7 +319,7 @@ data class DatabaseSubOrderTask constructor(
 
 @DatabaseView(
     viewName = "tasks_results",
-    value = "SELECT t.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t " +
+    value = "SELECT t.id, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `13_7_sub_order_tasks` AS t " +
             "LEFT OUTER JOIN `14_8_results` AS r ON t.ID = r.taskId " +
             "GROUP BY t.id;"
 )
@@ -351,7 +351,7 @@ data class DatabaseSample constructor(
 
 @DatabaseView(
     viewName = "samples_results",
-    value = "SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(IIF(r.isOk = 1, 1, 0)) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s " +
+    value = "SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s " +
             "LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId " +
             "GROUP BY s.id, r.taskId;"
 )
