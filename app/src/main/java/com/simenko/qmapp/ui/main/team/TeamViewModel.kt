@@ -1,6 +1,9 @@
 package com.simenko.qmapp.ui.main.team
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -83,7 +86,10 @@ class TeamViewModel @Inject constructor(
 
     private val _needToUpdateTeamFromRoom = MutableStateFlow(false)
     private val _currentMemberDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
-    private val _teamSF = MutableStateFlow<List<DomainTeamMemberComplete>>(listOf())
+
+    private val _teamSF = MutableStateFlow<SnapshotStateList<DomainTeamMemberComplete>>(
+        mutableStateListOf()
+    )
 
     private fun updateTeamFromRoom() {
         _needToUpdateTeamFromRoom.value = true
@@ -98,52 +104,31 @@ class TeamViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val teamSF: Flow<List<DomainTeamMemberComplete>> =
+    val teamSF: StateFlow<SnapshotStateList<DomainTeamMemberComplete>> =
         _needToUpdateTeamFromRoom.flatMapLatest { needToUpdate ->
             _currentMemberDetails.flatMapLatest { visibility ->
                 if (needToUpdate) {
-                    _teamSF.value = repository.teamCompleteList()
+                    _teamSF.value = repository.teamCompleteList().toMutableStateList()
                     _needToUpdateTeamFromRoom.value = false
                 }
-                _teamSF.map {
-                    Log.d(TAG, "debugListSF comparison: ${debugListSF == it}")
-                    Log.d(TAG, "debugListSF comparison, old value hashcode: ${debugListSF.hashCode()}\n")
-                    debugListSF = it
-                    Log.d(TAG, "debugListSF comparison, new value hashcode: ${debugListSF.hashCode()}\n")
-                    it.changeOrderVisibility(visibility.num)
+                val cpy = mutableStateListOf<DomainTeamMemberComplete>()
+                _teamSF.value.forEach {
+                    cpy.add(it.copy())
                 }
-                flow { _teamSF.value.changeOrderVisibility(visibility.num) }
+                flow { emit(cpy.changeOrderVisibility(visibility.num).toMutableStateList()) }
             }
-        }
-
-    private val _teamF: Flow<List<DomainTeamMemberComplete>> = repository.teamComplete()
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val teamF: Flow<List<DomainTeamMemberComplete>> =
-        _currentMemberDetails.flatMapLatest { currentMember ->
-            _teamF.map {
-                Log.d(TAG, "debugListF comparison: ${debugListF == it}\n")
-                Log.d(TAG, "debugListF comparison, old value hashcode: ${debugListF.hashCode()}\n")
-                debugListF = it
-                Log.d(TAG, "debugListF comparison, new value hashcode: ${debugListF.hashCode()}\n")
-                it.changeOrderVisibility(currentMember.num)
-            }
-        }
-
-    var debugListF: List<DomainTeamMemberComplete> = listOf()
-    var debugListSF: List<DomainTeamMemberComplete> = listOf()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), mutableStateListOf())
 
     fun syncTeam() {
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
-                repeat(10) {
-                    delay(1000L)
-                    repository.refreshCompanies()
-                    repository.refreshDepartments()
-                    repository.refreshTeamMembers()
-                }
 
+                repository.refreshCompanies()
+                repository.refreshDepartments()
+                repository.refreshTeamMembers()
+
+                updateTeamFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -155,12 +140,7 @@ class TeamViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _teamSF.value = repository.teamCompleteList()
-            debugListSF = _teamSF.value
-
-            _teamF.collect() {
-                debugListF = it
-            }
+            _teamSF.value = repository.teamCompleteList().toMutableStateList()
         }
     }
 }

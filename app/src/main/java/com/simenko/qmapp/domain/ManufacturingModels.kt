@@ -9,15 +9,15 @@ data class DomainPositionLevel(
 
 @Stable
 data class DomainTeamMember(
-    var id: Int,
-    var departmentId: Int,
-    var department: String,
+    var id: Int = NoSelectedRecord.num,
+    var departmentId: Int = NoSelectedRecord.num,
+    var department: String = NoSelectedString.str,
     var email: String? = null,
-    var fullName: String,
-    var jobRole: String,
-    var roleLevelId: Int,
+    var fullName: String = NoSelectedString.str,
+    var jobRole: String = NoSelectedString.str,
+    var roleLevelId: Int = NoSelectedRecord.num,
     var passWord: String? = null,
-    var companyId: Int,
+    var companyId: Int = NoSelectedRecord.num,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainModel() {
@@ -33,7 +33,7 @@ data class DomainTeamMember(
 }
 
 data class DomainCompany(
-    var id: Int,
+    var id: Int = NoSelectedRecord.num,
     var companyName: String? = null,
     var companyCountry: String? = null,
     var companyCity: String? = null,
@@ -41,20 +41,20 @@ data class DomainCompany(
     var companyPhoneNo: String? = null,
     var companyPostCode: String? = null,
     var companyRegion: String? = null,
-    var companyOrder: Int,
+    var companyOrder: Int = NoSelectedRecord.num,
     var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int
+    var companyManagerId: Int = NoSelectedRecord.num
 )
 
 @Stable
 data class DomainDepartment(
-    var id: Int,
-    var depAbbr: String?,
-    var depName: String?,
-    var depManager: Int?,
-    var depOrganization: String?,
-    var depOrder: Int?,
-    var companyId: Int?,
+    var id: Int = NoSelectedRecord.num,
+    var depAbbr: String? = null,
+    var depName: String? = null,
+    var depManager: Int? = null,
+    var depOrganization: String? = null,
+    var depOrder: Int? = null,
+    var companyId: Int? = null,
     var isSelected: Boolean = false
 ) : DomainModel() {
     override fun getRecordId() = id
@@ -141,9 +141,9 @@ data class DomainOperationsFlow(
 
 @Stable
 data class DomainTeamMemberComplete(
-    val teamMember: DomainTeamMember,
-    val department: DomainDepartment,
-    val company: DomainCompany,
+    val teamMember: DomainTeamMember = DomainTeamMember(),
+    val department: DomainDepartment = DomainDepartment(),
+    val company: DomainCompany = DomainCompany(),
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainModel() {

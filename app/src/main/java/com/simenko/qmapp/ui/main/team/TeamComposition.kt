@@ -51,7 +51,6 @@ fun TeamComposition(
     val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by appModel.isNetworkError.observeAsState()
 
-    val itemsF by appModel.teamF.collectAsStateWithLifecycle(listOf())
     val items by appModel.teamSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda: (Int) -> Unit = {
