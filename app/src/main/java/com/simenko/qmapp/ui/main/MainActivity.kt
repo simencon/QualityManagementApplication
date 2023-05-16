@@ -30,7 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
 
-data class CreatedRecord(val orderId: Int = 0, val subOrderId: Int = 0)
+data class CreatedRecord(val orderId: Int = NoSelectedRecord.num, val subOrderId: Int = NoSelectedRecord.num)
 
 fun setMainActivityResult(
     activity: NewItemActivity,
@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navigationView: NavigationView
 
     var requestCode: Int = -1
-    private var createdRecord = CreatedRecord(-1, -1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,11 +102,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         this.requestCode = resultCode
 
-        this.createdRecord = CreatedRecord(
-            intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: 0,
-            intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: 0
+        investigationsModel.setCreatedRecordId(
+            intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoSelectedRecord.num,
+            intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoSelectedRecord.num
         )
-        investigationsModel.createdRecord.value = createdRecord
 
         if (
             requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||
@@ -222,11 +220,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                     R.id.nav_inv_orders_general -> {
                         investigationsModel.setSubOrderWithOrderTypeToShow(NoSelectedRecord)
-                        InvestigationsFragment(createdRecord)
+                        InvestigationsFragment()
                     }
                     R.id.nav_inv_orders_process_control -> {
                         investigationsModel.setSubOrderWithOrderTypeToShow(OrderTypeProcessOnly)
-                        InvestigationsFragment(createdRecord)
+                        InvestigationsFragment()
                     }
 
                     R.id.nav_scrap_level -> {

@@ -22,7 +22,7 @@ import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "InvestigationsFragment"
 
-class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
+class InvestigationsFragment() :
     Fragment() {
 
     private lateinit var binding: FragmentInvestigationsBinding
@@ -90,14 +90,12 @@ class InvestigationsFragment(private val createdRecord: CreatedRecord? = null) :
                 ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
             )
             setContent {
-                Log.d(TAG, "onViewCreated: $createdRecord")
                 InvestigationsMainComposition(
                     modifier = Modifier
                         .padding(
                             vertical = 2.dp,
                             horizontal = 2.dp
-                        ),
-                    createdRecord = createdRecord
+                        )
                 )
             }
         }

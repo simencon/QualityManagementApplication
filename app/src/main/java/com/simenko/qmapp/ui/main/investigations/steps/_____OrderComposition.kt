@@ -49,10 +49,11 @@ private const val TAG = "OrderComposition"
 fun Orders(
     modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel,
-    onListEnd: (FabPosition) -> Unit,
-    createdRecord: CreatedRecord? = null,
+    onListEnd: (FabPosition) -> Unit
 ) {
     val context = LocalContext.current
+
+    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
     val items by appModel.ordersSF.collectAsStateWithLifecycle(listOf())
 
@@ -88,7 +89,7 @@ fun Orders(
 
     val needScrollToItem by remember {
         derivedStateOf {
-            createdRecord != null
+            createdRecord.orderId != NoSelectedRecord.num
         }
     }
 
@@ -96,9 +97,13 @@ fun Orders(
         val coroutineScope = rememberCoroutineScope()
         SideEffect {
             coroutineScope.launch {
+                appModel.updateOrdersFromRoom()
+
+                delay(2000)
+
                 listState.scrollToSelectedItem(
                     list = items.map { it.order.id }.toList(),
-                    selectedId = createdRecord!!.orderId
+                    selectedId = createdRecord.orderId
                 )
 
                 delay(200)
@@ -108,7 +113,9 @@ fun Orders(
                 }
 
                 if (order != null && !order.detailsVisibility) {
+                    appModel.resetCreatedOrderId()
                     onClickDetailsLambda(order.order.id)
+                    appModel.resetCreatedOrderId()
                 }
             }
         }

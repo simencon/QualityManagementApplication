@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.*
@@ -23,13 +24,13 @@ private const val TAG = "SubOrdersStandAlone"
 @Composable
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
-    onListEnd: (FabPosition) -> Unit,
-    createdRecord: CreatedRecord? = null
+    onListEnd: (FabPosition) -> Unit
 ) {
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
+    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
     val items by appModel.subOrdersSF.collectAsState(initial = listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
@@ -74,7 +75,7 @@ fun SubOrdersStandAlone(
 
     val needScrollToItem by remember {
         derivedStateOf {
-            createdRecord != null
+            createdRecord.subOrderId != NoSelectedRecord.num
         }
     }
 
@@ -84,7 +85,7 @@ fun SubOrdersStandAlone(
             coroutineScope.launch {
                 listState.scrollToSelectedItem(
                     list = items.map { it.subOrder.id }.toList(),
-                    selectedId = createdRecord!!.orderId
+                    selectedId = createdRecord.orderId
                 )
 
                 delay(200)
@@ -95,6 +96,7 @@ fun SubOrdersStandAlone(
 
                 if (subOrder != null && !subOrder.detailsVisibility) {
                     onClickDetailsLambda(subOrder.subOrder.id)
+                    appModel.resetCreatedSubOrderId()
                 }
             }
         }

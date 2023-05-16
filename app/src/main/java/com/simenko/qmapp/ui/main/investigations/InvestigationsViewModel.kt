@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
@@ -96,7 +97,35 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val createdRecord = MutableLiveData(CreatedRecord())
+    /**
+     * Handling scrolling to just created record-------------------------------------------------
+     * */
+    private val _createdRecord = MutableStateFlow(CreatedRecord())
+    val createdRecord: StateFlow<CreatedRecord>
+        get() = _createdRecord
+
+    fun setCreatedRecordId(
+        orderId: Int = NoSelectedRecord.num,
+        subOrderId: Int = NoSelectedRecord.num
+    ) {
+        if (orderId != NoSelectedRecord.num && subOrderId != NoSelectedRecord.num)
+            _createdRecord.value = CreatedRecord(orderId, subOrderId)
+        else if (orderId != NoSelectedRecord.num)
+            _createdRecord.value = CreatedRecord(orderId, _createdRecord.value.subOrderId)
+        else if (subOrderId != NoSelectedRecord.num)
+            _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, subOrderId)
+    }
+
+    fun resetCreatedOrderId() {
+        _createdRecord.value = CreatedRecord(NoSelectedRecord.num, _createdRecord.value.subOrderId)
+    }
+
+    fun resetCreatedSubOrderId() {
+        _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, NoSelectedRecord.num)
+    }
+    /**
+     * Handling scrolling to just created record-------------------------------------------------
+     * */
 
     /**
      * Operations with orders ______________________________________________________________
@@ -110,7 +139,7 @@ class InvestigationsViewModel @Inject constructor(
     private val _currentOrderDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _currentOrderActions = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
 
-    private fun updateTeamFromRoom() {
+    fun updateOrdersFromRoom() {
         _needToUpdateOrdersFromRoom.value = true
     }
 
@@ -205,7 +234,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.deleteOrder(orderId)
                 syncOrders()
 
-                updateTeamFromRoom()
+                updateOrdersFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -226,7 +255,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshSamples()
                 repository.refreshResults()
 
-                updateTeamFromRoom()
+                updateOrdersFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -246,7 +275,7 @@ class InvestigationsViewModel @Inject constructor(
                     )
                     channel.consumeEach { }
                 }
-                updateTeamFromRoom()
+                updateOrdersFromRoom()
                 isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
@@ -799,7 +828,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshResultsDecryptions()
                 repository.refreshResults()
 
-                updateTeamFromRoom()
+                updateOrdersFromRoom()
                 isLoadingInProgress.value = false
 
             } catch (networkError: IOException) {
@@ -811,7 +840,12 @@ class InvestigationsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _ordersSF.value = repository.ordersCompleteList()
+            withContext(Dispatchers.Default) {
+                Log.d(TAG, "view model init was called")
+//            ToDo: this not works because init is called once the MainActivity started ...
+                delay(1500L)
+                updateOrdersFromRoom()
+            }
         }
     }
 }

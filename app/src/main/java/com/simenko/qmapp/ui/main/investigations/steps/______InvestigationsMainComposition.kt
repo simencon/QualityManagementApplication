@@ -41,8 +41,7 @@ private const val TAG = "InvestigationsMainComposition"
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun InvestigationsMainComposition(
-    modifier: Modifier = Modifier,
-    createdRecord: CreatedRecord?
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
@@ -165,8 +164,7 @@ fun InvestigationsMainComposition(
                                     }
                                 ),
                                 appModel = appModel,
-                                onListEnd = { changeFlaBtnPosition(it) },
-                                createdRecord = createdRecord
+                                onListEnd = { changeFlaBtnPosition(it) }
                             )
                         else
                             SubOrdersStandAlone(
@@ -187,8 +185,7 @@ fun InvestigationsMainComposition(
                                         }
                                     }
                                 ),
-                                onListEnd = { changeFlaBtnPosition(it) },
-                                createdRecord = createdRecord
+                                onListEnd = { changeFlaBtnPosition(it) }
                             )
 
                         SampleComposition(

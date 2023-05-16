@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
@@ -53,12 +54,11 @@ fun SubOrdersFlowColumn(
     val appModel = (context as MainActivity).investigationsModel
 
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
-    val createdRecord by appModel.createdRecord.observeAsState()
+    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
     val items by appModel.subOrdersSF.collectAsState(listOf())
 
     val coroutineScope = rememberCoroutineScope()
-    var lookForRecord by rememberSaveable { mutableStateOf(false) }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
@@ -98,20 +98,18 @@ fun SubOrdersFlowColumn(
         }
     }
 
-    LaunchedEffect(lookForRecord) {
-        if (createdRecord != null)
+    LaunchedEffect(createdRecord) {
+        if (createdRecord.subOrderId != NoSelectedRecord.num)
             coroutineScope.launch {
                 delay(200)
                 val subOrder = items.find {
-                    it.subOrder.id == createdRecord?.subOrderId
+                    it.subOrder.id == createdRecord.subOrderId
                 }
-                if (subOrder != null)
+                if (subOrder != null) {
                     onClickDetailsLambda(subOrder.subOrder.id)
-
-            } else if (createdRecord != null && createdRecord?.subOrderId != 0) {
-            delay(50)
-            lookForRecord = !lookForRecord
-        }
+                    appModel.resetCreatedSubOrderId()
+                }
+            }
     }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
