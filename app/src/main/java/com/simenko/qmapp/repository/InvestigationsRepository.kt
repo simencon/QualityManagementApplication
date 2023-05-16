@@ -8,7 +8,6 @@ import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
-import com.simenko.qmapp.room.implementation.ProductsDao
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -619,11 +618,14 @@ class InvestigationsRepository @Inject constructor(
             it.asDomainOrdersComplete(currentOrder)
         }
 
-    fun completeOrders(): Flow<List<DomainOrderComplete>> =
+    fun completeOrdersF(): Flow<List<DomainOrderComplete>> =
         investigationsDao.getOrdersDetailedFlow().map {
             it.asDomainOrdersComplete(currentOrder)
         }
             .flowOn(Dispatchers.IO).conflate()
+
+    suspend fun ordersCompleteList(): List<DomainOrderComplete> =
+        investigationsDao.getOrdersDetailedList().asDomainOrdersComplete()
 
     private var currentSubOrder = -1
     fun setCurrentSubOrder(id: Int) {

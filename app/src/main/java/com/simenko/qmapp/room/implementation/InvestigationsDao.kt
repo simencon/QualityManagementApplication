@@ -136,6 +136,10 @@ interface InvestigationsDao {
     fun getOrdersDetailedFlow(): Flow<List<DatabaseOrderComplete>>
 
     @Transaction
+    @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
+    suspend fun getOrdersDetailedList(): List<DatabaseOrderComplete>
+
+    @Transaction
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
     fun getSubOrdersDetailed(): LiveData<List<DatabaseSubOrderComplete>>
 

@@ -1,9 +1,5 @@
 package com.simenko.qmapp.ui.main.team
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -13,8 +9,6 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
-
-private const val TAG = "TeamViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -85,11 +79,9 @@ class TeamViewModel @Inject constructor(
     }
 
     private val _needToUpdateTeamFromRoom = MutableStateFlow(false)
-    private val _currentMemberDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
+    private val _currentMemberDetails = MutableStateFlow(NoSelectedRecord)
 
-    private val _teamSF = MutableStateFlow<List<DomainTeamMemberComplete>>(
-        listOf()
-    )
+    private val _teamSF = MutableStateFlow<List<DomainTeamMemberComplete>>(listOf())
 
     private fun updateTeamFromRoom() {
         _needToUpdateTeamFromRoom.value = true

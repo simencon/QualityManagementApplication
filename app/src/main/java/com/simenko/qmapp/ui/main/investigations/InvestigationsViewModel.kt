@@ -101,13 +101,19 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with orders ______________________________________________________________
      * */
-    private val _ordersF = repository.completeOrders()
+    private val _ordersSF = MutableStateFlow<List<DomainOrderComplete>>(listOf())
 
     /**
      * Visibility operations
      * */
+    private val _needToUpdateOrdersFromRoom = MutableStateFlow(false)
     private val _currentOrderDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _currentOrderActions = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
+
+    private fun updateTeamFromRoom() {
+        _needToUpdateOrdersFromRoom.value = true
+    }
+
     fun setOrderDetailsVisibility(id: Int) {
         if (_currentOrderDetails.value.num != id) {
             _currentOrderDetails.value = SelectedNumber(id)
@@ -147,26 +153,46 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val ordersSF: Flow<List<DomainOrderComplete>> =
-        _currentOrderDetails.flatMapLatest { details ->
-            _currentOrderActions.flatMapLatest { actions ->
-                _showWithType.flatMapLatest { type ->
-                    _showWithStatus.flatMapLatest { status ->
-                        _showOrderNumber.flatMapLatest { number ->
-                            setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
-                            setTaskDetailsVisibility(_currentTaskDetails.value.num)
-                            setSampleDetailsVisibility(_currentSampleDetails.value.num)
-                            setResultDetailsVisibility(_currentResultDetails.value.num)
+    val ordersSF: StateFlow<List<DomainOrderComplete>> =
+        _needToUpdateOrdersFromRoom.flatMapLatest { update ->
+            _currentOrderDetails.flatMapLatest { details ->
+                _currentOrderActions.flatMapLatest { actions ->
+                    _showWithType.flatMapLatest { type ->
+                        _showWithStatus.flatMapLatest { status ->
+                            _showOrderNumber.flatMapLatest { number ->
+                                if (update) {
+                                    _ordersSF.value = repository.ordersCompleteList()
+                                    _needToUpdateOrdersFromRoom.value = false
+                                }
 
-                            _ordersF.map {
-                                it.changeOrderVisibility(details.num, actions.num)
-                                    .filterByStatusAndNumber(type.num, status.num, number.str)
+                                setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
+                                setTaskDetailsVisibility(_currentTaskDetails.value.num)
+                                setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                                setResultDetailsVisibility(_currentResultDetails.value.num)
+
+                                val cyp = mutableListOf<DomainOrderComplete>()
+                                _ordersSF.value.forEach {
+                                    cyp.add(it.copy())
+                                }
+
+                                flow {
+                                    emit(
+                                        cyp.changeOrderVisibility(
+                                            details.num, actions.num
+                                        ).filterByStatusAndNumber(
+                                            type.num, status.num, number.str
+                                        )
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-        }.flowOn(Dispatchers.IO).conflate()
+        }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -179,6 +205,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.deleteOrder(orderId)
                 syncOrders()
 
+                updateTeamFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -199,6 +226,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshSamples()
                 repository.refreshResults()
 
+                updateTeamFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -218,6 +246,7 @@ class InvestigationsViewModel @Inject constructor(
                     )
                     channel.consumeEach { }
                 }
+                updateTeamFromRoom()
                 isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
@@ -769,12 +798,20 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshSamples()
                 repository.refreshResultsDecryptions()
                 repository.refreshResults()
+
+                updateTeamFromRoom()
                 isLoadingInProgress.value = false
 
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
             }
+        }
+    }
+
+    init {
+        viewModelScope.launch {
+            _ordersSF.value = repository.ordersCompleteList()
         }
     }
 }

@@ -216,28 +216,7 @@ data class DomainOrderComplete constructor(
     var orderResult: DomainOrderResult,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
-) {
-    override fun equals(other: Any?): Boolean {
-        if (javaClass != other?.javaClass) return false
-
-        other as DomainOrderComplete
-
-        if (order != other.order) return false
-        if (orderResult != other.orderResult) return false
-        if (detailsVisibility != other.detailsVisibility) return false
-        if (isExpanded != other.isExpanded) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = order.hashCode()
-        result = 31 * result + orderResult.hashCode()
-        result = 31 * result + detailsVisibility.hashCode()
-        result = 31 * result + isExpanded.hashCode()
-        return result
-    }
-}
+)
 
 @Stable
 data class DomainSubOrderComplete constructor(
