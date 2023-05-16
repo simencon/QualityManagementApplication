@@ -89,11 +89,9 @@ class InvestigationsViewModel @Inject constructor(
 
     fun addTeamToSnapShot() {
         viewModelScope.launch {
-            manufacturingRepository.teamComplete().collect() {
-                team.apply {
-                    clear()
-                    addAll(it)
-                }
+            team.apply {
+                clear()
+                addAll(manufacturingRepository.teamCompleteList())
             }
         }
     }

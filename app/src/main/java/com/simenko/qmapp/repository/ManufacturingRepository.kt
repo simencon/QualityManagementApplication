@@ -224,23 +224,13 @@ class ManufacturingRepository @Inject constructor(
             ).generateList()
         }
 
-    val teamComplete: LiveData<List<DomainTeamMemberComplete>> =
-        manufacturingDao.getTeamDetailed().map {
-            it.asTeamCompleteDomainModel()
-        }
-
-    fun teamComplete(): Flow<List<DomainTeamMemberComplete>> =
-        manufacturingDao.getTeamDetailedFlow().map {
-            it.asTeamCompleteDomainModel()
-        }
-
     suspend fun teamCompleteList(): List<DomainTeamMemberComplete> =
         manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()
 
-    fun teamCompleteByDepartment(depId: Int): Flow<List<DomainTeamMemberComplete>> =
-        manufacturingDao.getTeamDetailedFlow().map {
-            it.asTeamCompleteDomainModel().filter { itd -> itd.teamMember.departmentId == depId }
-        }
+    suspend fun teamCompleteByDepartment(depId: Int): List<DomainTeamMemberComplete> =
+        manufacturingDao.getTeamDetailedList()
+            .asTeamCompleteDomainModel()
+            .filter { itd -> itd.teamMember.departmentId == depId }
 
     val departments: LiveData<List<DomainDepartment>> =
         manufacturingDao.getDepartments().map {

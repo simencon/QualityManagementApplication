@@ -68,20 +68,6 @@ interface ManufacturingDao {
     @Transaction
     @Query(
         "SELECT tm.* FROM '8_team_members' AS tm " +
-                "ORDER BY tm.fullName ASC"
-    )
-    fun getTeamDetailed(): LiveData<List<DatabaseTeamMemberComplete>>
-
-    @Transaction
-    @Query(
-        "SELECT tm.* FROM '8_team_members' AS tm " +
-                "ORDER BY tm.id ASC"
-    )
-    fun getTeamDetailedFlow(): Flow<List<DatabaseTeamMemberComplete>>
-
-    @Transaction
-    @Query(
-        "SELECT tm.* FROM '8_team_members' AS tm " +
                 "ORDER BY tm.id ASC"
     )
     suspend fun getTeamDetailedList(): List<DatabaseTeamMemberComplete>
