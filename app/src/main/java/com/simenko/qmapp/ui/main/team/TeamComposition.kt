@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
@@ -50,7 +51,8 @@ fun TeamComposition(
     val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by appModel.isNetworkError.observeAsState()
 
-    val items by appModel.teamSF.collectAsState(initial = listOf())
+    val itemsF by appModel.teamF.collectAsStateWithLifecycle(listOf())
+    val items by appModel.teamSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda: (Int) -> Unit = {
         appModel.changeCurrentTeamMember(it)

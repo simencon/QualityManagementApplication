@@ -234,6 +234,9 @@ class ManufacturingRepository @Inject constructor(
             it.asTeamCompleteDomainModel()
         }
 
+    suspend fun teamCompleteList(): List<DomainTeamMemberComplete> =
+        manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()
+
     fun teamCompleteByDepartment(depId: Int): Flow<List<DomainTeamMemberComplete>> =
         manufacturingDao.getTeamDetailedFlow().map {
             it.asTeamCompleteDomainModel().filter { itd -> itd.teamMember.departmentId == depId }
