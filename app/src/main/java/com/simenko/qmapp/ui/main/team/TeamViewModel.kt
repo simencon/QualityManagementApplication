@@ -87,8 +87,8 @@ class TeamViewModel @Inject constructor(
     private val _needToUpdateTeamFromRoom = MutableStateFlow(false)
     private val _currentMemberDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
 
-    private val _teamSF = MutableStateFlow<SnapshotStateList<DomainTeamMemberComplete>>(
-        mutableStateListOf()
+    private val _teamSF = MutableStateFlow<List<DomainTeamMemberComplete>>(
+        listOf()
     )
 
     private fun updateTeamFromRoom() {
@@ -104,20 +104,23 @@ class TeamViewModel @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val teamSF: StateFlow<SnapshotStateList<DomainTeamMemberComplete>> =
+    val teamSF: StateFlow<List<DomainTeamMemberComplete>> =
         _needToUpdateTeamFromRoom.flatMapLatest { needToUpdate ->
             _currentMemberDetails.flatMapLatest { visibility ->
                 if (needToUpdate) {
-                    _teamSF.value = repository.teamCompleteList().toMutableStateList()
+                    _teamSF.value = repository.teamCompleteList()
                     _needToUpdateTeamFromRoom.value = false
                 }
-                val cpy = mutableStateListOf<DomainTeamMemberComplete>()
+                val cpy = mutableListOf<DomainTeamMemberComplete>()
                 _teamSF.value.forEach {
                     cpy.add(it.copy())
                 }
-                flow { emit(cpy.changeOrderVisibility(visibility.num).toMutableStateList()) }
+                flow { emit(cpy.changeOrderVisibility(visibility.num)) }
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), mutableStateListOf())
+        }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun syncTeam() {
         viewModelScope.launch {
@@ -140,7 +143,7 @@ class TeamViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _teamSF.value = repository.teamCompleteList().toMutableStateList()
+            _teamSF.value = repository.teamCompleteList()
         }
     }
 }
