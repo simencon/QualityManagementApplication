@@ -31,7 +31,7 @@ fun SubOrdersStandAlone(
 
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
-    val items by appModel.subOrdersSF.collectAsState(initial = listOf())
+    val items by appModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {

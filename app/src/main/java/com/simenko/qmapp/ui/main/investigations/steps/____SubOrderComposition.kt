@@ -56,7 +56,7 @@ fun SubOrdersFlowColumn(
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
-    val items by appModel.subOrdersSF.collectAsState(listOf())
+    val items by appModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     val coroutineScope = rememberCoroutineScope()
 

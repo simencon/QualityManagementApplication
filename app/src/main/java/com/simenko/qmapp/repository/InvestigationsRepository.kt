@@ -613,35 +613,16 @@ class InvestigationsRepository @Inject constructor(
         currentOrder = id
     }
 
-    val completeOrders: LiveData<List<DomainOrderComplete>> =
-        investigationsDao.getOrdersDetailed().map {
-            it.asDomainOrdersComplete(currentOrder)
-        }
-
-    fun completeOrdersF(): Flow<List<DomainOrderComplete>> =
-        investigationsDao.getOrdersDetailedFlow().map {
-            it.asDomainOrdersComplete(currentOrder)
-        }
-            .flowOn(Dispatchers.IO).conflate()
-
     suspend fun ordersCompleteList(): List<DomainOrderComplete> =
-        investigationsDao.getOrdersDetailedList().asDomainOrdersComplete()
+        investigationsDao.getOrdersDetailedList().asDomainOrdersComplete(currentOrder)
 
     private var currentSubOrder = -1
     fun setCurrentSubOrder(id: Int) {
         currentSubOrder = id
     }
 
-    val completeSubOrders: LiveData<List<DomainSubOrderComplete>> =
-        investigationsDao.getSubOrdersDetailed().map {
-            it.asDomainSubOrderDetailed(currentSubOrder)
-        }
-
-    fun completeSubOrders(): Flow<List<DomainSubOrderComplete>> =
-        investigationsDao.getSubOrdersDetailedFlow().map {
-            it.asDomainSubOrderDetailed(currentSubOrder)
-        }
-            .flowOn(Dispatchers.IO).conflate()
+    suspend fun subOrdersCompleteList(): List<DomainSubOrderComplete> =
+        investigationsDao.getSubOrdersDetailedList().asDomainSubOrderDetailed(currentSubOrder)
 
     private var currentTask = -1
     fun setCurrentTask(id: Int) {

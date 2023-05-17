@@ -126,26 +126,13 @@ interface InvestigationsDao {
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     fun getResultsByList(): List<DatabaseResult>
 
-
-    @Transaction
-    @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
-    fun getOrdersDetailed(): LiveData<List<DatabaseOrderComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
-    fun getOrdersDetailedFlow(): Flow<List<DatabaseOrderComplete>>
-
     @Transaction
     @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
     suspend fun getOrdersDetailedList(): List<DatabaseOrderComplete>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
-    fun getSubOrdersDetailed(): LiveData<List<DatabaseSubOrderComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
-    fun getSubOrdersDetailedFlow(): Flow<List<DatabaseSubOrderComplete>>
+    suspend fun getSubOrdersDetailedList(): List<DatabaseSubOrderComplete>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")

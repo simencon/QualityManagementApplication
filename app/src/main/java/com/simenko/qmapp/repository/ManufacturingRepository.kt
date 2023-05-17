@@ -224,8 +224,10 @@ class ManufacturingRepository @Inject constructor(
             ).generateList()
         }
 
-    suspend fun teamCompleteList(): List<DomainTeamMemberComplete> =
-        manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()
+    suspend fun teamCompleteList(): List<DomainTeamMemberComplete> {
+        Log.d(TAG, "teamCompleteList: updated from room.")
+        return manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()
+    }
 
     suspend fun teamCompleteByDepartment(depId: Int): List<DomainTeamMemberComplete> =
         manufacturingDao.getTeamDetailedList()
