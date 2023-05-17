@@ -359,7 +359,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val subOrdersSF: Flow<List<DomainSubOrderComplete>> =
+    val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> =
         _subOrdersSF.flatMapLatest { subOrders ->
             _needToUpdateSubOrdersFromRoom.flatMapLatest { updateSubOrders ->
                 _currentSubOrderDetails.flatMapLatest { details ->
@@ -469,16 +469,21 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with tasks __________________________________________________________
      * */
-    private val _tasksF = repository.completeSubOrderTasks()
+    private val _tasksSF = MutableStateFlow<List<DomainSubOrderTaskComplete>>(listOf())
 
     /**
      * Visibility operations
      * */
+    private val _needToUpdateTasksFromRoom = MutableStateFlow(false)
     private val _currentTaskDetails = MutableStateFlow(NoSelectedRecord)
     val currentTaskDetails: LiveData<SelectedNumber>
         get() = _currentTaskDetails.asLiveData()
 
     private val _currentTaskActions = MutableStateFlow(NoSelectedRecord)
+    private fun updateTasksFromRoom() {
+        _needToUpdateTasksFromRoom.value = true
+    }
+
     fun setTaskDetailsVisibility(id: Int) {
         if (_currentTaskDetails.value.num != id) {
             _currentTaskDetails.value = SelectedNumber(id)
@@ -499,17 +504,38 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val tasksSF: Flow<List<DomainSubOrderTaskComplete>> =
-        _currentTaskDetails.flatMapLatest { details ->
-            _currentTaskActions.flatMapLatest { actions ->
-                setSampleDetailsVisibility(_currentSampleDetails.value.num)
-                setResultDetailsVisibility(_currentResultDetails.value.num)
+    val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> =
+        _tasksSF.flatMapLatest { tasks ->
+            _needToUpdateTasksFromRoom.flatMapLatest { updateTasks ->
+                _currentTaskDetails.flatMapLatest { details ->
+                    _currentTaskActions.flatMapLatest { actions ->
+                        if (updateTasks) {
+                            _tasksSF.value = repository.tasksCompleteList()
+                            _needToUpdateTasksFromRoom.value = false
+                        }
 
-                _tasksF.map {
-                    it.changeTaskVisibility(details.num, actions.num)
+                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                        setResultDetailsVisibility(_currentResultDetails.value.num)
+
+                        val cyp = mutableListOf<DomainSubOrderTaskComplete>()
+                        tasks.forEach {
+                            cyp.add(it.copy())
+                        }
+
+                        flow {
+                            emit(
+                                cyp.changeTaskVisibility(
+                                    details.num, actions.num
+                                )
+                            )
+                        }
+                    }
                 }
             }
-        }.flowOn(Dispatchers.IO).conflate()
+        }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -522,6 +548,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.deleteSubOrderTask(taskId)
                 syncTasks()
 
+                updateTasksFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -539,6 +566,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshSubOrderTasks()
                 repository.refreshResults()
 
+                updateTasksFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -885,6 +913,7 @@ class InvestigationsViewModel @Inject constructor(
                 delay(200L)
                 updateOrdersFromRoom()
                 updateSubOrdersFromRoom()
+                updateTasksFromRoom()
             }
         }
     }

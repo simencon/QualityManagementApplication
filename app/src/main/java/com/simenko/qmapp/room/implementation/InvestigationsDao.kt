@@ -140,11 +140,7 @@ interface InvestigationsDao {
 
     @Transaction
     @Query("SELECT * FROM sub_order_task_complete")
-    fun getSubOrderTasksDetailed(): LiveData<List<DatabaseSubOrderTaskComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM sub_order_task_complete")
-    fun getSubOrderTasksDetailedFlow(): Flow<List<DatabaseSubOrderTaskComplete>>
+    suspend fun getTasksDetailedList(): List<DatabaseSubOrderTaskComplete>
 
     @Transaction
     @Query("SELECT * FROM `samples_results`")

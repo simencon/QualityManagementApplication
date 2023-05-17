@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
@@ -42,7 +43,7 @@ fun SubOrderTasksFlowColumn(
     val context = LocalContext.current
     val appModel = (context as MainActivity).investigationsModel
 
-    val items by appModel.tasksSF.collectAsState(listOf())
+    val items by appModel.tasksSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
