@@ -142,11 +142,11 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with orders ______________________________________________________________
      * */
     private val _ordersSF = MutableStateFlow<List<DomainOrderComplete>>(listOf())
+    private val _needToUpdateOrdersFromRoom = MutableStateFlow(false)
 
     /**
      * Visibility operations
      * */
-    private val _needToUpdateOrdersFromRoom = MutableStateFlow(false)
     private val _currentOrderDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _currentOrderActions = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
 
@@ -470,11 +470,11 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with tasks __________________________________________________________
      * */
     private val _tasksSF = MutableStateFlow<List<DomainSubOrderTaskComplete>>(listOf())
+    private val _needToUpdateTasksFromRoom = MutableStateFlow(false)
 
     /**
      * Visibility operations
      * */
-    private val _needToUpdateTasksFromRoom = MutableStateFlow(false)
     private val _currentTaskDetails = MutableStateFlow(NoSelectedRecord)
     val currentTaskDetails: LiveData<SelectedNumber>
         get() = _currentTaskDetails.asLiveData()
@@ -583,7 +583,8 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with samples __________________________________________________________
      * */
-    private val _samplesF = repository.completeSamples()
+    private val _samplesSF = MutableStateFlow<List<DomainSampleComplete>>(listOf())
+    private val _needToUpdateSamplesFromRoom = MutableStateFlow(false)
 
     /**
      * Visibility operations
@@ -591,6 +592,10 @@ class InvestigationsViewModel @Inject constructor(
     private val _currentSampleDetails = MutableStateFlow(NoSelectedRecord)
     val currentSampleDetails: LiveData<SelectedNumber>
         get() = _currentSampleDetails.asLiveData()
+
+    private fun updateSamplesFromRoom() {
+        _needToUpdateSamplesFromRoom.value = true
+    }
 
     fun setSampleDetailsVisibility(id: Int) {
         if (_currentSampleDetails.value.num != id) {
@@ -605,14 +610,29 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val samplesSF: Flow<List<DomainSampleComplete>> =
-        _currentSampleDetails.flatMapLatest { details ->
-            setResultDetailsVisibility(_currentResultDetails.value.num)
+    val samplesSF: StateFlow<List<DomainSampleComplete>> =
+        _samplesSF.flatMapLatest { samples ->
+            _needToUpdateSamplesFromRoom.flatMapLatest { updateSamples ->
+                _currentSampleDetails.flatMapLatest { details ->
+                    if (updateSamples) {
+                        _samplesSF.value = repository.samplesCompleteList()
+                        _needToUpdateSamplesFromRoom.value = false
+                    }
 
-            _samplesF.map {
-                it.changeSampleVisibility(details.num)
+                    setResultDetailsVisibility(_currentResultDetails.value.num)
+
+                    val cpy = mutableListOf<DomainSampleComplete>()
+                    samples.forEach {
+                        cpy.add(it.copy())
+                    }
+
+                    flow { emit(cpy.changeSampleVisibility(details.num)) }
+                }
             }
-        }.flowOn(Dispatchers.IO).conflate()
+        }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -914,6 +934,7 @@ class InvestigationsViewModel @Inject constructor(
                 updateOrdersFromRoom()
                 updateSubOrdersFromRoom()
                 updateTasksFromRoom()
+                updateSamplesFromRoom()
             }
         }
     }

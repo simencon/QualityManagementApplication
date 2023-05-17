@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainSample
 import com.simenko.qmapp.domain.DomainSampleComplete
@@ -44,7 +45,7 @@ fun SampleComposition(
 
     val observeCurrentSubOrderTask by appModel.currentTaskDetails.observeAsState()
 
-    val items by appModel.samplesSF.collectAsState(listOf())
+    val items by appModel.samplesSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {

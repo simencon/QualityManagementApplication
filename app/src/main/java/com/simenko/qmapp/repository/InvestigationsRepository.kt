@@ -514,8 +514,7 @@ class InvestigationsRepository @Inject constructor(
 
     fun getRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
         coroutineScope.produce {
-            val nSubOrderTask =
-                investigationsService.getSubOrderTask(record.id)
+            val nSubOrderTask = investigationsService.getSubOrderTask(record.id)
             investigationsDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
             send(nSubOrderTask.toDomainSubOrderTask())
         }
@@ -636,17 +635,8 @@ class InvestigationsRepository @Inject constructor(
     fun setCurrentSample(id: Int) {
         currentSample = id
     }
-
-    val completeSamples: LiveData<List<DomainSampleComplete>> =
-        investigationsDao.getSamplesDetailed().map {
-            it.asDomainSamples(currentSample)
-        }
-
-    fun completeSamples(): Flow<List<DomainSampleComplete>> =
-        investigationsDao.getSamplesDetailedFlow().map {
-            it.asDomainSamples(currentSample)
-        }
-            .flowOn(Dispatchers.IO).conflate()
+    suspend fun samplesCompleteList(): List<DomainSampleComplete> =
+        investigationsDao.getSamplesDetailedList().asDomainSamples(currentSample)
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         investigationsDao.getSubOrderWithChildren().map {

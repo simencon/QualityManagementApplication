@@ -144,11 +144,7 @@ interface InvestigationsDao {
 
     @Transaction
     @Query("SELECT * FROM `samples_results`")
-    fun getSamplesDetailed(): LiveData<List<DatabaseSampleComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM `samples_results`")
-    fun getSamplesDetailedFlow(): Flow<List<DatabaseSampleComplete>>
+    suspend fun getSamplesDetailedList(): List<DatabaseSampleComplete>
 
     @Transaction
     @Query("SELECT * FROM result_complete")
