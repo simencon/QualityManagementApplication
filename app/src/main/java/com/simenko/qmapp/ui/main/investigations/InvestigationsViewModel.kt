@@ -101,8 +101,15 @@ class InvestigationsViewModel @Inject constructor(
      * Handling scrolling to just created record-------------------------------------------------
      * */
     private val _createdRecord = MutableStateFlow(CreatedRecord())
-    val createdRecord: StateFlow<CreatedRecord>
-        get() = _createdRecord
+    val createdRecord: StateFlow<CreatedRecord> = _createdRecord.flatMapLatest { record ->
+        _needToUpdateOrdersFromRoom.flatMapLatest { updateOrders ->
+            if (updateOrders) {
+                flow { emit(CreatedRecord()) }
+            } else {
+                flow { emit(record) }
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreatedRecord())
 
     fun setCreatedRecordId(
         orderId: Int = NoSelectedRecord.num,
@@ -114,6 +121,8 @@ class InvestigationsViewModel @Inject constructor(
             _createdRecord.value = CreatedRecord(orderId, _createdRecord.value.subOrderId)
         else if (subOrderId != NoSelectedRecord.num)
             _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, subOrderId)
+
+        updateOrdersFromRoom()
     }
 
     fun resetCreatedOrderId() {
@@ -183,35 +192,37 @@ class InvestigationsViewModel @Inject constructor(
      * The result flow
      * */
     val ordersSF: StateFlow<List<DomainOrderComplete>> =
-        _needToUpdateOrdersFromRoom.flatMapLatest { update ->
-            _currentOrderDetails.flatMapLatest { details ->
-                _currentOrderActions.flatMapLatest { actions ->
-                    _showWithType.flatMapLatest { type ->
-                        _showWithStatus.flatMapLatest { status ->
-                            _showOrderNumber.flatMapLatest { number ->
-                                if (update) {
-                                    _ordersSF.value = repository.ordersCompleteList()
-                                    _needToUpdateOrdersFromRoom.value = false
-                                }
+        _ordersSF.flatMapLatest { orders ->
+            _needToUpdateOrdersFromRoom.flatMapLatest { update ->
+                _currentOrderDetails.flatMapLatest { details ->
+                    _currentOrderActions.flatMapLatest { actions ->
+                        _showWithType.flatMapLatest { type ->
+                            _showWithStatus.flatMapLatest { status ->
+                                _showOrderNumber.flatMapLatest { number ->
+                                    if (update) {
+                                        _ordersSF.value = repository.ordersCompleteList()
+                                        _needToUpdateOrdersFromRoom.value = false
+                                    }
 
-                                setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
-                                setTaskDetailsVisibility(_currentTaskDetails.value.num)
-                                setSampleDetailsVisibility(_currentSampleDetails.value.num)
-                                setResultDetailsVisibility(_currentResultDetails.value.num)
+                                    setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
+                                    setTaskDetailsVisibility(_currentTaskDetails.value.num)
+                                    setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                                    setResultDetailsVisibility(_currentResultDetails.value.num)
 
-                                val cyp = mutableListOf<DomainOrderComplete>()
-                                _ordersSF.value.forEach {
-                                    cyp.add(it.copy())
-                                }
+                                    val cyp = mutableListOf<DomainOrderComplete>()
+                                    orders.forEach {
+                                        cyp.add(it.copy())
+                                    }
 
-                                flow {
-                                    emit(
-                                        cyp.changeOrderVisibility(
-                                            details.num, actions.num
-                                        ).filterByStatusAndNumber(
-                                            type.num, status.num, number.str
+                                    flow {
+                                        emit(
+                                            cyp.changeOrderVisibility(
+                                                details.num, actions.num
+                                            ).filterByStatusAndNumber(
+                                                type.num, status.num, number.str
+                                            )
                                         )
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -837,13 +848,11 @@ class InvestigationsViewModel @Inject constructor(
             }
         }
     }
-
     init {
         viewModelScope.launch {
             withContext(Dispatchers.Default) {
-                Log.d(TAG, "view model init was called")
 //            ToDo: this not works because init is called once the MainActivity started ...
-                delay(1500L)
+                delay(200L)
                 updateOrdersFromRoom()
             }
         }

@@ -97,9 +97,6 @@ fun Orders(
         val coroutineScope = rememberCoroutineScope()
         SideEffect {
             coroutineScope.launch {
-                appModel.updateOrdersFromRoom()
-
-                delay(2000)
 
                 listState.scrollToSelectedItem(
                     list = items.map { it.order.id }.toList(),

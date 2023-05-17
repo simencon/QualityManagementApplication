@@ -97,17 +97,19 @@ class TeamViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val teamSF: StateFlow<List<DomainTeamMemberComplete>> =
-        _needToUpdateTeamFromRoom.flatMapLatest { needToUpdate ->
-            _currentMemberDetails.flatMapLatest { visibility ->
-                if (needToUpdate) {
-                    _teamSF.value = repository.teamCompleteList()
-                    _needToUpdateTeamFromRoom.value = false
+        _teamSF.flatMapLatest { team ->
+            _needToUpdateTeamFromRoom.flatMapLatest { needToUpdate ->
+                _currentMemberDetails.flatMapLatest { visibility ->
+                    if (needToUpdate) {
+                        _teamSF.value = repository.teamCompleteList()
+                        _needToUpdateTeamFromRoom.value = false
+                    }
+                    val cpy = mutableListOf<DomainTeamMemberComplete>()
+                    team.forEach {
+                        cpy.add(it.copy())
+                    }
+                    flow { emit(cpy.changeOrderVisibility(visibility.num)) }
                 }
-                val cpy = mutableListOf<DomainTeamMemberComplete>()
-                _teamSF.value.forEach {
-                    cpy.add(it.copy())
-                }
-                flow { emit(cpy.changeOrderVisibility(visibility.num)) }
             }
         }
             .flowOn(Dispatchers.IO)
