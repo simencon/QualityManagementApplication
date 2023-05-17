@@ -647,12 +647,18 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with results __________________________________________________________
      * */
-    private val _resultsF = repository.completeResults()
+    private val _resultsF = MutableStateFlow<List<DomainResultComplete>>(listOf())
+    private val _needToUpdateResultsFromRoom = MutableStateFlow(false)
 
     /**
      * Visibility operations
      * */
     private val _currentResultDetails = MutableStateFlow(NoSelectedRecord)
+
+    private fun updateResultsFromRoom() {
+        _needToUpdateResultsFromRoom.value = true
+    }
+
     fun setResultDetailsVisibility(id: Int) {
         if (_currentResultDetails.value.num != id) {
             _currentResultDetails.value = SelectedNumber(id)
@@ -666,12 +672,27 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val resultsSF: Flow<List<DomainResultComplete>> =
-        _currentSampleDetails.flatMapLatest { details ->
-            _resultsF.map {
-                it.changeResultVisibility(details.num)
+    val resultsSF: StateFlow<List<DomainResultComplete>> =
+        _resultsF.flatMapLatest { results ->
+            _needToUpdateResultsFromRoom.flatMapLatest { updateResults ->
+                _currentSampleDetails.flatMapLatest { details ->
+                    if (updateResults) {
+                        _resultsF.value = repository.resultsCompleteList()
+                        _needToUpdateResultsFromRoom.value = false
+                    }
+                    val cpy = mutableListOf<DomainResultComplete>()
+
+                    results.forEach {
+                        cpy.add(it.copy())
+                    }
+
+                    flow { emit(cpy.changeResultVisibility(details.num)) }
+                }
             }
-        }.flowOn(Dispatchers.IO).conflate()
+        }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * End of operations with results _______________________________________________________
@@ -935,6 +956,7 @@ class InvestigationsViewModel @Inject constructor(
                 updateSubOrdersFromRoom()
                 updateTasksFromRoom()
                 updateSamplesFromRoom()
+                updateResultsFromRoom()
             }
         }
     }

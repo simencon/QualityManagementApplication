@@ -648,15 +648,7 @@ class InvestigationsRepository @Inject constructor(
         currentResult = id
     }
 
-    val completeResults: LiveData<List<DomainResultComplete>> =
-        investigationsDao.getResultsDetailed().map {
-            it.asDomainResults(currentResult)
-        }
-
-    fun completeResults(): Flow<List<DomainResultComplete>> =
-        investigationsDao.getResultsDetailedFlow().map {
-            it.asDomainResults(currentResult)
-        }
-            .flowOn(Dispatchers.IO).conflate()
+    suspend fun resultsCompleteList(): List<DomainResultComplete> =
+        investigationsDao.getResultsDetailedList().asDomainResults(currentResult)
 
 }
