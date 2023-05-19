@@ -611,7 +611,8 @@ fun getEmptySubOrder() = DomainSubOrder(
     itemPreffix = "",
     itemTypeId = 0,
     itemVersionId = 0,
-    samplesCount = 0
+    samplesCount = 0,
+    remarkId = 1//means no remarks
 )
 
 fun getEmptySubOrderTask(charId: Int, subOrderId: Int = 0) = DomainSubOrderTask(

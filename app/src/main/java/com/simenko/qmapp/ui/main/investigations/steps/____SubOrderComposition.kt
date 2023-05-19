@@ -852,7 +852,8 @@ fun getSubOrder() = DomainSubOrder(
     itemPreffix = "c",
     itemTypeId = 1,
     itemVersionId = 1,
-    samplesCount = (1..10).random()
+    samplesCount = (1..10).random(),
+    remarkId = 1
 )
 
 fun getItemVersionComplete() = DomainItemVersionComplete(

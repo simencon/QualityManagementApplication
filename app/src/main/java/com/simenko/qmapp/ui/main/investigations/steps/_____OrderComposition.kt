@@ -531,7 +531,7 @@ fun OrderDetails(
             verticalAlignment = Alignment.Bottom
         ) {
             Text(
-                text = "Ordered by:",
+                text = "Initiated by:",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -554,7 +554,7 @@ fun OrderDetails(
             verticalAlignment = Alignment.Bottom
         ) {
             Text(
-                text = "Order date:",
+                text = "Initiation date:",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

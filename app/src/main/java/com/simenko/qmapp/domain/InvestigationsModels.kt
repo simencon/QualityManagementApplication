@@ -123,7 +123,8 @@ data class DomainSubOrder constructor(
     var itemPreffix: String,
     var itemTypeId: Int,
     var itemVersionId: Int,
-    var samplesCount: Int? = null
+    var samplesCount: Int? = null,
+    var remarkId: Int
 )
 
 @Stable

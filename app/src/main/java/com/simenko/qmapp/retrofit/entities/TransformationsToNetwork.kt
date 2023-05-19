@@ -41,7 +41,8 @@ fun DomainSubOrder.toNetworkSubOrderWithId() = NetworkSubOrder(
     itemPreffix = itemPreffix,
     itemTypeId = itemTypeId,
     itemVersionId = itemVersionId,
-    samplesCount = samplesCount
+    samplesCount = samplesCount,
+    remarkId = remarkId
 )
 
 fun DomainSubOrderTask.toNetworkSubOrderTaskWithoutId() = ObjectTransformer(

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1f70a4ef915b763b452b581133058b80",
+    "identityHash": "8c05e6f4d1c17f1368dda4a05bb634d2",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2649,7 +2649,7 @@
       },
       {
         "tableName": "13_sub_orders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `subOrderNumber` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `completedById` INTEGER, `statusId` INTEGER NOT NULL, `createdDate` TEXT NOT NULL, `completedDate` TEXT, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER NOT NULL, `channelId` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, `itemPreffix` TEXT NOT NULL, `itemTypeId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `samplesCount` INTEGER, FOREIGN KEY(`orderId`) REFERENCES `12_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`departmentId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subDepartmentId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`channelId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `subOrderNumber` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `completedById` INTEGER, `statusId` INTEGER NOT NULL, `createdDate` TEXT NOT NULL, `completedDate` TEXT, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER NOT NULL, `channelId` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, `itemPreffix` TEXT NOT NULL, `itemTypeId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `samplesCount` INTEGER, `remarkId` INTEGER NOT NULL, FOREIGN KEY(`orderId`) REFERENCES `12_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`departmentId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subDepartmentId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`channelId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2752,6 +2752,12 @@
             "columnName": "samplesCount",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "remarkId",
+            "columnName": "remarkId",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -3411,7 +3417,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1f70a4ef915b763b452b581133058b80')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c05e6f4d1c17f1368dda4a05bb634d2')"
     ]
   }
 }

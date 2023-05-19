@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
@@ -213,14 +214,17 @@ class InvestigationsViewModel @Inject constructor(
 
                                     val cyp = mutableListOf<DomainOrderComplete>()
                                     orders.forEach {
-                                        cyp.add(it.copy())
+                                        cyp.add(
+                                            it.copy(
+                                                detailsVisibility = it.order.id == details.num,
+                                                isExpanded = it.order.id == actions.num
+                                            )
+                                        )
                                     }
 
                                     flow {
                                         emit(
-                                            cyp.changeOrderVisibility(
-                                                details.num, actions.num
-                                            ).filterByStatusAndNumber(
+                                            cyp.filterByStatusAndNumber(
                                                 type.num, status.num, number.str
                                             )
                                         )
@@ -261,7 +265,6 @@ class InvestigationsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
-
                 repository.refreshOrders()
                 repository.refreshSubOrders()
                 repository.refreshSubOrderTasks()
@@ -269,6 +272,10 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshResults()
 
                 updateOrdersFromRoom()
+                updateSubOrdersFromRoom()
+                updateTasksFromRoom()
+                updateSamplesFromRoom()
+                updateResultsFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -378,14 +385,17 @@ class InvestigationsViewModel @Inject constructor(
 
                                     val cyp = mutableListOf<DomainSubOrderComplete>()
                                     subOrders.forEach {
-                                        cyp.add(it.copy())
+                                        cyp.add(
+                                            it.copy(
+                                                detailsVisibility = it.subOrder.id == details.num,
+                                                isExpanded = it.subOrder.id == actions.num
+                                            )
+                                        )
                                     }
 
                                     flow {
                                         emit(
-                                            cyp.changeSubOrderVisibility(
-                                                details.num, actions.num
-                                            ).filterSubOrderByStatusAndNumber(
+                                            cyp.filterSubOrderByStatusAndNumber(
                                                 type.num, status.num, number.str
                                             )
                                         )
@@ -433,6 +443,9 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshResults()
 
                 updateSubOrdersFromRoom()
+                updateTasksFromRoom()
+                updateSamplesFromRoom()
+                updateResultsFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -519,16 +532,15 @@ class InvestigationsViewModel @Inject constructor(
 
                         val cyp = mutableListOf<DomainSubOrderTaskComplete>()
                         tasks.forEach {
-                            cyp.add(it.copy())
-                        }
-
-                        flow {
-                            emit(
-                                cyp.changeTaskVisibility(
-                                    details.num, actions.num
+                            cyp.add(
+                                it.copy(
+                                    detailsVisibility = it.subOrderTask.id == details.num,
+                                    isExpanded = it.subOrderTask.id == actions.num
                                 )
                             )
                         }
+
+                        flow { emit(cyp) }
                     }
                 }
             }
@@ -567,6 +579,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshResults()
 
                 updateTasksFromRoom()
+                updateResultsFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -623,10 +636,14 @@ class InvestigationsViewModel @Inject constructor(
 
                     val cpy = mutableListOf<DomainSampleComplete>()
                     samples.forEach {
-                        cpy.add(it.copy())
+                        cpy.add(
+                            it.copy(
+                                detailsVisibility = it.sample.id == details.num
+                            )
+                        )
                     }
 
-                    flow { emit(cpy.changeSampleVisibility(details.num)) }
+                    flow { emit(cpy) }
                 }
             }
         }
@@ -683,10 +700,14 @@ class InvestigationsViewModel @Inject constructor(
                     val cpy = mutableListOf<DomainResultComplete>()
 
                     results.forEach {
-                        cpy.add(it.copy())
+                        cpy.add(
+                            it.copy(
+                                detailsVisibility = it.result.id == details.num
+                            )
+                        )
                     }
 
-                    flow { emit(cpy.changeResultVisibility(details.num)) }
+                    flow { emit(cpy) }
                 }
             }
         }
@@ -938,6 +959,10 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshResults()
 
                 updateOrdersFromRoom()
+                updateSubOrdersFromRoom()
+                updateTasksFromRoom()
+                updateSamplesFromRoom()
+                updateResultsFromRoom()
                 isLoadingInProgress.value = false
 
             } catch (networkError: IOException) {

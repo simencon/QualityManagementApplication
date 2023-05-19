@@ -345,20 +345,6 @@ fun List<DomainTeamMemberComplete>.changeOrderVisibility(detailsId: Int): List<D
     }
 }
 
-private const val TAG = "TransformationsToDomain"
-fun List<DomainOrderComplete>.changeOrderVisibility(
-    detailsId: Int,
-    actionsId: Int
-): List<DomainOrderComplete> {
-    return map {
-
-        it.detailsVisibility = detailsId == it.order.id
-        it.isExpanded = actionsId == it.order.id
-
-        it
-    }
-}
-
 fun List<DomainOrderComplete>.filterByStatusAndNumber(
     typeId: Int,
     statusId: Int,
@@ -375,19 +361,6 @@ fun List<DomainOrderComplete>.filterByStatusAndNumber(
     }
 }
 
-fun List<DomainSubOrderComplete>.changeSubOrderVisibility(
-    detailsId: Int,
-    actionsId: Int
-): List<DomainSubOrderComplete> {
-    return map {
-
-        it.detailsVisibility = detailsId == it.subOrder.id
-        it.isExpanded = actionsId == it.subOrder.id
-
-        it
-    }
-}
-
 fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
     typeId: Int,
     statusId: Int,
@@ -401,40 +374,5 @@ fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
                 (it.orderShort.order.orderNumber.toString().contains(orderNumber)
                         ||
                         (orderNumber == "0"))
-    }
-}
-
-fun List<DomainSubOrderTaskComplete>.changeTaskVisibility(
-    detailsId: Int,
-    actionsId: Int
-): List<DomainSubOrderTaskComplete> {
-    return map {
-
-        it.detailsVisibility = detailsId == it.subOrderTask.id
-        it.isExpanded = actionsId == it.subOrderTask.id
-
-        it
-    }
-}
-
-fun List<DomainSampleComplete>.changeSampleVisibility(
-    detailsId: Int
-): List<DomainSampleComplete> {
-    return map {
-
-        it.detailsVisibility = detailsId == it.sample.id
-
-        it
-    }
-}
-
-fun List<DomainResultComplete>.changeResultVisibility(
-    detailsId: Int
-): List<DomainResultComplete> {
-    return map {
-
-        it.detailsVisibility = detailsId == it.result.id
-
-        it
     }
 }
