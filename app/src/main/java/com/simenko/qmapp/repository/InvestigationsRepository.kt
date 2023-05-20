@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.other.Constants.BTN_NUMBER_TO_TEST
+import com.simenko.qmapp.other.Constants.TOP_NUMBER_TO_TEST
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
@@ -310,7 +313,9 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshOrders() {
         withContext(Dispatchers.IO) {
-            val ntOrders = investigationsService.getOrders()
+//            val ntOrders = investigationsService.getOrders()
+            val ntOrders =
+                investigationsService.getOrdersByNumberRange(BTN_NUMBER_TO_TEST, TOP_NUMBER_TO_TEST)
             val dbOrders = investigationsDao.getOrdersByList()
 
             syncOrders(dbOrders, ntOrders, investigationsDao)
@@ -350,7 +355,11 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
-            val ntSubOrder = investigationsService.getSubOrders()
+//            val ntSubOrder = investigationsService.getSubOrders()
+            val ntSubOrder = investigationsService.getSubOrdersByNumberRange(
+                BTN_NUMBER_TO_TEST,
+                TOP_NUMBER_TO_TEST
+            )
             val dbSubOrders = investigationsDao.getSubOrdersByList()
 
             syncSubOrders(dbSubOrders, ntSubOrder, investigationsDao)
@@ -361,10 +370,13 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrderTasks() {
         withContext(Dispatchers.IO) {
-            val ntSubOrderTasks =
-                investigationsService.getSubOrderTasks()
-            val dbSubOrderTasks = investigationsDao.getSubOrderTasksByList()
+//            val ntSubOrderTasks = investigationsService.getSubOrderTasks()
+            val ntSubOrderTasks = investigationsService.getSubOrderTasksByNumberRange(
+                BTN_NUMBER_TO_TEST,
+                TOP_NUMBER_TO_TEST
+            )
 
+            val dbSubOrderTasks = investigationsDao.getSubOrderTasksByList()
             syncSubOrderTasks(dbSubOrderTasks, ntSubOrderTasks, investigationsDao)
 
             Log.d(
@@ -376,9 +388,13 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSamples() {
         withContext(Dispatchers.IO) {
-            val ntSamples = investigationsService.getSamples()
-            val dbSamples = investigationsDao.getSamplesByList()
+//            val ntSamples = investigationsService.getSamples()
+            val ntSamples = investigationsService.getSamplesByNumberRange(
+                BTN_NUMBER_TO_TEST,
+                TOP_NUMBER_TO_TEST
+            )
 
+            val dbSamples = investigationsDao.getSamplesByList()
             syncSamples(dbSamples, ntSamples, investigationsDao)
 
             Log.d(TAG, "refreshSamples: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
@@ -404,9 +420,13 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshResults() {
         withContext(Dispatchers.IO) {
-            val ntResults = investigationsService.getResults()
-            val dbResults = investigationsDao.getResultsByList()
+//            val ntResults = investigationsService.getResults()
+            val ntResults = investigationsService.getResultsByNumberRange(
+                BTN_NUMBER_TO_TEST,
+                TOP_NUMBER_TO_TEST
+            )
 
+            val dbResults = investigationsDao.getResultsByList()
             syncResults(dbResults, ntResults, investigationsDao)
 
             Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
@@ -613,7 +633,14 @@ class InvestigationsRepository @Inject constructor(
     }
 
     suspend fun ordersCompleteList(): List<DomainOrderComplete> =
-        investigationsDao.getOrdersDetailedList().asDomainOrdersComplete(currentOrder)
+        investigationsDao.getOrdersDetailedList()
+            .asDomainOrdersComplete(currentOrder)
+
+    suspend fun latestLocalOrderId(): Int = investigationsDao.getLatestOrderId()?:0
+
+    suspend fun ordersCompleteListByLastVisibleItem(lastVisibleId: Int): List<DomainOrderComplete> =
+        investigationsDao.getOrdersDetailedListByLastVisibleItem(lastVisibleId)
+            .asDomainOrdersComplete(currentOrder)
 
     private var currentSubOrder = -1
     fun setCurrentSubOrder(id: Int) {
@@ -635,6 +662,7 @@ class InvestigationsRepository @Inject constructor(
     fun setCurrentSample(id: Int) {
         currentSample = id
     }
+
     suspend fun samplesCompleteList(): List<DomainSampleComplete> =
         investigationsDao.getSamplesDetailedList().asDomainSamples(currentSample)
 

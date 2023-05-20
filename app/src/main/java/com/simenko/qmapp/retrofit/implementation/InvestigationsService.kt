@@ -20,6 +20,12 @@ interface InvestigationsService {
     @GET("orders")
     suspend fun getOrders(): List<NetworkOrder>
 
+    @GET("orders/{btnNumber}/{topNumber}")
+    suspend fun getOrdersByNumberRange(
+        @Path("btnNumber") btnNumber: Int,
+        @Path("topNumber") topNumber: Int
+    ): List<NetworkOrder>
+
     @POST("orders")
     suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder
 
@@ -35,6 +41,12 @@ interface InvestigationsService {
 
     @GET("subOrders")
     suspend fun getSubOrders(): List<NetworkSubOrder>
+
+    @GET("subOrders/{btnNumber}/{topNumber}")
+    suspend fun getSubOrdersByNumberRange(
+        @Path("btnNumber") btnNumber: Int,
+        @Path("topNumber") topNumber: Int
+    ): List<NetworkSubOrder>
 
     @POST("subOrders")
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
@@ -52,6 +64,12 @@ interface InvestigationsService {
     @GET("subOrderTasks")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
+    @GET("subOrderTasks/{btnNumber}/{topNumber}")
+    suspend fun getSubOrderTasksByNumberRange(
+        @Path("btnNumber") btnNumber: Int,
+        @Path("topNumber") topNumber: Int
+    ): List<NetworkSubOrderTask>
+
     @POST("subOrderTasks")
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
 
@@ -60,13 +78,22 @@ interface InvestigationsService {
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("subOrderTasks/{id}")
-    suspend fun editSubOrderTask(@Path("id") id: Int, @Body body: NetworkSubOrderTask): Response<Unit>
+    suspend fun editSubOrderTask(
+        @Path("id") id: Int,
+        @Body body: NetworkSubOrderTask
+    ): Response<Unit>
 
     @GET("subOrderTasks/{id}")
     suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
 
     @GET("samples")
     suspend fun getSamples(): List<NetworkSample>
+
+    @GET("samples/{btnNumber}/{topNumber}")
+    suspend fun getSamplesByNumberRange(
+        @Path("btnNumber") btnNumber: Int,
+        @Path("topNumber") topNumber: Int
+    ): List<NetworkSample>
 
     @POST("samples")
     suspend fun createSample(@Body networkSample: NetworkSample): NetworkSample
@@ -79,6 +106,12 @@ interface InvestigationsService {
 
     @GET("results")
     suspend fun getResults(): List<NetworkResult>
+
+    @GET("results/{btnNumber}/{topNumber}")
+    suspend fun getResultsByNumberRange(
+        @Path("btnNumber") btnNumber: Int,
+        @Path("topNumber") topNumber: Int
+    ): List<NetworkResult>
 
     @POST("results")
     suspend fun createResult(@Body networkResult: NetworkResult): NetworkResult

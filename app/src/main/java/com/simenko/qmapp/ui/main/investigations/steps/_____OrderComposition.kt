@@ -118,6 +118,14 @@ fun Orders(
         }
     }
 
+    val lastVisibleItemKey by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key
+        }
+    }
+
+    if (!listState.isScrollInProgress) lastVisibleItemKey?.let { appModel.setLastVisibleItemKey(it) }
+
     val lastItemIsVisible by remember {
         derivedStateOf {
             listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
@@ -261,7 +269,7 @@ fun OrderCard(
                 createdDate = order.order.createdDate.toString(),
                 completedDate = order.order.completedDate,
 
-                onClickDetails = {it-> onClickDetails(it) }
+                onClickDetails = { it -> onClickDetails(it) }
             )
         }
     }
@@ -482,7 +490,7 @@ fun Order(
                 }
             }
             IconButton(
-                onClick = {onClickDetails(orderId)},
+                onClick = { onClickDetails(orderId) },
                 modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(0.dp)

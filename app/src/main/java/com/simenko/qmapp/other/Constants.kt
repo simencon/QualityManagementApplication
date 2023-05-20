@@ -19,4 +19,13 @@ object Constants {
      * */
 
     const val TEAM_URL = "teamMembers"
+
+    /**
+     * To update local DB only in this range of Order Numbers
+     * */
+    const val BTN_NUMBER_TO_TEST = 1000
+    const val TOP_NUMBER_TO_TEST = 2000
+
+    const val UI_SAFETY_GAP = 100
+    const val UI_TOTAL_VISIBLE = 10
 }
