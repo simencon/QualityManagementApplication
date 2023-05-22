@@ -11,6 +11,12 @@ data class OrdersFilter(
     val orderNumber: String = NoSelectedString.str
 )
 
+data class SubOrdersFilter(
+    val typeId: Int = NoSelectedRecord.num,
+    val statusId: Int = NoSelectedRecord.num,
+    val orderNumber: String = NoSelectedString.str
+)
+
 object InvestigationsUtils {
     fun List<DomainOrderComplete>.getCurrentOrdersRange(): Pair<Int, Int> =
         if (this.isNotEmpty())
@@ -33,18 +39,16 @@ object InvestigationsUtils {
     }
 
     fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
-        typeId: Int,
-        statusId: Int,
-        orderNumber: String
+        subOrdersFilter: SubOrdersFilter = SubOrdersFilter()
     ): List<DomainSubOrderComplete> {
         return filter {
-            (it.orderShort.order.orderTypeId == typeId || typeId == -1)
+            (it.orderShort.order.orderTypeId == subOrdersFilter.typeId || subOrdersFilter.typeId == NoSelectedRecord.num)
                     &&
-                    (it.subOrder.statusId == statusId || statusId == -1)
+                    (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoSelectedRecord.num)
                     &&
-                    (it.orderShort.order.orderNumber.toString().contains(orderNumber)
+                    (it.orderShort.order.orderNumber.toString().contains(subOrdersFilter.orderNumber)
                             ||
-                            (orderNumber == "0"))
+                            (subOrdersFilter.orderNumber == NoSelectedString.str))
         }
     }
 }

@@ -62,7 +62,7 @@ class InvestigationsFragment() :
                 if (viewModel.showSubOrderWithOrderType.value != OrderTypeProcessOnly)
                     viewModel.setCurrentOrdersFilter(status = getStatus(tab?.tag.toString()))
                 else
-                    viewModel.setSubOrderStatusToShow(tab?.tag.toString())
+                    viewModel.setCurrentSubOrdersFilter(status = getStatus(tab?.tag.toString()))
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {

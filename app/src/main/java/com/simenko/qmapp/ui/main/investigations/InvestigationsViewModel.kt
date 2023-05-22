@@ -13,6 +13,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.getCurrentOrdersRange
 import com.simenko.qmapp.utils.OrdersFilter
+import com.simenko.qmapp.utils.SubOrdersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -183,9 +184,9 @@ class InvestigationsViewModel @Inject constructor(
                 _currentOrdersFilter.flatMapLatest { filter ->
 
                     if (visibility.first == NoSelectedRecord) {
-                        setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
-                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
-                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
+                        setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
+                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
+                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
                     }
 
                     val cyp = mutableListOf<DomainOrderComplete>()
@@ -285,85 +286,66 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentSubOrderDetails = MutableStateFlow(NoSelectedRecord)
-    private val _currentSubOrderActions = MutableStateFlow(NoSelectedRecord)
+    private val _currentSubOrderVisibility =
+        MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
 
-    fun setSubOrderDetailsVisibility(id: Int) {
-        if (_currentSubOrderDetails.value.num != id) {
-            _currentSubOrderDetails.value = SelectedNumber(id)
-            repository.setCurrentSubOrder(id)
-        } else {
-            _currentSubOrderDetails.value = NoSelectedRecord
-            repository.setCurrentSubOrder(NoSelectedRecord.num)
-        }
-    }
-
-    fun setSubOrderActionsVisibility(id: Int) {
-        if (_currentSubOrderActions.value.num != id)
-            _currentSubOrderActions.value = SelectedNumber(id)
-        else
-            _currentSubOrderActions.value = NoSelectedRecord
+    fun setCurrentSubOrderVisibility(
+        dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
+    ) {
+        _currentSubOrderVisibility.value = Pair(
+            if (_currentSubOrderVisibility.value.first != dId) dId else NoSelectedRecord,
+            if (_currentSubOrderVisibility.value.second != aId) aId else NoSelectedRecord
+        )
+        repository.setCurrentSubOrder(_currentSubOrderVisibility.value.first.num)
     }
 
     /**
      * Filtering operations
      * */
-    private val _showSubOrderWithOrderType = MutableStateFlow(NoSelectedRecord)
-    val showSubOrderWithOrderType: LiveData<SelectedNumber>
-        get() = _showSubOrderWithOrderType.asLiveData()
-
-    private val _showSubOrderWithStatus = MutableStateFlow(NoSelectedRecord)
-    private val _showSubOrderWithOrderNumber = MutableStateFlow(NoSelectedString)
-
-    fun setSubOrderWithOrderTypeToShow(type: SelectedNumber) {
-        _showSubOrderWithOrderType.value = type
+    private val _currentSubOrdersFilter = MutableStateFlow(SubOrdersFilter())
+    fun setCurrentSubOrdersFilter(
+        type: SelectedNumber = NoSelectedRecord,
+        status: SelectedNumber = NoSelectedRecord,
+        number: SelectedString = NoSelectedString
+    ) {
+        _currentSubOrdersFilter.value = SubOrdersFilter(
+            if (type != NoSelectedRecord) type.num else _currentSubOrdersFilter.value.typeId,
+            if (status != NoSelectedRecord) status.num else _currentSubOrdersFilter.value.statusId,
+            if (number != NoSelectedString) number.str else _currentSubOrdersFilter.value.orderNumber
+        )
     }
 
-    fun setSubOrderStatusToShow(status: String) {
-        _showSubOrderWithStatus.value = getStatus(status)
-    }
-
-    fun setSubOrderNumberToShow(orderNumber: String) {
-        _showSubOrderWithOrderNumber.value = SelectedString(orderNumber)
-    }
+    val showSubOrderWithOrderType: LiveData<SelectedNumber> =
+        _currentSubOrdersFilter.flatMapLatest {
+            flow { emit(SelectedNumber(it.typeId)) }
+        }.asLiveData()
 
     /**
      * The result flow
      * */
     val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> =
         _subOrdersSF.flatMapLatest { subOrders ->
-            _currentSubOrderDetails.flatMapLatest { details ->
-                _currentSubOrderActions.flatMapLatest { actions ->
-                    _showSubOrderWithOrderType.flatMapLatest { type ->
-                        _showSubOrderWithStatus.flatMapLatest { status ->
-                            _showSubOrderWithOrderNumber.flatMapLatest { number ->
+            _currentSubOrderVisibility.flatMapLatest { visibility ->
+                _currentSubOrdersFilter.flatMapLatest { filter ->
 
-                                if (details == NoSelectedRecord) {
-                                    setTaskDetailsVisibility(_currentTaskDetails.value.num)
-                                    setSampleDetailsVisibility(_currentSampleDetails.value.num)
-                                }
-
-                                val cyp = mutableListOf<DomainSubOrderComplete>()
-                                subOrders
-                                    .filterSubOrderByStatusAndNumber(
-                                        type.num, status.num, number.str
-                                    ).forEach {
-                                        cyp.add(
-                                            it.copy(
-                                                detailsVisibility = it.subOrder.id == details.num,
-                                                isExpanded = it.subOrder.id == actions.num
-                                            )
-                                        )
-                                    }
-
-                                flow {
-                                    emit(
-                                        cyp
-                                    )
-                                }
-                            }
-                        }
+                    if (visibility.first == NoSelectedRecord) {
+                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
+                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
                     }
+
+                    val cyp = mutableListOf<DomainSubOrderComplete>()
+                    subOrders
+                        .filterSubOrderByStatusAndNumber(filter)
+                        .forEach {
+                            cyp.add(
+                                it.copy(
+                                    detailsVisibility = it.subOrder.id == visibility.first.num,
+                                    isExpanded = it.subOrder.id == visibility.second.num
+                                )
+                            )
+                        }
+
+                    flow { emit(cyp) }
                 }
             }
         }
@@ -444,48 +426,38 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentTaskDetails = MutableStateFlow(NoSelectedRecord)
-    val currentTaskDetails: LiveData<SelectedNumber>
-        get() = _currentTaskDetails.asLiveData()
-
-    private val _currentTaskActions = MutableStateFlow(NoSelectedRecord)
-
-    fun setTaskDetailsVisibility(id: Int) {
-        if (_currentTaskDetails.value.num != id) {
-            _currentTaskDetails.value = SelectedNumber(id)
-            repository.setCurrentTask(id)
-        } else {
-            _currentTaskDetails.value = NoSelectedRecord
-            repository.setCurrentTask(NoSelectedRecord.num)
-        }
+    private val _currentTaskVisibility = MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
+    fun setCurrentTaskVisibility(
+        dId: SelectedNumber = NoSelectedRecord,
+        aId: SelectedNumber = NoSelectedRecord
+    ) {
+        _currentTaskVisibility.value = Pair(
+            if (_currentTaskVisibility.value.first != dId) dId else NoSelectedRecord,
+            if (_currentTaskVisibility.value.second != aId) aId else NoSelectedRecord
+        )
+        repository.setCurrentTask(_currentTaskVisibility.value.first.num)
     }
 
-    fun setTaskActionsVisibility(id: Int) {
-        if (_currentTaskActions.value.num != id)
-            _currentTaskActions.value = SelectedNumber(id)
-        else
-            _currentTaskActions.value = NoSelectedRecord
-    }
+    val currentTaskDetails: LiveData<SelectedNumber> = _currentTaskVisibility.flatMapLatest {
+        flow { emit(it.first) }
+    }.asLiveData()
 
     /**
      * The result flow
      * */
     val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> =
         _tasksSF.flatMapLatest { tasks ->
-            _currentTaskDetails.flatMapLatest { details ->
-                _currentTaskActions.flatMapLatest { actions ->
-
-                    val cyp = mutableListOf<DomainSubOrderTaskComplete>()
-                    tasks.forEach {
-                        cyp.add(
-                            it.copy(
-                                detailsVisibility = it.subOrderTask.id == details.num,
-                                isExpanded = it.subOrderTask.id == actions.num
-                            )
+            _currentTaskVisibility.flatMapLatest { visibility ->
+                val cyp = mutableListOf<DomainSubOrderTaskComplete>()
+                tasks.forEach {
+                    cyp.add(
+                        it.copy(
+                            detailsVisibility = it.subOrderTask.id == visibility.first.num,
+                            isExpanded = it.subOrderTask.id == visibility.second.num
                         )
-                    }
-                    flow { emit(cyp) }
+                    )
                 }
+                flow { emit(cyp) }
             }
         }
             .flowOn(Dispatchers.IO)
@@ -537,38 +509,42 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with samples __________________________________________________________
      * */
     private val _samplesSF: Flow<List<DomainSampleComplete>> =
-        _currentSubOrderDetails.flatMapLatest { subOrderId ->
-            repository.samplesRangeList(subOrderId.num)
+        _currentSubOrderVisibility.flatMapLatest { subOrderId ->
+            repository.samplesRangeList(subOrderId.first.num)
         }
 
     /**
      * Visibility operations
      * */
-    private val _currentSampleDetails = MutableStateFlow(NoSelectedRecord)
-    val currentSampleDetails: LiveData<SelectedNumber>
-        get() = _currentSampleDetails.asLiveData()
+    private val _currentSampleVisibility =
+        MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
 
-    fun setSampleDetailsVisibility(id: Int) {
-        if (_currentSampleDetails.value.num != id) {
-            _currentSampleDetails.value = SelectedNumber(id)
-            repository.setCurrentSample(id)
-        } else {
-            _currentSampleDetails.value = NoSelectedRecord
-            repository.setCurrentTask(NoSelectedRecord.num)
-        }
+    fun setCurrentSampleVisibility(
+        dId: SelectedNumber = NoSelectedRecord,
+        aId: SelectedNumber = NoSelectedRecord
+    ) {
+        _currentSampleVisibility.value = Pair(
+            if (_currentSampleVisibility.value.first != dId) dId else NoSelectedRecord,
+            if (_currentSampleVisibility.value.second != aId) aId else NoSelectedRecord
+        )
+        repository.setCurrentSample(_currentSampleVisibility.value.first.num)
     }
+
+    val currentSampleDetails: LiveData<SelectedNumber> = _currentSampleVisibility.flatMapLatest {
+        flow { emit(it.first) }
+    }.asLiveData()
 
     /**
      * The result flow
      * */
     val samplesSF: StateFlow<List<DomainSampleComplete>> =
         _samplesSF.flatMapLatest { samples ->
-            _currentSampleDetails.flatMapLatest { details ->
+            _currentSampleVisibility.flatMapLatest { visibility ->
                 val cpy = mutableListOf<DomainSampleComplete>()
                 samples.forEach {
                     cpy.add(
                         it.copy(
-                            detailsVisibility = it.sample.id == details.num
+                            detailsVisibility = it.sample.id == visibility.first.num
                         )
                     )
                 }
@@ -593,23 +569,25 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with results __________________________________________________________
      * */
     private val _resultsSF: Flow<List<DomainResultComplete>> =
-        _currentSubOrderDetails.flatMapLatest { subOrderId ->
-            repository.resultsRangeList(subOrderId.num)
+        _currentSubOrderVisibility.flatMapLatest { subOrderId ->
+            repository.resultsRangeList(subOrderId.first.num)
         }
 
     /**
      * Visibility operations
      * */
-    private val _currentResultDetails = MutableStateFlow(NoSelectedRecord)
+    private val _currentResultVisibility =
+        MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
 
-    fun setResultDetailsVisibility(id: Int) {
-        if (_currentResultDetails.value.num != id) {
-            _currentResultDetails.value = SelectedNumber(id)
-            repository.setCurrentResult(id)
-        } else {
-            _currentResultDetails.value = NoSelectedRecord
-            repository.setCurrentResult(NoSelectedRecord.num)
-        }
+    fun setCurrentResultVisibility(
+        dId: SelectedNumber = NoSelectedRecord,
+        aId: SelectedNumber = NoSelectedRecord
+    ) {
+        _currentResultVisibility.value = Pair(
+            if (_currentResultVisibility.value.first != dId) dId else NoSelectedRecord,
+            if (_currentResultVisibility.value.second != aId) aId else NoSelectedRecord
+        )
+        repository.setCurrentResult(_currentResultVisibility.value.first.num)
     }
 
     /**
@@ -617,13 +595,13 @@ class InvestigationsViewModel @Inject constructor(
      * */
     val resultsSF: StateFlow<List<DomainResultComplete>> =
         _resultsSF.flatMapLatest { results ->
-            _currentSampleDetails.flatMapLatest { details ->
+            _currentResultVisibility.flatMapLatest { visibility ->
                 val cpy = mutableListOf<DomainResultComplete>()
 
                 results.forEach {
                     cpy.add(
                         it.copy(
-                            detailsVisibility = it.result.id == details.num
+                            detailsVisibility = it.result.id == visibility.first.num
                         )
                     )
                 }
@@ -889,10 +867,7 @@ class InvestigationsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            withContext(Dispatchers.Default) {
-                delay(200L)
-                setLastVisibleItemKey(repository.latestLocalOrderId())
-            }
+            setLastVisibleItemKey(repository.latestLocalOrderId())
         }
     }
 }

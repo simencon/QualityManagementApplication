@@ -48,7 +48,7 @@ fun ResultsComposition(
 
     val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
         {
-            appModel.setResultDetailsVisibility(it.result.id)
+            appModel.setCurrentResultVisibility(dId = SelectedNumber(it.result.id))
         }
     }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> {

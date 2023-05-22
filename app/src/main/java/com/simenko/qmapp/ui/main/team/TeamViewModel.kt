@@ -106,9 +106,13 @@ class TeamViewModel @Inject constructor(
                     }
                     val cpy = mutableListOf<DomainTeamMemberComplete>()
                     team.forEach {
-                        cpy.add(it.copy())
+                        cpy.add(
+                            it.copy(
+                                detailsVisibility = it.teamMember.id == visibility.num,
+                            )
+                        )
                     }
-                    flow { emit(cpy.changeOrderVisibility(visibility.num)) }
+                    flow { emit(cpy) }
                 }
             }
         }

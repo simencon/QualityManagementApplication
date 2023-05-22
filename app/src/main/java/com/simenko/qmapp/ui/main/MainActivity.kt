@@ -149,7 +149,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
                 if (investigationsModel.showSubOrderWithOrderType.value == OrderTypeProcessOnly)
-                    investigationsModel.setSubOrderNumberToShow(newText ?: "0")
+                    investigationsModel.setCurrentSubOrdersFilter(number =  SelectedString( newText ?: NoSelectedString.str))
                 else
                     investigationsModel.setCurrentOrdersFilter(number =  SelectedString( newText ?: NoSelectedString.str))
                 Log.d(TAG, "onQueryTextChange: $newText")
@@ -221,11 +221,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
-                        investigationsModel.setSubOrderWithOrderTypeToShow(NoSelectedRecord)
+                        investigationsModel.setCurrentSubOrdersFilter(type = NoSelectedRecord)
                         InvestigationsFragment()
                     }
                     R.id.nav_inv_orders_process_control -> {
-                        investigationsModel.setSubOrderWithOrderTypeToShow(OrderTypeProcessOnly)
+                        investigationsModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
                         InvestigationsFragment()
                     }
 

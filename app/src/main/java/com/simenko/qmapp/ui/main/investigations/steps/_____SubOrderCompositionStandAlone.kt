@@ -35,13 +35,13 @@ fun SubOrdersStandAlone(
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setSubOrderDetailsVisibility(it)
+            appModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
         }
     }
 
     val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setSubOrderActionsVisibility(it)
+            appModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
         }
     }
 

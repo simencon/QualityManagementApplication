@@ -337,10 +337,3 @@ fun DatabaseCharacteristicComplete.toDomainCharacteristicComplete(): DomainChara
         characteristicSubGroup = characteristicSubGroup.toDomainCharacteristicSubGroup()
     )
 }
-
-fun List<DomainTeamMemberComplete>.changeOrderVisibility(detailsId: Int): List<DomainTeamMemberComplete> {
-    return map {
-        it.detailsVisibility = detailsId == it.teamMember.id
-        it
-    }
-}

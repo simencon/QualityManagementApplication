@@ -47,13 +47,13 @@ fun SubOrderTasksFlowColumn(
 
     val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
-            appModel.setTaskDetailsVisibility(it.subOrderTask.id)
+            appModel.setCurrentTaskVisibility(dId = SelectedNumber(it.subOrderTask.id))
         }
     }
 
     val onClickActionsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
-            appModel.setTaskActionsVisibility(it.subOrderTask.id)
+            appModel.setCurrentTaskVisibility(aId = SelectedNumber(it.subOrderTask.id))
         }
     }
 
