@@ -167,10 +167,6 @@ interface InvestigationsDao {
     fun getResultsByList(): List<DatabaseResult>
 
     @Transaction
-    @Query("SELECT * FROM '12_orders' ORDER BY orderNumber;")
-    suspend fun getOrdersDetailedList(): List<DatabaseOrderComplete>
-
-    @Transaction
     @Query("select max(id) from `12_orders`")
     suspend fun getLatestOrderId():Int?
 
@@ -183,29 +179,41 @@ interface InvestigationsDao {
                 "order by o.orderNumber desc limit :safetyGap) " +
                 "order by orderNumber desc"
     )
-    suspend fun getOrdersDetailedListByLastVisibleItem(
+    suspend fun ordersListByLastVisibleId(
         lastVisibleId: Int,
         safetyGap: Int = UI_SAFETY_GAP,
         totalVisible: Int = UI_TOTAL_VISIBLE
     ): List<DatabaseOrderComplete>
 
     @Transaction
-    @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber;")
-    suspend fun getSubOrdersDetailedList(): List<DatabaseSubOrderComplete>
+    @Query("select so.* from `12_orders` o " +
+            "join `13_sub_orders` so on o.id = so.orderId " +
+            "where o.id >= :btnOrderId and o.id <= :topOrderId;")
+    suspend fun subOrdersRangeList(btnOrderId: Int, topOrderId: Int): List<DatabaseSubOrderComplete>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
     fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderShort>>
 
     @Transaction
-    @Query("SELECT * FROM sub_order_task_complete")
-    suspend fun getTasksDetailedList(): List<DatabaseSubOrderTaskComplete>
+    @Query("select t.* from `12_orders` o " +
+            "join `13_sub_orders` so on o.id = so.orderId " +
+            "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
+            "where o.id >= :btnOrderId and o.id <= :topOrderId;")
+    suspend fun tasksRangeList(btnOrderId: Int, topOrderId: Int): List<DatabaseSubOrderTaskComplete>
 
     @Transaction
-    @Query("SELECT * FROM `samples_results`")
-    suspend fun getSamplesDetailedList(): List<DatabaseSampleComplete>
-
+    @Query("select s.* from `12_orders` o " +
+            "join `13_sub_orders` so on o.id = so.orderId " +
+            "join `14_samples` s on so.id = s.subOrderId " +
+            "where o.id >= :btnOrderId and o.id <= :topOrderId;")
+    suspend fun samplesRangeList(btnOrderId: Int, topOrderId: Int): List<DatabaseSampleComplete>
     @Transaction
-    @Query("SELECT * FROM result_complete")
-    suspend fun getResultsDetailedList(): List<DatabaseResultComplete>
+    @Query("select r.* from `12_orders` o " +
+            "join `13_sub_orders` so on o.id = so.orderId " +
+            "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
+            "join `14_samples` s on so.id = s.subOrderId " +
+            "join `14_8_results` r on t.id = r.taskId and s.id = r.sampleId " +
+            "where  o.ID >= :btnOrderId and o.ID <= :topOrderId;")
+    suspend fun resultsRangeList(btnOrderId: Int, topOrderId: Int): List<DatabaseResultComplete>
 }

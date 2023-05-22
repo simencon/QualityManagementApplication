@@ -188,19 +188,19 @@ fun InvestigationsMainComposition(
                                 onListEnd = { changeFlaBtnPosition(it) }
                             )
 
-                        SampleComposition(
-                            modifier.width(
-                                when {
-                                    screenWidth > 720 -> {
-                                        (screenWidth * 0.43 * isSamplesNumVisible).dp
+                        if (isSamplesNumVisible == 1)
+                            SampleComposition(
+                                modifier.width(
+                                    when {
+                                        screenWidth > 720 -> {
+                                            (screenWidth * 0.43 * isSamplesNumVisible).dp
+                                        }
+                                        else -> {
+                                            (screenWidth * 0.88 * isSamplesNumVisible).dp
+                                        }
                                     }
-                                    else -> {
-                                        (screenWidth * 0.88 * isSamplesNumVisible).dp
-                                    }
-                                }
-
+                                )
                             )
-                        )
                     }
 
                     if (showStatusChangeDialog.value == true)

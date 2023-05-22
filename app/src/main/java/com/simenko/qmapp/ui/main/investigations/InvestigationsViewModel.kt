@@ -10,6 +10,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.utils.InvestigationsUtils.getCurrentOrdersRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -26,12 +27,6 @@ class InvestigationsViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-
-    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
-    fun setLastVisibleItemKey(key: Any) {
-        _lastVisibleItemKey.value = key
-        updateOrdersFromRoom()
-    }
 
     val isLoadingInProgress = MutableLiveData(false)
     val isNetworkError = MutableLiveData(false)
@@ -151,18 +146,27 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with orders ______________________________________________________________
      * */
-    private val _ordersSF = MutableStateFlow<List<DomainOrderComplete>>(listOf())
+
+    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
+    fun setLastVisibleItemKey(key: Any) {
+        _lastVisibleItemKey.value = key
+        updateOrdersFromRoom()
+    }
+
     private val _needToUpdateOrdersFromRoom = MutableStateFlow(false)
+    private fun updateOrdersFromRoom() {
+        _needToUpdateOrdersFromRoom.value = true
+    }
+
+    private val _currentOrdersRange = MutableStateFlow(Pair(0, 0))
+
+    private val _ordersSF = MutableStateFlow<List<DomainOrderComplete>>(listOf())
 
     /**
      * Visibility operations
      * */
     private val _currentOrderDetails = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
     private val _currentOrderActions = MutableStateFlow<SelectedNumber>(NoSelectedRecord)
-
-    private fun updateOrdersFromRoom() {
-        _needToUpdateOrdersFromRoom.value = true
-    }
 
     fun setOrderDetailsVisibility(id: Int) {
         if (_currentOrderDetails.value.num != id) {
@@ -212,16 +216,17 @@ class InvestigationsViewModel @Inject constructor(
                             _showWithType.flatMapLatest { type ->
                                 _showWithStatus.flatMapLatest { status ->
                                     _showOrderNumber.flatMapLatest { number ->
+                                        Log.d(TAG, "State Flow for Orders is active!")
                                         if (updateOrders) {
-                                            Log.d(TAG, "Orders was updated with kekId = : $key")
-                                            _ordersSF.value = repository.ordersCompleteListByLastVisibleItem(key as Int)
+                                            _ordersSF.value = repository.ordersListByLastVisibleId(key as Int)
+                                            _currentOrdersRange.value = _ordersSF.value.getCurrentOrdersRange()
                                             _needToUpdateOrdersFromRoom.value = false
+                                            updateSubOrdersFromRoom()
+                                            Log.d(TAG, "Orders was updated with kekId = : $key")
                                         }
 
-//                                        setSubOrderDetailsVisibility(_currentSubOrderDetails.value.num)
 //                                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
 //                                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
-//                                        setResultDetailsVisibility(_currentResultDetails.value.num)
 
                                         val cyp = mutableListOf<DomainOrderComplete>()
                                         orders.forEach {
@@ -379,38 +384,42 @@ class InvestigationsViewModel @Inject constructor(
      * The result flow
      * */
     val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> =
-        _subOrdersSF.flatMapLatest { subOrders ->
-            _needToUpdateSubOrdersFromRoom.flatMapLatest { updateSubOrders ->
-                _currentSubOrderDetails.flatMapLatest { details ->
-                    _currentSubOrderActions.flatMapLatest { actions ->
-                        _showSubOrderWithOrderType.flatMapLatest { type ->
-                            _showSubOrderWithStatus.flatMapLatest { status ->
-                                _showSubOrderWithOrderNumber.flatMapLatest { number ->
-                                    if (updateSubOrders) {
-                                        _subOrdersSF.value = repository.subOrdersCompleteList()
-                                        _needToUpdateSubOrdersFromRoom.value = false
-                                    }
+        _currentOrdersRange.flatMapLatest { ordersRange ->
+            _subOrdersSF.flatMapLatest { subOrders ->
+                _needToUpdateSubOrdersFromRoom.flatMapLatest { updateSubOrders ->
+                    _currentSubOrderDetails.flatMapLatest { details ->
+                        _currentSubOrderActions.flatMapLatest { actions ->
+                            _showSubOrderWithOrderType.flatMapLatest { type ->
+                                _showSubOrderWithStatus.flatMapLatest { status ->
+                                    _showSubOrderWithOrderNumber.flatMapLatest { number ->
+                                        Log.d(TAG, "State Flow for Sub Orders is active!")
+                                        if (updateSubOrders) {
+                                            _subOrdersSF.value = repository.subOrdersRangeList(ordersRange)
+                                            _needToUpdateSubOrdersFromRoom.value = false
+                                            updateTasksFromRoom()
+                                            Log.d(TAG, "subOrders was updated with Order range = : $ordersRange")
+                                        }
 
-//                                    setTaskDetailsVisibility(_currentTaskDetails.value.num)
-//                                    setSampleDetailsVisibility(_currentSampleDetails.value.num)
-//                                    setResultDetailsVisibility(_currentResultDetails.value.num)
+//                                        setTaskDetailsVisibility(_currentTaskDetails.value.num)
+//                                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
 
-                                    val cyp = mutableListOf<DomainSubOrderComplete>()
-                                    subOrders.forEach {
-                                        cyp.add(
-                                            it.copy(
-                                                detailsVisibility = it.subOrder.id == details.num,
-                                                isExpanded = it.subOrder.id == actions.num
+                                        val cyp = mutableListOf<DomainSubOrderComplete>()
+                                        subOrders.forEach {
+                                            cyp.add(
+                                                it.copy(
+                                                    detailsVisibility = it.subOrder.id == details.num,
+                                                    isExpanded = it.subOrder.id == actions.num
+                                                )
                                             )
-                                        )
-                                    }
+                                        }
 
-                                    flow {
-                                        emit(
-                                            cyp.filterSubOrderByStatusAndNumber(
-                                                type.num, status.num, number.str
+                                        flow {
+                                            emit(
+                                                cyp.filterSubOrderByStatusAndNumber(
+                                                    type.num, status.num, number.str
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -530,29 +539,35 @@ class InvestigationsViewModel @Inject constructor(
      * The result flow
      * */
     val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> =
-        _tasksSF.flatMapLatest { tasks ->
-            _needToUpdateTasksFromRoom.flatMapLatest { updateTasks ->
-                _currentTaskDetails.flatMapLatest { details ->
-                    _currentTaskActions.flatMapLatest { actions ->
-                        if (updateTasks) {
-                            _tasksSF.value = repository.tasksCompleteList()
-                            _needToUpdateTasksFromRoom.value = false
-                        }
+        _currentOrdersRange.flatMapLatest { ordersRange ->
+            _tasksSF.flatMapLatest { tasks ->
+                _needToUpdateTasksFromRoom.flatMapLatest { updateTasks ->
+                    _currentTaskDetails.flatMapLatest { details ->
+                        _currentTaskActions.flatMapLatest { actions ->
+                            Log.d(TAG, "State Flow for Tasks is active!")
+                            if (updateTasks) {
+                                _tasksSF.value = repository.tasksRangeList(ordersRange)
+                                _samplesSF.value = repository.samplesRangeList(ordersRange)
+                                Log.d(TAG, "State Flow for Tasks samples size = ${_samplesSF.value.size}")
+                                _resultsSF.value = repository.resultsRangeList(ordersRange)
+                                Log.d(TAG, "State Flow for Tasks results size = ${_resultsSF.value.size}")
+                                _needToUpdateTasksFromRoom.value = false
+                                updateSamplesFromRoom()
+                                Log.d(TAG, "Tasks was updated with Order range = : $ordersRange")
+                            }
 
-//                        setSampleDetailsVisibility(_currentSampleDetails.value.num)
-//                        setResultDetailsVisibility(_currentResultDetails.value.num)
-
-                        val cyp = mutableListOf<DomainSubOrderTaskComplete>()
-                        tasks.forEach {
-                            cyp.add(
-                                it.copy(
-                                    detailsVisibility = it.subOrderTask.id == details.num,
-                                    isExpanded = it.subOrderTask.id == actions.num
+                            val cyp = mutableListOf<DomainSubOrderTaskComplete>()
+                            tasks.forEach {
+                                cyp.add(
+                                    it.copy(
+                                        detailsVisibility = it.subOrderTask.id == details.num,
+                                        isExpanded = it.subOrderTask.id == actions.num
+                                    )
                                 )
-                            )
-                        }
+                            }
 
-                        flow { emit(cyp) }
+                            flow { emit(cyp) }
+                        }
                     }
                 }
             }
@@ -636,26 +651,28 @@ class InvestigationsViewModel @Inject constructor(
      * The result flow
      * */
     val samplesSF: StateFlow<List<DomainSampleComplete>> =
-        _samplesSF.flatMapLatest { samples ->
-            _needToUpdateSamplesFromRoom.flatMapLatest { updateSamples ->
-                _currentSampleDetails.flatMapLatest { details ->
-                    if (updateSamples) {
-                        _samplesSF.value = repository.samplesCompleteList()
-                        _needToUpdateSamplesFromRoom.value = false
-                    }
+        _currentOrdersRange.flatMapLatest { ordersRange ->
+            _samplesSF.flatMapLatest { samples ->
+                _needToUpdateSamplesFromRoom.flatMapLatest { updateSamples ->
+                    _currentSampleDetails.flatMapLatest { details ->
+                        Log.d(TAG, "State Flow for Samples is active!")
+                        if (updateSamples) {
+                            _samplesSF.value = repository.samplesRangeList(ordersRange)
+                            _needToUpdateSamplesFromRoom.value = false
+                            Log.d(TAG, "Results & Samples was updated with Order range = : $ordersRange")
+                        }
 
-//                    setResultDetailsVisibility(_currentResultDetails.value.num)
-
-                    val cpy = mutableListOf<DomainSampleComplete>()
-                    samples.forEach {
-                        cpy.add(
-                            it.copy(
-                                detailsVisibility = it.sample.id == details.num
+                        val cpy = mutableListOf<DomainSampleComplete>()
+                        samples.forEach {
+                            cpy.add(
+                                it.copy(
+                                    detailsVisibility = it.sample.id == details.num
+                                )
                             )
-                        )
-                    }
+                        }
 
-                    flow { emit(cpy) }
+                        flow { emit(cpy) }
+                    }
                 }
             }
         }
@@ -676,7 +693,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with results __________________________________________________________
      * */
-    private val _resultsF = MutableStateFlow<List<DomainResultComplete>>(listOf())
+    private val _resultsSF = MutableStateFlow<List<DomainResultComplete>>(listOf())
     private val _needToUpdateResultsFromRoom = MutableStateFlow(false)
 
     /**
@@ -702,24 +719,28 @@ class InvestigationsViewModel @Inject constructor(
      * The result flow
      * */
     val resultsSF: StateFlow<List<DomainResultComplete>> =
-        _resultsF.flatMapLatest { results ->
-            _needToUpdateResultsFromRoom.flatMapLatest { updateResults ->
-                _currentSampleDetails.flatMapLatest { details ->
-                    if (updateResults) {
-                        _resultsF.value = repository.resultsCompleteList()
-                        _needToUpdateResultsFromRoom.value = false
-                    }
-                    val cpy = mutableListOf<DomainResultComplete>()
+        _currentOrdersRange.flatMapLatest { ordersRange ->
+            _resultsSF.flatMapLatest { results ->
+                _needToUpdateResultsFromRoom.flatMapLatest { updateResults ->
+                    _currentSampleDetails.flatMapLatest { details ->
+                        Log.d(TAG, "State Flow for Results is active!")
+                        if (updateResults) {
+                            _resultsSF.value = repository.resultsRangeList(ordersRange)
+                            _needToUpdateResultsFromRoom.value = false
+                            Log.d(TAG, "Results was updated with Order range = : $ordersRange")
+                        }
+                        val cpy = mutableListOf<DomainResultComplete>()
 
-                    results.forEach {
-                        cpy.add(
-                            it.copy(
-                                detailsVisibility = it.result.id == details.num
+                        results.forEach {
+                            cpy.add(
+                                it.copy(
+                                    detailsVisibility = it.result.id == details.num
+                                )
                             )
-                        )
-                    }
+                        }
 
-                    flow { emit(cpy) }
+                        flow { emit(cpy) }
+                    }
                 }
             }
         }
@@ -987,14 +1008,8 @@ class InvestigationsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.Default) {
-//            ToDo: this not works because init is called once the MainActivity started ...
                 delay(200L)
                 setLastVisibleItemKey(repository.latestLocalOrderId())
-                updateOrdersFromRoom()
-                updateSubOrdersFromRoom()
-                updateTasksFromRoom()
-                updateSamplesFromRoom()
-                updateResultsFromRoom()
             }
         }
     }

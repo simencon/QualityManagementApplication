@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.BTN_NUMBER_TO_TEST
 import com.simenko.qmapp.other.Constants.TOP_NUMBER_TO_TEST
 import com.simenko.qmapp.retrofit.entities.*
@@ -632,39 +631,34 @@ class InvestigationsRepository @Inject constructor(
         currentOrder = id
     }
 
-    suspend fun ordersCompleteList(): List<DomainOrderComplete> =
-        investigationsDao.getOrdersDetailedList()
-            .asDomainOrdersComplete(currentOrder)
-
     suspend fun latestLocalOrderId(): Int = investigationsDao.getLatestOrderId()?:0
 
-    suspend fun ordersCompleteListByLastVisibleItem(lastVisibleId: Int): List<DomainOrderComplete> =
-        investigationsDao.getOrdersDetailedListByLastVisibleItem(lastVisibleId)
+    suspend fun ordersListByLastVisibleId(lastVisibleId: Int): List<DomainOrderComplete> =
+        investigationsDao.ordersListByLastVisibleId(lastVisibleId)
             .asDomainOrdersComplete(currentOrder)
 
     private var currentSubOrder = -1
-    fun setCurrentSubOrder(id: Int) {
-        currentSubOrder = id
-    }
+    fun setCurrentSubOrder(id: Int) { currentSubOrder = id }
 
-    suspend fun subOrdersCompleteList(): List<DomainSubOrderComplete> =
-        investigationsDao.getSubOrdersDetailedList().asDomainSubOrderDetailed(currentSubOrder)
+    suspend fun subOrdersRangeList(pair: Pair<Int, Int>): List<DomainSubOrderComplete> =
+        investigationsDao.subOrdersRangeList(pair.first, pair.second)
+            .asDomainSubOrderDetailed(currentSubOrder)
 
     private var currentTask = -1
-    fun setCurrentTask(id: Int) {
-        currentTask = id
-    }
+    fun setCurrentTask(id: Int) { currentTask = id }
 
-    suspend fun tasksCompleteList(): List<DomainSubOrderTaskComplete> =
-        investigationsDao.getTasksDetailedList().asDomainSubOrderTask(currentTask)
+    suspend fun tasksRangeList(pair: Pair<Int, Int>): List<DomainSubOrderTaskComplete> =
+        investigationsDao.tasksRangeList(pair.first, pair.second)
+            .asDomainSubOrderTask(currentTask)
 
     private var currentSample = -1
     fun setCurrentSample(id: Int) {
         currentSample = id
     }
 
-    suspend fun samplesCompleteList(): List<DomainSampleComplete> =
-        investigationsDao.getSamplesDetailedList().asDomainSamples(currentSample)
+    suspend fun samplesRangeList(pair: Pair<Int, Int>): List<DomainSampleComplete> =
+        investigationsDao.samplesRangeList(pair.first, pair.second)
+            .asDomainSamples(currentSample)
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         investigationsDao.getSubOrderWithChildren().map {
@@ -672,11 +666,9 @@ class InvestigationsRepository @Inject constructor(
         }
 
     private var currentResult = 0
-    fun setCurrentResult(id: Int) {
-        currentResult = id
-    }
+    fun setCurrentResult(id: Int) { currentResult = id }
 
-    suspend fun resultsCompleteList(): List<DomainResultComplete> =
-        investigationsDao.getResultsDetailedList().asDomainResults(currentResult)
-
+    suspend fun resultsRangeList(pair: Pair<Int, Int>): List<DomainResultComplete> =
+        investigationsDao.resultsRangeList(pair.first, pair.second)
+            .asDomainResults(currentResult)
 }

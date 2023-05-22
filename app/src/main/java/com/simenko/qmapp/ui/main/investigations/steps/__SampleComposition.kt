@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -36,6 +37,8 @@ import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
 
 
+private const val TAG = "SampleComposition"
+
 @Composable
 fun SampleComposition(
     modifier: Modifier = Modifier
@@ -66,6 +69,8 @@ fun SampleComposition(
             key = {
                 it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString()
             }) { sample ->
+            Log.d(TAG, "SampleComposition: ${sample.sampleResult.taskId}")
+            Log.d(TAG, "SampleComposition: ${observeCurrentSubOrderTask?.num}")
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
                 SampleCard(
                     modifier = modifier,
