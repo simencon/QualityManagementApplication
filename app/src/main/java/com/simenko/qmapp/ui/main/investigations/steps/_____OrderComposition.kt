@@ -59,13 +59,13 @@ fun Orders(
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setOrderDetailsVisibility(it)
+            appModel.setCurrentOrderVisibility(dId = SelectedNumber(it))
         }
     }
 
     val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setOrderActionsVisibility(it)
+            appModel.setCurrentOrderVisibility(aId = SelectedNumber(it))
         }
     }
 

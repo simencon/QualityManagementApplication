@@ -15,10 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -631,34 +628,42 @@ class InvestigationsRepository @Inject constructor(
         currentOrder = id
     }
 
-    suspend fun latestLocalOrderId(): Int = investigationsDao.getLatestOrderId()?:0
+    suspend fun latestLocalOrderId(): Int = investigationsDao.getLatestOrderId() ?: 0
 
-    suspend fun ordersListByLastVisibleId(lastVisibleId: Int): List<DomainOrderComplete> =
-        investigationsDao.ordersListByLastVisibleId(lastVisibleId)
-            .asDomainOrdersComplete(currentOrder)
+    fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> =
+        investigationsDao.ordersListByLastVisibleId(lastVisibleId).map {
+            it.asDomainOrdersComplete(currentOrder)
+        }
 
     private var currentSubOrder = -1
-    fun setCurrentSubOrder(id: Int) { currentSubOrder = id }
+    fun setCurrentSubOrder(id: Int) {
+        currentSubOrder = id
+    }
 
-    suspend fun subOrdersRangeList(pair: Pair<Int, Int>): List<DomainSubOrderComplete> =
-        investigationsDao.subOrdersRangeList(pair.first, pair.second)
-            .asDomainSubOrderDetailed(currentSubOrder)
+    fun subOrdersRangeList(pair: Pair<Int, Int>): Flow<List<DomainSubOrderComplete>> =
+        investigationsDao.subOrdersRangeList(pair.first, pair.second).map {
+            it.asDomainSubOrderDetailed(currentSubOrder)
+        }
 
     private var currentTask = -1
-    fun setCurrentTask(id: Int) { currentTask = id }
+    fun setCurrentTask(id: Int) {
+        currentTask = id
+    }
 
-    suspend fun tasksRangeList(pair: Pair<Int, Int>): List<DomainSubOrderTaskComplete> =
-        investigationsDao.tasksRangeList(pair.first, pair.second)
-            .asDomainSubOrderTask(currentTask)
+    fun tasksRangeList(pair: Pair<Int, Int>): Flow<List<DomainSubOrderTaskComplete>> =
+        investigationsDao.tasksRangeList(pair.first, pair.second).mapLatest {
+            it.asDomainSubOrderTask(currentTask)
+        }
 
     private var currentSample = -1
     fun setCurrentSample(id: Int) {
         currentSample = id
     }
 
-    suspend fun samplesRangeList(pair: Pair<Int, Int>): List<DomainSampleComplete> =
-        investigationsDao.samplesRangeList(pair.first, pair.second)
-            .asDomainSamples(currentSample)
+    fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
+        investigationsDao.samplesRangeList(subOrderId).map {
+            it.asDomainSamples(currentSample)
+        }
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         investigationsDao.getSubOrderWithChildren().map {
@@ -666,9 +671,12 @@ class InvestigationsRepository @Inject constructor(
         }
 
     private var currentResult = 0
-    fun setCurrentResult(id: Int) { currentResult = id }
+    fun setCurrentResult(id: Int) {
+        currentResult = id
+    }
 
-    suspend fun resultsRangeList(pair: Pair<Int, Int>): List<DomainResultComplete> =
-        investigationsDao.resultsRangeList(pair.first, pair.second)
-            .asDomainResults(currentResult)
+    fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
+        investigationsDao.resultsRangeList(subOrderId).map {
+            it.asDomainResults(currentResult)
+        }
 }

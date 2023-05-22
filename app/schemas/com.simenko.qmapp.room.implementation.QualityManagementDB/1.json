@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8c05e6f4d1c17f1368dda4a05bb634d2",
+    "identityHash": "dd16b9a4db9f1d850f896e6fb2c9ea21",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -3396,7 +3396,7 @@
       },
       {
         "viewName": "samples_results",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId GROUP BY s.id, r.taskId;"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT s.id, r.taskId, s.subOrderId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId GROUP BY s.id, r.taskId;"
       },
       {
         "viewName": "orders_short",
@@ -3417,7 +3417,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c05e6f4d1c17f1368dda4a05bb634d2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd16b9a4db9f1d850f896e6fb2c9ea21')"
     ]
   }
 }

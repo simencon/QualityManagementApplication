@@ -352,13 +352,14 @@ data class DatabaseSample constructor(
 
 @DatabaseView(
     viewName = "samples_results",
-    value = "SELECT s.id, r.taskId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s " +
+    value = "SELECT s.id, r.taskId, s.subOrderId, CAST(MIN(r.isOk) AS bit) AS isOk, SUM(CASE(r.isOk ) WHEN 1 THEN 1 ELSE 0 END) AS good, COUNT(r.isOk) AS total  FROM `14_samples` AS s " +
             "LEFT OUTER JOIN `14_8_results` AS r ON s.id = r.sampleId " +
             "GROUP BY s.id, r.taskId;"
 )
 data class DatabaseSampleResult constructor(
     val id: Int,
     val taskId: Int?,
+    val subOrderId: Int,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?

@@ -19,7 +19,9 @@ import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoSelectedString
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
+import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -149,7 +151,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (investigationsModel.showSubOrderWithOrderType.value == OrderTypeProcessOnly)
                     investigationsModel.setSubOrderNumberToShow(newText ?: "0")
                 else
-                    investigationsModel.setOrderNumberToShow(newText ?: "0")
+                    investigationsModel.setCurrentOrdersFilter(number =  SelectedString( newText ?: NoSelectedString.str))
                 Log.d(TAG, "onQueryTextChange: $newText")
                 return true
             }

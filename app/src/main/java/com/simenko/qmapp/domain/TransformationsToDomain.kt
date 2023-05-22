@@ -344,35 +344,3 @@ fun List<DomainTeamMemberComplete>.changeOrderVisibility(detailsId: Int): List<D
         it
     }
 }
-
-fun List<DomainOrderComplete>.filterByStatusAndNumber(
-    typeId: Int,
-    statusId: Int,
-    orderNumber: String
-): List<DomainOrderComplete> {
-    return filter {
-        (it.order.orderTypeId == typeId || typeId == -1)
-                &&
-                (it.order.statusId == statusId || statusId == -1)
-                &&
-                (it.order.orderNumber.toString().contains(orderNumber)
-                        ||
-                        (orderNumber == "0"))
-    }
-}
-
-fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
-    typeId: Int,
-    statusId: Int,
-    orderNumber: String
-): List<DomainSubOrderComplete> {
-    return filter {
-        (it.orderShort.order.orderTypeId == typeId || typeId == -1)
-                &&
-                (it.subOrder.statusId == statusId || statusId == -1)
-                &&
-                (it.orderShort.order.orderNumber.toString().contains(orderNumber)
-                        ||
-                        (orderNumber == "0"))
-    }
-}
