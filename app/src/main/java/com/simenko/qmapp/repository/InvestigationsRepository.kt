@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.other.Constants.BTN_O_NUMBER
-import com.simenko.qmapp.other.Constants.TOP_O_NUMBER
+import com.simenko.qmapp.other.Constants.BTN_ORDER_ID
+import com.simenko.qmapp.other.Constants.TOP_ORDER_ID
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
@@ -31,7 +31,7 @@ class InvestigationsRepository @Inject constructor(
 ) {
     private var localOrdersLatestId = NoSelectedRecord.num
     private var remoteOrdersLatestId = NoSelectedRecord.num
-    suspend fun updatePoints() {
+    suspend fun checkAndUploadNew() {
         localOrdersLatestId = investigationsDao.getLatestOrderId() ?: NoSelectedRecord.num
         investigationsService.getOrdersLatestId().apply {
             if (isSuccessful)
@@ -42,11 +42,11 @@ class InvestigationsRepository @Inject constructor(
     }
 
     companion object {
-        fun syncOrders(
-            dbOrders: List<DatabaseOrder>,
+        suspend fun syncOrders(
             ntOrders: List<NetworkOrder>,
             investigationsDao: InvestigationsDao
         ) {
+            val dbOrders: List<DatabaseOrder> = investigationsDao.getOrdersList()
             ntOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbOrders.forEach byBlock2@{ dbIt ->
@@ -89,11 +89,11 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        fun syncSubOrders(
-            dbSubOrders: List<DatabaseSubOrder>,
+        suspend fun syncSubOrders(
             ntSubOrders: List<NetworkSubOrder>,
             investigationsDao: InvestigationsDao
         ) {
+            val dbSubOrders: List<DatabaseSubOrder> = investigationsDao.getSubOrdersList()
             ntSubOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
@@ -136,11 +136,11 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        fun syncSubOrderTasks(
-            dbSubOrderTasks: List<DatabaseSubOrderTask>,
+        suspend fun syncSubOrderTasks(
             ntSubOrderTasks: List<NetworkSubOrderTask>,
             investigationsDao: InvestigationsDao
         ) {
+            val dbSubOrderTasks: List<DatabaseSubOrderTask> = investigationsDao.getTasksList()
             ntSubOrderTasks.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSubOrderTasks.forEach byBlock2@{ dbIt ->
@@ -183,11 +183,11 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        fun syncSamples(
-            dbSamples: List<DatabaseSample>,
+        suspend fun syncSamples(
             ntSamples: List<NetworkSample>,
             investigationsDao: InvestigationsDao
         ) {
+            val dbSamples: List<DatabaseSample> = investigationsDao.getSamplesList()
             ntSamples.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSamples.forEach byBlock2@{ dbIt ->
@@ -216,11 +216,11 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        fun syncResults(
-            dbResults: List<DatabaseResult>,
+        suspend fun syncResults(
             ntResults: List<NetworkResult>,
             investigationsDao: InvestigationsDao
         ) {
+            val dbResults: List<DatabaseResult> = investigationsDao.getResultsList()
             ntResults.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbResults.forEach byBlock2@{ dbIt ->
@@ -322,35 +322,49 @@ class InvestigationsRepository @Inject constructor(
     private suspend fun uploadNewOrders(lastUpdatedOrderId: Int) {
         val ntOrders = investigationsService.getOrdersByLatestUpdatedOrderId(lastUpdatedOrderId)
         val newOrdersRangeId = ntOrders.getOrdersRange()
-        val ntSubOrders = investigationsService.getSubOrdersByOrdersRange(
+        Log.d(TAG, "uploadNewOrders: ntOrders is uploaded")
+        val ntSubOrders = investigationsService.getSubOrdersByOrderIdRange(
             newOrdersRangeId.second,
             newOrdersRangeId.first
         )
-        val ntTasks = investigationsService.getTasksByNumberRange(
+        Log.d(TAG, "uploadNewOrders: ntSubOrders is uploaded")
+        val ntTasks = investigationsService.getTasksByOrderIdRange(
             newOrdersRangeId.second,
             newOrdersRangeId.first
         )
-        val ntSamples = investigationsService.getSamplesByNumberRange(
+        Log.d(TAG, "uploadNewOrders: ntTasks is uploaded")
+        val ntSamples = investigationsService.getSamplesByOrderIdRange(
             newOrdersRangeId.second,
             newOrdersRangeId.first
         )
-        val ntResults = investigationsService.getResultsByNumberRange(
+        Log.d(TAG, "uploadNewOrders: ntSamples is uploaded")
+        val ntResults = investigationsService.getResultsByOrderIdRange(
             newOrdersRangeId.second,
             newOrdersRangeId.first
         )
+        Log.d(TAG, "uploadNewOrders: ntResults is uploaded")
+//        syncOrders(ntOrders, investigationsDao)
         investigationsDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
+        Log.d(TAG, "uploadNewOrders: ntOrders is saved")
+//        syncSubOrders(ntSubOrders, investigationsDao)
         investigationsDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
+        Log.d(TAG, "uploadNewOrders: ntSubOrders is saved")
+//        syncSubOrderTasks(ntTasks, investigationsDao)
         investigationsDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
+        Log.d(TAG, "uploadNewOrders: ntTasks is saved")
+//        syncSamples(ntSamples, investigationsDao)
         investigationsDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
+        Log.d(TAG, "uploadNewOrders: ntSamples is saved")
+//        syncResults(ntResults, investigationsDao)
         investigationsDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
+        Log.d(TAG, "uploadNewOrders: ntResults is saved")
     }
 
     suspend fun refreshOrders() {
         withContext(Dispatchers.IO) {
-            val ntOrders = investigationsService.getOrdersByNumberRange(BTN_O_NUMBER, TOP_O_NUMBER)
-            val dbOrders = investigationsDao.getOrdersByList()
+            val ntOrders = investigationsService.getOrdersByNumberRange(BTN_ORDER_ID, TOP_ORDER_ID)
 
-            syncOrders(dbOrders, ntOrders, investigationsDao)
+            syncOrders(ntOrders, investigationsDao)
             Log.d(TAG, "refreshOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
@@ -387,14 +401,12 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
-//            val ntSubOrder = investigationsService.getSubOrders()
-            val ntSubOrder = investigationsService.getSubOrdersByOrdersRange(
-                BTN_O_NUMBER,
-                TOP_O_NUMBER
+            val ntSubOrder = investigationsService.getSubOrdersByOrderIdRange(
+                BTN_ORDER_ID,
+                TOP_ORDER_ID
             )
-            val dbSubOrders = investigationsDao.getSubOrdersByList()
 
-            syncSubOrders(dbSubOrders, ntSubOrder, investigationsDao)
+            syncSubOrders(ntSubOrder, investigationsDao)
 
             Log.d(TAG, "refreshSubOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -402,15 +414,11 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrderTasks() {
         withContext(Dispatchers.IO) {
-//            val ntSubOrderTasks = investigationsService.getSubOrderTasks()
-            val ntSubOrderTasks = investigationsService.getTasksByNumberRange(
-                BTN_O_NUMBER,
-                TOP_O_NUMBER
+            val ntSubOrderTasks = investigationsService.getTasksByOrderIdRange(
+                BTN_ORDER_ID,
+                TOP_ORDER_ID
             )
-
-            val dbSubOrderTasks = investigationsDao.getSubOrderTasksByList()
-            syncSubOrderTasks(dbSubOrderTasks, ntSubOrderTasks, investigationsDao)
-
+            syncSubOrderTasks(ntSubOrderTasks, investigationsDao)
             Log.d(
                 TAG,
                 "refreshSubOrderTasks: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
@@ -420,15 +428,11 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSamples() {
         withContext(Dispatchers.IO) {
-//            val ntSamples = investigationsService.getSamples()
-            val ntSamples = investigationsService.getSamplesByNumberRange(
-                BTN_O_NUMBER,
-                TOP_O_NUMBER
+            val ntSamples = investigationsService.getSamplesByOrderIdRange(
+                BTN_ORDER_ID,
+                TOP_ORDER_ID
             )
-
-            val dbSamples = investigationsDao.getSamplesByList()
-            syncSamples(dbSamples, ntSamples, investigationsDao)
-
+            syncSamples(ntSamples, investigationsDao)
             Log.d(TAG, "refreshSamples: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
@@ -452,15 +456,11 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshResults() {
         withContext(Dispatchers.IO) {
-//            val ntResults = investigationsService.getResults()
-            val ntResults = investigationsService.getResultsByNumberRange(
-                BTN_O_NUMBER,
-                TOP_O_NUMBER
+            val ntResults = investigationsService.getResultsByOrderIdRange(
+                BTN_ORDER_ID,
+                TOP_ORDER_ID
             )
-
-            val dbResults = investigationsDao.getResultsByList()
-            syncResults(dbResults, ntResults, investigationsDao)
-
+            syncResults(ntResults, investigationsDao)
             Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }

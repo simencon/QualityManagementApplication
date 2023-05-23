@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    is implemented within on search listener
                 }
                 R.id.upload_all_data -> {
-                    investigationsModel.refreshDataFromRepository()
+                    investigationsModel.refreshMasterDataFromRepository()
                 }
                 R.id.ppap -> {
                     TODO("Will filter accordingly")

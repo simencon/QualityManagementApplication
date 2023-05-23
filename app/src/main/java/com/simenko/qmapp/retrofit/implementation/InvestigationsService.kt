@@ -50,10 +50,10 @@ interface InvestigationsService {
     @GET("subOrders")
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
-    @GET("subOrders/{btnNumber}/{topNumber}")
-    suspend fun getSubOrdersByOrdersRange(
-        @Path("btnNumber") btnNumber: Int,
-        @Path("topNumber") topNumber: Int
+    @GET("subOrders/{btnId}/{topId}")
+    suspend fun getSubOrdersByOrderIdRange(
+        @Path("btnId") btnNumber: Int,
+        @Path("topId") topNumber: Int
     ): List<NetworkSubOrder>
 
     @POST("subOrders")
@@ -72,10 +72,10 @@ interface InvestigationsService {
     @GET("subOrderTasks")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
-    @GET("subOrderTasks/{btnNumber}/{topNumber}")
-    suspend fun getTasksByNumberRange(
-        @Path("btnNumber") btnNumber: Int,
-        @Path("topNumber") topNumber: Int
+    @GET("subOrderTasks/{btnId}/{topId}")
+    suspend fun getTasksByOrderIdRange(
+        @Path("btnId") btnNumber: Int,
+        @Path("topId") topNumber: Int
     ): List<NetworkSubOrderTask>
 
     @POST("subOrderTasks")
@@ -97,10 +97,10 @@ interface InvestigationsService {
     @GET("samples")
     suspend fun getSamples(): List<NetworkSample>
 
-    @GET("samples/{btnNumber}/{topNumber}")
-    suspend fun getSamplesByNumberRange(
-        @Path("btnNumber") btnNumber: Int,
-        @Path("topNumber") topNumber: Int
+    @GET("samples/{btnId}/{topId}")
+    suspend fun getSamplesByOrderIdRange(
+        @Path("btnId") btnNumber: Int,
+        @Path("topId") topNumber: Int
     ): List<NetworkSample>
 
     @POST("samples")
@@ -115,10 +115,10 @@ interface InvestigationsService {
     @GET("results")
     suspend fun getResults(): List<NetworkResult>
 
-    @GET("results/{btnNumber}/{topNumber}")
-    suspend fun getResultsByNumberRange(
-        @Path("btnNumber") btnNumber: Int,
-        @Path("topNumber") topNumber: Int
+    @GET("results/{btnId}/{topId}")
+    suspend fun getResultsByOrderIdRange(
+        @Path("btnId") btnNumber: Int,
+        @Path("topId") topNumber: Int
     ): List<NetworkResult>
 
     @POST("results")

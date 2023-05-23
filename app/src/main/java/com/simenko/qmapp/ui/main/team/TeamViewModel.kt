@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.team
 
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*

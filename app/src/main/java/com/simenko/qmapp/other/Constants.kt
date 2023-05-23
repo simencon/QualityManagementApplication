@@ -23,11 +23,9 @@ object Constants {
     /**
      * To update local DB only in this range of Order Numbers
      * */
-    const val BTN_O_NUMBER = 19870
-    const val TOP_O_NUMBER = 25000
+    const val BTN_ORDER_ID = 19870
+    const val TOP_ORDER_ID = 25000
 
     const val UI_SAFETY_GAP = 100
     const val UI_TOTAL_VISIBLE = 10
-
-    const val LOCAL_SAFETY_GAP = 300
 }

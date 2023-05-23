@@ -27,7 +27,7 @@ private const val TAG = "ManufacturingRepository"
 @OptIn(ExperimentalCoroutinesApi::class)
 class ManufacturingRepository @Inject constructor(
     private val manufacturingDao: ManufacturingDao,
-    public val manufacturingService: ManufacturingService
+    val manufacturingService: ManufacturingService
 ) {
     /**
      * Update Manufacturing from the network

@@ -47,6 +47,9 @@ interface InvestigationsDao {
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber ASC")
     fun getOrders(): LiveData<List<DatabaseOrder>>
 
+    @Query("SELECT * FROM `12_orders` ORDER BY orderNumber ASC")
+    suspend fun getOrdersList(): List<DatabaseOrder>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrder(record: DatabaseOrder)
 
@@ -71,6 +74,9 @@ interface InvestigationsDao {
 
     @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
     fun getSubOrders(): LiveData<List<DatabaseSubOrder>>
+
+    @Query("SELECT * FROM `13_sub_orders` ORDER BY subOrderNumber ASC")
+    suspend fun getSubOrdersList(): List<DatabaseSubOrder>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSubOrder(record: DatabaseSubOrder)
@@ -109,6 +115,9 @@ interface InvestigationsDao {
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
     fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
 
+    @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
+    suspend fun getTasksList(): List<DatabaseSubOrderTask>
+
     @Query("SELECT * FROM `13_7_sub_order_tasks` WHERE subOrderId=:sunOrderId ")
     suspend fun getTasksBySubOrderId(sunOrderId: String): List<DatabaseSubOrderTask>
 
@@ -132,7 +141,7 @@ interface InvestigationsDao {
     fun deleteSample(record: DatabaseSample)
 
     @Query("SELECT * FROM `14_samples` ORDER BY sampleNumber ASC")
-    suspend fun getSamplesByList(): List<DatabaseSample>
+    suspend fun getSamplesList(): List<DatabaseSample>
 
     @Transaction
     @Query(
@@ -164,7 +173,7 @@ interface InvestigationsDao {
     fun deleteResult(record: DatabaseResult)
 
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
-    fun getResultsByList(): List<DatabaseResult>
+    suspend fun getResultsList(): List<DatabaseResult>
 
     @Transaction
     @Query("select max(id) from `12_orders`")
@@ -172,10 +181,10 @@ interface InvestigationsDao {
 
     @Transaction
     @Query(
-        "select  * from( select * from  `12_orders` o where o.id >=:lastVisibleId " +
+        "select * from( select * from  `12_orders` o where o.id >=:lastVisibleId " +
                 "order by o.orderNumber asc limit :safetyGap+:totalVisible) " +
                 "union " +
-                "select  * from (select * from  `12_orders` o where o.id <:lastVisibleId " +
+                "select * from (select * from  `12_orders` o where o.id <:lastVisibleId " +
                 "order by o.orderNumber desc limit :safetyGap) " +
                 "order by orderNumber desc"
     )

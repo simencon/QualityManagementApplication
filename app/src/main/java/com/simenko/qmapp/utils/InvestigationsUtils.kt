@@ -16,9 +16,15 @@ data class SubOrdersFilter(
 )
 
 object InvestigationsUtils {
+
+    /**
+     * The first means top orderID
+     * The second means btn orderID
+     * */
     fun List<DomainOrderComplete>.getDetailedOrdersRange(): Pair<Int, Int> =
+
         if (this.isNotEmpty())
-            Pair(this[lastIndex].order.id, this[0].order.id)
+            Pair(this.minBy { it.order.id }.order.id, this.maxBy { it.order.id }.order.id)
         else
             Pair(NoSelectedRecord.num, NoSelectedRecord.num)
 
@@ -28,7 +34,7 @@ object InvestigationsUtils {
      * */
     fun List<NetworkOrder>.getOrdersRange(): Pair<Int, Int> =
         if (this.isNotEmpty())
-            Pair(this[lastIndex].id, this[0].id)
+            Pair(this.minBy { it.id }.id, this.maxBy { it.id }.id)
         else
             Pair(NoSelectedRecord.num, NoSelectedRecord.num)
 

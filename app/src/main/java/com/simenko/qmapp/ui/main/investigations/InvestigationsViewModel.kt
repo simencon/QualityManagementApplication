@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.InvestigationsRepository
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
 
+private const val TAG = "InvestigationsViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -41,8 +43,8 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    private val _isLoadingInProgress = MutableLiveData(false)
-    val isLoadingInProgress: LiveData<Boolean> = _isLoadingInProgress
+    private val _isLoadingInProgress = MutableStateFlow(false)
+    val isLoadingInProgress: LiveData<Boolean> = _isLoadingInProgress.asLiveData()
     private val _isNetworkError = MutableLiveData(false)
     val isNetworkError: LiveData<Boolean> = _isNetworkError
     fun onNetworkErrorShown() {
@@ -152,6 +154,7 @@ class InvestigationsViewModel @Inject constructor(
      * */
 
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
+
     fun setLastVisibleItemKey(key: Any) {
         _lastVisibleItemKey.value = key
     }
@@ -160,6 +163,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
+            Log.d(TAG, "_currentOrdersRange kay is: $key")
             repository.ordersListByLastVisibleId(key as Int)
         }
 
@@ -216,6 +220,7 @@ class InvestigationsViewModel @Inject constructor(
                             )
                         }
                     _currentOrdersRange.value = cyp.getDetailedOrdersRange()
+                    Log.d(TAG, "_currentOrdersRange = ${_currentOrdersRange.value}")
                     flow {
                         emit(
                             cyp
@@ -812,7 +817,23 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    fun refreshDataFromRepository() {
+    fun uploadInvestigationsEntities() {
+        viewModelScope.launch {
+            try {
+                _isLoadingInProgress.value = true
+                withContext(Dispatchers.IO) {
+                    repository.checkAndUploadNew()
+                }
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                _isNetworkError.value = true
+            }
+        }
+    }
+
+    fun refreshMasterDataFromRepository() {
         viewModelScope.launch {
             try {
                 _isLoadingInProgress.value = true
@@ -852,12 +873,7 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshOrdersStatuses()
                 repository.refreshInvestigationReasons()
                 repository.refreshInvestigationTypes()
-                repository.refreshOrders()
-                repository.refreshSubOrders()
-                repository.refreshSubOrderTasks()
-                repository.refreshSamples()
                 repository.refreshResultsDecryptions()
-                repository.refreshResults()
 
                 _isLoadingInProgress.value = false
 
