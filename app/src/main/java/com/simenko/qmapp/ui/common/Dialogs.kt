@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -40,7 +39,6 @@ data class DialogInput(
     var performerId: Int? = null
 )
 
-//Layout
 @Composable
 fun CustomDialogUI(
     modifier: Modifier = Modifier,
@@ -58,31 +56,35 @@ fun CustomDialogUI(
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }
 
-    if (team.isNotEmpty()) {
-        invModel.selectStatus(
-            when {
-                currentOrder != null ->
-                    SelectedNumber(currentOrder.order.statusId)
+    LaunchedEffect(team) {
+        if (team.isNotEmpty()) {
+            invModel.selectStatus(
+                when {
+                    currentOrder != null ->
+                        SelectedNumber(currentOrder.order.statusId)
 
-                currentSubOrder != null ->
-                    SelectedNumber(currentSubOrder.subOrder.statusId)
+                    currentSubOrder != null ->
+                        SelectedNumber(currentSubOrder.subOrder.statusId)
 
-                currentSubOrderTask != null ->
-                    SelectedNumber(currentSubOrderTask.subOrderTask.statusId)
+                    currentSubOrderTask != null ->
+                        SelectedNumber(currentSubOrderTask.subOrderTask.statusId)
 
-                else -> NoSelectedRecord
-            }
-        )
-        enableToEdit = when (dialogInput.performerId) {
-            null -> {
-                placeHolder = "Виберіть виконавця"
-                false
-            }
-            else -> {
-                placeHolder =
-                    team.find { it.teamMember.id == dialogInput.performerId }!!.teamMember.fullName
-                Log.d(TAG, "CustomDialogUI: $placeHolder")
-                true
+                    else -> NoSelectedRecord
+                }
+            )
+            enableToEdit = when (dialogInput.performerId) {
+                null -> {
+                    placeHolder = "Виберіть виконавця"
+                    false
+                }
+                else -> {
+                    placeHolder = team
+                        .find { it.teamMember.id == dialogInput.performerId }
+                        .let {
+                            it?.teamMember?.fullName ?: "Performer not found"
+                        }
+                    true
+                }
             }
         }
     }
@@ -218,6 +220,8 @@ fun CustomDialogUI(
         }
     }
 }
+
+
 
 @Composable
 fun StatusesSelection(
