@@ -103,15 +103,15 @@ fun Orders(
                     selectedId = createdRecord.orderId
                 )
 
-                delay(200)
+                delay(25)
 
                 val order = items.find {
                     it.order.id == createdRecord.orderId
                 }
 
-                if (order != null && !order.detailsVisibility) {
-                    appModel.resetCreatedOrderId()
-                    onClickDetailsLambda(order.order.id)
+                if (order != null) {
+                    if (!order.detailsVisibility)
+                        onClickDetailsLambda(order.order.id)
                     appModel.resetCreatedOrderId()
                 }
             }

@@ -1,7 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.repository.InvestigationsRepository
@@ -11,7 +9,8 @@ import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
-import com.simenko.qmapp.utils.InvestigationsUtils.getCurrentOrdersRange
+import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
+import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +19,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
+
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -41,72 +41,90 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    val isLoadingInProgress = MutableLiveData(false)
-    val isNetworkError = MutableLiveData(false)
+    private val _isLoadingInProgress = MutableLiveData(false)
+    val isLoadingInProgress: LiveData<Boolean> = _isLoadingInProgress
+    private val _isNetworkError = MutableLiveData(false)
+    val isNetworkError: LiveData<Boolean> = _isNetworkError
     fun onNetworkErrorShown() {
-        isLoadingInProgress.value = false
-        isNetworkError.value = false
+        _isLoadingInProgress.value = false
+        _isNetworkError.value = false
     }
 
-    var isStatusDialogVisible = MutableLiveData(false)
-    val dialogInput = MutableLiveData(DialogInput())
+    private val _isReportDialogVisible = MutableLiveData(false)
+    val isReportDialogVisible: LiveData<Boolean> = _isReportDialogVisible
+    fun hideReportDialog() {
+        _isReportDialogVisible.value = false
+    }
+
+    private val _dialogInput = MutableLiveData(DialogInput())
+    val dialogInput: LiveData<DialogInput> = _dialogInput
     fun statusDialog(
         currentOrder: DomainOrderComplete? = null,
         currentSubOrder: DomainSubOrderComplete? = null,
         currentSubOrderTask: DomainSubOrderTaskComplete? = null,
         performerId: Int? = null
     ) {
-        dialogInput.value =
+        _dialogInput.value =
             DialogInput(currentOrder, currentSubOrder, currentSubOrderTask, performerId)
-        isStatusDialogVisible.value = true
+        _isReportDialogVisible.value = true
     }
 
-    val investigationStatuses: SnapshotStateList<DomainOrdersStatus> = mutableStateListOf()
-    fun addStatusesToSnapShot() {
-        viewModelScope.launch {
-            repository.investigationStatuses().collect() { it ->
-                investigationStatuses.apply {
-                    this.clear()
-                    this.addAll(it)
+    private val _invStatusListSF = repository.investigationStatuses()
+
+    private val _selectedStatus = MutableStateFlow(NoSelectedRecord)
+
+    fun selectStatus(statusId: SelectedNumber) {
+        _selectedStatus.value = statusId
+    }
+
+    val invStatusListSF: StateFlow<List<DomainOrdersStatus>> =
+        _invStatusListSF.flatMapLatest { statuses ->
+            _selectedStatus.flatMapLatest { selectedStatus ->
+                val cpy = mutableListOf<DomainOrdersStatus>()
+                statuses.forEach {
+                    cpy.add(it.copy(isSelected = it.id == selectedStatus.num))
                 }
+                flow { emit(cpy) }
             }
         }
-    }
-
-    fun selectStatus(itemId: Int) {
-        val iterator = investigationStatuses.listIterator()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                while (iterator.hasNext()) {
-                    val current = iterator.next()
-                    if (current.id == itemId) {
-                        iterator.set(current.copy(isSelected = true))
-                    } else {
-                        if (current.isSelected)
-                            iterator.set(current.copy(isSelected = false))
-                    }
-                }
-            }
-        }
-    }
-
-    val team: SnapshotStateList<DomainTeamMemberComplete> = mutableStateListOf()
-
-    fun addTeamToSnapShot() {
-        viewModelScope.launch {
-            team.apply {
-                clear()
-                addAll(manufacturingRepository.teamCompleteList())
-            }
-        }
-    }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * Handling scrolling to just created record-------------------------------------------------
      * */
     private val _createdRecord = MutableStateFlow(CreatedRecord())
-    val createdRecord: StateFlow<CreatedRecord>
-        get() = _createdRecord
+    val createdRecord: StateFlow<CreatedRecord> = _createdRecord.flatMapLatest { record ->
+        _ordersSF.flatMapLatest { ordersList ->
+            _subOrdersSF.flatMapLatest { subOrdersList ->
+
+                val recordToEmit =
+                    if (
+                        (record.orderId != NoSelectedRecord.num) && (record.subOrderId != NoSelectedRecord.num) &&
+                        (ordersList.find { it.order.id == record.orderId } != null) && (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
+                    )
+                        record
+                    else if (
+                        (record.orderId != NoSelectedRecord.num) && (record.subOrderId == NoSelectedRecord.num) &&
+                        (ordersList.find { it.order.id == record.orderId } != null)
+                    )
+                        record
+                    else if (
+                        (record.orderId == NoSelectedRecord.num) && (record.subOrderId != NoSelectedRecord.num) &&
+                        (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
+                    )
+                        record
+                    else
+                        CreatedRecord()
+
+                flow { emit(recordToEmit) }
+            }
+        }
+    }
+        .flowOn(Dispatchers.Default)
+        .conflate()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreatedRecord())
 
     fun setCreatedRecordId(
         orderId: Int = NoSelectedRecord.num,
@@ -114,7 +132,7 @@ class InvestigationsViewModel @Inject constructor(
     ) {
         _createdRecord.value = CreatedRecord(
             if (orderId != NoSelectedRecord.num) orderId else _createdRecord.value.orderId,
-            if (subOrderId != NoSelectedRecord.num) orderId else _createdRecord.value.subOrderId
+            if (subOrderId != NoSelectedRecord.num) subOrderId else _createdRecord.value.subOrderId
         )
     }
 
@@ -152,10 +170,7 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentOrderVisibility(
         dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
     ) {
-        _currentOrderVisibility.value = Pair(
-            if (_currentOrderVisibility.value.first != dId) dId else NoSelectedRecord,
-            if (_currentOrderVisibility.value.second != aId) aId else NoSelectedRecord
-        )
+        _currentOrderVisibility.value = _currentOrderVisibility.value.setVisibility(dId, aId)
         repository.setCurrentOrder(_currentOrderVisibility.value.first.num)
     }
 
@@ -169,8 +184,8 @@ class InvestigationsViewModel @Inject constructor(
         number: SelectedString = NoSelectedString
     ) {
         _currentOrdersFilter.value = OrdersFilter(
-            if (type != NoSelectedRecord) type.num else _currentOrdersFilter.value.typeId,
-            if (status != NoSelectedRecord) status.num else _currentOrdersFilter.value.statusId,
+            type.num,
+            status.num,
             if (number != NoSelectedString) number.str else _currentOrdersFilter.value.orderNumber
         )
     }
@@ -200,7 +215,7 @@ class InvestigationsViewModel @Inject constructor(
                                 )
                             )
                         }
-                    _currentOrdersRange.value = cyp.getCurrentOrdersRange()
+                    _currentOrdersRange.value = cyp.getDetailedOrdersRange()
                     flow {
                         emit(
                             cyp
@@ -219,16 +234,16 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.deleteOrder(orderId)
                 syncOrders()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -236,18 +251,18 @@ class InvestigationsViewModel @Inject constructor(
     fun syncOrders() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
                 repository.refreshOrders()
                 repository.refreshSubOrders()
                 repository.refreshSubOrderTasks()
                 repository.refreshSamples()
                 repository.refreshResults()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -263,10 +278,10 @@ class InvestigationsViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                isNetworkError.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -292,10 +307,7 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentSubOrderVisibility(
         dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
     ) {
-        _currentSubOrderVisibility.value = Pair(
-            if (_currentSubOrderVisibility.value.first != dId) dId else NoSelectedRecord,
-            if (_currentSubOrderVisibility.value.second != aId) aId else NoSelectedRecord
-        )
+        _currentSubOrderVisibility.value = _currentSubOrderVisibility.value.setVisibility(dId, aId)
         repository.setCurrentSubOrder(_currentSubOrderVisibility.value.first.num)
     }
 
@@ -309,8 +321,8 @@ class InvestigationsViewModel @Inject constructor(
         number: SelectedString = NoSelectedString
     ) {
         _currentSubOrdersFilter.value = SubOrdersFilter(
-            if (type != NoSelectedRecord) type.num else _currentSubOrdersFilter.value.typeId,
-            if (status != NoSelectedRecord) status.num else _currentSubOrdersFilter.value.statusId,
+            type.num,
+            status.num,
             if (number != NoSelectedString) number.str else _currentSubOrdersFilter.value.orderNumber
         )
     }
@@ -359,16 +371,16 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteSubOrder(subOrderId: Int) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.deleteSubOrder(subOrderId)
                 syncSubOrders()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -376,18 +388,18 @@ class InvestigationsViewModel @Inject constructor(
     private fun syncSubOrders() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.refreshSubOrders()
                 repository.refreshSubOrderTasks()
                 repository.refreshSamples()
                 repository.refreshResults()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -403,10 +415,10 @@ class InvestigationsViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                isNetworkError.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -431,10 +443,7 @@ class InvestigationsViewModel @Inject constructor(
         dId: SelectedNumber = NoSelectedRecord,
         aId: SelectedNumber = NoSelectedRecord
     ) {
-        _currentTaskVisibility.value = Pair(
-            if (_currentTaskVisibility.value.first != dId) dId else NoSelectedRecord,
-            if (_currentTaskVisibility.value.second != aId) aId else NoSelectedRecord
-        )
+        _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
         repository.setCurrentTask(_currentTaskVisibility.value.first.num)
     }
 
@@ -470,16 +479,16 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteSubOrderTask(taskId: Int) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.deleteSubOrderTask(taskId)
                 syncTasks()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -487,16 +496,16 @@ class InvestigationsViewModel @Inject constructor(
     fun syncTasks() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.refreshSubOrderTasks()
                 repository.refreshResults()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -523,10 +532,7 @@ class InvestigationsViewModel @Inject constructor(
         dId: SelectedNumber = NoSelectedRecord,
         aId: SelectedNumber = NoSelectedRecord
     ) {
-        _currentSampleVisibility.value = Pair(
-            if (_currentSampleVisibility.value.first != dId) dId else NoSelectedRecord,
-            if (_currentSampleVisibility.value.second != aId) aId else NoSelectedRecord
-        )
+        _currentSampleVisibility.value = _currentSampleVisibility.value.setVisibility(dId, aId)
         repository.setCurrentSample(_currentSampleVisibility.value.first.num)
     }
 
@@ -583,10 +589,7 @@ class InvestigationsViewModel @Inject constructor(
         dId: SelectedNumber = NoSelectedRecord,
         aId: SelectedNumber = NoSelectedRecord
     ) {
-        _currentResultVisibility.value = Pair(
-            if (_currentResultVisibility.value.first != dId) dId else NoSelectedRecord,
-            if (_currentResultVisibility.value.second != aId) aId else NoSelectedRecord
-        )
+        _currentResultVisibility.value = _currentResultVisibility.value.setVisibility(dId, aId)
         repository.setCurrentResult(_currentResultVisibility.value.first.num)
     }
 
@@ -620,16 +623,16 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.deleteResults(charId = task.id)
                 syncResults()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -637,15 +640,15 @@ class InvestigationsViewModel @Inject constructor(
     fun syncResults() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 repository.refreshResults()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -653,7 +656,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     runBlocking {
                         repository.getTasksBySubOrderId(subOrder.id).forEach {
@@ -667,12 +670,12 @@ class InvestigationsViewModel @Inject constructor(
                         syncOrder(order)
                     }
                 }
-                isStatusDialogVisible.value = false
-                isNetworkError.value = false
-                isLoadingInProgress.value = false
+                hideReportDialog()
+                _isNetworkError.value = false
+                _isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -680,7 +683,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     runBlocking {
 
@@ -694,12 +697,12 @@ class InvestigationsViewModel @Inject constructor(
 
                     }
                 }
-                isStatusDialogVisible.value = false
-                isNetworkError.value = false
-                isLoadingInProgress.value = false
+                hideReportDialog()
+                _isNetworkError.value = false
+                _isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -791,7 +794,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editResult(result: DomainResult) {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     val channel = repository.updateRecord(
                         this,
@@ -800,11 +803,11 @@ class InvestigationsViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                isStatusDialogVisible.value = false
-                isLoadingInProgress.value = false
+                hideReportDialog()
+                _isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }
@@ -812,7 +815,7 @@ class InvestigationsViewModel @Inject constructor(
     fun refreshDataFromRepository() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                _isLoadingInProgress.value = true
 
                 manufacturingRepository.refreshPositionLevels()
                 manufacturingRepository.refreshTeamMembers()
@@ -856,11 +859,11 @@ class InvestigationsViewModel @Inject constructor(
                 repository.refreshResultsDecryptions()
                 repository.refreshResults()
 
-                isLoadingInProgress.value = false
+                _isLoadingInProgress.value = false
 
             } catch (networkError: IOException) {
                 delay(500)
-                isNetworkError.value = true
+                _isNetworkError.value = true
             }
         }
     }

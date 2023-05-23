@@ -26,6 +26,7 @@ import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -37,8 +38,8 @@ data class CreatedRecord(val orderId: Int = NoSelectedRecord.num, val subOrderId
 fun setMainActivityResult(
     activity: NewItemActivity,
     actionType: Int,
-    orderId: Int = 0,
-    subOrderId: Int = 0
+    orderId: Int = NoSelectedRecord.num,
+    subOrderId: Int = NoSelectedRecord.num
 ) {
     activity.setResult(actionType, createMainActivityIntent(activity, orderId, subOrderId))
 }
@@ -60,6 +61,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     lateinit var appModel: QualityManagementViewModel
+    lateinit var teamModel: TeamViewModel
     lateinit var investigationsModel: InvestigationsViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawer: DrawerLayout
@@ -71,6 +73,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
 
         appModel = ViewModelProvider(this)[QualityManagementViewModel::class.java]
+        teamModel = ViewModelProvider(this)[TeamViewModel::class.java]
         investigationsModel = ViewModelProvider(this)[InvestigationsViewModel::class.java]
 
         appModel.currentTitle.observe(this) {}
@@ -258,7 +261,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
-        investigationsModel.isStatusDialogVisible.value = false
+        investigationsModel.hideReportDialog()
         super.onDestroy()
     }
 }

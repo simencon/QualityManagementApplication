@@ -1,9 +1,7 @@
 package com.simenko.qmapp.utils
 
-import com.simenko.qmapp.domain.DomainOrderComplete
-import com.simenko.qmapp.domain.DomainSubOrderComplete
-import com.simenko.qmapp.domain.NoSelectedRecord
-import com.simenko.qmapp.domain.NoSelectedString
+import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
 
 data class OrdersFilter(
     val typeId: Int = NoSelectedRecord.num,
@@ -18,11 +16,33 @@ data class SubOrdersFilter(
 )
 
 object InvestigationsUtils {
-    fun List<DomainOrderComplete>.getCurrentOrdersRange(): Pair<Int, Int> =
+    fun List<DomainOrderComplete>.getDetailedOrdersRange(): Pair<Int, Int> =
         if (this.isNotEmpty())
             Pair(this[lastIndex].order.id, this[0].order.id)
         else
             Pair(NoSelectedRecord.num, NoSelectedRecord.num)
+
+    /**
+     * The first means top orderID
+     * The second means btn orderID
+     * */
+    fun List<NetworkOrder>.getOrdersRange(): Pair<Int, Int> =
+        if (this.isNotEmpty())
+            Pair(this[lastIndex].id, this[0].id)
+        else
+            Pair(NoSelectedRecord.num, NoSelectedRecord.num)
+
+    fun Pair<SelectedNumber, SelectedNumber>.setVisibility(dId: SelectedNumber, aId: SelectedNumber): Pair<SelectedNumber, SelectedNumber> {
+        return if (dId != NoSelectedRecord)
+            Pair(
+                if (this.first != dId) dId else NoSelectedRecord,
+                this.second
+            ) else
+            Pair(
+                this.first,
+                if (this.second != aId) aId else NoSelectedRecord
+            )
+    }
 
     fun List<DomainOrderComplete>.filterByStatusAndNumber(
         ordersFilter: OrdersFilter = OrdersFilter()

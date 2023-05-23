@@ -25,8 +25,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.theme.*
 
 private const val TAG = "Dialogs"
@@ -43,32 +45,32 @@ data class DialogInput(
 fun CustomDialogUI(
     modifier: Modifier = Modifier,
     dialogInput: DialogInput,
-    openDialogCustom: MutableLiveData<Boolean>,
-    appModel: InvestigationsViewModel
+    teamModel: TeamViewModel,
+    invModel: InvestigationsViewModel
 ) {
     val currentOrder = dialogInput.currentOrder
     val currentSubOrder = dialogInput.currentSubOrder
     val currentSubOrderTask = dialogInput.currentSubOrderTask
 
-    val statuses = appModel.investigationStatuses
-    val team = appModel.team
+    val statuses by invModel.invStatusListSF.collectAsStateWithLifecycle(listOf())
+    val team by teamModel.teamSF.collectAsStateWithLifecycle(listOf())
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }
 
-    LaunchedEffect(team) {
-        appModel.selectStatus(
+    if (team.isNotEmpty()) {
+        invModel.selectStatus(
             when {
                 currentOrder != null ->
-                    currentOrder.order.statusId
+                    SelectedNumber(currentOrder.order.statusId)
 
                 currentSubOrder != null ->
-                    currentSubOrder.subOrder.statusId
+                    SelectedNumber(currentSubOrder.subOrder.statusId)
 
                 currentSubOrderTask != null ->
-                    currentSubOrderTask.subOrderTask.statusId
+                    SelectedNumber(currentSubOrderTask.subOrderTask.statusId)
 
-                else ->  -1
+                else -> NoSelectedRecord
             }
         )
         enableToEdit = when (dialogInput.performerId) {
@@ -96,11 +98,11 @@ fun CustomDialogUI(
             currentSubOrderTask != null ->
                 currentSubOrderTask.subOrderTask.statusId = id
         }
-        appModel.selectStatus(id)
+        invModel.selectStatus(SelectedNumber(id))
     }
 
     Dialog(
-        onDismissRequest = { openDialogCustom.value = false },
+        onDismissRequest = { invModel.hideReportDialog() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
@@ -172,7 +174,7 @@ fun CustomDialogUI(
                 ) {
 
                     TextButton(onClick = {
-                        openDialogCustom.value = false
+                        invModel.hideReportDialog()
                     }) {
 
                         Text(
@@ -187,16 +189,17 @@ fun CustomDialogUI(
                         onClick = {
                             when {
                                 currentOrder != null ->
-                                    openDialogCustom.value = false
+                                    invModel.hideReportDialog()
 
                                 currentSubOrder != null -> {
                                     currentSubOrder.subOrder.completedById = dialogInput.performerId
-                                    appModel.editSubOrder(currentSubOrder.subOrder)
+                                    invModel.editSubOrder(currentSubOrder.subOrder)
                                 }
 
                                 currentSubOrderTask != null -> {
-                                    currentSubOrderTask.subOrderTask.completedById = dialogInput.performerId
-                                    appModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
+                                    currentSubOrderTask.subOrderTask.completedById =
+                                        dialogInput.performerId
+                                    invModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                                 }
                             }
                         }) {

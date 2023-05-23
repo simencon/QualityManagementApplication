@@ -15,8 +15,6 @@ import com.google.android.material.tabs.TabLayout
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel.Companion.getStatus
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -81,9 +79,6 @@ class InvestigationsFragment() :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
-
-        viewModel.addStatusesToSnapShot()
-        viewModel.addTeamToSnapShot()
 
         requireContext().theme
 

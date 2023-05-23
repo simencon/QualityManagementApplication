@@ -29,7 +29,6 @@ import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.common.CustomDialogUI
 import com.simenko.qmapp.ui.common.DialogInput
-import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
@@ -44,19 +43,20 @@ fun InvestigationsMainComposition(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val invModel = (context as MainActivity).investigationsModel
+    val teamModel = (context as MainActivity).teamModel
 
-    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
+    val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    val currentTask by appModel.currentTaskDetails.observeAsState()
+    val currentTask by invModel.currentTaskDetails.observeAsState()
 
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     val rowState = rememberScrollState()
 
-    val showStatusChangeDialog = appModel.isStatusDialogVisible.observeAsState()
-    val dialogInput by appModel.dialogInput.observeAsState()
+    val showStatusChangeDialog = invModel.isReportDialogVisible.observeAsState()
+    val dialogInput by invModel.dialogInput.observeAsState()
 
 
     QMAppTheme {
@@ -102,12 +102,12 @@ fun InvestigationsMainComposition(
             floatingActionButtonPosition = fabPositionToSet,
             content = { padding ->
 
-                val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
-                val observerIsNetworkError by appModel.isNetworkError.observeAsState()
+                val observerLoadingProcess by invModel.isLoadingInProgress.observeAsState()
+                val observerIsNetworkError by invModel.isNetworkError.observeAsState()
 
                 val pullRefreshState = rememberPullRefreshState(
                     refreshing = observerLoadingProcess!!,
-                    onRefresh = { appModel.syncOrders() }
+                    onRefresh = { invModel.syncOrders() }
                 )
 
                 Box(
@@ -163,7 +163,7 @@ fun InvestigationsMainComposition(
                                         }
                                     }
                                 ),
-                                appModel = appModel,
+                                appModel = invModel,
                                 onListEnd = { changeFlaBtnPosition(it) }
                             )
                         else
@@ -206,8 +206,8 @@ fun InvestigationsMainComposition(
                     if (showStatusChangeDialog.value == true)
                         CustomDialogUI(
                             dialogInput = dialogInput ?: DialogInput(),
-                            openDialogCustom = appModel.isStatusDialogVisible,
-                            appModel = appModel
+                            teamModel = teamModel,
+                            invModel = invModel
                         )
 
                     PullRefreshIndicator(
@@ -220,7 +220,7 @@ fun InvestigationsMainComposition(
 
                 if (observerIsNetworkError == true) {
                     Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
-                    appModel.onNetworkErrorShown()
+                    invModel.onNetworkErrorShown()
                 }
             }
         )

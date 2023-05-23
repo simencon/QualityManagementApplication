@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.BaseApplication
+import com.simenko.qmapp.domain.NoSelectedRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
@@ -51,8 +52,8 @@ internal const val KEY_ARG_SUB_ORDER_ID = "KEY_ARG_SUB_ORDER_ID"
 fun launchNewItemActivityForResult(
     activity: MainActivity,
     actionType: Int,
-    orderId: Int = 0,
-    subOrderId: Int = 0
+    orderId: Int = NoSelectedRecord.num,
+    subOrderId: Int = NoSelectedRecord.num
 ) {
     activity.startActivityForResult(
         createNewItemActivityIntent(
@@ -81,8 +82,8 @@ fun createNewItemActivityIntent(
 class NewItemActivity : ComponentActivity() {
 
     lateinit var actionTypeEnum: ActionType
-    private var orderId = 0
-    private var subOrderId = 0
+    private var orderId = NoSelectedRecord.num
+    private var subOrderId = NoSelectedRecord.num
 
     lateinit var viewModel: NewItemViewModel
 
@@ -94,8 +95,8 @@ class NewItemActivity : ComponentActivity() {
 
         actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, -1)]
 
-        orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: 0
-        subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: 0
+        orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: NoSelectedRecord.num
+        subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: NoSelectedRecord.num
 
         setContent {
             QMAppTheme {

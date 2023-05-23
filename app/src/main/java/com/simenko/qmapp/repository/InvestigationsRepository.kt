@@ -4,12 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.other.Constants.BTN_NUMBER_TO_TEST
-import com.simenko.qmapp.other.Constants.TOP_NUMBER_TO_TEST
+import com.simenko.qmapp.other.Constants.BTN_O_NUMBER
+import com.simenko.qmapp.other.Constants.TOP_O_NUMBER
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
+import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +29,17 @@ class InvestigationsRepository @Inject constructor(
     private val investigationsDao: InvestigationsDao,
     private val investigationsService: InvestigationsService
 ) {
+    private var localOrdersLatestId = NoSelectedRecord.num
+    private var remoteOrdersLatestId = NoSelectedRecord.num
+    suspend fun updatePoints() {
+        localOrdersLatestId = investigationsDao.getLatestOrderId() ?: NoSelectedRecord.num
+        investigationsService.getOrdersLatestId().apply {
+            if (isSuccessful)
+                remoteOrdersLatestId = this.body() ?: NoSelectedRecord.num
+        }
+        if (remoteOrdersLatestId > localOrdersLatestId)
+            uploadNewOrders(localOrdersLatestId)
+    }
 
     companion object {
         fun syncOrders(
@@ -307,11 +319,35 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+    private suspend fun uploadNewOrders(lastUpdatedOrderId: Int) {
+        val ntOrders = investigationsService.getOrdersByLatestUpdatedOrderId(lastUpdatedOrderId)
+        val newOrdersRangeId = ntOrders.getOrdersRange()
+        val ntSubOrders = investigationsService.getSubOrdersByOrdersRange(
+            newOrdersRangeId.second,
+            newOrdersRangeId.first
+        )
+        val ntTasks = investigationsService.getTasksByNumberRange(
+            newOrdersRangeId.second,
+            newOrdersRangeId.first
+        )
+        val ntSamples = investigationsService.getSamplesByNumberRange(
+            newOrdersRangeId.second,
+            newOrdersRangeId.first
+        )
+        val ntResults = investigationsService.getResultsByNumberRange(
+            newOrdersRangeId.second,
+            newOrdersRangeId.first
+        )
+        investigationsDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
+        investigationsDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
+        investigationsDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
+        investigationsDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
+        investigationsDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
+    }
+
     suspend fun refreshOrders() {
         withContext(Dispatchers.IO) {
-//            val ntOrders = investigationsService.getOrders()
-            val ntOrders =
-                investigationsService.getOrdersByNumberRange(BTN_NUMBER_TO_TEST, TOP_NUMBER_TO_TEST)
+            val ntOrders = investigationsService.getOrdersByNumberRange(BTN_O_NUMBER, TOP_O_NUMBER)
             val dbOrders = investigationsDao.getOrdersByList()
 
             syncOrders(dbOrders, ntOrders, investigationsDao)
@@ -352,9 +388,9 @@ class InvestigationsRepository @Inject constructor(
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
 //            val ntSubOrder = investigationsService.getSubOrders()
-            val ntSubOrder = investigationsService.getSubOrdersByNumberRange(
-                BTN_NUMBER_TO_TEST,
-                TOP_NUMBER_TO_TEST
+            val ntSubOrder = investigationsService.getSubOrdersByOrdersRange(
+                BTN_O_NUMBER,
+                TOP_O_NUMBER
             )
             val dbSubOrders = investigationsDao.getSubOrdersByList()
 
@@ -367,9 +403,9 @@ class InvestigationsRepository @Inject constructor(
     suspend fun refreshSubOrderTasks() {
         withContext(Dispatchers.IO) {
 //            val ntSubOrderTasks = investigationsService.getSubOrderTasks()
-            val ntSubOrderTasks = investigationsService.getSubOrderTasksByNumberRange(
-                BTN_NUMBER_TO_TEST,
-                TOP_NUMBER_TO_TEST
+            val ntSubOrderTasks = investigationsService.getTasksByNumberRange(
+                BTN_O_NUMBER,
+                TOP_O_NUMBER
             )
 
             val dbSubOrderTasks = investigationsDao.getSubOrderTasksByList()
@@ -386,8 +422,8 @@ class InvestigationsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
 //            val ntSamples = investigationsService.getSamples()
             val ntSamples = investigationsService.getSamplesByNumberRange(
-                BTN_NUMBER_TO_TEST,
-                TOP_NUMBER_TO_TEST
+                BTN_O_NUMBER,
+                TOP_O_NUMBER
             )
 
             val dbSamples = investigationsDao.getSamplesByList()
@@ -418,8 +454,8 @@ class InvestigationsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
 //            val ntResults = investigationsService.getResults()
             val ntResults = investigationsService.getResultsByNumberRange(
-                BTN_NUMBER_TO_TEST,
-                TOP_NUMBER_TO_TEST
+                BTN_O_NUMBER,
+                TOP_O_NUMBER
             )
 
             val dbResults = investigationsDao.getResultsByList()

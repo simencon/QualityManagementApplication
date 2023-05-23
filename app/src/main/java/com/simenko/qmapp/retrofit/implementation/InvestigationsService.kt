@@ -20,6 +20,14 @@ interface InvestigationsService {
     @GET("orders")
     suspend fun getOrders(): List<NetworkOrder>
 
+    @GET("orders/latestId")
+    suspend fun getOrdersLatestId(): Response<Int>
+
+    @GET("orders/latestId/{latestUpdatedOrderId}")
+    suspend fun getOrdersByLatestUpdatedOrderId(
+        @Path("latestUpdatedOrderId") latestUpdatedOrderId: Int
+    ): List<NetworkOrder>
+
     @GET("orders/{btnNumber}/{topNumber}")
     suspend fun getOrdersByNumberRange(
         @Path("btnNumber") btnNumber: Int,
@@ -43,7 +51,7 @@ interface InvestigationsService {
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
     @GET("subOrders/{btnNumber}/{topNumber}")
-    suspend fun getSubOrdersByNumberRange(
+    suspend fun getSubOrdersByOrdersRange(
         @Path("btnNumber") btnNumber: Int,
         @Path("topNumber") topNumber: Int
     ): List<NetworkSubOrder>
@@ -65,7 +73,7 @@ interface InvestigationsService {
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
     @GET("subOrderTasks/{btnNumber}/{topNumber}")
-    suspend fun getSubOrderTasksByNumberRange(
+    suspend fun getTasksByNumberRange(
         @Path("btnNumber") btnNumber: Int,
         @Path("topNumber") topNumber: Int
     ): List<NetworkSubOrderTask>
