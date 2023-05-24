@@ -34,7 +34,7 @@ object InvestigationsUtils {
      * */
     fun List<NetworkOrder>.getOrdersRange(): Pair<Int, Int> =
         if (this.isNotEmpty())
-            Pair(this.minBy { it.id }.id, this.maxBy { it.id }.id)
+            Pair(this.maxBy { it.id }.id, this.minBy { it.id }.id)
         else
             Pair(NoSelectedRecord.num, NoSelectedRecord.num)
 
