@@ -5,8 +5,6 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
-private const val TAG = "ObjectsTransformer"
-
 open class ObjectTransformer<in T : Any, out R : Any>
 constructor(inClass: KClass<T>, outClass: KClass<R>) {
     private val outConstructor = outClass.primaryConstructor!!

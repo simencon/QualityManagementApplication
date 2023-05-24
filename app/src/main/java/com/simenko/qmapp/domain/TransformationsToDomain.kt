@@ -130,7 +130,7 @@ fun List<DatabaseOrderComplete>.asDomainOrdersComplete(lastSelectedId: Int = 0):
             orderResult = it.orderResult.toDomainOrderResult(),
             detailsVisibility = detailsVisibility
         )
-    }.sortedByDescending { it.order.orderNumber }
+    }.sortedByDescending { it.order.createdDate }
 }
 
 fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int = 0): List<DomainSubOrderComplete> {
@@ -163,7 +163,7 @@ fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int 
             subOrderResult = it.subOrderResult.toDomainSubOrderResult(),
             detailsVisibility = detailsVisibility
         )
-    }.sortedByDescending { it.orderShort.order.orderNumber }
+    }.sortedByDescending { it.orderShort.order.createdDate }
 }
 
 fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(lastSelectedId: Int = 0): List<DomainSubOrderTaskComplete> {
@@ -181,7 +181,7 @@ fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(lastSelectedId: Int 
             taskResult = it.taskResult.toDomainTaskResult(),
             detailsVisibility = detailsVisibility
         )
-    }
+    }.sortedBy { it.characteristic.characteristic.charOrder }
 }
 
 fun List<DatabaseSampleComplete>.asDomainSamples(lastSelectedId: Int = 0): List<DomainSampleComplete> {
@@ -196,7 +196,7 @@ fun List<DatabaseSampleComplete>.asDomainSamples(lastSelectedId: Int = 0): List<
             sample = it.sample.toDomainSample(),
             detailsVisibility = detailsVisibility
         )
-    }
+    }.sortedBy { it.sample.sampleNumber }
 }
 
 fun List<DatabaseResultComplete>.asDomainResults(lastSelectedId: Int = 0): List<DomainResultComplete> {
@@ -213,7 +213,7 @@ fun List<DatabaseResultComplete>.asDomainResults(lastSelectedId: Int = 0): List<
             resultTolerance = it.resultTolerance.toDomainResultTolerance(),
             detailsVisibility = detailsVisibility
         )
-    }
+    }.sortedBy { it.metrix.metrixOrder }
 }
 
 fun List<DatabaseTeamMemberComplete>.asTeamCompleteDomainModel(): List<DomainTeamMemberComplete> {

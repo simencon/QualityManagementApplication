@@ -20,18 +20,18 @@ interface InvestigationsService {
     @GET("orders")
     suspend fun getOrders(): List<NetworkOrder>
 
-    @GET("orders/latestId")
-    suspend fun getOrdersLatestId(): Response<Int>
+    @GET("orders/latestOrder")
+    suspend fun getLatestOrderDateEpoch(): Response<Long>
 
-    @GET("orders/latestId/{latestUpdatedOrderId}")
-    suspend fun getOrdersByLatestUpdatedOrderId(
-        @Path("latestUpdatedOrderId") latestUpdatedOrderId: Int
+    @GET("orders/latestOrder/{latestOrderDate}")
+    suspend fun getLatestOrdersByStartingOrderDate(
+        @Path("latestOrderDate") latestOrderDate: Long
     ): List<NetworkOrder>
 
-    @GET("orders/{btnNumber}/{topNumber}")
+    @GET("orders/{btnDate}/{topDate}")
     suspend fun getOrdersByNumberRange(
-        @Path("btnNumber") btnNumber: Int,
-        @Path("topNumber") topNumber: Int
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
     ): List<NetworkOrder>
 
     @POST("orders")
@@ -50,10 +50,10 @@ interface InvestigationsService {
     @GET("subOrders")
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
-    @GET("subOrders/{btnId}/{topId}")
-    suspend fun getSubOrdersByOrderIdRange(
-        @Path("btnId") btnNumber: Int,
-        @Path("topId") topNumber: Int
+    @GET("subOrders/{btnDate}/{topDate}")
+    suspend fun getSubOrdersByOrderDateEpochRange(
+        @Path("btnDate") btnNumber: Long,
+        @Path("topDate") topNumber: Long
     ): List<NetworkSubOrder>
 
     @POST("subOrders")
@@ -72,10 +72,10 @@ interface InvestigationsService {
     @GET("subOrderTasks")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
-    @GET("subOrderTasks/{btnId}/{topId}")
-    suspend fun getTasksByOrderIdRange(
-        @Path("btnId") btnNumber: Int,
-        @Path("topId") topNumber: Int
+    @GET("subOrderTasks/{btnDate}/{topDate}")
+    suspend fun getTasksByOrderDateEpochRange(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
     ): List<NetworkSubOrderTask>
 
     @POST("subOrderTasks")
@@ -97,10 +97,10 @@ interface InvestigationsService {
     @GET("samples")
     suspend fun getSamples(): List<NetworkSample>
 
-    @GET("samples/{btnId}/{topId}")
-    suspend fun getSamplesByOrderIdRange(
-        @Path("btnId") btnNumber: Int,
-        @Path("topId") topNumber: Int
+    @GET("samples/{btnDate}/{topDate}")
+    suspend fun getSamplesByOrderDateEpochRange(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
     ): List<NetworkSample>
 
     @POST("samples")
@@ -115,10 +115,10 @@ interface InvestigationsService {
     @GET("results")
     suspend fun getResults(): List<NetworkResult>
 
-    @GET("results/{btnId}/{topId}")
-    suspend fun getResultsByOrderIdRange(
-        @Path("btnId") btnNumber: Int,
-        @Path("topId") topNumber: Int
+    @GET("results/{btnDate}/{topDate}")
+    suspend fun getResultsByOrderDateEpochRange(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
     ): List<NetworkResult>
 
     @POST("results")

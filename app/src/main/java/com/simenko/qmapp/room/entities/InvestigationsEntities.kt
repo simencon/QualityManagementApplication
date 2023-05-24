@@ -123,7 +123,7 @@ data class DatabaseOrder constructor(
     var orderedById: Int,
     @ColumnInfo(index = true)
     var statusId: Int,
-    var createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
+    var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: String? = null
 )
 

@@ -23,8 +23,8 @@ object Constants {
     /**
      * To update local DB only in this range of Order Numbers
      * */
-    const val BTN_ORDER_ID = 19870
-    const val TOP_ORDER_ID = 25000
+    const val BTN_ORDER_ID = 1681452721020L
+    const val TOP_ORDER_ID = 1684923458020L
 
     const val UI_SAFETY_GAP = 100
     const val UI_TOTAL_VISIBLE = 10

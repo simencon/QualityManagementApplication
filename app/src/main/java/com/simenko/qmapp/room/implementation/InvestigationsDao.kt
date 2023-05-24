@@ -63,7 +63,7 @@ interface InvestigationsDao {
     fun getOrdersByList(): List<DatabaseOrder>
 
     @Query("SELECT * FROM `12_orders` WHERE id=:id ")
-    suspend fun getOrderById(id: String): DatabaseOrder
+    suspend fun getOrderById(id: String): DatabaseOrder?
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -176,20 +176,24 @@ interface InvestigationsDao {
     suspend fun getResultsList(): List<DatabaseResult>
 
     @Transaction
-    @Query("select max(id) from `12_orders`")
-    suspend fun getLatestOrderId():Int?
+    @Query("select max(createdDate) from `12_orders`")
+    suspend fun getLatestOrderDateEpoch():Long?
+
+    @Transaction
+    @Query("select max(id) from `12_orders` where createdDate = :latestOrderDate")
+    suspend fun getLatestOrderId(latestOrderDate: Long): Int?
 
     @Transaction
     @Query(
-        "select * from( select * from  `12_orders` o where o.id >=:lastVisibleId " +
-                "order by o.orderNumber asc limit :safetyGap+:totalVisible) " +
+        "select * from( select * from  `12_orders` o where o.createdDate >=:lastVisibleCreateDate " +
+                "order by o.createdDate asc limit :safetyGap +:totalVisible) " +
                 "union " +
-                "select * from (select * from  `12_orders` o where o.id <:lastVisibleId " +
-                "order by o.orderNumber desc limit :safetyGap) " +
-                "order by orderNumber desc"
+                "select * from (select * from  `12_orders` o where o.createdDate <:lastVisibleCreateDate " +
+                "order by o.createdDate desc limit :safetyGap) " +
+                "order by createdDate desc"
     )
     fun ordersListByLastVisibleId(
-        lastVisibleId: Int,
+        lastVisibleCreateDate: Long,
         safetyGap: Int = UI_SAFETY_GAP,
         totalVisible: Int = UI_TOTAL_VISIBLE
     ): Flow<List<DatabaseOrderComplete>>
@@ -197,8 +201,8 @@ interface InvestigationsDao {
     @Transaction
     @Query("select so.* from `12_orders` o " +
             "join `13_sub_orders` so on o.id = so.orderId " +
-            "where o.id >= :btnOrderId and o.id <= :topOrderId;")
-    fun subOrdersRangeList(btnOrderId: Int, topOrderId: Int): Flow<List<DatabaseSubOrderComplete>>
+            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
+    fun subOrdersRangeList(btnCreateDate: Long, topCreateDate: Long): Flow<List<DatabaseSubOrderComplete>>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
@@ -208,8 +212,8 @@ interface InvestigationsDao {
     @Query("select t.* from `12_orders` o " +
             "join `13_sub_orders` so on o.id = so.orderId " +
             "join `sub_order_task_complete` t on so.id = t.subOrderId " +
-            "where o.id >= :btnOrderId and o.id <= :topOrderId;")
-    fun tasksRangeList(btnOrderId: Int, topOrderId: Int): Flow<List<DatabaseSubOrderTaskComplete>>
+            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
+    fun tasksRangeList(btnCreateDate: Long, topCreateDate: Long): Flow<List<DatabaseSubOrderTaskComplete>>
 
     @Transaction
     @Query("select s.* from `13_sub_orders` so " +

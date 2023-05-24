@@ -57,7 +57,7 @@ data class NetworkOrdersType constructor(
     var typeDescription: String? = null
 )
 
-@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = false)
 data class NetworkOrder constructor(
     var id: Int = 0,
     var orderTypeId: Int,
@@ -66,7 +66,7 @@ data class NetworkOrder constructor(
     var customerId: Int,
     var orderedById: Int,
     var statusId: Int,
-    var createdDate: String,//Format : "2023-02-02T15:44:47.028Z"
+    var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: String? = null
 )
 

@@ -29,16 +29,17 @@ class InvestigationsRepository @Inject constructor(
     private val investigationsDao: InvestigationsDao,
     private val investigationsService: InvestigationsService
 ) {
-    private var localOrdersLatestId = NoSelectedRecord.num
-    private var remoteOrdersLatestId = NoSelectedRecord.num
+    private var localLatestOrderDate = NoSelectedRecord.num.toLong()
+    private var remoteLatestOrderDate = NoSelectedRecord.num.toLong()
     suspend fun checkAndUploadNew() {
-        localOrdersLatestId = investigationsDao.getLatestOrderId() ?: NoSelectedRecord.num
-        investigationsService.getOrdersLatestId().apply {
+        localLatestOrderDate = investigationsDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
+        investigationsService.getLatestOrderDateEpoch().apply {
             if (isSuccessful)
-                remoteOrdersLatestId = this.body() ?: NoSelectedRecord.num
+                remoteLatestOrderDate = this.body() ?: NoSelectedRecord.num.toLong()
         }
-        if (remoteOrdersLatestId > localOrdersLatestId)
-            uploadNewOrders(localOrdersLatestId)
+        val oneDayEgo =  Instant.now().minusMillis(1000L*60*60*24).toEpochMilli()
+        if (remoteLatestOrderDate > localLatestOrderDate)
+            uploadNewOrders(if (oneDayEgo > localLatestOrderDate) oneDayEgo else localLatestOrderDate)
     }
 
     companion object {
@@ -57,7 +58,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.insertOrder(ntIt.toDatabaseOrder())
-//            Log.d(TAG, "syncOrders: Order has been inserted / id = ${ntIt.id}")
                 }
             }
             ntOrders.forEach byBlock1@{ ntIt ->
@@ -71,7 +71,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (recordStatusChanged) {
                     investigationsDao.updateOrder(ntIt.toDatabaseOrder())
-//            Log.d(TAG, "syncOrders: Order status has been changed / id = ${ntIt.id}")
                 }
             }
             dbOrders.forEach byBlock1@{ dbIt ->
@@ -84,7 +83,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.deleteOrder(dbIt)
-//            Log.d(TAG, "syncOrders: Order deleted from SQLite / id = ${dbIt.id}")
                 }
             }
         }
@@ -104,7 +102,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.insertSubOrder(ntIt.toDatabaseSubOrder())
-//            Log.d(TAG, "syncSubOrders: Sub order has been inserted / id = ${ntIt.id}")
                 }
             }
             ntSubOrders.forEach byBlock1@{ ntIt ->
@@ -118,7 +115,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (recordStatusChanged) {
                     investigationsDao.updateSubOrder(ntIt.toDatabaseSubOrder())
-//            Log.d(TAG, "syncSubOrders: Sub order status has been changed / id = ${ntIt.id}")
                 }
             }
             dbSubOrders.forEach byBlock1@{ dbIt ->
@@ -131,7 +127,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.deleteSubOrder(dbIt)
-//            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
                 }
             }
         }
@@ -151,7 +146,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
-//            Log.d(TAG, "syncSubOrders: Sub order task has been inserted / id = ${ntIt.id}")
                 }
             }
             ntSubOrderTasks.forEach byBlock1@{ ntIt ->
@@ -165,7 +159,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (recordStatusChanged) {
                     investigationsDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
-//            Log.d(TAG, "syncSubOrders: Sub order task status has been changed / id = ${ntIt.id}")
                 }
             }
             dbSubOrderTasks.forEach byBlock1@{ dbIt ->
@@ -178,7 +171,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.deleteSubOrderTask(dbIt)
-//            Log.d(TAG, "syncSubOrders: Sub order deleted from SQLite / id = ${dbIt.id}")
                 }
             }
         }
@@ -198,7 +190,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.insertSample(ntIt.toDatabaseSample())
-//            Log.d(TAG, "syncSamples: Sample has been inserted / id = ${ntIt.id}")
                 }
             }
             dbSamples.forEach byBlock1@{ dbIt ->
@@ -211,7 +202,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.deleteSample(dbIt)
-//            Log.d(TAG, "syncSamples: Sample deleted from SQLite / id = ${dbIt.id}")
                 }
             }
         }
@@ -231,7 +221,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.insertResult(ntIt.toDatabaseResult())
-//            Log.d(TAG, "syncSamples: Result has been inserted / id = ${ntIt.id}")
                 }
             }
             dbResults.forEach byBlock1@{ dbIt ->
@@ -244,7 +233,6 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     investigationsDao.deleteResult(dbIt)
-//            Log.d(TAG, "syncSamples: Result deleted from SQLite / id = ${dbIt.id}")
                 }
             }
         }
@@ -319,28 +307,28 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    private suspend fun uploadNewOrders(lastUpdatedOrderId: Int) {
-        val ntOrders = investigationsService.getOrdersByLatestUpdatedOrderId(lastUpdatedOrderId)
-        val newOrdersRangeId = ntOrders.getOrdersRange()
+    private suspend fun uploadNewOrders(lastOrderDateEpoch: Long) {
+        val ntOrders = investigationsService.getLatestOrdersByStartingOrderDate(lastOrderDateEpoch)
+        val newOrdersRangeDateEpoch = ntOrders.getOrdersRange()
         Log.d(TAG, "uploadNewOrders: ntOrders is uploaded")
-        val ntSubOrders = investigationsService.getSubOrdersByOrderIdRange(
-            newOrdersRangeId.second,
-            newOrdersRangeId.first
+        val ntSubOrders = investigationsService.getSubOrdersByOrderDateEpochRange(
+            newOrdersRangeDateEpoch.first,
+            newOrdersRangeDateEpoch.second
         )
         Log.d(TAG, "uploadNewOrders: ntSubOrders is uploaded")
-        val ntTasks = investigationsService.getTasksByOrderIdRange(
-            newOrdersRangeId.second,
-            newOrdersRangeId.first
+        val ntTasks = investigationsService.getTasksByOrderDateEpochRange(
+            newOrdersRangeDateEpoch.first,
+            newOrdersRangeDateEpoch.second
         )
         Log.d(TAG, "uploadNewOrders: ntTasks is uploaded")
-        val ntSamples = investigationsService.getSamplesByOrderIdRange(
-            newOrdersRangeId.second,
-            newOrdersRangeId.first
+        val ntSamples = investigationsService.getSamplesByOrderDateEpochRange(
+            newOrdersRangeDateEpoch.first,
+            newOrdersRangeDateEpoch.second
         )
         Log.d(TAG, "uploadNewOrders: ntSamples is uploaded")
-        val ntResults = investigationsService.getResultsByOrderIdRange(
-            newOrdersRangeId.second,
-            newOrdersRangeId.first
+        val ntResults = investigationsService.getResultsByOrderDateEpochRange(
+            newOrdersRangeDateEpoch.first,
+            newOrdersRangeDateEpoch.second
         )
         Log.d(TAG, "uploadNewOrders: ntResults is uploaded")
 //        syncOrders(ntOrders, investigationsDao)
@@ -401,7 +389,7 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrders() {
         withContext(Dispatchers.IO) {
-            val ntSubOrder = investigationsService.getSubOrdersByOrderIdRange(
+            val ntSubOrder = investigationsService.getSubOrdersByOrderDateEpochRange(
                 BTN_ORDER_ID,
                 TOP_ORDER_ID
             )
@@ -414,7 +402,7 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrderTasks() {
         withContext(Dispatchers.IO) {
-            val ntSubOrderTasks = investigationsService.getTasksByOrderIdRange(
+            val ntSubOrderTasks = investigationsService.getTasksByOrderDateEpochRange(
                 BTN_ORDER_ID,
                 TOP_ORDER_ID
             )
@@ -428,7 +416,7 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSamples() {
         withContext(Dispatchers.IO) {
-            val ntSamples = investigationsService.getSamplesByOrderIdRange(
+            val ntSamples = investigationsService.getSamplesByOrderDateEpochRange(
                 BTN_ORDER_ID,
                 TOP_ORDER_ID
             )
@@ -456,7 +444,7 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshResults() {
         withContext(Dispatchers.IO) {
-            val ntResults = investigationsService.getResultsByOrderIdRange(
+            val ntResults = investigationsService.getResultsByOrderDateEpochRange(
                 BTN_ORDER_ID,
                 TOP_ORDER_ID
             )
@@ -582,8 +570,8 @@ class InvestigationsRepository @Inject constructor(
 
 //    ToDO - change this part to return exactly what is needed
 
-    suspend fun getOrderById(id: Int): DomainOrder {
-        return investigationsDao.getOrderById(id.toString()).toDomainOrder()
+    suspend fun getOrderById(id: Int): DomainOrder? {
+        return investigationsDao.getOrderById(id.toString())?.toDomainOrder()
     }
 
     suspend fun getSubOrderById(id: Int): DomainSubOrder {
@@ -664,19 +652,27 @@ class InvestigationsRepository @Inject constructor(
         currentOrder = id
     }
 
-    suspend fun latestLocalOrderId(): Int = investigationsDao.getLatestOrderId() ?: 0
+    suspend fun latestLocalOrderId(): Int {
+        val localLatestOrderDate = investigationsDao
+            .getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
+        return investigationsDao.getLatestOrderId(localLatestOrderDate) ?: NoSelectedRecord.num
+    }
 
-    fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> =
-        investigationsDao.ordersListByLastVisibleId(lastVisibleId).map {
-            it.asDomainOrdersComplete(currentOrder)
-        }
+    suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
+        val dbOrder = investigationsDao.getOrderById(lastVisibleId.toString())
+        return if (dbOrder != null)
+            investigationsDao.ordersListByLastVisibleId(dbOrder.createdDate).map {
+                it.asDomainOrdersComplete(currentOrder)
+            }
+        else flow { emit(listOf()) }
+    }
 
     private var currentSubOrder = -1
     fun setCurrentSubOrder(id: Int) {
         currentSubOrder = id
     }
 
-    fun subOrdersRangeList(pair: Pair<Int, Int>): Flow<List<DomainSubOrderComplete>> =
+    fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
         investigationsDao.subOrdersRangeList(pair.first, pair.second).map {
             it.asDomainSubOrderDetailed(currentSubOrder)
         }
@@ -686,7 +682,7 @@ class InvestigationsRepository @Inject constructor(
         currentTask = id
     }
 
-    fun tasksRangeList(pair: Pair<Int, Int>): Flow<List<DomainSubOrderTaskComplete>> =
+    fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
         investigationsDao.tasksRangeList(pair.first, pair.second).mapLatest {
             it.asDomainSubOrderTask(currentTask)
         }

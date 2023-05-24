@@ -10,6 +10,7 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
+import com.simenko.qmapp.retrofit.implementation.adapters.NetworkOrderJsonAdapter
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.room.implementation.ManufacturingDao
 import com.simenko.qmapp.room.implementation.ProductsDao
@@ -56,14 +57,20 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitInstance(): Retrofit = Retrofit
+    fun provideMoshiInstance(): Moshi = Moshi.Builder()
+        .add(NetworkOrderJsonAdapter())
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
+
+
+    @Singleton
+    @Provides
+    fun provideRetrofitInstance(moshi: Moshi): Retrofit = Retrofit
         .Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
             MoshiConverterFactory.create(
-                Moshi.Builder()
-                    .addLast(KotlinJsonAdapterFactory())
-                    .build()
+                moshi
             )
         )
         .client(

@@ -38,6 +38,8 @@ import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
+import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 import kotlin.math.round
@@ -266,7 +268,7 @@ fun OrderCard(
 
                 detailsVisibility = order.detailsVisibility,
                 placerFullName = order.orderPlacer.fullName,
-                createdDate = order.order.createdDate.toString(),
+                createdDate = order.order.createdDate,
                 completedDate = order.order.completedDate,
 
                 onClickDetails = { it -> onClickDetails(it) }
@@ -293,7 +295,7 @@ fun Order(
 
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
-    createdDate: String = "2022-12-15T22:24:43.666",
+    createdDate: Long = getMillisecondsDate("2022-12-15T22:24:43.666+02:00"),
     completedDate: String? = "2022-12-15T22:24:43.666",
     onClickDetails: (Int) -> Unit = {}
 ) {
@@ -525,7 +527,7 @@ fun OrderDetails(
     orderId: Int = 0,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
-    createdDate: String = "",
+    createdDate: Long = 0,
     completedDate: String? = ""
 ) {
 
@@ -570,7 +572,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = StringUtils.getDateTime(createdDate),
+                text = getStringDate(createdDate),
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -663,7 +665,7 @@ fun getOrder(i: Int) = DomainOrder(
     1,
     1,
     1,
-    "2022-12-15T22:24:43",
+    StringUtils.getMillisecondsDate("2022-12-15T22:24:43+03:00"),
     "2022-12-15T22:24:43"
 )
 

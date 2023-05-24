@@ -21,22 +21,22 @@ object InvestigationsUtils {
      * The first means top orderID
      * The second means btn orderID
      * */
-    fun List<DomainOrderComplete>.getDetailedOrdersRange(): Pair<Int, Int> =
+    fun List<DomainOrderComplete>.getDetailedOrdersRange(): Pair<Long, Long> =
 
         if (this.isNotEmpty())
-            Pair(this.minBy { it.order.id }.order.id, this.maxBy { it.order.id }.order.id)
+            Pair(this.minBy { it.order.createdDate }.order.createdDate, this.maxBy { it.order.createdDate }.order.createdDate)
         else
-            Pair(NoSelectedRecord.num, NoSelectedRecord.num)
+            Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
 
     /**
      * The first means top orderID
      * The second means btn orderID
      * */
-    fun List<NetworkOrder>.getOrdersRange(): Pair<Int, Int> =
+    fun List<NetworkOrder>.getOrdersRange(): Pair<Long, Long> =
         if (this.isNotEmpty())
-            Pair(this.maxBy { it.id }.id, this.minBy { it.id }.id)
+            Pair(this.minBy { it.createdDate }.createdDate, this.maxBy { it.createdDate }.createdDate)
         else
-            Pair(NoSelectedRecord.num, NoSelectedRecord.num)
+            Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
 
     fun Pair<SelectedNumber, SelectedNumber>.setVisibility(dId: SelectedNumber, aId: SelectedNumber): Pair<SelectedNumber, SelectedNumber> {
         return if (dId != NoSelectedRecord)
