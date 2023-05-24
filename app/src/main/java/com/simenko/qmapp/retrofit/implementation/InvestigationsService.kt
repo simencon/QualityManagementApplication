@@ -28,6 +28,11 @@ interface InvestigationsService {
         @Path("latestOrderDate") latestOrderDate: Long
     ): List<NetworkOrder>
 
+    @GET("orders/earliestOrder/{earliestOrderDate}")
+    suspend fun getEarliestOrdersByStartingOrderDate(
+        @Path("earliestOrderDate") earliestOrderDate: Long
+    ): List<NetworkOrder>
+
     @GET("orders/{btnDate}/{topDate}")
     suspend fun getOrdersByNumberRange(
         @Path("btnDate") btnDate: Long,

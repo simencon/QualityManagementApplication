@@ -9,8 +9,6 @@ import kotlinx.coroutines.*
 import java.io.IOException
 import javax.inject.Inject
 
-private const val TAG = "QualityManagementViewMo"
-
 @HiltViewModel
 class QualityManagementViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
@@ -83,12 +81,8 @@ class QualityManagementViewModel @Inject constructor(
                 investigationsRepository.refreshOrdersStatuses()
                 investigationsRepository.refreshInvestigationReasons()
                 investigationsRepository.refreshInvestigationTypes()
-                investigationsRepository.refreshOrders()
-                investigationsRepository.refreshSubOrders()
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshSamples()
                 investigationsRepository.refreshResultsDecryptions()
-                investigationsRepository.refreshResults()
+
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)

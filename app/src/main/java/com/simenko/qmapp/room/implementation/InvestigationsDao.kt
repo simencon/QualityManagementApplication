@@ -180,6 +180,10 @@ interface InvestigationsDao {
     suspend fun getLatestOrderDateEpoch():Long?
 
     @Transaction
+    @Query("select min(createdDate) from `12_orders`")
+    suspend fun getEarliestOrderDateEpoch():Long?
+
+    @Transaction
     @Query("select max(id) from `12_orders` where createdDate = :latestOrderDate")
     suspend fun getLatestOrderId(latestOrderDate: Long): Int?
 

@@ -156,10 +156,11 @@ class InvestigationsViewModel @Inject constructor(
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
 
     fun setLastVisibleItemKey(key: Any) {
+        Log.d(TAG, "setLastVisibleItemKey: $key")
         _lastVisibleItemKey.value = key
     }
 
-    private val _currentOrdersRange = MutableStateFlow(Pair(0, 0))
+    private val _currentOrdersRange = MutableStateFlow(Pair(0L, 0L))
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
@@ -220,6 +221,7 @@ class InvestigationsViewModel @Inject constructor(
                             )
                         }
                     _currentOrdersRange.value = cyp.getDetailedOrdersRange()
+                    uploadEarliestInvestigationsEntities(_currentOrdersRange.value.first)
                     Log.d(TAG, "_currentOrdersRange = ${_currentOrdersRange.value}")
                     flow {
                         emit(
@@ -257,11 +259,12 @@ class InvestigationsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _isLoadingInProgress.value = true
-                repository.refreshOrders()
-                repository.refreshSubOrders()
-                repository.refreshSubOrderTasks()
-                repository.refreshSamples()
-                repository.refreshResults()
+
+                repository.refreshResults(_currentOrdersRange.value)
+                repository.refreshSamples(_currentOrdersRange.value)
+                repository.refreshSubOrderTasks(_currentOrdersRange.value)
+                repository.refreshSubOrders(_currentOrdersRange.value)
+                repository.refreshOrders(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -395,10 +398,10 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshSubOrders()
-                repository.refreshSubOrderTasks()
-                repository.refreshSamples()
-                repository.refreshResults()
+                repository.refreshResults(_currentOrdersRange.value)
+                repository.refreshSamples(_currentOrdersRange.value)
+                repository.refreshSubOrderTasks(_currentOrdersRange.value)
+                repository.refreshSubOrders(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -503,8 +506,8 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshSubOrderTasks()
-                repository.refreshResults()
+                repository.refreshResults(_currentOrdersRange.value)
+                repository.refreshSubOrderTasks(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -647,7 +650,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshResults()
+                repository.refreshResults(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -672,7 +675,7 @@ class InvestigationsViewModel @Inject constructor(
                         syncSubOrder(subOrder)
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        syncOrder(order)
+                        order?.let { syncOrder(it) }
                     }
                 }
                 hideReportDialog()
@@ -698,7 +701,7 @@ class InvestigationsViewModel @Inject constructor(
                         syncSubOrder(subOrder)
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        syncOrder(order)
+                        order?.let { syncOrder(it) }
 
                     }
                 }
@@ -817,12 +820,37 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    fun uploadInvestigationsEntities() {
+    fun uploadLatestInvestigationsEntities() {
         viewModelScope.launch {
             try {
                 _isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     repository.checkAndUploadNew()
+                    setLastVisibleItemKey(repository.latestLocalOrderId())
+                }
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
+            } catch (networkError: IOException) {
+                delay(500)
+                _isNetworkError.value = true
+            }
+        }
+    }
+
+    private fun uploadEarliestInvestigationsEntities(earliestOrderDate: Long) {
+        viewModelScope.launch {
+            try {
+                var result = false
+                withContext(Dispatchers.IO) {
+                    result = repository.checkAndUploadPrevious(earliestOrderDate)
+                }
+
+                if (result) {
+                    _isLoadingInProgress.value = true
+                    withContext(Dispatchers.IO) {
+                        repository.uploadNewOrders(earliestOrderDate, false)
+                    setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex-1].order.id)
+                    }
                 }
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false

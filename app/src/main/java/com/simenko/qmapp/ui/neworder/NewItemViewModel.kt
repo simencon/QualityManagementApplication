@@ -357,8 +357,10 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshSubOrderTasks()
-                investigationsRepository.refreshResults()
+                investigationsRepository
+                    .refreshSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                investigationsRepository
+                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -374,8 +376,10 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshSamples()
-                investigationsRepository.refreshResults()
+                investigationsRepository
+                    .refreshSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                investigationsRepository
+                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -391,7 +395,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshResults()
+                investigationsRepository
+                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false

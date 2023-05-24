@@ -32,15 +32,19 @@ class InvestigationsRepository @Inject constructor(
     private var localLatestOrderDate = NoSelectedRecord.num.toLong()
     private var remoteLatestOrderDate = NoSelectedRecord.num.toLong()
     suspend fun checkAndUploadNew() {
-        localLatestOrderDate = investigationsDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
+        localLatestOrderDate =
+            investigationsDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
         investigationsService.getLatestOrderDateEpoch().apply {
             if (isSuccessful)
                 remoteLatestOrderDate = this.body() ?: NoSelectedRecord.num.toLong()
         }
-        val oneDayEgo =  Instant.now().minusMillis(1000L*60*60*24).toEpochMilli()
+        val oneDayEgo = Instant.now().minusMillis(1000L * 60 * 60 * 24).toEpochMilli()
         if (remoteLatestOrderDate > localLatestOrderDate)
             uploadNewOrders(if (oneDayEgo > localLatestOrderDate) oneDayEgo else localLatestOrderDate)
     }
+
+    suspend fun checkAndUploadPrevious(earliestOrderDate: Long): Boolean =
+        earliestOrderDate == investigationsDao.getEarliestOrderDateEpoch()
 
     companion object {
         suspend fun syncOrders(
@@ -307,8 +311,13 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    private suspend fun uploadNewOrders(lastOrderDateEpoch: Long) {
-        val ntOrders = investigationsService.getLatestOrdersByStartingOrderDate(lastOrderDateEpoch)
+    suspend fun uploadNewOrders(lastOrderDateEpoch: Long, uploadNewOrders: Boolean = true) {
+
+        val ntOrders = if (uploadNewOrders)
+            investigationsService.getLatestOrdersByStartingOrderDate(lastOrderDateEpoch)
+        else
+            investigationsService.getEarliestOrdersByStartingOrderDate(lastOrderDateEpoch)
+
         val newOrdersRangeDateEpoch = ntOrders.getOrdersRange()
         Log.d(TAG, "uploadNewOrders: ntOrders is uploaded")
         val ntSubOrders = investigationsService.getSubOrdersByOrderDateEpochRange(
@@ -348,9 +357,10 @@ class InvestigationsRepository @Inject constructor(
         Log.d(TAG, "uploadNewOrders: ntResults is saved")
     }
 
-    suspend fun refreshOrders() {
+    suspend fun refreshOrders(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntOrders = investigationsService.getOrdersByNumberRange(BTN_ORDER_ID, TOP_ORDER_ID)
+            val ntOrders = investigationsService
+                .getOrdersByNumberRange(uiOrdersRange.first, uiOrdersRange.second)
 
             syncOrders(ntOrders, investigationsDao)
             Log.d(TAG, "refreshOrders: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
@@ -387,12 +397,10 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshSubOrders() {
+    suspend fun refreshSubOrders(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntSubOrder = investigationsService.getSubOrdersByOrderDateEpochRange(
-                BTN_ORDER_ID,
-                TOP_ORDER_ID
-            )
+            val ntSubOrder = investigationsService
+                .getSubOrdersByOrderDateEpochRange(uiOrdersRange.first, uiOrdersRange.second)
 
             syncSubOrders(ntSubOrder, investigationsDao)
 
@@ -400,12 +408,10 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshSubOrderTasks() {
+    suspend fun refreshSubOrderTasks(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntSubOrderTasks = investigationsService.getTasksByOrderDateEpochRange(
-                BTN_ORDER_ID,
-                TOP_ORDER_ID
-            )
+            val ntSubOrderTasks = investigationsService
+                .getTasksByOrderDateEpochRange(uiOrdersRange.first, uiOrdersRange.second)
             syncSubOrderTasks(ntSubOrderTasks, investigationsDao)
             Log.d(
                 TAG,
@@ -414,12 +420,10 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshSamples() {
+    suspend fun refreshSamples(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntSamples = investigationsService.getSamplesByOrderDateEpochRange(
-                BTN_ORDER_ID,
-                TOP_ORDER_ID
-            )
+            val ntSamples = investigationsService
+                .getSamplesByOrderDateEpochRange(uiOrdersRange.first, uiOrdersRange.second)
             syncSamples(ntSamples, investigationsDao)
             Log.d(TAG, "refreshSamples: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -442,12 +446,10 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshResults() {
+    suspend fun refreshResults(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntResults = investigationsService.getResultsByOrderDateEpochRange(
-                BTN_ORDER_ID,
-                TOP_ORDER_ID
-            )
+            val ntResults = investigationsService
+                .getResultsByOrderDateEpochRange(uiOrdersRange.first, uiOrdersRange.second)
             syncResults(ntResults, investigationsDao)
             Log.d(TAG, "refreshResults: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
