@@ -34,7 +34,6 @@ class TeamViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                updateTeamFromRoom()
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
@@ -52,7 +51,6 @@ class TeamViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                updateTeamFromRoom()
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
@@ -70,7 +68,6 @@ class TeamViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                updateTeamFromRoom()
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {
                 delay(500)
@@ -79,14 +76,10 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _needToUpdateTeamFromRoom = MutableStateFlow(false)
     private val _currentMemberDetails = MutableStateFlow(NoSelectedRecord)
 
-    private val _teamSF = MutableStateFlow<List<DomainTeamMemberComplete>>(listOf())
+    private val _teamSF: Flow<List<DomainTeamMemberComplete>> = repository.teamCompleteList()
 
-    private fun updateTeamFromRoom() {
-        _needToUpdateTeamFromRoom.value = true
-    }
 
     fun changeCurrentTeamMember(id: Int) {
         if (_currentMemberDetails.value.num != id) {
@@ -99,22 +92,16 @@ class TeamViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val teamSF: StateFlow<List<DomainTeamMemberComplete>> =
         _teamSF.flatMapLatest { team ->
-            _needToUpdateTeamFromRoom.flatMapLatest { needToUpdate ->
-                _currentMemberDetails.flatMapLatest { visibility ->
-                    if (needToUpdate) {
-                        _teamSF.value = repository.teamCompleteList()
-                        _needToUpdateTeamFromRoom.value = false
-                    }
-                    val cpy = mutableListOf<DomainTeamMemberComplete>()
-                    team.forEach {
-                        cpy.add(
-                            it.copy(
-                                detailsVisibility = it.teamMember.id == visibility.num,
-                            )
+            _currentMemberDetails.flatMapLatest { visibility ->
+                val cpy = mutableListOf<DomainTeamMemberComplete>()
+                team.forEach {
+                    cpy.add(
+                        it.copy(
+                            detailsVisibility = it.teamMember.id == visibility.num,
                         )
-                    }
-                    flow { emit(cpy) }
+                    )
                 }
+                flow { emit(cpy) }
             }
         }
             .flowOn(Dispatchers.IO)
@@ -130,19 +117,12 @@ class TeamViewModel @Inject constructor(
                 repository.refreshDepartments()
                 repository.refreshTeamMembers()
 
-                updateTeamFromRoom()
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
                 isNetworkError.value = true
             }
-        }
-    }
-
-    init {
-        viewModelScope.launch {
-            _teamSF.value = repository.teamCompleteList()
         }
     }
 }

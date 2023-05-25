@@ -13,9 +13,14 @@
             android:title="Actions">
             <menu>
                 <item
-                    android:id="@+id/upload_all_data"
+                    android:id="@+id/upload_master_data"
                     android:icon="@drawable/ic_refresh"
-                    android:title="Upload all data"
+                    android:title="Upload master data"
+                    app:showAsAction = "never"/>
+                <item
+                    android:id="@+id/sync_investigations"
+                    android:icon="@drawable/ic_refresh"
+                    android:title="Sync investigations"
                     app:showAsAction = "never"/>
             </menu>
         </item>

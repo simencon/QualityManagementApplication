@@ -11,12 +11,9 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.ListTransformer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -46,6 +43,13 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun checkAndUploadPrevious(earliestOrderDate: Long): Boolean =
         earliestOrderDate == invDao.getEarliestOrderDateEpoch()
+
+    suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
+        return Pair(
+            invDao.getEarliestOrderDateEpoch() ?: NoSelectedRecord.num.toLong(),
+            invDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
+        )
+    }
 
     companion object {
         suspend fun syncOrders(
@@ -101,6 +105,7 @@ class InvestigationsRepository @Inject constructor(
         ) {
             val ntSubOrders = invService.getSubOrdersByDateRange(oRange.first, oRange.second)
             val dbSubOrders = invDao.getSubOrdersByDateRangeL(oRange.first, oRange.second)
+                .map { it.subOrder }
             ntSubOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
@@ -147,18 +152,19 @@ class InvestigationsRepository @Inject constructor(
         ) {
             val ntTasks = invService.getTasksDateRange(oRange.first, oRange.second)
             val dbSubOrderTasks = invDao.getTasksDateRangeL(oRange.first, oRange.second)
+                .map { it.subOrderTask }
             ntTasks.forEach byBlock1@{ ntIt ->
-                    var recordExists = false
-                    dbSubOrderTasks.forEach byBlock2@{ dbIt ->
-                        if (ntIt.id == dbIt.id) {
-                            recordExists = true
-                            return@byBlock2
-                        }
-                    }
-                    if (!recordExists) {
-                        invDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                var recordExists = false
+                dbSubOrderTasks.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
                     }
                 }
+                if (!recordExists) {
+                    invDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                }
+            }
             ntTasks.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbSubOrderTasks.forEach byBlock2@{ dbIt ->
@@ -324,48 +330,50 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun uploadNewOrders(lastOrderDateEpoch: Long, uploadNewOrders: Boolean = true) {
 
-        val ntOrders = if (uploadNewOrders)
-            invService.getLatestOrdersByStartingOrderDate(lastOrderDateEpoch)
-        else
-            invService.getEarliestOrdersByStartingOrderDate(lastOrderDateEpoch)
+        runBlocking {
+            val ntOrders = if (uploadNewOrders)
+                invService.getLatestOrdersByStartingOrderDate(lastOrderDateEpoch)
+            else
+                invService.getEarliestOrdersByStartingOrderDate(lastOrderDateEpoch)
 
-        val newOrdersRangeDateEpoch = ntOrders.getOrdersRange()
-        Log.d(TAG, "uploadNewOrders: ntOrders is uploaded")
-        val ntSubOrders = invService.getSubOrdersByDateRange(
-            newOrdersRangeDateEpoch.first,
-            newOrdersRangeDateEpoch.second
-        )
-        Log.d(TAG, "uploadNewOrders: ntSubOrders is uploaded")
-        val ntTasks = invService.getTasksDateRange(
-            newOrdersRangeDateEpoch.first,
-            newOrdersRangeDateEpoch.second
-        )
-        Log.d(TAG, "uploadNewOrders: ntTasks is uploaded")
-        val ntSamples = invService.getSamplesByDateRange(
-            newOrdersRangeDateEpoch.first,
-            newOrdersRangeDateEpoch.second
-        )
-        Log.d(TAG, "uploadNewOrders: ntSamples is uploaded")
-        val ntResults = invService.getResultsByDateRange(
-            newOrdersRangeDateEpoch.first,
-            newOrdersRangeDateEpoch.second
-        )
-        Log.d(TAG, "uploadNewOrders: ntResults is uploaded")
+            val newOrdersRangeDateEpoch = ntOrders.getOrdersRange()
+            Log.d(TAG, "uploadNewOrders: ntOrders is uploaded")
+            val ntSubOrders = invService.getSubOrdersByDateRange(
+                newOrdersRangeDateEpoch.first,
+                newOrdersRangeDateEpoch.second
+            )
+            Log.d(TAG, "uploadNewOrders: ntSubOrders is uploaded")
+            val ntTasks = invService.getTasksDateRange(
+                newOrdersRangeDateEpoch.first,
+                newOrdersRangeDateEpoch.second
+            )
+            Log.d(TAG, "uploadNewOrders: ntTasks is uploaded")
+            val ntSamples = invService.getSamplesByDateRange(
+                newOrdersRangeDateEpoch.first,
+                newOrdersRangeDateEpoch.second
+            )
+            Log.d(TAG, "uploadNewOrders: ntSamples is uploaded")
+            val ntResults = invService.getResultsByDateRange(
+                newOrdersRangeDateEpoch.first,
+                newOrdersRangeDateEpoch.second
+            )
+            Log.d(TAG, "uploadNewOrders: ntResults is uploaded")
 //        syncOrders(ntOrders, investigationsDao)
-        invDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
-        Log.d(TAG, "uploadNewOrders: ntOrders is saved")
+            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
+            Log.d(TAG, "uploadNewOrders: ntOrders is saved")
 //        syncSubOrders(ntSubOrders, investigationsDao)
-        invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
-        Log.d(TAG, "uploadNewOrders: ntSubOrders is saved")
+            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
+            Log.d(TAG, "uploadNewOrders: ntSubOrders is saved")
 //        syncSubOrderTasks(ntTasks, investigationsDao)
-        invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
-        Log.d(TAG, "uploadNewOrders: ntTasks is saved")
+            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
+            Log.d(TAG, "uploadNewOrders: ntTasks is saved")
 //        syncSamples(ntSamples, investigationsDao)
-        invDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
-        Log.d(TAG, "uploadNewOrders: ntSamples is saved")
+            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
+            Log.d(TAG, "uploadNewOrders: ntSamples is saved")
 //        syncResults(ntResults, investigationsDao)
-        invDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
-        Log.d(TAG, "uploadNewOrders: ntResults is saved")
+            invDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
+            Log.d(TAG, "uploadNewOrders: ntResults is saved")
+        }
     }
 
     suspend fun refreshOrders(uiOrdersRange: Pair<Long, Long>) {
@@ -373,6 +381,15 @@ class InvestigationsRepository @Inject constructor(
             syncOrders(uiOrdersRange, invService, invDao)
             Log.d(TAG, "refreshOrders: ${timeFormatter.format(Instant.now())}")
         }
+    }
+
+    suspend fun refreshOrdersIfNecessary(ordersTimeRange: Pair<Long, Long>) {
+        val list = invDao.getOrdersByDateRange(ordersTimeRange.first, ordersTimeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: local list size = ${list.size}")
+        val localListHashCode = list.sumOf { it.hashCode() }
+        Log.d(TAG, "refreshOrdersIfNecessary: local list hash = $localListHashCode")
+        val remoteListHashCode = invService.getOrdersHashCodeForDatePeriod(ordersTimeRange.first, ordersTimeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: localListHashCode = $localListHashCode; remoteListHashCode = $remoteListHashCode")
     }
 
     suspend fun deleteOrder(orderId: Int) {
@@ -414,14 +431,14 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun refreshSubOrderTasks(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            syncSubOrderTasks(uiOrdersRange,invService, invDao)
+            syncSubOrderTasks(uiOrdersRange, invService, invDao)
             Log.d(TAG, "refreshSubOrderTasks: ${timeFormatter.format(Instant.now())}")
         }
     }
 
     suspend fun refreshSamples(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            syncSamples(uiOrdersRange,invService, invDao)
+            syncSamples(uiOrdersRange, invService, invDao)
             Log.d(TAG, "refreshSamples: ${timeFormatter.format(Instant.now())}")
         }
     }
@@ -673,8 +690,9 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        invDao.getSubOrdersByDateRange(pair.first, pair.second)
-            .map { it.asDomainSubOrderDetailed(currentSubOrder) }
+        invDao.getSubOrdersByDateRange(pair.first, pair.second).map {
+            it.asDomainSubOrderDetailed(currentSubOrder)
+        }
 
     private var currentTask = -1
     fun setCurrentTask(id: Int) {
@@ -682,7 +700,9 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        invDao.getTasksDateRange(pair.first, pair.second).map { it.asDomainSubOrderTask(currentTask) }
+        invDao.getTasksDateRange(pair.first, pair.second).map {
+            it.asDomainSubOrderTask(currentTask)
+        }
 
     private var currentSample = -1
     fun setCurrentSample(id: Int) {
@@ -690,7 +710,9 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
-        invDao.getSamplesBySubOrder(subOrderId).map { it.asDomainSamples(currentSample) }
+        invDao.getSamplesBySubOrder(subOrderId).map {
+            it.asDomainSamples(currentSample)
+        }
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         invDao.getSubOrderWithChildren().map {
@@ -703,6 +725,7 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        invDao.getResultsBySubOrder(subOrderId).map { it.asDomainResults(currentResult) }
-
+        invDao.getResultsBySubOrder(subOrderId).map {
+            it.asDomainResults(currentResult)
+        }
 }

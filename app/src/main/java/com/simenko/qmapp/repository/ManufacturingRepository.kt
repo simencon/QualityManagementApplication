@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -224,10 +225,8 @@ class ManufacturingRepository @Inject constructor(
             ).generateList()
         }
 
-    suspend fun teamCompleteList(): List<DomainTeamMemberComplete> {
-        Log.d(TAG, "teamCompleteList: updated from room.")
-        return manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()
-    }
+    fun teamCompleteList(): Flow<List<DomainTeamMemberComplete>> =
+        flow { emit(manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()) }
 
     suspend fun teamCompleteByDepartment(depId: Int): List<DomainTeamMemberComplete> =
         manufacturingDao.getTeamDetailedList()

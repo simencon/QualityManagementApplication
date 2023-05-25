@@ -169,8 +169,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.search -> {
 //                    is implemented within on search listener
                 }
-                R.id.upload_all_data -> {
+                R.id.upload_master_data -> {
                     investigationsModel.refreshMasterDataFromRepository()
+                }
+                R.id.sync_investigations -> {
+                    investigationsModel.syncUploadedInvestigations()
                 }
                 R.id.ppap -> {
                     TODO("Will filter accordingly")

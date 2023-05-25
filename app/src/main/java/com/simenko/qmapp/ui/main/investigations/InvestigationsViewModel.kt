@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.investigations
 import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -19,6 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
+import java.time.Instant
 import javax.inject.Inject
 
 private const val TAG = "InvestigationsViewModel"
@@ -47,6 +49,7 @@ class InvestigationsViewModel @Inject constructor(
     val isLoadingInProgress: LiveData<Boolean> = _isLoadingInProgress.asLiveData()
     private val _isNetworkError = MutableLiveData(false)
     val isNetworkError: LiveData<Boolean> = _isNetworkError
+
     fun onNetworkErrorShown() {
         _isLoadingInProgress.value = false
         _isNetworkError.value = false
@@ -164,7 +167,6 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
-            Log.d(TAG, "_ordersSF with key: $key")
             repository.ordersListByLastVisibleId(key as Int)
         }
 
@@ -199,34 +201,37 @@ class InvestigationsViewModel @Inject constructor(
      * The result flow
      * */
     val ordersSF: StateFlow<List<DomainOrderComplete>> =
-        _ordersSF.flatMapLatest { orders ->
-            _currentOrderVisibility.flatMapLatest { visibility ->
-                _currentOrdersFilter.flatMapLatest { filter ->
+        _isLoadingInProgress.flatMapLatest { isLoading ->
+            _ordersSF.flatMapLatest { orders ->
+                _currentOrderVisibility.flatMapLatest { visibility ->
+                    _currentOrdersFilter.flatMapLatest { filter ->
 
-                    if (visibility.first == NoSelectedRecord) {
-                        setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
-                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                    }
+                        if (visibility.first == NoSelectedRecord) {
+                            setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
+                            setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
+                            setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
+                        }
 
-                    val cyp = mutableListOf<DomainOrderComplete>()
-                    orders
-                        .filterByStatusAndNumber(filter)
-                        .forEach {
-                            cyp.add(
-                                it.copy(
-                                    detailsVisibility = it.order.id == visibility.first.num,
-                                    isExpanded = it.order.id == visibility.second.num
+                        val cyp = mutableListOf<DomainOrderComplete>()
+                        orders
+                            .filterByStatusAndNumber(filter)
+                            .forEach {
+                                cyp.add(
+                                    it.copy(
+                                        detailsVisibility = it.order.id == visibility.first.num,
+                                        isExpanded = it.order.id == visibility.second.num
+                                    )
                                 )
+                            }
+                        _currentOrdersRange.value = cyp.getDetailedOrdersRange()
+                        if (!isLoading)
+                            uploadEarliestInvestigationsEntities(_currentOrdersRange.value.first)
+                        Log.d(TAG, "_currentOrdersRange = ${_currentOrdersRange.value}")
+                        flow {
+                            emit(
+                                cyp
                             )
                         }
-                    _currentOrdersRange.value = cyp.getDetailedOrdersRange()
-                    uploadEarliestInvestigationsEntities(_currentOrdersRange.value.first)
-                    Log.d(TAG, "_currentOrdersRange = ${_currentOrdersRange.value}")
-                    flow {
-                        emit(
-                            cyp
-                        )
                     }
                 }
             }
@@ -283,8 +288,7 @@ class InvestigationsViewModel @Inject constructor(
                         this,
                         order
                     )
-                    channel.consumeEach {
-                    }
+                    channel.consumeEach {}
                 }
                 _isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -822,18 +826,19 @@ class InvestigationsViewModel @Inject constructor(
 
     fun uploadLatestInvestigationsEntities() {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.checkAndUploadNew()
-                    setLastVisibleItemKey(repository.latestLocalOrderId())
+            if (!_isLoadingInProgress.value)
+                try {
+                    _isLoadingInProgress.value = true
+                    withContext(Dispatchers.IO) {
+                        repository.checkAndUploadNew()
+                        setLastVisibleItemKey(repository.latestLocalOrderId())
+                    }
+                    _isLoadingInProgress.value = false
+                    _isNetworkError.value = false
+                } catch (networkError: IOException) {
+                    delay(500)
+                    _isNetworkError.value = true
                 }
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
-            }
         }
     }
 
@@ -905,6 +910,40 @@ class InvestigationsViewModel @Inject constructor(
 
                 _isLoadingInProgress.value = false
 
+            } catch (networkError: IOException) {
+                delay(500)
+                _isNetworkError.value = true
+            }
+        }
+    }
+
+    fun syncUploadedInvestigations() {
+        viewModelScope.launch {
+            val thisMoment = Instant.now()
+            val oneDayAgo = thisMoment
+                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H)
+            val oneWeekAgo = thisMoment
+                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H * 7)
+            val oneMonthAgo = thisMoment
+                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H * 31)
+            val oneYearAgo = thisMoment
+                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H * 365)
+            val completePeriod = repository.getCompleteOrdersRange()
+            try {
+                _isLoadingInProgress.value = true
+
+                val completeOrdersRange = Pair(oneDayAgo.toEpochMilli(),thisMoment.toEpochMilli())
+
+                repository.refreshOrdersIfNecessary(completeOrdersRange)
+
+                repository.refreshOrders(completeOrdersRange)
+                repository.refreshSubOrders(completeOrdersRange)
+                repository.refreshSubOrderTasks(completeOrdersRange)
+                repository.refreshSamples(completeOrdersRange)
+                repository.refreshResults(completeOrdersRange)
+
+                _isLoadingInProgress.value = false
+                _isNetworkError.value = false
             } catch (networkError: IOException) {
                 delay(500)
                 _isNetworkError.value = true

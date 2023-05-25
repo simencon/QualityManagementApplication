@@ -1,6 +1,7 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
+import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 
 //    @ColumnInfo(name = "nameInTable")
 
@@ -126,7 +127,40 @@ data class DatabaseOrder constructor(
     @ColumnInfo(index = true)
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: String? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DatabaseOrder
+
+        if (id != other.id) return false
+        if (orderTypeId != other.orderTypeId) return false
+        if (reasonId != other.reasonId) return false
+        if (orderNumber != other.orderNumber) return false
+        if (customerId != other.customerId) return false
+        if (orderedById != other.orderedById) return false
+        if (statusId != other.statusId) return false
+        if (createdDate != other.createdDate) return false
+        if (completedDate != other.completedDate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + orderTypeId
+        result = 31 * result + reasonId
+        result = 31 * result + (orderNumber ?: 0)
+        result = 31 * result + customerId
+        result = 31 * result + orderedById
+        result = 31 * result + statusId
+        result = 31 * result + createdDate.hashCode()
+        val completeDateMillis = completedDate?.let { getMillisecondsDate(it) }
+        result = 31 * result + completeDateMillis.hashCode()
+        return result
+    }
+}
 
 @DatabaseView(
     viewName = "orders_results",

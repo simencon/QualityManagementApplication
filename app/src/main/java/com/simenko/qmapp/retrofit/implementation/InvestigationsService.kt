@@ -33,6 +33,12 @@ interface InvestigationsService {
         @Path("earliestOrderDate") earliestOrderDate: Long
     ): List<NetworkOrder>
 
+    @GET("orders/hashCode/{btnDate}/{topDate}")
+    suspend fun getOrdersHashCodeForDatePeriod(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
+    ): Int
+
     @GET("orders/{btnDate}/{topDate}")
     suspend fun getOrdersByDateRange(
         @Path("btnDate") btnDate: Long,
