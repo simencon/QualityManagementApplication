@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ab61c4e02fec18ce3ead8cf545f5ccee",
+    "identityHash": "36a90f976c3b20858946cd56646cc9f0",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2587,6 +2587,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_12_orders_statusId` ON `${TABLE_NAME}` (`statusId`)"
+          },
+          {
+            "name": "index_12_orders_createdDate",
+            "unique": false,
+            "columnNames": [
+              "createdDate"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_12_orders_createdDate` ON `${TABLE_NAME}` (`createdDate`)"
           }
         ],
         "foreignKeys": [
@@ -3417,7 +3426,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ab61c4e02fec18ce3ead8cf545f5ccee')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '36a90f976c3b20858946cd56646cc9f0')"
     ]
   }
 }

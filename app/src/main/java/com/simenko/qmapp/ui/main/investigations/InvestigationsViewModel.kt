@@ -164,7 +164,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
-            Log.d(TAG, "_currentOrdersRange kay is: $key")
+            Log.d(TAG, "_ordersSF with key: $key")
             repository.ordersListByLastVisibleId(key as Int)
         }
 
@@ -260,11 +260,11 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshResults(_currentOrdersRange.value)
-                repository.refreshSamples(_currentOrdersRange.value)
-                repository.refreshSubOrderTasks(_currentOrdersRange.value)
-                repository.refreshSubOrders(_currentOrdersRange.value)
                 repository.refreshOrders(_currentOrdersRange.value)
+                repository.refreshSubOrders(_currentOrdersRange.value)
+                repository.refreshSubOrderTasks(_currentOrdersRange.value)
+                repository.refreshSamples(_currentOrdersRange.value)
+                repository.refreshResults(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -398,10 +398,10 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshResults(_currentOrdersRange.value)
-                repository.refreshSamples(_currentOrdersRange.value)
-                repository.refreshSubOrderTasks(_currentOrdersRange.value)
                 repository.refreshSubOrders(_currentOrdersRange.value)
+                repository.refreshSubOrderTasks(_currentOrdersRange.value)
+                repository.refreshSamples(_currentOrdersRange.value)
+                repository.refreshResults(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -506,8 +506,8 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshResults(_currentOrdersRange.value)
                 repository.refreshSubOrderTasks(_currentOrdersRange.value)
+                repository.refreshResults(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
@@ -849,7 +849,7 @@ class InvestigationsViewModel @Inject constructor(
                     _isLoadingInProgress.value = true
                     withContext(Dispatchers.IO) {
                         repository.uploadNewOrders(earliestOrderDate, false)
-                    setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex-1].order.id)
+                        setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
                     }
                 }
                 _isLoadingInProgress.value = false

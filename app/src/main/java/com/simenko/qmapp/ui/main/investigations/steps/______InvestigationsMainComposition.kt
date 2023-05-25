@@ -102,11 +102,11 @@ fun InvestigationsMainComposition(
             floatingActionButtonPosition = fabPositionToSet,
             content = { padding ->
 
-                val observerLoadingProcess by invModel.isLoadingInProgress.observeAsState()
-                val observerIsNetworkError by invModel.isNetworkError.observeAsState()
+                val observerLoadingProcess by invModel.isLoadingInProgress.observeAsState(false)
+                val observerIsNetworkError by invModel.isNetworkError.observeAsState(false)
 
                 val pullRefreshState = rememberPullRefreshState(
-                    refreshing = observerLoadingProcess!!,
+                    refreshing = observerLoadingProcess,
                     onRefresh = { invModel.uploadLatestInvestigationsEntities() }
                 )
 
@@ -218,7 +218,7 @@ fun InvestigationsMainComposition(
                     )
                 }
 
-                if (observerIsNetworkError == true) {
+                if (observerIsNetworkError) {
                     Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
                     invModel.onNetworkErrorShown()
                 }

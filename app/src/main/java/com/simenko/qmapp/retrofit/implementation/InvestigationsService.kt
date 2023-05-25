@@ -34,7 +34,7 @@ interface InvestigationsService {
     ): List<NetworkOrder>
 
     @GET("orders/{btnDate}/{topDate}")
-    suspend fun getOrdersByNumberRange(
+    suspend fun getOrdersByDateRange(
         @Path("btnDate") btnDate: Long,
         @Path("topDate") topDate: Long
     ): List<NetworkOrder>
@@ -56,7 +56,7 @@ interface InvestigationsService {
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
     @GET("subOrders/{btnDate}/{topDate}")
-    suspend fun getSubOrdersByOrderDateEpochRange(
+    suspend fun getSubOrdersByDateRange(
         @Path("btnDate") btnNumber: Long,
         @Path("topDate") topNumber: Long
     ): List<NetworkSubOrder>
@@ -78,7 +78,7 @@ interface InvestigationsService {
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
 
     @GET("subOrderTasks/{btnDate}/{topDate}")
-    suspend fun getTasksByOrderDateEpochRange(
+    suspend fun getTasksDateRange(
         @Path("btnDate") btnDate: Long,
         @Path("topDate") topDate: Long
     ): List<NetworkSubOrderTask>
@@ -103,7 +103,7 @@ interface InvestigationsService {
     suspend fun getSamples(): List<NetworkSample>
 
     @GET("samples/{btnDate}/{topDate}")
-    suspend fun getSamplesByOrderDateEpochRange(
+    suspend fun getSamplesByDateRange(
         @Path("btnDate") btnDate: Long,
         @Path("topDate") topDate: Long
     ): List<NetworkSample>
@@ -121,7 +121,7 @@ interface InvestigationsService {
     suspend fun getResults(): List<NetworkResult>
 
     @GET("results/{btnDate}/{topDate}")
-    suspend fun getResultsByOrderDateEpochRange(
+    suspend fun getResultsByDateRange(
         @Path("btnDate") btnDate: Long,
         @Path("topDate") topDate: Long
     ): List<NetworkResult>

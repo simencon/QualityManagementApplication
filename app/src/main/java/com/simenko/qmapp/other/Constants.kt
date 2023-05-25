@@ -28,4 +28,6 @@ object Constants {
 
     const val UI_SAFETY_GAP = 100
     const val UI_TOTAL_VISIBLE = 10
+
+    const val INITIAL_UPDATE_PERIOD_H = 24L
 }
