@@ -148,15 +148,15 @@ data class DatabaseOrder constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + orderTypeId.hashCode()
-        result = 31 * result + reasonId.hashCode()
-        result = 31 * result + orderNumber.hashCode()
-        result = 31 * result + customerId.hashCode()
-        result = 31 * result + orderedById.hashCode()
-        result = 31 * result + statusId.hashCode()
+        var result = id
+        result = 31 * result + orderTypeId
+        result = 31 * result + reasonId
+        result = 31 * result + (orderNumber ?: 0)
+        result = 31 * result + customerId
+        result = 31 * result + orderedById
+        result = 31 * result + statusId
         result = 31 * result + createdDate.hashCode()
-        result = 31 * result + completedDate.hashCode()
+        result = 31 * result + (completedDate?.hashCode() ?: 0)
         return result
     }
 }
@@ -462,7 +462,27 @@ data class DatabaseSample constructor(
     @ColumnInfo(index = true)
     var subOrderId: Int,
     var sampleNumber: Int? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DatabaseSample
+
+        if (id != other.id) return false
+        if (subOrderId != other.subOrderId) return false
+        if (sampleNumber != other.sampleNumber) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + subOrderId
+        result = 31 * result + (sampleNumber ?: 0)
+        return result
+    }
+}
 
 @DatabaseView(
     viewName = "samples_results",
@@ -542,7 +562,36 @@ data class DatabaseResult constructor(
     var resultDecryptionId: Int,
     @ColumnInfo(index = true)
     var taskId: Int
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DatabaseResult
+
+        if (id != other.id) return false
+        if (sampleId != other.sampleId) return false
+        if (metrixId != other.metrixId) return false
+        if (result != other.result) return false
+        if (isOk != other.isOk) return false
+        if (resultDecryptionId != other.resultDecryptionId) return false
+        if (taskId != other.taskId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result1 = id
+        result1 = 31 * result1 + sampleId
+        result1 = 31 * result1 + metrixId
+        result1 = 31 * result1 + (result?.hashCode() ?: 0)
+        result1 = 31 * result1 + (isOk?.hashCode() ?: 0)
+        result1 = 31 * result1 + resultDecryptionId
+        result1 = 31 * result1 + taskId
+        return result1
+    }
+}
+
 @DatabaseView(
     viewName = "orders_short",
     value = "SELECT * FROM `12_orders` ORDER BY orderNumber;"

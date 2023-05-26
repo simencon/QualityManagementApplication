@@ -217,7 +217,7 @@ interface InvestigationsDao {
     @Query("select so.* from `12_orders` o " +
             "join `13_sub_orders` so on o.id = so.orderId " +
             "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getSubOrdersByDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrderComplete>
+    suspend fun getSubOrdersByDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrder>
 
     @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
@@ -235,7 +235,7 @@ interface InvestigationsDao {
             "join `13_sub_orders` so on o.id = so.orderId " +
             "join `sub_order_task_complete` t on so.id = t.subOrderId " +
             "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getTasksDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrderTaskComplete>
+    suspend fun getTasksByDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrderTask>
 
     @Transaction
     @Query("select s.* from `13_sub_orders` so " +

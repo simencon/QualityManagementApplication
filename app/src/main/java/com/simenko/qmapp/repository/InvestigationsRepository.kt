@@ -105,7 +105,6 @@ class InvestigationsRepository @Inject constructor(
         ) {
             val ntSubOrders = invService.getSubOrdersByDateRange(oRange.first, oRange.second)
             val dbSubOrders = invDao.getSubOrdersByDateRangeL(oRange.first, oRange.second)
-                .map { it.subOrder }
             ntSubOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
@@ -151,8 +150,7 @@ class InvestigationsRepository @Inject constructor(
             invDao: InvestigationsDao
         ) {
             val ntTasks = invService.getTasksDateRange(oRange.first, oRange.second)
-            val dbSubOrderTasks = invDao.getTasksDateRangeL(oRange.first, oRange.second)
-                .map { it.subOrderTask }
+            val dbSubOrderTasks = invDao.getTasksByDateRangeL(oRange.first, oRange.second)
             ntTasks.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSubOrderTasks.forEach byBlock2@{ dbIt ->
@@ -383,11 +381,31 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshOrdersIfNecessary(ordersTimeRange: Pair<Long, Long>) {
-        val list = invDao.getOrdersByDateRange(ordersTimeRange.first, ordersTimeRange.second)
-        val localListHashCode = list.sumOf { it.hashCode() }
-        val remoteListHashCode = invService.getOrdersHashCodeForDatePeriod(ordersTimeRange.first, ordersTimeRange.second)
-        Log.d(TAG, "refreshOrdersIfNecessary: localListHashCode = $localListHashCode; remoteListHashCode = $remoteListHashCode")
+    suspend fun refreshOrdersIfNecessary(timeRange: Pair<Long, Long>) {
+        val oList = invDao.getOrdersByDateRange(timeRange.first, timeRange.second)
+        val localOrdersHashCode = oList.sumOf { it.hashCode() }
+        val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: localOrdersHashCode = $localOrdersHashCode; remoteOrdersHashCode = $remoteOrdersHashCode")
+
+        val soList = invDao.getSubOrdersByDateRangeL(timeRange.first, timeRange.second)
+        val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
+        val remoteSubOrdersHashCode = invService.getSubOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: localSubOrdersHashCode = $localSubOrdersHashCode; remoteSubOrdersHashCode = $remoteSubOrdersHashCode")
+
+        val tList = invDao.getTasksByDateRangeL(timeRange.first, timeRange.second)
+        val localTasksHashCode = tList.sumOf { it.hashCode() }
+        val remoteTasksHashCode = invService.getTasksHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: localTasksHashCode = $localTasksHashCode; remoteTasksHashCode = $remoteTasksHashCode")
+
+        val sList = invDao.getSamplesByDateRange(timeRange.first, timeRange.second)
+        val localSamplesHashCode = sList.sumOf { it.hashCode() }
+        val remoteSamplesHashCode = invService.getSamplesHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: localSamplesHashCode = $localSamplesHashCode; remoteSamplesHashCode = $remoteSamplesHashCode")
+
+        val rList = invDao.getResultsByDateRange(timeRange.first, timeRange.second)
+        val localResultsHashCode = rList.sumOf { it.hashCode() }
+        val remoteResultsHashCode = invService.getResultsHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        Log.d(TAG, "refreshOrdersIfNecessary: localResultsHashCode = $localResultsHashCode; remoteResultsHashCode = $remoteResultsHashCode")
     }
 
     suspend fun deleteOrder(orderId: Int) {

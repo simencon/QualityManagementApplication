@@ -61,6 +61,12 @@ interface InvestigationsService {
     @GET("subOrders")
     suspend fun getSubOrders(): List<NetworkSubOrder>
 
+    @GET("subOrders/hashCode/{btnDate}/{topDate}")
+    suspend fun getSubOrdersHashCodeForDatePeriod(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
+    ): Int
+
     @GET("subOrders/{btnDate}/{topDate}")
     suspend fun getSubOrdersByDateRange(
         @Path("btnDate") btnNumber: Long,
@@ -82,6 +88,12 @@ interface InvestigationsService {
 
     @GET("subOrderTasks")
     suspend fun getSubOrderTasks(): List<NetworkSubOrderTask>
+
+    @GET("subOrderTasks/hashCode/{btnDate}/{topDate}")
+    suspend fun getTasksHashCodeForDatePeriod(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
+    ): Int
 
     @GET("subOrderTasks/{btnDate}/{topDate}")
     suspend fun getTasksDateRange(
@@ -108,6 +120,12 @@ interface InvestigationsService {
     @GET("samples")
     suspend fun getSamples(): List<NetworkSample>
 
+    @GET("samples/hashCode/{btnDate}/{topDate}")
+    suspend fun getSamplesHashCodeForDatePeriod(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
+    ): Int
+
     @GET("samples/{btnDate}/{topDate}")
     suspend fun getSamplesByDateRange(
         @Path("btnDate") btnDate: Long,
@@ -125,6 +143,12 @@ interface InvestigationsService {
 
     @GET("results")
     suspend fun getResults(): List<NetworkResult>
+
+    @GET("results/hashCode/{btnDate}/{topDate}")
+    suspend fun getResultsHashCodeForDatePeriod(
+        @Path("btnDate") btnDate: Long,
+        @Path("topDate") topDate: Long
+    ): Int
 
     @GET("results/{btnDate}/{topDate}")
     suspend fun getResultsByDateRange(
