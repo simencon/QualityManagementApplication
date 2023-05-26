@@ -94,7 +94,7 @@ data class DomainOrder constructor(
     var orderedById: Int,
     var statusId: Int,
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
-    var completedDate: String? = null
+    var completedDate: Long? = null
 )
 
 @Stable

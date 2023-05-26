@@ -53,7 +53,7 @@ class NetworkOrderJsonAdapter : JsonAdapter<NetworkOrder>() {
         var orderedById: Int? = null
         var statusId: Int? = null
         var createdDate: Long? = null
-        var completedDate: String? = null
+        var completedDate: Long? = null
         var mask0 = -1
         reader.beginObject()
         while (reader.hasNext()) {
@@ -85,10 +85,12 @@ class NetworkOrderJsonAdapter : JsonAdapter<NetworkOrder>() {
                     "statusId", "statusId", reader
                 )
                 7 -> createdDate = StringUtils.getMillisecondsDate(
-                    nullableStringAdapter.fromJson(reader) ?: ""
+                    nullableStringAdapter.fromJson(reader)
                 )
                 8 -> {
-                    completedDate = nullableStringAdapter.fromJson(reader)
+                    completedDate = StringUtils.getMillisecondsDate(
+                        nullableStringAdapter.fromJson(reader)
+                    )
                     mask0 = mask0 and 0xfffffeff.toInt()
                 }
                 -1 -> {
@@ -137,7 +139,7 @@ class NetworkOrderJsonAdapter : JsonAdapter<NetworkOrder>() {
                     Int::class.javaPrimitiveType,
                     Int::class.javaPrimitiveType,
                     Long::class.javaPrimitiveType,
-                    String::class.java,
+                    Long::class.java,
                     Int::class.javaPrimitiveType,
                     Util.DEFAULT_CONSTRUCTOR_MARKER
                 ).also { this.constructorRef = it }
@@ -178,9 +180,15 @@ class NetworkOrderJsonAdapter : JsonAdapter<NetworkOrder>() {
         writer.name("statusId")
         intAdapter.toJson(writer, value_.statusId)
         writer.name("createdDate")
-        nullableStringAdapter.toJson(writer, getStringDate(value_.createdDate, FormatForRestService.num))
+        nullableStringAdapter.toJson(
+            writer,
+            getStringDate(value_.createdDate, FormatForRestService.num)
+        )
         writer.name("completedDate")
-        nullableStringAdapter.toJson(writer, value_.completedDate)
+        nullableStringAdapter.toJson(
+            writer,
+            getStringDate(value_.completedDate, FormatForRestService.num)
+        )
         writer.endObject()
     }
 }

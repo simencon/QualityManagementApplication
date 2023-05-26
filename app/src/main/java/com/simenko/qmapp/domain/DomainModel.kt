@@ -25,4 +25,4 @@ val OrderTypeProcessOnly = SelectedNumber(3)
 
 @JvmInline
 value class SelectedString(val str: String)
-val NoSelectedString = SelectedString("0")
+val NoSelectedString = SelectedString("-")

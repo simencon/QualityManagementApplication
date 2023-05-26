@@ -86,7 +86,8 @@ object StringUtils {
     )
 
     @JvmStatic
-    fun getMillisecondsDate(myDateTimeStr: String): Long {
+    fun getMillisecondsDate(myDateTimeStr: String?): Long? {
+        if (myDateTimeStr == null) return null
         mySimpleFormatters.forEach {
             try {
                 return it.parse(myDateTimeStr)?.time ?: NoSelectedRecord.num.toLong()
@@ -98,7 +99,8 @@ object StringUtils {
     }
     val FormatForRestService = SelectedNumber(0)
     @JvmStatic
-    fun getStringDate(myDateTimeLong: Long, formatType: Int = 5): String {
+    fun getStringDate(myDateTimeLong: Long?, formatType: Int = 5): String? {
+        if(myDateTimeLong == null) return null
         return mySimpleFormatters[formatType].format(Date(myDateTimeLong))
     }
 }

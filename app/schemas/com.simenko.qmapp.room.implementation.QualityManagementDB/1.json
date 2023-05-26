@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "36a90f976c3b20858946cd56646cc9f0",
+    "identityHash": "54853210d219040f387b807c0ff37256",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2479,7 +2479,7 @@
       },
       {
         "tableName": "12_orders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderTypeId` INTEGER NOT NULL, `reasonId` INTEGER NOT NULL, `orderNumber` INTEGER, `customerId` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` TEXT, FOREIGN KEY(`orderTypeId`) REFERENCES `0_orders_types`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`reasonId`) REFERENCES `0_measurement_reasons`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`customerId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderTypeId` INTEGER NOT NULL, `reasonId` INTEGER NOT NULL, `orderNumber` INTEGER, `customerId` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` INTEGER, FOREIGN KEY(`orderTypeId`) REFERENCES `0_orders_types`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`reasonId`) REFERENCES `0_measurement_reasons`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`customerId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2532,7 +2532,7 @@
           {
             "fieldPath": "completedDate",
             "columnName": "completedDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": false
           }
         ],
@@ -3426,7 +3426,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '36a90f976c3b20858946cd56646cc9f0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '54853210d219040f387b807c0ff37256')"
     ]
   }
 }

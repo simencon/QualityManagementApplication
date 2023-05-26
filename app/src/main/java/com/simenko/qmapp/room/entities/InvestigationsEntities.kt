@@ -126,7 +126,7 @@ data class DatabaseOrder constructor(
     var statusId: Int,
     @ColumnInfo(index = true)
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
-    var completedDate: String? = null
+    var completedDate: Long? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -148,16 +148,15 @@ data class DatabaseOrder constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + orderTypeId
-        result = 31 * result + reasonId
-        result = 31 * result + (orderNumber ?: 0)
-        result = 31 * result + customerId
-        result = 31 * result + orderedById
-        result = 31 * result + statusId
+        var result = id.hashCode()
+        result = 31 * result + orderTypeId.hashCode()
+        result = 31 * result + reasonId.hashCode()
+        result = 31 * result + orderNumber.let { it?.hashCode() ?: 0 }
+        result = 31 * result + customerId.hashCode()
+        result = 31 * result + orderedById.hashCode()
+        result = 31 * result + statusId.hashCode()
         result = 31 * result + createdDate.hashCode()
-        val completeDateMillis = completedDate?.let { getMillisecondsDate(it) }
-        result = 31 * result + completeDateMillis.hashCode()
+        result = 31 * result + completedDate.let { if (it!=null) it.hashCode() else 0 }
         return result
     }
 }

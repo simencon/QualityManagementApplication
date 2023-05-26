@@ -295,8 +295,8 @@ fun Order(
 
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
-    createdDate: Long = getMillisecondsDate("2022-12-15T22:24:43.666+02:00"),
-    completedDate: String? = "2022-12-15T22:24:43.666",
+    createdDate: Long = getMillisecondsDate("2022-12-15T22:24:43.666+02:00")!!,
+    completedDate: Long? = getMillisecondsDate("2022-12-15T22:24:43.666+02:00"),
     onClickDetails: (Int) -> Unit = {}
 ) {
     Column(
@@ -524,11 +524,11 @@ fun Order(
 @Composable
 fun OrderDetails(
     modifier: Modifier = Modifier,
-    orderId: Int = 0,
+    orderId: Int = NoSelectedRecord.num,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
-    createdDate: Long = 0,
-    completedDate: String? = ""
+    createdDate: Long = NoSelectedRecord.num.toLong(),
+    completedDate: Long? = null
 ) {
 
     if (detailsVisibility) {
@@ -572,7 +572,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = getStringDate(createdDate),
+                text = getStringDate(createdDate)?: NoSelectedString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -595,7 +595,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = StringUtils.getDateTime(completedDate),
+                text = getStringDate(completedDate)?: NoSelectedString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -665,8 +665,8 @@ fun getOrder(i: Int) = DomainOrder(
     1,
     1,
     1,
-    StringUtils.getMillisecondsDate("2022-12-15T22:24:43+03:00"),
-    "2022-12-15T22:24:43"
+    getMillisecondsDate("2022-12-15T22:24:43+03:00")?: NoSelectedRecord.num.toLong(),
+    null
 )
 
 fun getType() = DomainOrdersType(

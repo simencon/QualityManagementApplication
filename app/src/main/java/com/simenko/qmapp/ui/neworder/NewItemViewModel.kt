@@ -597,7 +597,7 @@ fun getEmptyOrder() = DomainOrder(
     customerId = 4,
     orderedById = 62,
     statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00"),
+    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")?: NoSelectedRecord.num.toLong(),
     completedDate = null
 )
 
