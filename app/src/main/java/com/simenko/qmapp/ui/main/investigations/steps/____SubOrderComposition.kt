@@ -38,6 +38,8 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
+import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
+import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -677,7 +679,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = StringUtils.getDateTime(subOrder.subOrder.createdDate),
+                text = getStringDate(subOrder.subOrder.createdDate)?: NoSelectedString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -723,7 +725,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = StringUtils.getDateTime(subOrder.subOrder.completedDate),
+                text = getStringDate(subOrder.subOrder.completedDate)?: NoSelectedString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -842,8 +844,8 @@ fun getSubOrder() = DomainSubOrder(
     orderedById = 1,
     completedById = 1,
     statusId = 1,
-    createdDate = "2022-12-15T22:24:43",
-    completedDate = "2022-12-15T22:24:43",
+    createdDate = getMillisecondsDate("2022-12-15T22:24:43")!!,
+    completedDate = getMillisecondsDate("2022-12-15T22:24:43")!!,
     departmentId = 1,
     subDepartmentId = 1,
     channelId = 1,

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "54853210d219040f387b807c0ff37256",
+    "identityHash": "2e6a96b3af2e340304ea78ce96cc83ac",
     "entities": [
       {
         "tableName": "0_position_levels",
@@ -2658,7 +2658,7 @@
       },
       {
         "tableName": "13_sub_orders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `subOrderNumber` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `completedById` INTEGER, `statusId` INTEGER NOT NULL, `createdDate` TEXT NOT NULL, `completedDate` TEXT, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER NOT NULL, `channelId` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, `itemPreffix` TEXT NOT NULL, `itemTypeId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `samplesCount` INTEGER, `remarkId` INTEGER NOT NULL, FOREIGN KEY(`orderId`) REFERENCES `12_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`departmentId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subDepartmentId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`channelId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `subOrderNumber` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `completedById` INTEGER, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` INTEGER, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER NOT NULL, `channelId` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, `itemPreffix` TEXT NOT NULL, `itemTypeId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `samplesCount` INTEGER, `remarkId` INTEGER NOT NULL, FOREIGN KEY(`orderId`) REFERENCES `12_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`departmentId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subDepartmentId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`channelId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2699,13 +2699,13 @@
           {
             "fieldPath": "createdDate",
             "columnName": "createdDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
             "fieldPath": "completedDate",
             "columnName": "completedDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -2971,7 +2971,7 @@
       },
       {
         "tableName": "13_7_sub_order_tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subOrderId` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` TEXT, `completedDate` TEXT, `orderedById` INTEGER, `completedById` INTEGER, FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subOrderId`) REFERENCES `13_sub_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subOrderId` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER, `completedDate` INTEGER, `orderedById` INTEGER, `completedById` INTEGER, FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subOrderId`) REFERENCES `13_sub_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3000,13 +3000,13 @@
           {
             "fieldPath": "createdDate",
             "columnName": "createdDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": false
           },
           {
             "fieldPath": "completedDate",
             "columnName": "completedDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": false
           },
           {
@@ -3426,7 +3426,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '54853210d219040f387b807c0ff37256')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e6a96b3af2e340304ea78ce96cc83ac')"
     ]
   }
 }

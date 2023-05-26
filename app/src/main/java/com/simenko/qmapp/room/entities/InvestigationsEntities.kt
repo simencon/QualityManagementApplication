@@ -256,8 +256,8 @@ data class DatabaseSubOrder constructor(
     var completedById: Int? = null,
     @ColumnInfo(index = true)
     var statusId: Int,
-    var createdDate: String,
-    var completedDate: String? = null,
+    var createdDate: Long,
+    var completedDate: Long? = null,
     @ColumnInfo(index = true)
     var departmentId: Int,
     @ColumnInfo(index = true)
@@ -274,7 +274,57 @@ data class DatabaseSubOrder constructor(
     var itemVersionId: Int,
     var samplesCount: Int? = null,
     var remarkId: Int
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DatabaseSubOrder
+
+        if (id != other.id) return false
+        if (orderId != other.orderId) return false
+        if (subOrderNumber != other.subOrderNumber) return false
+        if (orderedById != other.orderedById) return false
+        if (completedById != other.completedById) return false
+        if (statusId != other.statusId) return false
+        if (createdDate != other.createdDate) return false
+        if (completedDate != other.completedDate) return false
+        if (departmentId != other.departmentId) return false
+        if (subDepartmentId != other.subDepartmentId) return false
+        if (channelId != other.channelId) return false
+        if (lineId != other.lineId) return false
+        if (operationId != other.operationId) return false
+        if (itemPreffix != other.itemPreffix) return false
+        if (itemTypeId != other.itemTypeId) return false
+        if (itemVersionId != other.itemVersionId) return false
+        if (samplesCount != other.samplesCount) return false
+        if (remarkId != other.remarkId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + orderId
+        result = 31 * result + subOrderNumber
+        result = 31 * result + orderedById
+        result = 31 * result + (completedById ?: 0)
+        result = 31 * result + statusId
+        result = 31 * result + createdDate.hashCode()
+        result = 31 * result + (completedDate?.hashCode() ?: 0)
+        result = 31 * result + departmentId
+        result = 31 * result + subDepartmentId
+        result = 31 * result + channelId
+        result = 31 * result + lineId
+        result = 31 * result + operationId
+        result = 31 * result + itemPreffix.hashCode()
+        result = 31 * result + itemTypeId
+        result = 31 * result + itemVersionId
+        result = 31 * result + (samplesCount ?: 0)
+        result = 31 * result + remarkId
+        return result
+    }
+}
 
 @DatabaseView(
     viewName = "sub_orders_results",
@@ -344,13 +394,43 @@ data class DatabaseSubOrderTask constructor(
     var charId: Int,
     @ColumnInfo(index = true)
     var statusId: Int,
-    var createdDate: String? = null,
-    var completedDate: String? = null,
+    var createdDate: Long? = null,
+    var completedDate: Long? = null,
     @ColumnInfo(index = true)
     var orderedById: Int? = null,
     @ColumnInfo(index = true)
     var completedById: Int? = null,
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DatabaseSubOrderTask
+
+        if (id != other.id) return false
+        if (subOrderId != other.subOrderId) return false
+        if (charId != other.charId) return false
+        if (statusId != other.statusId) return false
+        if (createdDate != other.createdDate) return false
+        if (completedDate != other.completedDate) return false
+        if (orderedById != other.orderedById) return false
+        if (completedById != other.completedById) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + subOrderId
+        result = 31 * result + charId
+        result = 31 * result + statusId
+        result = 31 * result + (createdDate?.hashCode() ?: 0)
+        result = 31 * result + (completedDate?.hashCode() ?: 0)
+        result = 31 * result + (orderedById ?: 0)
+        result = 31 * result + (completedById ?: 0)
+        return result
+    }
+}
 
 @DatabaseView(
     viewName = "tasks_results",

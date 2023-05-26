@@ -470,8 +470,8 @@ fun getSubOrderTasks() = List(30) {
         subOrderTask = DomainSubOrderTask(
             id = 1,
             statusId = 1,
-            completedDate = "",
-            createdDate = "",
+            completedDate = null,
+            createdDate = null,
             subOrderId = 1,
             charId = 1
         ),

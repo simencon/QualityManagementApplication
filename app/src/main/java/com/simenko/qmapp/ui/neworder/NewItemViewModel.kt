@@ -608,7 +608,7 @@ fun getEmptySubOrder() = DomainSubOrder(
     orderedById = 0,
     completedById = null,
     statusId = 1,
-    createdDate = "2022-01-30T15:30:00+02:00",
+    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")!!,
     completedDate = null,
     departmentId = 0,
     subDepartmentId = 0,
@@ -625,7 +625,7 @@ fun getEmptySubOrder() = DomainSubOrder(
 fun getEmptySubOrderTask(charId: Int, subOrderId: Int = 0) = DomainSubOrderTask(
     id = 0,
     statusId = 1,
-    createdDate = "2022-01-30T15:30:00+02:00",
+    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00"),
     completedDate = null,
     subOrderId = subOrderId,
     charId = charId,
