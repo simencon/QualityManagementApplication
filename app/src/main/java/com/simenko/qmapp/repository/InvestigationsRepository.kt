@@ -384,16 +384,9 @@ class InvestigationsRepository @Inject constructor(
     }
 
     suspend fun refreshOrdersIfNecessary(ordersTimeRange: Pair<Long, Long>) {
-        val tempTestPeriod = Pair(1685008353455L, 1685094753455L)
-        Log.d(TAG, "refreshOrdersIfNecessary: the range is = $tempTestPeriod")
-        val list = invDao.getOrdersByDateRange(tempTestPeriod.first, tempTestPeriod.second)
-        Log.d(TAG, "refreshOrdersIfNecessary: the list size is = ${list.size}")
-        Log.d(TAG, "refreshOrdersIfNecessary: lastItem is ${list[list.lastIndex]}")
-        list.forEach {
-            Log.d(TAG, "refreshOrdersIfNecessary: id = ${it.id}; hash = ${it.hashCode()}")
-        }
+        val list = invDao.getOrdersByDateRange(ordersTimeRange.first, ordersTimeRange.second)
         val localListHashCode = list.sumOf { it.hashCode() }
-        val remoteListHashCode = invService.getOrdersHashCodeForDatePeriod(tempTestPeriod.first, tempTestPeriod.second)
+        val remoteListHashCode = invService.getOrdersHashCodeForDatePeriod(ordersTimeRange.first, ordersTimeRange.second)
         Log.d(TAG, "refreshOrdersIfNecessary: localListHashCode = $localListHashCode; remoteListHashCode = $remoteListHashCode")
     }
 

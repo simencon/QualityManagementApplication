@@ -151,12 +151,12 @@ data class DatabaseOrder constructor(
         var result = id.hashCode()
         result = 31 * result + orderTypeId.hashCode()
         result = 31 * result + reasonId.hashCode()
-        result = 31 * result + orderNumber.let { it?.hashCode() ?: 0 }
+        result = 31 * result + orderNumber.hashCode()
         result = 31 * result + customerId.hashCode()
         result = 31 * result + orderedById.hashCode()
         result = 31 * result + statusId.hashCode()
         result = 31 * result + createdDate.hashCode()
-        result = 31 * result + completedDate.let { if (it!=null) it.hashCode() else 0 }
+        result = 31 * result + completedDate.hashCode()
         return result
     }
 }

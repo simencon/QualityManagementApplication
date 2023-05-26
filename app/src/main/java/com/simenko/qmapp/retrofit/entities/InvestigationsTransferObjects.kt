@@ -57,7 +57,7 @@ data class NetworkOrdersType constructor(
     var typeDescription: String? = null
 )
 
-@JsonClass(generateAdapter = false)
+@JsonClass(generateAdapter = true)
 data class NetworkOrder constructor(
     var id: Int = 0,
     var orderTypeId: Int,
