@@ -109,4 +109,8 @@ object AppModule {
     @Provides
     fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService) =
         InvestigationsRepository(dao, service)
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(@ApplicationContext context: Context) = WorkManager.getInstance(context.applicationContext)
 }

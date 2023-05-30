@@ -7,7 +7,6 @@ import androidx.core.net.toUri
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.simenko.qmapp.other.WorkerKeys
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -20,7 +19,7 @@ class ColorFilterWorker(
 ): CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        val imageFile = workerParams.inputData.getString(WorkerKeys.SYNCHRONIZED)
+        val imageFile = workerParams.inputData.getString(WorkerKeys.LATEST_MILLIS)
             ?.toUri()
             ?.toFile()
         delay(5000L)
@@ -43,7 +42,7 @@ class ColorFilterWorker(
                 if(successful) {
                     Result.success(
                         workDataOf(
-                            WorkerKeys.WAS_UP_TO_DATE to resultImageFile.toUri().toString()
+                            WorkerKeys.EXCLUDED_MILLIS to resultImageFile.toUri().toString()
                         )
                     )
                 } else Result.failure()

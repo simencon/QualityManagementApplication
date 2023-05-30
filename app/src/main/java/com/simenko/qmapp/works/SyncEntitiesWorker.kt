@@ -3,24 +3,17 @@ package com.simenko.qmapp.works
 import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
-import androidx.work.WorkerParameters
-import androidx.work.workDataOf
+import androidx.work.*
+import com.google.android.datatransport.runtime.firebase.transport.LogEventDropped
 import com.simenko.qmapp.R
-import com.simenko.qmapp.other.WorkerKeys
+import com.simenko.qmapp.domain.NoSelectedRecord
 import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.works.WorkerKeys.EXCLUDED_MILLIS
+import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import javax.inject.Inject
+import java.time.Instant
 import kotlin.random.Random
 
 private const val TAG = "SyncEntitiesWorker"
@@ -32,17 +25,22 @@ class SyncEntitiesWorker @AssistedInject constructor(
     private val invRepository: InvestigationsRepository
 ) : CoroutineWorker(context, workerParams) {
 
-    companion object {
-        const val WORK_NAME = "syncInvestigationEntities"
-    }
-
     override suspend fun doWork(): Result {
         try {
-            val result = invRepository.refreshOrdersIfNecessary(invRepository.getCompleteOrdersRange())
+            val completePeriod = invRepository.getCompleteOrdersRange()
+            val result = invRepository.refreshInvestigationsIfNecessary(
+                getPeriodToSync(
+                    invRepository.getCompleteOrdersRange(),
+                    inputData.getLong(LATEST_MILLIS, NoSelectedRecord.num.toLong()),
+                    inputData.getLong(EXCLUDED_MILLIS, NoSelectedRecord.num.toLong())
+                )
+            )
+
             startForegroundService(result)
+
             return Result.success(
                 workDataOf(
-                    WorkerKeys.WAS_UP_TO_DATE to result
+                    WorkerKeys.EXCLUDED_MILLIS to result
                 )
             )
         } catch (e: Exception) {
@@ -55,6 +53,35 @@ class SyncEntitiesWorker @AssistedInject constructor(
                 )
             )
         }
+    }
+
+    private suspend fun getPeriodToSync(
+        currentState: Pair<Long, Long>,
+        latest: Long,
+        exclude: Long
+    ): Pair<Long, Long> {
+
+        val thisMoment = Instant.now()
+
+        val latestMillis = thisMoment.minusMillis(
+            latest
+        ).toEpochMilli()
+
+        val excludedMillis = thisMoment.minusMillis(
+            exclude
+        ).toEpochMilli()
+
+        return Pair(
+
+            if ((currentState.first > latestMillis ||
+                        (latestMillis == NoSelectedRecord.num.toLong() && latestMillis == NoSelectedRecord.num.toLong()))
+                &&
+                (currentState.first != NoSelectedRecord.num.toLong() && currentState.second != NoSelectedRecord.num.toLong())
+            )
+                currentState.first else latestMillis,
+
+            excludedMillis
+        )
     }
 
     private suspend fun startForegroundService(msg: String) {

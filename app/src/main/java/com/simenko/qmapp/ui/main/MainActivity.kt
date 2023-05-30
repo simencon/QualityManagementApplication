@@ -30,6 +30,8 @@ import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.works.SyncEntitiesWorker
+import com.simenko.qmapp.works.SyncPeriodInSec
+import com.simenko.qmapp.works.WorkerKeys
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
 import java.util.concurrent.TimeUnit
@@ -75,7 +77,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
 
-    var requestCode: Int = -1
+    @Inject lateinit var workManager: WorkManager
+    lateinit var myWork: OneTimeWorkRequest
+
+    private var requestCode: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +113,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (savedInstanceState == null) {
             this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
         }
+
+        myWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(
+                        NetworkType.CONNECTED
+                    )
+                    .build()
+            )
+            .setInputData(
+                workDataOf(
+                    WorkerKeys.LATEST_MILLIS to SyncPeriodInSec.LAST_WEEK.latestMillis,
+                    WorkerKeys.EXCLUDED_MILLIS to SyncPeriodInSec.LAST_WEEK.excludedMillis
+                )
+            )
+            .setInitialDelay(Duration.ofSeconds(60))
+            .build()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -189,7 +211,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     investigationsModel.refreshMasterDataFromRepository()
                 }
                 R.id.sync_investigations -> {
-                    investigationsModel.syncUploadedInvestigations()
+//                    investigationsModel.syncUploadedInvestigations()
+                    workManager.beginUniqueWork(
+                        "testWork",
+                        ExistingWorkPolicy.KEEP,
+                        myWork
+                    ).enqueue()
                 }
                 R.id.ppap -> {
                     TODO("Will filter accordingly")

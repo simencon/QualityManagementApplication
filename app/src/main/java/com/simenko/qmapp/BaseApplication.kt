@@ -6,18 +6,23 @@ import android.app.NotificationManager
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
 import com.simenko.qmapp.works.SyncEntitiesWorker
+import com.simenko.qmapp.works.SyncPeriodInSec
+import com.simenko.qmapp.works.WorkerKeys.EXCLUDED_MILLIS
+import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 import javax.inject.Inject
 
 @HiltAndroidApp
 class BaseApplication : Application(), Configuration.Provider {
-    @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
+
     override fun onCreate() {
         super.onCreate()
         val notificationChannel = NotificationChannel(
@@ -43,8 +48,14 @@ class BaseApplication : Application(), Configuration.Provider {
             .build()
     }
 
-    private fun setupRecurringWork(){
-        val repeatingRequest = PeriodicWorkRequestBuilder<SyncEntitiesWorker>(1, TimeUnit.SECONDS)
+    private fun createWork(syncPeriod: SyncPeriodInSec, repetition: Duration) {
+        val work = PeriodicWorkRequestBuilder<SyncEntitiesWorker>(repetition)
+            .setInputData(
+                workDataOf(
+                    LATEST_MILLIS to syncPeriod.latestMillis,
+                    EXCLUDED_MILLIS to syncPeriod.excludedMillis
+                )
+            )
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(
@@ -52,12 +63,23 @@ class BaseApplication : Application(), Configuration.Provider {
                     )
                     .build()
             )
+            .setInitialDelay(repetition)
             .build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-            SyncEntitiesWorker.WORK_NAME,
+            syncPeriod.name,
             ExistingPeriodicWorkPolicy.KEEP,
-            repeatingRequest
+            work
         )
+    }
+
+    private fun setupRecurringWork() {
+        createWork(SyncPeriodInSec.LAST_HOUR, Duration.ofMinutes(15))
+        createWork(SyncPeriodInSec.LAST_DAY, Duration.ofMinutes(30))
+        createWork(SyncPeriodInSec.LAST_WEEK, Duration.ofHours(1))
+        createWork(SyncPeriodInSec.LAST_MONTH, Duration.ofDays(1))
+        createWork(SyncPeriodInSec.LAST_QUARTER, Duration.ofDays(7))
+        createWork(SyncPeriodInSec.LAST_YEAR, Duration.ofDays(14))
+        createWork(SyncPeriodInSec.COMPLETE_PERIOD, Duration.ofDays(28))
     }
 }

@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.investigations
 import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -15,6 +14,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
+import com.simenko.qmapp.works.SyncPeriodInSec
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -920,27 +920,16 @@ class InvestigationsViewModel @Inject constructor(
     fun syncUploadedInvestigations() {
         viewModelScope.launch {
             val thisMoment = Instant.now()
-            val oneDayAgo = thisMoment
-                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H)
-            val oneWeekAgo = thisMoment
-                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H * 7)
-            val oneMonthAgo = thisMoment
-                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H * 31)
-            val oneYearAgo = thisMoment
-                .minusMillis(1000L * 60L * 60L * Constants.INITIAL_UPDATE_PERIOD_H * 365)
-            val completePeriod = repository.getCompleteOrdersRange()
+
+            val onDemandRange = Pair(
+                thisMoment.minusMillis(SyncPeriodInSec.LAST_HOUR.latestMillis).toEpochMilli(),
+                thisMoment.toEpochMilli()
+            )
+
             try {
                 _isLoadingInProgress.value = true
 
-                val completeOrdersRange = Pair(oneDayAgo.toEpochMilli(),thisMoment.toEpochMilli())
-
-//                repository.refreshOrdersIfNecessary(completeOrdersRange)
-
-                repository.refreshOrders(completeOrdersRange)
-                repository.refreshSubOrders(completeOrdersRange)
-                repository.refreshSubOrderTasks(completeOrdersRange)
-                repository.refreshSamples(completeOrdersRange)
-                repository.refreshResults(completeOrdersRange)
+                repository.refreshInvestigationsIfNecessary(onDemandRange)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false

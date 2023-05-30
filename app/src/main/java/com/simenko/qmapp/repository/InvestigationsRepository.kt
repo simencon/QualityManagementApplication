@@ -381,30 +381,35 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshOrdersIfNecessary(timeRange: Pair<Long, Long>): String {
+    suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): String {
         val oList = invDao.getOrdersByDateRange(timeRange.first, timeRange.second)
         val localOrdersHashCode = oList.sumOf { it.hashCode() }
         val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localOrdersHashCode!=remoteOrdersHashCode) refreshOrders(timeRange)
         Log.d(TAG, "refreshOrdersIfNecessary: localOrdersHashCode = $localOrdersHashCode; remoteOrdersHashCode = $remoteOrdersHashCode")
 
         val soList = invDao.getSubOrdersByDateRangeL(timeRange.first, timeRange.second)
         val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
         val remoteSubOrdersHashCode = invService.getSubOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localSubOrdersHashCode!=remoteSubOrdersHashCode) refreshSubOrders(timeRange)
         Log.d(TAG, "refreshOrdersIfNecessary: localSubOrdersHashCode = $localSubOrdersHashCode; remoteSubOrdersHashCode = $remoteSubOrdersHashCode")
 
         val tList = invDao.getTasksByDateRangeL(timeRange.first, timeRange.second)
         val localTasksHashCode = tList.sumOf { it.hashCode() }
         val remoteTasksHashCode = invService.getTasksHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localTasksHashCode!=remoteTasksHashCode) refreshSubOrderTasks(timeRange)
         Log.d(TAG, "refreshOrdersIfNecessary: localTasksHashCode = $localTasksHashCode; remoteTasksHashCode = $remoteTasksHashCode")
 
         val sList = invDao.getSamplesByDateRange(timeRange.first, timeRange.second)
         val localSamplesHashCode = sList.sumOf { it.hashCode() }
         val remoteSamplesHashCode = invService.getSamplesHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localSamplesHashCode!=remoteSamplesHashCode) refreshSamples(timeRange)
         Log.d(TAG, "refreshOrdersIfNecessary: localSamplesHashCode = $localSamplesHashCode; remoteSamplesHashCode = $remoteSamplesHashCode")
 
         val rList = invDao.getResultsByDateRange(timeRange.first, timeRange.second)
         val localResultsHashCode = rList.sumOf { it.hashCode() }
         val remoteResultsHashCode = invService.getResultsHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localResultsHashCode!=remoteResultsHashCode) refreshResults(timeRange)
         Log.d(TAG, "refreshOrdersIfNecessary: localResultsHashCode = $localResultsHashCode; remoteResultsHashCode = $remoteResultsHashCode")
 
         return "oList.size = ${oList.size};\nsoList.size = ${soList.size};\ntList.size = ${tList.size};\nsList.size = ${sList.size};\nrList.size = ${rList.size};\n"
