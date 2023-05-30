@@ -2,6 +2,7 @@ package com.simenko.qmapp.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.simenko.qmapp.other.Constants.BASE_URL
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.repository.InvestigationsRepository

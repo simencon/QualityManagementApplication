@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.*
 import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
@@ -28,12 +29,19 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.works.SyncEntitiesWorker
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Duration
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
 
-data class CreatedRecord(val orderId: Int = NoSelectedRecord.num, val subOrderId: Int = NoSelectedRecord.num)
+data class CreatedRecord(
+    val orderId: Int = NoSelectedRecord.num,
+    val subOrderId: Int = NoSelectedRecord.num
+)
 
 fun setMainActivityResult(
     activity: NewItemActivity,
@@ -152,9 +160,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onQueryTextChange(newText: String?): Boolean {
                 // Handle search query text change
                 if (investigationsModel.showSubOrderWithOrderType.value == OrderTypeProcessOnly)
-                    investigationsModel.setCurrentSubOrdersFilter(number =  SelectedString( newText ?: NoSelectedString.str))
+                    investigationsModel.setCurrentSubOrdersFilter(
+                        number = SelectedString(
+                            newText ?: NoSelectedString.str
+                        )
+                    )
                 else
-                    investigationsModel.setCurrentOrdersFilter(number =  SelectedString( newText ?: NoSelectedString.str))
+                    investigationsModel.setCurrentOrdersFilter(
+                        number = SelectedString(
+                            newText ?: NoSelectedString.str
+                        )
+                    )
                 Log.d(TAG, "onQueryTextChange: $newText")
                 return true
             }

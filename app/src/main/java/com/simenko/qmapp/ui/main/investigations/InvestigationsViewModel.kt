@@ -934,7 +934,7 @@ class InvestigationsViewModel @Inject constructor(
 
                 val completeOrdersRange = Pair(oneDayAgo.toEpochMilli(),thisMoment.toEpochMilli())
 
-                repository.refreshOrdersIfNecessary(completeOrdersRange)
+//                repository.refreshOrdersIfNecessary(completeOrdersRange)
 
                 repository.refreshOrders(completeOrdersRange)
                 repository.refreshSubOrders(completeOrdersRange)

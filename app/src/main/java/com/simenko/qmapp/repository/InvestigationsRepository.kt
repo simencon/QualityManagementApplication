@@ -381,7 +381,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshOrdersIfNecessary(timeRange: Pair<Long, Long>) {
+    suspend fun refreshOrdersIfNecessary(timeRange: Pair<Long, Long>): String {
         val oList = invDao.getOrdersByDateRange(timeRange.first, timeRange.second)
         val localOrdersHashCode = oList.sumOf { it.hashCode() }
         val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
@@ -406,6 +406,8 @@ class InvestigationsRepository @Inject constructor(
         val localResultsHashCode = rList.sumOf { it.hashCode() }
         val remoteResultsHashCode = invService.getResultsHashCodeForDatePeriod(timeRange.first, timeRange.second)
         Log.d(TAG, "refreshOrdersIfNecessary: localResultsHashCode = $localResultsHashCode; remoteResultsHashCode = $remoteResultsHashCode")
+
+        return "oList.size = ${oList.size};\nsoList.size = ${soList.size};\ntList.size = ${tList.size};\nsList.size = ${sList.size};\nrList.size = ${rList.size};\n"
     }
 
     suspend fun deleteOrder(orderId: Int) {
