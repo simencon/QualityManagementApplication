@@ -9,7 +9,7 @@ object WorkerKeys {
     const val EXCLUDED_MILLIS = "excludedMillis"
 }
 
-enum class SyncPeriodInSec(val latestMillis: Long, val excludedMillis: Long) {
+enum class SyncPeriods(val latestMillis: Long, val excludedMillis: Long) {
     LAST_HOUR(TimeUnit.HOURS.toMillis(1), 0L),
     LAST_DAY(TimeUnit.DAYS.toMillis(1), TimeUnit.HOURS.toMillis(1)),
     LAST_WEEK(TimeUnit.DAYS.toMillis(7), TimeUnit.DAYS.toMillis(1)),

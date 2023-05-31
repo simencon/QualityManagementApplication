@@ -6,7 +6,7 @@ import android.app.NotificationManager
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
 import com.simenko.qmapp.works.SyncEntitiesWorker
-import com.simenko.qmapp.works.SyncPeriodInSec
+import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys.EXCLUDED_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.HiltAndroidApp
@@ -26,7 +26,7 @@ class BaseApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         val notificationChannel = NotificationChannel(
-            "sync_not_channel",
+            "sync_notification_channel",
             "Entity synchronization",
             NotificationManager.IMPORTANCE_HIGH
         )
@@ -48,7 +48,7 @@ class BaseApplication : Application(), Configuration.Provider {
             .build()
     }
 
-    private fun createWork(syncPeriod: SyncPeriodInSec, repetition: Duration) {
+    private fun createWork(syncPeriod: SyncPeriods, repetition: Duration) {
         val work = PeriodicWorkRequestBuilder<SyncEntitiesWorker>(repetition)
             .setInputData(
                 workDataOf(
@@ -74,12 +74,12 @@ class BaseApplication : Application(), Configuration.Provider {
     }
 
     private fun setupRecurringWork() {
-        createWork(SyncPeriodInSec.LAST_HOUR, Duration.ofMinutes(15))
-        createWork(SyncPeriodInSec.LAST_DAY, Duration.ofMinutes(30))
-        createWork(SyncPeriodInSec.LAST_WEEK, Duration.ofHours(1))
-        createWork(SyncPeriodInSec.LAST_MONTH, Duration.ofDays(1))
-        createWork(SyncPeriodInSec.LAST_QUARTER, Duration.ofDays(7))
-        createWork(SyncPeriodInSec.LAST_YEAR, Duration.ofDays(14))
-        createWork(SyncPeriodInSec.COMPLETE_PERIOD, Duration.ofDays(28))
+        createWork(SyncPeriods.LAST_HOUR, Duration.ofMinutes(15))
+        createWork(SyncPeriods.LAST_DAY, Duration.ofMinutes(30))
+        createWork(SyncPeriods.LAST_WEEK, Duration.ofHours(1))
+        createWork(SyncPeriods.LAST_MONTH, Duration.ofDays(1))
+        createWork(SyncPeriods.LAST_QUARTER, Duration.ofDays(7))
+        createWork(SyncPeriods.LAST_YEAR, Duration.ofDays(14))
+        createWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofDays(28))
     }
 }

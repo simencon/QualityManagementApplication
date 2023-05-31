@@ -14,7 +14,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
-import com.simenko.qmapp.works.SyncPeriodInSec
+import com.simenko.qmapp.works.SyncPeriods
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -922,7 +922,7 @@ class InvestigationsViewModel @Inject constructor(
             val thisMoment = Instant.now()
 
             val onDemandRange = Pair(
-                thisMoment.minusMillis(SyncPeriodInSec.LAST_HOUR.latestMillis).toEpochMilli(),
+                thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli(),
                 thisMoment.toEpochMilli()
             )
 

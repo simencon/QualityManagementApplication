@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.other.Constants.INITIAL_UPDATE_PERIOD_H
+import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
@@ -24,7 +25,7 @@ private const val TAG = "InvestigationsRepository"
 class InvestigationsRepository @Inject constructor(
     private val invDao: InvestigationsDao,
     private val invService: InvestigationsService
-) {
+) : InvRepository {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
     suspend fun checkAndUploadNew() {
@@ -44,7 +45,7 @@ class InvestigationsRepository @Inject constructor(
     suspend fun checkAndUploadPrevious(earliestOrderDate: Long): Boolean =
         earliestOrderDate == invDao.getEarliestOrderDateEpoch()
 
-    suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
+    override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
         return Pair(
             invDao.getEarliestOrderDateEpoch() ?: NoSelectedRecord.num.toLong(),
             invDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
@@ -381,7 +382,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): String {
+    override suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): String {
         val oList = invDao.getOrdersByDateRange(timeRange.first, timeRange.second)
         val localOrdersHashCode = oList.sumOf { it.hashCode() }
         val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)

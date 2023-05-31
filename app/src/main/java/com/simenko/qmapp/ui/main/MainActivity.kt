@@ -30,11 +30,10 @@ import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.works.SyncEntitiesWorker
-import com.simenko.qmapp.works.SyncPeriodInSec
+import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
@@ -124,8 +123,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
             .setInputData(
                 workDataOf(
-                    WorkerKeys.LATEST_MILLIS to SyncPeriodInSec.LAST_WEEK.latestMillis,
-                    WorkerKeys.EXCLUDED_MILLIS to SyncPeriodInSec.LAST_WEEK.excludedMillis
+                    WorkerKeys.LATEST_MILLIS to SyncPeriods.LAST_WEEK.latestMillis,
+                    WorkerKeys.EXCLUDED_MILLIS to SyncPeriods.LAST_WEEK.excludedMillis
                 )
             )
             .setInitialDelay(Duration.ofSeconds(60))

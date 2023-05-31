@@ -8,6 +8,7 @@ import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
@@ -109,6 +110,11 @@ object AppModule {
     @Provides
     fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService) =
         InvestigationsRepository(dao, service)
+
+    @Singleton
+    @Provides
+    fun provideInvRepository(dao: InvestigationsDao, service: InvestigationsService) =
+        InvestigationsRepository(dao, service) as InvRepository
 
     @Singleton
     @Provides
