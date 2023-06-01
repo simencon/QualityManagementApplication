@@ -18,7 +18,6 @@ data class SubOrdersFilter(
 )
 
 object InvestigationsUtils {
-
     /**
      * The first means top orderID
      * The second means btn orderID
@@ -49,7 +48,8 @@ object InvestigationsUtils {
     fun Pair<SelectedNumber, SelectedNumber>.setVisibility(
         dId: SelectedNumber,
         aId: SelectedNumber
-    ): Pair<SelectedNumber, SelectedNumber> {
+    ):
+            Pair<SelectedNumber, SelectedNumber> {
         return if (dId != NoSelectedRecord)
             Pair(
                 if (this.first != dId) dId else NoSelectedRecord,
@@ -61,11 +61,8 @@ object InvestigationsUtils {
             )
     }
 
-    fun getPeriodToSync(
-        currentState: Pair<Long, Long>,
-        latest: Long,
-        exclude: Long
-    ): Pair<Long, Long> {
+    fun getPeriodToSync(currentState: Pair<Long, Long>, latest: Long, exclude: Long):
+            Pair<Long, Long> {
 
         val thisMoment = Instant.now()
 
@@ -84,12 +81,12 @@ object InvestigationsUtils {
                         thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
                     else latestMillis
                 currentState.first > latestMillis && currentState.first < excludedMillis -> //when local start is within latest and exclude
-                    if(latest == SyncPeriods.LAST_HOUR.latestMillis || latest == SyncPeriods.LAST_DAY.latestMillis)
+                    if (latest == SyncPeriods.LAST_HOUR.latestMillis || latest == SyncPeriods.LAST_DAY.latestMillis)
                         latestMillis
                     else
                         currentState.first
                 currentState.first > excludedMillis -> //when local is over exclude
-                    if(latest == SyncPeriods.LAST_HOUR.latestMillis )
+                    if (latest == SyncPeriods.LAST_HOUR.latestMillis)
                         thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
                     else if (latest == SyncPeriods.LAST_DAY.latestMillis)
                         thisMoment.minusMillis(SyncPeriods.LAST_DAY.latestMillis).toEpochMilli()
@@ -99,18 +96,18 @@ object InvestigationsUtils {
             },
             when {
                 currentState.second == NoSelectedRecord.num.toLong() -> //when local is empty
-                    if (exclude != SyncPeriods.LAST_DAY.excludedMillis)
-                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludedMillis).toEpochMilli()
+                    if (exclude != SyncPeriods.LAST_DAY.excludeMillis)
+                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
                     else excludedMillis
                 currentState.first < excludedMillis && currentState.second > excludedMillis -> //when local is within latest and exclude
                     excludedMillis
                 currentState.second > excludedMillis ->
-                    if(exclude == SyncPeriods.LAST_HOUR.excludedMillis )
-                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludedMillis).toEpochMilli()
-                    else if (exclude == SyncPeriods.LAST_DAY.excludedMillis)
-                        thisMoment.minusMillis(SyncPeriods.LAST_DAY.excludedMillis).toEpochMilli()
+                    if (exclude == SyncPeriods.LAST_HOUR.excludeMillis)
+                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
+                    else if (exclude == SyncPeriods.LAST_DAY.excludeMillis)
+                        thisMoment.minusMillis(SyncPeriods.LAST_DAY.excludeMillis).toEpochMilli()
                     else
-                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludedMillis).toEpochMilli()
+                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
                 else -> excludedMillis
             }
         )
@@ -118,23 +115,25 @@ object InvestigationsUtils {
         val infPair = Pair(
             when {
                 currentState.first == NoSelectedRecord.num.toLong() ->
-                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
-                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() ->
+                    thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
+                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis)
+                    .toEpochMilli() ->
                     thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
                 else ->
                     currentState.first
             },
             when {
                 currentState.second == NoSelectedRecord.num.toLong() ->
-                        thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludedMillis).toEpochMilli()
-                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() ->
-                    thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludedMillis).toEpochMilli()
+                    thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
+                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis)
+                    .toEpochMilli() ->
+                    thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
                 else ->
                     excludedMillis
             }
         )
 
-        return if (exclude == SyncPeriods.COMPLETE_PERIOD.excludedMillis)
+        return if (exclude == SyncPeriods.COMPLETE_PERIOD.excludeMillis)
             infPair
         else
             specificPair

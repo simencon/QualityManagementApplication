@@ -18,7 +18,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -41,7 +41,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -64,7 +64,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -87,7 +87,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -107,7 +107,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -130,7 +130,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -153,7 +153,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -176,7 +176,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -199,7 +199,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -222,7 +222,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -245,7 +245,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -265,7 +265,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -288,7 +288,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -311,7 +311,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -334,7 +334,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -357,7 +357,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -380,7 +380,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -403,7 +403,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -423,7 +423,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -446,7 +446,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -469,7 +469,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -492,7 +492,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -515,7 +515,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -538,7 +538,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -561,7 +561,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -581,7 +581,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -604,7 +604,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -627,7 +627,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -650,7 +650,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -673,7 +673,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -696,7 +696,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -719,7 +719,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -739,7 +739,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -762,7 +762,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -785,7 +785,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -808,7 +808,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -831,7 +831,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -854,7 +854,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -877,7 +877,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -897,7 +897,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -920,7 +920,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -943,7 +943,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
@@ -966,7 +966,7 @@ class InvestigationsUtilsTest {
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
             currentState,
             syncPeriod.latestMillis,
-            syncPeriod.excludedMillis
+            syncPeriod.excludeMillis
         )
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond

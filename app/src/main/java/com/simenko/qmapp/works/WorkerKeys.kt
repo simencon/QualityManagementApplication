@@ -6,10 +6,10 @@ import java.util.concurrent.TimeUnit
 object WorkerKeys {
     const val ERROR_MSG = "errorMsg"
     const val LATEST_MILLIS = "latestMillis"
-    const val EXCLUDED_MILLIS = "excludedMillis"
+    const val EXCLUDE_MILLIS = "excludedMillis"
 }
 
-enum class SyncPeriods(val latestMillis: Long, val excludedMillis: Long) {
+enum class SyncPeriods(val latestMillis: Long, val excludeMillis: Long) {
     LAST_HOUR(TimeUnit.HOURS.toMillis(1), 0L),
     LAST_DAY(TimeUnit.DAYS.toMillis(1), TimeUnit.HOURS.toMillis(1)),
     LAST_WEEK(TimeUnit.DAYS.toMillis(7), TimeUnit.DAYS.toMillis(1)),

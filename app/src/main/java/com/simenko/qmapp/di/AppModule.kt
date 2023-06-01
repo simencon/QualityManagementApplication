@@ -29,11 +29,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
-
     @Singleton
     @Provides
     fun provideQualityDB(
@@ -61,7 +59,6 @@ object AppModule {
     fun provideMoshiInstance(): Moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
         .build()
-
 
     @Singleton
     @Provides

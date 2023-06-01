@@ -30,4 +30,10 @@ object Constants {
     const val UI_TOTAL_VISIBLE = 10
 
     const val INITIAL_UPDATE_PERIOD_H = 24L
+
+    const val SYNC_NOTIFICATION_CHANNEL_ID = "sync_notification_channel_qm_app"
+    const val SYNC_NOTIFICATION_CHANNEL_NAME = "Entity synchronization"
+
+    const val NOTIFICATION_ID_KEY = "notificationIdKey"
+    const val NOTIFICATION_ID = 0
 }

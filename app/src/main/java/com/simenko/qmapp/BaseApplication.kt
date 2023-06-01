@@ -3,11 +3,14 @@ package com.simenko.qmapp
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
+import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
+import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_NAME
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
-import com.simenko.qmapp.works.WorkerKeys.EXCLUDED_MILLIS
+import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -26,11 +29,12 @@ class BaseApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         val notificationChannel = NotificationChannel(
-            "sync_notification_channel",
-            "Entity synchronization",
-            NotificationManager.IMPORTANCE_HIGH
+            SYNC_NOTIFICATION_CHANNEL_ID,
+            SYNC_NOTIFICATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT
         )
-        val notificationManager = getSystemService(NotificationManager::class.java)
+//        val notificationManager = getSystemService(NotificationManager::class.java)
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(notificationChannel)
 
         delayedInit()
@@ -48,13 +52,17 @@ class BaseApplication : Application(), Configuration.Provider {
             .build()
     }
 
-    private fun createWork(syncPeriod: SyncPeriods, repetition: Duration) {
+    private fun createSyncWork(syncPeriod: SyncPeriods, repetition: Duration) {
         val work = PeriodicWorkRequestBuilder<SyncEntitiesWorker>(repetition)
             .setInputData(
-                workDataOf(
-                    LATEST_MILLIS to syncPeriod.latestMillis,
-                    EXCLUDED_MILLIS to syncPeriod.excludedMillis
-                )
+                Data.Builder()
+                    .putLong(LATEST_MILLIS, syncPeriod.latestMillis)
+                    .putLong(EXCLUDE_MILLIS, syncPeriod.excludeMillis)
+                    .build()
+//                workDataOf(
+//                    LATEST_MILLIS to syncPeriod.latestMillis,
+//                    EXCLUDE_MILLIS to syncPeriod.excludeMillis
+//                )
             )
             .setConstraints(
                 Constraints.Builder()
@@ -64,6 +72,7 @@ class BaseApplication : Application(), Configuration.Provider {
                     .build()
             )
             .setInitialDelay(repetition)
+//            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
@@ -74,12 +83,12 @@ class BaseApplication : Application(), Configuration.Provider {
     }
 
     private fun setupRecurringWork() {
-        createWork(SyncPeriods.LAST_HOUR, Duration.ofMinutes(15))
-        createWork(SyncPeriods.LAST_DAY, Duration.ofMinutes(30))
-        createWork(SyncPeriods.LAST_WEEK, Duration.ofHours(1))
-        createWork(SyncPeriods.LAST_MONTH, Duration.ofDays(1))
-        createWork(SyncPeriods.LAST_QUARTER, Duration.ofDays(7))
-        createWork(SyncPeriods.LAST_YEAR, Duration.ofDays(14))
-        createWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofDays(28))
+        createSyncWork(SyncPeriods.LAST_HOUR, Duration.ofMinutes(15))
+        createSyncWork(SyncPeriods.LAST_DAY, Duration.ofMinutes(30))
+        createSyncWork(SyncPeriods.LAST_WEEK, Duration.ofHours(1))
+        createSyncWork(SyncPeriods.LAST_MONTH, Duration.ofDays(1))
+        createSyncWork(SyncPeriods.LAST_QUARTER, Duration.ofDays(7))
+        createSyncWork(SyncPeriods.LAST_YEAR, Duration.ofDays(14))
+        createSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofDays(28))
     }
 }

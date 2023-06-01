@@ -123,11 +123,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
             .setInputData(
                 workDataOf(
-                    WorkerKeys.LATEST_MILLIS to SyncPeriods.LAST_WEEK.latestMillis,
-                    WorkerKeys.EXCLUDED_MILLIS to SyncPeriods.LAST_WEEK.excludedMillis
+                    WorkerKeys.LATEST_MILLIS to SyncPeriods.LAST_DAY.latestMillis,
+                    WorkerKeys.EXCLUDE_MILLIS to SyncPeriods.LAST_DAY.excludeMillis
                 )
             )
-            .setInitialDelay(Duration.ofSeconds(60))
+            .setInitialDelay(Duration.ofSeconds(5))
             .build()
     }
 
