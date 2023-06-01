@@ -17,6 +17,22 @@ data class SubOrdersFilter(
     val orderNumber: String = NoSelectedString.str
 )
 
+data class NotificationData(
+    val orderId: Int = NoSelectedRecord.num,
+    val subOrderId: Int = NoSelectedRecord.num,
+    val departmentAbbr: String? = null,
+    val channelAbbr: String? = null,
+    val itemTypeCompleteDesignation: String = NoSelectedString.str,
+    val notificationReason: NotificationReasons = NotificationReasons.DEFAULT
+)
+
+enum class NotificationReasons (val reason: String) {
+    CREATED("created new one"),
+    DELETED("deleted"),
+    CHANGED("changed"),
+    DEFAULT("no reason")
+}
+
 object InvestigationsUtils {
     /**
      * The first means top orderID

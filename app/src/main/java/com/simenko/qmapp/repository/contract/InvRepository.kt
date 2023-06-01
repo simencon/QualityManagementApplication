@@ -1,6 +1,8 @@
 package com.simenko.qmapp.repository.contract
 
+import com.simenko.qmapp.utils.NotificationData
+
 interface InvRepository {
-    suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): String
+    suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): List<NotificationData>
     suspend fun getCompleteOrdersRange(): Pair<Long, Long>
 }

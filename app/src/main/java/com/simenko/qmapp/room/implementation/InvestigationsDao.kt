@@ -220,6 +220,10 @@ interface InvestigationsDao {
     suspend fun getSubOrdersByDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrder>
 
     @Transaction
+    @Query("select so.* from `13_sub_orders` so where so.id = :subOrderId")
+    suspend fun getSubOrdersById(subOrderId: Int): DatabaseSubOrderComplete?
+
+    @Transaction
     @Query("SELECT * FROM `13_sub_orders`")
     fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderShort>>
 

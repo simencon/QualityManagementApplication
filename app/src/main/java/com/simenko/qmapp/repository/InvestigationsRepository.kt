@@ -12,6 +12,9 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.ListTransformer
+import com.simenko.qmapp.utils.NotificationData
+import com.simenko.qmapp.utils.NotificationReasons
+import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
@@ -76,7 +79,7 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (ntIt.statusId != dbIt.statusId)
+                        if(dbIt!=ntIt.toDatabaseOrder())
                             recordStatusChanged = true
                         return@byBlock2
                     }
@@ -103,7 +106,8 @@ class InvestigationsRepository @Inject constructor(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
             invDao: InvestigationsDao
-        ) {
+        ): List<NotificationData> {
+            val mList = mutableListOf<NotificationData>()
             val ntSubOrders = invService.getSubOrdersByDateRange(oRange.first, oRange.second)
             val dbSubOrders = invDao.getSubOrdersByDateRangeL(oRange.first, oRange.second)
             ntSubOrders.forEach byBlock1@{ ntIt ->
@@ -116,19 +120,55 @@ class InvestigationsRepository @Inject constructor(
                 }
                 if (!recordExists) {
                     invDao.insertSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.getSubOrdersById(ntIt.id)?.let {
+                        mList.add(
+                            NotificationData(
+                                orderId = it.subOrder.orderId,
+                                subOrderId = it.subOrder.id,
+                                departmentAbbr = it.department.depAbbr,
+                                channelAbbr = it.channel.channelAbbr,
+                                itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
+                                    StringUtils.concatTwoStrings3(
+                                        it.itemVersionComplete.itemComplete.key.componentKey,
+                                        it.itemVersionComplete.itemComplete.item.itemDesignation
+                                    ),
+                                    it.itemVersionComplete.itemVersion.versionDescription
+                                ),
+                                notificationReason = NotificationReasons.CREATED
+                            )
+                        )
+                    }
                 }
             }
             ntSubOrders.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (ntIt.statusId != dbIt.statusId)
+                        if (dbIt != ntIt.toDatabaseSubOrder())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
                     invDao.updateSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.getSubOrdersById(ntIt.id)?.let {
+                        mList.add(
+                            NotificationData(
+                                orderId = it.subOrder.orderId,
+                                subOrderId = it.subOrder.id,
+                                departmentAbbr = it.department.depAbbr,
+                                channelAbbr = it.channel.channelAbbr,
+                                itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
+                                    StringUtils.concatTwoStrings3(
+                                        it.itemVersionComplete.itemComplete.key.componentKey,
+                                        it.itemVersionComplete.itemComplete.item.itemDesignation
+                                    ),
+                                    it.itemVersionComplete.itemVersion.versionDescription
+                                ),
+                                notificationReason = NotificationReasons.CHANGED
+                            )
+                        )
+                    }
                 }
             }
             dbSubOrders.forEach byBlock1@{ dbIt ->
@@ -140,9 +180,29 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
+                    invDao.getSubOrdersById(dbIt.id)?.let {
+                        mList.add(
+                            NotificationData(
+                                orderId = it.subOrder.orderId,
+                                subOrderId = it.subOrder.id,
+                                departmentAbbr = it.department.depAbbr,
+                                channelAbbr = it.channel.channelAbbr,
+                                itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
+                                    StringUtils.concatTwoStrings3(
+                                        it.itemVersionComplete.itemComplete.key.componentKey,
+                                        it.itemVersionComplete.itemComplete.item.itemDesignation
+                                    ),
+                                    it.itemVersionComplete.itemVersion.versionDescription
+                                ),
+                                notificationReason = NotificationReasons.DELETED
+                            )
+                        )
+                    }
                     invDao.deleteSubOrder(dbIt)
                 }
             }
+
+            return mList
         }
 
         suspend fun syncSubOrderTasks(
@@ -168,7 +228,7 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbSubOrderTasks.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (ntIt.statusId != dbIt.statusId)
+                        if(dbIt!=ntIt.toDatabaseSubOrderTask())
                             recordStatusChanged = true
                         return@byBlock2
                     }
@@ -382,38 +442,60 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    override suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): String {
+    override suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): List<NotificationData> {
+        val mList = mutableListOf<NotificationData>()
+
         val oList = invDao.getOrdersByDateRange(timeRange.first, timeRange.second)
         val localOrdersHashCode = oList.sumOf { it.hashCode() }
-        val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
-        if (localOrdersHashCode!=remoteOrdersHashCode) refreshOrders(timeRange)
-        Log.d(TAG, "refreshOrdersIfNecessary: localOrdersHashCode = $localOrdersHashCode; remoteOrdersHashCode = $remoteOrdersHashCode")
+        val remoteOrdersHashCode =
+            invService.getOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localOrdersHashCode != remoteOrdersHashCode) refreshOrders(timeRange)
+        Log.d(
+            TAG,
+            "refreshOrdersIfNecessary: localOrdersHashCode = $localOrdersHashCode; remoteOrdersHashCode = $remoteOrdersHashCode"
+        )
 
         val soList = invDao.getSubOrdersByDateRangeL(timeRange.first, timeRange.second)
         val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
-        val remoteSubOrdersHashCode = invService.getSubOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
-        if (localSubOrdersHashCode!=remoteSubOrdersHashCode) refreshSubOrders(timeRange)
-        Log.d(TAG, "refreshOrdersIfNecessary: localSubOrdersHashCode = $localSubOrdersHashCode; remoteSubOrdersHashCode = $remoteSubOrdersHashCode")
+        val remoteSubOrdersHashCode =
+            invService.getSubOrdersHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localSubOrdersHashCode != remoteSubOrdersHashCode) mList.addAll(refreshSubOrders(timeRange))
+        Log.d(
+            TAG,
+            "refreshOrdersIfNecessary: localSubOrdersHashCode = $localSubOrdersHashCode; remoteSubOrdersHashCode = $remoteSubOrdersHashCode"
+        )
 
         val tList = invDao.getTasksByDateRangeL(timeRange.first, timeRange.second)
         val localTasksHashCode = tList.sumOf { it.hashCode() }
-        val remoteTasksHashCode = invService.getTasksHashCodeForDatePeriod(timeRange.first, timeRange.second)
-        if (localTasksHashCode!=remoteTasksHashCode) refreshSubOrderTasks(timeRange)
-        Log.d(TAG, "refreshOrdersIfNecessary: localTasksHashCode = $localTasksHashCode; remoteTasksHashCode = $remoteTasksHashCode")
+        val remoteTasksHashCode =
+            invService.getTasksHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localTasksHashCode != remoteTasksHashCode) refreshSubOrderTasks(timeRange)
+        Log.d(
+            TAG,
+            "refreshOrdersIfNecessary: localTasksHashCode = $localTasksHashCode; remoteTasksHashCode = $remoteTasksHashCode"
+        )
 
         val sList = invDao.getSamplesByDateRange(timeRange.first, timeRange.second)
         val localSamplesHashCode = sList.sumOf { it.hashCode() }
-        val remoteSamplesHashCode = invService.getSamplesHashCodeForDatePeriod(timeRange.first, timeRange.second)
-        if (localSamplesHashCode!=remoteSamplesHashCode) refreshSamples(timeRange)
-        Log.d(TAG, "refreshOrdersIfNecessary: localSamplesHashCode = $localSamplesHashCode; remoteSamplesHashCode = $remoteSamplesHashCode")
+        val remoteSamplesHashCode =
+            invService.getSamplesHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localSamplesHashCode != remoteSamplesHashCode) refreshSamples(timeRange)
+        Log.d(
+            TAG,
+            "refreshOrdersIfNecessary: localSamplesHashCode = $localSamplesHashCode; remoteSamplesHashCode = $remoteSamplesHashCode"
+        )
 
         val rList = invDao.getResultsByDateRange(timeRange.first, timeRange.second)
         val localResultsHashCode = rList.sumOf { it.hashCode() }
-        val remoteResultsHashCode = invService.getResultsHashCodeForDatePeriod(timeRange.first, timeRange.second)
-        if (localResultsHashCode!=remoteResultsHashCode) refreshResults(timeRange)
-        Log.d(TAG, "refreshOrdersIfNecessary: localResultsHashCode = $localResultsHashCode; remoteResultsHashCode = $remoteResultsHashCode")
+        val remoteResultsHashCode =
+            invService.getResultsHashCodeForDatePeriod(timeRange.first, timeRange.second)
+        if (localResultsHashCode != remoteResultsHashCode) refreshResults(timeRange)
+        Log.d(
+            TAG,
+            "refreshOrdersIfNecessary: localResultsHashCode = $localResultsHashCode; remoteResultsHashCode = $remoteResultsHashCode"
+        )
 
-        return "oList.size = ${oList.size};\nsoList.size = ${soList.size};\ntList.size = ${tList.size};\nsList.size = ${sList.size};\nrList.size = ${rList.size};\n"
+        return mList
     }
 
     suspend fun deleteOrder(orderId: Int) {
@@ -446,11 +528,13 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshSubOrders(uiOrdersRange: Pair<Long, Long>) {
+    suspend fun refreshSubOrders(uiOrdersRange: Pair<Long, Long>): List<NotificationData> {
+        var result: List<NotificationData>
         withContext(Dispatchers.IO) {
-            syncSubOrders(uiOrdersRange, invService, invDao)
+            result = syncSubOrders(uiOrdersRange, invService, invDao)
             Log.d(TAG, "refreshSubOrders: ${timeFormatter.format(Instant.now())}")
         }
+        return result
     }
 
     suspend fun refreshSubOrderTasks(uiOrdersRange: Pair<Long, Long>) {

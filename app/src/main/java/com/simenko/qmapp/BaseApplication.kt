@@ -33,8 +33,7 @@ class BaseApplication : Application(), Configuration.Provider {
             SYNC_NOTIFICATION_CHANNEL_NAME,
             NotificationManager.IMPORTANCE_DEFAULT
         )
-//        val notificationManager = getSystemService(NotificationManager::class.java)
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(notificationChannel)
 
         delayedInit()
@@ -59,10 +58,6 @@ class BaseApplication : Application(), Configuration.Provider {
                     .putLong(LATEST_MILLIS, syncPeriod.latestMillis)
                     .putLong(EXCLUDE_MILLIS, syncPeriod.excludeMillis)
                     .build()
-//                workDataOf(
-//                    LATEST_MILLIS to syncPeriod.latestMillis,
-//                    EXCLUDE_MILLIS to syncPeriod.excludeMillis
-//                )
             )
             .setConstraints(
                 Constraints.Builder()
@@ -72,7 +67,6 @@ class BaseApplication : Application(), Configuration.Provider {
                     .build()
             )
             .setInitialDelay(repetition)
-//            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
         WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
