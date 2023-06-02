@@ -13,6 +13,7 @@ import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
+import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -38,9 +39,7 @@ object AppModule {
         context.applicationContext,
         QualityManagementDB::class.java,
         DATABASE_NAME
-    )
-        .addTypeConverter(Converters())
-        .build()
+    ).build()
 
     @Singleton
     @Provides
@@ -70,6 +69,7 @@ object AppModule {
                 moshi
             )
         )
+        .addConverterFactory(PairConverterFactory())
         .client(
             OkHttpClient.Builder()
                 .readTimeout(360, TimeUnit.SECONDS)

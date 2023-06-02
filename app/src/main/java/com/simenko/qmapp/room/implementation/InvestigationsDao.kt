@@ -187,12 +187,10 @@ interface InvestigationsDao {
     @Transaction
     @Query(
         "select o.* from `12_orders` o " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    suspend fun Pair<Long,Long>.getOrdersByDateRange(
-        btnCreateDate: Long = first,
-        topCreateDate: Long = second
-    ): List<DatabaseOrder>
+    suspend fun getOrdersByDateRange(timeRange: Pair<Long, Long>): List<DatabaseOrder>
 
     @Transaction
     @Query(
@@ -209,12 +207,10 @@ interface InvestigationsDao {
     @Query(
         "select so.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    suspend fun Pair<Long, Long>.getSubOrdersByDateRangeL(
-        btnCreateDate: Long = first,
-        topCreateDate: Long = second
-    ): List<DatabaseSubOrder>
+    suspend fun getSubOrdersByDateRangeL(timeRange: Pair<Long, Long>): List<DatabaseSubOrder>
 
     @Transaction
     @Query("select so.* from `13_sub_orders` so where so.id = :subOrderId")
@@ -241,12 +237,10 @@ interface InvestigationsDao {
         "select t.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +
                 "join `sub_order_task_complete` t on so.id = t.subOrderId " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    suspend fun Pair<Long, Long>.getTasksByDateRangeL(
-        btnCreateDate: Long = first,
-        topCreateDate: Long = second
-    ): List<DatabaseSubOrderTask>
+    suspend fun getTasksByDateRangeL(timeRange: Pair<Long, Long>): List<DatabaseSubOrderTask>
 
     @Transaction
     @Query(
@@ -261,12 +255,10 @@ interface InvestigationsDao {
         "select s.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +
                 "join `14_samples` s on so.id = s.subOrderId " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    suspend fun Pair<Long, Long>.getSamplesByDateRange(
-        btnCreateDate: Long = first,
-        topCreateDate: Long = second
-    ): List<DatabaseSample>
+    suspend fun getSamplesByDateRange(timeRange: Pair<Long, Long>): List<DatabaseSample>
 
     @Transaction
     @Query(
@@ -284,10 +276,8 @@ interface InvestigationsDao {
                 "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
                 "join `14_samples` s on so.id = s.subOrderId " +
                 "join `14_8_results` r on t.id = r.taskId and s.id = r.sampleId " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    suspend fun Pair<Long, Long>.getResultsByDateRange(
-        btnCreateDate: Long = first,
-        topCreateDate: Long = second
-    ): List<DatabaseResult>
+    suspend fun getResultsByDateRange(timeRange: Pair<Long, Long>): List<DatabaseResult>
 }

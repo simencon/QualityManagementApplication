@@ -73,6 +73,7 @@ import com.simenko.qmapp.room.entities.*
     version = 1,
     exportSchema = true
 )
+@TypeConverters(Converters::class)
 abstract class QualityManagementDB : RoomDatabase() {
     abstract val manufacturingDao: ManufacturingDao
     abstract val productsDao: ProductsDao

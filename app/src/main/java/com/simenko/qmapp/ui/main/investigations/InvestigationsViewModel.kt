@@ -19,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
+import retrofit2.HttpException
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject

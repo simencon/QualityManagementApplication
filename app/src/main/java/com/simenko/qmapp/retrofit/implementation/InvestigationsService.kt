@@ -1,6 +1,7 @@
 package com.simenko.qmapp.retrofit.implementation
 
 import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.retrofit.implementation.converters.PairParam
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -30,22 +31,14 @@ interface InvestigationsService {
         @Path("earliestOrderDate") earliestOrderDate: Long
     ): List<NetworkOrder>
 
-    @GET("orders/hashCode/{btnDate}/{topDate}")
-    suspend fun Pair<Long, Long>.getOrdersHashCodeForDatePeriod(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("orders/hashCode/{timeRange}")
+    suspend fun getOrdersHashCodeForDatePeriod(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): Int
 
-    @GET("orders/{btnDate}/{topDate}")
+    @GET("orders/{timeRange}")
     suspend fun getOrdersByDateRange(
-        @Path("btnDate") btnDate: Long,
-        @Path("topDate") topDate: Long
-    ): List<NetworkOrder>
-
-    @GET("orders/{btnDate}/{topDate}")
-    suspend fun Pair<Long, Long>.getOrdersByDateRange(
-        @Path("btnDate") btnDate: Long = this.first,
-        @Path("topDate") topDate: Long = this.second
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): List<NetworkOrder>
 
     @POST("orders")
@@ -61,16 +54,14 @@ interface InvestigationsService {
     @GET("orders/{id}")
     suspend fun getOrder(@Path("id") id: Int): NetworkOrder
 
-    @GET("subOrders/hashCode/{btnDate}/{topDate}")
-    suspend fun Pair<Long,Long>.getSubOrdersHashCodeForDatePeriod(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("subOrders/hashCode/{timeRange}")
+    suspend fun getSubOrdersHashCodeForDatePeriod(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): Int
 
-    @GET("subOrders/{btnDate}/{topDate}")
-    suspend fun Pair<Long,Long>.getSubOrdersByDateRange(
-        @Path("btnDate") btnNumber: Long = first,
-        @Path("topDate") topNumber: Long = second
+    @GET("subOrders/{timeRange}")
+    suspend fun getSubOrdersByDateRange(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): List<NetworkSubOrder>
 
     @POST("subOrders")
@@ -86,16 +77,14 @@ interface InvestigationsService {
     @GET("subOrders/{id}")
     suspend fun getSubOrder(@Path("id") id: Int): NetworkSubOrder
 
-    @GET("subOrderTasks/hashCode/{btnDate}/{topDate}")
-    suspend fun Pair<Long, Long>.getTasksHashCodeForDatePeriod(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("subOrderTasks/hashCode/{timeRange}")
+    suspend fun getTasksHashCodeForDatePeriod(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): Int
 
-    @GET("subOrderTasks/{btnDate}/{topDate}")
-    suspend fun Pair<Long,Long>.getTasksDateRange(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("subOrderTasks/{timeRange}")
+    suspend fun getTasksDateRange(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): List<NetworkSubOrderTask>
 
     @POST("subOrderTasks")
@@ -114,16 +103,14 @@ interface InvestigationsService {
     @GET("subOrderTasks/{id}")
     suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
 
-    @GET("samples/hashCode/{btnDate}/{topDate}")
-    suspend fun Pair<Long, Long>.getSamplesHashCodeForDatePeriod(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("samples/hashCode/{timeRange}")
+    suspend fun getSamplesHashCodeForDatePeriod(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): Int
 
-    @GET("samples/{btnDate}/{topDate}")
-    suspend fun Pair<Long,Long>.getSamplesByDateRange(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("samples/{timeRange}")
+    suspend fun getSamplesByDateRange(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): List<NetworkSample>
 
     @POST("samples")
@@ -135,16 +122,14 @@ interface InvestigationsService {
     @GET("resultsDecriptions")
     suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>
 
-    @GET("results/hashCode/{btnDate}/{topDate}")
-    suspend fun Pair<Long, Long>.getResultsHashCodeForDatePeriod(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("results/hashCode/{timeRange}")
+    suspend fun getResultsHashCodeForDatePeriod(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): Int
 
-    @GET("results/{btnDate}/{topDate}")
-    suspend fun Pair<Long,Long>.getResultsByDateRange(
-        @Path("btnDate") btnDate: Long = first,
-        @Path("topDate") topDate: Long = second
+    @GET("results/{timeRange}")
+    suspend fun getResultsByDateRange(
+        @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): List<NetworkResult>
 
     @POST("results/records")
