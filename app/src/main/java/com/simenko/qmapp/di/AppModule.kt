@@ -13,10 +13,7 @@ import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
-import com.simenko.qmapp.room.implementation.InvestigationsDao
-import com.simenko.qmapp.room.implementation.ManufacturingDao
-import com.simenko.qmapp.room.implementation.ProductsDao
-import com.simenko.qmapp.room.implementation.QualityManagementDB
+import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -41,7 +38,9 @@ object AppModule {
         context.applicationContext,
         QualityManagementDB::class.java,
         DATABASE_NAME
-    ).build()
+    )
+        .addTypeConverter(Converters())
+        .build()
 
     @Singleton
     @Provides
@@ -73,8 +72,8 @@ object AppModule {
         )
         .client(
             OkHttpClient.Builder()
-                .readTimeout(360,TimeUnit.SECONDS)
-                .connectTimeout(360,TimeUnit.SECONDS)
+                .readTimeout(360, TimeUnit.SECONDS)
+                .connectTimeout(360, TimeUnit.SECONDS)
                 .build()
         )
         .build()
@@ -116,9 +115,11 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideWorkManager(@ApplicationContext context: Context) = WorkManager.getInstance(context.applicationContext)
+    fun provideWorkManager(@ApplicationContext context: Context) =
+        WorkManager.getInstance(context.applicationContext)
 
     @Singleton
     @Provides
-    fun provideNotificationManager(@ApplicationContext context: Context) = NotificationManagerCompat.from(context.applicationContext)
+    fun provideNotificationManager(@ApplicationContext context: Context) =
+        NotificationManagerCompat.from(context.applicationContext)
 }

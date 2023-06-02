@@ -159,11 +159,11 @@ interface InvestigationsDao {
 
     @Transaction
     @Query("select max(createdDate) from `12_orders`")
-    suspend fun getLatestOrderDateEpoch():Long?
+    suspend fun getLatestOrderDateEpoch(): Long?
 
     @Transaction
     @Query("select min(createdDate) from `12_orders`")
-    suspend fun getEarliestOrderDateEpoch():Long?
+    suspend fun getEarliestOrderDateEpoch(): Long?
 
     @Transaction
     @Query("select max(id) from `12_orders` where createdDate = :latestOrderDate")
@@ -185,21 +185,36 @@ interface InvestigationsDao {
     ): Flow<List<DatabaseOrderComplete>>
 
     @Transaction
-    @Query("select o.* from `12_orders` o " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getOrdersByDateRange(btnCreateDate: Long, topCreateDate: Long): List<DatabaseOrder>
+    @Query(
+        "select o.* from `12_orders` o " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    suspend fun Pair<Long,Long>.getOrdersByDateRange(
+        btnCreateDate: Long = first,
+        topCreateDate: Long = second
+    ): List<DatabaseOrder>
 
     @Transaction
-    @Query("select so.* from `12_orders` o " +
-            "join `13_sub_orders` so on o.id = so.orderId " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    fun getSubOrdersByDateRange(btnCreateDate: Long, topCreateDate: Long): Flow<List<DatabaseSubOrderComplete>>
+    @Query(
+        "select so.* from `12_orders` o " +
+                "join `13_sub_orders` so on o.id = so.orderId " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    fun getSubOrdersByDateRange(
+        btnCreateDate: Long,
+        topCreateDate: Long
+    ): Flow<List<DatabaseSubOrderComplete>>
 
     @Transaction
-    @Query("select so.* from `12_orders` o " +
-            "join `13_sub_orders` so on o.id = so.orderId " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getSubOrdersByDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrder>
+    @Query(
+        "select so.* from `12_orders` o " +
+                "join `13_sub_orders` so on o.id = so.orderId " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    suspend fun Pair<Long, Long>.getSubOrdersByDateRangeL(
+        btnCreateDate: Long = first,
+        topCreateDate: Long = second
+    ): List<DatabaseSubOrder>
 
     @Transaction
     @Query("select so.* from `13_sub_orders` so where so.id = :subOrderId")
@@ -210,45 +225,69 @@ interface InvestigationsDao {
     fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderShort>>
 
     @Transaction
-    @Query("select t.* from `12_orders` o " +
-            "join `13_sub_orders` so on o.id = so.orderId " +
-            "join `sub_order_task_complete` t on so.id = t.subOrderId " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    fun getTasksDateRange(btnCreateDate: Long, topCreateDate: Long): Flow<List<DatabaseSubOrderTaskComplete>>
+    @Query(
+        "select t.* from `12_orders` o " +
+                "join `13_sub_orders` so on o.id = so.orderId " +
+                "join `sub_order_task_complete` t on so.id = t.subOrderId " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    fun getTasksDateRange(
+        btnCreateDate: Long,
+        topCreateDate: Long
+    ): Flow<List<DatabaseSubOrderTaskComplete>>
 
     @Transaction
-    @Query("select t.* from `12_orders` o " +
-            "join `13_sub_orders` so on o.id = so.orderId " +
-            "join `sub_order_task_complete` t on so.id = t.subOrderId " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getTasksByDateRangeL(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSubOrderTask>
+    @Query(
+        "select t.* from `12_orders` o " +
+                "join `13_sub_orders` so on o.id = so.orderId " +
+                "join `sub_order_task_complete` t on so.id = t.subOrderId " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    suspend fun Pair<Long, Long>.getTasksByDateRangeL(
+        btnCreateDate: Long = first,
+        topCreateDate: Long = second
+    ): List<DatabaseSubOrderTask>
 
     @Transaction
-    @Query("select s.* from `13_sub_orders` so " +
-            "join `samples_results` s on so.id = s.subOrderId " +
-            "where so.id = :subOrderId;")
+    @Query(
+        "select s.* from `13_sub_orders` so " +
+                "join `samples_results` s on so.id = s.subOrderId " +
+                "where so.id = :subOrderId;"
+    )
     fun getSamplesBySubOrder(subOrderId: Int): Flow<List<DatabaseSampleComplete>>
 
     @Transaction
-    @Query("select s.* from `12_orders` o " +
-            "join `13_sub_orders` so on o.id = so.orderId " +
-            "join `14_samples` s on so.id = s.subOrderId " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getSamplesByDateRange(btnCreateDate: Long, topCreateDate: Long): List<DatabaseSample>
+    @Query(
+        "select s.* from `12_orders` o " +
+                "join `13_sub_orders` so on o.id = so.orderId " +
+                "join `14_samples` s on so.id = s.subOrderId " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    suspend fun Pair<Long, Long>.getSamplesByDateRange(
+        btnCreateDate: Long = first,
+        topCreateDate: Long = second
+    ): List<DatabaseSample>
 
     @Transaction
-    @Query("select r.* from `13_sub_orders` so " +
-            "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
-            "join `14_samples` s on so.id = s.subOrderId " +
-            "join `result_complete` r on t.id = r.taskId and s.id = r.sampleId " +
-            "where so.ID = :subOrderId;")
+    @Query(
+        "select r.* from `13_sub_orders` so " +
+                "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
+                "join `14_samples` s on so.id = s.subOrderId " +
+                "join `result_complete` r on t.id = r.taskId and s.id = r.sampleId " +
+                "where so.ID = :subOrderId;"
+    )
     fun getResultsBySubOrder(subOrderId: Int): Flow<List<DatabaseResultComplete>>
 
     @Transaction
-    @Query("select r.* from `12_orders` o join `13_sub_orders` so on o.id = so.orderId " +
-            "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
-            "join `14_samples` s on so.id = s.subOrderId " +
-            "join `14_8_results` r on t.id = r.taskId and s.id = r.sampleId " +
-            "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;")
-    suspend fun getResultsByDateRange(btnCreateDate: Long, topCreateDate: Long): List<DatabaseResult>
+    @Query(
+        "select r.* from `12_orders` o join `13_sub_orders` so on o.id = so.orderId " +
+                "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
+                "join `14_samples` s on so.id = s.subOrderId " +
+                "join `14_8_results` r on t.id = r.taskId and s.id = r.sampleId " +
+                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+    )
+    suspend fun Pair<Long, Long>.getResultsByDateRange(
+        btnCreateDate: Long = first,
+        topCreateDate: Long = second
+    ): List<DatabaseResult>
 }
