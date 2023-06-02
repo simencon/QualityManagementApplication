@@ -196,12 +196,10 @@ interface InvestigationsDao {
     @Query(
         "select so.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    fun getSubOrdersByDateRange(
-        btnCreateDate: Long,
-        topCreateDate: Long
-    ): Flow<List<DatabaseSubOrderComplete>>
+    fun getSubOrdersByDateRange(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderComplete>>
 
     @Transaction
     @Query(
@@ -225,12 +223,10 @@ interface InvestigationsDao {
         "select t.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +
                 "join `sub_order_task_complete` t on so.id = t.subOrderId " +
-                "where o.createdDate >= :btnCreateDate and o.createdDate <= :topCreateDate;"
+                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
-    fun getTasksDateRange(
-        btnCreateDate: Long,
-        topCreateDate: Long
-    ): Flow<List<DatabaseSubOrderTaskComplete>>
+    fun getTasksDateRange(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderTaskComplete>>
 
     @Transaction
     @Query(

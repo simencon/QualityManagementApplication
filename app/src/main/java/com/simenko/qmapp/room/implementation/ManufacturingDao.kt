@@ -70,7 +70,7 @@ interface ManufacturingDao {
         "SELECT tm.* FROM '8_team_members' AS tm " +
                 "ORDER BY tm.id ASC"
     )
-    suspend fun getTeamDetailedList(): List<DatabaseTeamMemberComplete>
+    fun getTeamDetailedList(): Flow<List<DatabaseTeamMemberComplete>>
 
     @Transaction
     @Query(

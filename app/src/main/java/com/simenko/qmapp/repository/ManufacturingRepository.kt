@@ -9,7 +9,6 @@ import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.ManufacturingDao
 import com.simenko.qmapp.utils.ListTransformer
-import com.simenko.qmapp.utils.ObjectTransformer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,7 +20,6 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import kotlin.reflect.KClass
 
 private const val TAG = "ManufacturingRepository"
 
@@ -67,7 +65,7 @@ class ManufacturingRepository @Inject constructor(
     suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
             val response = manufacturingService.insertTeamMember(
-                record.toNetworkWithoutId()
+                record.toNetworkTeamMember()
             )
 
             if (response.isSuccessful) {
@@ -91,7 +89,7 @@ class ManufacturingRepository @Inject constructor(
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
             val response = manufacturingService
-                .updateTeamMember(record.id, record.toNetworkWithId()).body()
+                .updateTeamMember(record.id, record.toNetworkTeamMember()).body()
                 ?.toDatabase()
 
             response?.let { manufacturingDao.updateTeamMember(it) }
@@ -226,12 +224,8 @@ class ManufacturingRepository @Inject constructor(
         }
 
     fun teamCompleteList(): Flow<List<DomainTeamMemberComplete>> =
-        flow { emit(manufacturingDao.getTeamDetailedList().asTeamCompleteDomainModel()) }
+        manufacturingDao.getTeamDetailedList().map { it.asTeamCompleteDomainModel() }
 
-    suspend fun teamCompleteByDepartment(depId: Int): List<DomainTeamMemberComplete> =
-        manufacturingDao.getTeamDetailedList()
-            .asTeamCompleteDomainModel()
-            .filter { itd -> itd.teamMember.departmentId == depId }
 
     val departments: LiveData<List<DomainDepartment>> =
         manufacturingDao.getDepartments().map {

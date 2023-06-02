@@ -79,7 +79,7 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if(dbIt!=ntIt.toDatabaseOrder())
+                        if (dbIt != ntIt.toDatabaseOrder())
                             recordStatusChanged = true
                         return@byBlock2
                     }
@@ -208,7 +208,7 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbTasks.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if(dbIt!=ntIt.toDatabaseSubOrderTask())
+                        if (dbIt != ntIt.toDatabaseSubOrderTask())
                             recordStatusChanged = true
                         return@byBlock2
                     }
@@ -254,7 +254,7 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbSamples.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if(dbIt!=ntIt.toDatabaseSample())
+                        if (dbIt != ntIt.toDatabaseSample())
                             recordStatusChanged = true
                         return@byBlock2
                     }
@@ -300,7 +300,7 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbResults.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if(dbIt!=ntIt.toDatabaseResult())
+                        if (dbIt != ntIt.toDatabaseResult())
                             recordStatusChanged = true
                         return@byBlock2
                     }
@@ -407,7 +407,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - get latest local order date and update with sync latest-now
+    //    ToDo - get latest local order date and update with sync latest-now
     suspend fun uploadNewOrders(lastOrderDateEpoch: Long, uploadNewOrders: Boolean = true) {
 
         runBlocking {
@@ -448,7 +448,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - unnecessary layerFunction - call directly syncOrders()
+    //    ToDo - unnecessary layerFunction - call directly syncOrders()
     suspend fun refreshOrders(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncOrders(uiOrdersRange, invService, invDao)
@@ -456,7 +456,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - the main sync function - refactor it after deleting useless code
+    //    ToDo - the main sync function - refactor it after deleting useless code
     override suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): List<NotificationData> {
         val mList = mutableListOf<NotificationData>()
 
@@ -469,7 +469,11 @@ class InvestigationsRepository @Inject constructor(
         val soList = invDao.getSubOrdersByDateRangeL(timeRange)
         val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
         val remoteSubOrdersHashCode = invService.getSubOrdersHashCodeForDatePeriod(timeRange)
-        if (localSubOrdersHashCode != remoteSubOrdersHashCode) mList.addAll(refreshSubOrders(timeRange))
+        if (localSubOrdersHashCode != remoteSubOrdersHashCode) mList.addAll(
+            refreshSubOrders(
+                timeRange
+            )
+        )
         Log.d(TAG, "SubOrders: local = $localSubOrdersHashCode; remote = $remoteSubOrdersHashCode")
 
         val tList = invDao.getTasksByDateRangeL(timeRange)
@@ -493,7 +497,7 @@ class InvestigationsRepository @Inject constructor(
         return mList
     }
 
-//    ToDo - must delete in local after remote deletion
+    //    ToDo - must delete in local after remote deletion
     suspend fun deleteOrder(orderId: Int) {
         withContext(Dispatchers.IO) {
             invService.deleteOrder(orderId)
@@ -524,7 +528,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - unnecessary layerFunction - call directly syncSubOrders()
+    //    ToDo - unnecessary layerFunction - call directly syncSubOrders()
     suspend fun refreshSubOrders(uiOrdersRange: Pair<Long, Long>): List<NotificationData> {
         var result: List<NotificationData>
         withContext(Dispatchers.IO) {
@@ -534,7 +538,7 @@ class InvestigationsRepository @Inject constructor(
         return result
     }
 
-//    ToDo - unnecessary layerFunction - call directly syncSubOrderTasks()
+    //    ToDo - unnecessary layerFunction - call directly syncSubOrderTasks()
     suspend fun refreshSubOrderTasks(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncSubOrderTasks(uiOrdersRange, invService, invDao)
@@ -542,7 +546,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - unnecessary layerFunction - call directly syncSamples()
+    //    ToDo - unnecessary layerFunction - call directly syncSamples()
     suspend fun refreshSamples(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncSamples(uiOrdersRange, invService, invDao)
@@ -550,7 +554,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - unnecessary layerFunction - call directly syncResults()
+    //    ToDo - unnecessary layerFunction - call directly syncResults()
     suspend fun refreshResults(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncResults(uiOrdersRange, invService, invDao)
@@ -558,47 +562,51 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
         coroutineScope.produce {
-            val newOrder = invService.createOrder(
-                record.toNetworkOrderWithoutId()
-            ).toDatabaseOrder()
+            val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
             invDao.insertOrder(newOrder)
             send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
+//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) =
         coroutineScope.produce {
-            val newRecord = invService.createSubOrder(
-                record.toNetworkSubOrderWithoutId()
-            ).toDatabaseSubOrder()
+            val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
             invDao.insertSubOrder(newRecord)
             send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
+//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
         coroutineScope.produce {
-            val newRecord = invService.createSubOrderTask(
-                record.toNetworkSubOrderTaskWithoutId()
-            ).toDatabaseSubOrderTask()
+            val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask())
+                .toDatabaseSubOrderTask()
             invDao.insertSubOrderTask(newRecord)
             send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
+//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
+    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSample) =
+        coroutineScope.produce {
+            val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
+            invDao.insertSample(newRecord)
+            send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
+        }
+
+//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     suspend fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) =
         coroutineScope.produce {
-            val newRecords = invService.createResults(
-                records.map {
-                    it.toNetworkResultWithoutId()
-                }
-            ).map { it.toDatabaseResult() }
+            val newRecords = invService.createResults(records.map { it.toNetworkResult() })
+                .map { it.toDatabaseResult() }
             invDao.insertResultsAll(newRecords)
             send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
         coroutineScope.produce {
-            val nOrder = record.toNetworkOrderWithId()
+            val nOrder = record.toNetworkOrder()
             invService.editOrder(record.id, nOrder)
             invDao.updateOrder(record.toDatabaseOrder())
             send(record)
@@ -606,7 +614,7 @@ class InvestigationsRepository @Inject constructor(
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) =
         coroutineScope.produce {
-            val nSubOrder = record.toNetworkSubOrderWithId()
+            val nSubOrder = record.toNetworkSubOrder()
             invService.editSubOrder(record.id, nSubOrder)
             invDao.updateSubOrder(record.toDatabaseSubOrder())
             send(record)
@@ -614,15 +622,10 @@ class InvestigationsRepository @Inject constructor(
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
         coroutineScope.produce {
-            val nSubOrderTask = record.toNetworkSubOrderTaskWithId()
-            invService.editSubOrderTask(
-                record.id,
-                nSubOrderTask
-            )
+            val nSubOrderTask = record.toNetworkSubOrderTask()
+            invService.editSubOrderTask(record.id, nSubOrderTask)
 
-            val dSubOrderTask =
-                invService.getSubOrderTask(record.id)
-                    .toDatabaseSubOrderTask()
+            val dSubOrderTask = invService.getSubOrderTask(record.id).toDatabaseSubOrderTask()
             invDao.updateSubOrderTask(dSubOrderTask)
 
             send(dSubOrderTask.toDomainSubOrderTask())
@@ -630,7 +633,7 @@ class InvestigationsRepository @Inject constructor(
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainResult) =
         coroutineScope.produce {
-            val nNetwork = record.toNetworkWithId()
+            val nNetwork = record.toNetworkResult()
             invService.editResult(record.id, nNetwork)
             invDao.updateResult(record.toDatabaseResult())
             send(record)
@@ -655,15 +658,6 @@ class InvestigationsRepository @Inject constructor(
             val nSubOrderTask = invService.getSubOrderTask(record.id)
             invDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
             send(nSubOrderTask.toDomainSubOrderTask())
-        }
-
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSample) =
-        coroutineScope.produce {
-            val newRecord = invService.createSample(
-                record.toNetworkSampleWithoutId()
-            ).toDatabaseSample()
-            invDao.insertSample(newRecord)
-            send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
 //    ToDO - change this part to return exactly what is needed
@@ -719,12 +713,12 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        invDao.getSubOrdersByDateRange(pair.first, pair.second).map {
+        invDao.getSubOrdersByDateRange(pair).map {
             it.asDomainSubOrderDetailed()
         }
 
     fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        invDao.getTasksDateRange(pair.first, pair.second).map {
+        invDao.getTasksDateRange(pair).map {
             it.asDomainSubOrderTask()
         }
 
