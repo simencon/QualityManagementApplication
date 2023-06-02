@@ -125,6 +125,8 @@ class InvestigationsRepository @Inject constructor(
                             NotificationData(
                                 orderId = it.subOrder.orderId,
                                 subOrderId = it.subOrder.id,
+                                orderNumber = it.orderShort.order.orderNumber,
+                                subOrderStatus = it.status.statusDescription,
                                 departmentAbbr = it.department.depAbbr,
                                 channelAbbr = it.channel.channelAbbr,
                                 itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
@@ -156,6 +158,8 @@ class InvestigationsRepository @Inject constructor(
                             NotificationData(
                                 orderId = it.subOrder.orderId,
                                 subOrderId = it.subOrder.id,
+                                orderNumber = it.orderShort.order.orderNumber,
+                                subOrderStatus = it.status.statusDescription,
                                 departmentAbbr = it.department.depAbbr,
                                 channelAbbr = it.channel.channelAbbr,
                                 itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
@@ -185,6 +189,8 @@ class InvestigationsRepository @Inject constructor(
                             NotificationData(
                                 orderId = it.subOrder.orderId,
                                 subOrderId = it.subOrder.id,
+                                orderNumber = it.orderShort.order.orderNumber,
+                                subOrderStatus = it.status.statusDescription,
                                 departmentAbbr = it.department.depAbbr,
                                 channelAbbr = it.channel.channelAbbr,
                                 itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
@@ -254,10 +260,10 @@ class InvestigationsRepository @Inject constructor(
         suspend fun syncSamples(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
-            investigationsDao: InvestigationsDao
+            invDao: InvestigationsDao
         ) {
             val ntSamples = invService.getSamplesByDateRange(oRange.first, oRange.second)
-            val dbSamples = investigationsDao.getSamplesByDateRange(oRange.first, oRange.second)
+            val dbSamples = invDao.getSamplesByDateRange(oRange.first, oRange.second)
             ntSamples.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSamples.forEach byBlock2@{ dbIt ->
@@ -267,7 +273,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    investigationsDao.insertSample(ntIt.toDatabaseSample())
+                    invDao.insertSample(ntIt.toDatabaseSample())
+                }
+            }
+            ntSamples.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbSamples.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if(dbIt!=ntIt.toDatabaseSample())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateSample(ntIt.toDatabaseSample())
                 }
             }
             dbSamples.forEach byBlock1@{ dbIt ->
@@ -279,7 +298,7 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    investigationsDao.deleteSample(dbIt)
+                    invDao.deleteSample(dbIt)
                 }
             }
         }
@@ -287,10 +306,10 @@ class InvestigationsRepository @Inject constructor(
         suspend fun syncResults(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
-            investigationsDao: InvestigationsDao
+            invDao: InvestigationsDao
         ) {
             val ntResults = invService.getResultsByDateRange(oRange.first, oRange.second)
-            val dbResults = investigationsDao.getResultsByDateRange(oRange.first, oRange.second)
+            val dbResults = invDao.getResultsByDateRange(oRange.first, oRange.second)
             ntResults.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbResults.forEach byBlock2@{ dbIt ->
@@ -300,7 +319,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    investigationsDao.insertResult(ntIt.toDatabaseResult())
+                    invDao.insertResult(ntIt.toDatabaseResult())
+                }
+            }
+            ntResults.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbResults.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if(dbIt!=ntIt.toDatabaseResult())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateResult(ntIt.toDatabaseResult())
                 }
             }
             dbResults.forEach byBlock1@{ dbIt ->
@@ -312,7 +344,7 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    investigationsDao.deleteResult(dbIt)
+                    invDao.deleteResult(dbIt)
                 }
             }
         }

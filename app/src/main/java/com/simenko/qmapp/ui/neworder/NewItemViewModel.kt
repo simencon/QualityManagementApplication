@@ -244,7 +244,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.orderId, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum, it.orderId, it.id)
                         activity.finish()
                     }
                 }
@@ -263,7 +263,7 @@ class NewItemViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     val channel = investigationsRepository.getCreatedRecord(this, order)
                     channel.consumeEach {
-                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
                 }
@@ -291,7 +291,7 @@ class NewItemViewModel @Inject constructor(
                         channel1.consumeEach { soIt ->
                             postDeleteSubOrderTasks(soIt.id, subOrder)
                             postDeleteSamples(soIt.id, subOrder)
-                            setMainActivityResult(activity, activity.actionTypeEnum.ordinal, soIt.orderId, soIt.id)
+                            setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
                             activity.finish()
                         }
                     }
@@ -316,7 +316,7 @@ class NewItemViewModel @Inject constructor(
                     channel.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
-                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.orderId, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum, it.orderId, it.id)
                         activity.finish()
                     }
 
@@ -340,7 +340,7 @@ class NewItemViewModel @Inject constructor(
                     val channel =
                         investigationsRepository.updateRecord(this, order)
                     channel.consumeEach {
-                        setMainActivityResult(activity, activity.actionTypeEnum.ordinal, it.id)
+                        setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
                 }

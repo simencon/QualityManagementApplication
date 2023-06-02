@@ -31,7 +31,8 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
-import com.simenko.qmapp.works.WorkerKeys
+import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
+import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Duration
 import javax.inject.Inject
@@ -46,11 +47,11 @@ data class CreatedRecord(
 
 fun setMainActivityResult(
     activity: NewItemActivity,
-    actionType: Int,
+    actionType: ActionType,
     orderId: Int = NoSelectedRecord.num,
     subOrderId: Int = NoSelectedRecord.num
 ) {
-    activity.setResult(actionType, createMainActivityIntent(activity, orderId, subOrderId))
+    activity.setResult(actionType.ordinal, createMainActivityIntent(activity, orderId, subOrderId))
 }
 
 fun createMainActivityIntent(
@@ -76,10 +77,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
 
-    @Inject lateinit var workManager: WorkManager
-    lateinit var myWork: OneTimeWorkRequest
-
-    private var requestCode: Int = -1
+    @Inject
+    lateinit var workManager: WorkManager
+    private lateinit var syncLastHourOneTimeWork: OneTimeWorkRequest
+    private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,11 +110,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navigationView = binding.navView
         navigationView.setNavigationItemSelectedListener(this)
 
-        if (savedInstanceState == null) {
-            this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
-        }
+        prepareOneTimeWorks()
 
-        myWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+        if (savedInstanceState == null && intent.extras == null) {
+            this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
+        } else if (intent.extras != null) {
+            navigateToProperRecord(bundle = intent.extras)
+        }
+    }
+
+    private fun prepareOneTimeWorks() {
+        syncLastHourOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(
@@ -122,10 +129,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     .build()
             )
             .setInputData(
-                workDataOf(
-                    WorkerKeys.LATEST_MILLIS to SyncPeriods.LAST_DAY.latestMillis,
-                    WorkerKeys.EXCLUDE_MILLIS to SyncPeriods.LAST_DAY.excludeMillis
-                )
+                Data.Builder()
+                    .putLong(LATEST_MILLIS, SyncPeriods.LAST_HOUR.latestMillis)
+                    .putLong(EXCLUDE_MILLIS, SyncPeriods.LAST_HOUR.excludeMillis)
+                    .build()
+            )
+            .setInitialDelay(Duration.ofSeconds(5))
+            .build()
+
+        syncLastDayOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(
+                        NetworkType.CONNECTED
+                    )
+                    .build()
             )
             .setInitialDelay(Duration.ofSeconds(5))
             .build()
@@ -133,26 +151,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
         super.onActivityResult(requestCode, resultCode, intent)
+        navigateToProperRecord(requestCode = requestCode, bundle = intent?.extras)
+    }
 
-        this.requestCode = resultCode
-
-        investigationsModel.setCreatedRecordId(
-            intent?.extras?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoSelectedRecord.num,
-            intent?.extras?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoSelectedRecord.num
+    private fun navigateToProperRecord(
+        requestCode: Int = ActionType.DEFAULT.ordinal,
+        bundle: Bundle?
+    ) {
+        investigationsModel.setCreatedRecord(
+            bundle?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoSelectedRecord.num,
+            bundle?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoSelectedRecord.num
         )
 
-        if (
-            requestCode == ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal ||
-            requestCode == ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal
-        ) {
-            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
-        } else if (
-            requestCode == ActionType.ADD_ORDER.ordinal ||
-            requestCode == ActionType.EDIT_ORDER.ordinal ||
-            requestCode == ActionType.ADD_SUB_ORDER.ordinal ||
-            requestCode == ActionType.EDIT_SUB_ORDER.ordinal
-        ) {
-            this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+        when (requestCode) {
+            ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal, ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal -> {
+                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
+            }
+            ActionType.ADD_ORDER.ordinal, ActionType.EDIT_ORDER.ordinal, ActionType.ADD_SUB_ORDER.ordinal, ActionType.EDIT_SUB_ORDER.ordinal -> {
+                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+            }
+            ActionType.DEFAULT.ordinal -> {
+                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
+            }
         }
     }
 
@@ -210,12 +230,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     investigationsModel.refreshMasterDataFromRepository()
                 }
                 R.id.sync_investigations -> {
-//                    investigationsModel.syncUploadedInvestigations()
                     workManager.beginUniqueWork(
                         "testWork",
                         ExistingWorkPolicy.KEEP,
-                        myWork
-                    ).enqueue()
+                        syncLastHourOneTimeWork
+                    )
+                        .then(syncLastDayOneTimeWork)
+                        .enqueue()
                 }
                 R.id.ppap -> {
                     TODO("Will filter accordingly")

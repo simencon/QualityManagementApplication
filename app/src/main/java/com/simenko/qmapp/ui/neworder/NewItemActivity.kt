@@ -37,6 +37,7 @@ import javax.inject.Inject
 private const val TAG = "NewItemActivity"
 
 enum class ActionType {
+    DEFAULT,
     ADD_ORDER,
     EDIT_ORDER,
     ADD_SUB_ORDER,
@@ -127,6 +128,12 @@ class NewItemActivity : ComponentActivity() {
                                     return@FloatingActionButton
                                 } else {
                                     when (actionTypeEnum) {
+                                        ActionType.DEFAULT -> {
+                                            viewModel.postNewSubOrder(
+                                                this,
+                                                checkCurrentSubOrder(viewModel)!!
+                                            )
+                                        }
                                         ActionType.ADD_ORDER -> {
                                             viewModel.postNewOrder(
                                                 this,
@@ -236,6 +243,17 @@ class NewItemActivity : ComponentActivity() {
                                                         viewModel.operationsFlows.observe(this) {
                                                             viewModel.characteristics.observe(this) {
                                                                 when (actionTypeEnum) {
+                                                                    ActionType.DEFAULT -> {
+                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId =
+                                                                            orderId
+                                                                        viewModel.departmentsMutable.performFiltration(
+                                                                            s = viewModel.departments,
+                                                                            action = FilteringMode.ADD_ALL_FROM_META_TABLE,
+                                                                            trigger = viewModel.pairedTrigger,
+                                                                            m = viewModel.inputForOrder
+                                                                        )
+                                                                    }
+
                                                                     ActionType.ADD_ORDER -> {
                                                                         viewModel.investigationTypesMutable.performFiltration(
                                                                             viewModel.investigationTypes,

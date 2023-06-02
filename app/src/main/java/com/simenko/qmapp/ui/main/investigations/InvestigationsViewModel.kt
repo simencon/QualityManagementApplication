@@ -131,7 +131,7 @@ class InvestigationsViewModel @Inject constructor(
         .conflate()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreatedRecord())
 
-    fun setCreatedRecordId(
+    fun setCreatedRecord(
         orderId: Int = NoSelectedRecord.num,
         subOrderId: Int = NoSelectedRecord.num
     ) {

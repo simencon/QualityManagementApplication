@@ -1,6 +1,7 @@
 package com.simenko.qmapp.di
 
 import android.content.Context
+import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.simenko.qmapp.other.Constants.BASE_URL
@@ -116,4 +117,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideWorkManager(@ApplicationContext context: Context) = WorkManager.getInstance(context.applicationContext)
+
+    @Singleton
+    @Provides
+    fun provideNotificationManager(@ApplicationContext context: Context) = NotificationManagerCompat.from(context.applicationContext)
 }
