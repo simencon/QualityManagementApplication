@@ -178,7 +178,6 @@ class InvestigationsViewModel @Inject constructor(
         dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
     ) {
         _currentOrderVisibility.value = _currentOrderVisibility.value.setVisibility(dId, aId)
-        repository.setCurrentOrder(_currentOrderVisibility.value.first.num)
     }
 
     /**
@@ -320,7 +319,6 @@ class InvestigationsViewModel @Inject constructor(
         dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
     ) {
         _currentSubOrderVisibility.value = _currentSubOrderVisibility.value.setVisibility(dId, aId)
-        repository.setCurrentSubOrder(_currentSubOrderVisibility.value.first.num)
     }
 
     /**
@@ -456,7 +454,6 @@ class InvestigationsViewModel @Inject constructor(
         aId: SelectedNumber = NoSelectedRecord
     ) {
         _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
-        repository.setCurrentTask(_currentTaskVisibility.value.first.num)
     }
 
     val currentTaskDetails: LiveData<SelectedNumber> = _currentTaskVisibility.flatMapLatest {
@@ -545,7 +542,6 @@ class InvestigationsViewModel @Inject constructor(
         aId: SelectedNumber = NoSelectedRecord
     ) {
         _currentSampleVisibility.value = _currentSampleVisibility.value.setVisibility(dId, aId)
-        repository.setCurrentSample(_currentSampleVisibility.value.first.num)
     }
 
     val currentSampleDetails: LiveData<SelectedNumber> = _currentSampleVisibility.flatMapLatest {
@@ -602,7 +598,6 @@ class InvestigationsViewModel @Inject constructor(
         aId: SelectedNumber = NoSelectedRecord
     ) {
         _currentResultVisibility.value = _currentResultVisibility.value.setVisibility(dId, aId)
-        repository.setCurrentResult(_currentResultVisibility.value.first.num)
     }
 
     /**

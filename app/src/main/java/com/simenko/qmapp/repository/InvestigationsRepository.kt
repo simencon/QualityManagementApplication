@@ -56,12 +56,12 @@ class InvestigationsRepository @Inject constructor(
     }
 
     companion object {
-        suspend fun syncOrders(
+        private suspend fun syncOrders(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
             invDao: InvestigationsDao
         ) {
-            val ntOrders = invService.getOrdersByDateRange(oRange.first, oRange.second)
+            val ntOrders = with(invService) {oRange.getOrdersByDateRange()}
             val dbOrders = invDao.getOrdersByDateRange(oRange.first, oRange.second)
             ntOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
@@ -102,7 +102,7 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        suspend fun syncSubOrders(
+        private suspend fun syncSubOrders(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
             invDao: InvestigationsDao
@@ -211,7 +211,7 @@ class InvestigationsRepository @Inject constructor(
             return mList
         }
 
-        suspend fun syncSubOrderTasks(
+        private suspend fun syncSubOrderTasks(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
             invDao: InvestigationsDao
@@ -257,7 +257,7 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        suspend fun syncSamples(
+        private suspend fun syncSamples(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
             invDao: InvestigationsDao
@@ -303,7 +303,7 @@ class InvestigationsRepository @Inject constructor(
             }
         }
 
-        suspend fun syncResults(
+        private suspend fun syncResults(
             oRange: Pair<Long, Long>,
             invService: InvestigationsService,
             invDao: InvestigationsDao
@@ -419,6 +419,21 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+    suspend fun refreshResultsDecryptions() {
+        withContext(Dispatchers.IO) {
+            val resultsDecryptions =
+                invService.getResultsDecryptions()
+            invDao.insertResultsDecryptionsAll(
+                ListTransformer(
+                    resultsDecryptions,
+                    NetworkResultsDecryption::class, DatabaseResultsDecryption::class
+                ).generateList()
+            )
+            Log.d(TAG, "refreshResultsDecryptions: ${timeFormatter.format(Instant.now())}")
+        }
+    }
+
+//    ToDo - get latest local order date and update with sync latest-now
     suspend fun uploadNewOrders(lastOrderDateEpoch: Long, uploadNewOrders: Boolean = true) {
 
         runBlocking {
@@ -467,6 +482,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+//    ToDo - unnecessary layerFunction - call directly syncOrders()
     suspend fun refreshOrders(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncOrders(uiOrdersRange, invService, invDao)
@@ -474,6 +490,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+//    ToDo - the main sync function - refactor it after deleting useless code
     override suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): List<NotificationData> {
         val mList = mutableListOf<NotificationData>()
 
@@ -530,6 +547,7 @@ class InvestigationsRepository @Inject constructor(
         return mList
     }
 
+//    ToDo - must delete in local after remote deletion
     suspend fun deleteOrder(orderId: Int) {
         withContext(Dispatchers.IO) {
             invService.deleteOrder(orderId)
@@ -560,6 +578,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+//    ToDo - unnecessary layerFunction - call directly syncSubOrders()
     suspend fun refreshSubOrders(uiOrdersRange: Pair<Long, Long>): List<NotificationData> {
         var result: List<NotificationData>
         withContext(Dispatchers.IO) {
@@ -569,6 +588,7 @@ class InvestigationsRepository @Inject constructor(
         return result
     }
 
+//    ToDo - unnecessary layerFunction - call directly syncSubOrderTasks()
     suspend fun refreshSubOrderTasks(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncSubOrderTasks(uiOrdersRange, invService, invDao)
@@ -576,6 +596,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
+//    ToDo - unnecessary layerFunction - call directly syncSamples()
     suspend fun refreshSamples(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncSamples(uiOrdersRange, invService, invDao)
@@ -583,20 +604,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshResultsDecryptions() {
-        withContext(Dispatchers.IO) {
-            val resultsDecryptions =
-                invService.getResultsDecryptions()
-            invDao.insertResultsDecryptionsAll(
-                ListTransformer(
-                    resultsDecryptions,
-                    NetworkResultsDecryption::class, DatabaseResultsDecryption::class
-                ).generateList()
-            )
-            Log.d(TAG, "refreshResultsDecryptions: ${timeFormatter.format(Instant.now())}")
-        }
-    }
-
+//    ToDo - unnecessary layerFunction - call directly syncResults()
     suspend fun refreshResults(uiOrdersRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
             syncResults(uiOrdersRange, invService, invDao)
@@ -629,15 +637,6 @@ class InvestigationsRepository @Inject constructor(
             ).toDatabaseSubOrderTask()
             invDao.insertSubOrderTask(newRecord)
             send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
-
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainResult) =
-        coroutineScope.produce {
-            val newRecord = invService.createResult(
-                record.toNetworkResultWithoutId()
-            ).toDatabaseResult()
-            invDao.insertResult(newRecord)
-            send(newRecord.toDomainResult()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
     suspend fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) =
@@ -749,7 +748,54 @@ class InvestigationsRepository @Inject constructor(
 
 //    -------------------------------------------------------------
 
+    fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
+        invDao.getOrdersStatusesFlow().map {
+            ListTransformer(
+                it,
+                DatabaseOrdersStatus::class,
+                DomainOrdersStatus::class
+            ).generateList()
+        }.flowOn(Dispatchers.IO).conflate()
 
+    suspend fun latestLocalOrderId(): Int {
+        val localLatestOrderDate = invDao
+            .getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
+        return invDao.getLatestOrderId(localLatestOrderDate) ?: NoSelectedRecord.num
+    }
+
+    suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
+        val dbOrder = invDao.getOrderById(lastVisibleId.toString())
+        return if (dbOrder != null)
+            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map {
+                it.asDomainOrdersComplete()
+            }
+        else flow { emit(listOf()) }
+    }
+
+    fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
+        invDao.getSubOrdersByDateRange(pair.first, pair.second).map {
+            it.asDomainSubOrderDetailed()
+        }
+
+    fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
+        invDao.getTasksDateRange(pair.first, pair.second).map {
+            it.asDomainSubOrderTask()
+        }
+
+    fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
+        invDao.getSamplesBySubOrder(subOrderId).map {
+            it.asDomainSamples()
+        }
+
+    fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
+        invDao.getResultsBySubOrder(subOrderId).map {
+            it.asDomainResults()
+        }
+
+
+    /**
+     * New order related data
+     * */
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
         invDao.getInputForOrder().map {
             ListTransformer(
@@ -777,24 +823,6 @@ class InvestigationsRepository @Inject constructor(
             ).generateList()
         }
 
-    val investigationStatuses: LiveData<List<DomainOrdersStatus>> =
-        invDao.getOrdersStatuses().map {
-            ListTransformer(
-                it,
-                DatabaseOrdersStatus::class,
-                DomainOrdersStatus::class
-            ).generateList()
-        }
-
-    fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
-        invDao.getOrdersStatusesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseOrdersStatus::class,
-                DomainOrdersStatus::class
-            ).generateList()
-        }.flowOn(Dispatchers.IO).conflate()
-
     val orders: LiveData<List<DomainOrder>> =
         invDao.getOrders().map {
             ListTransformer(
@@ -804,68 +832,8 @@ class InvestigationsRepository @Inject constructor(
             ).generateList()
         }
 
-    private var currentOrder = -1
-    fun setCurrentOrder(id: Int) {
-        currentOrder = id
-    }
-
-    suspend fun latestLocalOrderId(): Int {
-        val localLatestOrderDate = invDao
-            .getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
-        return invDao.getLatestOrderId(localLatestOrderDate) ?: NoSelectedRecord.num
-    }
-
-    suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
-        val dbOrder = invDao.getOrderById(lastVisibleId.toString())
-        return if (dbOrder != null)
-            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map {
-                it.asDomainOrdersComplete(currentOrder)
-            }
-        else flow { emit(listOf()) }
-    }
-
-    private var currentSubOrder = -1
-    fun setCurrentSubOrder(id: Int) {
-        currentSubOrder = id
-    }
-
-    fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        invDao.getSubOrdersByDateRange(pair.first, pair.second).map {
-            it.asDomainSubOrderDetailed(currentSubOrder)
-        }
-
-    private var currentTask = -1
-    fun setCurrentTask(id: Int) {
-        currentTask = id
-    }
-
-    fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        invDao.getTasksDateRange(pair.first, pair.second).map {
-            it.asDomainSubOrderTask(currentTask)
-        }
-
-    private var currentSample = -1
-    fun setCurrentSample(id: Int) {
-        currentSample = id
-    }
-
-    fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
-        invDao.getSamplesBySubOrder(subOrderId).map {
-            it.asDomainSamples(currentSample)
-        }
-
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
         invDao.getSubOrderWithChildren().map {
             it.toDomainSubOrderShort()
-        }
-
-    private var currentResult = 0
-    fun setCurrentResult(id: Int) {
-        currentResult = id
-    }
-
-    fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        invDao.getResultsBySubOrder(subOrderId).map {
-            it.asDomainResults(currentResult)
         }
 }

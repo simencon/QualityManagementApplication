@@ -113,13 +113,8 @@ fun DatabaseVersionStatus.toVersionStatus() =
     ObjectTransformer(DatabaseVersionStatus::class, DomainVersionStatus::class).transform(this)
 
 
-fun List<DatabaseOrderComplete>.asDomainOrdersComplete(lastSelectedId: Int = 0): List<DomainOrderComplete> {
+fun List<DatabaseOrderComplete>.asDomainOrdersComplete(): List<DomainOrderComplete> {
     return map {
-        var detailsVisibility = false
-
-        if (lastSelectedId == it.order.id)
-            detailsVisibility = true
-
         DomainOrderComplete(
             order = it.order.toDomainOrder(),
             orderType = it.orderType.toDomainType(),
@@ -128,18 +123,13 @@ fun List<DatabaseOrderComplete>.asDomainOrdersComplete(lastSelectedId: Int = 0):
             orderPlacer = it.orderPlacer.toDomainTeamMember(),
             orderStatus = it.orderStatus.toDomainStatus(),
             orderResult = it.orderResult.toDomainOrderResult(),
-            detailsVisibility = detailsVisibility
+            detailsVisibility = false
         )
     }.sortedByDescending { it.order.createdDate }
 }
 
-fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int = 0): List<DomainSubOrderComplete> {
+fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(): List<DomainSubOrderComplete> {
     return map {
-        var detailsVisibility = false
-
-        if (lastSelectedId == it.subOrder.id)
-            detailsVisibility = true
-
         DomainSubOrderComplete(
             subOrder = it.subOrder.toDomainSubOrder(),
             orderShort = DomainOrderShort(
@@ -161,57 +151,42 @@ fun List<DatabaseSubOrderComplete>.asDomainSubOrderDetailed(lastSelectedId: Int 
                 itemComplete = it.itemVersionComplete.itemComplete.toDomainItemComplete()
             ),
             subOrderResult = it.subOrderResult.toDomainSubOrderResult(),
-            detailsVisibility = detailsVisibility
+            detailsVisibility = false
         )
     }.sortedByDescending { it.orderShort.order.createdDate }
 }
 
-fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(lastSelectedId: Int = 0): List<DomainSubOrderTaskComplete> {
+fun List<DatabaseSubOrderTaskComplete>.asDomainSubOrderTask(): List<DomainSubOrderTaskComplete> {
     return map {
-        var detailsVisibility = false
-
-        if (lastSelectedId == it.subOrderTask.id)
-            detailsVisibility = true
-
         DomainSubOrderTaskComplete(
             subOrderTask = it.subOrderTask.toDomainSubOrderTask(),
             characteristic = it.characteristic.toDomainCharacteristicComplete(),
             subOrder = it.subOrder.toDomainSubOrder(),
             status = it.status.toDomainStatus(),
             taskResult = it.taskResult.toDomainTaskResult(),
-            detailsVisibility = detailsVisibility
+            detailsVisibility = false
         )
     }.sortedBy { it.characteristic.characteristic.charOrder }
 }
 
-fun List<DatabaseSampleComplete>.asDomainSamples(lastSelectedId: Int = 0): List<DomainSampleComplete> {
+fun List<DatabaseSampleComplete>.asDomainSamples(): List<DomainSampleComplete> {
     return map {
-        var detailsVisibility = false
-
-        if (lastSelectedId == it.sampleResult.id)
-            detailsVisibility = true
-
         DomainSampleComplete(
             sampleResult = it.sampleResult.toDomainSampleResult(),
             sample = it.sample.toDomainSample(),
-            detailsVisibility = detailsVisibility
+            detailsVisibility = false
         )
     }.sortedBy { it.sample.sampleNumber }
 }
 
-fun List<DatabaseResultComplete>.asDomainResults(lastSelectedId: Int = 0): List<DomainResultComplete> {
+fun List<DatabaseResultComplete>.asDomainResults(): List<DomainResultComplete> {
     return map {
-        var detailsVisibility = false
-
-        if (lastSelectedId == it.result.id)
-            detailsVisibility = true
-
         DomainResultComplete(
             result = it.result.toDomainResult(),
             resultsDecryption = it.resultsDecryption.toDomainResult(),
             metrix = it.metrix.toDomainMetrix(),
             resultTolerance = it.resultTolerance.toDomainResultTolerance(),
-            detailsVisibility = detailsVisibility
+            detailsVisibility = false
         )
     }.sortedBy { it.metrix.metrixOrder }
 }

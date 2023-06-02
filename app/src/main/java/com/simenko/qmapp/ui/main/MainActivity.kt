@@ -26,6 +26,7 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
@@ -70,7 +71,7 @@ private const val TAG = "MainActivity"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    lateinit var appModel: QualityManagementViewModel
+    lateinit var appModel: ManufacturingViewModel
     lateinit var teamModel: TeamViewModel
     lateinit var investigationsModel: InvestigationsViewModel
     private lateinit var binding: ActivityMainBinding
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appModel = ViewModelProvider(this)[QualityManagementViewModel::class.java]
+        appModel = ViewModelProvider(this)[ManufacturingViewModel::class.java]
         teamModel = ViewModelProvider(this)[TeamViewModel::class.java]
         investigationsModel = ViewModelProvider(this)[InvestigationsViewModel::class.java]
 
@@ -302,7 +303,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be monitoring page")
                     }
                     R.id.nav_settings -> {
-                        PlaceOrderFragment()
+                        TODO("Will be settings page")
                     }
                     else -> {
                         TODO("Will be monitoring page")

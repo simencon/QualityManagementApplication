@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOperationBinding
 import com.simenko.qmapp.domain.DomainManufacturingOperation
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class OperationClick(val block: (DomainManufacturingOperation, Int) -> Unit) {
     fun onClick(operation: DomainManufacturingOperation, position: Int) = block(operation, position)
@@ -17,7 +16,7 @@ class OperationClick(val block: (DomainManufacturingOperation, Int) -> Unit) {
 
 class Adapter______Operation(
     val callback: OperationClick,
-    val viewModel: QualityManagementViewModel,
+    val viewModel: ManufacturingViewModel,
     private val lifecycleOwner: LifecycleOwner
 ) :
     RecyclerView.Adapter<OperationViewHolder>() {

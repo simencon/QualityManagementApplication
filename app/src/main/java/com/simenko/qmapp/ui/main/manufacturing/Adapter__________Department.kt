@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemDepartmentBinding
 import com.simenko.qmapp.domain.DomainDepartmentComplete
-import com.simenko.qmapp.ui.main.QualityManagementViewModel
 
 class DepartmentClick(val block: (DomainDepartmentComplete, Int) -> Unit) {
     fun onClick(department: DomainDepartmentComplete, position: Int) = block(department, position)
@@ -20,7 +19,7 @@ private const val TAG = "Adapter_____Department"
 
 class Adapter__________Department(
     val callback: DepartmentClick,
-    val viewModel: QualityManagementViewModel,
+    val viewModel: ManufacturingViewModel,
     private val lifecycleOwner: LifecycleOwner
 ) :
     RecyclerView.Adapter<DepartmentViewHolder>() {
