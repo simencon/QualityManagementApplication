@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.main.team
 
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -76,7 +75,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _currentMemberDetails = MutableStateFlow(NoSelectedRecord)
+    private val _currentMemberDetails = MutableStateFlow(NoRecord)
 
     private val _teamSF: Flow<List<DomainTeamMemberComplete>> = repository.teamCompleteList()
 
@@ -85,7 +84,7 @@ class TeamViewModel @Inject constructor(
         if (_currentMemberDetails.value.num != id) {
             _currentMemberDetails.value = SelectedNumber(id)
         } else {
-            _currentMemberDetails.value = NoSelectedRecord
+            _currentMemberDetails.value = NoRecord
         }
     }
 

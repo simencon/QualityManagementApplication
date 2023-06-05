@@ -91,7 +91,7 @@ fun Orders(
 
     val needScrollToItem by remember {
         derivedStateOf {
-            createdRecord.orderId != NoSelectedRecord.num
+            createdRecord.orderId != NoRecord.num
         }
     }
 
@@ -524,10 +524,10 @@ fun Order(
 @Composable
 fun OrderDetails(
     modifier: Modifier = Modifier,
-    orderId: Int = NoSelectedRecord.num,
+    orderId: Int = NoRecord.num,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
-    createdDate: Long = NoSelectedRecord.num.toLong(),
+    createdDate: Long = NoRecord.num.toLong(),
     completedDate: Long? = null
 ) {
 
@@ -665,7 +665,7 @@ fun getOrder(i: Int) = DomainOrder(
     1,
     1,
     1,
-    getMillisecondsDate("2022-12-15T22:24:43+03:00")?: NoSelectedRecord.num.toLong(),
+    getMillisecondsDate("2022-12-15T22:24:43+03:00")?: NoRecord.num.toLong(),
     null
 )
 

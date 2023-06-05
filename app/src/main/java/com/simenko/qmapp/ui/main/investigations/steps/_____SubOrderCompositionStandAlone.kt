@@ -75,7 +75,7 @@ fun SubOrdersStandAlone(
 
     val needScrollToItem by remember {
         derivedStateOf {
-            createdRecord.subOrderId != NoSelectedRecord.num
+            createdRecord.subOrderId != NoRecord.num
         }
     }
 
@@ -118,7 +118,7 @@ fun SubOrdersStandAlone(
             Log.d(TAG, "SubOrdersStandAlone: ${subOrder.orderShort.order.orderNumber}")
             SubOrderCard(
                 modifier = modifier,
-                parentOrderTypeId = parentOrderTypeId ?: NoSelectedRecord,
+                parentOrderTypeId = parentOrderTypeId ?: NoRecord,
                 subOrder = subOrder,
                 onClickDetails = { it ->
                     onClickDetailsLambda(it)

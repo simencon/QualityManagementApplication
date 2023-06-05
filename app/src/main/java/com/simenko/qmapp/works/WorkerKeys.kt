@@ -1,6 +1,6 @@
 package com.simenko.qmapp.works
 
-import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoRecord
 import java.util.concurrent.TimeUnit
 
 object WorkerKeys {
@@ -16,5 +16,5 @@ enum class SyncPeriods(val latestMillis: Long, val excludeMillis: Long) {
     LAST_MONTH(TimeUnit.DAYS.toMillis(31), TimeUnit.DAYS.toMillis(7)),
     LAST_QUARTER(TimeUnit.DAYS.toMillis(90), TimeUnit.DAYS.toMillis(31)),
     LAST_YEAR(TimeUnit.DAYS.toMillis(365), TimeUnit.DAYS.toMillis(90)),
-    COMPLETE_PERIOD(NoSelectedRecord.num.toLong(), TimeUnit.DAYS.toMillis(365))
+    COMPLETE_PERIOD(NoRecord.num.toLong(), TimeUnit.DAYS.toMillis(365))
 }

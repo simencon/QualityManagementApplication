@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +32,6 @@ import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
@@ -101,7 +98,7 @@ fun SubOrdersFlowColumn(
     }
 
     LaunchedEffect(createdRecord) {
-        if (createdRecord.subOrderId != NoSelectedRecord.num)
+        if (createdRecord.subOrderId != NoRecord.num)
             coroutineScope.launch {
                 delay(200)
                 val subOrder = items.find {
@@ -121,7 +118,7 @@ fun SubOrdersFlowColumn(
 
                     SubOrderCard(
                         modifier = modifier,
-                        parentOrderTypeId = parentOrderTypeId ?: NoSelectedRecord,
+                        parentOrderTypeId = parentOrderTypeId ?: NoRecord,
                         subOrder = subOrder,
                         onClickDetails = { it ->
                             onClickDetailsLambda(it)

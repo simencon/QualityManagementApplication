@@ -19,7 +19,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
-import retrofit2.HttpException
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
@@ -37,11 +36,11 @@ class InvestigationsViewModel @Inject constructor(
     companion object {
         fun getStatus(status: String): SelectedNumber {
             return when (status) {
-                InvestigationsFragment.TargetInv.ALL.name -> NoSelectedRecord
+                InvestigationsFragment.TargetInv.ALL.name -> NoRecord
                 InvestigationsFragment.TargetInv.TO_DO.name -> SelectedNumber(1)
                 InvestigationsFragment.TargetInv.IN_PROGRESS.name -> SelectedNumber(2)
                 InvestigationsFragment.TargetInv.DONE.name -> SelectedNumber(3)
-                else -> NoSelectedRecord
+                else -> NoRecord
             }
         }
     }
@@ -77,7 +76,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _invStatusListSF = repository.investigationStatuses()
 
-    private val _selectedStatus = MutableStateFlow(NoSelectedRecord)
+    private val _selectedStatus = MutableStateFlow(NoRecord)
 
     fun selectStatus(statusId: SelectedNumber) {
         _selectedStatus.value = statusId
@@ -107,17 +106,17 @@ class InvestigationsViewModel @Inject constructor(
 
                 val recordToEmit =
                     if (
-                        (record.orderId != NoSelectedRecord.num) && (record.subOrderId != NoSelectedRecord.num) &&
+                        (record.orderId != NoRecord.num) && (record.subOrderId != NoRecord.num) &&
                         (ordersList.find { it.order.id == record.orderId } != null) && (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
                     )
                         record
                     else if (
-                        (record.orderId != NoSelectedRecord.num) && (record.subOrderId == NoSelectedRecord.num) &&
+                        (record.orderId != NoRecord.num) && (record.subOrderId == NoRecord.num) &&
                         (ordersList.find { it.order.id == record.orderId } != null)
                     )
                         record
                     else if (
-                        (record.orderId == NoSelectedRecord.num) && (record.subOrderId != NoSelectedRecord.num) &&
+                        (record.orderId == NoRecord.num) && (record.subOrderId != NoRecord.num) &&
                         (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
                     )
                         record
@@ -133,21 +132,21 @@ class InvestigationsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreatedRecord())
 
     fun setCreatedRecord(
-        orderId: Int = NoSelectedRecord.num,
-        subOrderId: Int = NoSelectedRecord.num
+        orderId: Int = NoRecord.num,
+        subOrderId: Int = NoRecord.num
     ) {
         _createdRecord.value = CreatedRecord(
-            if (orderId != NoSelectedRecord.num) orderId else _createdRecord.value.orderId,
-            if (subOrderId != NoSelectedRecord.num) subOrderId else _createdRecord.value.subOrderId
+            if (orderId != NoRecord.num) orderId else _createdRecord.value.orderId,
+            if (subOrderId != NoRecord.num) subOrderId else _createdRecord.value.subOrderId
         )
     }
 
     fun resetCreatedOrderId() {
-        _createdRecord.value = CreatedRecord(NoSelectedRecord.num, _createdRecord.value.subOrderId)
+        _createdRecord.value = CreatedRecord(NoRecord.num, _createdRecord.value.subOrderId)
     }
 
     fun resetCreatedSubOrderId() {
-        _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, NoSelectedRecord.num)
+        _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, NoRecord.num)
     }
     /**
      * Handling scrolling to just created record-------------------------------------------------
@@ -174,9 +173,9 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentOrderVisibility = MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
+    private val _currentOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     fun setCurrentOrderVisibility(
-        dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
+        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
     ) {
         _currentOrderVisibility.value = _currentOrderVisibility.value.setVisibility(dId, aId)
     }
@@ -186,8 +185,8 @@ class InvestigationsViewModel @Inject constructor(
      * */
     private val _currentOrdersFilter = MutableStateFlow(OrdersFilter())
     fun setCurrentOrdersFilter(
-        type: SelectedNumber = NoSelectedRecord,
-        status: SelectedNumber = NoSelectedRecord,
+        type: SelectedNumber = NoRecord,
+        status: SelectedNumber = NoRecord,
         number: SelectedString = NoSelectedString
     ) {
         _currentOrdersFilter.value = OrdersFilter(
@@ -206,7 +205,7 @@ class InvestigationsViewModel @Inject constructor(
                 _currentOrderVisibility.flatMapLatest { visibility ->
                     _currentOrdersFilter.flatMapLatest { filter ->
 
-                        if (visibility.first == NoSelectedRecord) {
+                        if (visibility.first == NoRecord) {
                             setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
                             setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
                             setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
@@ -314,10 +313,10 @@ class InvestigationsViewModel @Inject constructor(
      * Visibility operations
      * */
     private val _currentSubOrderVisibility =
-        MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
+        MutableStateFlow(Pair(NoRecord, NoRecord))
 
     fun setCurrentSubOrderVisibility(
-        dId: SelectedNumber = NoSelectedRecord, aId: SelectedNumber = NoSelectedRecord
+        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
     ) {
         _currentSubOrderVisibility.value = _currentSubOrderVisibility.value.setVisibility(dId, aId)
     }
@@ -327,8 +326,8 @@ class InvestigationsViewModel @Inject constructor(
      * */
     private val _currentSubOrdersFilter = MutableStateFlow(SubOrdersFilter())
     fun setCurrentSubOrdersFilter(
-        type: SelectedNumber = NoSelectedRecord,
-        status: SelectedNumber = NoSelectedRecord,
+        type: SelectedNumber = NoRecord,
+        status: SelectedNumber = NoRecord,
         number: SelectedString = NoSelectedString
     ) {
         _currentSubOrdersFilter.value = SubOrdersFilter(
@@ -351,7 +350,7 @@ class InvestigationsViewModel @Inject constructor(
             _currentSubOrderVisibility.flatMapLatest { visibility ->
                 _currentSubOrdersFilter.flatMapLatest { filter ->
 
-                    if (visibility.first == NoSelectedRecord) {
+                    if (visibility.first == NoRecord) {
                         setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
                         setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
                     }
@@ -449,10 +448,10 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentTaskVisibility = MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
+    private val _currentTaskVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     fun setCurrentTaskVisibility(
-        dId: SelectedNumber = NoSelectedRecord,
-        aId: SelectedNumber = NoSelectedRecord
+        dId: SelectedNumber = NoRecord,
+        aId: SelectedNumber = NoRecord
     ) {
         _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
     }
@@ -536,11 +535,11 @@ class InvestigationsViewModel @Inject constructor(
      * Visibility operations
      * */
     private val _currentSampleVisibility =
-        MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
+        MutableStateFlow(Pair(NoRecord, NoRecord))
 
     fun setCurrentSampleVisibility(
-        dId: SelectedNumber = NoSelectedRecord,
-        aId: SelectedNumber = NoSelectedRecord
+        dId: SelectedNumber = NoRecord,
+        aId: SelectedNumber = NoRecord
     ) {
         _currentSampleVisibility.value = _currentSampleVisibility.value.setVisibility(dId, aId)
     }
@@ -592,11 +591,11 @@ class InvestigationsViewModel @Inject constructor(
      * Visibility operations
      * */
     private val _currentResultVisibility =
-        MutableStateFlow(Pair(NoSelectedRecord, NoSelectedRecord))
+        MutableStateFlow(Pair(NoRecord, NoRecord))
 
     fun setCurrentResultVisibility(
-        dId: SelectedNumber = NoSelectedRecord,
-        aId: SelectedNumber = NoSelectedRecord
+        dId: SelectedNumber = NoRecord,
+        aId: SelectedNumber = NoRecord
     ) {
         _currentResultVisibility.value = _currentResultVisibility.value.setVisibility(dId, aId)
     }
@@ -826,7 +825,7 @@ class InvestigationsViewModel @Inject constructor(
                 try {
                     _isLoadingInProgress.value = true
                     withContext(Dispatchers.IO) {
-                        repository.checkAndUploadNew()
+                        repository.uploadNewOrders()
                         setLastVisibleItemKey(repository.latestLocalOrderId())
                     }
                     _isLoadingInProgress.value = false
@@ -841,18 +840,19 @@ class InvestigationsViewModel @Inject constructor(
     private fun uploadEarliestInvestigationsEntities(earliestOrderDate: Long) {
         viewModelScope.launch {
             try {
-                var result = false
                 withContext(Dispatchers.IO) {
-                    result = repository.checkAndUploadPrevious(earliestOrderDate)
-                }
+                    repository.uploadOldOrders(earliestOrderDate).collect {
+                        if (it) {
+                            withContext(Dispatchers.Main) {
+                                _isLoadingInProgress.value = true
+                            }
+                            setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
+                        } else {
 
-                if (result) {
-                    _isLoadingInProgress.value = true
-                    withContext(Dispatchers.IO) {
-                        repository.uploadNewOrders(earliestOrderDate, false)
-                        setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
+                        }
                     }
                 }
+
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false
             } catch (networkError: IOException) {
@@ -925,7 +925,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshInvestigationsIfNecessary(onDemandRange)
+                repository.syncInvEntitiesByTimeRange(onDemandRange)
 
                 _isLoadingInProgress.value = false
                 _isNetworkError.value = false

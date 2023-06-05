@@ -7,12 +7,10 @@ import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.setMainActivityResult
-import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
@@ -597,7 +595,7 @@ fun getEmptyOrder() = DomainOrder(
     customerId = 4,
     orderedById = 62,
     statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")?: NoSelectedRecord.num.toLong(),
+    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")?: NoRecord.num.toLong(),
     completedDate = null
 )
 

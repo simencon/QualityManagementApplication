@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.other.Constants.INITIAL_UPDATE_PERIOD_H
 import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
@@ -15,6 +14,7 @@ import com.simenko.qmapp.utils.ListTransformer
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
@@ -31,32 +31,8 @@ class InvestigationsRepository @Inject constructor(
 ) : InvRepository {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
-    suspend fun checkAndUploadNew() {
-        var remoteLatestDate = NoSelectedRecord.num.toLong()
-        val localLatestDate = invDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
-        invService.getLatestOrderDateEpoch().apply {
-            if (isSuccessful)
-                remoteLatestDate = this.body() ?: NoSelectedRecord.num.toLong()
-        }
-        val oneDayEgo = Instant.now()
-            .minusMillis(1000L * 60L * 60L * INITIAL_UPDATE_PERIOD_H)
-            .toEpochMilli()
-        if (remoteLatestDate > localLatestDate)
-            uploadNewOrders(if (oneDayEgo > localLatestDate) oneDayEgo else localLatestDate)
-    }
-
-    suspend fun checkAndUploadPrevious(earliestOrderDate: Long): Boolean =
-        earliestOrderDate == invDao.getEarliestOrderDateEpoch()
-
-    override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
-        return Pair(
-            invDao.getEarliestOrderDateEpoch() ?: NoSelectedRecord.num.toLong(),
-            invDao.getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
-        )
-    }
-
     /**
-     * Update Investigations from the network
+     * Update Investigations meta tables from the network
      */
     suspend fun refreshInputForOrder() {
         withContext(Dispatchers.IO) {
@@ -135,47 +111,6 @@ class InvestigationsRepository @Inject constructor(
                 ).generateList()
             )
             Log.d(TAG, "refreshResultsDecryptions: ${timeFormatter.format(Instant.now())}")
-        }
-    }
-
-    //    ToDo - get latest local order date and update with sync latest-now
-    suspend fun uploadNewOrders(lastOrderDateEpoch: Long, uploadNewOrders: Boolean = true) {
-
-        runBlocking {
-            val ntOrders = if (uploadNewOrders)
-                invService.getLatestOrdersByStartingOrderDate(lastOrderDateEpoch)
-            else
-                invService.getEarliestOrdersByStartingOrderDate(lastOrderDateEpoch)
-
-            val newOrdersRangeDateEpoch = ntOrders.getOrdersRange()
-            Log.d(TAG, "uploadNewOrders: ntOrders is uploaded")
-            val ntSubOrders = invService.getSubOrdersByDateRange(newOrdersRangeDateEpoch)
-
-            Log.d(TAG, "uploadNewOrders: ntSubOrders is uploaded")
-            val ntTasks = invService.getTasksDateRange(newOrdersRangeDateEpoch)
-
-            Log.d(TAG, "uploadNewOrders: ntTasks is uploaded")
-            val ntSamples = invService.getSamplesByDateRange(newOrdersRangeDateEpoch)
-
-            Log.d(TAG, "uploadNewOrders: ntSamples is uploaded")
-            val ntResults = invService.getResultsByDateRange(newOrdersRangeDateEpoch)
-
-            Log.d(TAG, "uploadNewOrders: ntResults is uploaded")
-//        syncOrders(ntOrders, investigationsDao)
-            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
-            Log.d(TAG, "uploadNewOrders: ntOrders is saved")
-//        syncSubOrders(ntSubOrders, investigationsDao)
-            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
-            Log.d(TAG, "uploadNewOrders: ntSubOrders is saved")
-//        syncSubOrderTasks(ntTasks, investigationsDao)
-            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
-            Log.d(TAG, "uploadNewOrders: ntTasks is saved")
-//        syncSamples(ntSamples, investigationsDao)
-            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
-            Log.d(TAG, "uploadNewOrders: ntSamples is saved")
-//        syncResults(ntResults, investigationsDao)
-            invDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
-            Log.d(TAG, "uploadNewOrders: ntResults is saved")
         }
     }
 
@@ -444,15 +379,29 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    //    ToDo - the main sync function - refactor it after deleting useless code
-    override suspend fun refreshInvestigationsIfNecessary(timeRange: Pair<Long, Long>): List<NotificationData> {
+    /**
+     * Investigations sync logic
+     * */
+    override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
+        return Pair(
+            invDao.getEarliestOrderDate() ?: NoRecord.num.toLong(),
+            invDao.getLatestOrderDate() ?: NoRecord.num.toLong()
+        )
+    }
+
+    override suspend fun syncInvEntitiesByTimeRange(
+        timeRange: Pair<Long, Long>,
+        earlyOrders: Boolean
+    ): List<NotificationData> {
         val mList = mutableListOf<NotificationData>()
 
-        val oList = invDao.getOrdersByDateRange(timeRange)
-        val localOrdersHashCode = oList.sumOf { it.hashCode() }
-        val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange)
-        if (localOrdersHashCode != remoteOrdersHashCode) refreshOrders(timeRange)
-        Log.d(TAG, "Orders: local = $localOrdersHashCode; remote = $remoteOrdersHashCode")
+        if (!earlyOrders) {
+            val oList = invDao.getOrdersByDateRange(timeRange)
+            val localOrdersHashCode = oList.sumOf { it.hashCode() }
+            val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange)
+            if (localOrdersHashCode != remoteOrdersHashCode) refreshOrders(timeRange)
+            Log.d(TAG, "Orders: local = $localOrdersHashCode; remote = $remoteOrdersHashCode")
+        }
 
         val soList = invDao.getSubOrdersByDateRangeL(timeRange)
         val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
@@ -485,6 +434,46 @@ class InvestigationsRepository @Inject constructor(
         return mList
     }
 
+    suspend fun uploadNewOrders() {
+        invService.getLatestOrderDate().apply {
+            val remoteLatestDate = if (isSuccessful)
+                body() ?: NoRecord.num.toLong()
+            else NoRecord.num.toLong()
+
+            if (remoteLatestDate != NoRecord.num.toLong())
+                invDao.getLatestOrderDate().let {
+                    if (it != null && remoteLatestDate > it)
+                        syncInvEntitiesByTimeRange(Pair(it, remoteLatestDate))
+                    else if (it == null)
+                        syncInvEntitiesByTimeRange(
+                            Pair(
+                                remoteLatestDate - SyncPeriods.LAST_DAY.latestMillis,
+                                remoteLatestDate
+                            )
+                        )
+                    else TODO("Should not be a case")
+                }
+        }
+    }
+
+    fun uploadOldOrders(earliestOrderDate: Long): Flow<Boolean> =
+        flow {
+            if (earliestOrderDate == invDao.getEarliestOrderDate()) {
+                emit(true)
+                invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate).let { nOrders ->
+                    if (nOrders.isNotEmpty()) {
+                        invDao.insertOrdersAll(nOrders.map { it.toDatabaseOrder() })
+                        val timeRange = nOrders.getOrdersRange()
+                        syncInvEntitiesByTimeRange(timeRange, true)
+                        emit(false)
+                    }
+                }
+            } else {
+                emit(false)
+            }
+        }
+
+
     //    ToDo - must delete in local after remote deletion
     suspend fun deleteOrder(orderId: Int) {
         withContext(Dispatchers.IO) {
@@ -516,7 +505,6 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
         coroutineScope.produce {
             val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
@@ -524,15 +512,14 @@ class InvestigationsRepository @Inject constructor(
             send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) =
         coroutineScope.produce {
-            val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
+            val newRecord =
+                invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
             invDao.insertSubOrder(newRecord)
             send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
         coroutineScope.produce {
             val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask())
@@ -541,7 +528,6 @@ class InvestigationsRepository @Inject constructor(
             send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSample) =
         coroutineScope.produce {
             val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
@@ -549,7 +535,6 @@ class InvestigationsRepository @Inject constructor(
             send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-//    ToDo - stay with single constructor, with Spring "withoutId" - is useless
     suspend fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) =
         coroutineScope.produce {
             val newRecords = invService.createResults(records.map { it.toNetworkResult() })
@@ -653,8 +638,8 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun latestLocalOrderId(): Int {
         val localLatestOrderDate = invDao
-            .getLatestOrderDateEpoch() ?: NoSelectedRecord.num.toLong()
-        return invDao.getLatestOrderId(localLatestOrderDate) ?: NoSelectedRecord.num
+            .getLatestOrderDate() ?: NoRecord.num.toLong()
+        return invDao.getLatestOrderId(localLatestOrderDate) ?: NoRecord.num
     }
 
     suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {

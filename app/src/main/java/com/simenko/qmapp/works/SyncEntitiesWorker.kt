@@ -10,7 +10,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.ui.main.createMainActivityIntent
@@ -39,10 +39,10 @@ class SyncEntitiesWorker @AssistedInject constructor(
     @RequiresPermission("android.permission.POST_NOTIFICATIONS")
     override suspend fun doWork(): Result {
         try {
-            val latestMillis = inputData.getLong(LATEST_MILLIS, NoSelectedRecord.num.toLong())
-            val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoSelectedRecord.num.toLong())
+            val latestMillis = inputData.getLong(LATEST_MILLIS, NoRecord.num.toLong())
+            val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num.toLong())
 
-            val result = invRepository.refreshInvestigationsIfNecessary(
+            val result = invRepository.syncInvEntitiesByTimeRange(
                 getPeriodToSync(
                     invRepository.getCompleteOrdersRange(),
                     latestMillis,

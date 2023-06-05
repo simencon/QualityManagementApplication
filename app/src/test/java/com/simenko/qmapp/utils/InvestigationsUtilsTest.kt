@@ -1,7 +1,7 @@
 package com.simenko.qmapp.utils
 
 import com.google.common.truth.Truth
-import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.works.SyncPeriods
 import org.junit.Test
 import java.time.Instant
@@ -12,7 +12,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested last hour - function returns one hour exactly`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.LAST_HOUR
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
@@ -101,7 +101,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested last day - function returns 23 hours`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.LAST_DAY
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
@@ -259,7 +259,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested last week - function returns one hour exactly to sync`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.LAST_WEEK
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
@@ -417,7 +417,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested last month - function returns one hour exactly to sync`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.LAST_MONTH
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
@@ -575,7 +575,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested last quarter - function returns one hour exactly to sync`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.LAST_QUARTER
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
@@ -733,7 +733,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested last year - function returns one hour exactly to sync`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.LAST_YEAR
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
@@ -891,7 +891,7 @@ class InvestigationsUtilsTest {
      * */
     @Test
     fun `if current state db is empty and requested complete - function returns one hour exactly to sync`() {
-        val currentState = Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+        val currentState = Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
         val syncPeriod = SyncPeriods.COMPLETE_PERIOD
         val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
