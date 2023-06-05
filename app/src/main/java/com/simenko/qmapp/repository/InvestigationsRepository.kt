@@ -55,275 +55,6 @@ class InvestigationsRepository @Inject constructor(
         )
     }
 
-    companion object {
-        private suspend fun syncOrders(
-            oRange: Pair<Long, Long>,
-            invService: InvestigationsService,
-            invDao: InvestigationsDao
-        ) {
-            val ntOrders = invService.getOrdersByDateRange(oRange)
-            val dbOrders = invDao.getOrdersByDateRange(oRange)
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertOrder(ntIt.toDatabaseOrder())
-                }
-            }
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseOrder())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateOrder(ntIt.toDatabaseOrder())
-                }
-            }
-            dbOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteOrder(dbIt)
-                }
-            }
-        }
-
-        private fun DatabaseSubOrderComplete.toNotificationData(reason: NotificationReasons): NotificationData {
-            return NotificationData(
-                orderId = subOrder.orderId,
-                subOrderId = subOrder.id,
-                orderNumber = orderShort.order.orderNumber,
-                subOrderStatus = status.statusDescription,
-                departmentAbbr = department.depAbbr,
-                channelAbbr = channel.channelAbbr,
-                itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
-                    StringUtils.concatTwoStrings3(
-                        itemVersionComplete.itemComplete.key.componentKey,
-                        itemVersionComplete.itemComplete.item.itemDesignation
-                    ),
-                    itemVersionComplete.itemVersion.versionDescription
-                ),
-                notificationReason = reason
-            )
-        }
-
-        private suspend fun syncSubOrders(
-            oRange: Pair<Long, Long>,
-            invService: InvestigationsService,
-            invDao: InvestigationsDao
-        ): List<NotificationData> {
-            val mList = mutableListOf<NotificationData>()
-            val ntSubOrders = invService.getSubOrdersByDateRange(oRange)
-            val dbSubOrders = invDao.getSubOrdersByDateRangeL(oRange)
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSubOrder(ntIt.toDatabaseSubOrder())
-                    invDao.getSubOrdersById(ntIt.id)?.let {
-                        mList.add(
-                            it.toNotificationData(NotificationReasons.CREATED)
-                        )
-                    }
-                }
-            }
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSubOrder())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSubOrder(ntIt.toDatabaseSubOrder())
-                    invDao.getSubOrdersById(ntIt.id)?.let {
-                        mList.add(
-                            it.toNotificationData(NotificationReasons.CHANGED)
-                        )
-                    }
-                }
-            }
-            dbSubOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSubOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.getSubOrdersById(dbIt.id)?.let {
-                        mList.add(
-                            it.toNotificationData(NotificationReasons.DELETED)
-                        )
-                    }
-                    invDao.deleteSubOrder(dbIt)
-                }
-            }
-
-            return mList
-        }
-
-        private suspend fun syncSubOrderTasks(
-            oRange: Pair<Long, Long>,
-            invService: InvestigationsService,
-            invDao: InvestigationsDao
-        ) {
-            val ntTasks = invService.getTasksDateRange(oRange)
-            val dbTasks = invDao.getTasksByDateRangeL(oRange)
-            ntTasks.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbTasks.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
-                }
-            }
-            ntTasks.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbTasks.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSubOrderTask())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
-                }
-            }
-            dbTasks.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntTasks.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteSubOrderTask(dbIt)
-                }
-            }
-        }
-
-        private suspend fun syncSamples(
-            oRange: Pair<Long, Long>,
-            invService: InvestigationsService,
-            invDao: InvestigationsDao
-        ) {
-            val ntSamples = invService.getSamplesByDateRange(oRange)
-            val dbSamples = invDao.getSamplesByDateRange(oRange)
-            ntSamples.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSamples.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSample(ntIt.toDatabaseSample())
-                }
-            }
-            ntSamples.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSamples.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSample())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSample(ntIt.toDatabaseSample())
-                }
-            }
-            dbSamples.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSamples.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteSample(dbIt)
-                }
-            }
-        }
-
-        private suspend fun syncResults(
-            oRange: Pair<Long, Long>,
-            invService: InvestigationsService,
-            invDao: InvestigationsDao
-        ) {
-            val ntResults = invService.getResultsByDateRange(oRange)
-            val dbResults = invDao.getResultsByDateRange(oRange)
-            ntResults.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbResults.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertResult(ntIt.toDatabaseResult())
-                }
-            }
-            ntResults.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbResults.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseResult())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateResult(ntIt.toDatabaseResult())
-                }
-            }
-            dbResults.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntResults.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteResult(dbIt)
-                }
-            }
-        }
-    }
-
     /**
      * Update Investigations from the network
      */
@@ -448,11 +179,268 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    //    ToDo - unnecessary layerFunction - call directly syncOrders()
-    suspend fun refreshOrders(uiOrdersRange: Pair<Long, Long>) {
+    /**
+     * Investigations sync work
+     * */
+    suspend fun refreshOrders(timeRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            syncOrders(uiOrdersRange, invService, invDao)
+            val ntOrders = invService.getOrdersByDateRange(timeRange)
+            val dbOrders = invDao.getOrdersByDateRange(timeRange)
+            ntOrders.forEach byBlock1@{ ntIt ->
+                var recordExists = false
+                dbOrders.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.insertOrder(ntIt.toDatabaseOrder())
+                }
+            }
+            ntOrders.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbOrders.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if (dbIt != ntIt.toDatabaseOrder())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateOrder(ntIt.toDatabaseOrder())
+                }
+            }
+            dbOrders.forEach byBlock1@{ dbIt ->
+                var recordExists = false
+                ntOrders.forEach byBlock2@{ ntIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.deleteOrder(dbIt)
+                }
+            }
             Log.d(TAG, "refreshOrders: ${timeFormatter.format(Instant.now())}")
+        }
+    }
+
+    private fun DatabaseSubOrderComplete.toNotificationData(reason: NotificationReasons): NotificationData {
+        return NotificationData(
+            orderId = subOrder.orderId,
+            subOrderId = subOrder.id,
+            orderNumber = orderShort.order.orderNumber,
+            subOrderStatus = status.statusDescription,
+            departmentAbbr = department.depAbbr,
+            channelAbbr = channel.channelAbbr,
+            itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
+                StringUtils.concatTwoStrings3(
+                    itemVersionComplete.itemComplete.key.componentKey,
+                    itemVersionComplete.itemComplete.item.itemDesignation
+                ),
+                itemVersionComplete.itemVersion.versionDescription
+            ),
+            notificationReason = reason
+        )
+    }
+
+    suspend fun refreshSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
+        val result = mutableListOf<NotificationData>()
+        withContext(Dispatchers.IO) {
+            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange)
+            val dbSubOrders = invDao.getSubOrdersByDateRangeL(timeRange)
+            ntSubOrders.forEach byBlock1@{ ntIt ->
+                var recordExists = false
+                dbSubOrders.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.insertSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.getSubOrdersById(ntIt.id)?.let {
+                        result.add(
+                            it.toNotificationData(NotificationReasons.CREATED)
+                        )
+                    }
+                }
+            }
+            ntSubOrders.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbSubOrders.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if (dbIt != ntIt.toDatabaseSubOrder())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.getSubOrdersById(ntIt.id)?.let {
+                        result.add(
+                            it.toNotificationData(NotificationReasons.CHANGED)
+                        )
+                    }
+                }
+            }
+            dbSubOrders.forEach byBlock1@{ dbIt ->
+                var recordExists = false
+                ntSubOrders.forEach byBlock2@{ ntIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.getSubOrdersById(dbIt.id)?.let {
+                        result.add(
+                            it.toNotificationData(NotificationReasons.DELETED)
+                        )
+                    }
+                    invDao.deleteSubOrder(dbIt)
+                }
+            }
+
+            Log.d(TAG, "refreshSubOrders: ${timeFormatter.format(Instant.now())}")
+        }
+        return result
+    }
+
+    suspend fun refreshSubOrderTasks(timeRange: Pair<Long, Long>) {
+        withContext(Dispatchers.IO) {
+            val ntTasks = invService.getTasksDateRange(timeRange)
+            val dbTasks = invDao.getTasksByDateRangeL(timeRange)
+            ntTasks.forEach byBlock1@{ ntIt ->
+                var recordExists = false
+                dbTasks.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                }
+            }
+            ntTasks.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbTasks.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if (dbIt != ntIt.toDatabaseSubOrderTask())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                }
+            }
+            dbTasks.forEach byBlock1@{ dbIt ->
+                var recordExists = false
+                ntTasks.forEach byBlock2@{ ntIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.deleteSubOrderTask(dbIt)
+                }
+            }
+            Log.d(TAG, "refreshSubOrderTasks: ${timeFormatter.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshSamples(timeRange: Pair<Long, Long>) {
+        withContext(Dispatchers.IO) {
+            val ntSamples = invService.getSamplesByDateRange(timeRange)
+            val dbSamples = invDao.getSamplesByDateRange(timeRange)
+            ntSamples.forEach byBlock1@{ ntIt ->
+                var recordExists = false
+                dbSamples.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.insertSample(ntIt.toDatabaseSample())
+                }
+            }
+            ntSamples.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbSamples.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if (dbIt != ntIt.toDatabaseSample())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateSample(ntIt.toDatabaseSample())
+                }
+            }
+            dbSamples.forEach byBlock1@{ dbIt ->
+                var recordExists = false
+                ntSamples.forEach byBlock2@{ ntIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.deleteSample(dbIt)
+                }
+            }
+            Log.d(TAG, "refreshSamples: ${timeFormatter.format(Instant.now())}")
+        }
+    }
+
+    suspend fun refreshResults(timeRange: Pair<Long, Long>) {
+        withContext(Dispatchers.IO) {
+            val ntResults = invService.getResultsByDateRange(timeRange)
+            val dbResults = invDao.getResultsByDateRange(timeRange)
+            ntResults.forEach byBlock1@{ ntIt ->
+                var recordExists = false
+                dbResults.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.insertResult(ntIt.toDatabaseResult())
+                }
+            }
+            ntResults.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbResults.forEach byBlock2@{ dbIt ->
+                    if (ntIt.id == dbIt.id) {
+                        if (dbIt != ntIt.toDatabaseResult())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    invDao.updateResult(ntIt.toDatabaseResult())
+                }
+            }
+            dbResults.forEach byBlock1@{ dbIt ->
+                var recordExists = false
+                ntResults.forEach byBlock2@{ ntIt ->
+                    if (ntIt.id == dbIt.id) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    invDao.deleteResult(dbIt)
+                }
+            }
+            Log.d(TAG, "refreshResults: ${timeFormatter.format(Instant.now())}")
         }
     }
 
@@ -525,40 +513,6 @@ class InvestigationsRepository @Inject constructor(
     suspend fun deleteResults(charId: Int = 0, id: Int = 0) {
         withContext(Dispatchers.IO) {
             invService.deleteResults(charId, id)
-        }
-    }
-
-    //    ToDo - unnecessary layerFunction - call directly syncSubOrders()
-    suspend fun refreshSubOrders(uiOrdersRange: Pair<Long, Long>): List<NotificationData> {
-        var result: List<NotificationData>
-        withContext(Dispatchers.IO) {
-            result = syncSubOrders(uiOrdersRange, invService, invDao)
-            Log.d(TAG, "refreshSubOrders: ${timeFormatter.format(Instant.now())}")
-        }
-        return result
-    }
-
-    //    ToDo - unnecessary layerFunction - call directly syncSubOrderTasks()
-    suspend fun refreshSubOrderTasks(uiOrdersRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            syncSubOrderTasks(uiOrdersRange, invService, invDao)
-            Log.d(TAG, "refreshSubOrderTasks: ${timeFormatter.format(Instant.now())}")
-        }
-    }
-
-    //    ToDo - unnecessary layerFunction - call directly syncSamples()
-    suspend fun refreshSamples(uiOrdersRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            syncSamples(uiOrdersRange, invService, invDao)
-            Log.d(TAG, "refreshSamples: ${timeFormatter.format(Instant.now())}")
-        }
-    }
-
-    //    ToDo - unnecessary layerFunction - call directly syncResults()
-    suspend fun refreshResults(uiOrdersRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            syncResults(uiOrdersRange, invService, invDao)
-            Log.d(TAG, "refreshResults: ${timeFormatter.format(Instant.now())}")
         }
     }
 
