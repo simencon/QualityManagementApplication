@@ -19,12 +19,7 @@ interface InvestigationsService {
     suspend fun getOrdersTypes(): List<NetworkOrdersType>
 
     @GET("orders/latestOrder")
-    suspend fun getLatestOrderDateEpoch(): Response<Long>
-
-    @GET("orders/latestOrder/{latestOrderDate}")
-    suspend fun getLatestOrdersByStartingOrderDate(
-        @Path("latestOrderDate") latestOrderDate: Long
-    ): List<NetworkOrder>
+    suspend fun getLatestOrderDate(): Response<Long>
 
     @GET("orders/earliestOrder/{earliestOrderDate}")
     suspend fun getEarliestOrdersByStartingOrderDate(
@@ -39,7 +34,7 @@ interface InvestigationsService {
     @GET("orders/{timeRange}")
     suspend fun getOrdersByDateRange(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): List<NetworkOrder>
+    ): Response<List<NetworkOrder>>
 
     @POST("orders")
     suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder

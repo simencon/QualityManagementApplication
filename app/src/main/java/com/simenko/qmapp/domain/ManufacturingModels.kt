@@ -9,15 +9,15 @@ data class DomainPositionLevel(
 
 @Stable
 data class DomainTeamMember(
-    var id: Int = NoSelectedRecord.num,
-    var departmentId: Int = NoSelectedRecord.num,
+    var id: Int = NoRecord.num,
+    var departmentId: Int = NoRecord.num,
     var department: String = NoSelectedString.str,
     var email: String? = null,
     var fullName: String = NoSelectedString.str,
     var jobRole: String = NoSelectedString.str,
-    var roleLevelId: Int = NoSelectedRecord.num,
+    var roleLevelId: Int = NoRecord.num,
     var passWord: String? = null,
-    var companyId: Int = NoSelectedRecord.num,
+    var companyId: Int = NoRecord.num,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainModel() {
@@ -33,7 +33,7 @@ data class DomainTeamMember(
 }
 
 data class DomainCompany(
-    var id: Int = NoSelectedRecord.num,
+    var id: Int = NoRecord.num,
     var companyName: String? = null,
     var companyCountry: String? = null,
     var companyCity: String? = null,
@@ -41,14 +41,14 @@ data class DomainCompany(
     var companyPhoneNo: String? = null,
     var companyPostCode: String? = null,
     var companyRegion: String? = null,
-    var companyOrder: Int = NoSelectedRecord.num,
+    var companyOrder: Int = NoRecord.num,
     var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int = NoSelectedRecord.num
+    var companyManagerId: Int = NoRecord.num
 )
 
 @Stable
 data class DomainDepartment(
-    var id: Int = NoSelectedRecord.num,
+    var id: Int = NoRecord.num,
     var depAbbr: String? = null,
     var depName: String? = null,
     var depManager: Int? = null,

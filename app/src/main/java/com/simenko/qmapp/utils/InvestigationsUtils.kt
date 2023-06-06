@@ -6,20 +6,20 @@ import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
 
 data class OrdersFilter(
-    val typeId: Int = NoSelectedRecord.num,
-    val statusId: Int = NoSelectedRecord.num,
+    val typeId: Int = NoRecord.num,
+    val statusId: Int = NoRecord.num,
     val orderNumber: String = NoSelectedString.str
 )
 
 data class SubOrdersFilter(
-    val typeId: Int = NoSelectedRecord.num,
-    val statusId: Int = NoSelectedRecord.num,
+    val typeId: Int = NoRecord.num,
+    val statusId: Int = NoRecord.num,
     val orderNumber: String = NoSelectedString.str
 )
 
 data class NotificationData(
-    val orderId: Int = NoSelectedRecord.num,
-    val subOrderId: Int = NoSelectedRecord.num,
+    val orderId: Int = NoRecord.num,
+    val subOrderId: Int = NoRecord.num,
     val orderNumber: Int? = null,
     val subOrderStatus: String? = null,
     val departmentAbbr: String? = null,
@@ -48,7 +48,7 @@ object InvestigationsUtils {
                 this.maxBy { it.order.createdDate }.order.createdDate
             )
         else
-            Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+            Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
     /**
      * The first means top orderID
@@ -61,21 +61,21 @@ object InvestigationsUtils {
                 this.maxBy { it.createdDate }.createdDate
             )
         else
-            Pair(NoSelectedRecord.num.toLong(), NoSelectedRecord.num.toLong())
+            Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
 
     fun Pair<SelectedNumber, SelectedNumber>.setVisibility(
         dId: SelectedNumber,
         aId: SelectedNumber
     ):
             Pair<SelectedNumber, SelectedNumber> {
-        return if (dId != NoSelectedRecord)
+        return if (dId != NoRecord)
             Pair(
-                if (this.first != dId) dId else NoSelectedRecord,
+                if (this.first != dId) dId else NoRecord,
                 this.second
             ) else
             Pair(
                 this.first,
-                if (this.second != aId) aId else NoSelectedRecord
+                if (this.second != aId) aId else NoRecord
             )
     }
 
@@ -94,7 +94,7 @@ object InvestigationsUtils {
 
         val specificPair = Pair(
             when {
-                currentState.first == NoSelectedRecord.num.toLong() -> //when local is empty
+                currentState.first == NoRecord.num.toLong() -> //when local is empty
                     if (latest != SyncPeriods.LAST_DAY.latestMillis)
                         thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
                     else latestMillis
@@ -113,7 +113,7 @@ object InvestigationsUtils {
                 else -> latestMillis
             },
             when {
-                currentState.second == NoSelectedRecord.num.toLong() -> //when local is empty
+                currentState.second == NoRecord.num.toLong() -> //when local is empty
                     if (exclude != SyncPeriods.LAST_DAY.excludeMillis)
                         thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
                     else excludedMillis
@@ -132,7 +132,7 @@ object InvestigationsUtils {
 
         val infPair = Pair(
             when {
-                currentState.first == NoSelectedRecord.num.toLong() ->
+                currentState.first == NoRecord.num.toLong() ->
                     thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
                 currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis)
                     .toEpochMilli() ->
@@ -141,7 +141,7 @@ object InvestigationsUtils {
                     currentState.first
             },
             when {
-                currentState.second == NoSelectedRecord.num.toLong() ->
+                currentState.second == NoRecord.num.toLong() ->
                     thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
                 currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis)
                     .toEpochMilli() ->
@@ -161,9 +161,9 @@ object InvestigationsUtils {
         ordersFilter: OrdersFilter = OrdersFilter()
     ): List<DomainOrderComplete> {
         return filter {
-            (it.order.orderTypeId == ordersFilter.typeId || ordersFilter.typeId == NoSelectedRecord.num)
+            (it.order.orderTypeId == ordersFilter.typeId || ordersFilter.typeId == NoRecord.num)
                     &&
-                    (it.order.statusId == ordersFilter.statusId || ordersFilter.statusId == NoSelectedRecord.num)
+                    (it.order.statusId == ordersFilter.statusId || ordersFilter.statusId == NoRecord.num)
                     &&
                     (it.order.orderNumber.toString().contains(ordersFilter.orderNumber)
                             ||
@@ -175,9 +175,9 @@ object InvestigationsUtils {
         subOrdersFilter: SubOrdersFilter = SubOrdersFilter()
     ): List<DomainSubOrderComplete> {
         return filter {
-            (it.orderShort.order.orderTypeId == subOrdersFilter.typeId || subOrdersFilter.typeId == NoSelectedRecord.num)
+            (it.orderShort.order.orderTypeId == subOrdersFilter.typeId || subOrdersFilter.typeId == NoRecord.num)
                     &&
-                    (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoSelectedRecord.num)
+                    (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoRecord.num)
                     &&
                     (it.orderShort.order.orderNumber.toString()
                         .contains(subOrdersFilter.orderNumber)

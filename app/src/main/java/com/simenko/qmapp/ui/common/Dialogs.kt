@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.common
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -69,7 +68,7 @@ fun CustomDialogUI(
                     currentSubOrderTask != null ->
                         SelectedNumber(currentSubOrderTask.subOrderTask.statusId)
 
-                    else -> NoSelectedRecord
+                    else -> NoRecord
                 }
             )
             enableToEdit = when (dialogInput.performerId) {

@@ -21,8 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import com.simenko.qmapp.BaseApplication
-import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
@@ -32,7 +31,6 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
-import javax.inject.Inject
 
 private const val TAG = "NewItemActivity"
 
@@ -53,8 +51,8 @@ internal const val KEY_ARG_SUB_ORDER_ID = "KEY_ARG_SUB_ORDER_ID"
 fun launchNewItemActivityForResult(
     activity: MainActivity,
     actionType: Int,
-    orderId: Int = NoSelectedRecord.num,
-    subOrderId: Int = NoSelectedRecord.num
+    orderId: Int = NoRecord.num,
+    subOrderId: Int = NoRecord.num
 ) {
     activity.startActivityForResult(
         createNewItemActivityIntent(
@@ -83,8 +81,8 @@ fun createNewItemActivityIntent(
 class NewItemActivity : ComponentActivity() {
 
     lateinit var actionTypeEnum: ActionType
-    private var orderId = NoSelectedRecord.num
-    private var subOrderId = NoSelectedRecord.num
+    private var orderId = NoRecord.num
+    private var subOrderId = NoRecord.num
 
     lateinit var viewModel: NewItemViewModel
 
@@ -96,8 +94,8 @@ class NewItemActivity : ComponentActivity() {
 
         actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, -1)]
 
-        orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: NoSelectedRecord.num
-        subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: NoSelectedRecord.num
+        orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: NoRecord.num
+        subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: NoRecord.num
 
         setContent {
             QMAppTheme {

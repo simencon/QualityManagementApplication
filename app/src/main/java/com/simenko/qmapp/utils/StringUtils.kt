@@ -1,7 +1,7 @@
 package com.simenko.qmapp.utils
 
 import android.util.Log
-import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -90,12 +90,12 @@ object StringUtils {
         if (myDateTimeStr == null) return null
         mySimpleFormatters.forEach {
             try {
-                return it.parse(myDateTimeStr)?.time ?: NoSelectedRecord.num.toLong()
+                return it.parse(myDateTimeStr)?.time ?: NoRecord.num.toLong()
             } catch (e: ParseException) {
                 Log.d(TAG, "getMillisecondsDate: e.message")
             }
         }
-        return NoSelectedRecord.num.toLong()
+        return NoRecord.num.toLong()
     }
     val FormatForRestService = SelectedNumber(0)
     @JvmStatic

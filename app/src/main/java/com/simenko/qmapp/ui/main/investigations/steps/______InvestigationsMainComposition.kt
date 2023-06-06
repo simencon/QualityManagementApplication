@@ -107,7 +107,7 @@ fun InvestigationsMainComposition(
 
                 val pullRefreshState = rememberPullRefreshState(
                     refreshing = observerLoadingProcess,
-                    onRefresh = { invModel.uploadLatestInvestigationsEntities() }
+                    onRefresh = { invModel.uploadNewInvestigations() }
                 )
 
                 Box(

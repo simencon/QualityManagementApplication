@@ -7,12 +7,10 @@ import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.setMainActivityResult
-import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
@@ -178,9 +176,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshInvestigationTypes()
-                investigationsRepository.refreshInvestigationReasons()
-                investigationsRepository.refreshInputForOrder()
+                investigationsRepository.insertInvestigationTypes()
+                investigationsRepository.insertInvestigationReasons()
+                investigationsRepository.insertInputForOrder()
                 manufacturingRepository.refreshDepartments()
                 manufacturingRepository.refreshTeamMembers()
 
@@ -358,9 +356,9 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository
-                    .refreshSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
                 investigationsRepository
-                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -377,9 +375,9 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository
-                    .refreshSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
                 investigationsRepository
-                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -396,7 +394,7 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository
-                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -597,7 +595,7 @@ fun getEmptyOrder() = DomainOrder(
     customerId = 4,
     orderedById = 62,
     statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")?: NoSelectedRecord.num.toLong(),
+    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")?: NoRecord.num.toLong(),
     completedDate = null
 )
 

@@ -19,7 +19,7 @@ import androidx.work.*
 import com.google.android.material.navigation.NavigationView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
-import com.simenko.qmapp.domain.NoSelectedRecord
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoSelectedString
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
@@ -42,15 +42,15 @@ internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
 
 data class CreatedRecord(
-    val orderId: Int = NoSelectedRecord.num,
-    val subOrderId: Int = NoSelectedRecord.num
+    val orderId: Int = NoRecord.num,
+    val subOrderId: Int = NoRecord.num
 )
 
 fun setMainActivityResult(
     activity: NewItemActivity,
     actionType: ActionType,
-    orderId: Int = NoSelectedRecord.num,
-    subOrderId: Int = NoSelectedRecord.num
+    orderId: Int = NoRecord.num,
+    subOrderId: Int = NoRecord.num
 ) {
     activity.setResult(actionType.ordinal, createMainActivityIntent(activity, orderId, subOrderId))
 }
@@ -160,8 +160,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         bundle: Bundle?
     ) {
         investigationsModel.setCreatedRecord(
-            bundle?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoSelectedRecord.num,
-            bundle?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoSelectedRecord.num
+            bundle?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoRecord.num,
+            bundle?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoRecord.num
         )
 
         when (requestCode) {
@@ -293,7 +293,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
-                        investigationsModel.setCurrentSubOrdersFilter(type = NoSelectedRecord)
+                        investigationsModel.setCurrentSubOrdersFilter(type = NoRecord)
                         InvestigationsFragment()
                     }
                     R.id.nav_inv_orders_process_control -> {
