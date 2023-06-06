@@ -24,7 +24,7 @@ interface InvestigationsService {
     @GET("orders/earliestOrder/{earliestOrderDate}")
     suspend fun getEarliestOrdersByStartingOrderDate(
         @Path("earliestOrderDate") earliestOrderDate: Long
-    ): List<NetworkOrder>
+    ): Response<List<NetworkOrder>>
 
     @GET("orders/hashCode/{timeRange}")
     suspend fun getOrdersHashCodeForDatePeriod(
@@ -57,7 +57,7 @@ interface InvestigationsService {
     @GET("subOrders/{timeRange}")
     suspend fun getSubOrdersByDateRange(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): List<NetworkSubOrder>
+    ): Response<List<NetworkSubOrder>>
 
     @POST("subOrders")
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
@@ -80,7 +80,7 @@ interface InvestigationsService {
     @GET("subOrderTasks/{timeRange}")
     suspend fun getTasksDateRange(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): List<NetworkSubOrderTask>
+    ): Response<List<NetworkSubOrderTask>>
 
     @POST("subOrderTasks")
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
@@ -106,7 +106,7 @@ interface InvestigationsService {
     @GET("samples/{timeRange}")
     suspend fun getSamplesByDateRange(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): List<NetworkSample>
+    ): Response<List<NetworkSample>>
 
     @POST("samples")
     suspend fun createSample(@Body networkSample: NetworkSample): NetworkSample
@@ -125,7 +125,7 @@ interface InvestigationsService {
     @GET("results/{timeRange}")
     suspend fun getResultsByDateRange(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): List<NetworkResult>
+    ): Response<List<NetworkResult>>
 
     @POST("results/records")
     suspend fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>

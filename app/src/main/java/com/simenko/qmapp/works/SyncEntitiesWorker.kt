@@ -38,41 +38,29 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @RequiresPermission("android.permission.POST_NOTIFICATIONS")
     override suspend fun doWork(): Result {
-        try {
-            val latestMillis = inputData.getLong(LATEST_MILLIS, NoRecord.num.toLong())
-            val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num.toLong())
+        val latestMillis = inputData.getLong(LATEST_MILLIS, NoRecord.num.toLong())
+        val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num.toLong())
 
-            val result = invRepository.syncInvEntitiesByTimeRange(
-                getPeriodToSync(
-                    invRepository.getCompleteOrdersRange(),
-                    latestMillis,
-                    excludeMillis
-                )
-            )
-
-            Log.d(TAG, "doWork: $result")
-
-            result.forEach {
-                makeNotification(it)
+        runCatching {
+            invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.getCompleteOrdersRange(), latestMillis, excludeMillis))
+        }.also { result ->
+            result.getOrNull().also {
+                return if (it != null) {
+                    it.forEach { n -> makeNotification(n) }
+                    Result.success(
+                        Data.Builder()
+                            .putLong(LATEST_MILLIS, SyncPeriods.LAST_DAY.latestMillis)
+                            .putLong(EXCLUDE_MILLIS, SyncPeriods.LAST_DAY.excludeMillis)
+                            .build()
+                    )
+                } else {
+                    Result.failure(
+                        Data.Builder()
+                            .putString(ERROR_MSG, result.exceptionOrNull()?.message)
+                            .build()
+                    )
+                }
             }
-
-            delay(200L)
-
-            return Result.success(
-                Data.Builder()
-                    .putLong(LATEST_MILLIS, SyncPeriods.LAST_DAY.latestMillis)
-                    .putLong(EXCLUDE_MILLIS, SyncPeriods.LAST_DAY.excludeMillis)
-                    .build()
-            )
-        } catch (e: Exception) {
-            if (e.message.toString().startsWith("5")) {
-                return Result.retry()
-            }
-            return Result.failure(
-                Data.Builder()
-                    .putString(ERROR_MSG, "Invalid server response")
-                    .build()
-            )
         }
     }
 

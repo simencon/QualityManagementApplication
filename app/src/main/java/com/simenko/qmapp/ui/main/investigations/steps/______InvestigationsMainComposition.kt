@@ -103,7 +103,7 @@ fun InvestigationsMainComposition(
             content = { padding ->
 
                 val observerLoadingProcess by invModel.isLoadingInProgress.observeAsState(false)
-                val observerIsNetworkError by invModel.isNetworkError.observeAsState(false)
+                val observerIsNetworkError by invModel.isErrorMessage.observeAsState(null)
 
                 val pullRefreshState = rememberPullRefreshState(
                     refreshing = observerLoadingProcess,
@@ -218,8 +218,8 @@ fun InvestigationsMainComposition(
                     )
                 }
 
-                if (observerIsNetworkError) {
-                    Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
+                if (observerIsNetworkError != null) {
+                    Toast.makeText(context, observerIsNetworkError, Toast.LENGTH_SHORT).show()
                     invModel.onNetworkErrorShown()
                 }
             }

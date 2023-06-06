@@ -231,8 +231,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     investigationsModel.refreshMasterDataFromRepository()
                 }
                 R.id.sync_investigations -> {
-//                    investigationsModel.syncUploadedInvestigations()
-
                     workManager.beginUniqueWork(
                         "testWork",
                         ExistingWorkPolicy.KEEP,
