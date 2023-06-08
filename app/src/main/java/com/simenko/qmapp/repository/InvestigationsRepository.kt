@@ -653,35 +653,32 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Inv adding operations
      * */
-    fun CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
+    fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
             val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
             invDao.insertOrder(newOrder)
             send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    fun CoroutineScope.getCreatedRecord(record: DomainSubOrder) = produce {
+    fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
             val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
             invDao.insertSubOrder(newRecord)
             send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    fun CoroutineScope.getCreatedRecord(record: DomainSubOrderTask) = produce {
+    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
             val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask()).toDatabaseSubOrderTask()
             invDao.insertSubOrderTask(newRecord)
             send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSample) =
-        coroutineScope.produce {
+    fun CoroutineScope.insertSample(record: DomainSample) = produce {
             val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
             invDao.insertSample(newRecord)
             send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    suspend fun getCreatedRecords(coroutineScope: CoroutineScope, records: List<DomainResult>) =
-        coroutineScope.produce {
-            val newRecords = invService.createResults(records.map { it.toNetworkResult() })
-                .map { it.toDatabaseResult() }
+    fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
+            val newRecords = invService.createResults(records.map { it.toNetworkResult() }).map { it.toDatabaseResult() }
             invDao.insertResultsAll(newRecords)
             send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
         }
