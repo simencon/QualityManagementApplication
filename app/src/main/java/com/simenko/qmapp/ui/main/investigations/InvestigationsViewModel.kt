@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.investigations
 import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -14,13 +15,11 @@ import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
-import com.simenko.qmapp.works.SyncPeriods
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
-import java.time.Instant
 import javax.inject.Inject
 
 private const val TAG = "InvestigationsViewModel"
@@ -47,12 +46,12 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: LiveData<Boolean> = _isLoadingInProgress.asLiveData()
-    private val _isNetworkError = MutableLiveData(false)
-    val isNetworkError: LiveData<Boolean> = _isNetworkError
+    private val _isErrorMessage = MutableStateFlow<String?>(null)
+    val isErrorMessage: LiveData<String?> = _isErrorMessage.asLiveData()
 
     fun onNetworkErrorShown() {
         _isLoadingInProgress.value = false
-        _isNetworkError.value = false
+        _isErrorMessage.value = null
     }
 
     private val _isReportDialogVisible = MutableLiveData(false)
@@ -224,7 +223,7 @@ class InvestigationsViewModel @Inject constructor(
                             }
                         _currentOrdersRange.value = cyp.getDetailedOrdersRange()
                         if (!isLoading)
-                            uploadEarliestInvestigationsEntities(_currentOrdersRange.value.first)
+                            uploadOlderInvestigations(_currentOrdersRange.value.first)
                         Log.d(TAG, "_currentOrdersRange = ${_currentOrdersRange.value}")
                         flow {
                             emit(
@@ -244,37 +243,31 @@ class InvestigationsViewModel @Inject constructor(
      * */
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteOrder(orderId)
-                syncOrders()
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
-            }
-        }
-    }
-
-    fun syncOrders() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.refreshOrders(_currentOrdersRange.value)
-                repository.refreshSubOrders(_currentOrdersRange.value)
-                repository.refreshSubOrderTasks(_currentOrdersRange.value)
-                repository.refreshSamples(_currentOrdersRange.value)
-                repository.refreshResults(_currentOrdersRange.value)
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
+            withContext(Dispatchers.IO) {
+                repository.deleteOrder(orderId).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -289,10 +282,10 @@ class InvestigationsViewModel @Inject constructor(
                     )
                     channel.consumeEach {}
                 }
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
+                _isErrorMessage.value = null
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }
@@ -380,36 +373,31 @@ class InvestigationsViewModel @Inject constructor(
      * */
     fun deleteSubOrder(subOrderId: Int) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteSubOrder(subOrderId)
-                syncSubOrders()
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
-            }
-        }
-    }
-
-    private fun syncSubOrders() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.refreshSubOrders(_currentOrdersRange.value)
-                repository.refreshSubOrderTasks(_currentOrdersRange.value)
-                repository.refreshSamples(_currentOrdersRange.value)
-                repository.refreshResults(_currentOrdersRange.value)
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
+            withContext(Dispatchers.IO) {
+                repository.deleteSubOrder(subOrderId).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -425,10 +413,10 @@ class InvestigationsViewModel @Inject constructor(
                     channel.consumeEach {
                     }
                 }
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
+                _isErrorMessage.value = null
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }
@@ -487,17 +475,31 @@ class InvestigationsViewModel @Inject constructor(
      * */
     fun deleteSubOrderTask(taskId: Int) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteSubOrderTask(taskId)
-                syncTasks()
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
+            withContext(Dispatchers.IO) {
+                repository.deleteSubOrderTask(taskId).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -507,14 +509,14 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
 
-                repository.refreshSubOrderTasks(_currentOrdersRange.value)
-                repository.refreshResults(_currentOrdersRange.value)
+                repository.syncSubOrderTasks(_currentOrdersRange.value)
+                repository.syncResults(_currentOrdersRange.value)
 
                 _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
+                _isErrorMessage.value = null
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }
@@ -627,35 +629,33 @@ class InvestigationsViewModel @Inject constructor(
      * End of operations with results _______________________________________________________
      * */
 
-    fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
+    private fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteResults(charId = task.id)
-                syncResults()
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
-            }
-        }
-    }
-
-    fun syncResults() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.refreshResults(_currentOrdersRange.value)
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
+            withContext(Dispatchers.IO) {
+                repository.deleteResults(taskId = task.id).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -674,15 +674,15 @@ class InvestigationsViewModel @Inject constructor(
                         syncSubOrder(subOrder)
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        order?.let { syncOrder(it) }
+                        syncOrder(order)
                     }
                 }
                 hideReportDialog()
-                _isNetworkError.value = false
+                _isErrorMessage.value = null
                 _isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }
@@ -700,16 +700,16 @@ class InvestigationsViewModel @Inject constructor(
                         syncSubOrder(subOrder)
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        order?.let { syncOrder(it) }
+                        syncOrder(order)
 
                     }
                 }
                 hideReportDialog()
-                _isNetworkError.value = false
+                _isErrorMessage.value = null
                 _isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }
@@ -812,52 +812,81 @@ class InvestigationsViewModel @Inject constructor(
                 }
                 hideReportDialog()
                 _isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }
 
-    fun uploadLatestInvestigationsEntities() {
+    fun uploadNewInvestigations() {
         viewModelScope.launch {
             if (!_isLoadingInProgress.value)
-                try {
-                    _isLoadingInProgress.value = true
-                    withContext(Dispatchers.IO) {
-                        repository.uploadNewOrders()
-                        setLastVisibleItemKey(repository.latestLocalOrderId())
-                    }
-                    _isLoadingInProgress.value = false
-                    _isNetworkError.value = false
-                } catch (networkError: IOException) {
-                    delay(500)
-                    _isNetworkError.value = true
-                }
-        }
-    }
-
-    private fun uploadEarliestInvestigationsEntities(earliestOrderDate: Long) {
-        viewModelScope.launch {
-            try {
                 withContext(Dispatchers.IO) {
-                    repository.uploadOldOrders(earliestOrderDate).collect {
-                        if (it) {
-                            withContext(Dispatchers.Main) {
-                                _isLoadingInProgress.value = true
+                    repository.uploadNewInvestigations().collect { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = true
+                                    }
+                                }
+                                Status.SUCCESS -> {
+                                    resource.data?.let { data ->
+                                        if (data) {
+                                            setLastVisibleItemKey(repository.latestLocalOrderId())
+                                            withContext(Dispatchers.Main) {
+                                                _isLoadingInProgress.value = false
+                                            }
+                                        }
+                                    }
+                                    coroutineContext[Job]?.cancelAndJoin()
+                                }
+                                Status.ERROR -> {
+                                    if (resource.data == true)
+                                        _isLoadingInProgress.value = false
+                                    _isErrorMessage.value = resource.message
+                                    coroutineContext[Job]?.cancelAndJoin()
+                                }
                             }
-                            setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
-                        } else {
-
                         }
                     }
                 }
 
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
+        }
+    }
+
+    private fun uploadOlderInvestigations(earliestOrderDate: Long) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.uploadOldInvestigations(earliestOrderDate).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                resource.data?.let { data ->
+                                    if (data) {
+                                        setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
+                                        withContext(Dispatchers.Main) {
+                                            _isLoadingInProgress.value = false
+                                        }
+                                    }
+                                }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -898,40 +927,17 @@ class InvestigationsViewModel @Inject constructor(
                 productsRepository.refreshComponentsToLines()
                 productsRepository.refreshComponentInStagesToLines()
 
-                repository.refreshInputForOrder()
-                repository.refreshOrdersStatuses()
-                repository.refreshInvestigationReasons()
-                repository.refreshInvestigationTypes()
-                repository.refreshResultsDecryptions()
+                repository.insertInputForOrder()
+                repository.insertOrdersStatuses()
+                repository.insertInvestigationReasons()
+                repository.insertInvestigationTypes()
+                repository.insertResultsDecryptions()
 
                 _isLoadingInProgress.value = false
 
-            } catch (networkError: IOException) {
+            } catch (e: IOException) {
                 delay(500)
-                _isNetworkError.value = true
-            }
-        }
-    }
-
-    fun syncUploadedInvestigations() {
-        viewModelScope.launch {
-            val thisMoment = Instant.now()
-
-            val onDemandRange = Pair(
-                thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli(),
-                thisMoment.toEpochMilli()
-            )
-
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.syncInvEntitiesByTimeRange(onDemandRange)
-
-                _isLoadingInProgress.value = false
-                _isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                _isNetworkError.value = true
+                _isErrorMessage.value = e.message
             }
         }
     }

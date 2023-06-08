@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 // Handle search query submission
-                investigationsModel.syncOrders()
+                investigationsModel.uploadNewInvestigations()
                 return true
             }
 
@@ -231,8 +231,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     investigationsModel.refreshMasterDataFromRepository()
                 }
                 R.id.sync_investigations -> {
-//                    investigationsModel.syncUploadedInvestigations()
-
                     workManager.beginUniqueWork(
                         "testWork",
                         ExistingWorkPolicy.KEEP,

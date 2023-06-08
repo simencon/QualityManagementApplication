@@ -82,7 +82,7 @@ interface InvestigationsDao {
     fun getSubOrdersByList(): List<DatabaseSubOrder>
 
     @Query("SELECT * FROM `13_sub_orders` WHERE id=:id ")
-    suspend fun getSubOrderById(id: String): DatabaseSubOrder
+    suspend fun getSubOrderById(id: String): DatabaseSubOrder?
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -102,6 +102,9 @@ interface InvestigationsDao {
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY id ASC")
     fun getSubOrderTasksByList(): List<DatabaseSubOrderTask>
+
+    @Query("SELECT * FROM `13_7_sub_order_tasks` WHERE id=:id ")
+    suspend fun getSubOrderTaskById(id: String): DatabaseSubOrderTask?
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY charId ASC")
     fun getSubOrderTasks(): LiveData<List<DatabaseSubOrderTask>>
@@ -129,11 +132,11 @@ interface InvestigationsDao {
     fun deleteSample(record: DatabaseSample)
 
     @Transaction
-    @Query(
-        "SELECT s.* FROM `14_samples` as s " +
-                "where s.subOrderId = :subOrderId"
-    )
+    @Query("SELECT s.* FROM `14_samples` as s where s.subOrderId = :subOrderId")
     suspend fun getSamplesBySubOrderId(subOrderId: Int): List<DatabaseSample>
+
+    @Query("SELECT * FROM `14_samples` WHERE id=:id ")
+    suspend fun getSampleById(id: String): DatabaseSample?
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -156,6 +159,12 @@ interface InvestigationsDao {
 
     @Delete
     fun deleteResult(record: DatabaseResult)
+
+    @Query("SELECT * FROM `14_8_results` WHERE id=:id ")
+    suspend fun getResultById(id: String): DatabaseResult?
+
+    @Query("SELECT * FROM `14_8_results` WHERE taskId=:id ")
+    suspend fun getResultsByTaskId(id: String): List<DatabaseResult>
 
     @Transaction
     @Query("select max(createdDate) from `12_orders`")

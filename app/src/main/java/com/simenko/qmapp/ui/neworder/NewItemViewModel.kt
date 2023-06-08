@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.neworder
 import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -176,9 +177,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.refreshInvestigationTypes()
-                investigationsRepository.refreshInvestigationReasons()
-                investigationsRepository.refreshInputForOrder()
+                investigationsRepository.insertInvestigationTypes()
+                investigationsRepository.insertInvestigationReasons()
+                investigationsRepository.insertInputForOrder()
                 manufacturingRepository.refreshDepartments()
                 manufacturingRepository.refreshTeamMembers()
 
@@ -200,7 +201,17 @@ class NewItemViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             subOrder.samples.forEach {
                 if (it.toBeDeleted) {
-                    investigationsRepository.deleteSample(it)
+                    withContext(Dispatchers.IO) {
+                        investigationsRepository.deleteSample(it.id).collect() { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> {}
+                                    Status.SUCCESS -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
+                                }
+                            }
+                        }
+                    }
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     val channel =
@@ -218,7 +229,17 @@ class NewItemViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             subOrder.subOrderTasks.forEach {
                 if (it.toBeDeleted) {
-                    investigationsRepository.deleteSubOrderTask(it.id)
+                    withContext(Dispatchers.IO) {
+                        investigationsRepository.deleteSubOrderTask(it.id).collect() { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> {}
+                                    Status.SUCCESS -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
+                                }
+                            }
+                        }
+                    }
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
@@ -259,7 +280,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.getCreatedRecord(this, order)
+                    val channel = with(investigationsRepository) { getCreatedRecord(order) }
                     channel.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
@@ -279,7 +300,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.getCreatedRecord(this, subOrder.order)
+                    val channel = investigationsRepository.run { getCreatedRecord(subOrder.order) }
                     channel.consumeEach {
                         subOrder.subOrder.orderId = it.id
                         val channel1 = investigationsRepository.getCreatedRecord(
@@ -356,9 +377,9 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository
-                    .refreshSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
                 investigationsRepository
-                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -375,9 +396,9 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository
-                    .refreshSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
                 investigationsRepository
-                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -394,7 +415,7 @@ class NewItemViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 investigationsRepository
-                    .refreshResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -595,7 +616,7 @@ fun getEmptyOrder() = DomainOrder(
     customerId = 4,
     orderedById = 62,
     statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")?: NoRecord.num.toLong(),
+    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00") ?: NoRecord.num.toLong(),
     completedDate = null
 )
 

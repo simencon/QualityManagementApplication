@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
@@ -18,6 +20,7 @@ import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
+import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -32,9 +35,9 @@ class InvestigationsRepository @Inject constructor(
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
     /**
-     * Update Investigations meta tables from the network
+     * Update Investigations from the network
      */
-    suspend fun refreshInputForOrder() {
+    suspend fun insertInputForOrder() {
         withContext(Dispatchers.IO) {
             val inputForOrder =
                 invService.getInputForOrder()
@@ -49,7 +52,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshOrdersStatuses() {
+    suspend fun insertOrdersStatuses() {
         withContext(Dispatchers.IO) {
             val records = invService.getOrdersStatuses()
             invDao.insertOrdersStatusesAll(
@@ -66,7 +69,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshInvestigationReasons() {
+    suspend fun insertInvestigationReasons() {
         withContext(Dispatchers.IO) {
             val records =
                 invService.getMeasurementReasons()
@@ -83,7 +86,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshInvestigationTypes() {
+    suspend fun insertInvestigationTypes() {
         withContext(Dispatchers.IO) {
             val records = invService.getOrdersTypes()
             invDao.insertOrdersTypesAll(
@@ -100,7 +103,7 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshResultsDecryptions() {
+    suspend fun insertResultsDecryptions() {
         withContext(Dispatchers.IO) {
             val resultsDecryptions =
                 invService.getResultsDecryptions()
@@ -117,9 +120,11 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Investigations sync work
      * */
-    suspend fun refreshOrders(timeRange: Pair<Long, Long>) {
+    suspend fun syncOrders(timeRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntOrders = invService.getOrdersByDateRange(timeRange)
+            val ntOrders = invService.getOrdersByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
+            }
             val dbOrders = invDao.getOrdersByDateRange(timeRange)
             ntOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
@@ -181,10 +186,12 @@ class InvestigationsRepository @Inject constructor(
         )
     }
 
-    suspend fun refreshSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
+    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
-            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange)
+            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
+            }
             val dbSubOrders = invDao.getSubOrdersByDateRangeL(timeRange)
             ntSubOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
@@ -244,9 +251,11 @@ class InvestigationsRepository @Inject constructor(
         return result
     }
 
-    suspend fun refreshSubOrderTasks(timeRange: Pair<Long, Long>) {
+    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntTasks = invService.getTasksDateRange(timeRange)
+            val ntTasks = invService.getTasksDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, tasks not available.")
+            }
             val dbTasks = invDao.getTasksByDateRangeL(timeRange)
             ntTasks.forEach byBlock1@{ ntIt ->
                 var recordExists = false
@@ -289,9 +298,11 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshSamples(timeRange: Pair<Long, Long>) {
+    suspend fun syncSamples(timeRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntSamples = invService.getSamplesByDateRange(timeRange)
+            val ntSamples = invService.getSamplesByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, samples not available.")
+            }
             val dbSamples = invDao.getSamplesByDateRange(timeRange)
             ntSamples.forEach byBlock1@{ ntIt ->
                 var recordExists = false
@@ -334,9 +345,11 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshResults(timeRange: Pair<Long, Long>) {
+    suspend fun syncResults(timeRange: Pair<Long, Long>) {
         withContext(Dispatchers.IO) {
-            val ntResults = invService.getResultsByDateRange(timeRange)
+            val ntResults = invService.getResultsByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
+            }
             val dbResults = invDao.getResultsByDateRange(timeRange)
             ntResults.forEach byBlock1@{ ntIt ->
                 var recordExists = false
@@ -382,131 +395,266 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Investigations sync logic
      * */
-    override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
-        return Pair(
-            invDao.getEarliestOrderDate() ?: NoRecord.num.toLong(),
-            invDao.getLatestOrderDate() ?: NoRecord.num.toLong()
-        )
+    private suspend fun insertInvEntities(ntOrders: List<NetworkOrder>) {
+        runBlocking {
+            val timeRange = ntOrders.getOrdersRange()
+
+            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
+            }
+            val ntTasks = invService.getTasksDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, tasks not available.")
+            }
+            val ntSamples = invService.getSamplesByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, samples not available.")
+            }
+            val ntResults = invService.getResultsByDateRange(timeRange).run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
+            }
+
+            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
+            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
+            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
+            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
+            invDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
+        }
     }
 
-    override suspend fun syncInvEntitiesByTimeRange(
-        timeRange: Pair<Long, Long>,
-        earlyOrders: Boolean
-    ): List<NotificationData> {
+    fun uploadNewInvestigations(): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            invService.getLatestOrderDate().let {
+                val rmLatestDate = when (it.isSuccessful) {
+                    true -> {
+                        it.body() ?: NoRecord.num.toLong()
+                    }
+                    else -> {
+                        emit(Event(Resource.error("Network error, latest order date not available.", false)))
+                        NoRecord.num.toLong()
+                    }
+                }
+
+                if (rmLatestDate != NoRecord.num.toLong())
+                    invDao.getLatestOrderDate().let { lcLatestDate ->
+                        if (lcLatestDate != null && rmLatestDate > lcLatestDate) {
+                            emit(Event(Resource.loading(true)))
+                            invService.getOrdersByDateRange(Pair(lcLatestDate, rmLatestDate)).let { response ->
+                                if (response.isSuccessful) {
+                                    if ((response.body() ?: listOf()).isNotEmpty()) {
+                                        runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
+                                            if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
+                                        }
+                                    } else {
+                                        emit(Event(Resource.error("Data not loaded", true)))
+                                    }
+                                } else {
+                                    emit(Event(Resource.error("Network error, orders not available.", true)))
+                                }
+                            }
+                        } else if (lcLatestDate == null) {
+                            emit(Event(Resource.loading(true)))
+                            invService.getOrdersByDateRange(Pair(rmLatestDate - SyncPeriods.LAST_DAY.latestMillis, rmLatestDate)).let { response ->
+                                if (response.isSuccessful) {
+                                    if ((response.body() ?: listOf()).isNotEmpty()) {
+                                        runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
+                                            if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
+                                        }
+                                    } else {
+                                        emit(Event(Resource.error("Data not loaded", true)))
+                                    }
+                                } else {
+                                    emit(Event(Resource.error("Network error, orders not available.", true)))
+                                }
+                            }
+                        } else {
+                            emit(Event(Resource.success(false)))
+                        }
+                    }
+                else
+                    emit(Event(Resource.success(false)))
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error.", false)))
+        }
+    }
+
+    fun uploadOldInvestigations(earliestOrderDate: Long): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            if (earliestOrderDate == invDao.getEarliestOrderDate()) {
+                emit(Event(Resource.loading(true)))
+                invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate)
+                    .let { response ->
+                        if (response.isSuccessful) {
+                            if ((response.body() ?: listOf()).isNotEmpty()) {
+                                runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
+                                    if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
+                                }
+                            } else {
+                                emit(Event(Resource.error("Data not loaded", true)))
+                            }
+                        } else {
+                            emit(Event(Resource.error("Network error, orders not available.", true)))
+                        }
+                    }
+            } else {
+                emit(Event(Resource.success(false)))
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error.", false)))
+        }
+    }
+
+    override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
+        return Pair(invDao.getEarliestOrderDate() ?: NoRecord.num.toLong(), invDao.getLatestOrderDate() ?: NoRecord.num.toLong())
+    }
+
+    override suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>): List<NotificationData> {
         val mList = mutableListOf<NotificationData>()
 
-        if (!earlyOrders) {
-            val oList = invDao.getOrdersByDateRange(timeRange)
-            val localOrdersHashCode = oList.sumOf { it.hashCode() }
-            val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange)
-            if (localOrdersHashCode != remoteOrdersHashCode) refreshOrders(timeRange)
-            Log.d(TAG, "Orders: local = $localOrdersHashCode; remote = $remoteOrdersHashCode")
-        }
+        val oList = invDao.getOrdersByDateRange(timeRange)
+        val localOrdersHashCode = oList.sumOf { it.hashCode() }
+        val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange)
+        if (localOrdersHashCode != remoteOrdersHashCode) syncOrders(timeRange)
+        Log.d(TAG, "Orders: local = $localOrdersHashCode; remote = $remoteOrdersHashCode")
 
         val soList = invDao.getSubOrdersByDateRangeL(timeRange)
         val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
         val remoteSubOrdersHashCode = invService.getSubOrdersHashCodeForDatePeriod(timeRange)
-        if (localSubOrdersHashCode != remoteSubOrdersHashCode) mList.addAll(
-            refreshSubOrders(
-                timeRange
-            )
-        )
+        if (localSubOrdersHashCode != remoteSubOrdersHashCode) mList.addAll(syncSubOrders(timeRange))
         Log.d(TAG, "SubOrders: local = $localSubOrdersHashCode; remote = $remoteSubOrdersHashCode")
 
         val tList = invDao.getTasksByDateRangeL(timeRange)
         val localTasksHashCode = tList.sumOf { it.hashCode() }
         val remoteTasksHashCode = invService.getTasksHashCodeForDatePeriod(timeRange)
-        if (localTasksHashCode != remoteTasksHashCode) refreshSubOrderTasks(timeRange)
+        if (localTasksHashCode != remoteTasksHashCode) syncSubOrderTasks(timeRange)
         Log.d(TAG, "Tasks: local = $localTasksHashCode; remote = $remoteTasksHashCode")
 
         val sList = invDao.getSamplesByDateRange(timeRange)
         val localSamplesHashCode = sList.sumOf { it.hashCode() }
         val remoteSamplesHashCode = invService.getSamplesHashCodeForDatePeriod(timeRange)
-        if (localSamplesHashCode != remoteSamplesHashCode) refreshSamples(timeRange)
+        if (localSamplesHashCode != remoteSamplesHashCode) syncSamples(timeRange)
         Log.d(TAG, "Samples: local = $localSamplesHashCode; remote = $remoteSamplesHashCode")
 
         val rList = invDao.getResultsByDateRange(timeRange)
         val localResultsHashCode = rList.sumOf { it.hashCode() }
         val remoteResultsHashCode = invService.getResultsHashCodeForDatePeriod(timeRange)
-        if (localResultsHashCode != remoteResultsHashCode) refreshResults(timeRange)
+        if (localResultsHashCode != remoteResultsHashCode) syncResults(timeRange)
         Log.d(TAG, "Results: local = $localResultsHashCode; remote = $remoteResultsHashCode")
 
         return mList
     }
 
-    suspend fun uploadNewOrders() {
-        invService.getLatestOrderDate().apply {
-            val remoteLatestDate = if (isSuccessful)
-                body() ?: NoRecord.num.toLong()
-            else NoRecord.num.toLong()
-
-            if (remoteLatestDate != NoRecord.num.toLong())
-                invDao.getLatestOrderDate().let {
-                    if (it != null && remoteLatestDate > it)
-                        syncInvEntitiesByTimeRange(Pair(it, remoteLatestDate))
-                    else if (it == null)
-                        syncInvEntitiesByTimeRange(
-                            Pair(
-                                remoteLatestDate - SyncPeriods.LAST_DAY.latestMillis,
-                                remoteLatestDate
-                            )
-                        )
-                    else TODO("Should not be a case")
-                }
-        }
-    }
-
-    fun uploadOldOrders(earliestOrderDate: Long): Flow<Boolean> =
-        flow {
-            if (earliestOrderDate == invDao.getEarliestOrderDate()) {
-                emit(true)
-                invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate).let { nOrders ->
-                    if (nOrders.isNotEmpty()) {
-                        invDao.insertOrdersAll(nOrders.map { it.toDatabaseOrder() })
-                        val timeRange = nOrders.getOrdersRange()
-                        syncInvEntitiesByTimeRange(timeRange, true)
-                        emit(false)
+    /**
+     * Inv deletion operations
+     * */
+    fun deleteOrder(orderId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteOrder(orderId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getOrderById(orderId.toString())?.let { it ->
+                        invDao.deleteOrder(it)
                     }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Order is not deleted.", true)))
                 }
-            } else {
-                emit(false)
             }
-        }
-
-
-    //    ToDo - must delete in local after remote deletion
-    suspend fun deleteOrder(orderId: Int) {
-        withContext(Dispatchers.IO) {
-            invService.deleteOrder(orderId)
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteSubOrder(subOrderId: Int) {
-        withContext(Dispatchers.IO) {
-            invService.deleteSubOrder(subOrderId)
+    fun deleteSubOrder(subOrderId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteSubOrder(subOrderId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getSubOrderById(subOrderId.toString())?.let { it ->
+                        invDao.deleteSubOrder(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteSubOrderTask(taskId: Int) {
-        withContext(Dispatchers.IO) {
-            invService.deleteSubOrderTask(taskId)
+    fun deleteSubOrderTask(taskId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteSubOrderTask(taskId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getSubOrderTaskById(taskId.toString())?.let { it ->
+                        invDao.deleteSubOrderTask(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteSample(sample: DomainSample) {
-        withContext(Dispatchers.IO) {
-            invService.deleteSample(sample.id)
+    fun deleteSample(sampleId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteSample(sampleId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getSampleById(sampleId.toString())?.let { it ->
+                        invDao.deleteSample(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteResults(charId: Int = 0, id: Int = 0) {
-        withContext(Dispatchers.IO) {
-            invService.deleteResults(charId, id)
+    fun deleteResults(taskId: Int = 0, id: Int = 0) = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteResults(taskId, id).let { response ->
+                if (response.isSuccessful) {
+                    if (taskId == 0 && id != 0)
+                        invDao.getResultById(id.toString())?.let { it ->
+                            invDao.deleteResult(it)
+                        }
+                    else if (taskId != 0 && id == 0)
+                        invDao.getResultsByTaskId(taskId.toString()).forEach { it ->
+                            invDao.deleteResult(it)
+                        }
+                    else
+                        emit(Event(Resource.error("You mast select either taskId or resultId", true)))
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
-        coroutineScope.produce {
+    /**
+     * Inv adding operations
+     * */
+    fun CoroutineScope.getCreatedRecord(record: DomainOrder) =
+        produce {
             val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
             invDao.insertOrder(newOrder)
             send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
@@ -543,6 +691,7 @@ class InvestigationsRepository @Inject constructor(
             send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
+
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
         coroutineScope.produce {
             val nOrder = record.toNetworkOrder()
@@ -578,6 +727,7 @@ class InvestigationsRepository @Inject constructor(
             send(record)
         }
 
+
     fun getRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
         coroutineScope.produce {
             val nOrder = invService.getOrder(record.id)
@@ -601,13 +751,17 @@ class InvestigationsRepository @Inject constructor(
 
 //    ToDO - change this part to return exactly what is needed
 
-    suspend fun getOrderById(id: Int): DomainOrder? {
-        return invDao.getOrderById(id.toString())?.toDomainOrder()
-    }
+    suspend fun getOrderById(id: Int): DomainOrder =
+        invDao.getOrderById(id.toString()).let {
+            it?.toDomainOrder() ?: throw IOException("no such order in local DB")
+        }
 
-    suspend fun getSubOrderById(id: Int): DomainSubOrder {
-        return invDao.getSubOrderById(id.toString()).toDomainSubOrder()
-    }
+
+    suspend fun getSubOrderById(id: Int): DomainSubOrder =
+        invDao.getSubOrderById(id.toString()).let {
+            it?.toDomainSubOrder() ?: throw IOException("no such sub order in local DB")
+        }
+
 
     suspend fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
         val list = invDao.getTasksBySubOrderId(subOrderId.toString())

@@ -21,7 +21,7 @@ class RefreshDataWorker @AssistedInject constructor (
 
     override suspend fun doWork(): Result {
         try {
-            repository.uploadNewOrders()
+            repository.uploadNewInvestigations()
         }catch (e: Exception){
             return Result.retry()
         }

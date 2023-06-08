@@ -5,7 +5,7 @@ import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.utils.NotificationData
 
 class FakeInvRepositoryAndroidTest : InvRepository {
-    override suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>, earlyOrders: Boolean): List<NotificationData> {
+    override suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>): List<NotificationData> {
         return listOf()
     }
 
