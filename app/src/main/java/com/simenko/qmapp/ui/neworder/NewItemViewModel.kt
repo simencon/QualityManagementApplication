@@ -314,11 +314,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.updateRecord(
-                        this,
-                        subOrder.subOrder
-                    )
-                    channel.consumeEach {
+                    investigationsRepository.run { updateSubOrder(subOrder.subOrder) }.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
                         setMainActivityResult(activity, activity.actionTypeEnum, it.orderId, it.id)
@@ -342,9 +338,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel =
-                        investigationsRepository.updateRecord(this, order)
-                    channel.consumeEach {
+                    investigationsRepository.run { updateOrder(order) }.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }

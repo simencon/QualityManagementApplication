@@ -684,24 +684,21 @@ class InvestigationsRepository @Inject constructor(
         }
 
 
-    fun updateRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
-        coroutineScope.produce {
+    fun CoroutineScope.updateOrder(record: DomainOrder) = produce {
             val nOrder = record.toNetworkOrder()
             invService.editOrder(record.id, nOrder)
             invDao.updateOrder(record.toDatabaseOrder())
             send(record)
         }
 
-    fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) =
-        coroutineScope.produce {
+    fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = produce {
             val nSubOrder = record.toNetworkSubOrder()
             invService.editSubOrder(record.id, nSubOrder)
             invDao.updateSubOrder(record.toDatabaseSubOrder())
             send(record)
         }
 
-    fun updateRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
-        coroutineScope.produce {
+    fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
             val nSubOrderTask = record.toNetworkSubOrderTask()
             invService.editSubOrderTask(record.id, nSubOrderTask)
 
@@ -711,8 +708,7 @@ class InvestigationsRepository @Inject constructor(
             send(dSubOrderTask.toDomainSubOrderTask())
         }
 
-    fun updateRecord(coroutineScope: CoroutineScope, record: DomainResult) =
-        coroutineScope.produce {
+    fun CoroutineScope.updateResult(record: DomainResult) = produce {
             val nNetwork = record.toNetworkResult()
             invService.editResult(record.id, nNetwork)
             invDao.updateResult(record.toDatabaseResult())

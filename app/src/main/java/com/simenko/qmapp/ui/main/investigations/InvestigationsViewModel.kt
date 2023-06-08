@@ -745,13 +745,12 @@ class InvestigationsViewModel @Inject constructor(
                         /**
                          * second - extract list of metrixes to record
                          * */
-                        val metrixesToRecord =
-                            productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                                prefix = subOrder.itemPreffix.substring(0, 1),
-                                versionId = subOrder.itemVersionId,
-                                actual = true,
-                                charId = subOrderTask.charId
-                            )
+                        val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
+                            prefix = subOrder.itemPreffix.substring(0, 1),
+                            versionId = subOrder.itemVersionId,
+                            actual = true,
+                            charId = subOrderTask.charId
+                        )
                         /**
                          * third - generate the final list of result to record
                          * */
@@ -771,7 +770,7 @@ class InvestigationsViewModel @Inject constructor(
                             }
                         }
 
-                        repository.run { insertResults(listOfResults) }.consumeEach {  }
+                        repository.run { insertResults(listOfResults) }.consumeEach { }
                     }
                 }
             } else if (it.statusId == 3) {
@@ -783,14 +782,7 @@ class InvestigationsViewModel @Inject constructor(
                 }
             }
         }
-
-        val channel2 = repository.updateRecord(
-            coroutineScope,
-            subOrderTask
-        )
-
-        channel2.consumeEach {
-        }
+        repository.run { coroutineScope.updateTask(subOrderTask) }.consumeEach { }
     }
 
     fun editResult(result: DomainResult) {
@@ -798,12 +790,7 @@ class InvestigationsViewModel @Inject constructor(
             try {
                 _isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = repository.updateRecord(
-                        this,
-                        result
-                    )
-                    channel.consumeEach {
-                    }
+                    repository.run { updateResult(result) }.consumeEach { }
                 }
                 hideReportDialog()
                 _isLoadingInProgress.value = false
