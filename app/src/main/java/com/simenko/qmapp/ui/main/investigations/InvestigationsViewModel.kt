@@ -771,12 +771,7 @@ class InvestigationsViewModel @Inject constructor(
                             }
                         }
 
-                        val channel3 = repository.getCreatedRecords(
-                            coroutineScope,
-                            listOfResults
-                        )
-                        channel3.consumeEach {
-                        }
+                        repository.run { insertResults(listOfResults) }.consumeEach {  }
                     }
                 }
             } else if (it.statusId == 3) {

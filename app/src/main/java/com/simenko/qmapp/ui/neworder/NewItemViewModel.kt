@@ -214,9 +214,7 @@ class NewItemViewModel @Inject constructor(
                     }
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
-                    val channel =
-                        investigationsRepository.getCreatedRecord(this, it)
-                    channel.consumeEach { }
+                    investigationsRepository.run { insertSample(it) }.consumeEach { }
                 }
             }
         }
@@ -243,9 +241,7 @@ class NewItemViewModel @Inject constructor(
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
-                    val channel =
-                        investigationsRepository.getCreatedRecord(this, it)
-                    channel.consumeEach { }
+                    investigationsRepository.run { insertTask(it) }.consumeEach {  }
                 }
             }
         }
@@ -256,7 +252,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    investigationsRepository.run { getCreatedRecord(subOrder.subOrder) }.consumeEach { soIt ->
+                    investigationsRepository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { soIt ->
                         postDeleteSubOrderTasks(soIt.id, subOrder)
                         postDeleteSamples(soIt.id, subOrder)
                         setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
@@ -276,7 +272,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    with(investigationsRepository) { getCreatedRecord(order) }.consumeEach {
+                    with(investigationsRepository) { insertOrder(order) }.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
@@ -295,9 +291,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    investigationsRepository.run { getCreatedRecord(subOrder.order) }.consumeEach { oIt ->
+                    investigationsRepository.run { insertOrder(subOrder.order) }.consumeEach { oIt ->
                         subOrder.subOrder.orderId = oIt.id
-                        investigationsRepository.run { getCreatedRecord(subOrder.subOrder) }.consumeEach { soIt ->
+                        investigationsRepository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { soIt ->
                             postDeleteSubOrderTasks(soIt.id, subOrder)
                             postDeleteSamples(soIt.id, subOrder)
                             setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
