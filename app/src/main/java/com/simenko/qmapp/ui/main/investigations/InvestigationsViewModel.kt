@@ -243,37 +243,31 @@ class InvestigationsViewModel @Inject constructor(
      * */
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteOrder(orderId)
-                syncOrders()
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
-            }
-        }
-    }
-
-    fun syncOrders() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.syncOrders(_currentOrdersRange.value)
-                repository.syncSubOrders(_currentOrdersRange.value)
-                repository.syncSubOrderTasks(_currentOrdersRange.value)
-                repository.syncSamples(_currentOrdersRange.value)
-                repository.syncResults(_currentOrdersRange.value)
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
+            withContext(Dispatchers.IO) {
+                repository.deleteOrder(orderId).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -379,36 +373,31 @@ class InvestigationsViewModel @Inject constructor(
      * */
     fun deleteSubOrder(subOrderId: Int) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteSubOrder(subOrderId)
-                syncSubOrders()
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
-            }
-        }
-    }
-
-    private fun syncSubOrders() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.syncSubOrders(_currentOrdersRange.value)
-                repository.syncSubOrderTasks(_currentOrdersRange.value)
-                repository.syncSamples(_currentOrdersRange.value)
-                repository.syncResults(_currentOrdersRange.value)
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
+            withContext(Dispatchers.IO) {
+                repository.deleteSubOrder(subOrderId).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -486,17 +475,31 @@ class InvestigationsViewModel @Inject constructor(
      * */
     fun deleteSubOrderTask(taskId: Int) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteSubOrderTask(taskId)
-                syncTasks()
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
+            withContext(Dispatchers.IO) {
+                repository.deleteSubOrderTask(taskId).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -626,35 +629,33 @@ class InvestigationsViewModel @Inject constructor(
      * End of operations with results _______________________________________________________
      * */
 
-    fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
+    private fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.deleteResults(charId = task.id)
-                syncResults()
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
-            }
-        }
-    }
-
-    fun syncResults() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                repository.syncResults(_currentOrdersRange.value)
-
-                _isLoadingInProgress.value = false
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
+            withContext(Dispatchers.IO) {
+                repository.deleteResults(taskId = task.id).collect { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) {
+                                    _isLoadingInProgress.value = true
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                if (resource.data == true)
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                    }
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                            Status.ERROR -> {
+                                if (resource.data == true)
+                                    _isLoadingInProgress.value = false
+                                _isErrorMessage.value = resource.message
+                                coroutineContext[Job]?.cancelAndJoin()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -673,7 +674,7 @@ class InvestigationsViewModel @Inject constructor(
                         syncSubOrder(subOrder)
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        order?.let { syncOrder(it) }
+                        syncOrder(order)
                     }
                 }
                 hideReportDialog()
@@ -699,7 +700,7 @@ class InvestigationsViewModel @Inject constructor(
                         syncSubOrder(subOrder)
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        order?.let { syncOrder(it) }
+                        syncOrder(order)
 
                     }
                 }

@@ -478,33 +478,32 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    fun uploadOldInvestigations(earliestOrderDate: Long): Flow<Event<Resource<Boolean>>> =
-        flow {
-            runCatching {
-                if (earliestOrderDate == invDao.getEarliestOrderDate()) {
-                    emit(Event(Resource.loading(true)))
-                    invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate)
-                        .let { response ->
-                            if (response.isSuccessful) {
-                                if ((response.body() ?: listOf()).isNotEmpty()) {
-                                    runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
-                                        if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
-                                    }
-                                } else {
-                                    emit(Event(Resource.error("Data not loaded", true)))
+    fun uploadOldInvestigations(earliestOrderDate: Long): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            if (earliestOrderDate == invDao.getEarliestOrderDate()) {
+                emit(Event(Resource.loading(true)))
+                invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate)
+                    .let { response ->
+                        if (response.isSuccessful) {
+                            if ((response.body() ?: listOf()).isNotEmpty()) {
+                                runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
+                                    if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
                                 }
                             } else {
-                                emit(Event(Resource.error("Network error, orders not available.", true)))
+                                emit(Event(Resource.error("Data not loaded", true)))
                             }
+                        } else {
+                            emit(Event(Resource.error("Network error, orders not available.", true)))
                         }
-                } else {
-                    emit(Event(Resource.success(false)))
-                }
-            }.exceptionOrNull().also {
-                if (it != null)
-                    emit(Event(Resource.error("Network error.", false)))
+                    }
+            } else {
+                emit(Event(Resource.success(false)))
             }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error.", false)))
         }
+    }
 
     override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
         return Pair(invDao.getEarliestOrderDate() ?: NoRecord.num.toLong(), invDao.getLatestOrderDate() ?: NoRecord.num.toLong())
@@ -546,40 +545,116 @@ class InvestigationsRepository @Inject constructor(
         return mList
     }
 
-    //    ToDo - must delete in local after remote deletion
-    suspend fun deleteOrder(orderId: Int) {
-        withContext(Dispatchers.IO) {
-            invService.deleteOrder(orderId)
+    /**
+     * Inv deletion operations
+     * */
+    fun deleteOrder(orderId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteOrder(orderId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getOrderById(orderId.toString())?.let { it ->
+                        invDao.deleteOrder(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteSubOrder(subOrderId: Int) {
-        withContext(Dispatchers.IO) {
-            invService.deleteSubOrder(subOrderId)
+    fun deleteSubOrder(subOrderId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteSubOrder(subOrderId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getSubOrderById(subOrderId.toString())?.let { it ->
+                        invDao.deleteSubOrder(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteSubOrderTask(taskId: Int) {
-        withContext(Dispatchers.IO) {
-            invService.deleteSubOrderTask(taskId)
+    fun deleteSubOrderTask(taskId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteSubOrderTask(taskId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getSubOrderTaskById(taskId.toString())?.let { it ->
+                        invDao.deleteSubOrderTask(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteSample(sample: DomainSample) {
-        withContext(Dispatchers.IO) {
-            invService.deleteSample(sample.id)
+    fun deleteSample(sampleId: Int): Flow<Event<Resource<Boolean>>> = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteSample(sampleId).let { response ->
+                if (response.isSuccessful) {
+                    invDao.getSampleById(sampleId.toString())?.let { it ->
+                        invDao.deleteSample(it)
+                    }
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-    suspend fun deleteResults(charId: Int = 0, id: Int = 0) {
-        withContext(Dispatchers.IO) {
-            invService.deleteResults(charId, id)
+    fun deleteResults(taskId: Int = 0, id: Int = 0) = flow {
+        runCatching {
+            emit(Event(Resource.loading(true)))
+            invService.deleteResults(taskId, id).let { response ->
+                if (response.isSuccessful) {
+                    if (taskId == 0 && id != 0)
+                        invDao.getResultById(id.toString())?.let { it ->
+                            invDao.deleteResult(it)
+                        }
+                    else if (taskId != 0 && id == 0)
+                        invDao.getResultsByTaskId(taskId.toString()).forEach { it ->
+                            invDao.deleteResult(it)
+                        }
+                    else
+                        emit(Event(Resource.error("You mast select either taskId or resultId", true)))
+                    emit(Event(Resource.success(true)))
+                } else {
+                    emit(Event(Resource.error("Sub order is not deleted.", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                emit(Event(Resource.error("Network error", true)))
         }
     }
 
-
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
-        coroutineScope.produce {
+    /**
+     * Inv adding operations
+     * */
+    fun CoroutineScope.getCreatedRecord(record: DomainOrder) =
+        produce {
             val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
             invDao.insertOrder(newOrder)
             send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
@@ -676,13 +751,17 @@ class InvestigationsRepository @Inject constructor(
 
 //    ToDO - change this part to return exactly what is needed
 
-    suspend fun getOrderById(id: Int): DomainOrder? {
-        return invDao.getOrderById(id.toString())?.toDomainOrder()
-    }
+    suspend fun getOrderById(id: Int): DomainOrder =
+        invDao.getOrderById(id.toString()).let {
+            it?.toDomainOrder() ?: throw IOException("no such order in local DB")
+        }
 
-    suspend fun getSubOrderById(id: Int): DomainSubOrder {
-        return invDao.getSubOrderById(id.toString()).toDomainSubOrder()
-    }
+
+    suspend fun getSubOrderById(id: Int): DomainSubOrder =
+        invDao.getSubOrderById(id.toString()).let {
+            it?.toDomainSubOrder() ?: throw IOException("no such sub order in local DB")
+        }
+
 
     suspend fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
         val list = invDao.getTasksBySubOrderId(subOrderId.toString())
