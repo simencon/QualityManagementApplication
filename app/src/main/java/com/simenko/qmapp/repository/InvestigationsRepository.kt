@@ -665,10 +665,8 @@ class InvestigationsRepository @Inject constructor(
             send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
-        coroutineScope.produce {
-            val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask())
-                .toDatabaseSubOrderTask()
+    fun CoroutineScope.getCreatedRecord(record: DomainSubOrderTask) = produce {
+            val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask()).toDatabaseSubOrderTask()
             invDao.insertSubOrderTask(newRecord)
             send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
         }

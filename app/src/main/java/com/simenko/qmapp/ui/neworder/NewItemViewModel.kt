@@ -243,9 +243,7 @@ class NewItemViewModel @Inject constructor(
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
-                    val channel =
-                        investigationsRepository.getCreatedRecord(this, it)
-                    channel.consumeEach { }
+                    investigationsRepository.run { getCreatedRecord(it) }.consumeEach {  }
                 }
             }
         }
