@@ -256,14 +256,10 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.getCreatedRecord(
-                        this,
-                        subOrder.subOrder
-                    )
-                    channel.consumeEach {
-                        postDeleteSubOrderTasks(it.id, subOrder)
-                        postDeleteSamples(it.id, subOrder)
-                        setMainActivityResult(activity, activity.actionTypeEnum, it.orderId, it.id)
+                    investigationsRepository.run { getCreatedRecord(subOrder.subOrder) }.consumeEach { soIt ->
+                        postDeleteSubOrderTasks(soIt.id, subOrder)
+                        postDeleteSamples(soIt.id, subOrder)
+                        setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
                         activity.finish()
                     }
                 }
@@ -280,8 +276,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = with(investigationsRepository) { getCreatedRecord(order) }
-                    channel.consumeEach {
+                    with(investigationsRepository) { getCreatedRecord(order) }.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
@@ -300,14 +295,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    val channel = investigationsRepository.run { getCreatedRecord(subOrder.order) }
-                    channel.consumeEach {
-                        subOrder.subOrder.orderId = it.id
-                        val channel1 = investigationsRepository.getCreatedRecord(
-                            this,
-                            subOrder.subOrder
-                        )
-                        channel1.consumeEach { soIt ->
+                    investigationsRepository.run { getCreatedRecord(subOrder.order) }.consumeEach { oIt ->
+                        subOrder.subOrder.orderId = oIt.id
+                        investigationsRepository.run { getCreatedRecord(subOrder.subOrder) }.consumeEach { soIt ->
                             postDeleteSubOrderTasks(soIt.id, subOrder)
                             postDeleteSamples(soIt.id, subOrder)
                             setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)

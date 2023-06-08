@@ -653,17 +653,14 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Inv adding operations
      * */
-    fun CoroutineScope.getCreatedRecord(record: DomainOrder) =
-        produce {
+    fun CoroutineScope.getCreatedRecord(record: DomainOrder) = produce {
             val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
             invDao.insertOrder(newOrder)
             send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
 
-    fun getCreatedRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) =
-        coroutineScope.produce {
-            val newRecord =
-                invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
+    fun CoroutineScope.getCreatedRecord(record: DomainSubOrder) = produce {
+            val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
             invDao.insertSubOrder(newRecord)
             send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
         }
