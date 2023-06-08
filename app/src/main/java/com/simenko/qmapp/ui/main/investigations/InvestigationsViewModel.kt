@@ -678,69 +678,71 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     private suspend fun editTask(subOrderTask: DomainSubOrderTask) {
-        val listOfResults: MutableList<DomainResult> = mutableListOf()
-        /**
-         * 1.Get latest status task
-         * 2.Compare with new status
-         * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
-         * 4.If change is "Done" -> "To Do" = Delete all results
-         * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
-         * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
-         * */
-        repository.run { viewModelScope.syncTask(subOrderTask) }.consumeEach {
-            if (it.statusId == 1 || it.statusId == 4) {
-                if (subOrderTask.statusId == 3)
-                /**
-                 * Collect/Post new results and change status
-                 * */
-                {
-                    runBlocking {
-                        /**
-                         * first find subOrder
-                         * */
-                        val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+        withContext(Dispatchers.IO) {
+            val listOfResults: MutableList<DomainResult> = mutableListOf()
+            /**
+             * 1.Get latest status task
+             * 2.Compare with new status
+             * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
+             * 4.If change is "Done" -> "To Do" = Delete all results
+             * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
+             * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
+             * */
+            repository.run { syncTask(subOrderTask) }.consumeEach {
+                if (it.statusId == 1 || it.statusId == 4) {
+                    if (subOrderTask.statusId == 3)
+                    /**
+                     * Collect/Post new results and change status
+                     * */
+                    {
+                        runBlocking {
+                            /**
+                             * first find subOrder
+                             * */
+                            val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
 
-                        /**
-                         * second - extract list of metrixes to record
-                         * */
-                        val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                            prefix = subOrder.itemPreffix.substring(0, 1),
-                            versionId = subOrder.itemVersionId,
-                            actual = true,
-                            charId = subOrderTask.charId
-                        )
-                        /**
-                         * third - generate the final list of result to record
-                         * */
-                        repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
-                            metrixesToRecord.forEach { mIt ->
-                                listOfResults.add(
-                                    DomainResult(
-                                        id = 0,
-                                        sampleId = sdIt.id,
-                                        metrixId = mIt.id,
-                                        result = null,
-                                        isOk = true,
-                                        resultDecryptionId = 1,
-                                        taskId = subOrderTask.id
+                            /**
+                             * second - extract list of metrixes to record
+                             * */
+                            val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
+                                prefix = subOrder.itemPreffix.substring(0, 1),
+                                versionId = subOrder.itemVersionId,
+                                actual = true,
+                                charId = subOrderTask.charId
+                            )
+                            /**
+                             * third - generate the final list of result to record
+                             * */
+                            repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
+                                metrixesToRecord.forEach { mIt ->
+                                    listOfResults.add(
+                                        DomainResult(
+                                            id = 0,
+                                            sampleId = sdIt.id,
+                                            metrixId = mIt.id,
+                                            result = null,
+                                            isOk = true,
+                                            resultDecryptionId = 1,
+                                            taskId = subOrderTask.id
+                                        )
                                     )
-                                )
+                                }
                             }
-                        }
 
-                        repository.run { insertResults(listOfResults) }.consumeEach { }
+                            repository.run { insertResults(listOfResults) }.consumeEach { }
+                        }
+                    }
+                } else if (it.statusId == 3) {
+                    if (subOrderTask.statusId == 1) {
+                        /**
+                         * Delete all results and change status
+                         * */
+                        deleteResultsBasedOnTask(subOrderTask)
                     }
                 }
-            } else if (it.statusId == 3) {
-                if (subOrderTask.statusId == 1) {
-                    /**
-                     * Delete all results and change status
-                     * */
-                    deleteResultsBasedOnTask(subOrderTask)
-                }
             }
+            repository.run { updateTask(subOrderTask) }.consumeEach { }
         }
-        repository.run { viewModelScope.updateTask(subOrderTask) }.consumeEach { }
     }
 
     fun editResult(result: DomainResult) {
