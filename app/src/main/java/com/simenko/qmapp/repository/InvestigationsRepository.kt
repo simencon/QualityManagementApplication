@@ -716,22 +716,19 @@ class InvestigationsRepository @Inject constructor(
         }
 
 
-    fun getRecord(coroutineScope: CoroutineScope, record: DomainOrder) =
-        coroutineScope.produce {
+    fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
             val nOrder = invService.getOrder(record.id)
             invDao.updateOrder(nOrder.toDatabaseOrder())
             send(nOrder.toDomainOrder())
         }
 
-    fun getRecord(coroutineScope: CoroutineScope, record: DomainSubOrder) =
-        coroutineScope.produce {
+    fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
             val nSubOrder = invService.getSubOrder(record.id)
             invDao.updateSubOrder(nSubOrder.toDatabaseSubOrder())
             send(nSubOrder.toDomainSubOrder())
         }
 
-    fun getRecord(coroutineScope: CoroutineScope, record: DomainSubOrderTask) =
-        coroutineScope.produce {
+    fun CoroutineScope.syncTask( record: DomainSubOrderTask) = produce {
             val nSubOrderTask = invService.getSubOrderTask(record.id)
             invDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
             send(nSubOrderTask.toDomainSubOrderTask())

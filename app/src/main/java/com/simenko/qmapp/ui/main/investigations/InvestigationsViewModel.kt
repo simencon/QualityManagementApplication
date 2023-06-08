@@ -272,24 +272,6 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    private fun syncOrder(order: DomainOrder) {
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    val channel = repository.getRecord(
-                        this,
-                        order
-                    )
-                    channel.consumeEach {}
-                }
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
-            }
-        }
-    }
-
     /**
      * End of operations with orders _______________________________________________________
      * */
@@ -398,25 +380,6 @@ class InvestigationsViewModel @Inject constructor(
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private fun syncSubOrder(subOrder: DomainSubOrder) {
-        viewModelScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    val channel = repository.getRecord(
-                        this,
-                        subOrder
-                    )
-                    channel.consumeEach {
-                    }
-                }
-                _isErrorMessage.value = null
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
             }
         }
     }
@@ -669,12 +632,12 @@ class InvestigationsViewModel @Inject constructor(
                         repository.getTasksBySubOrderId(subOrder.id).forEach {
                             it.statusId = subOrder.statusId
                             it.completedById = subOrder.completedById
-                            editTask(it, this)
+                            editTask(it)
                         }
-                        syncSubOrder(subOrder)
+                        repository.run { syncSubOrder(subOrder) }.consumeEach { }
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        syncOrder(order)
+                        repository.run { syncOrder(order) }.consumeEach { }
                     }
                 }
                 hideReportDialog()
@@ -694,13 +657,13 @@ class InvestigationsViewModel @Inject constructor(
                 withContext(Dispatchers.IO) {
                     runBlocking {
 
-                        editTask(subOrderTask, this)
+                        editTask(subOrderTask)
 
                         val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
-                        syncSubOrder(subOrder)
+                        repository.run { syncSubOrder(subOrder) }.consumeEach { }
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        syncOrder(order)
+                        repository.run { syncOrder(order) }.consumeEach { }
 
                     }
                 }
@@ -714,9 +677,8 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun editTask(subOrderTask: DomainSubOrderTask, coroutineScope: CoroutineScope) {
+    private suspend fun editTask(subOrderTask: DomainSubOrderTask) {
         val listOfResults: MutableList<DomainResult> = mutableListOf()
-
         /**
          * 1.Get latest status task
          * 2.Compare with new status
@@ -725,11 +687,7 @@ class InvestigationsViewModel @Inject constructor(
          * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
          * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
          * */
-        val channel1 = repository.getRecord(
-            coroutineScope,
-            subOrderTask
-        )
-        channel1.consumeEach {
+        repository.run { viewModelScope.syncTask(subOrderTask) }.consumeEach {
             if (it.statusId == 1 || it.statusId == 4) {
                 if (subOrderTask.statusId == 3)
                 /**
@@ -782,7 +740,7 @@ class InvestigationsViewModel @Inject constructor(
                 }
             }
         }
-        repository.run { coroutineScope.updateTask(subOrderTask) }.consumeEach { }
+        repository.run { viewModelScope.updateTask(subOrderTask) }.consumeEach { }
     }
 
     fun editResult(result: DomainResult) {
