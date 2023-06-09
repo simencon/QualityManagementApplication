@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.common
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -200,6 +201,7 @@ fun CustomDialogUI(
                                 currentSubOrderTask != null -> {
                                     currentSubOrderTask.subOrderTask.completedById =
                                         dialogInput.performerId
+                                    Log.d(TAG, "CustomDialogUI: ${currentSubOrderTask.subOrderTask}")
                                     invModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                                 }
                             }

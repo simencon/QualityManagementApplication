@@ -20,6 +20,10 @@ import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
+import okhttp3.ResponseBody
+import retrofit2.Converter
+import retrofit2.HttpException
+import retrofit2.Retrofit
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -30,7 +34,8 @@ private const val TAG = "InvestigationsRepository"
 @OptIn(ExperimentalCoroutinesApi::class)
 class InvestigationsRepository @Inject constructor(
     private val invDao: InvestigationsDao,
-    private val invService: InvestigationsService
+    private val invService: InvestigationsService,
+    private val retrofit: Retrofit
 ) : InvRepository {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
@@ -654,85 +659,110 @@ class InvestigationsRepository @Inject constructor(
      * Inv adding operations
      * */
     fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
-            val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
-            invDao.insertOrder(newOrder)
-            send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
+        invDao.insertOrder(newOrder)
+        send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
-            val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
-            invDao.insertSubOrder(newRecord)
-            send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
+        invDao.insertSubOrder(newRecord)
+        send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
-            val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask()).toDatabaseSubOrderTask()
-            invDao.insertSubOrderTask(newRecord)
-            send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask()).toDatabaseSubOrderTask()
+        invDao.insertSubOrderTask(newRecord)
+        send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertSample(record: DomainSample) = produce {
-            val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
-            invDao.insertSample(newRecord)
-            send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
+        invDao.insertSample(newRecord)
+        send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
+        Log.d(TAG, "insertResults: $records")
+        try {
             val newRecords = invService.createResults(records.map { it.toNetworkResult() }).map { it.toDatabaseResult() }
             invDao.insertResultsAll(newRecords)
             send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
+        } catch (e: HttpException) {
+
+            val errorConverter: Converter<ResponseBody, NetworkErrorBody> = retrofit.responseBodyConverter(NetworkErrorBody::class.java, arrayOf())
+            val errorBody = e.response()?.errorBody()
+
+            errorBody.let {
+                if (it!=null) {
+                    val error = errorConverter.convert(it)
+                    Log.d(TAG, "insertResults: $error")
+                    Log.d(TAG, "insertResults: the reason is: ${error?.message}")
+                }
+            }
+
+            Log.d(TAG, "insertResults: ${e.response()?.errorBody()?.source()?.readUtf8()}")
+            throw e
         }
+
+    }
 
 
     fun CoroutineScope.updateOrder(record: DomainOrder) = produce {
-            val nOrder = record.toNetworkOrder()
-            invService.editOrder(record.id, nOrder)
-            invDao.updateOrder(record.toDatabaseOrder())
-            send(record)
-        }
+        val nOrder = record.toNetworkOrder()
+        invService.editOrder(record.id, nOrder)
+        invDao.updateOrder(record.toDatabaseOrder())
+        send(record)
+    }
 
     fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = produce {
-            val nSubOrder = record.toNetworkSubOrder()
-            invService.editSubOrder(record.id, nSubOrder)
-            invDao.updateSubOrder(record.toDatabaseSubOrder())
-            send(record)
-        }
+        val nSubOrder = record.toNetworkSubOrder()
+        invService.editSubOrder(record.id, nSubOrder)
+        invDao.updateSubOrder(record.toDatabaseSubOrder())
+        send(record)
+    }
 
     fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
-            val nSubOrderTask = record.toNetworkSubOrderTask()
-            invService.editSubOrderTask(record.id, nSubOrderTask)
+        Log.d(TAG, "updateTask: record = $record")
 
-            val dSubOrderTask = invService.getSubOrderTask(record.id).toDatabaseSubOrderTask()
-            invDao.updateSubOrderTask(dSubOrderTask)
+        val nSubOrderTask = record.toNetworkSubOrderTask()
+        val updatedTask = invService.editSubOrderTask(record.id, nSubOrderTask)
 
-            send(dSubOrderTask.toDomainSubOrderTask())
-        }
+        Log.d(TAG, "updateTask: ${updatedTask.body()}")
+
+        val dSubOrderTask = invService.getSubOrderTask(record.id).toDatabaseSubOrderTask()
+        invDao.updateSubOrderTask(dSubOrderTask)
+
+        send(dSubOrderTask.toDomainSubOrderTask())
+    }
 
     fun CoroutineScope.updateResult(record: DomainResult) = produce {
-            val nNetwork = record.toNetworkResult()
-            invService.editResult(record.id, nNetwork)
-            invDao.updateResult(record.toDatabaseResult())
-            send(record)
-        }
+        val nNetwork = record.toNetworkResult()
+        invService.editResult(record.id, nNetwork)
+        invDao.updateResult(record.toDatabaseResult())
+        send(record)
+    }
 
 
     fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
-            val nOrder = invService.getOrder(record.id)
-            invDao.updateOrder(nOrder.toDatabaseOrder())
-            send(nOrder.toDomainOrder())
-        }
+        val nOrder = invService.getOrder(record.id)
+        invDao.updateOrder(nOrder.toDatabaseOrder())
+        send(nOrder.toDomainOrder())
+    }
 
     fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
-            val nSubOrder = invService.getSubOrder(record.id)
-            invDao.updateSubOrder(nSubOrder.toDatabaseSubOrder())
-            send(nSubOrder.toDomainSubOrder())
-        }
+        val nSubOrder = invService.getSubOrder(record.id)
+        invDao.updateSubOrder(nSubOrder.toDatabaseSubOrder())
+        send(nSubOrder.toDomainSubOrder())
+    }
 
-    fun CoroutineScope.syncTask( record: DomainSubOrderTask) = produce {
-            val nSubOrderTask = invService.getSubOrderTask(record.id)
-            invDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
-            send(nSubOrderTask.toDomainSubOrderTask())
-        }
+    fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
+        Log.d(TAG, "syncTask: $record")
+        val nSubOrderTask = invService.getSubOrderTask(record.id)
+        Log.d(TAG, "syncTask: $nSubOrderTask")
+        invDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
+        send(nSubOrderTask.toDomainSubOrderTask())
+    }
 
 //    ToDO - change this part to return exactly what is needed
 

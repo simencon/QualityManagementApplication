@@ -105,13 +105,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService) =
-        InvestigationsRepository(dao, service)
+    fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService, retrofit: Retrofit) =
+        InvestigationsRepository(dao, service, retrofit)
 
     @Singleton
     @Provides
-    fun provideInvRepository(dao: InvestigationsDao, service: InvestigationsService) =
-        InvestigationsRepository(dao, service) as InvRepository
+    fun provideInvRepository(dao: InvestigationsDao, service: InvestigationsService, retrofit: Retrofit) =
+        InvestigationsRepository(dao, service, retrofit) as InvRepository
 
     @Singleton
     @Provides

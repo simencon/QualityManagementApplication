@@ -93,7 +93,7 @@ interface InvestigationsService {
     suspend fun editSubOrderTask(
         @Path("id") id: Int,
         @Body body: NetworkSubOrderTask
-    ): Response<Unit>
+    ): Response<NetworkSubOrderTask>
 
     @GET("subOrderTasks/{id}")
     suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
