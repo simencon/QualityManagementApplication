@@ -35,6 +35,13 @@ enum class NotificationReasons (val reason: String) {
     DEFAULT("no reason")
 }
 
+enum class InvStatuses(val statusId: Int) {
+    TO_DO(1),
+    IN_PROGRESS(2),
+    DONE(3),
+    REJECTED(4)
+}
+
 object InvestigationsUtils {
     /**
      * The first means top orderID

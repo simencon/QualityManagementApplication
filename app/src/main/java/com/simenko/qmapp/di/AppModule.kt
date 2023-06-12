@@ -10,6 +10,7 @@ import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.contract.InvRepository
+import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
@@ -23,6 +24,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
@@ -95,6 +98,11 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideErrorConverter(retrofit: Retrofit): Converter<ResponseBody, NetworkErrorBody> =
+        retrofit.responseBodyConverter(NetworkErrorBody::class.java, arrayOf())
+
+    @Singleton
+    @Provides
     fun provideManufacturingRepository(dao: ManufacturingDao, service: ManufacturingService) =
         ManufacturingRepository(dao, service)
 
@@ -105,13 +113,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService, retrofit: Retrofit) =
-        InvestigationsRepository(dao, service, retrofit)
+    fun provideInvestigationsRepository(dao: InvestigationsDao, service: InvestigationsService, errorConverter: Converter<ResponseBody, NetworkErrorBody>) =
+        InvestigationsRepository(dao, service, errorConverter)
 
     @Singleton
     @Provides
-    fun provideInvRepository(dao: InvestigationsDao, service: InvestigationsService, retrofit: Retrofit) =
-        InvestigationsRepository(dao, service, retrofit) as InvRepository
+    fun provideInvRepository(dao: InvestigationsDao, service: InvestigationsService, errorConverter: Converter<ResponseBody, NetworkErrorBody>) =
+        InvestigationsRepository(dao, service, errorConverter) as InvRepository
 
     @Singleton
     @Provides

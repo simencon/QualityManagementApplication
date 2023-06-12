@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.*
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.HttpException
-import retrofit2.Retrofit
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -35,7 +34,7 @@ private const val TAG = "InvestigationsRepository"
 class InvestigationsRepository @Inject constructor(
     private val invDao: InvestigationsDao,
     private val invService: InvestigationsService,
-    private val retrofit: Retrofit
+    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
 ) : InvRepository {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
@@ -683,28 +682,24 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
-        Log.d(TAG, "insertResults: $records")
-        try {
-            val newRecords = invService.createResults(records.map { it.toNetworkResult() }).map { it.toDatabaseResult() }
-            invDao.insertResultsAll(newRecords)
-            send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
-        } catch (e: HttpException) {
-
-            val errorConverter: Converter<ResponseBody, NetworkErrorBody> = retrofit.responseBodyConverter(NetworkErrorBody::class.java, arrayOf())
-            val errorBody = e.response()?.errorBody()
-
-            errorBody.let {
-                if (it!=null) {
-                    val error = errorConverter.convert(it)
-                    Log.d(TAG, "insertResults: $error")
-                    Log.d(TAG, "insertResults: the reason is: ${error?.message}")
+        runCatching {
+            send(Event(Resource.loading(true)))
+            invService.createResults(records.map { it.toNetworkResult() }).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { ntResults ->
+                        invDao.insertResultsAll(ntResults.map { ntResult ->
+                            ntResult.toDatabaseResult()
+                        })
+                    }
+                    send(Event(Resource.success(true)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
                 }
             }
-
-            Log.d(TAG, "insertResults: ${e.response()?.errorBody()?.source()?.readUtf8()}")
-            throw e
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", true)))
         }
-
     }
 
 
@@ -723,17 +718,23 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
-        Log.d(TAG, "updateTask: record = $record")
-
-        val nSubOrderTask = record.toNetworkSubOrderTask()
-        val updatedTask = invService.editSubOrderTask(record.id, nSubOrderTask)
-
-        Log.d(TAG, "updateTask: ${updatedTask.body()}")
-
-        val dSubOrderTask = invService.getSubOrderTask(record.id).toDatabaseSubOrderTask()
-        invDao.updateSubOrderTask(dSubOrderTask)
-
-        send(dSubOrderTask.toDomainSubOrderTask())
+        runCatching {
+            send(Event(Resource.loading(true)))
+            invService.editSubOrderTask(record.id, record.toNetworkSubOrderTask()).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { ntResult ->
+                        val dSubOrderTask = invService.getSubOrderTask(ntResult.id).toDatabaseSubOrderTask()
+                        invDao.updateSubOrderTask(dSubOrderTask)
+                    }
+                    send(Event(Resource.success(true)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", true)))
+        }
     }
 
     fun CoroutineScope.updateResult(record: DomainResult) = produce {

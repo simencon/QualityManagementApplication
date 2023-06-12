@@ -128,7 +128,7 @@ interface InvestigationsService {
     ): Response<List<NetworkResult>>
 
     @POST("results/records")
-    suspend fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>
+    suspend fun createResults(@Body records: List<NetworkResult>): Response<List<NetworkResult>>
 
     @DELETE("results/{taskId}/{id}")
     suspend fun deleteResults(

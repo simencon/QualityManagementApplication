@@ -9,6 +9,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
@@ -689,8 +690,8 @@ class InvestigationsViewModel @Inject constructor(
              * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
              * */
             repository.run { syncTask(subOrderTask) }.consumeEach {
-                if (it.statusId == 1 || it.statusId == 4) {
-                    if (subOrderTask.statusId == 3)
+                if (it.statusId == InvStatuses.TO_DO.statusId || it.statusId == InvStatuses.REJECTED.statusId) {
+                    if (subOrderTask.statusId == InvStatuses.DONE.statusId)
                     /**
                      * Collect/Post new results and change status
                      * */
@@ -729,11 +730,21 @@ class InvestigationsViewModel @Inject constructor(
                                 }
                             }
 
-                            repository.run { insertResults(listOfResults) }.consumeEach { }
+                            repository.run { insertResults(listOfResults) }.consumeEach { event ->
+                                event.getContentIfNotHandled()?.let { resource ->
+                                    when (resource.status) {
+                                        Status.LOADING -> {}
+                                        Status.SUCCESS -> {}
+                                        Status.ERROR -> {
+                                            _isErrorMessage.value = resource.message
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                } else if (it.statusId == 3) {
-                    if (subOrderTask.statusId == 1) {
+                } else if (it.statusId == InvStatuses.DONE.statusId) {
+                    if (subOrderTask.statusId == InvStatuses.TO_DO.statusId) {
                         /**
                          * Delete all results and change status
                          * */
@@ -741,7 +752,17 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
             }
-            repository.run { updateTask(subOrderTask) }.consumeEach { }
+            repository.run { updateTask(subOrderTask) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {}
+                        Status.SUCCESS -> {}
+                        Status.ERROR -> {
+                            _isErrorMessage.value = resource.message
+                        }
+                    }
+                }
+            }
         }
     }
 
