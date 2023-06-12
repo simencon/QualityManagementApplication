@@ -29,69 +29,41 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshElementIshModels() {
         withContext(Dispatchers.IO) {
-            val elementIshModels =
-                productsService.getElementIshModels()
+            val elementIshModels = productsService.getElementIshModels()
             productsDao.insertElementIshModelsAll(
-                ListTransformer(
-                    elementIshModels,
-                    NetworkElementIshModel::class, DatabaseElementIshModel::class
-                ).generateList()
+                elementIshModels.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshIshSubCharacteristics() {
         withContext(Dispatchers.IO) {
-            val ishSubCharacteristics =
-                productsService.getIshSubCharacteristics()
+            val ishSubCharacteristics = productsService.getIshSubCharacteristics()
             productsDao.insertIshSubCharacteristicsAll(
-                ListTransformer(
-                    ishSubCharacteristics,
-                    NetworkIshSubCharacteristic::class, DatabaseIshSubCharacteristic::class
-                ).generateList()
+                ishSubCharacteristics.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshManufacturingProjects() {
         withContext(Dispatchers.IO) {
-            val manufacturingProjects =
-                productsService.getManufacturingProjects()
+            val manufacturingProjects = productsService.getManufacturingProjects()
             productsDao.insertManufacturingProjectsAll(
-                ListTransformer(
-                    manufacturingProjects,
-                    NetworkManufacturingProject::class, DatabaseManufacturingProject::class
-                ).generateList()
+                manufacturingProjects.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshCharacteristics() {
         withContext(Dispatchers.IO) {
-            val characteristics =
-                productsService.getCharacteristics()
+            val characteristics = productsService.getCharacteristics()
             productsDao.insertCharacteristicsAll(
-                ListTransformer(
-                    characteristics, NetworkCharacteristic::class,
-                    DatabaseCharacteristic::class
-                ).generateList()
+                characteristics.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -99,11 +71,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val metrixes = productsService.getMetrixes()
             productsDao.insertMetrixesAll(
-                ListTransformer(
-                    metrixes,
-                    NetworkMetrix::class,
-                    DatabaseMetrix::class
-                ).generateList()
+                metrixes.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshMetrixes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -113,11 +81,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getKeys()
             productsDao.insertKeysAll(
-                ListTransformer(
-                    list,
-                    NetworkKey::class,
-                    DatabaseKey::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshKeys: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -127,16 +91,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductBases()
             productsDao.insertProductBasesAll(
-                ListTransformer(
-                    list,
-                    NetworkProductBase::class,
-                    DatabaseProductBase::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -144,11 +101,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProducts()
             productsDao.insertProductsAll(
-                ListTransformer(
-                    list,
-                    NetworkProduct::class,
-                    DatabaseProduct::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshProducts: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -158,11 +111,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponents()
             productsDao.insertComponentsAll(
-                ListTransformer(
-                    list,
-                    NetworkComponent::class,
-                    DatabaseComponent::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshComponents: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -172,16 +121,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStages()
             productsDao.insertComponentInStagesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStage::class,
-                    DatabaseComponentInStage::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -189,16 +131,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getVersionStatuses()
             productsDao.insertVersionStatusesAll(
-                ListTransformer(
-                    list,
-                    NetworkVersionStatus::class,
-                    DatabaseVersionStatus::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -206,16 +141,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductVersions()
             productsDao.insertProductVersionsAll(
-                ListTransformer(
-                    list,
-                    NetworkProductVersion::class,
-                    DatabaseProductVersion::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -223,16 +151,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentVersions()
             productsDao.insertComponentVersionsAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentVersion::class,
-                    DatabaseComponentVersion::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -240,16 +161,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStageVersions()
             productsDao.insertComponentInStageVersionsAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStageVersion::class,
-                    DatabaseComponentInStageVersion::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -257,16 +171,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductTolerances()
             productsDao.insertProductTolerancesAll(
-                ListTransformer(
-                    list,
-                    NetworkProductTolerance::class,
-                    DatabaseProductTolerance::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -274,34 +181,19 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentTolerances()
             productsDao.insertComponentTolerancesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentTolerance::class,
-                    DatabaseComponentTolerance::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshComponentInStageTolerances() {
         withContext(Dispatchers.IO) {
-            val list =
-                productsService.getComponentInStageTolerances()
+            val list = productsService.getComponentInStageTolerances()
             productsDao.insertComponentInStageTolerancesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStageTolerance::class,
-                    DatabaseComponentInStageTolerance::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -309,16 +201,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductsToLines()
             productsDao.insertProductsToLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkProductToLine::class,
-                    DatabaseProductToLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -326,16 +211,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentsToLines()
             productsDao.insertComponentsToLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentToLine::class,
-                    DatabaseComponentToLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -343,16 +221,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStagesToLines()
             productsDao.insertComponentInStagesToLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStageToLine::class,
-                    DatabaseComponentInStageToLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 

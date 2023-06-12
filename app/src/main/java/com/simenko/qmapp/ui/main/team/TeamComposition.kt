@@ -127,7 +127,7 @@ fun TeamMemberCard(
             id = teamMember.teamMember.id,
             fullName = teamMember.teamMember.fullName,
             email = teamMember.teamMember.email,
-            department = teamMember.department.depName ?: "-",
+            department = teamMember.department?.depName ?: "-",
             jobRole = teamMember.teamMember.jobRole,
             detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {

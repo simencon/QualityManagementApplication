@@ -387,8 +387,8 @@ fun getResults() = List(30) {
     DomainResultComplete(
         result = getResult(),
         resultsDecryption = getResultsDecryption(),
-        metrix = getMetrix(),
-        resultTolerance = getResultTolerance()
+        metrix = DomainMetrix(),
+        resultTolerance = DomainResultTolerance()
     )
 }
 
@@ -405,20 +405,4 @@ fun getResult() = DomainResult(
 fun getResultsDecryption() = DomainResultsDecryption(
     id = 1,
     resultDecryption = "In tolerance"
-)
-
-fun getMetrix() = DomainMetrix(
-    id = 0,
-    charId = 1,
-    metrixOrder = 1,
-    metrixDesignation = "Ra C",
-    metrixDescription = "Шорсткість базового торця зовнішнього кільця",
-    units = "мкм"
-)
-
-fun getResultTolerance() = DomainResultTolerance(
-    id = 0,
-    lsl = -10.5f,
-    usl = 12.2f,
-    nominal = 180000.0f
 )

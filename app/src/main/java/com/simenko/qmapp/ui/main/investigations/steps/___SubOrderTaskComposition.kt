@@ -475,11 +475,7 @@ fun getSubOrderTasks() = List(30) {
             subOrderId = 1,
             charId = 1
         ),
-        characteristic = DomainCharacteristicComplete(
-            characteristic = getCharacteristic(),
-            characteristicGroup = getCharacteristicGroup(),
-            characteristicSubGroup = getCharacteristicSubGroup()
-        ),
+        characteristic = DomainCharacteristicComplete(),
         subOrder = getSubOrder(),
         status = DomainOrdersStatus(
             id = 1,
@@ -488,29 +484,6 @@ fun getSubOrderTasks() = List(30) {
         taskResult = getTaskResult()
     )
 }
-
-fun getCharacteristic() = DomainCharacteristic(
-    id = 1,
-    ishCharId = 1,
-    charOrder = 1,
-    charDescription = "Шорсткість отвору внутрішнього кількця",
-    charDesignation = "Ra d",
-    projectId = 1,
-    ishSubChar = 1,
-    sampleRelatedTime = 0.12,
-    measurementRelatedTime = 0.21
-)
-
-fun getCharacteristicGroup() = DomainElementIshModel(
-    id = 1,
-    ishElement = "Microgeometry"
-)
-
-fun getCharacteristicSubGroup() = DomainIshSubCharacteristic(
-    id = 1,
-    ishElement = "Roughness",
-    measurementGroupRelatedTime = 0.24
-)
 
 fun getTaskResult() = DomainTaskResult(
     id = 0,

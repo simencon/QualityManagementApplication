@@ -1,8 +1,5 @@
 package com.simenko.qmapp.domain
 
-import com.simenko.qmapp.retrofit.entities.NetworkOrder
-import com.simenko.qmapp.retrofit.entities.NetworkSubOrder
-import com.simenko.qmapp.retrofit.entities.NetworkSubOrderTask
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ListTransformer
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -59,17 +56,8 @@ fun DatabaseManufacturingOperation.toDomainOperation() = ObjectTransformer(
     DatabaseManufacturingOperation::class, DomainManufacturingOperation::class
 ).transform(this)
 
-fun NetworkOrder.toDomainOrder() =
-    ObjectTransformer(NetworkOrder::class, DomainOrder::class).transform(this)
-
-fun NetworkSubOrder.toDomainSubOrder() =
-    ObjectTransformer(NetworkSubOrder::class, DomainSubOrder::class).transform(this)
-
 fun DatabaseSubOrderTask.toDomainSubOrderTask() =
     ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
-
-fun NetworkSubOrderTask.toDomainSubOrderTask() =
-    ObjectTransformer(NetworkSubOrderTask::class, DomainSubOrderTask::class).transform(this)
 
 fun DatabaseResult.toDomainResult() =
     ObjectTransformer(DatabaseResult::class, DomainResult::class).transform(this)
@@ -231,20 +219,18 @@ fun List<DatabaseTeamMemberComplete>.asTeamCompleteDomainModel(): List<DomainTea
 fun List<DatabaseDepartmentsComplete>.asDepartmentsDetailedDomainModel(): List<DomainDepartmentComplete> {
     return map {
         DomainDepartmentComplete(
-            departments = ListTransformer(
+            department = ObjectTransformer(
                 DatabaseDepartment::class,
                 DomainDepartment::class
-            ).transform(it.departments),
-            depManagerDetails = ListTransformer(
-                it.depManagerDetails,
+            ).transform(it.department),
+            depManager = ObjectTransformer(
                 DatabaseTeamMember::class,
                 DomainTeamMember::class
-            ).generateList(),
-            companies = ListTransformer(
-                it.companies,
+            ).transform(it.depManager),
+            company = ObjectTransformer(
                 DatabaseCompany::class,
                 DomainCompany::class
-            ).generateList()
+            ).transform(it.company)
         )
     }
 }

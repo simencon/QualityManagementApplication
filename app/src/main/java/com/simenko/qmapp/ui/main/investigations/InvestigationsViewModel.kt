@@ -187,12 +187,12 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentOrdersFilter(
         type: SelectedNumber = NoRecord,
         status: SelectedNumber = NoRecord,
-        number: SelectedString = NoSelectedString
+        number: SelectedString = NoString
     ) {
         _currentOrdersFilter.value = OrdersFilter(
             type.num,
             status.num,
-            if (number != NoSelectedString) number.str else _currentOrdersFilter.value.orderNumber
+            if (number != NoString) number.str else _currentOrdersFilter.value.orderNumber
         )
     }
 
@@ -304,12 +304,12 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentSubOrdersFilter(
         type: SelectedNumber = NoRecord,
         status: SelectedNumber = NoRecord,
-        number: SelectedString = NoSelectedString
+        number: SelectedString = NoString
     ) {
         _currentSubOrdersFilter.value = SubOrdersFilter(
             type.num,
             status.num,
-            if (number != NoSelectedString) number.str else _currentSubOrdersFilter.value.orderNumber
+            if (number != NoString) number.str else _currentSubOrdersFilter.value.orderNumber
         )
     }
 

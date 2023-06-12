@@ -241,7 +241,7 @@ class NewItemViewModel @Inject constructor(
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
-                    investigationsRepository.run { insertTask(it) }.consumeEach {  }
+                    investigationsRepository.run { insertTask(it) }.consumeEach { }
                 }
             }
         }
@@ -425,7 +425,7 @@ enum class FilteringStep {
     CHARACTERISTICS
 }
 
-fun <T : DomainModel> changeRecordSelection(
+fun <D, T : DomainBaseModel<D>> changeRecordSelection(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
     selectedId: Any = 0,
@@ -435,15 +435,15 @@ fun <T : DomainModel> changeRecordSelection(
     return result ?: false
 }
 
-fun <T : DomainModel> selectSingleRecord(
+fun <D, T : DomainBaseModel<D>> selectSingleRecord(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
     selectedId: Any = 0,
 ) {
     d.value?.forEach {
-        it.setIsChecked(false)
+        it.setIsSelected(false)
     }
-    d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
+    d.value?.find { it.getRecordId() == selectedId }?.setIsSelected(true)
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
 }
 
@@ -474,7 +474,7 @@ fun getPreviousIds(currentId: Int, pairs: List<DomainOperationsFlow>): List<Int>
     return previousIds
 }
 
-fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
+fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltration(
     s: LiveData<List<T>>? = null,
     action: FilteringMode,
     trigger: MutableLiveData<Boolean>,
@@ -503,7 +503,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             selectSingleRecord(d, trigger)
             d.value?.clear()
             s.apply {
-                this?.value?.filter { it.getParentOneId() == p1Id }?.forEach { input ->
+                this?.value?.filter { it.getParentId() == p1Id }?.forEach { input ->
                     if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
                         d.value?.add(input)
                     }
@@ -538,7 +538,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                 }
                 mSorted.forEach { mIt ->
                     val item = s?.value?.find {
-                        (it.getParentOneId() == p1Id || it.hasParentOneId(p1Id)) &&
+                        (it.getParentId() == p1Id || it.hasParentId(p1Id)) &&
                                 when (step) {
                                     FilteringStep.NOT_FROM_META_TABLE -> {
                                         it.getRecordId() == 0

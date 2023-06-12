@@ -676,7 +676,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = getStringDate(subOrder.subOrder.createdDate)?: NoSelectedString.str,
+                text = getStringDate(subOrder.subOrder.createdDate)?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -722,7 +722,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = getStringDate(subOrder.subOrder.completedDate)?: NoSelectedString.str,
+                text = getStringDate(subOrder.subOrder.completedDate)?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -829,7 +829,7 @@ fun getSubOrders() = List(30) { i ->
             equipment = "MTD-250"
         ),
         detailsVisibility = true,
-        itemVersionComplete = getItemVersionComplete(),
+        itemVersionComplete = DomainItemVersionComplete(),
         subOrderResult = getSubOrderResult()
     )
 }
@@ -853,46 +853,6 @@ fun getSubOrder() = DomainSubOrder(
     itemVersionId = 1,
     samplesCount = (1..10).random(),
     remarkId = 1
-)
-
-fun getItemVersionComplete() = DomainItemVersionComplete(
-    itemVersion = DomainItemVersion(
-        id = 0,
-        fId = "c0",
-        itemId = 0,
-        fItemId = "c0",
-        versionDescription = "V.01",
-        versionDate = "2022-12-15T22:24:43",
-        statusId = 1,
-        isDefault = true
-    ),
-    versionStatus = DomainVersionStatus(
-        id = 0,
-        statusDescription = "Done"
-    ),
-    itemComplete = DomainItemComplete(
-        item = DomainItem(
-            id = 0,
-            fId = "c0",
-            keyId = 0,
-            itemDesignation = "32024"
-        ),
-        key = DomainKey(
-            id = 0,
-            projectId = 0,
-            componentKey = "IR",
-            componentKeyDescription = "Внутрішнє кільце після шліфувальної обробки"
-        ),
-        itemToLines = List(30) { i ->
-            DomainItemToLine(
-                id = 0,
-                fId = "c0",
-                lineId = 0,
-                itemId = 0,
-                fItemId = "c0"
-            )
-        }
-    )
 )
 
 fun getSubOrderResult() = DomainSubOrderResult(

@@ -572,7 +572,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = getStringDate(createdDate)?: NoSelectedString.str,
+                text = getStringDate(createdDate)?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -595,7 +595,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = getStringDate(completedDate)?: NoSelectedString.str,
+                text = getStringDate(completedDate)?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

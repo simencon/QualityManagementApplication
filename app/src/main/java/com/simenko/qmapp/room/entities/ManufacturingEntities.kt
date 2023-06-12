@@ -1,13 +1,20 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
+import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.room.DatabaseBaseModel
+import com.simenko.qmapp.utils.ObjectTransformer
 
 @Entity(tableName = "0_position_levels")
 data class DatabasePositionLevel(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var levelDescription: String
-)
+) : DatabaseBaseModel<NetworkPositionLevel, DomainPositionLevel> {
+    override fun toNetworkModel() = ObjectTransformer(DatabasePositionLevel::class, NetworkPositionLevel::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabasePositionLevel::class, DomainPositionLevel::class).transform(this)
+}
 
 @Entity(
     tableName = "8_team_members",
@@ -51,7 +58,10 @@ data class DatabaseTeamMember constructor(
     var passWord: String? = null,
     @ColumnInfo(index = true)
     var companyId: Int
-)
+) : DatabaseBaseModel<NetworkTeamMember, DomainTeamMember> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseTeamMember::class, NetworkTeamMember::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseTeamMember::class, DomainTeamMember::class).transform(this)
+}
 
 @Entity(
     tableName = "0_companies",
@@ -78,7 +88,10 @@ data class DatabaseCompany constructor(
     var companyIndustrialClassification: String? = null,
     @ColumnInfo(index = true)
     var companyManagerId: Int
-)
+) : DatabaseBaseModel<NetworkCompany, DomainCompany> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseCompany::class, NetworkCompany::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseCompany::class, DomainCompany::class).transform(this)
+}
 
 @Entity(
     tableName = "10_departments",
@@ -110,7 +123,10 @@ data class DatabaseDepartment constructor(
     val depOrder: Int?,
     @ColumnInfo(index = true)
     val companyId: Int?
-)
+) : DatabaseBaseModel<NetworkDepartment, DomainDepartment> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseDepartment::class, NetworkDepartment::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseDepartment::class, DomainDepartment::class).transform(this)
+}
 
 @Entity(
     tableName = "11_sub_departments",
@@ -131,7 +147,10 @@ data class DatabaseSubDepartment(
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null
-)
+) : DatabaseBaseModel<NetworkSubDepartment, DomainSubDepartment> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseSubDepartment::class, NetworkSubDepartment::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
+}
 
 @Entity(
     tableName = "12_manufacturing_channels",
@@ -152,7 +171,10 @@ data class DatabaseManufacturingChannel(
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null
-)
+) : DatabaseBaseModel<NetworkManufacturingChannel, DomainManufacturingChannel> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingChannel::class, NetworkManufacturingChannel::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
+}
 
 @Entity(
     tableName = "13_manufacturing_lines",
@@ -173,7 +195,10 @@ data class DatabaseManufacturingLine(
     var lineAbbr: String,
     var lineDesignation: String,
     var lineOrder: Int
-)
+) : DatabaseBaseModel<NetworkManufacturingLine, DomainManufacturingLine> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingLine::class, NetworkManufacturingLine::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
+}
 
 @Entity(
     tableName = "14_manufacturing_operations",
@@ -195,7 +220,10 @@ data class DatabaseManufacturingOperation(
     var operationDesignation: String,
     var operationOrder: Int,
     var equipment: String?
-)
+) : DatabaseBaseModel<NetworkManufacturingOperation, DomainManufacturingOperation> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingOperation::class, NetworkManufacturingOperation::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
+}
 
 @Entity(
     tableName = "14_14_manufacturing_operations_flow",
@@ -223,7 +251,10 @@ data class DatabaseOperationsFlow(
     var currentOperationId: Int,
     @ColumnInfo(index = true)
     var previousOperationId: Int
-)
+) : DatabaseBaseModel<NetworkOperationsFlow, DomainOperationsFlow> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseOperationsFlow::class, NetworkOperationsFlow::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseOperationsFlow::class, DomainOperationsFlow::class).transform(this)
+}
 
 data class DatabaseTeamMemberComplete(
     @Embedded
@@ -240,21 +271,35 @@ data class DatabaseTeamMemberComplete(
         entityColumn = "id"
     )
     val company: DatabaseCompany?
-)
+) : DatabaseBaseModel<Boolean, DomainTeamMemberComplete> {
+    override fun toNetworkModel() = false
+    override fun toDomainModel() = DomainTeamMemberComplete(
+        teamMember = teamMember.toDomainModel(),
+        department = department?.toDomainModel(),
+        company = company?.toDomainModel()
+    )
+}
 
 data class DatabaseDepartmentsComplete(
     @Embedded
-    val departments: DatabaseDepartment,
+    val department: DatabaseDepartment,
     @Relation(
         entity = DatabaseTeamMember::class,
         parentColumn = "depManager",
         entityColumn = "id"
     )
-    val depManagerDetails: List<DatabaseTeamMember>,
+    val depManager: DatabaseTeamMember,
     @Relation(
         entity = DatabaseCompany::class,
         parentColumn = "companyId",
         entityColumn = "id"
     )
-    val companies: List<DatabaseCompany>
-)
+    val company: DatabaseCompany
+) : DatabaseBaseModel<Any?, DomainDepartmentComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainDepartmentComplete(
+        department = department.toDomainModel(),
+        depManager = depManager.toDomainModel(),
+        company = company.toDomainModel()
+    )
+}

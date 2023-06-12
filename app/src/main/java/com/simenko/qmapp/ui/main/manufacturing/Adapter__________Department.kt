@@ -62,7 +62,7 @@ class Adapter__________Department(
                 Observer { items ->
                     items?.apply {
                         subDepAdapter.itemsList =
-                            items.filter { item -> item.depId == itemsList[position].departments.id }
+                            items.filter { item -> item.depId == itemsList[position].department.id }
                                 .toList()
                     }
                 }

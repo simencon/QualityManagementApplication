@@ -43,14 +43,9 @@ class InvestigationsRepository @Inject constructor(
      */
     suspend fun insertInputForOrder() {
         withContext(Dispatchers.IO) {
-            val inputForOrder =
-                invService.getInputForOrder()
+            val inputForOrder = invService.getInputForOrder()
             invDao.insertInputForOrderAll(
-                ListTransformer(
-                    inputForOrder,
-                    NetworkInputForOrder::class,
-                    DatabaseInputForOrder::class
-                ).generateList()
+                inputForOrder.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshInputForOrder: ${timeFormatter.format(Instant.now())}")
         }
@@ -60,11 +55,7 @@ class InvestigationsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val records = invService.getOrdersStatuses()
             invDao.insertOrdersStatusesAll(
-                ListTransformer(
-                    records,
-                    NetworkOrdersStatus::class,
-                    DatabaseOrdersStatus::class
-                ).generateList()
+                records.map { it.toDatabaseModel() }
             )
             Log.d(
                 TAG,
@@ -75,13 +66,9 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun insertInvestigationReasons() {
         withContext(Dispatchers.IO) {
-            val records =
-                invService.getMeasurementReasons()
+            val records = invService.getMeasurementReasons()
             invDao.insertMeasurementReasonsAll(
-                ListTransformer(
-                    records,
-                    NetworkReason::class, DatabaseReason::class
-                ).generateList()
+                records.map { it.toDatabaseModel() }
             )
             Log.d(
                 TAG,
@@ -94,11 +81,7 @@ class InvestigationsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val records = invService.getOrdersTypes()
             invDao.insertOrdersTypesAll(
-                ListTransformer(
-                    records,
-                    NetworkOrdersType::class,
-                    DatabaseOrdersType::class
-                ).generateList()
+                records.map { it.toDatabaseModel() }
             )
             Log.d(
                 TAG,
@@ -109,13 +92,9 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun insertResultsDecryptions() {
         withContext(Dispatchers.IO) {
-            val resultsDecryptions =
-                invService.getResultsDecryptions()
+            val resultsDecryptions = invService.getResultsDecryptions()
             invDao.insertResultsDecryptionsAll(
-                ListTransformer(
-                    resultsDecryptions,
-                    NetworkResultsDecryption::class, DatabaseResultsDecryption::class
-                ).generateList()
+                resultsDecryptions.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshResultsDecryptions: ${timeFormatter.format(Instant.now())}")
         }
@@ -139,20 +118,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertOrder(ntIt.toDatabaseOrder())
+                    invDao.insertOrder(ntIt.toDatabaseModel())
                 }
             }
             ntOrders.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseOrder())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateOrder(ntIt.toDatabaseOrder())
+                    invDao.updateOrder(ntIt.toDatabaseModel())
                 }
             }
             dbOrders.forEach byBlock1@{ dbIt ->
@@ -206,7 +185,7 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.insertSubOrder(ntIt.toDatabaseModel())
                     invDao.getSubOrdersById(ntIt.id)?.let {
                         result.add(
                             it.toNotificationData(NotificationReasons.CREATED)
@@ -218,13 +197,13 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSubOrder())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.updateSubOrder(ntIt.toDatabaseModel())
                     invDao.getSubOrdersById(ntIt.id)?.let {
                         result.add(
                             it.toNotificationData(NotificationReasons.CHANGED)
@@ -270,20 +249,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                    invDao.insertSubOrderTask(ntIt.toDatabaseModel())
                 }
             }
             ntTasks.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbTasks.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSubOrderTask())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                    invDao.updateSubOrderTask(ntIt.toDatabaseModel())
                 }
             }
             dbTasks.forEach byBlock1@{ dbIt ->
@@ -317,20 +296,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertSample(ntIt.toDatabaseSample())
+                    invDao.insertSample(ntIt.toDatabaseModel())
                 }
             }
             ntSamples.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbSamples.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSample())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateSample(ntIt.toDatabaseSample())
+                    invDao.updateSample(ntIt.toDatabaseModel())
                 }
             }
             dbSamples.forEach byBlock1@{ dbIt ->
@@ -364,20 +343,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertResult(ntIt.toDatabaseResult())
+                    invDao.insertResult(ntIt.toDatabaseModel())
                 }
             }
             ntResults.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbResults.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseResult())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateResult(ntIt.toDatabaseResult())
+                    invDao.updateResult(ntIt.toDatabaseModel())
                 }
             }
             dbResults.forEach byBlock1@{ dbIt ->
@@ -416,11 +395,11 @@ class InvestigationsRepository @Inject constructor(
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
             }
 
-            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
-            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
-            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
-            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
-            invDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
+            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseModel() })
+            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseModel() })
+            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseModel() })
+            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseModel() })
+            invDao.insertResultsAll(ntResults.map { it.toDatabaseModel() })
         }
     }
 
@@ -658,25 +637,25 @@ class InvestigationsRepository @Inject constructor(
      * Inv adding operations
      * */
     fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
-        val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
+        val newOrder = invService.createOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertOrder(newOrder)
         send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
-        val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
+        val newRecord = invService.createSubOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertSubOrder(newRecord)
         send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
-        val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask()).toDatabaseSubOrderTask()
+        val newRecord = invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertSubOrderTask(newRecord)
         send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertSample(record: DomainSample) = produce {
-        val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
+        val newRecord = invService.createSample(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertSample(newRecord)
         send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
@@ -684,11 +663,11 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
         runCatching {
             send(Event(Resource.loading(true)))
-            invService.createResults(records.map { it.toNetworkResult() }).let { response ->
+            invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }).let { response ->
                 if (response.isSuccessful) {
                     response.body()?.let { ntResults ->
                         invDao.insertResultsAll(ntResults.map { ntResult ->
-                            ntResult.toDatabaseResult()
+                            ntResult.toDatabaseModel()
                         })
                     }
                     send(Event(Resource.success(true)))
@@ -704,26 +683,26 @@ class InvestigationsRepository @Inject constructor(
 
 
     fun CoroutineScope.updateOrder(record: DomainOrder) = produce {
-        val nOrder = record.toNetworkOrder()
+        val nOrder = record.toDatabaseModel().toNetworkModel()
         invService.editOrder(record.id, nOrder)
-        invDao.updateOrder(record.toDatabaseOrder())
+        invDao.updateOrder(record.toDatabaseModel())
         send(record)
     }
 
     fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = produce {
-        val nSubOrder = record.toNetworkSubOrder()
+        val nSubOrder = record.toDatabaseModel().toNetworkModel()
         invService.editSubOrder(record.id, nSubOrder)
-        invDao.updateSubOrder(record.toDatabaseSubOrder())
+        invDao.updateSubOrder(record.toDatabaseModel())
         send(record)
     }
 
     fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
         runCatching {
             send(Event(Resource.loading(true)))
-            invService.editSubOrderTask(record.id, record.toNetworkSubOrderTask()).let { response ->
+            invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()).let { response ->
                 if (response.isSuccessful) {
                     response.body()?.let { ntResult ->
-                        val dSubOrderTask = invService.getSubOrderTask(ntResult.id).toDatabaseSubOrderTask()
+                        val dSubOrderTask = invService.getSubOrderTask(ntResult.id).toDatabaseModel()
                         invDao.updateSubOrderTask(dSubOrderTask)
                     }
                     send(Event(Resource.success(true)))
@@ -738,31 +717,31 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun CoroutineScope.updateResult(record: DomainResult) = produce {
-        val nNetwork = record.toNetworkResult()
+        val nNetwork = record.toDatabaseModel().toNetworkModel()
         invService.editResult(record.id, nNetwork)
-        invDao.updateResult(record.toDatabaseResult())
+        invDao.updateResult(record.toDatabaseModel())
         send(record)
     }
 
 
     fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
         val nOrder = invService.getOrder(record.id)
-        invDao.updateOrder(nOrder.toDatabaseOrder())
-        send(nOrder.toDomainOrder())
+        invDao.updateOrder(nOrder.toDatabaseModel())
+        send(nOrder.toDatabaseModel().toDomainOrder())
     }
 
     fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
         val nSubOrder = invService.getSubOrder(record.id)
-        invDao.updateSubOrder(nSubOrder.toDatabaseSubOrder())
-        send(nSubOrder.toDomainSubOrder())
+        invDao.updateSubOrder(nSubOrder.toDatabaseModel())
+        send(nSubOrder.toDatabaseModel().toDomainSubOrder())
     }
 
     fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
         Log.d(TAG, "syncTask: $record")
         val nSubOrderTask = invService.getSubOrderTask(record.id)
         Log.d(TAG, "syncTask: $nSubOrderTask")
-        invDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
-        send(nSubOrderTask.toDomainSubOrderTask())
+        invDao.updateSubOrderTask(nSubOrderTask.toDatabaseModel())
+        send(nSubOrderTask.toDatabaseModel().toDomainSubOrderTask())
     }
 
 //    ToDO - change this part to return exactly what is needed

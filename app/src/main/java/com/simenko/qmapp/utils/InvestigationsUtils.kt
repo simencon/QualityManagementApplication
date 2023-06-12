@@ -8,13 +8,13 @@ import java.time.Instant
 data class OrdersFilter(
     val typeId: Int = NoRecord.num,
     val statusId: Int = NoRecord.num,
-    val orderNumber: String = NoSelectedString.str
+    val orderNumber: String = NoString.str
 )
 
 data class SubOrdersFilter(
     val typeId: Int = NoRecord.num,
     val statusId: Int = NoRecord.num,
-    val orderNumber: String = NoSelectedString.str
+    val orderNumber: String = NoString.str
 )
 
 data class NotificationData(
@@ -24,7 +24,7 @@ data class NotificationData(
     val subOrderStatus: String? = null,
     val departmentAbbr: String? = null,
     val channelAbbr: String? = null,
-    val itemTypeCompleteDesignation: String = NoSelectedString.str,
+    val itemTypeCompleteDesignation: String = NoString.str,
     val notificationReason: NotificationReasons = NotificationReasons.DEFAULT
 )
 
@@ -174,7 +174,7 @@ object InvestigationsUtils {
                     &&
                     (it.order.orderNumber.toString().contains(ordersFilter.orderNumber)
                             ||
-                            (ordersFilter.orderNumber == NoSelectedString.str))
+                            (ordersFilter.orderNumber == NoString.str))
         }
     }
 
@@ -189,7 +189,7 @@ object InvestigationsUtils {
                     (it.orderShort.order.orderNumber.toString()
                         .contains(subOrdersFilter.orderNumber)
                             ||
-                            (subOrdersFilter.orderNumber == NoSelectedString.str))
+                            (subOrdersFilter.orderNumber == NoString.str))
         }
     }
 }

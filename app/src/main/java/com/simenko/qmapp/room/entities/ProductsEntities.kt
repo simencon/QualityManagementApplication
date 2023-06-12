@@ -3,13 +3,19 @@ package com.simenko.qmapp.room.entities
 import androidx.room.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.DomainItemComplete
+import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.room.DatabaseBaseModel
+import com.simenko.qmapp.utils.ObjectTransformer
 
 @Entity(tableName = "10_1_d_element_ish_model")
 data class DatabaseElementIshModel constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var ishElement: String? = null
-)
+) : DatabaseBaseModel<NetworkElementIshModel, DomainElementIshModel> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseElementIshModel::class, NetworkElementIshModel::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseElementIshModel::class, DomainElementIshModel::class).transform(this)
+}
 
 @Entity(tableName = "0_ish_sub_characteristics")
 data class DatabaseIshSubCharacteristic constructor(
@@ -17,7 +23,10 @@ data class DatabaseIshSubCharacteristic constructor(
     var id: Int,
     var ishElement: String? = null,
     var measurementGroupRelatedTime: Double? = null
-)
+) : DatabaseBaseModel<NetworkIshSubCharacteristic, DomainIshSubCharacteristic> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseIshSubCharacteristic::class, NetworkIshSubCharacteristic::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseIshSubCharacteristic::class, DomainIshSubCharacteristic::class).transform(this)
+}
 
 @Entity(
     tableName = "0_manufacturing_project",
@@ -47,7 +56,10 @@ data class DatabaseManufacturingProject(
     var pfmeaNum: String? = null,
     var processOwner: Int? = null,
     var confLevel: Int? = null
-)
+) : DatabaseBaseModel<NetworkManufacturingProject, DomainManufacturingProject> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingProject::class, NetworkManufacturingProject::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingProject::class, DomainManufacturingProject::class).transform(this)
+}
 
 @Entity(
     tableName = "7_characteristics",
@@ -88,7 +100,10 @@ data class DatabaseCharacteristic constructor(
     var projectId: Int,
     var sampleRelatedTime: Double? = null,
     var measurementRelatedTime: Double? = null
-)
+) : DatabaseBaseModel<NetworkCharacteristic, DomainCharacteristic> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristic::class, NetworkCharacteristic::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "characteristic_complete",
@@ -109,7 +124,14 @@ data class DatabaseCharacteristicComplete(
         entityColumn = "id"
     )
     val characteristicSubGroup: DatabaseIshSubCharacteristic
-)
+) : DatabaseBaseModel<Any?, DomainCharacteristicComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainCharacteristicComplete(
+        characteristic = characteristic.toDomainModel(),
+        characteristicGroup = characteristicGroup.toDomainModel(),
+        characteristicSubGroup = characteristicSubGroup.toDomainModel()
+    )
+}
 
 @Entity(
     tableName = "8_metrixes",
@@ -131,7 +153,10 @@ data class DatabaseMetrix constructor(
     var metrixDesignation: String? = null,
     var metrixDescription: String? = null,
     var units: String? = null
-)
+) : DatabaseBaseModel<NetworkMetrix, DomainMetrix> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseMetrix::class, NetworkMetrix::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseMetrix::class, DomainMetrix::class).transform(this)
+}
 
 @Entity(
     tableName = "0_keys",
@@ -151,7 +176,10 @@ data class DatabaseKey(
     var projectId: Int?,
     var componentKey: String?,
     var componentKeyDescription: String?
-)
+) : DatabaseBaseModel<NetworkKey, DomainKey> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseKey::class, NetworkKey::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseKey::class, DomainKey::class).transform(this)
+}
 
 @Entity(
     tableName = "0_products_bases",
@@ -170,7 +198,10 @@ data class DatabaseProductBase(
     @ColumnInfo(index = true)
     var projectId: Int?,
     var componentBaseDesignation: String?
-)
+) : DatabaseBaseModel<NetworkProductBase, DomainProductBase> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductBase::class, NetworkProductBase::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductBase::class, DomainProductBase::class).transform(this)
+}
 
 
 @Entity(
@@ -199,7 +230,10 @@ data class DatabaseProduct(
     @ColumnInfo(index = true)
     var keyId: Int?,
     var productDesignation: String?
-)
+) : DatabaseBaseModel<NetworkProduct, DomainProduct> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProduct::class, NetworkProduct::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProduct::class, DomainProduct::class).transform(this)
+}
 
 @Entity(
     tableName = "4_components",
@@ -219,7 +253,10 @@ data class DatabaseComponent(
     var keyId: Int?,
     var componentDesignation: String?,
     var ifAny: Int?
-)
+) : DatabaseBaseModel<NetworkComponent, DomainComponent> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponent::class, NetworkComponent::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponent::class, DomainComponent::class).transform(this)
+}
 
 @Entity(
     tableName = "6_components_in_stages",
@@ -239,14 +276,20 @@ data class DatabaseComponentInStage(
     var keyId: Int?,
     var componentInStageDescription: String?,
     var ifAny: Int?
-)
+) : DatabaseBaseModel<NetworkComponentInStage, DomainComponentInStage> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStage::class, NetworkComponentInStage::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStage::class, DomainComponentInStage::class).transform(this)
+}
 
 @Entity(tableName = "0_versions_status")
 data class DatabaseVersionStatus(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var statusDescription: String?
-)
+) : DatabaseBaseModel<NetworkVersionStatus, DomainVersionStatus> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseVersionStatus::class, NetworkVersionStatus::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseVersionStatus::class, DomainVersionStatus::class).transform(this)
+}
 
 @Entity(
     tableName = "9_products_versions",
@@ -276,7 +319,10 @@ data class DatabaseProductVersion(
     @ColumnInfo(index = true)
     var statusId: Int?,
     var isDefault: Boolean
-)
+) : DatabaseBaseModel<NetworkProductVersion, DomainProductVersion> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductVersion::class, NetworkProductVersion::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductVersion::class, DomainProductVersion::class).transform(this)
+}
 
 
 @Entity(
@@ -307,7 +353,10 @@ data class DatabaseComponentVersion(
     @ColumnInfo(index = true)
     var statusId: Int?,
     var isDefault: Boolean
-)
+) : DatabaseBaseModel<NetworkComponentVersion, DomainComponentVersion> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentVersion::class, NetworkComponentVersion::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentVersion::class, DomainComponentVersion::class).transform(this)
+}
 
 @Entity(
     tableName = "11_component_in_stage_versions",
@@ -337,7 +386,10 @@ data class DatabaseComponentInStageVersion(
     @ColumnInfo(index = true)
     var statusId: Int?,
     var isDefault: Boolean
-)
+) : DatabaseBaseModel<NetworkComponentInStageVersion, DomainComponentInStageVersion> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageVersion::class, NetworkComponentInStageVersion::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStageVersion::class, DomainComponentInStageVersion::class).transform(this)
+}
 
 @Entity(
     tableName = "9_8_product_tolerances",
@@ -368,7 +420,10 @@ data class DatabaseProductTolerance(
     var lsl: Float?,
     var usl: Float?,
     var isActual: Boolean
-)
+) : DatabaseBaseModel<NetworkProductTolerance, DomainProductTolerance> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductTolerance::class, NetworkProductTolerance::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductTolerance::class, DomainProductTolerance::class).transform(this)
+}
 
 @Entity(
     tableName = "10_8_component_tolerances",
@@ -399,7 +454,10 @@ data class DatabaseComponentTolerance(
     var lsl: Float?,
     var usl: Float?,
     var isActual: Boolean
-)
+) : DatabaseBaseModel<NetworkComponentTolerance, DomainComponentTolerance> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentTolerance::class, NetworkComponentTolerance::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentTolerance::class, DomainComponentTolerance::class).transform(this)
+}
 
 @Entity(
     tableName = "11_8_component_in_stage_tolerances",
@@ -430,7 +488,10 @@ data class DatabaseComponentInStageTolerance(
     var lsl: Float?,
     var usl: Float?,
     var isActual: Boolean
-)
+) : DatabaseBaseModel<NetworkComponentInStageTolerance, DomainComponentInStageTolerance> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageTolerance::class, NetworkComponentInStageTolerance::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStageTolerance::class, DomainComponentInStageTolerance::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "items_tolerances",
@@ -450,7 +511,10 @@ data class DatabaseItemTolerance(
     val lsl: Float?,
     val usl: Float?,
     val isActual: Boolean
-)
+) : DatabaseBaseModel<Any?, DomainItemTolerance> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseItemTolerance::class, DomainItemTolerance::class).transform(this)
+}
 
 @Entity(
     tableName = "13_1_products_to_lines",
@@ -477,7 +541,10 @@ data class DatabaseProductToLine(
     var lineId: Int,
     @ColumnInfo(index = true)
     var productId: Int
-)
+) : DatabaseBaseModel<NetworkProductToLine, DomainProductToLine> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductToLine::class, NetworkProductToLine::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductToLine::class, DomainProductToLine::class).transform(this)
+}
 
 @Entity(
     tableName = "13_3_components_to_lines",
@@ -504,7 +571,10 @@ data class DatabaseComponentToLine(
     var lineId: Int,
     @ColumnInfo(index = true)
     var componentId: Int
-)
+) : DatabaseBaseModel<NetworkComponentToLine, DomainComponentToLine> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentToLine::class, NetworkComponentToLine::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentToLine::class, DomainComponentToLine::class).transform(this)
+}
 
 @Entity(
     tableName = "13_5_component_in_stages_to_lines",
@@ -532,7 +602,10 @@ data class DatabaseComponentInStageToLine(
     var lineId: Int,
     @ColumnInfo(index = true)
     var componentInStageId: Int
-)
+) : DatabaseBaseModel<NetworkComponentInStageToLine, DomainComponentInStageToLine> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageToLine::class, NetworkComponentInStageToLine::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStageToLine::class, DomainComponentInStageToLine::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "items",
@@ -547,7 +620,10 @@ data class DatabaseItem(
     val fId: String,
     val keyId: Int?,
     val itemDesignation: String?
-)
+) : DatabaseBaseModel<Any?, DomainItem> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseItem::class, DomainItem::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "items_to_lines",
@@ -563,7 +639,10 @@ data class DatabaseItemToLine(
     val lineId: Int,
     val itemId: Int,
     val fItemId: String
-)
+) : DatabaseBaseModel<Any?, DomainItemToLine> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseItemToLine::class, DomainItemToLine::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "items_complete",
@@ -582,7 +661,14 @@ data class DatabaseItemComplete(
         entityColumn = "fItemId"
     )
     val itemToLines: List<DatabaseItemToLine>
-)
+) : DatabaseBaseModel<Any?, DomainItemComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainItemComplete(
+        item = item.toDomainModel(),
+        key = key.toDomainModel(),
+        itemToLines = itemToLines.map { it.toDomainModel() }
+    )
+}
 
 @DatabaseView(
     viewName = "item_versions",
@@ -601,7 +687,10 @@ data class DatabaseItemVersion(
     val versionDate: String?,
     val statusId: Int?,
     val isDefault: Boolean
-)
+) : DatabaseBaseModel<Any?, DomainItemVersion> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseItemVersion::class, DomainItemVersion::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "item_versions_complete",
@@ -620,4 +709,11 @@ data class DatabaseItemVersionComplete(
         entityColumn = "fId"
     )
     val itemComplete: DatabaseItemComplete
-)
+) : DatabaseBaseModel<Any?, DomainItemVersionComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainItemVersionComplete(
+        itemVersion = itemVersion.toDomainModel(),
+        versionStatus = versionStatus.toDomainModel(),
+        itemComplete = itemComplete.toDomainModel()
+    )
+}

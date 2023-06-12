@@ -35,16 +35,9 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getPositionLevels()
             manufacturingDao.insertPositionLevelsAll(
-                ListTransformer(
-                    list,
-                    NetworkPositionLevel::class,
-                    DatabasePositionLevel::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshPositionLevels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshPositionLevels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -52,11 +45,7 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getTeamMembers()
             manufacturingDao.insertTeamMembersAll(
-                ListTransformer(
-                    list,
-                    NetworkTeamMember::class,
-                    DatabaseTeamMember::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -65,12 +54,12 @@ class ManufacturingRepository @Inject constructor(
     suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
             val response = manufacturingService.insertTeamMember(
-                record.toNetworkTeamMember()
+                record.toDatabaseModel().toNetworkModel()
             )
 
             if (response.isSuccessful) {
-                response.body()?.let { manufacturingDao.insertTeamMember(it.toDatabase()) }
-                response.body()?.toDatabase()?.let { send(it.toDomainTeamMember()) }
+                response.body()?.let { manufacturingDao.insertTeamMember(it.toDatabaseModel()) }
+                response.body()?.toDatabaseModel()?.let { send(it.toDomainTeamMember()) }
             } else {
                 Log.d(TAG, "insertRecord: ${response.errorBody()}")
             }
@@ -81,7 +70,7 @@ class ManufacturingRepository @Inject constructor(
         coroutineScope.produce {
             val response = manufacturingService.deleteTeamMember(record.id)
             if (response.isSuccessful) {
-                manufacturingDao.deleteTeamMember(record.toDatabase())
+                manufacturingDao.deleteTeamMember(record.toDatabaseModel())
             }
             send(response)
         }
@@ -89,8 +78,8 @@ class ManufacturingRepository @Inject constructor(
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
             val response = manufacturingService
-                .updateTeamMember(record.id, record.toNetworkTeamMember()).body()
-                ?.toDatabase()
+                .updateTeamMember(record.id, record.toDatabaseModel().toNetworkModel()).body()
+                ?.toDatabaseModel()
 
             response?.let { manufacturingDao.updateTeamMember(it) }
             response?.let { send(it.toDomainTeamMember()) }
@@ -100,11 +89,7 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getCompanies()
             manufacturingDao.insertCompaniesAll(
-                ListTransformer(
-                    list,
-                    NetworkCompany::class,
-                    DatabaseCompany::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshCompanies: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -114,11 +99,7 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getDepartments()
             manufacturingDao.insertDepartmentsAll(
-                ListTransformer(
-                    list,
-                    NetworkDepartment::class,
-                    DatabaseDepartment::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -128,34 +109,19 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getSubDepartments()
             manufacturingDao.insertSubDepartmentsAll(
-                ListTransformer(
-                    list,
-                    NetworkSubDepartment::class,
-                    DatabaseSubDepartment::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshSubDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshSubDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshManufacturingChannels() {
         withContext(Dispatchers.IO) {
-            val list =
-                manufacturingService.getManufacturingChannels()
+            val list = manufacturingService.getManufacturingChannels()
             manufacturingDao.insertManufacturingChannelsAll(
-                ListTransformer(
-                    list,
-                    NetworkManufacturingChannel::class,
-                    DatabaseManufacturingChannel::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingChannels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshManufacturingChannels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -163,34 +129,19 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getManufacturingLines()
             manufacturingDao.insertManufacturingLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkManufacturingLine::class,
-                    DatabaseManufacturingLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshManufacturingLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshManufacturingOperations() {
         withContext(Dispatchers.IO) {
-            val list =
-                manufacturingService.getManufacturingOperations()
+            val list = manufacturingService.getManufacturingOperations()
             manufacturingDao.insertManufacturingOperationsAll(
-                ListTransformer(
-                    list,
-                    NetworkManufacturingOperation::class,
-                    DatabaseManufacturingOperation::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingOperations: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshManufacturingOperations: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -198,16 +149,9 @@ class ManufacturingRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = manufacturingService.getOperationsFlows()
             manufacturingDao.insertOperationsFlowsAll(
-                ListTransformer(
-                    list,
-                    NetworkOperationsFlow::class,
-                    DatabaseOperationsFlow::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshOperationsFlows: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshOperationsFlows: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
