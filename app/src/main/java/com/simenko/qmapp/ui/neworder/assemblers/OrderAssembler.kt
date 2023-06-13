@@ -25,7 +25,7 @@ fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
 fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderShort? {
 
     Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value?.subOrder}")
-    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value!!.order.reasonId}")
+    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value!!.order}")
 
     if(viewModel.currentSubOrder.value!!.order.reasonId == NoRecord.num) return null
 

@@ -52,8 +52,6 @@ fun SubOrderForm(
                         actionType = actionType
                     )
                 }
-            } else {
-                viewModel.currentSubOrder.value?.order?.reasonId = NoRecord.num
             }
             ButtonsSection(title = R.string.select_department) {
                 DepartmentsSelection(

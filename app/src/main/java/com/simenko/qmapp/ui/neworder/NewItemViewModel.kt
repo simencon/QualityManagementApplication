@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.neworder
 
 import android.util.Log
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -41,12 +42,22 @@ class NewItemViewModel @Inject constructor(
     )
 
     fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
-        viewModelScope.launch(Dispatchers.Main) {
-            currentSubOrder.value = DomainSubOrderShort(
-                if (subOrderId != NoRecord.num) repository.getSubOrderById(subOrderId)
-                else DomainSubOrder().copy(orderId = orderId, statusId = InvStatuses.TO_DO.statusId),
-                repository.getOrderById(orderId)
-            )
+        runBlocking {
+            currentSubOrder.value = when {
+                orderId == NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
+                    DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
+                )
+                orderId != NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
+                    DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), repository.getOrderById(orderId)
+                )
+                orderId != NoRecord.num && subOrderId != NoRecord.num -> DomainSubOrderShort(
+                    repository.getSubOrderById(subOrderId),
+                    repository.getOrderById(orderId),
+                    repository.getSamplesBySubOrderId(subOrderId).toMutableStateList(),
+                    repository.getTasksBySubOrderId(subOrderId).toMutableStateList()
+                )
+                else -> throw IllegalArgumentException("orderId = $orderId; subOrderId = $subOrderId")
+            }
         }
     }
 

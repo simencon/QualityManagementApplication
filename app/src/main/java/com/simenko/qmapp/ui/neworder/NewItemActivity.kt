@@ -313,8 +313,7 @@ class NewItemActivity : ComponentActivity() {
                                                                                 trigger = viewModel.pairedTrigger,
                                                                                 m = viewModel.inputForOrder
                                                                             )
-                                                                            val currentSubOrder =
-                                                                                viewModel.currentSubOrder.value!!
+                                                                            val currentSubOrder = viewModel.currentSubOrder.value!!
                                                                             filterAllAfterDepartments(
                                                                                 viewModel,
                                                                                 currentSubOrder.subOrder.departmentId
@@ -337,10 +336,8 @@ class NewItemActivity : ComponentActivity() {
                                                                             )
                                                                             filterAllAfterVersions(
                                                                                 viewModel,
-                                                                                StringUtils.concatTwoStrings4(
-                                                                                    currentSubOrder.subOrder.itemPreffix,
-                                                                                    currentSubOrder.subOrder.itemVersionId.toString()
-                                                                                )
+                                                                                currentSubOrder.subOrder.itemPreffix
+
                                                                             )
                                                                             filterAllAfterOperations(
                                                                                 viewModel,
@@ -348,8 +345,7 @@ class NewItemActivity : ComponentActivity() {
                                                                             )
                                                                             filterAllAfterQuantity(
                                                                                 viewModel,
-                                                                                currentSubOrder.subOrder.samplesCount
-                                                                                    ?: ZeroValue.num
+                                                                                currentSubOrder.subOrder.samplesCount ?: ZeroValue.num
                                                                             )
                                                                             filterAllAfterCharacteristics(
                                                                                 viewModel
