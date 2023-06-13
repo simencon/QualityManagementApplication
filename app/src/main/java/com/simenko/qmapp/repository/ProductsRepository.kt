@@ -4,11 +4,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.ProductsService
-import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.ProductsDao
-import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -228,21 +225,13 @@ class ProductsRepository @Inject constructor(
     }
 
     val characteristics: LiveData<List<DomainCharacteristic>> =
-        productsDao.getCharacteristics().map {
-            ListTransformer(
-                it,
-                DatabaseCharacteristic::class,
-                DomainCharacteristic::class
-            ).generateList()
+        productsDao.getCharacteristics().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val metrixes: LiveData<List<DomainMetrix>> =
-        productsDao.getMetrixes().map {
-            ListTransformer(
-                it,
-                DatabaseMetrix::class,
-                DomainMetrix::class
-            ).generateList()
+        productsDao.getMetrixes().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     suspend fun getMetricsByPrefixVersionIdActualityCharId(
@@ -254,166 +243,99 @@ class ProductsRepository @Inject constructor(
         val list = productsDao.getMetricsByPrefixVersionIdActualityCharId(
             prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()
         )
-        return ListTransformer(
-            list,
-            DatabaseMetrix::class, DomainMetrix::class
-        ).generateList()
+        return list.map { it.toDomainModel() }
     }
 
     fun metrixes(): Flow<List<DomainMetrix>> =
-        productsDao.getMetrixesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseMetrix::class,
-                DomainMetrix::class
-            ).generateList()
+        productsDao.getMetrixesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val keys: LiveData<List<DomainKey>> =
-        productsDao.getKeys().map {
-            ListTransformer(it, DatabaseKey::class, DomainKey::class).generateList()
+        productsDao.getKeys().map { list ->
+            list.map { it.toDomainModel() }
         }
     val productBases: LiveData<List<DomainProductBase>> =
-        productsDao.getProductBases().map {
-            ListTransformer(it, DatabaseProductBase::class, DomainProductBase::class).generateList()
+        productsDao.getProductBases().map { list ->
+            list.map { it.toDomainModel() }
         }
     val products: LiveData<List<DomainProduct>> =
-        productsDao.getProducts().map {
-            ListTransformer(it, DatabaseProduct::class, DomainProduct::class).generateList()
+        productsDao.getProducts().map { list ->
+            list.map { it.toDomainModel() }
         }
     val components: LiveData<List<DomainComponent>> =
-        productsDao.getComponents().map {
-            ListTransformer(it, DatabaseComponent::class, DomainComponent::class).generateList()
+        productsDao.getComponents().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentInStages: LiveData<List<DomainComponentInStage>> =
-        productsDao.getComponentInStages().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStage::class,
-                DomainComponentInStage::class
-            ).generateList()
+        productsDao.getComponentInStages().map { list ->
+            list.map { it.toDomainModel() }
         }
     val versionStatuses: LiveData<List<DomainVersionStatus>> =
-        productsDao.getVersionStatuses().map {
-            ListTransformer(
-                it,
-                DatabaseVersionStatus::class,
-                DomainVersionStatus::class
-            ).generateList()
+        productsDao.getVersionStatuses().map { list ->
+            list.map { it.toDomainModel() }
         }
     val productVersions: LiveData<List<DomainProductVersion>> =
-        productsDao.getProductVersions().map {
-            ListTransformer(
-                it,
-                DatabaseProductVersion::class,
-                DomainProductVersion::class
-            ).generateList()
+        productsDao.getProductVersions().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentVersions: LiveData<List<DomainComponentVersion>> =
-        productsDao.getComponentVersions().map {
-            ListTransformer(
-                it,
-                DatabaseComponentVersion::class,
-                DomainComponentVersion::class
-            ).generateList()
+        productsDao.getComponentVersions().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentInStageVersions: LiveData<List<DomainComponentInStageVersion>> =
-        productsDao.getComponentInStageVersions().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageVersion::class,
-                DomainComponentInStageVersion::class
-            ).generateList()
+        productsDao.getComponentInStageVersions().map { list ->
+            list.map { it.toDomainModel() }
         }
     val productTolerances: LiveData<List<DomainProductTolerance>> =
-        productsDao.getProductTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseProductTolerance::class,
-                DomainProductTolerance::class
-            ).generateList()
+        productsDao.getProductTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun productTolerances(): Flow<List<DomainProductTolerance>> =
-        productsDao.getProductTolerancesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseProductTolerance::class,
-                DomainProductTolerance::class
-            ).generateList()
+        productsDao.getProductTolerancesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val componentTolerances: LiveData<List<DomainComponentTolerance>> =
-        productsDao.getComponentTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseComponentTolerance::class,
-                DomainComponentTolerance::class
-            ).generateList()
+        productsDao.getComponentTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun componentTolerances(): Flow<List<DomainComponentTolerance>> =
-        productsDao.getComponentTolerancesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseComponentTolerance::class,
-                DomainComponentTolerance::class
-            ).generateList()
+        productsDao.getComponentTolerancesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val componentInStageTolerances: LiveData<List<DomainComponentInStageTolerance>> =
-        productsDao.getComponentInStageTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageTolerance::class,
-                DomainComponentInStageTolerance::class
-            ).generateList()
+        productsDao.getComponentInStageTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun componentInStageTolerances(): Flow<List<DomainComponentInStageTolerance>> =
-        productsDao.getComponentInStageTolerancesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageTolerance::class,
-                DomainComponentInStageTolerance::class
-            ).generateList()
+        productsDao.getComponentInStageTolerancesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val productsToLines: LiveData<List<DomainProductToLine>> =
-        productsDao.getProductsToLines().map {
-            ListTransformer(
-                it,
-                DatabaseProductToLine::class,
-                DomainProductToLine::class
-            ).generateList()
+        productsDao.getProductsToLines().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentsToLines: LiveData<List<DomainComponentToLine>> =
-        productsDao.getComponentsToLines().map {
-            ListTransformer(
-                it,
-                DatabaseComponentToLine::class,
-                DomainComponentToLine::class
-            ).generateList()
+        productsDao.getComponentsToLines().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentInStagesToLines: LiveData<List<DomainComponentInStageToLine>> =
-        productsDao.getComponentInStagesToLines().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageToLine::class,
-                DomainComponentInStageToLine::class
-            ).generateList()
+        productsDao.getComponentInStagesToLines().map { list ->
+            list.map { it.toDomainModel() }
         }
     val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
-        productsDao.getItemVersionsComplete().map {
-            it.asDomainItem()
+        productsDao.getItemVersionsComplete().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val itemsTolerances: LiveData<List<DomainItemTolerance>> =
-        productsDao.getItemsTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseItemTolerance::class,
-                DomainItemTolerance::class
-            ).generateList()
+        productsDao.getItemsTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 }

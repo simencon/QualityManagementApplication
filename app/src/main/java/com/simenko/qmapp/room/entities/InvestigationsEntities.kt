@@ -4,7 +4,10 @@ import androidx.room.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.DatabaseBaseModel
+import com.simenko.qmapp.utils.NotificationData
+import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.ObjectTransformer
+import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 
 //    @ColumnInfo(name = "nameInTable")
@@ -552,7 +555,8 @@ data class DatabaseSampleComplete constructor(
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSampleComplete(
         sampleResult = sampleResult.toDomainModel(),
-        sample = sample.toDomainModel()
+        sample = sample.toDomainModel(),
+        detailsVisibility = false
     )
 }
 
@@ -728,7 +732,8 @@ data class DatabaseOrderComplete constructor(
         customer = customer.toDomainModel(),
         orderPlacer = orderPlacer.toDomainModel(),
         orderStatus = orderStatus.toDomainModel(),
-        orderResult = orderResult.toDomainModel()
+        orderResult = orderResult.toDomainModel(),
+        detailsVisibility = false
     )
 }
 
@@ -818,7 +823,25 @@ data class DatabaseSubOrderComplete constructor(
         line = line.toDomainModel(),
         operation = operation.toDomainModel(),
         itemVersionComplete = itemVersionComplete.toDomainModel(),
-        subOrderResult = subOrderResult.toDomainModel()
+        subOrderResult = subOrderResult.toDomainModel(),
+        detailsVisibility = false
+    )
+
+    fun toNotificationData(reason: NotificationReasons) = NotificationData(
+        orderId = subOrder.orderId,
+        subOrderId = subOrder.id,
+        orderNumber = orderShort.order.orderNumber,
+        subOrderStatus = status.statusDescription,
+        departmentAbbr = department.depAbbr,
+        channelAbbr = channel.channelAbbr,
+        itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
+            StringUtils.concatTwoStrings3(
+                itemVersionComplete.itemComplete.key.componentKey,
+                itemVersionComplete.itemComplete.item.itemDesignation
+            ),
+            itemVersionComplete.itemVersion.versionDescription
+        ),
+        notificationReason = reason
     )
 }
 
@@ -891,7 +914,8 @@ data class DatabaseSubOrderTaskComplete constructor(
         characteristic = characteristic.toDomainModel(),
         subOrder = subOrder.toDomainModel(),
         status = status.toDomainModel(),
-        taskResult = taskResult.toDomainModel()
+        taskResult = taskResult.toDomainModel(),
+        detailsVisibility = false
     )
 }
 
@@ -943,6 +967,7 @@ data class DatabaseResultComplete(
         result = result.toDomainModel(),
         resultsDecryption = resultsDecryption.toDomainModel(),
         metrix = metrix.toDomainModel(),
-        resultTolerance = resultTolerance.toDomainModel()
+        resultTolerance = resultTolerance.toDomainModel(),
+        detailsVisibility = false
     )
 }

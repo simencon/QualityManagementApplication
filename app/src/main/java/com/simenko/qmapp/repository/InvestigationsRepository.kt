@@ -12,7 +12,6 @@ import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
-import com.simenko.qmapp.utils.ListTransformer
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.StringUtils
@@ -22,7 +21,6 @@ import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
 import okhttp3.ResponseBody
 import retrofit2.Converter
-import retrofit2.HttpException
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -148,25 +146,6 @@ class InvestigationsRepository @Inject constructor(
             }
             Log.d(TAG, "refreshOrders: ${timeFormatter.format(Instant.now())}")
         }
-    }
-
-    private fun DatabaseSubOrderComplete.toNotificationData(reason: NotificationReasons): NotificationData {
-        return NotificationData(
-            orderId = subOrder.orderId,
-            subOrderId = subOrder.id,
-            orderNumber = orderShort.order.orderNumber,
-            subOrderStatus = status.statusDescription,
-            departmentAbbr = department.depAbbr,
-            channelAbbr = channel.channelAbbr,
-            itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
-                StringUtils.concatTwoStrings3(
-                    itemVersionComplete.itemComplete.key.componentKey,
-                    itemVersionComplete.itemComplete.item.itemDesignation
-                ),
-                itemVersionComplete.itemVersion.versionDescription
-            ),
-            notificationReason = reason
-        )
     }
 
     suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
@@ -639,25 +618,25 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
         val newOrder = invService.createOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertOrder(newOrder)
-        send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+        send(newOrder.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
         val newRecord = invService.createSubOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertSubOrder(newRecord)
-        send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
         val newRecord = invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertSubOrderTask(newRecord)
-        send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
+        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertSample(record: DomainSample) = produce {
         val newRecord = invService.createSample(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
         invDao.insertSample(newRecord)
-        send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
+        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
@@ -727,13 +706,13 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
         val nOrder = invService.getOrder(record.id)
         invDao.updateOrder(nOrder.toDatabaseModel())
-        send(nOrder.toDatabaseModel().toDomainOrder())
+        send(nOrder.toDatabaseModel().toDomainModel())
     }
 
     fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
         val nSubOrder = invService.getSubOrder(record.id)
         invDao.updateSubOrder(nSubOrder.toDatabaseModel())
-        send(nSubOrder.toDatabaseModel().toDomainSubOrder())
+        send(nSubOrder.toDatabaseModel().toDomainModel())
     }
 
     fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
@@ -741,48 +720,38 @@ class InvestigationsRepository @Inject constructor(
         val nSubOrderTask = invService.getSubOrderTask(record.id)
         Log.d(TAG, "syncTask: $nSubOrderTask")
         invDao.updateSubOrderTask(nSubOrderTask.toDatabaseModel())
-        send(nSubOrderTask.toDatabaseModel().toDomainSubOrderTask())
+        send(nSubOrderTask.toDatabaseModel().toDomainModel())
     }
 
 //    ToDO - change this part to return exactly what is needed
 
     suspend fun getOrderById(id: Int): DomainOrder =
         invDao.getOrderById(id.toString()).let {
-            it?.toDomainOrder() ?: throw IOException("no such order in local DB")
+            it?.toDomainModel() ?: throw IOException("no such order in local DB")
         }
 
 
     suspend fun getSubOrderById(id: Int): DomainSubOrder =
         invDao.getSubOrderById(id.toString()).let {
-            it?.toDomainSubOrder() ?: throw IOException("no such sub order in local DB")
+            it?.toDomainModel() ?: throw IOException("no such sub order in local DB")
         }
 
 
     suspend fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
         val list = invDao.getTasksBySubOrderId(subOrderId.toString())
-        return ListTransformer(
-            list,
-            DatabaseSubOrderTask::class, DomainSubOrderTask::class
-        ).generateList()
+        return list.map { it.toDomainModel() }
     }
 
     suspend fun getSamplesBySubOrderId(subOrderId: Int): List<DomainSample> {
         val list = invDao.getSamplesBySubOrderId(subOrderId)
-        return ListTransformer(
-            list,
-            DatabaseSample::class, DomainSample::class
-        ).generateList()
+        return list.map { it.toDomainModel() }
     }
 
 //    -------------------------------------------------------------
 
     fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
-        invDao.getOrdersStatusesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseOrdersStatus::class,
-                DomainOrdersStatus::class
-            ).generateList()
+        invDao.getOrdersStatusesFlow().map {list ->
+            list.map { it.toDomainModel() }
         }.flowOn(Dispatchers.IO).conflate()
 
     suspend fun latestLocalOrderId(): Int {
@@ -794,30 +763,30 @@ class InvestigationsRepository @Inject constructor(
     suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
         val dbOrder = invDao.getOrderById(lastVisibleId.toString())
         return if (dbOrder != null)
-            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map {
-                it.asDomainOrdersComplete()
+            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map { list ->
+                list.map { it.toDomainModel() }
             }
         else flow { emit(listOf()) }
     }
 
     fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        invDao.getSubOrdersByDateRange(pair).map {
-            it.asDomainSubOrderDetailed()
+        invDao.getSubOrdersByDateRange(pair).map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        invDao.getTasksDateRange(pair).map {
-            it.asDomainSubOrderTask()
+        invDao.getTasksDateRange(pair).map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
-        invDao.getSamplesBySubOrder(subOrderId).map {
-            it.asDomainSamples()
+        invDao.getSamplesBySubOrder(subOrderId).map {list ->
+            list.map { it.toDomainModel() }
         }
 
     fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        invDao.getResultsBySubOrder(subOrderId).map {
-            it.asDomainResults()
+        invDao.getResultsBySubOrder(subOrderId).map { list ->
+            list.map { it.toDomainModel() }
         }
 
 
@@ -825,43 +794,27 @@ class InvestigationsRepository @Inject constructor(
      * New order related data
      * */
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        invDao.getInputForOrder().map {
-            ListTransformer(
-                it,
-                DatabaseInputForOrder::class,
-                DomainInputForOrder::class
-            ).generateList().sortedBy { item -> item.depOrder }
+        invDao.getInputForOrder().map {list ->
+            list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
         }
 
     val investigationTypes: LiveData<List<DomainOrdersType>> =
-        invDao.getOrdersTypes().map {
-            ListTransformer(
-                it,
-                DatabaseOrdersType::class,
-                DomainOrdersType::class
-            ).generateList()
+        invDao.getOrdersTypes().map {list ->
+            list.map { it.toDomainModel() }
         }
 
     val investigationReasons: LiveData<List<DomainReason>> =
-        invDao.getMeasurementReasons().map {
-            ListTransformer(
-                it,
-                DatabaseReason::class,
-                DomainReason::class
-            ).generateList()
+        invDao.getMeasurementReasons().map {list ->
+            list.map { it.toDomainModel() }
         }
 
     val orders: LiveData<List<DomainOrder>> =
-        invDao.getOrders().map {
-            ListTransformer(
-                it,
-                DatabaseOrder::class,
-                DomainOrder::class
-            ).generateList()
+        invDao.getOrders().map {list ->
+            list.map { it.toDomainModel() }
         }
 
     val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
-        invDao.getSubOrderWithChildren().map {
-            it.toDomainSubOrderShort()
+        invDao.getSubOrderWithChildren().map { list ->
+            list.map { it.toDomainModel() }
         }
 }
