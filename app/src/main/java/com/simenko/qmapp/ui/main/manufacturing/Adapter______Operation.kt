@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemOperationBinding
-import com.simenko.qmapp.domain.DomainManufacturingOperation
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 
 class OperationClick(val block: (DomainManufacturingOperation, Int) -> Unit) {
     fun onClick(operation: DomainManufacturingOperation, position: Int) = block(operation, position)

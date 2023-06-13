@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -167,7 +168,7 @@ fun Orders(
 @Composable
 fun OrderCard(
     modifier: Modifier = Modifier,
-    order: DomainOrderComplete,
+    order: DomainOrderComplete = DomainOrderComplete(),
     onClickDetails: (Int) -> Unit,
     cardOffset: Float,
     onClickActions: (Int) -> Unit,
@@ -623,67 +624,3 @@ fun MyOrderPreview() {
 //        )
     }
 }
-
-fun getOrders() = List(30) { i ->
-
-    DomainOrderComplete(
-        order = getOrder(i),
-        orderType = getType(),
-        orderReason = getReason(),
-        customer = DomainDepartment(
-            1,
-            "ГШСК№1",
-            "Група шліфувально-складальних ліній",
-            1,
-            "Manufacturing",
-            1,
-            1
-        ),
-        orderPlacer = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Роман Семенишин",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        orderStatus = DomainOrdersStatus(1, "In Progress"),
-        detailsVisibility = true,
-        orderResult = getOrderResult()
-    )
-}
-
-fun getOrder(i: Int) = DomainOrder(
-    id = i,
-    1,
-    1,
-    orderNumber = (100..300).random(),
-    1,
-    1,
-    1,
-    getMillisecondsDate("2022-12-15T22:24:43+03:00")?: NoRecord.num.toLong(),
-    null
-)
-
-fun getType() = DomainOrdersType(
-    1,
-    "Incoming Inspection"
-)
-
-fun getReason() = DomainReason(
-    1,
-    "Налагоджульник",
-    "FLI",
-    1
-)
-
-fun getOrderResult() = DomainOrderResult(
-    id = 0,
-    isOk = true,
-    good = 10,
-    total = 10
-)

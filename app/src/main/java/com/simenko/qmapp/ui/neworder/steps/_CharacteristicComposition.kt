@@ -17,21 +17,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.simenko.qmapp.domain.DomainCharacteristic
-import com.simenko.qmapp.domain.DomainManufacturingOperation
-import com.simenko.qmapp.domain.DomainSubOrderTask
-import com.simenko.qmapp.ui.common.scrollToSelectedItem
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.DomainSubOrderTask
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400
-import com.simenko.qmapp.utils.StringUtils
-import kotlinx.coroutines.launch
-
-private const val TAG = "InputInvestigationTypeComposition"
+import com.simenko.qmapp.utils.InvStatuses
 
 fun filterAllAfterCharacteristics(
     appModel: NewItemViewModel,
-    selectedId: Int = 0,
+    selectedId: Int = NoRecord.num,
     clear: Boolean = false
 ) {
     if (clear) {
@@ -43,13 +39,15 @@ fun filterAllAfterCharacteristics(
             true -> {
                 val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
                 appModel.currentSubOrder.value?.subOrderTasks?.find {
-                    it.charId == selectedId && it.subOrderId == (subOrderId ?: 0)
+                    it.charId == selectedId && it.subOrderId == (subOrderId ?: NoRecord.num)
                 }.let {
                     if (it == null)
                         appModel.currentSubOrder.value?.subOrderTasks?.add(
-                            getEmptySubOrderTask(
-                                selectedId,
-                                subOrderId ?: 0
+                            DomainSubOrderTask().copy(
+                                statusId = InvStatuses.TO_DO.statusId,
+                                subOrderId = subOrderId ?: NoRecord.num,
+                                charId = selectedId,
+                                isNewRecord = true
                             )
                         )
                     else

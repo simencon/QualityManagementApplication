@@ -1,6 +1,7 @@
-package com.simenko.qmapp.domain
+package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
+import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
@@ -46,7 +47,7 @@ data class DomainInputForOrder constructor(
 
 @Stable
 data class DomainOrdersStatus constructor(
-    var id: Int,
+    var id: Int = NoRecord.num,
     var statusDescription: String? = null,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseOrdersStatus>() {
@@ -63,7 +64,7 @@ data class DomainOrdersStatus constructor(
 
 @Stable
 data class DomainOrdersType constructor(
-    var id: Int,
+    var id: Int = NoRecord.num,
     var typeDescription: String? = null,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseOrdersType>() {
@@ -80,7 +81,7 @@ data class DomainOrdersType constructor(
 
 @Stable
 data class DomainReason constructor(
-    var id: Int,
+    var id: Int = NoRecord.num,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null,
@@ -99,14 +100,14 @@ data class DomainReason constructor(
 
 @Stable
 data class DomainOrder constructor(
-    var id: Int,
-    var orderTypeId: Int,
-    var reasonId: Int,
+    var id: Int  = NoRecord.num,
+    var orderTypeId: Int = NoRecord.num,
+    var reasonId: Int = NoRecord.num,
     var orderNumber: Int? = null,
-    var customerId: Int,
-    var orderedById: Int,
-    var statusId: Int,
-    var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
+    var customerId: Int = NoRecord.num,
+    var orderedById: Int = NoRecord.num,
+    var statusId: Int = NoRecord.num,
+    var createdDate: Long = NoRecord.num.toLong(),//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
 ) : DomainBaseModel<DatabaseOrder>() {
     override fun getRecordId() = id
@@ -119,10 +120,10 @@ data class DomainOrder constructor(
 
 @Stable
 data class DomainOrderResult constructor(
-    var id: Int,
-    var isOk: Boolean?,
-    var good: Int?,
-    var total: Int?
+    var id: Int = NoRecord.num,
+    var isOk: Boolean? = null,
+    var good: Int? = null,
+    var total: Int? = null
 ) : DomainBaseModel<DatabaseOrderResult>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -134,24 +135,24 @@ data class DomainOrderResult constructor(
 
 @Stable
 data class DomainSubOrder constructor(
-    var id: Int,
-    var orderId: Int,
-    var subOrderNumber: Int,
-    var orderedById: Int,
+    var id: Int = NoRecord.num,
+    var orderId: Int = NoRecord.num,
+    var subOrderNumber: Int = NoRecord.num,
+    var orderedById: Int = NoRecord.num,
     var completedById: Int? = null,
-    var statusId: Int,
-    var createdDate: Long,
+    var statusId: Int = NoRecord.num,
+    var createdDate: Long = NoRecord.num.toLong(),
     var completedDate: Long? = null,
-    var departmentId: Int,
-    var subDepartmentId: Int,
-    var channelId: Int,
-    var lineId: Int,
-    var operationId: Int,
-    var itemPreffix: String,
-    var itemTypeId: Int,
-    var itemVersionId: Int,
+    var departmentId: Int = NoRecord.num,
+    var subDepartmentId: Int = NoRecord.num,
+    var channelId: Int = NoRecord.num,
+    var lineId: Int = NoRecord.num,
+    var operationId: Int = NoRecord.num,
+    var itemPreffix: String = NoString.str,
+    var itemTypeId: Int = NoRecord.num,
+    var itemVersionId: Int = NoRecord.num,
     var samplesCount: Int? = null,
-    var remarkId: Int
+    var remarkId: Int = 1 //means no remark
 ) : DomainBaseModel<DatabaseSubOrder>() {
     override fun getRecordId() = id
     override fun getParentId() = orderId
@@ -163,10 +164,10 @@ data class DomainSubOrder constructor(
 
 @Stable
 data class DomainSubOrderResult constructor(
-    var id: Int,
-    var isOk: Boolean?,
-    var good: Int?,
-    var total: Int?
+    var id: Int = NoRecord.num,
+    var isOk: Boolean? = null,
+    var good: Int? = null,
+    var total: Int? = null
 ) : DomainBaseModel<DatabaseSubOrderResult>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -178,10 +179,10 @@ data class DomainSubOrderResult constructor(
 
 @Stable
 data class DomainSubOrderTask constructor(
-    var id: Int,
-    var subOrderId: Int,
-    var charId: Int,
-    var statusId: Int,
+    var id: Int = NoRecord.num,
+    var subOrderId: Int = NoRecord.num,
+    var charId: Int = NoRecord.num,
+    var statusId: Int = NoRecord.num,
     var createdDate: Long? = null,
     var completedDate: Long? = null,
     var orderedById: Int? = null,
@@ -199,10 +200,10 @@ data class DomainSubOrderTask constructor(
 
 @Stable
 data class DomainTaskResult constructor(
-    var id: Int,
-    var isOk: Boolean?,
-    var good: Int?,
-    var total: Int?
+    var id: Int = NoRecord.num,
+    var isOk: Boolean? = null,
+    var good: Int? = null,
+    var total: Int? = null
 ) : DomainBaseModel<DatabaseTaskResult>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -214,8 +215,8 @@ data class DomainTaskResult constructor(
 
 @Stable
 data class DomainSample constructor(
-    var id: Int,
-    var subOrderId: Int,
+    var id: Int = NoRecord.num,
+    var subOrderId: Int = NoRecord.num,
     var sampleNumber: Int? = null,
     var isNewRecord: Boolean = false,
     var toBeDeleted: Boolean = false
@@ -230,11 +231,11 @@ data class DomainSample constructor(
 
 @Stable
 data class DomainSampleResult constructor(
-    var id: Int,
-    var taskId: Int?,
-    var isOk: Boolean?,
-    var good: Int?,
-    var total: Int?
+    var id: Int = NoRecord.num,
+    var taskId: Int? = null,
+    var isOk: Boolean? = null,
+    var good: Int? = null,
+    var total: Int? = null
 ) : DomainBaseModel<DatabaseSampleResult>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -246,7 +247,7 @@ data class DomainSampleResult constructor(
 
 @Stable
 data class DomainResultsDecryption constructor(
-    var id: Int,
+    var id: Int = NoRecord.num,
     var resultDecryption: String? = null
 ) : DomainBaseModel<DatabaseResultsDecryption>() {
     override fun getRecordId() = id
@@ -259,13 +260,13 @@ data class DomainResultsDecryption constructor(
 
 @Stable
 data class DomainResult constructor(
-    var id: Int,
-    var sampleId: Int,
-    var metrixId: Int,
+    var id: Int = NoRecord.num,
+    var sampleId: Int = NoRecord.num,
+    var metrixId: Int = NoRecord.num,
     var result: Float? = null,
     var isOk: Boolean? = null,
-    var resultDecryptionId: Int,
-    var taskId: Int
+    var resultDecryptionId: Int = NoRecord.num,
+    var taskId: Int = NoRecord.num
 ) : DomainBaseModel<DatabaseResult>() {
     override fun getRecordId() = id
     override fun getParentId() = 31 * sampleId + taskId
@@ -277,9 +278,9 @@ data class DomainResult constructor(
 
 @Stable
 data class DomainOrderShort constructor(
-    val order: DomainOrder,
-    val orderType: DomainOrdersType,
-    val orderReason: DomainReason
+    val order: DomainOrder = DomainOrder(),
+    val orderType: DomainOrdersType = DomainOrdersType(),
+    val orderReason: DomainReason = DomainReason()
 ) : DomainBaseModel<DatabaseOrderShort>() {
     override fun getRecordId() = order.getRecordId()
     override fun getParentId() = order.getParentId()
@@ -314,13 +315,13 @@ data class DomainSubOrderShort constructor(
 
 @Stable
 data class DomainOrderComplete constructor(
-    var order: DomainOrder,
-    var orderType: DomainOrdersType,
-    var orderReason: DomainReason,
-    var customer: DomainDepartment,
-    var orderPlacer: DomainTeamMember,
-    var orderStatus: DomainOrdersStatus,
-    var orderResult: DomainOrderResult,
+    var order: DomainOrder = DomainOrder(),
+    var orderType: DomainOrdersType = DomainOrdersType(),
+    var orderReason: DomainReason = DomainReason(),
+    var customer: DomainDepartment = DomainDepartment(),
+    var orderPlacer: DomainTeamMember = DomainTeamMember(),
+    var orderStatus: DomainOrdersStatus = DomainOrdersStatus(),
+    var orderResult: DomainOrderResult = DomainOrderResult(),
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseOrderComplete>() {
@@ -342,18 +343,18 @@ data class DomainOrderComplete constructor(
 
 @Stable
 data class DomainSubOrderComplete constructor(
-    var subOrder: DomainSubOrder,
-    var orderShort: DomainOrderShort,
-    var orderedBy: DomainTeamMember,
-    var completedBy: DomainTeamMember?,
-    var status: DomainOrdersStatus,
-    var department: DomainDepartment,
-    var subDepartment: DomainSubDepartment,
-    var channel: DomainManufacturingChannel,
-    var line: DomainManufacturingLine,
-    var operation: DomainManufacturingOperation,
-    var itemVersionComplete: DomainItemVersionComplete,
-    var subOrderResult: DomainSubOrderResult,
+    var subOrder: DomainSubOrder = DomainSubOrder(),
+    var orderShort: DomainOrderShort = DomainOrderShort(),
+    var orderedBy: DomainTeamMember = DomainTeamMember(),
+    var completedBy: DomainTeamMember? = null,
+    var status: DomainOrdersStatus = DomainOrdersStatus(),
+    var department: DomainDepartment = DomainDepartment(),
+    var subDepartment: DomainSubDepartment = DomainSubDepartment(),
+    var channel: DomainManufacturingChannel = DomainManufacturingChannel(),
+    var line: DomainManufacturingLine = DomainManufacturingLine(),
+    var operation: DomainManufacturingOperation = DomainManufacturingOperation(),
+    var itemVersionComplete: DomainItemVersionComplete = DomainItemVersionComplete(),
+    var subOrderResult: DomainSubOrderResult = DomainSubOrderResult(),
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseSubOrderComplete>() {
@@ -380,11 +381,11 @@ data class DomainSubOrderComplete constructor(
 
 @Stable
 data class DomainSubOrderTaskComplete constructor(
-    var subOrderTask: DomainSubOrderTask,
-    var characteristic: DomainCharacteristicComplete,
-    var status: DomainOrdersStatus,
-    var subOrder: DomainSubOrder,
-    var taskResult: DomainTaskResult,
+    var subOrderTask: DomainSubOrderTask = DomainSubOrderTask(),
+    var characteristic: DomainCharacteristicComplete = DomainCharacteristicComplete(),
+    var status: DomainOrdersStatus = DomainOrdersStatus(),
+    var subOrder: DomainSubOrder = DomainSubOrder(),
+    var taskResult: DomainTaskResult = DomainTaskResult(),
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseSubOrderTaskComplete>() {
@@ -404,8 +405,8 @@ data class DomainSubOrderTaskComplete constructor(
 
 @Stable
 data class DomainSampleComplete constructor(
-    var sampleResult: DomainSampleResult,
-    var sample: DomainSample,
+    var sampleResult: DomainSampleResult = DomainSampleResult(),
+    var sample: DomainSample = DomainSample(),
     var detailsVisibility: Boolean = false
 ) : DomainBaseModel<DatabaseSampleComplete>() {
     override fun getRecordId() = sample.getRecordId()
@@ -421,10 +422,10 @@ data class DomainSampleComplete constructor(
 
 @Stable
 data class DomainResultComplete(
-    var result: DomainResult,
-    var resultsDecryption: DomainResultsDecryption,
-    var metrix: DomainMetrix,
-    var resultTolerance: DomainResultTolerance,
+    var result: DomainResult = DomainResult(),
+    var resultsDecryption: DomainResultsDecryption = DomainResultsDecryption(),
+    var metrix: DomainMetrix = DomainMetrix(),
+    var resultTolerance: DomainResultTolerance = DomainResultTolerance(),
     var detailsVisibility: Boolean = false
 ) : DomainBaseModel<DatabaseResultComplete>() {
     override fun getRecordId() = result.getRecordId()

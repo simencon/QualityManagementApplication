@@ -15,6 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainSample
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Accent200
 import com.simenko.qmapp.utils.StringUtils
@@ -33,8 +37,8 @@ fun filterAllAfterQuantity(
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
         p1Id = samplesQuantity,
-        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix ?: "",
-        p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: 0,
+        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix ?: NoString.str,
+        p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: NoRecord.num,
         pFlow = appModel.operationsFlows.value,
         m = appModel.inputForOrder,
         step = FilteringStep.CHARACTERISTICS
@@ -45,7 +49,7 @@ fun filterAllAfterQuantity(
         appModel.currentSubOrder.value?.subOrderTasks?.forEach { it.toBeDeleted = true }
 
         val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
-        var currentSize = 0
+        var currentSize = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.forEach {
             if (it.isNewRecord || !it.toBeDeleted)
                 currentSize++
@@ -53,12 +57,14 @@ fun filterAllAfterQuantity(
 
         if (samplesQuantity > currentSize) {
             for (q in (currentSize + 1)..samplesQuantity)
-                if ((appModel.currentSubOrder.value?.samples?.size ?: 0) >= q &&
+                if ((appModel.currentSubOrder.value?.samples?.size ?: ZeroValue.num) >= q &&
                     appModel.currentSubOrder.value?.samples?.get(q - 1)?.isNewRecord == false
                 )
                     appModel.currentSubOrder.value?.samples?.get(q - 1)?.toBeDeleted = false
                 else
-                    appModel.currentSubOrder.value?.samples?.add(getEmptySample(q, subOrderId ?: 0))
+                    appModel.currentSubOrder.value?.samples?.add(
+                        DomainSample().copy(subOrderId = subOrderId ?: NoRecord.num, sampleNumber = q, isNewRecord = true)
+                    )
         } else if (samplesQuantity < currentSize) {
             for (q in currentSize downTo samplesQuantity + 1)
                 if (appModel.currentSubOrder.value?.samples?.get(q - 1)?.isNewRecord != false)
@@ -109,27 +115,27 @@ fun QuantitySelection(
                 .height(120.dp)
                 .padding(horizontal = 16.dp)
         ) {
-            if (first?.subOrder?.operationId != 0)
+            if (first?.subOrder?.operationId != NoRecord.num)
                 AndroidView(
                     modifier = modifier.width(224.dp),
                     factory = { context ->
                         NumberPicker(context).apply {
                             setOnValueChangedListener { picker, oldVal, newVal ->
                                 appModel!!.currentSubOrder.value?.subOrder?.samplesCount = newVal
-                                if (oldVal == 0 || newVal == 0)
+                                if (oldVal == ZeroValue.num || newVal == ZeroValue.num)
                                     filterAllAfterQuantity(appModel, newVal, true)
                                 else
                                     filterAllAfterQuantity(appModel, newVal, true)
                             }
                             scaleX = 1f
                             scaleY = 1f
-                            minValue = 0
+                            minValue = ZeroValue.num
                             maxValue = 10
-                            this.value = first?.subOrder?.samplesCount ?: 0
+                            this.value = first?.subOrder?.samplesCount ?: ZeroValue.num
                         }
                     },
                     update = {
-                        it.value = first?.subOrder?.samplesCount ?: 0
+                        it.value = first?.subOrder?.samplesCount ?: ZeroValue.num
                     }
                 )
         }

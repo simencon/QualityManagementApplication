@@ -1,8 +1,7 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
-import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.domain.DomainItemComplete
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.DatabaseBaseModel
 import com.simenko.qmapp.utils.ObjectTransformer

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.neworder.steps.*
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -52,7 +53,7 @@ fun SubOrderForm(
                     )
                 }
             } else {
-                viewModel.currentSubOrder.value?.order?.reasonId = -1
+                viewModel.currentSubOrder.value?.order?.reasonId = NoRecord.num
             }
             ButtonsSection(title = R.string.select_department) {
                 DepartmentsSelection(

@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -205,7 +206,7 @@ fun SubOrderTaskCard(
 fun SubOrderTask(
     modifier: Modifier = Modifier,
     onClickDetails: () -> Unit = {},
-    subOrderTask: DomainSubOrderTaskComplete = getSubOrderTasks()[0],
+    subOrderTask: DomainSubOrderTaskComplete = DomainSubOrderTaskComplete(),
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
     Column(
@@ -464,30 +465,3 @@ fun MySubOrderTaskPreview() {
         )
     }
 }
-
-fun getSubOrderTasks() = List(30) {
-    DomainSubOrderTaskComplete(
-        subOrderTask = DomainSubOrderTask(
-            id = 1,
-            statusId = 1,
-            completedDate = null,
-            createdDate = null,
-            subOrderId = 1,
-            charId = 1
-        ),
-        characteristic = DomainCharacteristicComplete(),
-        subOrder = getSubOrder(),
-        status = DomainOrdersStatus(
-            id = 1,
-            statusDescription = "In Progress"
-        ),
-        taskResult = getTaskResult()
-    )
-}
-
-fun getTaskResult() = DomainTaskResult(
-    id = 0,
-    isOk = true,
-    good = 10,
-    total = 10
-)

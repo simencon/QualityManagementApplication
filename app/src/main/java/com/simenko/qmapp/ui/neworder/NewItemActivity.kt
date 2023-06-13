@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
@@ -92,7 +93,7 @@ class NewItemActivity : ComponentActivity() {
 
         viewModel = ViewModelProvider(this)[NewItemViewModel::class.java]
 
-        actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, -1)]
+        actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, NoRecord.num)]
 
         orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: NoRecord.num
         subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: NoRecord.num
@@ -189,7 +190,7 @@ class NewItemActivity : ComponentActivity() {
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
                                 actionType = actionTypeEnum,
-                                parentId = 0,
+                                parentId = NoRecord.num,
                             )
                         }
                         actionTypeEnum == ActionType.EDIT_ORDER -> {
@@ -197,7 +198,7 @@ class NewItemActivity : ComponentActivity() {
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
                                 actionType = actionTypeEnum,
-                                parentId = 0,
+                                parentId = NoRecord.num,
                             )
                         }
                         (actionTypeEnum == ActionType.ADD_SUB_ORDER ||
@@ -206,7 +207,7 @@ class NewItemActivity : ComponentActivity() {
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
                                 actionType = actionTypeEnum,
-                                parentId = 0,
+                                parentId = NoRecord.num,
                             )
                         }
                         (actionTypeEnum == ActionType.EDIT_SUB_ORDER ||
@@ -215,7 +216,7 @@ class NewItemActivity : ComponentActivity() {
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
                                 actionType = actionTypeEnum,
-                                parentId = 0,
+                                parentId = NoRecord.num,
                             )
                         }
                     }
@@ -290,8 +291,7 @@ class NewItemActivity : ComponentActivity() {
                                                                     }
 
                                                                     ActionType.ADD_SUB_ORDER -> {
-                                                                        viewModel.currentSubOrder.value?.subOrder?.orderId =
-                                                                            orderId
+                                                                        viewModel.prepareCurrentSubOrder(orderId, subOrderId)
                                                                         viewModel.departmentsMutable.performFiltration(
                                                                             s = viewModel.departments,
                                                                             action = FilteringMode.ADD_ALL_FROM_META_TABLE,
@@ -305,9 +305,7 @@ class NewItemActivity : ComponentActivity() {
                                                                         viewModel.subOrdersWithChildren.observe(
                                                                             this
                                                                         ) {
-                                                                            viewModel.loadCurrentSubOrder(
-                                                                                subOrderId
-                                                                            )
+                                                                            viewModel.prepareCurrentSubOrder(orderId, subOrderId)
 
                                                                             viewModel.departmentsMutable.performFiltration(
                                                                                 s = viewModel.departments,
@@ -351,7 +349,7 @@ class NewItemActivity : ComponentActivity() {
                                                                             filterAllAfterQuantity(
                                                                                 viewModel,
                                                                                 currentSubOrder.subOrder.samplesCount
-                                                                                    ?: 0
+                                                                                    ?: ZeroValue.num
                                                                             )
                                                                             filterAllAfterCharacteristics(
                                                                                 viewModel

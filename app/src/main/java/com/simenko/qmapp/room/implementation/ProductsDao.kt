@@ -2,7 +2,6 @@ package com.simenko.qmapp.room.implementation
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.simenko.qmapp.domain.DomainOrder
 import com.simenko.qmapp.room.entities.*
 import kotlinx.coroutines.flow.Flow
 

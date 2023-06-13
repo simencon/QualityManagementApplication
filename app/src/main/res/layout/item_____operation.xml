@@ -11,7 +11,7 @@
 
         <variable
             name="manOperation"
-            type="com.simenko.qmapp.domain.DomainManufacturingOperation" />
+            type="com.simenko.qmapp.domain.entities.DomainManufacturingOperation" />
 
         <variable
             name="manOperationCallback"

@@ -1,13 +1,16 @@
-package com.simenko.qmapp.domain
+package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
+import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable
 data class DomainElementIshModel constructor(
     var id: Int = NoRecord.num,
-    var ishElement: String? = "Microgeometry"
+    var ishElement: String? = null
 ) : DomainBaseModel<DatabaseElementIshModel>() {
     override fun getRecordId() = id
 
@@ -23,8 +26,8 @@ data class DomainElementIshModel constructor(
 @Stable
 data class DomainIshSubCharacteristic constructor(
     var id: Int = NoRecord.num,
-    var ishElement: String? = "Roughness",
-    var measurementGroupRelatedTime: Double? = 0.24
+    var ishElement: String? = null,
+    var measurementGroupRelatedTime: Double? = null
 ) : DomainBaseModel<DatabaseIshSubCharacteristic>() {
     override fun getRecordId() = id
 
@@ -69,12 +72,12 @@ data class DomainCharacteristic constructor(
     var id: Int = NoRecord.num,
     var ishCharId: Int = NoRecord.num,
     var charOrder: Int? = null,
-    var charDesignation: String? = "Ra d",
-    var charDescription: String? = "Шорсткість отвору внутрішнього кількця",
+    var charDesignation: String? = null,
+    var charDescription: String? = null,
     var ishSubChar: Int = NoRecord.num,
     var projectId: Int = NoRecord.num,
-    var sampleRelatedTime: Double? = 0.12,
-    var measurementRelatedTime: Double? = 0.21,
+    var sampleRelatedTime: Double? = null,
+    var measurementRelatedTime: Double? = null,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseCharacteristic>() {
     override fun getRecordId() = id
@@ -125,9 +128,9 @@ data class DomainMetrix constructor(
     var id: Int = NoRecord.num,
     var charId: Int = NoRecord.num,
     var metrixOrder: Int? = null,
-    var metrixDesignation: String? = "Ra C",
-    var metrixDescription: String? = "Шорсткість базового торця зовнішнього кільця",
-    var units: String? = "мкм"
+    var metrixDesignation: String? = null,
+    var metrixDescription: String? = null,
+    var units: String? = null
 ) : DomainBaseModel<DatabaseMetrix>() {
     override fun getRecordId() = id
 
@@ -142,9 +145,9 @@ data class DomainMetrix constructor(
 
 data class DomainKey(
     var id: Int = NoRecord.num,
-    var projectId: Int? = NoRecord.num,
-    var componentKey: String? = "IR",
-    var componentKeyDescription: String? = "Внутрішнє кільце після шліфувальної обробки"
+    var projectId: Int? = null,
+    var componentKey: String? = null,
+    var componentKeyDescription: String? = null
 ) : DomainBaseModel<DatabaseKey>() {
     override fun getRecordId() = id
 
@@ -226,7 +229,7 @@ data class DomainComponentInStage(
 
 data class DomainVersionStatus(
     var id: Int = NoRecord.num,
-    var statusDescription: String? = "Done"
+    var statusDescription: String? = null
 ) : DomainBaseModel<DatabaseVersionStatus>() {
     override fun getRecordId() = id
 
@@ -299,9 +302,9 @@ data class DomainComponentInStageVersion(
 @Stable
 data class DomainResultTolerance(
     var id: Int = NoRecord.num,
-    var nominal: Float? = 180000.0f,
-    var lsl: Float? = -10.5f,
-    var usl: Float? = 12.2f
+    var nominal: Float? = null,
+    var lsl: Float? = null,
+    var usl: Float? = null
 ) : DomainBaseModel<DatabaseResultTolerance>() {
     override fun getRecordId() = id
 
@@ -446,9 +449,9 @@ data class DomainComponentInStageToLine(
 
 data class DomainItem(
     var id: Int = NoRecord.num,
-    val fId: String = "c-1",
-    var keyId: Int? = NoRecord.num,
-    var itemDesignation: String? = "32024"
+    val fId: String = NoString.str,
+    var keyId: Int? = null,
+    var itemDesignation: String? = null
 ) : DomainBaseModel<DatabaseItem>() {
     override fun getRecordId() = id
 
@@ -463,10 +466,10 @@ data class DomainItem(
 
 data class DomainItemToLine(
     var id: Int = NoRecord.num,
-    var fId: String = "c-1",
+    var fId: String = NoString.str,
     var lineId: Int = NoRecord.num,
     var itemId: Int = NoRecord.num,
-    val fItemId: String = "c-1"
+    val fItemId: String = NoString.str
 ) : DomainBaseModel<DatabaseItemToLine>() {
     override fun getRecordId() = id
 
@@ -484,9 +487,9 @@ data class DomainItemVersion(
     var fId: String = NoString.str,
     var itemId: Int = NoRecord.num,
     var fItemId: String = NoString.str,
-    var versionDescription: String? = "V.01",
-    var versionDate: String? = "2022-12-15T22:24:43",
-    var statusId: Int? = 1,
+    var versionDescription: String? = null,
+    var versionDate: String? = null,
+    var statusId: Int? = null,
     var isDefault: Boolean = false
 ) : DomainBaseModel<DatabaseItemVersion>() {
     override fun getRecordId() = id

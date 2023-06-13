@@ -24,6 +24,7 @@ abstract class DomainBaseModel <out T> {
 @JvmInline
 value class SelectedNumber(val num: Int)
 val NoRecord = SelectedNumber(-1)
+val ZeroValue = SelectedNumber(0)
 val OrderTypeProcessOnly = SelectedNumber(3)
 
 @JvmInline

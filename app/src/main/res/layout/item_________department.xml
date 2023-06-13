@@ -18,7 +18,7 @@
 
         <variable
             name="department"
-            type="com.simenko.qmapp.domain.DomainDepartmentComplete" />
+            type="com.simenko.qmapp.domain.entities.DomainDepartmentComplete" />
 
         <variable
             name="departmentCallback"

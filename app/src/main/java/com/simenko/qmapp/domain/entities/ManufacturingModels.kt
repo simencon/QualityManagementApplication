@@ -1,6 +1,9 @@
-package com.simenko.qmapp.domain
+package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
+import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
@@ -87,8 +90,8 @@ data class DomainDepartment(
 
 @Stable
 data class DomainSubDepartment(
-    var id: Int,
-    var depId: Int,
+    var id: Int = NoRecord.num,
+    var depId: Int = NoRecord.num,
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null,
@@ -108,8 +111,8 @@ data class DomainSubDepartment(
 
 @Stable
 data class DomainManufacturingChannel(
-    var id: Int,
-    var subDepId: Int,
+    var id: Int = NoRecord.num,
+    var subDepId: Int = NoRecord.num,
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null,
@@ -129,11 +132,11 @@ data class DomainManufacturingChannel(
 
 @Stable
 data class DomainManufacturingLine(
-    var id: Int,
-    var chId: Int,
-    var lineAbbr: String,
-    var lineDesignation: String,
-    var lineOrder: Int,
+    var id: Int = NoRecord.num,
+    var chId: Int = NoRecord.num,
+    var lineAbbr: String = NoString.str,
+    var lineDesignation: String = NoString.str,
+    var lineOrder: Int = NoRecord.num,
     var operationVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingLine>() {
@@ -150,12 +153,12 @@ data class DomainManufacturingLine(
 
 @Stable
 data class DomainManufacturingOperation(
-    var id: Int,
-    var lineId: Int,
-    var operationAbbr: String,
-    var operationDesignation: String,
-    var operationOrder: Int,
-    var equipment: String?,
+    var id: Int = NoRecord.num,
+    var lineId: Int = NoRecord.num,
+    var operationAbbr: String = NoString.str,
+    var operationDesignation: String = NoString.str,
+    var operationOrder: Int = NoRecord.num,
+    var equipment: String? = null,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingOperation>() {

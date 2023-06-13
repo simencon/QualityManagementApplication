@@ -13,7 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainManufacturingChannel
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -46,12 +49,12 @@ fun filterAllAfterChannels(appModel: NewItemViewModel, selectedId: Int, clear: B
     selectSingleRecord(appModel.channelsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subOrder?.lineId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
-        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
-        appModel.currentSubOrder.value?.subOrder?.operationId = 0
-        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.lineId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = NoString.str
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.operationId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
         appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }

@@ -1,6 +1,8 @@
 package com.simenko.qmapp.utils
 
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.DomainOrderComplete
+import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
