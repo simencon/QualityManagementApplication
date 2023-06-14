@@ -10,7 +10,7 @@ data class NetworkPositionLevel(
     var id: Int,
     var levelDescription: String
 ) : NetworkBaseModel<DatabasePositionLevel> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabasePositionLevel {
         return ObjectTransformer(NetworkPositionLevel::class, DatabasePositionLevel::class).transform(this)
     }
@@ -28,7 +28,7 @@ data class NetworkTeamMember(
     var passWord: String? = null,
     var companyId: Int
 ) : NetworkBaseModel<DatabaseTeamMember> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseTeamMember {
         return ObjectTransformer(NetworkTeamMember::class, DatabaseTeamMember::class).transform(this)
     }
@@ -48,7 +48,7 @@ data class NetworkCompany constructor(
     var companyIndustrialClassification: String? = null,
     var companyManagerId: Int
 ) : NetworkBaseModel<DatabaseCompany> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseCompany {
         return ObjectTransformer(NetworkCompany::class, DatabaseCompany::class).transform(this)
     }
@@ -64,7 +64,7 @@ data class NetworkDepartment(
     val depOrder: Int?,
     val companyId: Int?
 ) : NetworkBaseModel<DatabaseDepartment> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseDepartment {
         return ObjectTransformer(NetworkDepartment::class, DatabaseDepartment::class).transform(this)
     }
@@ -78,7 +78,7 @@ data class NetworkSubDepartment(
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null
 ) : NetworkBaseModel<DatabaseSubDepartment> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseSubDepartment {
         return ObjectTransformer(NetworkSubDepartment::class, DatabaseSubDepartment::class).transform(this)
     }
@@ -92,7 +92,7 @@ data class NetworkManufacturingChannel(
     var channelDesignation: String? = null,
     var channelOrder: Int? = null
 ) : NetworkBaseModel<DatabaseManufacturingChannel> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseManufacturingChannel {
         return ObjectTransformer(NetworkManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
     }
@@ -106,7 +106,7 @@ data class NetworkManufacturingLine(
     var lineDesignation: String,
     var lineOrder: Int
 ) : NetworkBaseModel<DatabaseManufacturingLine> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseManufacturingLine {
         return ObjectTransformer(NetworkManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
     }
@@ -121,7 +121,7 @@ data class NetworkManufacturingOperation(
     var operationOrder: Int,
     var equipment: String?
 ) : NetworkBaseModel<DatabaseManufacturingOperation> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseManufacturingOperation {
         return ObjectTransformer(NetworkManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
     }
@@ -133,7 +133,7 @@ data class NetworkOperationsFlow(
     var currentOperationId: Int,
     var previousOperationId: Int
 ) : NetworkBaseModel<DatabaseOperationsFlow> {
-    override fun getId() = id
+    override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseOperationsFlow {
         return ObjectTransformer(NetworkOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
     }
