@@ -70,7 +70,7 @@ interface InvestigationsService {
     suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<NetworkSubOrder>
 
     @GET("subOrders/{id}")
-    suspend fun getSubOrder(@Path("id") id: Int): NetworkSubOrder
+    suspend fun getSubOrder(@Path("id") id: Int): Response<NetworkSubOrder>
 
     @GET("subOrderTasks/hashCode/{timeRange}")
     suspend fun getTasksHashCodeForDatePeriod(

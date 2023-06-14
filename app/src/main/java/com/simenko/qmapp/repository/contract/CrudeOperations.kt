@@ -1,6 +1,8 @@
 package com.simenko.qmapp.repository.contract
 
+import android.util.Log
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.entities.DomainOrder
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.retrofit.NetworkBaseModel
@@ -15,6 +17,8 @@ import retrofit2.Converter
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "CrudeOperations"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
@@ -138,11 +142,38 @@ class CrudeOperations @Inject constructor(
                     }
                 } else {
                     send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                    Log.d(TAG, "updateRecord: ${response.errorBody()?.run { errorConverter.convert(this) }}")
                 }
             }
         }.exceptionOrNull().also {
-            if (it != null)
-                send(Event(Resource.error("Network error", null)))
+            if (it != null) {
+                send(Event(Resource.error(it.message ?: "Network Error", null)))
+                Log.d(TAG, "updateRecord: $it")
+            }
+        }
+    }
+
+    fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.getRecord(
+        record: DM,
+        serviceGetRecord: suspend (Int) -> Response<N>,
+        daoUpdateRecord: (DB) -> Unit
+    ) = produce {
+        runCatching {
+            send(Event(Resource.loading(null)))
+            serviceGetRecord(record.getRecordId().toString().toInt()).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.also {
+                        daoUpdateRecord(it.toDatabaseModel())
+                        send(Event(Resource.success(it.toDatabaseModel().toDomainModel())))
+                    } ?: send(Event(Resource.error("No response body", null)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null) {
+                send(Event(Resource.error(it.message ?: "Network Error", null)))
+            }
         }
     }
 }

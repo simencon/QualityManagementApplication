@@ -17,7 +17,6 @@ import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
 import okhttp3.ResponseBody
 import retrofit2.Converter
@@ -623,24 +622,28 @@ class InvestigationsRepository @Inject constructor(
         )
     }
 
-    fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
-        val nOrder = invService.getOrder(record.id).let { if (it.isSuccessful) it.body()!! else throw IOException() }
-        invDao.updateOrder(nOrder.toDatabaseModel())
-        send(nOrder.toDatabaseModel().toDomainModel())
+    fun CoroutineScope.getOrder(record: DomainOrder) = crudeOperations.run {
+        getRecord(
+            record,
+            { id -> invService.getOrder(id) },
+            { r -> invDao.updateOrder(r) }
+        )
     }
 
-    fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
-        val nSubOrder = invService.getSubOrder(record.id)
-        invDao.updateSubOrder(nSubOrder.toDatabaseModel())
-        send(nSubOrder.toDatabaseModel().toDomainModel())
+    fun CoroutineScope.getSubOrder(record: DomainSubOrder) = crudeOperations.run {
+        getRecord(
+            record,
+            { id -> invService.getSubOrder(id) },
+            { r -> invDao.updateSubOrder(r) }
+        )
     }
 
-    fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
-        Log.d(TAG, "syncTask: $record")
-        val nSubOrderTask = invService.getSubOrderTask(record.id).let { if (it.isSuccessful) it.body()!! else throw IOException() }
-        Log.d(TAG, "syncTask: $nSubOrderTask")
-        invDao.updateSubOrderTask(nSubOrderTask.toDatabaseModel())
-        send(nSubOrderTask.toDatabaseModel().toDomainModel())
+    fun CoroutineScope.getTask(record: DomainSubOrderTask) = crudeOperations.run {
+        getRecord(
+            record,
+            { id -> invService.getSubOrderTask(id) },
+            { r -> invDao.updateSubOrderTask(r) }
+        )
     }
 
 //    ToDO - change this part to return exactly what is needed
