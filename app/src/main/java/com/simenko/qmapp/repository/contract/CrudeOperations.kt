@@ -21,11 +21,35 @@ import javax.inject.Singleton
 class CrudeOperations @Inject constructor(
     private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
 ) {
+    fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.insertRecords(
+        records: List<DM>,
+        serviceInsert: suspend (List<N>) -> Response<List<N>>,
+        daoInsert: (List<DB>) -> Unit
+    ) = produce {
+        runCatching {
+            send(Event(Resource.loading(true)))
+            serviceInsert(records.map { it.toDatabaseModel().toNetworkModel() }).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { ntRecords ->
+                        daoInsert(ntRecords.map { ntRecord ->
+                            ntRecord.toDatabaseModel()
+                        })
+                    }
+                    send(Event(Resource.success(true)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", true)))
+        }
+    }
+
     fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.insertRecord(
         data: DM,
         serviceInsert: suspend (N) -> Response<N>,
-        daoInsert: (DB) -> Unit,
-        daoGetRecordById: suspend (String) -> DB?
+        daoInsert: (DB) -> Unit
     ) = produce {
         runCatching {
             send(Event(Resource.loading(null)))
@@ -34,7 +58,7 @@ class CrudeOperations @Inject constructor(
                     response.body().let { newRecord ->
                         if (newRecord != null) {
                             daoInsert(newRecord.toDatabaseModel())
-                            send(Event(Resource.success(daoGetRecordById(newRecord.getRecordId().toString())?.toDomainModel())))
+                            send(Event(Resource.success(newRecord.toDatabaseModel().toDomainModel())))
                         } else {
                             send(Event(Resource.error("Response body is empty.", null)))
                         }
@@ -96,6 +120,29 @@ class CrudeOperations @Inject constructor(
         }.exceptionOrNull().also {
             if (it != null)
                 emit(Event(Resource.error("Network error", false)))
+        }
+    }
+
+    fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.updateRecord(
+        record: DM,
+        serviceEdit: suspend (Int, N) -> Response<N>,
+        daoUpdate: (DB) -> Unit
+    ) = produce {
+        runCatching {
+            send(Event(Resource.loading(null)))
+            serviceEdit(record.getRecordId().toString().toInt(), record.toDatabaseModel().toNetworkModel()).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { ntRecord ->
+                        daoUpdate(ntRecord.toDatabaseModel())
+                        send(Event(Resource.success(ntRecord.toDatabaseModel().toDomainModel())))
+                    }
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", null)))
         }
     }
 }

@@ -744,18 +744,26 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     fun editResult(result: DomainResult) {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.run { updateResult(result) }.consumeEach { }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { updateResult(result) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) {
+                                _isLoadingInProgress.value = true
+                                _isErrorMessage.value = resource.message
+                            }
+                        }
+                    }
                 }
-                hideReportDialog()
-                _isLoadingInProgress.value = false
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
             }
+            hideReportDialog()
         }
     }
 

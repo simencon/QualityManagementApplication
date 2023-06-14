@@ -551,99 +551,80 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Inv adding operations
      * */
-    fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
-        val newOrder = invService.createOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertOrder(newOrder)
-        send(newOrder.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    fun CoroutineScope.insertOrder(record: DomainOrder) = crudeOperations.run {
+        insertRecord(
+            record,
+            { r -> invService.createOrder(r) },
+            { r -> invDao.insertOrder(r) }
+        )
     }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = crudeOperations.run {
         insertRecord(
             record,
             { r -> invService.createSubOrder(r) },
-            { r -> invDao.insertSubOrder(r) },
-            { id -> invDao.getSubOrderById(id) }
+            { r -> invDao.insertSubOrder(r) }
         )
     }
 
-    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
-        val newRecord = invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertSubOrderTask(newRecord)
-        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = crudeOperations.run {
+        insertRecord(
+            record,
+            { r -> invService.createSubOrderTask(r) },
+            { r -> invDao.insertSubOrderTask(r) }
+        )
     }
 
-    fun CoroutineScope.insertSample(record: DomainSample) = produce {
-        val newRecord = invService.createSample(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertSample(newRecord)
-        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    fun CoroutineScope.insertSample(record: DomainSample) = crudeOperations.run {
+        insertRecord(
+            record,
+            { r -> invService.createSample(r) },
+            { r -> invDao.insertSample(r) }
+        )
     }
 
-    fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
-        runCatching {
-            send(Event(Resource.loading(true)))
-            invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }).let { response ->
-                if (response.isSuccessful) {
-                    response.body()?.let { ntResults ->
-                        invDao.insertResultsAll(ntResults.map { ntResult ->
-                            ntResult.toDatabaseModel()
-                        })
-                    }
-                    send(Event(Resource.success(true)))
-                } else {
-                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                send(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
+        insertRecords(
+            records,
+            { list -> invService.createResults(list) },
+            { list -> invDao.insertResultsAll(list) },
+        )
     }
 
-
-    fun CoroutineScope.updateOrder(record: DomainOrder) = produce {
-        val nOrder = record.toDatabaseModel().toNetworkModel()
-        invService.editOrder(record.id, nOrder)
-        invDao.updateOrder(record.toDatabaseModel())
-        send(record)
+    fun CoroutineScope.updateOrder(record: DomainOrder) = crudeOperations.run {
+        updateRecord(
+            record,
+            { id, r -> invService.editOrder(id, r) },
+            { r -> invDao.updateOrder(r) }
+        )
     }
 
-    fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = produce {
-        val nSubOrder = record.toDatabaseModel().toNetworkModel()
-        invService.editSubOrder(record.id, nSubOrder)
-        invDao.updateSubOrder(record.toDatabaseModel())
-        send(record)
+    fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = crudeOperations.run {
+        updateRecord(
+            record,
+            { id, r -> invService.editSubOrder(id, r) },
+            { r -> invDao.updateSubOrder(r) }
+        )
     }
 
-    fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
-        runCatching {
-            send(Event(Resource.loading(true)))
-            invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()).let { response ->
-                if (response.isSuccessful) {
-                    response.body()?.let { ntResult ->
-                        val dSubOrderTask = invService.getSubOrderTask(ntResult.id).toDatabaseModel()
-                        invDao.updateSubOrderTask(dSubOrderTask)
-                    }
-                    send(Event(Resource.success(true)))
-                } else {
-                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                send(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.updateTask(record: DomainSubOrderTask) = crudeOperations.run {
+        updateRecord(
+            record,
+            { id, r -> invService.editSubOrderTask(id, r) },
+            { r -> invDao.updateSubOrderTask(r) }
+        )
     }
 
-    fun CoroutineScope.updateResult(record: DomainResult) = produce {
-        val nNetwork = record.toDatabaseModel().toNetworkModel()
-        invService.editResult(record.id, nNetwork)
-        invDao.updateResult(record.toDatabaseModel())
-        send(record)
+    fun CoroutineScope.updateResult(record: DomainResult) = crudeOperations.run {
+        updateRecord(
+            record,
+            { id, r -> invService.editResult(id, r) },
+            { r -> invDao.updateResult(r) }
+        )
     }
-
 
     fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
-        val nOrder = invService.getOrder(record.id)
+        val nOrder = invService.getOrder(record.id).let { if (it.isSuccessful) it.body()!! else throw IOException() }
         invDao.updateOrder(nOrder.toDatabaseModel())
         send(nOrder.toDatabaseModel().toDomainModel())
     }
@@ -656,7 +637,7 @@ class InvestigationsRepository @Inject constructor(
 
     fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
         Log.d(TAG, "syncTask: $record")
-        val nSubOrderTask = invService.getSubOrderTask(record.id)
+        val nSubOrderTask = invService.getSubOrderTask(record.id).let { if (it.isSuccessful) it.body()!! else throw IOException() }
         Log.d(TAG, "syncTask: $nSubOrderTask")
         invDao.updateSubOrderTask(nSubOrderTask.toDatabaseModel())
         send(nSubOrderTask.toDatabaseModel().toDomainModel())
