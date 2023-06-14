@@ -668,7 +668,7 @@ class InvestigationsViewModel @Inject constructor(
              * */
             repository.run { getTask(subOrderTask) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
-                    when(resource.status) {
+                    when (resource.status) {
                         Status.LOADING -> {}
                         Status.SUCCESS -> {
                             resource.data!!.let {
@@ -732,19 +732,19 @@ class InvestigationsViewModel @Inject constructor(
                                         deleteResultsBasedOnTask(subOrderTask)
                                     }
                                 }
+                                repository.run { updateTask(subOrderTask) }.consumeEach { event ->
+                                    event.getContentIfNotHandled()?.let { resource ->
+                                        when (resource.status) {
+                                            Status.LOADING -> {}
+                                            Status.SUCCESS -> {}
+                                            Status.ERROR -> {
+                                                _isErrorMessage.value = resource.message
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                        Status.ERROR -> {
-                            _isErrorMessage.value = resource.message
-                        }
-                    }
-                }
-            }
-            repository.run { updateTask(subOrderTask) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> {}
-                        Status.SUCCESS -> {}
                         Status.ERROR -> {
                             _isErrorMessage.value = resource.message
                         }
