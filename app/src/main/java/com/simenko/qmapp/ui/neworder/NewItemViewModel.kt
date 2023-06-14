@@ -223,7 +223,7 @@ class NewItemViewModel @Inject constructor(
                                 when (resource.status) {
                                     Status.LOADING -> {}
                                     Status.SUCCESS -> {}
-                                    Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.ERROR -> {}
                                 }
                             }
                         }
@@ -249,7 +249,7 @@ class NewItemViewModel @Inject constructor(
                                 when (resource.status) {
                                     Status.LOADING -> {}
                                     Status.SUCCESS -> {}
-                                    Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.ERROR -> {}
                                 }
                             }
                         }

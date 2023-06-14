@@ -19,10 +19,12 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val TAG = "ManufacturingRepository"
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Singleton
 class ManufacturingRepository @Inject constructor(
     private val manufacturingDao: ManufacturingDao,
     val manufacturingService: ManufacturingService

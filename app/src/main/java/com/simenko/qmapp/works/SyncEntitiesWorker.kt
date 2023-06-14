@@ -3,7 +3,6 @@ package com.simenko.qmapp.works
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
-import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -12,7 +11,7 @@ import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
-import com.simenko.qmapp.repository.contract.InvRepository
+import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
@@ -23,7 +22,6 @@ import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.delay
 import java.util.Objects
 
 private const val TAG = "SyncEntitiesWorker"
@@ -32,7 +30,7 @@ private const val TAG = "SyncEntitiesWorker"
 class SyncEntitiesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val workerParams: WorkerParameters,
-    private val invRepository: InvRepository,
+    private val invRepository: InvestigationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat
 ) : CoroutineWorker(context, workerParams) {
 

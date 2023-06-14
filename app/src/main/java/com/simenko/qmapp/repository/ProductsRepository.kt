@@ -14,9 +14,11 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val TAG = "ProductsRepository"
 
+@Singleton
 class ProductsRepository @Inject constructor(
     private val productsDao: ProductsDao,
     private val productsService: ProductsService

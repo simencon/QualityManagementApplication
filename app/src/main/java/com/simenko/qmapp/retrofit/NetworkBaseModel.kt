@@ -1,6 +1,6 @@
 package com.simenko.qmapp.retrofit
 
 interface NetworkBaseModel<out T> {
-    fun getId(): Any
+    fun getRecordId(): Any
     fun toDatabaseModel(): T
 }

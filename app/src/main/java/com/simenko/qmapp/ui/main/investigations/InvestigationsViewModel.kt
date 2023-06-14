@@ -253,14 +253,13 @@ class InvestigationsViewModel @Inject constructor(
                                 withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                             }
                             Status.SUCCESS -> {
-                                if (resource.data == true)
-                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             }
                             Status.ERROR -> {
-                                if (resource.data == true)
+                                withContext(Dispatchers.Main) {
                                     _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                    _isErrorMessage.value = resource.message
+                                }
                             }
                         }
                     }
@@ -357,21 +356,16 @@ class InvestigationsViewModel @Inject constructor(
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                             }
                             Status.SUCCESS -> {
-                                if (resource.data == true)
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = false
-                                    }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             }
                             Status.ERROR -> {
-                                if (resource.data == true)
+                                withContext(Dispatchers.Main) {
                                     _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                    _isErrorMessage.value = resource.message
+                                }
                             }
                         }
                     }
@@ -439,21 +433,16 @@ class InvestigationsViewModel @Inject constructor(
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                             }
                             Status.SUCCESS -> {
-                                if (resource.data == true)
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = false
-                                    }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             }
                             Status.ERROR -> {
-                                if (resource.data == true)
+                                withContext(Dispatchers.Main) {
                                     _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                    _isErrorMessage.value = resource.message
+                                }
                             }
                         }
                     }
@@ -590,25 +579,20 @@ class InvestigationsViewModel @Inject constructor(
     private fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteResults(taskId = task.id).collect { event ->
+                repository.deleteResults(task.id).collect { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                             }
                             Status.SUCCESS -> {
-                                if (resource.data == true)
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = false
-                                    }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             }
                             Status.ERROR -> {
-                                if (resource.data == true)
+                                withContext(Dispatchers.Main) {
                                     _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                    _isErrorMessage.value = resource.message
+                                }
                             }
                         }
                     }
