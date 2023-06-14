@@ -4,11 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.implementation.ProductsService
-import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.ProductsDao
-import com.simenko.qmapp.utils.ListTransformer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,69 +27,41 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshElementIshModels() {
         withContext(Dispatchers.IO) {
-            val elementIshModels =
-                productsService.getElementIshModels()
+            val elementIshModels = productsService.getElementIshModels()
             productsDao.insertElementIshModelsAll(
-                ListTransformer(
-                    elementIshModels,
-                    NetworkElementIshModel::class, DatabaseElementIshModel::class
-                ).generateList()
+                elementIshModels.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshElementIshModels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshIshSubCharacteristics() {
         withContext(Dispatchers.IO) {
-            val ishSubCharacteristics =
-                productsService.getIshSubCharacteristics()
+            val ishSubCharacteristics = productsService.getIshSubCharacteristics()
             productsDao.insertIshSubCharacteristicsAll(
-                ListTransformer(
-                    ishSubCharacteristics,
-                    NetworkIshSubCharacteristic::class, DatabaseIshSubCharacteristic::class
-                ).generateList()
+                ishSubCharacteristics.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshIshSubCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshManufacturingProjects() {
         withContext(Dispatchers.IO) {
-            val manufacturingProjects =
-                productsService.getManufacturingProjects()
+            val manufacturingProjects = productsService.getManufacturingProjects()
             productsDao.insertManufacturingProjectsAll(
-                ListTransformer(
-                    manufacturingProjects,
-                    NetworkManufacturingProject::class, DatabaseManufacturingProject::class
-                ).generateList()
+                manufacturingProjects.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshManufacturingProjects: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshCharacteristics() {
         withContext(Dispatchers.IO) {
-            val characteristics =
-                productsService.getCharacteristics()
+            val characteristics = productsService.getCharacteristics()
             productsDao.insertCharacteristicsAll(
-                ListTransformer(
-                    characteristics, NetworkCharacteristic::class,
-                    DatabaseCharacteristic::class
-                ).generateList()
+                characteristics.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshCharacteristics: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -99,11 +69,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val metrixes = productsService.getMetrixes()
             productsDao.insertMetrixesAll(
-                ListTransformer(
-                    metrixes,
-                    NetworkMetrix::class,
-                    DatabaseMetrix::class
-                ).generateList()
+                metrixes.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshMetrixes: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -113,11 +79,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getKeys()
             productsDao.insertKeysAll(
-                ListTransformer(
-                    list,
-                    NetworkKey::class,
-                    DatabaseKey::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshKeys: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -127,16 +89,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductBases()
             productsDao.insertProductBasesAll(
-                ListTransformer(
-                    list,
-                    NetworkProductBase::class,
-                    DatabaseProductBase::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductBases: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -144,11 +99,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProducts()
             productsDao.insertProductsAll(
-                ListTransformer(
-                    list,
-                    NetworkProduct::class,
-                    DatabaseProduct::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshProducts: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -158,11 +109,7 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponents()
             productsDao.insertComponentsAll(
-                ListTransformer(
-                    list,
-                    NetworkComponent::class,
-                    DatabaseComponent::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshComponents: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
@@ -172,16 +119,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStages()
             productsDao.insertComponentInStagesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStage::class,
-                    DatabaseComponentInStage::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStages: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -189,16 +129,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getVersionStatuses()
             productsDao.insertVersionStatusesAll(
-                ListTransformer(
-                    list,
-                    NetworkVersionStatus::class,
-                    DatabaseVersionStatus::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshVersionStatuses: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -206,16 +139,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductVersions()
             productsDao.insertProductVersionsAll(
-                ListTransformer(
-                    list,
-                    NetworkProductVersion::class,
-                    DatabaseProductVersion::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -223,16 +149,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentVersions()
             productsDao.insertComponentVersionsAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentVersion::class,
-                    DatabaseComponentVersion::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -240,16 +159,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStageVersions()
             productsDao.insertComponentInStageVersionsAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStageVersion::class,
-                    DatabaseComponentInStageVersion::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStageVersions: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -257,16 +169,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductTolerances()
             productsDao.insertProductTolerancesAll(
-                ListTransformer(
-                    list,
-                    NetworkProductTolerance::class,
-                    DatabaseProductTolerance::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -274,34 +179,19 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentTolerances()
             productsDao.insertComponentTolerancesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentTolerance::class,
-                    DatabaseComponentTolerance::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     suspend fun refreshComponentInStageTolerances() {
         withContext(Dispatchers.IO) {
-            val list =
-                productsService.getComponentInStageTolerances()
+            val list = productsService.getComponentInStageTolerances()
             productsDao.insertComponentInStageTolerancesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStageTolerance::class,
-                    DatabaseComponentInStageTolerance::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStageTolerances: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -309,16 +199,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getProductsToLines()
             productsDao.insertProductsToLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkProductToLine::class,
-                    DatabaseProductToLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshProductsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -326,16 +209,9 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentsToLines()
             productsDao.insertComponentsToLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentToLine::class,
-                    DatabaseComponentToLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentsToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
@@ -343,35 +219,20 @@ class ProductsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val list = productsService.getComponentInStagesToLines()
             productsDao.insertComponentInStagesToLinesAll(
-                ListTransformer(
-                    list,
-                    NetworkComponentInStageToLine::class,
-                    DatabaseComponentInStageToLine::class
-                ).generateList()
+                list.map { it.toDatabaseModel() }
             )
-            Log.d(
-                TAG,
-                "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}"
-            )
+            Log.d(TAG, "refreshComponentInStagesToLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
         }
     }
 
     val characteristics: LiveData<List<DomainCharacteristic>> =
-        productsDao.getCharacteristics().map {
-            ListTransformer(
-                it,
-                DatabaseCharacteristic::class,
-                DomainCharacteristic::class
-            ).generateList()
+        productsDao.getCharacteristics().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val metrixes: LiveData<List<DomainMetrix>> =
-        productsDao.getMetrixes().map {
-            ListTransformer(
-                it,
-                DatabaseMetrix::class,
-                DomainMetrix::class
-            ).generateList()
+        productsDao.getMetrixes().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     suspend fun getMetricsByPrefixVersionIdActualityCharId(
@@ -383,166 +244,99 @@ class ProductsRepository @Inject constructor(
         val list = productsDao.getMetricsByPrefixVersionIdActualityCharId(
             prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()
         )
-        return ListTransformer(
-            list,
-            DatabaseMetrix::class, DomainMetrix::class
-        ).generateList()
+        return list.map { it.toDomainModel() }
     }
 
     fun metrixes(): Flow<List<DomainMetrix>> =
-        productsDao.getMetrixesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseMetrix::class,
-                DomainMetrix::class
-            ).generateList()
+        productsDao.getMetrixesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val keys: LiveData<List<DomainKey>> =
-        productsDao.getKeys().map {
-            ListTransformer(it, DatabaseKey::class, DomainKey::class).generateList()
+        productsDao.getKeys().map { list ->
+            list.map { it.toDomainModel() }
         }
     val productBases: LiveData<List<DomainProductBase>> =
-        productsDao.getProductBases().map {
-            ListTransformer(it, DatabaseProductBase::class, DomainProductBase::class).generateList()
+        productsDao.getProductBases().map { list ->
+            list.map { it.toDomainModel() }
         }
     val products: LiveData<List<DomainProduct>> =
-        productsDao.getProducts().map {
-            ListTransformer(it, DatabaseProduct::class, DomainProduct::class).generateList()
+        productsDao.getProducts().map { list ->
+            list.map { it.toDomainModel() }
         }
     val components: LiveData<List<DomainComponent>> =
-        productsDao.getComponents().map {
-            ListTransformer(it, DatabaseComponent::class, DomainComponent::class).generateList()
+        productsDao.getComponents().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentInStages: LiveData<List<DomainComponentInStage>> =
-        productsDao.getComponentInStages().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStage::class,
-                DomainComponentInStage::class
-            ).generateList()
+        productsDao.getComponentInStages().map { list ->
+            list.map { it.toDomainModel() }
         }
     val versionStatuses: LiveData<List<DomainVersionStatus>> =
-        productsDao.getVersionStatuses().map {
-            ListTransformer(
-                it,
-                DatabaseVersionStatus::class,
-                DomainVersionStatus::class
-            ).generateList()
+        productsDao.getVersionStatuses().map { list ->
+            list.map { it.toDomainModel() }
         }
     val productVersions: LiveData<List<DomainProductVersion>> =
-        productsDao.getProductVersions().map {
-            ListTransformer(
-                it,
-                DatabaseProductVersion::class,
-                DomainProductVersion::class
-            ).generateList()
+        productsDao.getProductVersions().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentVersions: LiveData<List<DomainComponentVersion>> =
-        productsDao.getComponentVersions().map {
-            ListTransformer(
-                it,
-                DatabaseComponentVersion::class,
-                DomainComponentVersion::class
-            ).generateList()
+        productsDao.getComponentVersions().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentInStageVersions: LiveData<List<DomainComponentInStageVersion>> =
-        productsDao.getComponentInStageVersions().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageVersion::class,
-                DomainComponentInStageVersion::class
-            ).generateList()
+        productsDao.getComponentInStageVersions().map { list ->
+            list.map { it.toDomainModel() }
         }
     val productTolerances: LiveData<List<DomainProductTolerance>> =
-        productsDao.getProductTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseProductTolerance::class,
-                DomainProductTolerance::class
-            ).generateList()
+        productsDao.getProductTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun productTolerances(): Flow<List<DomainProductTolerance>> =
-        productsDao.getProductTolerancesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseProductTolerance::class,
-                DomainProductTolerance::class
-            ).generateList()
+        productsDao.getProductTolerancesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val componentTolerances: LiveData<List<DomainComponentTolerance>> =
-        productsDao.getComponentTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseComponentTolerance::class,
-                DomainComponentTolerance::class
-            ).generateList()
+        productsDao.getComponentTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun componentTolerances(): Flow<List<DomainComponentTolerance>> =
-        productsDao.getComponentTolerancesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseComponentTolerance::class,
-                DomainComponentTolerance::class
-            ).generateList()
+        productsDao.getComponentTolerancesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val componentInStageTolerances: LiveData<List<DomainComponentInStageTolerance>> =
-        productsDao.getComponentInStageTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageTolerance::class,
-                DomainComponentInStageTolerance::class
-            ).generateList()
+        productsDao.getComponentInStageTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun componentInStageTolerances(): Flow<List<DomainComponentInStageTolerance>> =
-        productsDao.getComponentInStageTolerancesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageTolerance::class,
-                DomainComponentInStageTolerance::class
-            ).generateList()
+        productsDao.getComponentInStageTolerancesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val productsToLines: LiveData<List<DomainProductToLine>> =
-        productsDao.getProductsToLines().map {
-            ListTransformer(
-                it,
-                DatabaseProductToLine::class,
-                DomainProductToLine::class
-            ).generateList()
+        productsDao.getProductsToLines().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentsToLines: LiveData<List<DomainComponentToLine>> =
-        productsDao.getComponentsToLines().map {
-            ListTransformer(
-                it,
-                DatabaseComponentToLine::class,
-                DomainComponentToLine::class
-            ).generateList()
+        productsDao.getComponentsToLines().map { list ->
+            list.map { it.toDomainModel() }
         }
     val componentInStagesToLines: LiveData<List<DomainComponentInStageToLine>> =
-        productsDao.getComponentInStagesToLines().map {
-            ListTransformer(
-                it,
-                DatabaseComponentInStageToLine::class,
-                DomainComponentInStageToLine::class
-            ).generateList()
+        productsDao.getComponentInStagesToLines().map { list ->
+            list.map { it.toDomainModel() }
         }
     val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
-        productsDao.getItemVersionsComplete().map {
-            it.asDomainItem()
+        productsDao.getItemVersionsComplete().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val itemsTolerances: LiveData<List<DomainItemTolerance>> =
-        productsDao.getItemsTolerances().map {
-            ListTransformer(
-                it,
-                DatabaseItemTolerance::class,
-                DomainItemTolerance::class
-            ).generateList()
+        productsDao.getItemsTolerances().map { list ->
+            list.map { it.toDomainModel() }
         }
 }

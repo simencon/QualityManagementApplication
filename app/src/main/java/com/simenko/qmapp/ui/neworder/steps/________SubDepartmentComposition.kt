@@ -17,7 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.simenko.qmapp.domain.DomainSubDepartment
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -31,7 +34,7 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
         s = appModel.teamMembers,
         action = FilteringMode.ADD_BY_PARENT_ID,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subOrder?.departmentId?:0
+        p1Id = appModel.currentSubOrder.value?.subOrder?.departmentId?:NoRecord.num
     )
     appModel.channelsMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
@@ -56,14 +59,14 @@ fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, cl
     selectSingleRecord(appModel.subDepartmentsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subOrder?.orderedById = 0
-        appModel.currentSubOrder.value?.subOrder?.channelId = 0
-        appModel.currentSubOrder.value?.subOrder?.lineId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
-        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
-        appModel.currentSubOrder.value?.subOrder?.operationId = 0
-        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.orderedById = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.channelId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.lineId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = NoString.str
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.operationId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
         appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }

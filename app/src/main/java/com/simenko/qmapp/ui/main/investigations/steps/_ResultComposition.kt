@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.entities.DomainResultComplete
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -120,7 +121,7 @@ fun ResultCard(
 @Composable
 fun Result(
     modifier: Modifier = Modifier,
-    result: DomainResultComplete = getResults()[0],
+    result: DomainResultComplete = DomainResultComplete(),
     onChangeValue: (DomainResultComplete) -> Unit = {},
     onSelect: (DomainResultComplete) -> Unit,
 ) {
@@ -382,43 +383,3 @@ fun MyResultPreview() {
         )
     }
 }
-
-fun getResults() = List(30) {
-    DomainResultComplete(
-        result = getResult(),
-        resultsDecryption = getResultsDecryption(),
-        metrix = getMetrix(),
-        resultTolerance = getResultTolerance()
-    )
-}
-
-fun getResult() = DomainResult(
-    id = 0,
-    sampleId = 1,
-    metrixId = 2,
-    result = 2.4f,
-    isOk = true,
-    resultDecryptionId = 3,
-    taskId = 4
-)
-
-fun getResultsDecryption() = DomainResultsDecryption(
-    id = 1,
-    resultDecryption = "In tolerance"
-)
-
-fun getMetrix() = DomainMetrix(
-    id = 0,
-    charId = 1,
-    metrixOrder = 1,
-    metrixDesignation = "Ra C",
-    metrixDescription = "Шорсткість базового торця зовнішнього кільця",
-    units = "мкм"
-)
-
-fun getResultTolerance() = DomainResultTolerance(
-    id = 0,
-    lsl = -10.5f,
-    usl = 12.2f,
-    nominal = 180000.0f
-)

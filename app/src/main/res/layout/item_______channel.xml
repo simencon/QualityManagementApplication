@@ -16,7 +16,7 @@
 
         <variable
             name="manChannel"
-            type="com.simenko.qmapp.domain.DomainManufacturingChannel" />
+            type="com.simenko.qmapp.domain.entities.DomainManufacturingChannel" />
 
         <variable
             name="manChannelCallback"

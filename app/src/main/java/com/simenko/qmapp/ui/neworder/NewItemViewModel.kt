@@ -1,14 +1,16 @@
 package com.simenko.qmapp.ui.neworder
 
 import android.util.Log
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.setMainActivityResult
-import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
+import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -21,7 +23,7 @@ private const val TAG = "NewItemViewModel"
 class NewItemViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val investigationsRepository: InvestigationsRepository
+    private val repository: InvestigationsRepository
 ) : ViewModel() {
 
     val isLoadingInProgress = MutableLiveData(false)
@@ -29,17 +31,31 @@ class NewItemViewModel @Inject constructor(
 
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    val investigationOrders = investigationsRepository.orders
-    val subOrdersWithChildren = investigationsRepository.subOrdersWithChildren
+    val investigationOrders = repository.orders
 
-    val currentOrder = MutableLiveData(getEmptyOrder())
-    val currentSubOrder = MutableLiveData(DomainSubOrderShort(getEmptySubOrder(), getEmptyOrder()))
+    val currentOrder = MutableLiveData(
+        DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
+    )
+    val currentSubOrder = MutableLiveData(
+        DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
+    )
 
-    fun loadCurrentSubOrder(subOrderId: Int) {
-        subOrdersWithChildren.value?.forEach rubByBlock@{
-            if (it.subOrder.id == subOrderId) {
-                currentSubOrder.value = it
-                return@rubByBlock
+    fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
+        runBlocking {
+            currentSubOrder.value = when {
+                orderId == NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
+                    DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
+                )
+                orderId != NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
+                    DomainSubOrder().copy(orderId = orderId, statusId = InvStatuses.TO_DO.statusId), repository.getOrderById(orderId)
+                )
+                orderId != NoRecord.num && subOrderId != NoRecord.num -> DomainSubOrderShort(
+                    repository.getSubOrderById(subOrderId),
+                    repository.getOrderById(orderId),
+                    repository.getSamplesBySubOrderId(subOrderId).toMutableStateList(),
+                    repository.getTasksBySubOrderId(subOrderId).toMutableStateList()
+                )
+                else -> throw IllegalArgumentException("orderId = $orderId; subOrderId = $subOrderId")
             }
         }
     }
@@ -50,7 +66,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
         }
 
-    val investigationTypes = investigationsRepository.investigationTypes
+    val investigationTypes = repository.investigationTypes
     val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
     val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>>().apply {
@@ -58,7 +74,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(investigationTypesMutable.value, it) }
         }
 
-    val investigationReasons = investigationsRepository.investigationReasons
+    val investigationReasons = repository.investigationReasons
     val investigationReasonsMutable =
         MutableLiveData<MutableList<DomainReason>>(mutableListOf())
     val investigationReasonsMediator: MediatorLiveData<Pair<MutableList<DomainReason>?, Boolean?>> =
@@ -83,7 +99,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(orderPlacersMutable.value, it) }
         }
 
-    val inputForOrder = investigationsRepository.inputForOrder
+    val inputForOrder = repository.inputForOrder
 
     val departments = manufacturingRepository.departments
     val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
@@ -177,9 +193,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository.insertInvestigationTypes()
-                investigationsRepository.insertInvestigationReasons()
-                investigationsRepository.insertInputForOrder()
+                repository.insertInvestigationTypes()
+                repository.insertInvestigationReasons()
+                repository.insertInputForOrder()
                 manufacturingRepository.refreshDepartments()
                 manufacturingRepository.refreshTeamMembers()
 
@@ -202,11 +218,11 @@ class NewItemViewModel @Inject constructor(
             subOrder.samples.forEach {
                 if (it.toBeDeleted) {
                     withContext(Dispatchers.IO) {
-                        investigationsRepository.deleteSample(it.id).collect() { event ->
+                        repository.deleteSample(it.id).collect() { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> {}
-                                    Status.SUCCESS -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.SUCCESS -> {}
                                     Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
                                 }
                             }
@@ -214,7 +230,7 @@ class NewItemViewModel @Inject constructor(
                     }
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
-                    investigationsRepository.run { insertSample(it) }.consumeEach { }
+                    repository.run { insertSample(it) }.consumeEach { }
                 }
             }
         }
@@ -228,11 +244,11 @@ class NewItemViewModel @Inject constructor(
             subOrder.subOrderTasks.forEach {
                 if (it.toBeDeleted) {
                     withContext(Dispatchers.IO) {
-                        investigationsRepository.deleteSubOrderTask(it.id).collect() { event ->
+                        repository.deleteSubOrderTask(it.id).collect() { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> {}
-                                    Status.SUCCESS -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.SUCCESS -> {}
                                     Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
                                 }
                             }
@@ -241,28 +257,33 @@ class NewItemViewModel @Inject constructor(
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
-                    investigationsRepository.run { insertTask(it) }.consumeEach {  }
+                    repository.run { insertTask(it) }.consumeEach { }
                 }
             }
         }
     }
 
     fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    investigationsRepository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { soIt ->
-                        postDeleteSubOrderTasks(soIt.id, subOrder)
-                        postDeleteSamples(soIt.id, subOrder)
-                        setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
-                        activity.finish()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
+                            postDeleteSamples(resource.data.id, subOrder)
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
+                            activity.finish()
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { isNetworkError.value = true }
+                            Log.d(TAG, "postNewSubOrder: ${resource.message}")
+                        }
                     }
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
             }
         }
     }
@@ -272,7 +293,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    with(investigationsRepository) { insertOrder(order) }.consumeEach {
+                    with(repository) { insertOrder(order) }.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
@@ -286,19 +307,13 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        Log.d(TAG, "postNewOrderWithSubOrder: ${subOrder.order}")
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    investigationsRepository.run { insertOrder(subOrder.order) }.consumeEach { oIt ->
+                    repository.run { insertOrder(subOrder.order) }.consumeEach { oIt ->
                         subOrder.subOrder.orderId = oIt.id
-                        investigationsRepository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { soIt ->
-                            postDeleteSubOrderTasks(soIt.id, subOrder)
-                            postDeleteSamples(soIt.id, subOrder)
-                            setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
-                            activity.finish()
-                        }
+                        postNewSubOrder(activity, subOrder)
                     }
                 }
                 isLoadingInProgress.value = false
@@ -314,7 +329,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    investigationsRepository.run { updateSubOrder(subOrder.subOrder) }.consumeEach {
+                    repository.run { updateSubOrder(subOrder.subOrder) }.consumeEach {
                         postDeleteSubOrderTasks(it.id, subOrder)
                         postDeleteSamples(it.id, subOrder)
                         setMainActivityResult(activity, activity.actionTypeEnum, it.orderId, it.id)
@@ -338,7 +353,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
-                    investigationsRepository.run { updateOrder(order) }.consumeEach {
+                    repository.run { updateOrder(order) }.consumeEach {
                         setMainActivityResult(activity, activity.actionTypeEnum, it.id)
                         activity.finish()
                     }
@@ -356,10 +371,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository
-                    .syncSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
-                investigationsRepository
-                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -375,10 +388,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository
-                    .syncSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
-                investigationsRepository
-                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -394,8 +405,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                investigationsRepository
-                    .syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
                 isLoadingInProgress.value = false
                 isNetworkError.value = false
@@ -425,25 +435,25 @@ enum class FilteringStep {
     CHARACTERISTICS
 }
 
-fun <T : DomainModel> changeRecordSelection(
+fun <D, T : DomainBaseModel<D>> changeRecordSelection(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
-    selectedId: Any = 0,
+    selectedId: Any = NoRecord.num,
 ): Boolean {
     val result = d.value?.find { it.getRecordId() == selectedId }?.changeCheckedState()
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
     return result ?: false
 }
 
-fun <T : DomainModel> selectSingleRecord(
+fun <D, T : DomainBaseModel<D>> selectSingleRecord(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
-    selectedId: Any = 0,
+    selectedId: Any = NoRecord.num,
 ) {
     d.value?.forEach {
-        it.setIsChecked(false)
+        it.setIsSelected(false)
     }
-    d.value?.find { it.getRecordId() == selectedId }?.setIsChecked(true)
+    d.value?.find { it.getRecordId() == selectedId }?.setIsSelected(true)
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
 }
 
@@ -474,13 +484,13 @@ fun getPreviousIds(currentId: Int, pairs: List<DomainOperationsFlow>): List<Int>
     return previousIds
 }
 
-fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
+fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltration(
     s: LiveData<List<T>>? = null,
     action: FilteringMode,
     trigger: MutableLiveData<Boolean>,
-    p1Id: Int = 0,
-    p2Id: Any = 0,
-    p3Id: Int = 0,
+    p1Id: Int = NoRecord.num,
+    p2Id: Any = NoRecord.num,
+    p3Id: Int = NoRecord.num,
     pFlow: List<DomainOperationsFlow>? = null,
     m: LiveData<List<DomainInputForOrder>>? = null,
     step: FilteringStep = FilteringStep.NOT_FROM_META_TABLE
@@ -503,7 +513,7 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
             selectSingleRecord(d, trigger)
             d.value?.clear()
             s.apply {
-                this?.value?.filter { it.getParentOneId() == p1Id }?.forEach { input ->
+                this?.value?.filter { it.getParentId() == p1Id }?.forEach { input ->
                     if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
                         d.value?.add(input)
                     }
@@ -538,10 +548,10 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                 }
                 mSorted.forEach { mIt ->
                     val item = s?.value?.find {
-                        (it.getParentOneId() == p1Id || it.hasParentOneId(p1Id)) &&
+                        (it.getParentId() == p1Id || it.hasParentId(p1Id)) &&
                                 when (step) {
                                     FilteringStep.NOT_FROM_META_TABLE -> {
-                                        it.getRecordId() == 0
+                                        it.getRecordId() == NoRecord.num
                                     }
                                     FilteringStep.SUB_DEPARTMENTS -> {
                                         it.getRecordId() == mIt.subDepId
@@ -553,25 +563,15 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
                                         it.getRecordId() == mIt.lineId
                                     }
                                     FilteringStep.ITEM_VERSIONS -> {
-                                        it.getRecordId() ==
-                                                mIt.itemPrefix +
-                                                mIt.itemVersionId.toString()
+                                        it.getRecordId() == mIt.itemPrefix + mIt.itemVersionId.toString()
                                     }
                                     FilteringStep.OPERATIONS -> {
-                                        it.getRecordId() == mIt.operationId && p2Id ==
-                                                mIt.itemPrefix +
-                                                mIt.itemVersionId.toString()
+                                        it.getRecordId() == mIt.operationId && p2Id == mIt.itemPrefix + mIt.itemVersionId.toString()
                                     }
                                     FilteringStep.CHARACTERISTICS -> {
-                                        it.getRecordId() == mIt.charId && p2Id ==
-                                                mIt.itemPrefix +
-                                                mIt.itemVersionId.toString()
+                                        it.getRecordId() == mIt.charId && p2Id == mIt.itemPrefix + mIt.itemVersionId.toString()
                                                 &&
-                                                (p3Id == mIt.operationId || isOperationInFlow(
-                                                    mIt.operationId,
-                                                    p3Id,
-                                                    pFlow!!
-                                                ))
+                                                (p3Id == mIt.operationId || isOperationInFlow(mIt.operationId, p3Id, pFlow!!))
                                     }
 
                                 }
@@ -587,53 +587,3 @@ fun <T : DomainModel> MutableLiveData<MutableList<T>>.performFiltration(
 
     trigger.value = !(trigger.value as Boolean)
 }
-
-fun getEmptyOrder() = DomainOrder(
-    id = 0,
-    orderTypeId = 3,
-    reasonId = 0,
-    orderNumber = null,
-    customerId = 4,
-    orderedById = 62,
-    statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00") ?: NoRecord.num.toLong(),
-    completedDate = null
-)
-
-fun getEmptySubOrder() = DomainSubOrder(
-    id = 0,
-    orderId = 0,//maybe currentOrder.id?
-    subOrderNumber = 0,
-    orderedById = 0,
-    completedById = null,
-    statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00")!!,
-    completedDate = null,
-    departmentId = 0,
-    subDepartmentId = 0,
-    channelId = 0,
-    lineId = 0,
-    operationId = 0,
-    itemPreffix = "",
-    itemTypeId = 0,
-    itemVersionId = 0,
-    samplesCount = 0,
-    remarkId = 1//means no remarks
-)
-
-fun getEmptySubOrderTask(charId: Int, subOrderId: Int = 0) = DomainSubOrderTask(
-    id = 0,
-    statusId = 1,
-    createdDate = getMillisecondsDate("2022-01-30T15:30:00+02:00"),
-    completedDate = null,
-    subOrderId = subOrderId,
-    charId = charId,
-    isNewRecord = true
-)
-
-fun getEmptySample(sampleNumber: Int, subOrderId: Int = 0) = DomainSample(
-    id = 0,
-    subOrderId = subOrderId,
-    sampleNumber = sampleNumber,
-    isNewRecord = true
-)

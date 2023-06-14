@@ -15,7 +15,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainReason
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainReason
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -36,8 +39,8 @@ fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int, clear: Bo
     selectSingleRecord(appModel.investigationReasonsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentOrder.value?.customerId = 0
-        appModel.currentOrder.value?.orderedById = 0
+        appModel.currentOrder.value?.customerId = NoRecord.num
+        appModel.currentOrder.value?.orderedById = NoRecord.num
     }
 }
 
@@ -81,16 +84,16 @@ fun filterAllAfterReasonsForSubOrderStandAlone(appModel: NewItemViewModel, selec
     selectSingleRecord(appModel.investigationReasonsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subOrder?.departmentId = 0
-        appModel.currentSubOrder.value?.subOrder?.subDepartmentId = 0
-        appModel.currentSubOrder.value?.subOrder?.orderedById = 0
-        appModel.currentSubOrder.value?.subOrder?.channelId = 0
-        appModel.currentSubOrder.value?.subOrder?.lineId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
-        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
-        appModel.currentSubOrder.value?.subOrder?.operationId = 0
-        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.departmentId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.subDepartmentId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.orderedById = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.channelId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.lineId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = NoString.str
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.operationId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
         appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }

@@ -1,5 +1,8 @@
 package com.simenko.qmapp.retrofit.entities
 
+import com.simenko.qmapp.retrofit.NetworkBaseModel
+import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.utils.ObjectTransformer
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -35,13 +38,21 @@ data class NetworkInputForOrder constructor(
     var charDescription: String,
     var charDesignation: String? = null,
     var charOrder: Int
-)
+) : NetworkBaseModel<DatabaseInputForOrder> {
+    override fun toDatabaseModel(): DatabaseInputForOrder {
+        return ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrdersStatus constructor(
     var id: Int,
     var statusDescription: String? = null
-)
+) : NetworkBaseModel<DatabaseOrdersStatus> {
+    override fun toDatabaseModel(): DatabaseOrdersStatus {
+        return ObjectTransformer(NetworkOrdersStatus::class, DatabaseOrdersStatus::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkReason(
@@ -49,13 +60,21 @@ data class NetworkReason(
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
-)
+): NetworkBaseModel<DatabaseReason> {
+    override fun toDatabaseModel(): DatabaseReason {
+        return ObjectTransformer(NetworkReason::class, DatabaseReason::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrdersType constructor(
     var id: Int,
     var typeDescription: String? = null
-)
+) : NetworkBaseModel<DatabaseOrdersType> {
+    override fun toDatabaseModel(): DatabaseOrdersType {
+        return ObjectTransformer(NetworkOrdersType::class, DatabaseOrdersType::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrder constructor(
@@ -68,7 +87,11 @@ data class NetworkOrder constructor(
     var statusId: Int,
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
-)
+) : NetworkBaseModel<DatabaseOrder> {
+    override fun toDatabaseModel(): DatabaseOrder {
+        return ObjectTransformer(NetworkOrder::class, DatabaseOrder::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrder constructor(
@@ -90,7 +113,11 @@ data class NetworkSubOrder constructor(
     var itemVersionId: Int,
     var samplesCount: Int? = null,
     var remarkId: Int
-)
+) : NetworkBaseModel<DatabaseSubOrder> {
+    override fun toDatabaseModel(): DatabaseSubOrder {
+        return ObjectTransformer(NetworkSubOrder::class, DatabaseSubOrder::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrderTask constructor(
@@ -102,20 +129,32 @@ data class NetworkSubOrderTask constructor(
     var completedDate: Long? = null,
     var orderedById: Int? = null,
     var completedById: Int? = null,
-)
+) : NetworkBaseModel<DatabaseSubOrderTask> {
+    override fun toDatabaseModel(): DatabaseSubOrderTask {
+        return ObjectTransformer(NetworkSubOrderTask::class, DatabaseSubOrderTask::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkSample constructor(
     var id: Int,
     var subOrderId: Int,
     var sampleNumber: Int? = null
-)
+) : NetworkBaseModel<DatabaseSample> {
+    override fun toDatabaseModel(): DatabaseSample {
+        return ObjectTransformer(NetworkSample::class, DatabaseSample::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkResultsDecryption constructor(
     var id: Int,
     var resultDecryption: String? = null
-)
+) : NetworkBaseModel<DatabaseResultsDecryption> {
+    override fun toDatabaseModel(): DatabaseResultsDecryption {
+        return ObjectTransformer(NetworkResultsDecryption::class, DatabaseResultsDecryption::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkResult constructor(
@@ -126,4 +165,8 @@ data class NetworkResult constructor(
     var isOk: Boolean? = null,
     var resultDecryptionId: Int,
     var taskId: Int
-)
+) : NetworkBaseModel<DatabaseResult> {
+    override fun toDatabaseModel(): DatabaseResult {
+        return ObjectTransformer(NetworkResult::class, DatabaseResult::class).transform(this)
+    }
+}

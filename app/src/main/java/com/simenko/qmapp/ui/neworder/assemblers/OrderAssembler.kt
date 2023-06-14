@@ -1,17 +1,19 @@
 package com.simenko.qmapp.ui.neworder.assemblers
 
 import android.util.Log
-import com.simenko.qmapp.domain.DomainOrder
-import com.simenko.qmapp.domain.DomainSubOrderShort
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainOrder
+import com.simenko.qmapp.domain.entities.DomainSubOrderShort
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 
 private const val TAG = "OrderAssembler"
 
 fun checkCurrentOrder(viewModel: NewItemViewModel): DomainOrder? {
-    if (viewModel.currentOrder.value?.orderTypeId == 0) return null
-    if (viewModel.currentOrder.value?.reasonId == 0) return null
-    if (viewModel.currentOrder.value?.customerId == 0) return null
-    if (viewModel.currentOrder.value?.orderedById == 0) return null
+    if (viewModel.currentOrder.value?.orderTypeId == NoRecord.num) return null
+    if (viewModel.currentOrder.value?.reasonId == NoRecord.num) return null
+    if (viewModel.currentOrder.value?.customerId == NoRecord.num) return null
+    if (viewModel.currentOrder.value?.orderedById == NoRecord.num) return null
 
     return viewModel.currentOrder.value
 }
@@ -22,20 +24,21 @@ fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
 
 fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderShort? {
 
-    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value?.order?.reasonId}")
+    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value?.subOrder}")
+    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value!!.order}")
 
-    if(viewModel.currentSubOrder.value!!.order.reasonId == 0) return null
+    if(viewModel.currentSubOrder.value!!.order.reasonId == NoRecord.num) return null
 
     val subOrder = viewModel.currentSubOrder.value!!.subOrder
 
-    if (subOrder.orderedById == 0) return null
-    if (subOrder.departmentId == 0) return null
-    if (subOrder.subDepartmentId == 0) return null
-    if (subOrder.channelId == 0) return null
-    if (subOrder.lineId == 0) return null
-    if (subOrder.operationId == 0) return null
-    if (subOrder.itemVersionId == 0) return null
-    if (subOrder.samplesCount == 0) return null
+    if (subOrder.orderedById == NoRecord.num) return null
+    if (subOrder.departmentId == NoRecord.num) return null
+    if (subOrder.subDepartmentId == NoRecord.num) return null
+    if (subOrder.channelId == NoRecord.num) return null
+    if (subOrder.lineId == NoRecord.num) return null
+    if (subOrder.operationId == NoRecord.num) return null
+    if (subOrder.itemVersionId == NoRecord.num) return null
+    if (subOrder.samplesCount == ZeroValue.num) return null
 
     return viewModel.currentSubOrder.value
 

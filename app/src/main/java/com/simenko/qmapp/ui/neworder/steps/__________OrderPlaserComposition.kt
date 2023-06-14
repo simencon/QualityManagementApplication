@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.neworder.selectSingleRecord
@@ -96,7 +96,7 @@ fun InvestigationPlacerCard(
             }
         ) {
             Text(
-                text = inputForOrder.fullName ?: "-"
+                text = inputForOrder.fullName
             )
         }
     }

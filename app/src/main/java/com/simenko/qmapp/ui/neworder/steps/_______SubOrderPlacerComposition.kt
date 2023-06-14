@@ -13,7 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -27,7 +30,7 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
         s = appModel.channels,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subOrder?.subDepartmentId?:0,
+        p1Id = appModel.currentSubOrder.value?.subOrder?.subDepartmentId ?: NoRecord.num,
         m = appModel.inputForOrder,
         step = FilteringStep.CHANNELS
     )
@@ -50,17 +53,17 @@ fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, c
     selectSingleRecord(appModel.subOrderPlacersMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subOrder?.channelId = 0
-        appModel.currentSubOrder.value?.subOrder?.lineId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemPreffix = ""
-        appModel.currentSubOrder.value?.subOrder?.itemTypeId = 0
-        appModel.currentSubOrder.value?.subOrder?.itemVersionId = 0
-        appModel.currentSubOrder.value?.subOrder?.operationId = 0
-        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.channelId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.lineId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemPreffix = NoString.str
+        appModel.currentSubOrder.value?.subOrder?.itemTypeId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.itemVersionId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.operationId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
-        appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
+        appModel.currentSubOrder.value?.samples?.forEach { it.toBeDeleted = true }
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
-        appModel.currentSubOrder.value?.subOrderTasks?.forEach {it.toBeDeleted = true}
+        appModel.currentSubOrder.value?.subOrderTasks?.forEach { it.toBeDeleted = true }
     }
 }
 
@@ -128,7 +131,7 @@ fun SubOrderPlacerCard(
             onClick = { onClick(input) }
         ) {
             Text(
-                text = input.fullName ?: "-"
+                text = input.fullName
             )
         }
     }

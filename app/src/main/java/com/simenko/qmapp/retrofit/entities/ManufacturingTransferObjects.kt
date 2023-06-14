@@ -1,12 +1,19 @@
 package com.simenko.qmapp.retrofit.entities
 
+import com.simenko.qmapp.retrofit.NetworkBaseModel
+import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.utils.ObjectTransformer
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NetworkPositionLevel(
     var id: Int,
     var levelDescription: String
-)
+) : NetworkBaseModel<DatabasePositionLevel> {
+    override fun toDatabaseModel(): DatabasePositionLevel {
+        return ObjectTransformer(NetworkPositionLevel::class, DatabasePositionLevel::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkTeamMember(
@@ -19,7 +26,11 @@ data class NetworkTeamMember(
     var roleLevelId: Int,
     var passWord: String? = null,
     var companyId: Int
-)
+) : NetworkBaseModel<DatabaseTeamMember> {
+    override fun toDatabaseModel(): DatabaseTeamMember {
+        return ObjectTransformer(NetworkTeamMember::class, DatabaseTeamMember::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkCompany constructor(
@@ -34,7 +45,11 @@ data class NetworkCompany constructor(
     var companyOrder: Int,
     var companyIndustrialClassification: String? = null,
     var companyManagerId: Int
-)
+) : NetworkBaseModel<DatabaseCompany> {
+    override fun toDatabaseModel(): DatabaseCompany {
+        return ObjectTransformer(NetworkCompany::class, DatabaseCompany::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkDepartment(
@@ -45,7 +60,11 @@ data class NetworkDepartment(
     val depOrganization: String?,
     val depOrder: Int?,
     val companyId: Int?
-)
+) : NetworkBaseModel<DatabaseDepartment> {
+    override fun toDatabaseModel(): DatabaseDepartment {
+        return ObjectTransformer(NetworkDepartment::class, DatabaseDepartment::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubDepartment(
@@ -54,7 +73,11 @@ data class NetworkSubDepartment(
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null
-)
+) : NetworkBaseModel<DatabaseSubDepartment> {
+    override fun toDatabaseModel(): DatabaseSubDepartment {
+        return ObjectTransformer(NetworkSubDepartment::class, DatabaseSubDepartment::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkManufacturingChannel(
@@ -63,7 +86,11 @@ data class NetworkManufacturingChannel(
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null
-)
+) : NetworkBaseModel<DatabaseManufacturingChannel> {
+    override fun toDatabaseModel(): DatabaseManufacturingChannel {
+        return ObjectTransformer(NetworkManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkManufacturingLine(
@@ -72,7 +99,11 @@ data class NetworkManufacturingLine(
     var lineAbbr: String,
     var lineDesignation: String,
     var lineOrder: Int
-)
+) : NetworkBaseModel<DatabaseManufacturingLine> {
+    override fun toDatabaseModel(): DatabaseManufacturingLine {
+        return ObjectTransformer(NetworkManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkManufacturingOperation(
@@ -82,11 +113,19 @@ data class NetworkManufacturingOperation(
     var operationDesignation: String,
     var operationOrder: Int,
     var equipment: String?
-)
+) : NetworkBaseModel<DatabaseManufacturingOperation> {
+    override fun toDatabaseModel(): DatabaseManufacturingOperation {
+        return ObjectTransformer(NetworkManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class NetworkOperationsFlow(
     var id: Int,
     var currentOperationId: Int,
     var previousOperationId: Int
-)
+) : NetworkBaseModel<DatabaseOperationsFlow> {
+    override fun toDatabaseModel(): DatabaseOperationsFlow {
+        return ObjectTransformer(NetworkOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
+    }
+}

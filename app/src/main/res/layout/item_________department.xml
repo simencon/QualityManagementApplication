@@ -18,7 +18,7 @@
 
         <variable
             name="department"
-            type="com.simenko.qmapp.domain.DomainDepartmentComplete" />
+            type="com.simenko.qmapp.domain.entities.DomainDepartmentComplete" />
 
         <variable
             name="departmentCallback"
@@ -68,7 +68,7 @@
                     android:hint="companyName"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{StringUtils.concatTwoStrings(department.departments.depAbbr,department.companies.get(0).companyName)}"
+                    android:text="@{StringUtils.concatTwoStrings(department.department.depAbbr,department.company.companyName)}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -104,7 +104,7 @@
                     android:hint="depName"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{department.departments.depName}"
+                    android:text="@{department.department.depName}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -140,7 +140,7 @@
                     android:hint="depOrganization"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{department.departments.depOrganization}"
+                    android:text="@{department.department.depOrganization}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 
@@ -176,7 +176,7 @@
                     android:hint="depManager"
                     android:maxLines="1"
                     android:padding="@dimen/padding_insight_item"
-                    android:text="@{department.depManagerDetails.get(0).fullName}"
+                    android:text="@{department.depManager.fullName}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/primary_variant_color" />
 

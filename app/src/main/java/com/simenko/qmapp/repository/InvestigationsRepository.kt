@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.InvRepository
@@ -12,14 +13,14 @@ import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
-import com.simenko.qmapp.utils.ListTransformer
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
-import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
+import okhttp3.ResponseBody
+import retrofit2.Converter
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -30,7 +31,8 @@ private const val TAG = "InvestigationsRepository"
 @OptIn(ExperimentalCoroutinesApi::class)
 class InvestigationsRepository @Inject constructor(
     private val invDao: InvestigationsDao,
-    private val invService: InvestigationsService
+    private val invService: InvestigationsService,
+    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
 ) : InvRepository {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
@@ -39,14 +41,9 @@ class InvestigationsRepository @Inject constructor(
      */
     suspend fun insertInputForOrder() {
         withContext(Dispatchers.IO) {
-            val inputForOrder =
-                invService.getInputForOrder()
+            val inputForOrder = invService.getInputForOrder()
             invDao.insertInputForOrderAll(
-                ListTransformer(
-                    inputForOrder,
-                    NetworkInputForOrder::class,
-                    DatabaseInputForOrder::class
-                ).generateList()
+                inputForOrder.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshInputForOrder: ${timeFormatter.format(Instant.now())}")
         }
@@ -56,11 +53,7 @@ class InvestigationsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val records = invService.getOrdersStatuses()
             invDao.insertOrdersStatusesAll(
-                ListTransformer(
-                    records,
-                    NetworkOrdersStatus::class,
-                    DatabaseOrdersStatus::class
-                ).generateList()
+                records.map { it.toDatabaseModel() }
             )
             Log.d(
                 TAG,
@@ -71,13 +64,9 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun insertInvestigationReasons() {
         withContext(Dispatchers.IO) {
-            val records =
-                invService.getMeasurementReasons()
+            val records = invService.getMeasurementReasons()
             invDao.insertMeasurementReasonsAll(
-                ListTransformer(
-                    records,
-                    NetworkReason::class, DatabaseReason::class
-                ).generateList()
+                records.map { it.toDatabaseModel() }
             )
             Log.d(
                 TAG,
@@ -90,11 +79,7 @@ class InvestigationsRepository @Inject constructor(
         withContext(Dispatchers.IO) {
             val records = invService.getOrdersTypes()
             invDao.insertOrdersTypesAll(
-                ListTransformer(
-                    records,
-                    NetworkOrdersType::class,
-                    DatabaseOrdersType::class
-                ).generateList()
+                records.map { it.toDatabaseModel() }
             )
             Log.d(
                 TAG,
@@ -105,13 +90,9 @@ class InvestigationsRepository @Inject constructor(
 
     suspend fun insertResultsDecryptions() {
         withContext(Dispatchers.IO) {
-            val resultsDecryptions =
-                invService.getResultsDecryptions()
+            val resultsDecryptions = invService.getResultsDecryptions()
             invDao.insertResultsDecryptionsAll(
-                ListTransformer(
-                    resultsDecryptions,
-                    NetworkResultsDecryption::class, DatabaseResultsDecryption::class
-                ).generateList()
+                resultsDecryptions.map { it.toDatabaseModel() }
             )
             Log.d(TAG, "refreshResultsDecryptions: ${timeFormatter.format(Instant.now())}")
         }
@@ -135,20 +116,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertOrder(ntIt.toDatabaseOrder())
+                    invDao.insertOrder(ntIt.toDatabaseModel())
                 }
             }
             ntOrders.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseOrder())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateOrder(ntIt.toDatabaseOrder())
+                    invDao.updateOrder(ntIt.toDatabaseModel())
                 }
             }
             dbOrders.forEach byBlock1@{ dbIt ->
@@ -167,25 +148,6 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    private fun DatabaseSubOrderComplete.toNotificationData(reason: NotificationReasons): NotificationData {
-        return NotificationData(
-            orderId = subOrder.orderId,
-            subOrderId = subOrder.id,
-            orderNumber = orderShort.order.orderNumber,
-            subOrderStatus = status.statusDescription,
-            departmentAbbr = department.depAbbr,
-            channelAbbr = channel.channelAbbr,
-            itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
-                StringUtils.concatTwoStrings3(
-                    itemVersionComplete.itemComplete.key.componentKey,
-                    itemVersionComplete.itemComplete.item.itemDesignation
-                ),
-                itemVersionComplete.itemVersion.versionDescription
-            ),
-            notificationReason = reason
-        )
-    }
-
     suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
@@ -202,7 +164,7 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.insertSubOrder(ntIt.toDatabaseModel())
                     invDao.getSubOrdersById(ntIt.id)?.let {
                         result.add(
                             it.toNotificationData(NotificationReasons.CREATED)
@@ -214,13 +176,13 @@ class InvestigationsRepository @Inject constructor(
                 var recordStatusChanged = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSubOrder())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateSubOrder(ntIt.toDatabaseSubOrder())
+                    invDao.updateSubOrder(ntIt.toDatabaseModel())
                     invDao.getSubOrdersById(ntIt.id)?.let {
                         result.add(
                             it.toNotificationData(NotificationReasons.CHANGED)
@@ -266,20 +228,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                    invDao.insertSubOrderTask(ntIt.toDatabaseModel())
                 }
             }
             ntTasks.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbTasks.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSubOrderTask())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateSubOrderTask(ntIt.toDatabaseSubOrderTask())
+                    invDao.updateSubOrderTask(ntIt.toDatabaseModel())
                 }
             }
             dbTasks.forEach byBlock1@{ dbIt ->
@@ -313,20 +275,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertSample(ntIt.toDatabaseSample())
+                    invDao.insertSample(ntIt.toDatabaseModel())
                 }
             }
             ntSamples.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbSamples.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseSample())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateSample(ntIt.toDatabaseSample())
+                    invDao.updateSample(ntIt.toDatabaseModel())
                 }
             }
             dbSamples.forEach byBlock1@{ dbIt ->
@@ -360,20 +322,20 @@ class InvestigationsRepository @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    invDao.insertResult(ntIt.toDatabaseResult())
+                    invDao.insertResult(ntIt.toDatabaseModel())
                 }
             }
             ntResults.forEach byBlock1@{ ntIt ->
                 var recordStatusChanged = false
                 dbResults.forEach byBlock2@{ dbIt ->
                     if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseResult())
+                        if (dbIt != ntIt.toDatabaseModel())
                             recordStatusChanged = true
                         return@byBlock2
                     }
                 }
                 if (recordStatusChanged) {
-                    invDao.updateResult(ntIt.toDatabaseResult())
+                    invDao.updateResult(ntIt.toDatabaseModel())
                 }
             }
             dbResults.forEach byBlock1@{ dbIt ->
@@ -412,11 +374,11 @@ class InvestigationsRepository @Inject constructor(
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
             }
 
-            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseOrder() })
-            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseSubOrder() })
-            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseSubOrderTask() })
-            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseSample() })
-            invDao.insertResultsAll(ntResults.map { it.toDatabaseResult() })
+            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseModel() })
+            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseModel() })
+            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseModel() })
+            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseModel() })
+            invDao.insertResultsAll(ntResults.map { it.toDatabaseModel() })
         }
     }
 
@@ -593,6 +555,7 @@ class InvestigationsRepository @Inject constructor(
                 if (response.isSuccessful) {
                     invDao.getSubOrderTaskById(taskId.toString())?.let { it ->
                         invDao.deleteSubOrderTask(it)
+                        Log.d(TAG, "deleteSubOrderTask: $it")
                     }
                     emit(Event(Resource.success(true)))
                 } else {
@@ -600,8 +563,9 @@ class InvestigationsRepository @Inject constructor(
                 }
             }
         }.exceptionOrNull().also {
-            if (it != null)
+            if (it != null) {
                 emit(Event(Resource.error("Network error", true)))
+            }
         }
     }
 
@@ -612,6 +576,7 @@ class InvestigationsRepository @Inject constructor(
                 if (response.isSuccessful) {
                     invDao.getSampleById(sampleId.toString())?.let { it ->
                         invDao.deleteSample(it)
+                        Log.d(TAG, "deleteSample: $it")
                     }
                     emit(Event(Resource.success(true)))
                 } else {
@@ -654,125 +619,159 @@ class InvestigationsRepository @Inject constructor(
      * Inv adding operations
      * */
     fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
-            val newOrder = invService.createOrder(record.toNetworkOrder()).toDatabaseOrder()
-            invDao.insertOrder(newOrder)
-            send(newOrder.toDomainOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newOrder = invService.createOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
+        invDao.insertOrder(newOrder)
+        send(newOrder.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
-            val newRecord = invService.createSubOrder(record.toNetworkSubOrder()).toDatabaseSubOrder()
-            invDao.insertSubOrder(newRecord)
-            send(newRecord.toDomainSubOrder()) //cold send, can be this.trySend(l).isSuccess //hot send
+        runCatching {
+            send(Event(Resource.loading(null)))
+            invService.createSubOrder(record.toDatabaseModel().toNetworkModel()).let { response ->
+                if (response.isSuccessful) {
+                    response.body().let { newRecord ->
+                        if (newRecord != null) {
+                            invDao.insertSubOrder(newRecord.toDatabaseModel())
+                            send(Event(Resource.success(invDao.getSubOrderById(newRecord.id.toString()))))
+                        } else {
+                            send(Event(Resource.error("Response body is empty.",null)))
+                        }
+                    }
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error",null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", null)))
         }
+    }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
-            val newRecord = invService.createSubOrderTask(record.toNetworkSubOrderTask()).toDatabaseSubOrderTask()
-            invDao.insertSubOrderTask(newRecord)
-            send(newRecord.toDomainSubOrderTask()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newRecord = invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
+        invDao.insertSubOrderTask(newRecord)
+        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertSample(record: DomainSample) = produce {
-            val newRecord = invService.createSample(record.toNetworkSample()).toDatabaseSample()
-            invDao.insertSample(newRecord)
-            send(newRecord.toDomainSample()) //cold send, can be this.trySend(l).isSuccess //hot send
-        }
+        val newRecord = invService.createSample(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
+        invDao.insertSample(newRecord)
+        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
-            val newRecords = invService.createResults(records.map { it.toNetworkResult() }).map { it.toDatabaseResult() }
-            invDao.insertResultsAll(newRecords)
-            send(newRecords.map { it.toDomainResult() }) //cold send, can be this.trySend(l).isSuccess //hot send
+        runCatching {
+            send(Event(Resource.loading(true)))
+            invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { ntResults ->
+                        invDao.insertResultsAll(ntResults.map { ntResult ->
+                            ntResult.toDatabaseModel()
+                        })
+                    }
+                    send(Event(Resource.success(true)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", true)))
         }
+    }
 
 
     fun CoroutineScope.updateOrder(record: DomainOrder) = produce {
-            val nOrder = record.toNetworkOrder()
-            invService.editOrder(record.id, nOrder)
-            invDao.updateOrder(record.toDatabaseOrder())
-            send(record)
-        }
+        val nOrder = record.toDatabaseModel().toNetworkModel()
+        invService.editOrder(record.id, nOrder)
+        invDao.updateOrder(record.toDatabaseModel())
+        send(record)
+    }
 
     fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = produce {
-            val nSubOrder = record.toNetworkSubOrder()
-            invService.editSubOrder(record.id, nSubOrder)
-            invDao.updateSubOrder(record.toDatabaseSubOrder())
-            send(record)
-        }
+        val nSubOrder = record.toDatabaseModel().toNetworkModel()
+        invService.editSubOrder(record.id, nSubOrder)
+        invDao.updateSubOrder(record.toDatabaseModel())
+        send(record)
+    }
 
     fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
-            val nSubOrderTask = record.toNetworkSubOrderTask()
-            invService.editSubOrderTask(record.id, nSubOrderTask)
-
-            val dSubOrderTask = invService.getSubOrderTask(record.id).toDatabaseSubOrderTask()
-            invDao.updateSubOrderTask(dSubOrderTask)
-
-            send(dSubOrderTask.toDomainSubOrderTask())
+        runCatching {
+            send(Event(Resource.loading(true)))
+            invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()).let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.let { ntResult ->
+                        val dSubOrderTask = invService.getSubOrderTask(ntResult.id).toDatabaseModel()
+                        invDao.updateSubOrderTask(dSubOrderTask)
+                    }
+                    send(Event(Resource.success(true)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", true)))
         }
+    }
 
     fun CoroutineScope.updateResult(record: DomainResult) = produce {
-            val nNetwork = record.toNetworkResult()
-            invService.editResult(record.id, nNetwork)
-            invDao.updateResult(record.toDatabaseResult())
-            send(record)
-        }
+        val nNetwork = record.toDatabaseModel().toNetworkModel()
+        invService.editResult(record.id, nNetwork)
+        invDao.updateResult(record.toDatabaseModel())
+        send(record)
+    }
 
 
     fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
-            val nOrder = invService.getOrder(record.id)
-            invDao.updateOrder(nOrder.toDatabaseOrder())
-            send(nOrder.toDomainOrder())
-        }
+        val nOrder = invService.getOrder(record.id)
+        invDao.updateOrder(nOrder.toDatabaseModel())
+        send(nOrder.toDatabaseModel().toDomainModel())
+    }
 
     fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
-            val nSubOrder = invService.getSubOrder(record.id)
-            invDao.updateSubOrder(nSubOrder.toDatabaseSubOrder())
-            send(nSubOrder.toDomainSubOrder())
-        }
+        val nSubOrder = invService.getSubOrder(record.id)
+        invDao.updateSubOrder(nSubOrder.toDatabaseModel())
+        send(nSubOrder.toDatabaseModel().toDomainModel())
+    }
 
-    fun CoroutineScope.syncTask( record: DomainSubOrderTask) = produce {
-            val nSubOrderTask = invService.getSubOrderTask(record.id)
-            invDao.updateSubOrderTask(nSubOrderTask.toDatabaseSubOrderTask())
-            send(nSubOrderTask.toDomainSubOrderTask())
-        }
+    fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
+        Log.d(TAG, "syncTask: $record")
+        val nSubOrderTask = invService.getSubOrderTask(record.id)
+        Log.d(TAG, "syncTask: $nSubOrderTask")
+        invDao.updateSubOrderTask(nSubOrderTask.toDatabaseModel())
+        send(nSubOrderTask.toDatabaseModel().toDomainModel())
+    }
 
 //    ToDO - change this part to return exactly what is needed
 
     suspend fun getOrderById(id: Int): DomainOrder =
         invDao.getOrderById(id.toString()).let {
-            it?.toDomainOrder() ?: throw IOException("no such order in local DB")
+            it?.toDomainModel() ?: throw IOException("no such order in local DB")
         }
 
 
     suspend fun getSubOrderById(id: Int): DomainSubOrder =
         invDao.getSubOrderById(id.toString()).let {
-            it?.toDomainSubOrder() ?: throw IOException("no such sub order in local DB")
+            it?.toDomainModel() ?: throw IOException("no such sub order in local DB")
         }
 
 
     suspend fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
         val list = invDao.getTasksBySubOrderId(subOrderId.toString())
-        return ListTransformer(
-            list,
-            DatabaseSubOrderTask::class, DomainSubOrderTask::class
-        ).generateList()
+        return list.map { it.toDomainModel() }
     }
 
     suspend fun getSamplesBySubOrderId(subOrderId: Int): List<DomainSample> {
         val list = invDao.getSamplesBySubOrderId(subOrderId)
-        return ListTransformer(
-            list,
-            DatabaseSample::class, DomainSample::class
-        ).generateList()
+        return list.map { it.toDomainModel() }
     }
 
 //    -------------------------------------------------------------
 
     fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
-        invDao.getOrdersStatusesFlow().map {
-            ListTransformer(
-                it,
-                DatabaseOrdersStatus::class,
-                DomainOrdersStatus::class
-            ).generateList()
+        invDao.getOrdersStatusesFlow().map { list ->
+            list.map { it.toDomainModel() }
         }.flowOn(Dispatchers.IO).conflate()
 
     suspend fun latestLocalOrderId(): Int {
@@ -784,30 +783,30 @@ class InvestigationsRepository @Inject constructor(
     suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
         val dbOrder = invDao.getOrderById(lastVisibleId.toString())
         return if (dbOrder != null)
-            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map {
-                it.asDomainOrdersComplete()
+            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map { list ->
+                list.map { it.toDomainModel() }
             }
         else flow { emit(listOf()) }
     }
 
     fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        invDao.getSubOrdersByDateRange(pair).map {
-            it.asDomainSubOrderDetailed()
+        invDao.getSubOrdersByDateRange(pair).map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        invDao.getTasksDateRange(pair).map {
-            it.asDomainSubOrderTask()
+        invDao.getTasksDateRange(pair).map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
-        invDao.getSamplesBySubOrder(subOrderId).map {
-            it.asDomainSamples()
+        invDao.getSamplesBySubOrder(subOrderId).map { list ->
+            list.map { it.toDomainModel() }
         }
 
     fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        invDao.getResultsBySubOrder(subOrderId).map {
-            it.asDomainResults()
+        invDao.getResultsBySubOrder(subOrderId).map { list ->
+            list.map { it.toDomainModel() }
         }
 
 
@@ -815,43 +814,22 @@ class InvestigationsRepository @Inject constructor(
      * New order related data
      * */
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        invDao.getInputForOrder().map {
-            ListTransformer(
-                it,
-                DatabaseInputForOrder::class,
-                DomainInputForOrder::class
-            ).generateList().sortedBy { item -> item.depOrder }
+        invDao.getInputForOrder().map { list ->
+            list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
         }
 
     val investigationTypes: LiveData<List<DomainOrdersType>> =
-        invDao.getOrdersTypes().map {
-            ListTransformer(
-                it,
-                DatabaseOrdersType::class,
-                DomainOrdersType::class
-            ).generateList()
+        invDao.getOrdersTypes().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val investigationReasons: LiveData<List<DomainReason>> =
-        invDao.getMeasurementReasons().map {
-            ListTransformer(
-                it,
-                DatabaseReason::class,
-                DomainReason::class
-            ).generateList()
+        invDao.getMeasurementReasons().map { list ->
+            list.map { it.toDomainModel() }
         }
 
     val orders: LiveData<List<DomainOrder>> =
-        invDao.getOrders().map {
-            ListTransformer(
-                it,
-                DatabaseOrder::class,
-                DomainOrder::class
-            ).generateList()
-        }
-
-    val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
-        invDao.getSubOrderWithChildren().map {
-            it.toDomainSubOrderShort()
+        invDao.getOrders().map { list ->
+            list.map { it.toDomainModel() }
         }
 }

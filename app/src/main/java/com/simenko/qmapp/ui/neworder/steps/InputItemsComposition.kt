@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.DomainInputForOrder
+import com.simenko.qmapp.domain.entities.DomainInputForOrder
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.Primary900
 import com.simenko.qmapp.ui.theme.StatusBar400

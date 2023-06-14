@@ -3,12 +3,14 @@ package com.simenko.qmapp.ui.main.investigations
 import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.common.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
@@ -186,12 +188,12 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentOrdersFilter(
         type: SelectedNumber = NoRecord,
         status: SelectedNumber = NoRecord,
-        number: SelectedString = NoSelectedString
+        number: SelectedString = NoString
     ) {
         _currentOrdersFilter.value = OrdersFilter(
             type.num,
             status.num,
-            if (number != NoSelectedString) number.str else _currentOrdersFilter.value.orderNumber
+            if (number != NoString) number.str else _currentOrdersFilter.value.orderNumber
         )
     }
 
@@ -248,16 +250,11 @@ class InvestigationsViewModel @Inject constructor(
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                             }
                             Status.SUCCESS -> {
                                 if (resource.data == true)
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = false
-                                    }
-                                coroutineContext[Job]?.cancelAndJoin()
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -303,12 +300,12 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentSubOrdersFilter(
         type: SelectedNumber = NoRecord,
         status: SelectedNumber = NoRecord,
-        number: SelectedString = NoSelectedString
+        number: SelectedString = NoString
     ) {
         _currentSubOrdersFilter.value = SubOrdersFilter(
             type.num,
             status.num,
-            if (number != NoSelectedString) number.str else _currentSubOrdersFilter.value.orderNumber
+            if (number != NoString) number.str else _currentSubOrdersFilter.value.orderNumber
         )
     }
 
@@ -369,7 +366,6 @@ class InvestigationsViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
                                     }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -452,7 +448,6 @@ class InvestigationsViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
                                     }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -608,7 +603,6 @@ class InvestigationsViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
                                     }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -678,69 +672,91 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     private suspend fun editTask(subOrderTask: DomainSubOrderTask) {
-        val listOfResults: MutableList<DomainResult> = mutableListOf()
-        /**
-         * 1.Get latest status task
-         * 2.Compare with new status
-         * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
-         * 4.If change is "Done" -> "To Do" = Delete all results
-         * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
-         * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
-         * */
-        repository.run { viewModelScope.syncTask(subOrderTask) }.consumeEach {
-            if (it.statusId == 1 || it.statusId == 4) {
-                if (subOrderTask.statusId == 3)
-                /**
-                 * Collect/Post new results and change status
-                 * */
-                {
-                    runBlocking {
-                        /**
-                         * first find subOrder
-                         * */
-                        val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+        withContext(Dispatchers.IO) {
+            val listOfResults: MutableList<DomainResult> = mutableListOf()
+            /**
+             * 1.Get latest status task
+             * 2.Compare with new status
+             * 3.If change is "To Do"/"Rejected" -> "Done" = Collect/Post new results and change status
+             * 4.If change is "Done" -> "To Do" = Delete all results
+             * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
+             * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
+             * */
+            repository.run { syncTask(subOrderTask) }.consumeEach {
+                if (it.statusId == InvStatuses.TO_DO.statusId || it.statusId == InvStatuses.REJECTED.statusId) {
+                    if (subOrderTask.statusId == InvStatuses.DONE.statusId)
+                    /**
+                     * Collect/Post new results and change status
+                     * */
+                    {
+                        runBlocking {
+                            /**
+                             * first find subOrder
+                             * */
+                            val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
 
-                        /**
-                         * second - extract list of metrixes to record
-                         * */
-                        val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                            prefix = subOrder.itemPreffix.substring(0, 1),
-                            versionId = subOrder.itemVersionId,
-                            actual = true,
-                            charId = subOrderTask.charId
-                        )
-                        /**
-                         * third - generate the final list of result to record
-                         * */
-                        repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
-                            metrixesToRecord.forEach { mIt ->
-                                listOfResults.add(
-                                    DomainResult(
-                                        id = 0,
-                                        sampleId = sdIt.id,
-                                        metrixId = mIt.id,
-                                        result = null,
-                                        isOk = true,
-                                        resultDecryptionId = 1,
-                                        taskId = subOrderTask.id
+                            /**
+                             * second - extract list of metrixes to record
+                             * */
+                            val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
+                                prefix = subOrder.itemPreffix.substring(0, 1),
+                                versionId = subOrder.itemVersionId,
+                                actual = true,
+                                charId = subOrderTask.charId
+                            )
+                            /**
+                             * third - generate the final list of result to record
+                             * */
+                            repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
+                                metrixesToRecord.forEach { mIt ->
+                                    listOfResults.add(
+                                        DomainResult(
+                                            id = 0,
+                                            sampleId = sdIt.id,
+                                            metrixId = mIt.id,
+                                            result = null,
+                                            isOk = true,
+                                            resultDecryptionId = 1,
+                                            taskId = subOrderTask.id
+                                        )
                                     )
-                                )
+                                }
+                            }
+
+                            repository.run { insertResults(listOfResults) }.consumeEach { event ->
+                                event.getContentIfNotHandled()?.let { resource ->
+                                    when (resource.status) {
+                                        Status.LOADING -> {}
+                                        Status.SUCCESS -> {}
+                                        Status.ERROR -> {
+                                            _isErrorMessage.value = resource.message
+                                        }
+                                    }
+                                }
                             }
                         }
-
-                        repository.run { insertResults(listOfResults) }.consumeEach { }
+                    }
+                } else if (it.statusId == InvStatuses.DONE.statusId) {
+                    if (subOrderTask.statusId == InvStatuses.TO_DO.statusId) {
+                        /**
+                         * Delete all results and change status
+                         * */
+                        deleteResultsBasedOnTask(subOrderTask)
                     }
                 }
-            } else if (it.statusId == 3) {
-                if (subOrderTask.statusId == 1) {
-                    /**
-                     * Delete all results and change status
-                     * */
-                    deleteResultsBasedOnTask(subOrderTask)
+            }
+            repository.run { updateTask(subOrderTask) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {}
+                        Status.SUCCESS -> {}
+                        Status.ERROR -> {
+                            _isErrorMessage.value = resource.message
+                        }
+                    }
                 }
             }
         }
-        repository.run { viewModelScope.updateTask(subOrderTask) }.consumeEach { }
     }
 
     fun editResult(result: DomainResult) {
@@ -780,7 +796,6 @@ class InvestigationsViewModel @Inject constructor(
                                             }
                                         }
                                     }
-                                    coroutineContext[Job]?.cancelAndJoin()
                                 }
                                 Status.ERROR -> {
                                     if (resource.data == true)
@@ -816,7 +831,6 @@ class InvestigationsViewModel @Inject constructor(
                                         }
                                     }
                                 }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)

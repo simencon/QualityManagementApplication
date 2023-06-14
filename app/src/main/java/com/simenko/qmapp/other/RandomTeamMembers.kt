@@ -1,6 +1,6 @@
 package com.simenko.qmapp.other
 
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.entities.DomainTeamMember
 
 
 object RandomTeamMembers {

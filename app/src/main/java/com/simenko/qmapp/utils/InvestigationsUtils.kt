@@ -1,6 +1,8 @@
 package com.simenko.qmapp.utils
 
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.DomainOrderComplete
+import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
@@ -8,13 +10,13 @@ import java.time.Instant
 data class OrdersFilter(
     val typeId: Int = NoRecord.num,
     val statusId: Int = NoRecord.num,
-    val orderNumber: String = NoSelectedString.str
+    val orderNumber: String = NoString.str
 )
 
 data class SubOrdersFilter(
     val typeId: Int = NoRecord.num,
     val statusId: Int = NoRecord.num,
-    val orderNumber: String = NoSelectedString.str
+    val orderNumber: String = NoString.str
 )
 
 data class NotificationData(
@@ -24,7 +26,7 @@ data class NotificationData(
     val subOrderStatus: String? = null,
     val departmentAbbr: String? = null,
     val channelAbbr: String? = null,
-    val itemTypeCompleteDesignation: String = NoSelectedString.str,
+    val itemTypeCompleteDesignation: String = NoString.str,
     val notificationReason: NotificationReasons = NotificationReasons.DEFAULT
 )
 
@@ -33,6 +35,13 @@ enum class NotificationReasons (val reason: String) {
     DELETED("Deleted: "),
     CHANGED("Changed: "),
     DEFAULT("no reason")
+}
+
+enum class InvStatuses(val statusId: Int) {
+    TO_DO(1),
+    IN_PROGRESS(2),
+    DONE(3),
+    REJECTED(4)
 }
 
 object InvestigationsUtils {
@@ -167,7 +176,7 @@ object InvestigationsUtils {
                     &&
                     (it.order.orderNumber.toString().contains(ordersFilter.orderNumber)
                             ||
-                            (ordersFilter.orderNumber == NoSelectedString.str))
+                            (ordersFilter.orderNumber == NoString.str))
         }
     }
 
@@ -182,7 +191,7 @@ object InvestigationsUtils {
                     (it.orderShort.order.orderNumber.toString()
                         .contains(subOrdersFilter.orderNumber)
                             ||
-                            (subOrdersFilter.orderNumber == NoSelectedString.str))
+                            (subOrdersFilter.orderNumber == NoString.str))
         }
     }
 }
