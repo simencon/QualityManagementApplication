@@ -13,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainOrdersType
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.DomainOrdersType
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.FilteringMode
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
@@ -45,9 +46,9 @@ fun filterAllAfterTypes(appModel: NewItemViewModel, selectedId: Int, clear: Bool
     selectSingleRecord(appModel.investigationTypesMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentOrder.value?.reasonId = 0
-        appModel.currentOrder.value?.customerId = 0
-        appModel.currentOrder.value?.orderedById = 0
+        appModel.currentOrder.value?.reasonId = NoRecord.num
+        appModel.currentOrder.value?.customerId = NoRecord.num
+        appModel.currentOrder.value?.orderedById = NoRecord.num
     }
 }
 

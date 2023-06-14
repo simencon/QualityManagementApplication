@@ -30,10 +30,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.DomainTeamMember
+import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.DomainTeamMemberComplete
+import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
 import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "TeamComposition"
@@ -127,7 +127,7 @@ fun TeamMemberCard(
             id = teamMember.teamMember.id,
             fullName = teamMember.teamMember.fullName,
             email = teamMember.teamMember.email,
-            department = teamMember.department.depName ?: "-",
+            department = teamMember.department?.depName ?: "-",
             jobRole = teamMember.teamMember.jobRole,
             detailsVisibility = teamMember.detailsVisibility,
             onClickDetails = {
@@ -275,37 +275,5 @@ fun TeamMember(
 @Composable
 fun MyAppPreview() {
     QMAppTheme {
-    }
-}
-
-fun getTeamMembers() = List(30) { i ->
-
-    when (i) {
-        0 -> {
-            DomainTeamMember(
-                id = 0,
-                departmentId = 1,
-                department = "Quality",
-                email = "roman.semenyshyn@skf.com",
-                fullName = "Роман Семенишин",
-                jobRole = "Заступник начальника УЯк",
-                roleLevelId = 5,
-                passWord = "13050513",
-                companyId = 1
-            )
-        }
-        else -> {
-            DomainTeamMember(
-                id = i,
-                departmentId = i + 1,
-                department = "Department num. $i",
-                email = "mail_$i@skf.com",
-                fullName = "NameSurname_$i",
-                jobRole = "Job role $i",
-                roleLevelId = (0..5).random(),
-                passWord = (1000..9999).random().toString(),
-                companyId = 1
-            )
-        }
     }
 }

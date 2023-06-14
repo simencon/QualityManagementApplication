@@ -17,7 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.simenko.qmapp.domain.DomainItemVersionComplete
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainItemVersionComplete
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -34,8 +37,8 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
         s = appModel.operations,
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subOrder?.lineId ?: 0,
-        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix?:"",
+        p1Id = appModel.currentSubOrder.value?.subOrder?.lineId ?: NoRecord.num,
+        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix ?: NoString.str,
         m = appModel.inputForOrder,
         step = FilteringStep.OPERATIONS
     )
@@ -47,8 +50,8 @@ fun filterAllAfterVersions(appModel: NewItemViewModel, selectedId: Any, clear: B
     selectSingleRecord(appModel.itemVersionsCompleteMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subOrder?.operationId = 0
-        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.operationId = NoRecord.num
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
         appModel.currentSubOrder.value?.samples?.forEach { it.toBeDeleted = true }
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
@@ -80,8 +83,7 @@ fun VersionsSelection(
                     modifier = modifier,
                     onClick = {
                         appModel.currentSubOrder.value?.subOrder?.itemPreffix = it.itemVersion.fId
-                        appModel.currentSubOrder.value?.subOrder?.itemTypeId =
-                            it.itemComplete.item.id
+                        appModel.currentSubOrder.value?.subOrder?.itemTypeId = it.itemComplete.item.id
                         appModel.currentSubOrder.value?.subOrder?.itemVersionId = it.itemVersion.id
                         filterAllAfterVersions(
                             appModel,

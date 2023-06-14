@@ -27,6 +27,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
 import com.google.accompanist.flowlayout.FlowRow
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -279,7 +280,7 @@ fun SubOrderCard(
 fun SubOrder(
     modifier: Modifier = Modifier,
     parentOrderTypeId: SelectedNumber,
-    subOrder: DomainSubOrderComplete = getSubOrders()[0],
+    subOrder: DomainSubOrderComplete = DomainSubOrderComplete(),
     onClickDetails: (Int) -> Unit = {},
     onClickStatus: (DomainSubOrderComplete, Int?) -> Unit,
 ) {
@@ -635,7 +636,7 @@ fun SubOrder(
 @Composable
 fun SubOrderDetails(
     modifier: Modifier = Modifier,
-    subOrder: DomainSubOrderComplete = getSubOrders()[0]
+    subOrder: DomainSubOrderComplete = DomainSubOrderComplete()
 ) {
     if (subOrder.detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -676,7 +677,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = getStringDate(subOrder.subOrder.createdDate)?: NoSelectedString.str,
+                text = getStringDate(subOrder.subOrder.createdDate)?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -722,7 +723,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = getStringDate(subOrder.subOrder.completedDate)?: NoSelectedString.str,
+                text = getStringDate(subOrder.subOrder.completedDate)?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -751,153 +752,3 @@ fun MySubOrderPreview() {
         )
     }
 }*/
-
-fun getSubOrders() = List(30) { i ->
-
-    DomainSubOrderComplete(
-        subOrder = getSubOrder(),
-        orderShort = DomainOrderShort(
-            order = getOrder(50),
-            orderType = getType(),
-            orderReason = getReason()
-        ),
-        orderedBy = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Роман Семенишин",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        completedBy = DomainTeamMember(
-            id = 1,
-            departmentId = 1,
-            department = "ГШСК№1",
-            email = "roman.semenyshyn@skf.com",
-            fullName = "Дмитро Ліщук",
-            jobRole = "Quality Manager",
-            roleLevelId = 1,
-            passWord = "13050513",
-            companyId = 1,
-            detailsVisibility = false
-        ),
-        status = DomainOrdersStatus(1, "In Progress"),
-        department = DomainDepartment(
-            id = 1,
-            depAbbr = "ГШСК№1",
-            depName = "Група шліфувально-складальних ліній",
-            depManager = 1,
-            depOrganization = "Manufacturing",
-            depOrder = 1,
-            companyId = 1
-        ),
-        subDepartment = DomainSubDepartment(
-            id = 1,
-            subDepAbbr = "ДБШ",
-            depId = 1,
-            subDepDesignation = "Дільниця безцетрової обробки",
-            subDepOrder = 1,
-            channelsVisibility = false
-        ),
-        channel = DomainManufacturingChannel(
-            id = 1,
-            channelAbbr = "ДБШ 1",
-            subDepId = 1,
-            channelDesignation = "Канал 1 нової дільниці безцентрового шліфування",
-            channelOrder = 1,
-            linesVisibility = false
-        ),
-        line = DomainManufacturingLine(
-            id = 1,
-            lineAbbr = "IR",
-            chId = 1,
-            lineDesignation = "Лінія обробки торців IR",
-            lineOrder = 1,
-            operationVisibility = false
-        ),
-        operation = DomainManufacturingOperation(
-            id = 1,
-            operationAbbr = "T",
-            lineId = 1,
-            operationDesignation = "Шліфування торців",
-            operationOrder = 1,
-            detailsVisibility = false,
-            equipment = "MTD-250"
-        ),
-        detailsVisibility = true,
-        itemVersionComplete = getItemVersionComplete(),
-        subOrderResult = getSubOrderResult()
-    )
-}
-
-fun getSubOrder() = DomainSubOrder(
-    id = 1,
-    orderId = 1,
-    subOrderNumber = (100..300).random(),
-    orderedById = 1,
-    completedById = 1,
-    statusId = 1,
-    createdDate = getMillisecondsDate("2022-12-15T22:24:43")!!,
-    completedDate = getMillisecondsDate("2022-12-15T22:24:43")!!,
-    departmentId = 1,
-    subDepartmentId = 1,
-    channelId = 1,
-    lineId = 1,
-    operationId = 1,
-    itemPreffix = "c",
-    itemTypeId = 1,
-    itemVersionId = 1,
-    samplesCount = (1..10).random(),
-    remarkId = 1
-)
-
-fun getItemVersionComplete() = DomainItemVersionComplete(
-    itemVersion = DomainItemVersion(
-        id = 0,
-        fId = "c0",
-        itemId = 0,
-        fItemId = "c0",
-        versionDescription = "V.01",
-        versionDate = "2022-12-15T22:24:43",
-        statusId = 1,
-        isDefault = true
-    ),
-    versionStatus = DomainVersionStatus(
-        id = 0,
-        statusDescription = "Done"
-    ),
-    itemComplete = DomainItemComplete(
-        item = DomainItem(
-            id = 0,
-            fId = "c0",
-            keyId = 0,
-            itemDesignation = "32024"
-        ),
-        key = DomainKey(
-            id = 0,
-            projectId = 0,
-            componentKey = "IR",
-            componentKeyDescription = "Внутрішнє кільце після шліфувальної обробки"
-        ),
-        itemToLines = List(30) { i ->
-            DomainItemToLine(
-                id = 0,
-                fId = "c0",
-                lineId = 0,
-                itemId = 0,
-                fItemId = "c0"
-            )
-        }
-    )
-)
-
-fun getSubOrderResult() = DomainSubOrderResult(
-    id = 0,
-    isOk = true,
-    good = 10,
-    total = 10
-)

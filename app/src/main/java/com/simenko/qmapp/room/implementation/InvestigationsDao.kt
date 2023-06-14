@@ -224,10 +224,6 @@ interface InvestigationsDao {
     suspend fun getSubOrdersById(subOrderId: Int): DatabaseSubOrderComplete?
 
     @Transaction
-    @Query("SELECT * FROM `13_sub_orders`")
-    fun getSubOrderWithChildren(): LiveData<List<DatabaseSubOrderShort>>
-
-    @Transaction
     @Query(
         "select t.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +

@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ItemSubDepartmentBinding
-import com.simenko.qmapp.domain.DomainSubDepartment
+import com.simenko.qmapp.domain.entities.DomainSubDepartment
 
 class SubDepartmentClick(val block: (DomainSubDepartment, Int) -> Unit) {
     fun onClick(subDepartment: DomainSubDepartment, position: Int) = block(subDepartment, position)

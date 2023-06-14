@@ -1,7 +1,13 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
-import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
+import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.room.DatabaseBaseModel
+import com.simenko.qmapp.utils.NotificationData
+import com.simenko.qmapp.utils.NotificationReasons
+import com.simenko.qmapp.utils.ObjectTransformer
+import com.simenko.qmapp.utils.StringUtils
 
 //    @ColumnInfo(name = "nameInTable")
 
@@ -46,14 +52,20 @@ data class DatabaseInputForOrder constructor(
     var charDescription: String,
     var charDesignation: String? = null,
     var charOrder: Int
-)
+) : DatabaseBaseModel<NetworkInputForOrder, DomainInputForOrder> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseInputForOrder::class, NetworkInputForOrder::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseInputForOrder::class, DomainInputForOrder::class).transform(this)
+}
 
 @Entity(tableName = "0_orders_statuses")
 data class DatabaseOrdersStatus constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var statusDescription: String? = null
-)
+) : DatabaseBaseModel<NetworkOrdersStatus, DomainOrdersStatus> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseOrdersStatus::class, NetworkOrdersStatus::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseOrdersStatus::class, DomainOrdersStatus::class).transform(this)
+}
 
 @Entity(tableName = "0_measurement_reasons")
 data class DatabaseReason constructor(
@@ -62,14 +74,20 @@ data class DatabaseReason constructor(
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
-)
+) : DatabaseBaseModel<NetworkReason, DomainReason> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseReason::class, NetworkReason::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseReason::class, DomainReason::class).transform(this)
+}
 
 @Entity(tableName = "0_orders_types")
 data class DatabaseOrdersType constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var typeDescription: String? = null
-)
+) : DatabaseBaseModel<NetworkOrdersType, DomainOrdersType> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseOrdersType::class, NetworkOrdersType::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseOrdersType::class, DomainOrdersType::class).transform(this)
+}
 
 @Entity(
     tableName = "12_orders",
@@ -127,7 +145,10 @@ data class DatabaseOrder constructor(
     @ColumnInfo(index = true)
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
-) {
+) : DatabaseBaseModel<NetworkOrder, DomainOrder> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseOrder::class, NetworkOrder::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseOrder::class, DomainOrder::class).transform(this)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -174,7 +195,10 @@ data class DatabaseOrderResult constructor(
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-)
+) : DatabaseBaseModel<Any?, DomainOrderResult> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseOrderResult::class, DomainOrderResult::class).transform(this)
+}
 
 @Entity(
     tableName = "13_sub_orders",
@@ -274,7 +298,10 @@ data class DatabaseSubOrder constructor(
     var itemVersionId: Int,
     var samplesCount: Int? = null,
     var remarkId: Int
-) {
+) : DatabaseBaseModel<NetworkSubOrder, DomainSubOrder> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrder::class, NetworkSubOrder::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -338,7 +365,10 @@ data class DatabaseSubOrderResult constructor(
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-)
+) : DatabaseBaseModel<Any?, DomainSubOrderResult> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseSubOrderResult::class, DomainSubOrderResult::class).transform(this)
+}
 
 @Entity(
     tableName = "13_7_sub_order_tasks",
@@ -400,7 +430,10 @@ data class DatabaseSubOrderTask constructor(
     var orderedById: Int? = null,
     @ColumnInfo(index = true)
     var completedById: Int? = null,
-) {
+) : DatabaseBaseModel<NetworkSubOrderTask, DomainSubOrderTask> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrderTask::class, NetworkSubOrderTask::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -443,7 +476,10 @@ data class DatabaseTaskResult constructor(
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-)
+) : DatabaseBaseModel<Any?, DomainTaskResult> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseTaskResult::class, DomainTaskResult::class).transform(this)
+}
 
 @Entity(
     tableName = "14_samples",
@@ -462,7 +498,10 @@ data class DatabaseSample constructor(
     @ColumnInfo(index = true)
     var subOrderId: Int,
     var sampleNumber: Int? = null
-) {
+) : DatabaseBaseModel<NetworkSample, DomainSample> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseSample::class, NetworkSample::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -497,7 +536,10 @@ data class DatabaseSampleResult constructor(
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
-)
+) : DatabaseBaseModel<Any?, DomainSampleResult> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseSampleResult::class, DomainSampleResult::class).transform(this)
+}
 
 data class DatabaseSampleComplete constructor(
     @Embedded
@@ -508,14 +550,24 @@ data class DatabaseSampleComplete constructor(
         entityColumn = "id"
     )
     val sample: DatabaseSample
-)
+) : DatabaseBaseModel<Any?, DomainSampleComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainSampleComplete(
+        sampleResult = sampleResult.toDomainModel(),
+        sample = sample.toDomainModel(),
+        detailsVisibility = false
+    )
+}
 
 @Entity(tableName = "0_results_decryptions")
 data class DatabaseResultsDecryption constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var resultDecryption: String? = null
-)
+) : DatabaseBaseModel<NetworkResultsDecryption, DomainResultsDecryption> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseResultsDecryption::class, NetworkResultsDecryption::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(this)
+}
 
 @Entity(
     tableName = "14_8_results",
@@ -562,7 +614,10 @@ data class DatabaseResult constructor(
     var resultDecryptionId: Int,
     @ColumnInfo(index = true)
     var taskId: Int
-) {
+) : DatabaseBaseModel<NetworkResult, DomainResult> {
+    override fun toNetworkModel() = ObjectTransformer(DatabaseResult::class, NetworkResult::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseResult::class, DomainResult::class).transform(this)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -613,7 +668,14 @@ data class DatabaseOrderShort constructor(
         entityColumn = "id"
     )
     val orderReason: DatabaseReason
-)
+) : DatabaseBaseModel<Any?, DomainOrderShort> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainOrderShort(
+        order = order.toDomainModel(),
+        orderType = orderType.toDomainModel(),
+        orderReason = orderReason.toDomainModel()
+    )
+}
 
 data class DatabaseOrderComplete constructor(
     @Embedded
@@ -660,7 +722,19 @@ data class DatabaseOrderComplete constructor(
         entityColumn = "id"
     )
     val orderResult: DatabaseOrderResult
-)
+) : DatabaseBaseModel<Any?, DomainOrderComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainOrderComplete(
+        order = order.toDomainModel(),
+        orderType = orderType.toDomainModel(),
+        orderReason = orderReason.toDomainModel(),
+        customer = customer.toDomainModel(),
+        orderPlacer = orderPlacer.toDomainModel(),
+        orderStatus = orderStatus.toDomainModel(),
+        orderResult = orderResult.toDomainModel(),
+        detailsVisibility = false
+    )
+}
 
 data class DatabaseSubOrderComplete constructor(
     @Embedded
@@ -734,30 +808,41 @@ data class DatabaseSubOrderComplete constructor(
         entityColumn = "id"
     )
     val subOrderResult: DatabaseSubOrderResult
-)
+) : DatabaseBaseModel<Any?, DomainSubOrderComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainSubOrderComplete(
+        subOrder = subOrder.toDomainModel(),
+        orderShort = orderShort.toDomainModel(),
+        orderedBy = orderedBy.toDomainModel(),
+        completedBy = completedBy?.toDomainModel(),
+        status = status.toDomainModel(),
+        department = department.toDomainModel(),
+        subDepartment = subDepartment.toDomainModel(),
+        channel = channel.toDomainModel(),
+        line = line.toDomainModel(),
+        operation = operation.toDomainModel(),
+        itemVersionComplete = itemVersionComplete.toDomainModel(),
+        subOrderResult = subOrderResult.toDomainModel(),
+        detailsVisibility = false
+    )
 
-data class DatabaseSubOrderShort constructor(
-    @Embedded
-    var subOrder: DatabaseSubOrder,
-    @Relation(
-        entity = DatabaseOrder::class,
-        parentColumn = "orderId",
-        entityColumn = "id"
+    fun toNotificationData(reason: NotificationReasons) = NotificationData(
+        orderId = subOrder.orderId,
+        subOrderId = subOrder.id,
+        orderNumber = orderShort.order.orderNumber,
+        subOrderStatus = status.statusDescription,
+        departmentAbbr = department.depAbbr,
+        channelAbbr = channel.channelAbbr,
+        itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
+            StringUtils.concatTwoStrings3(
+                itemVersionComplete.itemComplete.key.componentKey,
+                itemVersionComplete.itemComplete.item.itemDesignation
+            ),
+            itemVersionComplete.itemVersion.versionDescription
+        ),
+        notificationReason = reason
     )
-    var order: DatabaseOrder,
-    @Relation(
-        entity = DatabaseSample::class,
-        parentColumn = "id",
-        entityColumn = "subOrderId"
-    )
-    var samples: List<DatabaseSample>,
-    @Relation(
-        entity = DatabaseSubOrderTask::class,
-        parentColumn = "id",
-        entityColumn = "subOrderId"
-    )
-    var subOrderTasks: List<DatabaseSubOrderTask>
-)
+}
 
 @DatabaseView(
     viewName = "sub_order_task_complete",
@@ -790,7 +875,17 @@ data class DatabaseSubOrderTaskComplete constructor(
         entityColumn = "id"
     )
     val taskResult: DatabaseTaskResult,
-)
+) : DatabaseBaseModel<Any?, DomainSubOrderTaskComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainSubOrderTaskComplete(
+        subOrderTask = subOrderTask.toDomainModel(),
+        characteristic = characteristic.toDomainModel(),
+        subOrder = subOrder.toDomainModel(),
+        status = status.toDomainModel(),
+        taskResult = taskResult.toDomainModel(),
+        detailsVisibility = false
+    )
+}
 
 @DatabaseView(
     viewName = "results_tolerances",
@@ -804,7 +899,10 @@ data class DatabaseResultTolerance(
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?
-)
+) : DatabaseBaseModel<Any?, DomainResultTolerance> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseResultTolerance::class, DomainResultTolerance::class).transform(this)
+}
 
 @DatabaseView(
     viewName = "result_complete",
@@ -831,4 +929,13 @@ data class DatabaseResultComplete(
         entityColumn = "id"
     )
     val resultTolerance: DatabaseResultTolerance
-)
+) : DatabaseBaseModel<Any?, DomainResultComplete> {
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = DomainResultComplete(
+        result = result.toDomainModel(),
+        resultsDecryption = resultsDecryption.toDomainModel(),
+        metrix = metrix.toDomainModel(),
+        resultTolerance = resultTolerance.toDomainModel(),
+        detailsVisibility = false
+    )
+}

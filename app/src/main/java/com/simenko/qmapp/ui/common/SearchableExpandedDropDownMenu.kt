@@ -34,11 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainModel
+import com.simenko.qmapp.domain.DomainBaseModel
 
 
 /**
@@ -60,7 +59,7 @@ import com.simenko.qmapp.domain.DomainModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T : DomainModel> SearchableExpandedDropDownMenu(
+fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
     modifier: Modifier = Modifier,
     listOfItems: List<T>,
     enable: Boolean = true,

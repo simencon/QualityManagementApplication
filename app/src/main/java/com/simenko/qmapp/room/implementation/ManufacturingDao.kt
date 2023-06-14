@@ -73,11 +73,7 @@ interface ManufacturingDao {
     fun getTeamDetailedList(): Flow<List<DatabaseTeamMemberComplete>>
 
     @Transaction
-    @Query(
-        "SELECT dp.* FROM '8_team_members' AS tm " +
-                "JOIN '10_departments' AS dp ON tm.id = dp.depManager " +
-                "ORDER BY dp.depOrder ASC"
-    )
+    @Query("select dp.* from `10_departments` as dp order by dp.depOrder")
     fun getDepartmentsDetailed(): LiveData<List<DatabaseDepartmentsComplete>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

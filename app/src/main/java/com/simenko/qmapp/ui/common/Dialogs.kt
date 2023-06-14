@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.common
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -200,6 +202,7 @@ fun CustomDialogUI(
                                 currentSubOrderTask != null -> {
                                     currentSubOrderTask.subOrderTask.completedById =
                                         dialogInput.performerId
+                                    Log.d(TAG, "CustomDialogUI: ${currentSubOrderTask.subOrderTask}")
                                     invModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                                 }
                             }

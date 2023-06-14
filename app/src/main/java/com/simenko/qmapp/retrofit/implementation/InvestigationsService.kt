@@ -60,7 +60,7 @@ interface InvestigationsService {
     ): Response<List<NetworkSubOrder>>
 
     @POST("subOrders")
-    suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
+    suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): Response<NetworkSubOrder>
 
     @DELETE("subOrders/{id}")
     suspend fun deleteSubOrder(@Path("id") id: Int): Response<Unit>
@@ -93,7 +93,7 @@ interface InvestigationsService {
     suspend fun editSubOrderTask(
         @Path("id") id: Int,
         @Body body: NetworkSubOrderTask
-    ): Response<Unit>
+    ): Response<NetworkSubOrderTask>
 
     @GET("subOrderTasks/{id}")
     suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
@@ -128,7 +128,7 @@ interface InvestigationsService {
     ): Response<List<NetworkResult>>
 
     @POST("results/records")
-    suspend fun createResults(@Body records: List<NetworkResult>): List<NetworkResult>
+    suspend fun createResults(@Body records: List<NetworkResult>): Response<List<NetworkResult>>
 
     @DELETE("results/{taskId}/{id}")
     suspend fun deleteResults(

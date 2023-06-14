@@ -15,7 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainDepartment
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -31,7 +32,7 @@ fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int, clear: 
     selectSingleRecord(appModel.customersMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentOrder.value?.orderedById = 0
+        appModel.currentOrder.value?.orderedById = NoRecord.num
     }
 }
 

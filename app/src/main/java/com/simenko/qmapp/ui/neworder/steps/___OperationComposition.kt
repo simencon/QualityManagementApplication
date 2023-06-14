@@ -13,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.DomainManufacturingOperation
+import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.ui.common.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary900
@@ -33,7 +34,7 @@ fun filterAllAfterOperations(appModel: NewItemViewModel, selectedId: Int, clear:
     selectSingleRecord(appModel.operationsMutable, appModel.pairedTrigger, selectedId)
 
     if (clear) {
-        appModel.currentSubOrder.value?.subOrder?.samplesCount = 0
+        appModel.currentSubOrder.value?.subOrder?.samplesCount = ZeroValue.num
         appModel.currentSubOrder.value?.samples?.removeIf { it.isNewRecord }
         appModel.currentSubOrder.value?.samples?.forEach {it.toBeDeleted = true}
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }

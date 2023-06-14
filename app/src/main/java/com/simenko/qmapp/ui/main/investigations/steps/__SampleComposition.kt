@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -28,9 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.DomainSample
-import com.simenko.qmapp.domain.DomainSampleComplete
-import com.simenko.qmapp.domain.DomainSampleResult
+import com.simenko.qmapp.domain.entities.DomainSample
+import com.simenko.qmapp.domain.entities.DomainSampleComplete
+import com.simenko.qmapp.domain.entities.DomainSampleResult
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -121,7 +120,7 @@ fun SampleCard(
 fun Sample(
     modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel? = null,
-    sample: DomainSampleComplete = getSamplesComplete()[0],
+    sample: DomainSampleComplete = DomainSampleComplete(),
     onClickDetails: () -> Unit = {},
 ) {
     Column(
@@ -235,27 +234,6 @@ fun MySamplePreview() {
         )
     }
 }
-
-fun getSamplesComplete() = List(30) { i ->
-    DomainSampleComplete(
-        sample = getSample(),
-        sampleResult = getSampleResult(),
-    )
-}
-
-fun getSample() = DomainSample(
-    id = (1..30).random(),
-    subOrderId = (100..300).random(),
-    sampleNumber = 1
-)
-
-fun getSampleResult() = DomainSampleResult(
-    id = (1..30).random(),
-    taskId = 0,
-    isOk = true,
-    good = 10,
-    total = 10
-)
 
 
 
