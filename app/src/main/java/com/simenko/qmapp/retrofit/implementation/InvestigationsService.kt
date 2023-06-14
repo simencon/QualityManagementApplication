@@ -37,17 +37,17 @@ interface InvestigationsService {
     ): Response<List<NetworkOrder>>
 
     @POST("orders")
-    suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder
+    suspend fun createOrder(@Body networkOrder: NetworkOrder): Response<NetworkOrder>
 
     @DELETE("orders/{id}")
     suspend fun deleteOrder(@Path("id") id: Int): Response<Unit>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("orders/{id}")
-    suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<Unit>
+    suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<NetworkOrder>
 
     @GET("orders/{id}")
-    suspend fun getOrder(@Path("id") id: Int): NetworkOrder
+    suspend fun getOrder(@Path("id") id: Int): Response<NetworkOrder>
 
     @GET("subOrders/hashCode/{timeRange}")
     suspend fun getSubOrdersHashCodeForDatePeriod(
@@ -67,7 +67,7 @@ interface InvestigationsService {
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("subOrders/{id}")
-    suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<Unit>
+    suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<NetworkSubOrder>
 
     @GET("subOrders/{id}")
     suspend fun getSubOrder(@Path("id") id: Int): NetworkSubOrder
@@ -83,7 +83,7 @@ interface InvestigationsService {
     ): Response<List<NetworkSubOrderTask>>
 
     @POST("subOrderTasks")
-    suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
+    suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): Response<NetworkSubOrderTask>
 
     @DELETE("subOrderTasks/{id}")
     suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<Unit>
@@ -96,7 +96,7 @@ interface InvestigationsService {
     ): Response<NetworkSubOrderTask>
 
     @GET("subOrderTasks/{id}")
-    suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
+    suspend fun getSubOrderTask(@Path("id") id: Int): Response<NetworkSubOrderTask>
 
     @GET("samples/hashCode/{timeRange}")
     suspend fun getSamplesHashCodeForDatePeriod(
@@ -109,7 +109,7 @@ interface InvestigationsService {
     ): Response<List<NetworkSample>>
 
     @POST("samples")
-    suspend fun createSample(@Body networkSample: NetworkSample): NetworkSample
+    suspend fun createSample(@Body networkSample: NetworkSample): Response<NetworkSample>
 
     @DELETE("samples/{id}")
     suspend fun deleteSample(@Path("id") id: Int): Response<Unit>
@@ -141,5 +141,5 @@ interface InvestigationsService {
     suspend fun editResult(
         @Path("id") id: Int,
         @Body body: NetworkResult
-    ): Response<Unit>
+    ): Response<NetworkResult>
 }
