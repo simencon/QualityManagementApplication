@@ -12,6 +12,7 @@ data class DatabasePositionLevel(
     var id: Int,
     var levelDescription: String
 ) : DatabaseBaseModel<NetworkPositionLevel, DomainPositionLevel> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabasePositionLevel::class, NetworkPositionLevel::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabasePositionLevel::class, DomainPositionLevel::class).transform(this)
 }
@@ -59,6 +60,7 @@ data class DatabaseTeamMember constructor(
     @ColumnInfo(index = true)
     var companyId: Int
 ) : DatabaseBaseModel<NetworkTeamMember, DomainTeamMember> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseTeamMember::class, NetworkTeamMember::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseTeamMember::class, DomainTeamMember::class).transform(this)
 }
@@ -89,6 +91,7 @@ data class DatabaseCompany constructor(
     @ColumnInfo(index = true)
     var companyManagerId: Int
 ) : DatabaseBaseModel<NetworkCompany, DomainCompany> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCompany::class, NetworkCompany::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCompany::class, DomainCompany::class).transform(this)
 }
@@ -124,6 +127,7 @@ data class DatabaseDepartment constructor(
     @ColumnInfo(index = true)
     val companyId: Int?
 ) : DatabaseBaseModel<NetworkDepartment, DomainDepartment> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseDepartment::class, NetworkDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseDepartment::class, DomainDepartment::class).transform(this)
 }
@@ -148,6 +152,7 @@ data class DatabaseSubDepartment(
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null
 ) : DatabaseBaseModel<NetworkSubDepartment, DomainSubDepartment> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubDepartment::class, NetworkSubDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
 }
@@ -172,6 +177,7 @@ data class DatabaseManufacturingChannel(
     var channelDesignation: String? = null,
     var channelOrder: Int? = null
 ) : DatabaseBaseModel<NetworkManufacturingChannel, DomainManufacturingChannel> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingChannel::class, NetworkManufacturingChannel::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
 }
@@ -196,6 +202,7 @@ data class DatabaseManufacturingLine(
     var lineDesignation: String,
     var lineOrder: Int
 ) : DatabaseBaseModel<NetworkManufacturingLine, DomainManufacturingLine> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingLine::class, NetworkManufacturingLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
 }
@@ -221,6 +228,7 @@ data class DatabaseManufacturingOperation(
     var operationOrder: Int,
     var equipment: String?
 ) : DatabaseBaseModel<NetworkManufacturingOperation, DomainManufacturingOperation> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingOperation::class, NetworkManufacturingOperation::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
 }
@@ -252,6 +260,7 @@ data class DatabaseOperationsFlow(
     @ColumnInfo(index = true)
     var previousOperationId: Int
 ) : DatabaseBaseModel<NetworkOperationsFlow, DomainOperationsFlow> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOperationsFlow::class, NetworkOperationsFlow::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOperationsFlow::class, DomainOperationsFlow::class).transform(this)
 }
@@ -272,6 +281,7 @@ data class DatabaseTeamMemberComplete(
     )
     val company: DatabaseCompany?
 ) : DatabaseBaseModel<Boolean, DomainTeamMemberComplete> {
+    override fun getId() = teamMember.id
     override fun toNetworkModel() = false
     override fun toDomainModel() = DomainTeamMemberComplete(
         teamMember = teamMember.toDomainModel(),
@@ -296,6 +306,7 @@ data class DatabaseDepartmentsComplete(
     )
     val company: DatabaseCompany
 ) : DatabaseBaseModel<Any?, DomainDepartmentComplete> {
+    override fun getId() = department.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainDepartmentComplete(
         department = department.toDomainModel(),

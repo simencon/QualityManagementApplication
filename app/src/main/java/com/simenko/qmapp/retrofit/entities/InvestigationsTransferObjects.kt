@@ -39,6 +39,7 @@ data class NetworkInputForOrder constructor(
     var charDesignation: String? = null,
     var charOrder: Int
 ) : NetworkBaseModel<DatabaseInputForOrder> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseInputForOrder {
         return ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
     }
@@ -49,6 +50,7 @@ data class NetworkOrdersStatus constructor(
     var id: Int,
     var statusDescription: String? = null
 ) : NetworkBaseModel<DatabaseOrdersStatus> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseOrdersStatus {
         return ObjectTransformer(NetworkOrdersStatus::class, DatabaseOrdersStatus::class).transform(this)
     }
@@ -61,6 +63,7 @@ data class NetworkReason(
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
 ): NetworkBaseModel<DatabaseReason> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseReason {
         return ObjectTransformer(NetworkReason::class, DatabaseReason::class).transform(this)
     }
@@ -71,6 +74,7 @@ data class NetworkOrdersType constructor(
     var id: Int,
     var typeDescription: String? = null
 ) : NetworkBaseModel<DatabaseOrdersType> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseOrdersType {
         return ObjectTransformer(NetworkOrdersType::class, DatabaseOrdersType::class).transform(this)
     }
@@ -88,6 +92,7 @@ data class NetworkOrder constructor(
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
 ) : NetworkBaseModel<DatabaseOrder> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseOrder {
         return ObjectTransformer(NetworkOrder::class, DatabaseOrder::class).transform(this)
     }
@@ -114,6 +119,7 @@ data class NetworkSubOrder constructor(
     var samplesCount: Int? = null,
     var remarkId: Int
 ) : NetworkBaseModel<DatabaseSubOrder> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseSubOrder {
         return ObjectTransformer(NetworkSubOrder::class, DatabaseSubOrder::class).transform(this)
     }
@@ -130,6 +136,7 @@ data class NetworkSubOrderTask constructor(
     var orderedById: Int? = null,
     var completedById: Int? = null,
 ) : NetworkBaseModel<DatabaseSubOrderTask> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseSubOrderTask {
         return ObjectTransformer(NetworkSubOrderTask::class, DatabaseSubOrderTask::class).transform(this)
     }
@@ -141,6 +148,7 @@ data class NetworkSample constructor(
     var subOrderId: Int,
     var sampleNumber: Int? = null
 ) : NetworkBaseModel<DatabaseSample> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseSample {
         return ObjectTransformer(NetworkSample::class, DatabaseSample::class).transform(this)
     }
@@ -151,6 +159,7 @@ data class NetworkResultsDecryption constructor(
     var id: Int,
     var resultDecryption: String? = null
 ) : NetworkBaseModel<DatabaseResultsDecryption> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseResultsDecryption {
         return ObjectTransformer(NetworkResultsDecryption::class, DatabaseResultsDecryption::class).transform(this)
     }
@@ -166,6 +175,7 @@ data class NetworkResult constructor(
     var resultDecryptionId: Int,
     var taskId: Int
 ) : NetworkBaseModel<DatabaseResult> {
+    override fun getId() = id
     override fun toDatabaseModel(): DatabaseResult {
         return ObjectTransformer(NetworkResult::class, DatabaseResult::class).transform(this)
     }

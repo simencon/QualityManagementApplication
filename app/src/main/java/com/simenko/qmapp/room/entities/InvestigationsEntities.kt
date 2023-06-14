@@ -53,6 +53,7 @@ data class DatabaseInputForOrder constructor(
     var charDesignation: String? = null,
     var charOrder: Int
 ) : DatabaseBaseModel<NetworkInputForOrder, DomainInputForOrder> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseInputForOrder::class, NetworkInputForOrder::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseInputForOrder::class, DomainInputForOrder::class).transform(this)
 }
@@ -63,6 +64,7 @@ data class DatabaseOrdersStatus constructor(
     var id: Int,
     var statusDescription: String? = null
 ) : DatabaseBaseModel<NetworkOrdersStatus, DomainOrdersStatus> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOrdersStatus::class, NetworkOrdersStatus::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOrdersStatus::class, DomainOrdersStatus::class).transform(this)
 }
@@ -75,6 +77,7 @@ data class DatabaseReason constructor(
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
 ) : DatabaseBaseModel<NetworkReason, DomainReason> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseReason::class, NetworkReason::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseReason::class, DomainReason::class).transform(this)
 }
@@ -85,6 +88,7 @@ data class DatabaseOrdersType constructor(
     var id: Int,
     var typeDescription: String? = null
 ) : DatabaseBaseModel<NetworkOrdersType, DomainOrdersType> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOrdersType::class, NetworkOrdersType::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOrdersType::class, DomainOrdersType::class).transform(this)
 }
@@ -146,6 +150,7 @@ data class DatabaseOrder constructor(
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
 ) : DatabaseBaseModel<NetworkOrder, DomainOrder> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseOrder::class, NetworkOrder::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseOrder::class, DomainOrder::class).transform(this)
 
@@ -196,6 +201,7 @@ data class DatabaseOrderResult constructor(
     val good: Int?,
     val total: Int?
 ) : DatabaseBaseModel<Any?, DomainOrderResult> {
+    override fun getId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseOrderResult::class, DomainOrderResult::class).transform(this)
 }
@@ -299,6 +305,7 @@ data class DatabaseSubOrder constructor(
     var samplesCount: Int? = null,
     var remarkId: Int
 ) : DatabaseBaseModel<NetworkSubOrder, DomainSubOrder> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrder::class, NetworkSubOrder::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubOrder::class, DomainSubOrder::class).transform(this)
 
@@ -366,6 +373,7 @@ data class DatabaseSubOrderResult constructor(
     val good: Int?,
     val total: Int?
 ) : DatabaseBaseModel<Any?, DomainSubOrderResult> {
+    override fun getId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseSubOrderResult::class, DomainSubOrderResult::class).transform(this)
 }
@@ -431,6 +439,7 @@ data class DatabaseSubOrderTask constructor(
     @ColumnInfo(index = true)
     var completedById: Int? = null,
 ) : DatabaseBaseModel<NetworkSubOrderTask, DomainSubOrderTask> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrderTask::class, NetworkSubOrderTask::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubOrderTask::class, DomainSubOrderTask::class).transform(this)
 
@@ -477,6 +486,7 @@ data class DatabaseTaskResult constructor(
     val good: Int?,
     val total: Int?
 ) : DatabaseBaseModel<Any?, DomainTaskResult> {
+    override fun getId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseTaskResult::class, DomainTaskResult::class).transform(this)
 }
@@ -499,6 +509,7 @@ data class DatabaseSample constructor(
     var subOrderId: Int,
     var sampleNumber: Int? = null
 ) : DatabaseBaseModel<NetworkSample, DomainSample> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSample::class, NetworkSample::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSample::class, DomainSample::class).transform(this)
 
@@ -537,6 +548,7 @@ data class DatabaseSampleResult constructor(
     val good: Int?,
     val total: Int?
 ) : DatabaseBaseModel<Any?, DomainSampleResult> {
+    override fun getId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseSampleResult::class, DomainSampleResult::class).transform(this)
 }
@@ -551,6 +563,7 @@ data class DatabaseSampleComplete constructor(
     )
     val sample: DatabaseSample
 ) : DatabaseBaseModel<Any?, DomainSampleComplete> {
+    override fun getId() = sample.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSampleComplete(
         sampleResult = sampleResult.toDomainModel(),
@@ -565,6 +578,7 @@ data class DatabaseResultsDecryption constructor(
     var id: Int,
     var resultDecryption: String? = null
 ) : DatabaseBaseModel<NetworkResultsDecryption, DomainResultsDecryption> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseResultsDecryption::class, NetworkResultsDecryption::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseResultsDecryption::class, DomainResultsDecryption::class).transform(this)
 }
@@ -615,6 +629,7 @@ data class DatabaseResult constructor(
     @ColumnInfo(index = true)
     var taskId: Int
 ) : DatabaseBaseModel<NetworkResult, DomainResult> {
+    override fun getId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseResult::class, NetworkResult::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseResult::class, DomainResult::class).transform(this)
 
@@ -669,6 +684,7 @@ data class DatabaseOrderShort constructor(
     )
     val orderReason: DatabaseReason
 ) : DatabaseBaseModel<Any?, DomainOrderShort> {
+    override fun getId() = order.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainOrderShort(
         order = order.toDomainModel(),
@@ -723,6 +739,7 @@ data class DatabaseOrderComplete constructor(
     )
     val orderResult: DatabaseOrderResult
 ) : DatabaseBaseModel<Any?, DomainOrderComplete> {
+    override fun getId() = order.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainOrderComplete(
         order = order.toDomainModel(),
@@ -809,6 +826,7 @@ data class DatabaseSubOrderComplete constructor(
     )
     val subOrderResult: DatabaseSubOrderResult
 ) : DatabaseBaseModel<Any?, DomainSubOrderComplete> {
+    override fun getId() = subOrder.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSubOrderComplete(
         subOrder = subOrder.toDomainModel(),
@@ -876,6 +894,7 @@ data class DatabaseSubOrderTaskComplete constructor(
     )
     val taskResult: DatabaseTaskResult,
 ) : DatabaseBaseModel<Any?, DomainSubOrderTaskComplete> {
+    override fun getId() = subOrderTask.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSubOrderTaskComplete(
         subOrderTask = subOrderTask.toDomainModel(),
@@ -900,6 +919,7 @@ data class DatabaseResultTolerance(
     val lsl: Float?,
     val usl: Float?
 ) : DatabaseBaseModel<Any?, DomainResultTolerance> {
+    override fun getId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseResultTolerance::class, DomainResultTolerance::class).transform(this)
 }
@@ -930,6 +950,7 @@ data class DatabaseResultComplete(
     )
     val resultTolerance: DatabaseResultTolerance
 ) : DatabaseBaseModel<Any?, DomainResultComplete> {
+    override fun getId() = result.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainResultComplete(
         result = result.toDomainModel(),
