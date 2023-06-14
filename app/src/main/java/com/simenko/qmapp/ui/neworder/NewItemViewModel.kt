@@ -32,7 +32,6 @@ class NewItemViewModel @Inject constructor(
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
     val investigationOrders = repository.orders
-    val subOrdersWithChildren = repository.subOrdersWithChildren
 
     val currentOrder = MutableLiveData(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
@@ -48,7 +47,7 @@ class NewItemViewModel @Inject constructor(
                     DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
                 )
                 orderId != NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
-                    DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), repository.getOrderById(orderId)
+                    DomainSubOrder().copy(orderId = orderId, statusId = InvStatuses.TO_DO.statusId), repository.getOrderById(orderId)
                 )
                 orderId != NoRecord.num && subOrderId != NoRecord.num -> DomainSubOrderShort(
                     repository.getSubOrderById(subOrderId),
@@ -223,7 +222,7 @@ class NewItemViewModel @Inject constructor(
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> {}
-                                    Status.SUCCESS -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.SUCCESS -> {}
                                     Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
                                 }
                             }
@@ -249,7 +248,7 @@ class NewItemViewModel @Inject constructor(
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> {}
-                                    Status.SUCCESS -> coroutineContext[Job]?.cancelAndJoin()
+                                    Status.SUCCESS -> {}
                                     Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
                                 }
                             }
@@ -265,21 +264,26 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { soIt ->
-                        postDeleteSubOrderTasks(soIt.id, subOrder)
-                        postDeleteSamples(soIt.id, subOrder)
-                        setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
-                        activity.finish()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
+                            postDeleteSamples(resource.data.id, subOrder)
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
+                            activity.finish()
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { isNetworkError.value = true }
+                            Log.d(TAG, "postNewSubOrder: ${resource.message}")
+                        }
                     }
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
             }
         }
     }
@@ -303,19 +307,13 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        Log.d(TAG, "postNewOrderWithSubOrder: ${subOrder.order}")
         viewModelScope.launch {
             try {
                 isLoadingInProgress.value = true
                 withContext(Dispatchers.IO) {
                     repository.run { insertOrder(subOrder.order) }.consumeEach { oIt ->
                         subOrder.subOrder.orderId = oIt.id
-                        repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { soIt ->
-                            postDeleteSubOrderTasks(soIt.id, subOrder)
-                            postDeleteSamples(soIt.id, subOrder)
-                            setMainActivityResult(activity, activity.actionTypeEnum, soIt.orderId, soIt.id)
-                            activity.finish()
-                        }
+                        postNewSubOrder(activity, subOrder)
                     }
                 }
                 isLoadingInProgress.value = false

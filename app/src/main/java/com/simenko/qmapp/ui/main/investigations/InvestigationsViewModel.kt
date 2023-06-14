@@ -250,16 +250,11 @@ class InvestigationsViewModel @Inject constructor(
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                             }
                             Status.SUCCESS -> {
                                 if (resource.data == true)
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = false
-                                    }
-                                coroutineContext[Job]?.cancelAndJoin()
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -371,7 +366,6 @@ class InvestigationsViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
                                     }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -454,7 +448,6 @@ class InvestigationsViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
                                     }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -610,7 +603,6 @@ class InvestigationsViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
                                     }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)
@@ -804,7 +796,6 @@ class InvestigationsViewModel @Inject constructor(
                                             }
                                         }
                                     }
-                                    coroutineContext[Job]?.cancelAndJoin()
                                 }
                                 Status.ERROR -> {
                                     if (resource.data == true)
@@ -840,7 +831,6 @@ class InvestigationsViewModel @Inject constructor(
                                         }
                                     }
                                 }
-                                coroutineContext[Job]?.cancelAndJoin()
                             }
                             Status.ERROR -> {
                                 if (resource.data == true)

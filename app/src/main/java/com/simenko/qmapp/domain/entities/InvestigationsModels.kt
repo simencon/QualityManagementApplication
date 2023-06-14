@@ -299,18 +299,11 @@ data class DomainSubOrderShort constructor(
     var order: DomainOrder,
     var samples: MutableList<DomainSample> = mutableListOf(),
     var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
-) : DomainBaseModel<DatabaseSubOrderShort>() {
+) : DomainBaseModel<Any?>() {
     override fun getRecordId() = subOrder.getRecordId()
     override fun getParentId() = subOrder.getParentId()
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabaseSubOrderShort {
-        return DatabaseSubOrderShort(
-            subOrder = subOrder.toDatabaseModel(),
-            order = order.toDatabaseModel(),
-            samples = samples.map { it.toDatabaseModel() },
-            subOrderTasks = subOrderTasks.map { it.toDatabaseModel() }
-        )
-    }
+    override fun toDatabaseModel() = null
 }
 
 @Stable

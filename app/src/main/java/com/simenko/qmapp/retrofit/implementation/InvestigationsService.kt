@@ -60,7 +60,7 @@ interface InvestigationsService {
     ): Response<List<NetworkSubOrder>>
 
     @POST("subOrders")
-    suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): NetworkSubOrder
+    suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): Response<NetworkSubOrder>
 
     @DELETE("subOrders/{id}")
     suspend fun deleteSubOrder(@Path("id") id: Int): Response<Unit>

@@ -158,10 +158,6 @@ class NewItemActivity : ComponentActivity() {
                                             )
                                         }
                                         ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
-                                            Log.d(
-                                                TAG,
-                                                "onCreate: ${viewModel.currentSubOrder.value?.order?.reasonId}"
-                                            )
                                             viewModel.postNewOrderWithSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
@@ -301,56 +297,51 @@ class NewItemActivity : ComponentActivity() {
                                                                     }
 
                                                                     ActionType.EDIT_SUB_ORDER -> {
+                                                                        viewModel.prepareCurrentSubOrder(orderId, subOrderId)
 
-                                                                        viewModel.subOrdersWithChildren.observe(
-                                                                            this
-                                                                        ) {
-                                                                            viewModel.prepareCurrentSubOrder(orderId, subOrderId)
+                                                                        viewModel.departmentsMutable.performFiltration(
+                                                                            s = viewModel.departments,
+                                                                            action = FilteringMode.ADD_ALL_FROM_META_TABLE,
+                                                                            trigger = viewModel.pairedTrigger,
+                                                                            m = viewModel.inputForOrder
+                                                                        )
+                                                                        val currentSubOrder = viewModel.currentSubOrder.value!!
+                                                                        filterAllAfterDepartments(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.departmentId
+                                                                        )
+                                                                        filterAllAfterSubDepartments(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.subDepartmentId
+                                                                        )
+                                                                        filterAllAfterSubOrderPlacers(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.orderedById
+                                                                        )
+                                                                        filterAllAfterChannels(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.channelId
+                                                                        )
+                                                                        filterAllAfterLines(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.lineId
+                                                                        )
+                                                                        filterAllAfterVersions(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.itemPreffix
 
-                                                                            viewModel.departmentsMutable.performFiltration(
-                                                                                s = viewModel.departments,
-                                                                                action = FilteringMode.ADD_ALL_FROM_META_TABLE,
-                                                                                trigger = viewModel.pairedTrigger,
-                                                                                m = viewModel.inputForOrder
-                                                                            )
-                                                                            val currentSubOrder = viewModel.currentSubOrder.value!!
-                                                                            filterAllAfterDepartments(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.departmentId
-                                                                            )
-                                                                            filterAllAfterSubDepartments(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.subDepartmentId
-                                                                            )
-                                                                            filterAllAfterSubOrderPlacers(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.orderedById
-                                                                            )
-                                                                            filterAllAfterChannels(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.channelId
-                                                                            )
-                                                                            filterAllAfterLines(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.lineId
-                                                                            )
-                                                                            filterAllAfterVersions(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.itemPreffix
-
-                                                                            )
-                                                                            filterAllAfterOperations(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.operationId
-                                                                            )
-                                                                            filterAllAfterQuantity(
-                                                                                viewModel,
-                                                                                currentSubOrder.subOrder.samplesCount ?: ZeroValue.num
-                                                                            )
-                                                                            filterAllAfterCharacteristics(
-                                                                                viewModel
-                                                                            )
-                                                                        }
+                                                                        )
+                                                                        filterAllAfterOperations(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.operationId
+                                                                        )
+                                                                        filterAllAfterQuantity(
+                                                                            viewModel,
+                                                                            currentSubOrder.subOrder.samplesCount ?: ZeroValue.num
+                                                                        )
+                                                                        filterAllAfterCharacteristics(
+                                                                            viewModel
+                                                                        )
                                                                     }
 
                                                                     ActionType.ADD_SUB_ORDER_STAND_ALONE -> {

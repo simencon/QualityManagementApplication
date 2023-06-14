@@ -844,37 +844,6 @@ data class DatabaseSubOrderComplete constructor(
     )
 }
 
-data class DatabaseSubOrderShort constructor(
-    @Embedded
-    var subOrder: DatabaseSubOrder,
-    @Relation(
-        entity = DatabaseOrder::class,
-        parentColumn = "orderId",
-        entityColumn = "id"
-    )
-    var order: DatabaseOrder,
-    @Relation(
-        entity = DatabaseSample::class,
-        parentColumn = "id",
-        entityColumn = "subOrderId"
-    )
-    var samples: List<DatabaseSample>,
-    @Relation(
-        entity = DatabaseSubOrderTask::class,
-        parentColumn = "id",
-        entityColumn = "subOrderId"
-    )
-    var subOrderTasks: List<DatabaseSubOrderTask>
-) : DatabaseBaseModel<Any?, DomainSubOrderShort> {
-    override fun toNetworkModel() = null
-    override fun toDomainModel() = DomainSubOrderShort(
-        subOrder = subOrder.toDomainModel(),
-        order = order.toDomainModel(),
-        samples = samples.map { it.toDomainModel() }.toMutableList(),
-        subOrderTasks = subOrderTasks.map { it.toDomainModel() }.toMutableList()
-    )
-}
-
 @DatabaseView(
     viewName = "sub_order_task_complete",
     value = "SELECT * FROM `13_7_sub_order_tasks` ORDER BY id;"

@@ -555,6 +555,7 @@ class InvestigationsRepository @Inject constructor(
                 if (response.isSuccessful) {
                     invDao.getSubOrderTaskById(taskId.toString())?.let { it ->
                         invDao.deleteSubOrderTask(it)
+                        Log.d(TAG, "deleteSubOrderTask: $it")
                     }
                     emit(Event(Resource.success(true)))
                 } else {
@@ -562,8 +563,9 @@ class InvestigationsRepository @Inject constructor(
                 }
             }
         }.exceptionOrNull().also {
-            if (it != null)
+            if (it != null) {
                 emit(Event(Resource.error("Network error", true)))
+            }
         }
     }
 
@@ -574,6 +576,7 @@ class InvestigationsRepository @Inject constructor(
                 if (response.isSuccessful) {
                     invDao.getSampleById(sampleId.toString())?.let { it ->
                         invDao.deleteSample(it)
+                        Log.d(TAG, "deleteSample: $it")
                     }
                     emit(Event(Resource.success(true)))
                 } else {
@@ -622,9 +625,26 @@ class InvestigationsRepository @Inject constructor(
     }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
-        val newRecord = invService.createSubOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertSubOrder(newRecord)
-        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+        runCatching {
+            send(Event(Resource.loading(null)))
+            invService.createSubOrder(record.toDatabaseModel().toNetworkModel()).let { response ->
+                if (response.isSuccessful) {
+                    response.body().let { newRecord ->
+                        if (newRecord != null) {
+                            invDao.insertSubOrder(newRecord.toDatabaseModel())
+                            send(Event(Resource.success(invDao.getSubOrderById(newRecord.id.toString()))))
+                        } else {
+                            send(Event(Resource.error("Response body is empty.",null)))
+                        }
+                    }
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error",null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null)
+                send(Event(Resource.error("Network error", null)))
+        }
     }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
@@ -750,7 +770,7 @@ class InvestigationsRepository @Inject constructor(
 //    -------------------------------------------------------------
 
     fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
-        invDao.getOrdersStatusesFlow().map {list ->
+        invDao.getOrdersStatusesFlow().map { list ->
             list.map { it.toDomainModel() }
         }.flowOn(Dispatchers.IO).conflate()
 
@@ -780,7 +800,7 @@ class InvestigationsRepository @Inject constructor(
         }
 
     fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
-        invDao.getSamplesBySubOrder(subOrderId).map {list ->
+        invDao.getSamplesBySubOrder(subOrderId).map { list ->
             list.map { it.toDomainModel() }
         }
 
@@ -794,27 +814,22 @@ class InvestigationsRepository @Inject constructor(
      * New order related data
      * */
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        invDao.getInputForOrder().map {list ->
+        invDao.getInputForOrder().map { list ->
             list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
         }
 
     val investigationTypes: LiveData<List<DomainOrdersType>> =
-        invDao.getOrdersTypes().map {list ->
+        invDao.getOrdersTypes().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val investigationReasons: LiveData<List<DomainReason>> =
-        invDao.getMeasurementReasons().map {list ->
+        invDao.getMeasurementReasons().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val orders: LiveData<List<DomainOrder>> =
-        invDao.getOrders().map {list ->
-            list.map { it.toDomainModel() }
-        }
-
-    val subOrdersWithChildren: LiveData<List<DomainSubOrderShort>> =
-        invDao.getSubOrderWithChildren().map { list ->
+        invDao.getOrders().map { list ->
             list.map { it.toDomainModel() }
         }
 }
