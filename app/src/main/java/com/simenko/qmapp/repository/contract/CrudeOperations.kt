@@ -31,22 +31,20 @@ class CrudeOperations @Inject constructor(
         daoInsert: (List<DB>) -> Unit
     ) = produce {
         runCatching {
-            send(Event(Resource.loading(true)))
+            send(Event(Resource.loading(null)))
             serviceInsert(records.map { it.toDatabaseModel().toNetworkModel() }).let { response ->
                 if (response.isSuccessful) {
-                    response.body()?.let { ntRecords ->
-                        daoInsert(ntRecords.map { ntRecord ->
-                            ntRecord.toDatabaseModel()
-                        })
-                    }
-                    send(Event(Resource.success(true)))
+                    response.body()?.also { ntRecords ->
+                        daoInsert(ntRecords.map { it.toDatabaseModel() })
+                        send(Event(Resource.success(ntRecords.map { it.toDatabaseModel().toDomainModel() })))
+                    } ?: send(Event(Resource.error("No response body", null)))
                 } else {
-                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
                 }
             }
         }.exceptionOrNull().also {
             if (it != null)
-                send(Event(Resource.error("Network error", true)))
+                send(Event(Resource.error("Network error", null)))
         }
     }
 
@@ -59,14 +57,10 @@ class CrudeOperations @Inject constructor(
             send(Event(Resource.loading(null)))
             serviceInsert(data.toDatabaseModel().toNetworkModel()).let { response ->
                 if (response.isSuccessful) {
-                    response.body().let { newRecord ->
-                        if (newRecord != null) {
-                            daoInsert(newRecord.toDatabaseModel())
-                            send(Event(Resource.success(newRecord.toDatabaseModel().toDomainModel())))
-                        } else {
-                            send(Event(Resource.error("Response body is empty.", null)))
-                        }
-                    }
+                    response.body()?.also { newRecord ->
+                        daoInsert(newRecord.toDatabaseModel())
+                        send(Event(Resource.success(newRecord.toDatabaseModel().toDomainModel())))
+                    } ?: send(Event(Resource.error("No response body", null)))
                 } else {
                     send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
                 }
@@ -133,22 +127,21 @@ class CrudeOperations @Inject constructor(
         daoUpdate: (DB) -> Unit
     ) = produce {
         runCatching {
+            val id = record.getRecordId().toString().toInt()
             send(Event(Resource.loading(null)))
-            serviceEdit(record.getRecordId().toString().toInt(), record.toDatabaseModel().toNetworkModel()).let { response ->
+            serviceEdit(id, record.toDatabaseModel().toNetworkModel()).let { response ->
                 if (response.isSuccessful) {
-                    response.body()?.let { ntRecord ->
+                    response.body()?.also { ntRecord ->
                         daoUpdate(ntRecord.toDatabaseModel())
                         send(Event(Resource.success(ntRecord.toDatabaseModel().toDomainModel())))
-                    }
+                    } ?: send(Event(Resource.error("No response body", null)))
                 } else {
                     send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
-                    Log.d(TAG, "updateRecord: ${response.errorBody()?.run { errorConverter.convert(this) }}")
                 }
             }
         }.exceptionOrNull().also {
             if (it != null) {
                 send(Event(Resource.error(it.message ?: "Network Error", null)))
-                Log.d(TAG, "updateRecord: $it")
             }
         }
     }
