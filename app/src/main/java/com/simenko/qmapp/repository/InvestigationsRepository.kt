@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
+import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.repository.contract.InvRepository
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
@@ -623,6 +624,8 @@ class InvestigationsRepository @Inject constructor(
         invDao.insertOrder(newOrder)
         send(newOrder.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
     }
+
+    @Inject lateinit var crudeOperations: CrudeOperations<DatabaseSubOrder, DomainSubOrder, NetworkSubOrder>
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
         runCatching {
