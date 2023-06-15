@@ -10,6 +10,7 @@ import com.simenko.qmapp.room.StatusHolderModel
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -294,6 +295,28 @@ class CrudeOperations @Inject constructor(
                 if (!recordExists) {
                     daoDeleteRecord(dbIt)
                 }
+            }
+        }
+    }
+
+    private fun <R, DM> CoroutineScope.responseHandler(
+        taskExecutor: () -> Response<R>,
+        resultProvider: (R) -> Event<Resource<DM>>
+    ): ReceiveChannel<Event<Resource<DM>>> = produce {
+        runCatching {
+            send(Event(Resource.loading(null)))
+            taskExecutor().let { response ->
+                if(response.isSuccessful) {
+                    response.body()?.also {
+                        resultProvider(it)
+                    }?:send(Event(Resource.error("No response body", null)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null) {
+                send(Event(Resource.error(it.message ?: "Network Error", null)))
             }
         }
     }
