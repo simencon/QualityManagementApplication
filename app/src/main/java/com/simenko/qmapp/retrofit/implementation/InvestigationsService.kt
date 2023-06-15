@@ -37,17 +37,17 @@ interface InvestigationsService {
     ): Response<List<NetworkOrder>>
 
     @POST("orders")
-    suspend fun createOrder(@Body networkOrder: NetworkOrder): NetworkOrder
+    suspend fun createOrder(@Body networkOrder: NetworkOrder): Response<NetworkOrder>
 
     @DELETE("orders/{id}")
-    suspend fun deleteOrder(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteOrder(@Path("id") id: Int): Response<NetworkOrder>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("orders/{id}")
-    suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<Unit>
+    suspend fun editOrder(@Path("id") id: Int, @Body body: NetworkOrder): Response<NetworkOrder>
 
     @GET("orders/{id}")
-    suspend fun getOrder(@Path("id") id: Int): NetworkOrder
+    suspend fun getOrder(@Path("id") id: Int): Response<NetworkOrder>
 
     @GET("subOrders/hashCode/{timeRange}")
     suspend fun getSubOrdersHashCodeForDatePeriod(
@@ -63,14 +63,14 @@ interface InvestigationsService {
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): Response<NetworkSubOrder>
 
     @DELETE("subOrders/{id}")
-    suspend fun deleteSubOrder(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteSubOrder(@Path("id") id: Int): Response<NetworkSubOrder>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("subOrders/{id}")
-    suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<Unit>
+    suspend fun editSubOrder(@Path("id") id: Int, @Body body: NetworkSubOrder): Response<NetworkSubOrder>
 
     @GET("subOrders/{id}")
-    suspend fun getSubOrder(@Path("id") id: Int): NetworkSubOrder
+    suspend fun getSubOrder(@Path("id") id: Int): Response<NetworkSubOrder>
 
     @GET("subOrderTasks/hashCode/{timeRange}")
     suspend fun getTasksHashCodeForDatePeriod(
@@ -83,10 +83,10 @@ interface InvestigationsService {
     ): Response<List<NetworkSubOrderTask>>
 
     @POST("subOrderTasks")
-    suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): NetworkSubOrderTask
+    suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): Response<NetworkSubOrderTask>
 
     @DELETE("subOrderTasks/{id}")
-    suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<NetworkSubOrderTask>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("subOrderTasks/{id}")
@@ -96,7 +96,7 @@ interface InvestigationsService {
     ): Response<NetworkSubOrderTask>
 
     @GET("subOrderTasks/{id}")
-    suspend fun getSubOrderTask(@Path("id") id: Int): NetworkSubOrderTask
+    suspend fun getSubOrderTask(@Path("id") id: Int): Response<NetworkSubOrderTask>
 
     @GET("samples/hashCode/{timeRange}")
     suspend fun getSamplesHashCodeForDatePeriod(
@@ -109,10 +109,10 @@ interface InvestigationsService {
     ): Response<List<NetworkSample>>
 
     @POST("samples")
-    suspend fun createSample(@Body networkSample: NetworkSample): NetworkSample
+    suspend fun createSample(@Body networkSample: NetworkSample): Response<NetworkSample>
 
     @DELETE("samples/{id}")
-    suspend fun deleteSample(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteSample(@Path("id") id: Int): Response<NetworkSample>
 
     @GET("resultsDecriptions")
     suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>
@@ -130,16 +130,15 @@ interface InvestigationsService {
     @POST("results/records")
     suspend fun createResults(@Body records: List<NetworkResult>): Response<List<NetworkResult>>
 
-    @DELETE("results/{taskId}/{id}")
+    @DELETE("results/task/{taskId}")
     suspend fun deleteResults(
-        @Path("taskId") taskId: Int = 0,
-        @Path("id") id: Int = 0
-    ): Response<Unit>
+        @Path("taskId") taskId: Int
+    ): Response<List<NetworkResult>>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("results/{id}")
     suspend fun editResult(
         @Path("id") id: Int,
         @Body body: NetworkResult
-    ): Response<Unit>
+    ): Response<NetworkResult>
 }

@@ -160,6 +160,9 @@ interface InvestigationsDao {
     @Delete
     fun deleteResult(record: DatabaseResult)
 
+    @Delete
+    fun deleteResults(records: List<DatabaseResult>)
+
     @Query("SELECT * FROM `14_8_results` WHERE id=:id ")
     suspend fun getResultById(id: String): DatabaseResult?
 

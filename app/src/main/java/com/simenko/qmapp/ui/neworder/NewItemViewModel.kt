@@ -218,12 +218,14 @@ class NewItemViewModel @Inject constructor(
             subOrder.samples.forEach {
                 if (it.toBeDeleted) {
                     withContext(Dispatchers.IO) {
-                        repository.deleteSample(it.id).collect() { event ->
-                            event.getContentIfNotHandled()?.let { resource ->
-                                when (resource.status) {
-                                    Status.LOADING -> {}
-                                    Status.SUCCESS -> {}
-                                    Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
+                        repository.run {
+                            deleteSample(it.id).consumeEach { event ->
+                                event.getContentIfNotHandled()?.let { resource ->
+                                    when (resource.status) {
+                                        Status.LOADING -> {}
+                                        Status.SUCCESS -> {}
+                                        Status.ERROR -> {}
+                                    }
                                 }
                             }
                         }
@@ -244,12 +246,14 @@ class NewItemViewModel @Inject constructor(
             subOrder.subOrderTasks.forEach {
                 if (it.toBeDeleted) {
                     withContext(Dispatchers.IO) {
-                        repository.deleteSubOrderTask(it.id).collect() { event ->
-                            event.getContentIfNotHandled()?.let { resource ->
-                                when (resource.status) {
-                                    Status.LOADING -> {}
-                                    Status.SUCCESS -> {}
-                                    Status.ERROR -> coroutineContext[Job]?.cancelAndJoin()
+                        repository.run {
+                            deleteSubOrderTask(it.id).consumeEach { event ->
+                                event.getContentIfNotHandled()?.let { resource ->
+                                    when (resource.status) {
+                                        Status.LOADING -> {}
+                                        Status.SUCCESS -> {}
+                                        Status.ERROR -> {}
+                                    }
                                 }
                             }
                         }
@@ -257,7 +261,15 @@ class NewItemViewModel @Inject constructor(
                 } else if (it.isNewRecord) {
                     it.subOrderId = subOrderId
                     it.orderedById = subOrder.subOrder.orderedById
-                    repository.run { insertTask(it) }.consumeEach { }
+                    repository.run { insertTask(it) }.consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {}
+                                Status.SUCCESS -> {}
+                                Status.ERROR -> {}
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -279,8 +291,10 @@ class NewItemViewModel @Inject constructor(
                             activity.finish()
                         }
                         Status.ERROR -> {
-                            withContext(Dispatchers.Main) { isNetworkError.value = true }
-                            Log.d(TAG, "postNewSubOrder: ${resource.message}")
+                            withContext(Dispatchers.Main) {
+                                isLoadingInProgress.value = false
+                                isNetworkError.value = true
+                            }
                         }
                     }
                 }
@@ -289,79 +303,100 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun postNewOrder(activity: NewItemActivity, order: DomainOrder) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    with(repository) { insertOrder(order) }.consumeEach {
-                        setMainActivityResult(activity, activity.actionTypeEnum, it.id)
-                        activity.finish()
+        viewModelScope.launch(Dispatchers.IO) {
+            with(repository) { insertOrder(order) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data!!.id)
+                            activity.finish()
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) {
+                                isLoadingInProgress.value = false
+                                isNetworkError.value = true
+                            }
+                        }
                     }
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
             }
         }
     }
 
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.run { insertOrder(subOrder.order) }.consumeEach { oIt ->
-                        subOrder.subOrder.orderId = oIt.id
-                        postNewSubOrder(activity, subOrder)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { insertOrder(subOrder.order) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            subOrder.subOrder.orderId = resource.data!!.id
+                            postNewSubOrder(activity, subOrder)
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) {
+                                isLoadingInProgress.value = false
+                                isNetworkError.value = true
+                            }
+                        }
                     }
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
             }
         }
     }
 
     fun editSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.run { updateSubOrder(subOrder.subOrder) }.consumeEach {
-                        postDeleteSubOrderTasks(it.id, subOrder)
-                        postDeleteSamples(it.id, subOrder)
-                        setMainActivityResult(activity, activity.actionTypeEnum, it.orderId, it.id)
-                        activity.finish()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { updateSubOrder(subOrder.subOrder) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
+                            postDeleteSamples(resource.data.id, subOrder)
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
+                            activity.finish()
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { isNetworkError.value = true }
+                        }
                     }
-
-                    syncTasks()
-                    syncSamples()
-                    syncResults()
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
             }
+
+            syncTasks()
+            syncSamples()
+            syncResults()
         }
     }
 
     fun editOrder(activity: NewItemActivity, order: DomainOrder) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.run { updateOrder(order) }.consumeEach {
-                        setMainActivityResult(activity, activity.actionTypeEnum, it.id)
-                        activity.finish()
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { updateOrder(order) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data!!.id)
+                            activity.finish()
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            isNetworkError.value = false
+                        }
                     }
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
             }
         }
     }
