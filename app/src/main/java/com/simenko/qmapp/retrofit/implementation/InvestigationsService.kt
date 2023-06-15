@@ -40,7 +40,7 @@ interface InvestigationsService {
     suspend fun createOrder(@Body networkOrder: NetworkOrder): Response<NetworkOrder>
 
     @DELETE("orders/{id}")
-    suspend fun deleteOrder(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteOrder(@Path("id") id: Int): Response<NetworkOrder>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("orders/{id}")
@@ -63,7 +63,7 @@ interface InvestigationsService {
     suspend fun createSubOrder(@Body networkSubOrder: NetworkSubOrder): Response<NetworkSubOrder>
 
     @DELETE("subOrders/{id}")
-    suspend fun deleteSubOrder(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteSubOrder(@Path("id") id: Int): Response<NetworkSubOrder>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("subOrders/{id}")
@@ -86,7 +86,7 @@ interface InvestigationsService {
     suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): Response<NetworkSubOrderTask>
 
     @DELETE("subOrderTasks/{id}")
-    suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<NetworkSubOrderTask>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("subOrderTasks/{id}")
@@ -112,7 +112,7 @@ interface InvestigationsService {
     suspend fun createSample(@Body networkSample: NetworkSample): Response<NetworkSample>
 
     @DELETE("samples/{id}")
-    suspend fun deleteSample(@Path("id") id: Int): Response<Unit>
+    suspend fun deleteSample(@Path("id") id: Int): Response<NetworkSample>
 
     @GET("resultsDecriptions")
     suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>
@@ -130,11 +130,10 @@ interface InvestigationsService {
     @POST("results/records")
     suspend fun createResults(@Body records: List<NetworkResult>): Response<List<NetworkResult>>
 
-    @DELETE("results/{taskId}/{id}")
+    @DELETE("results/task/{taskId}")
     suspend fun deleteResults(
-        @Path("taskId") taskId: Int = 0,
-        @Path("id") id: Int = 0
-    ): Response<Unit>
+        @Path("taskId") taskId: Int
+    ): Response<List<NetworkResult>>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("results/{id}")
