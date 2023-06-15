@@ -14,12 +14,10 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.NotificationData
-import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
-import okhttp3.ResponseBody
-import retrofit2.Converter
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -303,83 +301,131 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Inv deletion operations
      * */
-    fun deleteOrder(orderId: Int): Flow<Event<Resource<Boolean>>> = crudeOperations.deleteRecord(
-        orderId, { id -> invService.deleteOrder(id) }, { id -> invDao.getOrderById(id) }, { d -> invDao.deleteOrder(d) }
-    )
+    fun CoroutineScope.deleteOrder(orderId: Int): ReceiveChannel<Event<Resource<DomainOrder>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteOrder(orderId) },
+            resultHandler = { r -> invDao.deleteOrder(r) }
+        )
+    }
 
-    fun deleteSubOrder(subOrderId: Int): Flow<Event<Resource<Boolean>>> = crudeOperations.deleteRecord(
-        subOrderId, { id -> invService.deleteSubOrder(id) }, { id -> invDao.getSubOrderById(id) }, { d -> invDao.deleteSubOrder(d) }
-    )
+    fun CoroutineScope.deleteSubOrder(subOrderId: Int): ReceiveChannel<Event<Resource<DomainSubOrder>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteSubOrder(subOrderId) },
+            resultHandler = { r -> invDao.deleteSubOrder(r) }
+        )
+    }
 
-    fun deleteSubOrderTask(taskId: Int): Flow<Event<Resource<Boolean>>> = crudeOperations.deleteRecord(
-        taskId, { id -> invService.deleteSubOrderTask(id) }, { id -> invDao.getSubOrderTaskById(id) }, { d -> invDao.deleteSubOrderTask(d) }
-    )
+    fun CoroutineScope.deleteSubOrderTask(taskId: Int): ReceiveChannel<Event<Resource<DomainSubOrderTask>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteSubOrderTask(taskId) },
+            resultHandler = { r -> invDao.deleteSubOrderTask(r) }
+        )
+    }
 
-    fun deleteSample(sampleId: Int): Flow<Event<Resource<Boolean>>> = crudeOperations.deleteRecord(
-        sampleId, { id -> invService.deleteSample(id) }, { id -> invDao.getSampleById(id) }, { d -> invDao.deleteSample(d) }
-    )
+    fun CoroutineScope.deleteSample(sampleId: Int): ReceiveChannel<Event<Resource<DomainSample>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteSample(sampleId) },
+            resultHandler = { r -> invDao.deleteSample(r) }
+        )
+    }
 
-    fun deleteResults(taskId: Int) = crudeOperations.deleteRecordsByParent(
-        taskId, { pId -> invService.deleteResults(pId, 0) }, { pId -> invDao.getResultsByTaskId(pId) }, { d -> invDao.deleteResult(d) }
-    )
+    fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.deleteResults(taskId) },
+            resultHandler = { r -> invDao.deleteResults(r) }
+        )
+    }
 
     /**
      * Inv create operations
      * */
     fun CoroutineScope.insertOrder(record: DomainOrder) = crudeOperations.run {
-        insertRecord(record, { r -> invService.createOrder(r) }, { r -> invDao.insertOrder(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createOrder(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertOrder(r) }
+        )
     }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = crudeOperations.run {
-        insertRecord(record, { r -> invService.createSubOrder(r) }, { r -> invDao.insertSubOrder(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createSubOrder(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertSubOrder(r) }
+        )
     }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = crudeOperations.run {
-        insertRecord(record, { r -> invService.createSubOrderTask(r) }, { r -> invDao.insertSubOrderTask(r) }
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertSubOrderTask(r) }
         )
     }
 
     fun CoroutineScope.insertSample(record: DomainSample) = crudeOperations.run {
-        insertRecord(record, { r -> invService.createSample(r) }, { r -> invDao.insertSample(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createSample(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertSample(r) }
+        )
     }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
-        insertRecords(records, { list -> invService.createResults(list) }, { list -> invDao.insertResultsAll(list) })
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) },
+            resultHandler = { r -> invDao.insertResultsAll(r) }
+        )
     }
 
     /**
      * Inv update operations
      * */
     fun CoroutineScope.updateOrder(record: DomainOrder) = crudeOperations.run {
-        updateRecord(record, { id, r -> invService.editOrder(id, r) }, { r -> invDao.updateOrder(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editOrder(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateOrder(r) }
+        )
     }
 
     fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = crudeOperations.run {
-        updateRecord(record, { id, r -> invService.editSubOrder(id, r) }, { r -> invDao.updateSubOrder(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editSubOrder(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateSubOrder(r) }
+        )
     }
 
     fun CoroutineScope.updateTask(record: DomainSubOrderTask) = crudeOperations.run {
-        updateRecord(record, { id, r -> invService.editSubOrderTask(id, r) }, { r -> invDao.updateSubOrderTask(r) }
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateSubOrderTask(r) }
         )
     }
 
     fun CoroutineScope.updateResult(record: DomainResult) = crudeOperations.run {
-        updateRecord(record, { id, r -> invService.editResult(id, r) }, { r -> invDao.updateResult(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editResult(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateResult(r) }
+        )
     }
 
     /**
      * Inv read operations
      * */
     fun CoroutineScope.getOrder(record: DomainOrder) = crudeOperations.run {
-        getRecord(record, { id -> invService.getOrder(id) }, { r -> invDao.updateOrder(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.getOrder(record.id) },
+            resultHandler = { r -> invDao.updateOrder(r) }
+        )
     }
 
     fun CoroutineScope.getSubOrder(record: DomainSubOrder) = crudeOperations.run {
-        getRecord(record, { id -> invService.getSubOrder(id) }, { r -> invDao.updateSubOrder(r) })
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.getSubOrder(record.getRecordId().toString().toInt()) },
+            resultHandler = { r -> invDao.updateSubOrder(r) }
+        )
     }
 
     fun CoroutineScope.getTask(record: DomainSubOrderTask) = crudeOperations.run {
-        getRecord(record, { id -> invService.getSubOrderTask(id) }, { r -> invDao.updateSubOrderTask(r) }
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.getSubOrderTask(record.getRecordId().toString().toInt()) },
+            resultHandler = { r -> invDao.updateSubOrderTask(r) }
         )
     }
 

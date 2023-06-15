@@ -246,19 +246,21 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteOrder(orderId).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
-                            }
-                            Status.SUCCESS -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                            }
-                            Status.ERROR -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = false
-                                    _isErrorMessage.value = resource.message
+                repository.run {
+                    deleteOrder(orderId).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                                }
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
+                                    }
                                 }
                             }
                         }
@@ -352,19 +354,21 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteSubOrder(subOrderId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteSubOrder(subOrderId).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
-                            }
-                            Status.SUCCESS -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                            }
-                            Status.ERROR -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = false
-                                    _isErrorMessage.value = resource.message
+                repository.run {
+                    deleteSubOrder(subOrderId).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                                }
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
+                                    }
                                 }
                             }
                         }
@@ -429,19 +433,21 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteSubOrderTask(taskId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteSubOrderTask(taskId).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
-                            }
-                            Status.SUCCESS -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                            }
-                            Status.ERROR -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = false
-                                    _isErrorMessage.value = resource.message
+                repository.run {
+                    deleteSubOrderTask(taskId).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                                }
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
+                                    }
                                 }
                             }
                         }
@@ -579,19 +585,21 @@ class InvestigationsViewModel @Inject constructor(
     private fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteResults(task.id).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
-                            }
-                            Status.SUCCESS -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                            }
-                            Status.ERROR -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = false
-                                    _isErrorMessage.value = resource.message
+                repository.run {
+                    deleteResults(task.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                                }
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
+                                    }
                                 }
                             }
                         }

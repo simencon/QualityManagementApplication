@@ -218,12 +218,14 @@ class NewItemViewModel @Inject constructor(
             subOrder.samples.forEach {
                 if (it.toBeDeleted) {
                     withContext(Dispatchers.IO) {
-                        repository.deleteSample(it.id).collect() { event ->
-                            event.getContentIfNotHandled()?.let { resource ->
-                                when (resource.status) {
-                                    Status.LOADING -> {}
-                                    Status.SUCCESS -> {}
-                                    Status.ERROR -> {}
+                        repository.run {
+                            deleteSample(it.id).consumeEach { event ->
+                                event.getContentIfNotHandled()?.let { resource ->
+                                    when (resource.status) {
+                                        Status.LOADING -> {}
+                                        Status.SUCCESS -> {}
+                                        Status.ERROR -> {}
+                                    }
                                 }
                             }
                         }
@@ -244,12 +246,14 @@ class NewItemViewModel @Inject constructor(
             subOrder.subOrderTasks.forEach {
                 if (it.toBeDeleted) {
                     withContext(Dispatchers.IO) {
-                        repository.deleteSubOrderTask(it.id).collect { event ->
-                            event.getContentIfNotHandled()?.let { resource ->
-                                when (resource.status) {
-                                    Status.LOADING -> {}
-                                    Status.SUCCESS -> {}
-                                    Status.ERROR -> {}
+                        repository.run {
+                            deleteSubOrderTask(it.id).consumeEach { event ->
+                                event.getContentIfNotHandled()?.let { resource ->
+                                    when (resource.status) {
+                                        Status.LOADING -> {}
+                                        Status.SUCCESS -> {}
+                                        Status.ERROR -> {}
+                                    }
                                 }
                             }
                         }
