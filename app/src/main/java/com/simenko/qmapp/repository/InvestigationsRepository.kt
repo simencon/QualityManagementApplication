@@ -10,8 +10,8 @@ import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
-import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.room.implementation.InvestigationsDao
+import com.simenko.qmapp.room.implementation.QualityManagementDB
+import com.simenko.qmapp.room.implementation.dao.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.works.SyncPeriods
@@ -19,7 +19,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import java.io.IOException
-import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,78 +27,44 @@ private const val TAG = "InvestigationsRepository"
 
 @Singleton
 class InvestigationsRepository @Inject constructor(
+    private val database: QualityManagementDB,
     private val invDao: InvestigationsDao,
     private val invService: InvestigationsService,
     private val crudeOperations: CrudeOperations
 ) {
-    private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
     /**
-     * Update Investigations from the network
-     */
-    suspend fun insertInputForOrder() {
-        withContext(Dispatchers.IO) {
-            val inputForOrder = invService.getInputForOrder()
-            invDao.insertInputForOrderAll(
-                inputForOrder.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshInputForOrder: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+     * Investigations meta data sync work
+     * */
+    suspend fun syncInputForOrder() = crudeOperations.syncRecordsAll(
+        { invService.getInputForOrder() },
+        database.inputForOrderDao
+    )
 
-    suspend fun insertOrdersStatuses() {
-        withContext(Dispatchers.IO) {
-            val records = invService.getOrdersStatuses()
-            invDao.insertOrdersStatusesAll(
-                records.map { it.toDatabaseModel() }
-            )
-            Log.d(
-                TAG,
-                "refreshOrdersStatuses: ${timeFormatter.format(Instant.now())}"
-            )
-        }
-    }
+    suspend fun syncOrdersStatuses() = crudeOperations.syncRecordsAll(
+        { invService.getOrdersStatuses() },
+        database.orderStatusDao
+    )
 
-    suspend fun insertInvestigationReasons() {
-        withContext(Dispatchers.IO) {
-            val records = invService.getMeasurementReasons()
-            invDao.insertMeasurementReasonsAll(
-                records.map { it.toDatabaseModel() }
-            )
-            Log.d(
-                TAG,
-                "refreshMeasurementReasons: ${timeFormatter.format(Instant.now())}"
-            )
-        }
-    }
+    suspend fun syncInvestigationReasons() = crudeOperations.syncRecordsAll(
+        { invService.getMeasurementReasons() },
+        database.measurementReasonDao
+    )
 
-    suspend fun insertInvestigationTypes() {
-        withContext(Dispatchers.IO) {
-            val records = invService.getOrdersTypes()
-            invDao.insertOrdersTypesAll(
-                records.map { it.toDatabaseModel() }
-            )
-            Log.d(
-                TAG,
-                "refreshOrdersTypes: ${timeFormatter.format(Instant.now())}"
-            )
-        }
-    }
+    suspend fun syncInvestigationTypes() = crudeOperations.syncRecordsAll(
+        { invService.getOrdersTypes() },
+        database.investigationTypeDao
+    )
 
-    suspend fun insertResultsDecryptions() {
-        withContext(Dispatchers.IO) {
-            val resultsDecryptions = invService.getResultsDecryptions()
-            invDao.insertResultsDecryptionsAll(
-                resultsDecryptions.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshResultsDecryptions: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncResultsDecryptions() = crudeOperations.syncRecordsAll(
+        { invService.getResultsDecryptions() },
+        database.resultDecryptionDao
+    )
 
     /**
      * Investigations sync work
      * */
-    suspend fun syncOrders(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+    suspend fun syncOrders(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getOrdersByDateRange(tr) },
         { tr -> invDao.getOrdersByDateRange(tr) },
@@ -108,7 +73,7 @@ class InvestigationsRepository @Inject constructor(
         { r -> invDao.deleteOrder(r) }
     )
 
-    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> = crudeOperations.syncStatusRecords(
+    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> = crudeOperations.syncStatusRecordsByTimeRange(
         timeRange,
         { tr -> invService.getSubOrdersByDateRange(tr) },
         { tr -> invDao.getSubOrdersByDateRangeL(tr) },
@@ -118,7 +83,7 @@ class InvestigationsRepository @Inject constructor(
         { r -> invDao.deleteSubOrder(r) }
     )
 
-    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getTasksDateRange(tr) },
         { tr -> invDao.getTasksByDateRangeL(tr) },
@@ -127,7 +92,7 @@ class InvestigationsRepository @Inject constructor(
         { r -> invDao.deleteSubOrderTask(r) }
     )
 
-    suspend fun syncSamples(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+    suspend fun syncSamples(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getSamplesByDateRange(tr) },
         { tr -> invDao.getSamplesByDateRange(tr) },
@@ -136,7 +101,7 @@ class InvestigationsRepository @Inject constructor(
         { r -> invDao.deleteSample(r) }
     )
 
-    suspend fun syncResults(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+    suspend fun syncResults(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getResultsByDateRange(tr) },
         { tr -> invDao.getResultsByDateRange(tr) },
@@ -456,7 +421,7 @@ class InvestigationsRepository @Inject constructor(
 //    -------------------------------------------------------------
 
     fun investigationStatuses(): Flow<List<DomainOrdersStatus>> =
-        invDao.getOrdersStatusesFlow().map { list ->
+        database.orderStatusDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }.flowOn(Dispatchers.IO).conflate()
 
@@ -500,17 +465,17 @@ class InvestigationsRepository @Inject constructor(
      * New order related data
      * */
     val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        invDao.getInputForOrder().map { list ->
+        database.inputForOrderDao.getRecordsForUI().map { list ->
             list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
         }
 
     val investigationTypes: LiveData<List<DomainOrdersType>> =
-        invDao.getOrdersTypes().map { list ->
+        database.investigationTypeDao.getRecordsForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val investigationReasons: LiveData<List<DomainReason>> =
-        invDao.getMeasurementReasons().map { list ->
+        database.measurementReasonDao.getRecordsForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 

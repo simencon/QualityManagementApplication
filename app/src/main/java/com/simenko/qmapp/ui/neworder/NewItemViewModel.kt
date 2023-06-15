@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.neworder
 
-import android.util.Log
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
@@ -193,9 +192,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                repository.insertInvestigationTypes()
-                repository.insertInvestigationReasons()
-                repository.insertInputForOrder()
+                repository.syncInvestigationTypes()
+                repository.syncInvestigationReasons()
+                repository.syncInputForOrder()
                 manufacturingRepository.refreshDepartments()
                 manufacturingRepository.refreshTeamMembers()
 
