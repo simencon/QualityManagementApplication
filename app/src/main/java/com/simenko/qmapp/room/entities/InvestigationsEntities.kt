@@ -4,6 +4,7 @@ import androidx.room.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.DatabaseBaseModel
+import com.simenko.qmapp.room.StatusHolderModel
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -825,7 +826,7 @@ data class DatabaseSubOrderComplete constructor(
         entityColumn = "id"
     )
     val subOrderResult: DatabaseSubOrderResult
-) : DatabaseBaseModel<Any?, DomainSubOrderComplete> {
+) : DatabaseBaseModel<Any?, DomainSubOrderComplete>, StatusHolderModel {
     override fun getRecordId() = subOrder.id
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSubOrderComplete(
@@ -844,7 +845,7 @@ data class DatabaseSubOrderComplete constructor(
         detailsVisibility = false
     )
 
-    fun toNotificationData(reason: NotificationReasons) = NotificationData(
+    override fun toNotificationData(reason: NotificationReasons) = NotificationData(
         orderId = subOrder.orderId,
         subOrderId = subOrder.id,
         orderNumber = orderShort.order.orderNumber,
