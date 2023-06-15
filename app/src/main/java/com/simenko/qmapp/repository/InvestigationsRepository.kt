@@ -28,12 +28,10 @@ import javax.inject.Singleton
 
 private const val TAG = "InvestigationsRepository"
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class InvestigationsRepository @Inject constructor(
     private val invDao: InvestigationsDao,
     private val invService: InvestigationsService,
-    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>,
     private val crudeOperations: CrudeOperations
 ) {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
@@ -103,258 +101,51 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Investigations sync work
      * */
-    suspend fun syncOrders(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntOrders = invService.getOrdersByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
-            }
-            val dbOrders = invDao.getOrdersByDateRange(timeRange)
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertOrder(ntIt.toDatabaseModel())
-                }
-            }
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateOrder(ntIt.toDatabaseModel())
-                }
-            }
-            dbOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteOrder(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshOrders: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncOrders(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getOrdersByDateRange(tr) },
+        { tr -> invDao.getOrdersByDateRange(tr) },
+        { r -> invDao.insertOrder(r) },
+        { r -> invDao.updateOrder(r) },
+        { r -> invDao.deleteOrder(r) }
+    )
 
-    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
-        val result = mutableListOf<NotificationData>()
-        withContext(Dispatchers.IO) {
-            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
-            }
-            val dbSubOrders = invDao.getSubOrdersByDateRangeL(timeRange)
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSubOrder(ntIt.toDatabaseModel())
-                    invDao.getSubOrdersById(ntIt.id)?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.CREATED)
-                        )
-                    }
-                }
-            }
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSubOrder(ntIt.toDatabaseModel())
-                    invDao.getSubOrdersById(ntIt.id)?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.CHANGED)
-                        )
-                    }
-                }
-            }
-            dbSubOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSubOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.getSubOrdersById(dbIt.id)?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.DELETED)
-                        )
-                    }
-                    invDao.deleteSubOrder(dbIt)
-                }
-            }
+    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> = crudeOperations.syncStatusRecords(
+        timeRange,
+        { tr -> invService.getSubOrdersByDateRange(tr) },
+        { tr -> invDao.getSubOrdersByDateRangeL(tr) },
+        { r -> invDao.insertSubOrder(r) },
+        { id -> invDao.getSubOrdersById(id) },
+        { r -> invDao.updateSubOrder(r) },
+        { r -> invDao.deleteSubOrder(r) }
+    )
 
-            Log.d(TAG, "refreshSubOrders: ${timeFormatter.format(Instant.now())}")
-        }
-        return result
-    }
+    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getTasksDateRange(tr) },
+        { tr -> invDao.getTasksByDateRangeL(tr) },
+        { r -> invDao.insertSubOrderTask(r) },
+        { r -> invDao.updateSubOrderTask(r) },
+        { r -> invDao.deleteSubOrderTask(r) }
+    )
 
-    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntTasks = invService.getTasksDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, tasks not available.")
-            }
-            val dbTasks = invDao.getTasksByDateRangeL(timeRange)
-            ntTasks.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbTasks.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSubOrderTask(ntIt.toDatabaseModel())
-                }
-            }
-            ntTasks.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbTasks.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSubOrderTask(ntIt.toDatabaseModel())
-                }
-            }
-            dbTasks.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntTasks.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteSubOrderTask(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshSubOrderTasks: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncSamples(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getSamplesByDateRange(tr) },
+        { tr -> invDao.getSamplesByDateRange(tr) },
+        { r -> invDao.insertSample(r) },
+        { r -> invDao.updateSample(r) },
+        { r -> invDao.deleteSample(r) }
+    )
 
-    suspend fun syncSamples(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntSamples = invService.getSamplesByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, samples not available.")
-            }
-            val dbSamples = invDao.getSamplesByDateRange(timeRange)
-            ntSamples.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSamples.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSample(ntIt.toDatabaseModel())
-                }
-            }
-            ntSamples.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSamples.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSample(ntIt.toDatabaseModel())
-                }
-            }
-            dbSamples.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSamples.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteSample(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshSamples: ${timeFormatter.format(Instant.now())}")
-        }
-    }
-
-    suspend fun syncResults(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntResults = invService.getResultsByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
-            }
-            val dbResults = invDao.getResultsByDateRange(timeRange)
-            ntResults.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbResults.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertResult(ntIt.toDatabaseModel())
-                }
-            }
-            ntResults.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbResults.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateResult(ntIt.toDatabaseModel())
-                }
-            }
-            dbResults.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntResults.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteResult(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshResults: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncResults(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getResultsByDateRange(tr) },
+        { tr -> invDao.getResultsByDateRange(tr) },
+        { r -> invDao.insertResult(r) },
+        { r -> invDao.updateResult(r) },
+        { r -> invDao.deleteResult(r) }
+    )
 
     /**
      * Investigations sync logic
