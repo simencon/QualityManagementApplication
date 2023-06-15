@@ -2,6 +2,10 @@ package com.simenko.qmapp.room.implementation
 
 import androidx.room.*
 import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.room.implementation.dao.InvestigationsDao
+import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
+import com.simenko.qmapp.room.implementation.dao.ProductsDao
+import com.simenko.qmapp.room.implementation.dao.investigaions.*
 
 @Database(
     entities = [
@@ -78,4 +82,10 @@ abstract class QualityManagementDB : RoomDatabase() {
     abstract val manufacturingDao: ManufacturingDao
     abstract val productsDao: ProductsDao
     abstract val investigationsDao: InvestigationsDao
+
+    abstract val inputForOrderDao: InputForOrderDao
+    abstract val orderStatusDao: OrderStatusDao
+    abstract val measurementReasonDao: MeasurementReasonDao
+    abstract val investigationTypeDao: InvestigationTypeDao
+    abstract val resultDecryptionDao: ResultDecryptionDao
 }

@@ -892,11 +892,11 @@ class InvestigationsViewModel @Inject constructor(
                 productsRepository.refreshComponentsToLines()
                 productsRepository.refreshComponentInStagesToLines()
 
-                repository.insertInputForOrder()
-                repository.insertOrdersStatuses()
-                repository.insertInvestigationReasons()
-                repository.insertInvestigationTypes()
-                repository.insertResultsDecryptions()
+                repository.syncInputForOrder()
+                repository.syncOrdersStatuses()
+                repository.syncInvestigationReasons()
+                repository.syncInvestigationTypes()
+                repository.syncResultsDecryptions()
 
                 _isLoadingInProgress.value = false
 

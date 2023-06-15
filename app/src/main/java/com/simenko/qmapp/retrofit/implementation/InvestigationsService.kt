@@ -7,16 +7,16 @@ import retrofit2.http.*
 
 interface InvestigationsService {
     @GET("inputsForMeasurementRegister")
-    suspend fun getInputForOrder(): List<NetworkInputForOrder>
+    suspend fun getInputForOrder(): Response<List<NetworkInputForOrder>>
 
     @GET("ordersStatuses")
-    suspend fun getOrdersStatuses(): List<NetworkOrdersStatus>
+    suspend fun getOrdersStatuses(): Response<List<NetworkOrdersStatus>>
 
     @GET("measurementReasons")
-    suspend fun getMeasurementReasons(): List<NetworkReason>
+    suspend fun getMeasurementReasons(): Response<List<NetworkReason>>
 
     @GET("ordersTypes")
-    suspend fun getOrdersTypes(): List<NetworkOrdersType>
+    suspend fun getOrdersTypes(): Response<List<NetworkOrdersType>>
 
     @GET("orders/latestOrder")
     suspend fun getLatestOrderDate(): Response<Long>
@@ -115,7 +115,7 @@ interface InvestigationsService {
     suspend fun deleteSample(@Path("id") id: Int): Response<NetworkSample>
 
     @GET("resultsDecriptions")
-    suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>
+    suspend fun getResultsDecryptions(): Response<List<NetworkResultsDecryption>>
 
     @GET("results/hashCode/{timeRange}")
     suspend fun getResultsHashCodeForDatePeriod(

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.room.implementation
+package com.simenko.qmapp.room.implementation.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
@@ -9,31 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface InvestigationsDao {
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertInputForOrderAll(company: List<DatabaseInputForOrder>)
-
-    @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
-    fun getInputForOrder(): LiveData<List<DatabaseInputForOrder>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrdersStatusesAll(company: List<DatabaseOrdersStatus>)
-
-    @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
-    fun getOrdersStatusesFlow(): Flow<List<DatabaseOrdersStatus>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMeasurementReasonsAll(company: List<DatabaseReason>)
-
-    @Query("SELECT * FROM `0_measurement_reasons` ORDER BY reasonOrder ASC")
-    fun getMeasurementReasons(): LiveData<List<DatabaseReason>>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertOrdersTypesAll(company: List<DatabaseOrdersType>)
-
-    @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
-    fun getOrdersTypes(): LiveData<List<DatabaseOrdersType>>
-
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOrdersAll(records: List<DatabaseOrder>)
@@ -137,13 +112,6 @@ interface InvestigationsDao {
 
     @Query("SELECT * FROM `14_samples` WHERE id=:id ")
     suspend fun getSampleById(id: String): DatabaseSample?
-
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertResultsDecryptionsAll(company: List<DatabaseResultsDecryption>)
-
-    @Query("SELECT * FROM `0_results_decryptions` ORDER BY id ASC")
-    fun getResultsDecryptions(): LiveData<List<DatabaseResultsDecryption>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertResultsAll(records: List<DatabaseResult>)
