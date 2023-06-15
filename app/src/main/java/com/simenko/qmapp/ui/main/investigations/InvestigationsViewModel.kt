@@ -246,21 +246,22 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteOrder(orderId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteOrder(orderId).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
-                            }
-                            Status.SUCCESS -> {
-                                if (resource.data == true)
+                repository.run {
+                    deleteOrder(orderId).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                                }
+                                Status.SUCCESS -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                            }
-                            Status.ERROR -> {
-                                if (resource.data == true)
-                                    _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                }
+                                Status.ERROR -> {
+                                    withContext(Dispatchers.Main) {
+                                        _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
+                                    }
+                                }
                             }
                         }
                     }
@@ -353,25 +354,22 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteSubOrder(subOrderId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteSubOrder(subOrderId).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
+                repository.run {
+                    deleteSubOrder(subOrderId).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
-                            }
-                            Status.SUCCESS -> {
-                                if (resource.data == true)
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
                                     }
-                            }
-                            Status.ERROR -> {
-                                if (resource.data == true)
-                                    _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                }
                             }
                         }
                     }
@@ -435,25 +433,22 @@ class InvestigationsViewModel @Inject constructor(
     fun deleteSubOrderTask(taskId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteSubOrderTask(taskId).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
+                repository.run {
+                    deleteSubOrderTask(taskId).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
-                            }
-                            Status.SUCCESS -> {
-                                if (resource.data == true)
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
                                     }
-                            }
-                            Status.ERROR -> {
-                                if (resource.data == true)
-                                    _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                }
                             }
                         }
                     }
@@ -590,25 +585,22 @@ class InvestigationsViewModel @Inject constructor(
     private fun deleteResultsBasedOnTask(task: DomainSubOrderTask) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                repository.deleteResults(taskId = task.id).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
+                repository.run {
+                    deleteResults(task.id).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
-                            }
-                            Status.SUCCESS -> {
-                                if (resource.data == true)
+                                Status.SUCCESS -> {
+                                    withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                }
+                                Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
+                                        _isErrorMessage.value = resource.message
                                     }
-                            }
-                            Status.ERROR -> {
-                                if (resource.data == true)
-                                    _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
+                                }
                             }
                         }
                     }
@@ -628,10 +620,10 @@ class InvestigationsViewModel @Inject constructor(
                             it.completedById = subOrder.completedById
                             editTask(it)
                         }
-                        repository.run { syncSubOrder(subOrder) }.consumeEach { }
+                        repository.run { getSubOrder(subOrder) }.consumeEach { }
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        repository.run { syncOrder(order) }.consumeEach { }
+                        repository.run { getOrder(order) }.consumeEach {}
                     }
                 }
                 hideReportDialog()
@@ -654,10 +646,10 @@ class InvestigationsViewModel @Inject constructor(
                         editTask(subOrderTask)
 
                         val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
-                        repository.run { syncSubOrder(subOrder) }.consumeEach { }
+                        repository.run { getSubOrder(subOrder) }.consumeEach { }
 
                         val order = repository.getOrderById(subOrder.orderId)
-                        repository.run { syncOrder(order) }.consumeEach { }
+                        repository.run { getOrder(order) }.consumeEach { }
 
                     }
                 }
@@ -682,74 +674,85 @@ class InvestigationsViewModel @Inject constructor(
              * 5.If change is "Done" -> "Rejected" = Do nothing, just change the status
              * 6.If change is "To Do" <-> "Rejected" = Do nothing, just change the status
              * */
-            repository.run { syncTask(subOrderTask) }.consumeEach {
-                if (it.statusId == InvStatuses.TO_DO.statusId || it.statusId == InvStatuses.REJECTED.statusId) {
-                    if (subOrderTask.statusId == InvStatuses.DONE.statusId)
-                    /**
-                     * Collect/Post new results and change status
-                     * */
-                    {
-                        runBlocking {
-                            /**
-                             * first find subOrder
-                             * */
-                            val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+            repository.run { getTask(subOrderTask) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {}
+                        Status.SUCCESS -> {
+                            resource.data!!.let {
+                                if (it.statusId == InvStatuses.TO_DO.statusId || it.statusId == InvStatuses.REJECTED.statusId) {
+                                    if (subOrderTask.statusId == InvStatuses.DONE.statusId)
+                                    /**
+                                     * Collect/Post new results and change status
+                                     * */
+                                    {
+                                        runBlocking {
+                                            /**
+                                             * first find subOrder
+                                             * */
+                                            val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
 
-                            /**
-                             * second - extract list of metrixes to record
-                             * */
-                            val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                                prefix = subOrder.itemPreffix.substring(0, 1),
-                                versionId = subOrder.itemVersionId,
-                                actual = true,
-                                charId = subOrderTask.charId
-                            )
-                            /**
-                             * third - generate the final list of result to record
-                             * */
-                            repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
-                                metrixesToRecord.forEach { mIt ->
-                                    listOfResults.add(
-                                        DomainResult(
-                                            id = 0,
-                                            sampleId = sdIt.id,
-                                            metrixId = mIt.id,
-                                            result = null,
-                                            isOk = true,
-                                            resultDecryptionId = 1,
-                                            taskId = subOrderTask.id
-                                        )
-                                    )
+                                            /**
+                                             * second - extract list of metrixes to record
+                                             * */
+                                            val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
+                                                prefix = subOrder.itemPreffix.substring(0, 1),
+                                                versionId = subOrder.itemVersionId,
+                                                actual = true,
+                                                charId = subOrderTask.charId
+                                            )
+                                            /**
+                                             * third - generate the final list of result to record
+                                             * */
+                                            repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
+                                                metrixesToRecord.forEach { mIt ->
+                                                    listOfResults.add(
+                                                        DomainResult(
+                                                            sampleId = sdIt.id,
+                                                            metrixId = mIt.id,
+                                                            result = null,
+                                                            isOk = true,
+                                                            resultDecryptionId = 1,
+                                                            taskId = subOrderTask.id
+                                                        )
+                                                    )
+                                                }
+                                            }
+
+                                            repository.run { insertResults(listOfResults) }.consumeEach { event ->
+                                                event.getContentIfNotHandled()?.let { resource ->
+                                                    when (resource.status) {
+                                                        Status.LOADING -> {}
+                                                        Status.SUCCESS -> {}
+                                                        Status.ERROR -> {
+                                                            _isErrorMessage.value = resource.message
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (it.statusId == InvStatuses.DONE.statusId) {
+                                    if (subOrderTask.statusId == InvStatuses.TO_DO.statusId) {
+                                        /**
+                                         * Delete all results and change status
+                                         * */
+                                        deleteResultsBasedOnTask(subOrderTask)
+                                    }
                                 }
-                            }
-
-                            repository.run { insertResults(listOfResults) }.consumeEach { event ->
-                                event.getContentIfNotHandled()?.let { resource ->
-                                    when (resource.status) {
-                                        Status.LOADING -> {}
-                                        Status.SUCCESS -> {}
-                                        Status.ERROR -> {
-                                            _isErrorMessage.value = resource.message
+                                repository.run { updateTask(subOrderTask) }.consumeEach { event ->
+                                    event.getContentIfNotHandled()?.let { resource ->
+                                        when (resource.status) {
+                                            Status.LOADING -> {}
+                                            Status.SUCCESS -> {}
+                                            Status.ERROR -> {
+                                                _isErrorMessage.value = resource.message
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                } else if (it.statusId == InvStatuses.DONE.statusId) {
-                    if (subOrderTask.statusId == InvStatuses.TO_DO.statusId) {
-                        /**
-                         * Delete all results and change status
-                         * */
-                        deleteResultsBasedOnTask(subOrderTask)
-                    }
-                }
-            }
-            repository.run { updateTask(subOrderTask) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> {}
-                        Status.SUCCESS -> {}
                         Status.ERROR -> {
                             _isErrorMessage.value = resource.message
                         }
@@ -760,18 +763,26 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     fun editResult(result: DomainResult) {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    repository.run { updateResult(result) }.consumeEach { }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { updateResult(result) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) {
+                                _isLoadingInProgress.value = true
+                                _isErrorMessage.value = resource.message
+                            }
+                        }
+                    }
                 }
-                hideReportDialog()
-                _isLoadingInProgress.value = false
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
             }
+            withContext(Dispatchers.Main) { hideReportDialog() }
         }
     }
 

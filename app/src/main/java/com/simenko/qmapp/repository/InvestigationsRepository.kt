@@ -7,33 +7,31 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
-import com.simenko.qmapp.repository.contract.InvRepository
+import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.NotificationData
-import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
-import okhttp3.ResponseBody
-import retrofit2.Converter
 import java.io.IOException
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val TAG = "InvestigationsRepository"
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@Singleton
 class InvestigationsRepository @Inject constructor(
     private val invDao: InvestigationsDao,
     private val invService: InvestigationsService,
-    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
-) : InvRepository {
+    private val crudeOperations: CrudeOperations
+) {
     private val timeFormatter = DateTimeFormatter.ISO_INSTANT
 
     /**
@@ -101,258 +99,51 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Investigations sync work
      * */
-    suspend fun syncOrders(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntOrders = invService.getOrdersByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
-            }
-            val dbOrders = invDao.getOrdersByDateRange(timeRange)
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertOrder(ntIt.toDatabaseModel())
-                }
-            }
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateOrder(ntIt.toDatabaseModel())
-                }
-            }
-            dbOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteOrder(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshOrders: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncOrders(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getOrdersByDateRange(tr) },
+        { tr -> invDao.getOrdersByDateRange(tr) },
+        { r -> invDao.insertOrder(r) },
+        { r -> invDao.updateOrder(r) },
+        { r -> invDao.deleteOrder(r) }
+    )
 
-    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> {
-        val result = mutableListOf<NotificationData>()
-        withContext(Dispatchers.IO) {
-            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
-            }
-            val dbSubOrders = invDao.getSubOrdersByDateRangeL(timeRange)
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSubOrder(ntIt.toDatabaseModel())
-                    invDao.getSubOrdersById(ntIt.id)?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.CREATED)
-                        )
-                    }
-                }
-            }
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSubOrder(ntIt.toDatabaseModel())
-                    invDao.getSubOrdersById(ntIt.id)?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.CHANGED)
-                        )
-                    }
-                }
-            }
-            dbSubOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSubOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.getSubOrdersById(dbIt.id)?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.DELETED)
-                        )
-                    }
-                    invDao.deleteSubOrder(dbIt)
-                }
-            }
+    suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> = crudeOperations.syncStatusRecords(
+        timeRange,
+        { tr -> invService.getSubOrdersByDateRange(tr) },
+        { tr -> invDao.getSubOrdersByDateRangeL(tr) },
+        { r -> invDao.insertSubOrder(r) },
+        { id -> invDao.getSubOrdersById(id) },
+        { r -> invDao.updateSubOrder(r) },
+        { r -> invDao.deleteSubOrder(r) }
+    )
 
-            Log.d(TAG, "refreshSubOrders: ${timeFormatter.format(Instant.now())}")
-        }
-        return result
-    }
+    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getTasksDateRange(tr) },
+        { tr -> invDao.getTasksByDateRangeL(tr) },
+        { r -> invDao.insertSubOrderTask(r) },
+        { r -> invDao.updateSubOrderTask(r) },
+        { r -> invDao.deleteSubOrderTask(r) }
+    )
 
-    suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntTasks = invService.getTasksDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, tasks not available.")
-            }
-            val dbTasks = invDao.getTasksByDateRangeL(timeRange)
-            ntTasks.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbTasks.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSubOrderTask(ntIt.toDatabaseModel())
-                }
-            }
-            ntTasks.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbTasks.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSubOrderTask(ntIt.toDatabaseModel())
-                }
-            }
-            dbTasks.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntTasks.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteSubOrderTask(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshSubOrderTasks: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncSamples(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getSamplesByDateRange(tr) },
+        { tr -> invDao.getSamplesByDateRange(tr) },
+        { r -> invDao.insertSample(r) },
+        { r -> invDao.updateSample(r) },
+        { r -> invDao.deleteSample(r) }
+    )
 
-    suspend fun syncSamples(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntSamples = invService.getSamplesByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, samples not available.")
-            }
-            val dbSamples = invDao.getSamplesByDateRange(timeRange)
-            ntSamples.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSamples.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertSample(ntIt.toDatabaseModel())
-                }
-            }
-            ntSamples.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSamples.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateSample(ntIt.toDatabaseModel())
-                }
-            }
-            dbSamples.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSamples.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteSample(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshSamples: ${timeFormatter.format(Instant.now())}")
-        }
-    }
-
-    suspend fun syncResults(timeRange: Pair<Long, Long>) {
-        withContext(Dispatchers.IO) {
-            val ntResults = invService.getResultsByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
-            }
-            val dbResults = invDao.getResultsByDateRange(timeRange)
-            ntResults.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbResults.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.insertResult(ntIt.toDatabaseModel())
-                }
-            }
-            ntResults.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbResults.forEach byBlock2@{ dbIt ->
-                    if (ntIt.id == dbIt.id) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    invDao.updateResult(ntIt.toDatabaseModel())
-                }
-            }
-            dbResults.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntResults.forEach byBlock2@{ ntIt ->
-                    if (ntIt.id == dbIt.id) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    invDao.deleteResult(dbIt)
-                }
-            }
-            Log.d(TAG, "refreshResults: ${timeFormatter.format(Instant.now())}")
-        }
-    }
+    suspend fun syncResults(timeRange: Pair<Long, Long>) = crudeOperations.syncRecords(
+        timeRange,
+        { tr -> invService.getResultsByDateRange(tr) },
+        { tr -> invDao.getResultsByDateRange(tr) },
+        { r -> invDao.insertResult(r) },
+        { r -> invDao.updateResult(r) },
+        { r -> invDao.deleteResult(r) }
+    )
 
     /**
      * Investigations sync logic
@@ -467,11 +258,11 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    override suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
+    suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
         return Pair(invDao.getEarliestOrderDate() ?: NoRecord.num.toLong(), invDao.getLatestOrderDate() ?: NoRecord.num.toLong())
     }
 
-    override suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>): List<NotificationData> {
+    suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>): List<NotificationData> {
         val mList = mutableListOf<NotificationData>()
 
         val oList = invDao.getOrdersByDateRange(timeRange)
@@ -510,237 +301,132 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Inv deletion operations
      * */
-    fun deleteOrder(orderId: Int): Flow<Event<Resource<Boolean>>> = flow {
-        runCatching {
-            emit(Event(Resource.loading(true)))
-            invService.deleteOrder(orderId).let { response ->
-                if (response.isSuccessful) {
-                    invDao.getOrderById(orderId.toString())?.let { it ->
-                        invDao.deleteOrder(it)
-                    }
-                    emit(Event(Resource.success(true)))
-                } else {
-                    emit(Event(Resource.error("Order is not deleted.", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                emit(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.deleteOrder(orderId: Int): ReceiveChannel<Event<Resource<DomainOrder>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteOrder(orderId) },
+            resultHandler = { r -> invDao.deleteOrder(r) }
+        )
     }
 
-    fun deleteSubOrder(subOrderId: Int): Flow<Event<Resource<Boolean>>> = flow {
-        runCatching {
-            emit(Event(Resource.loading(true)))
-            invService.deleteSubOrder(subOrderId).let { response ->
-                if (response.isSuccessful) {
-                    invDao.getSubOrderById(subOrderId.toString())?.let { it ->
-                        invDao.deleteSubOrder(it)
-                    }
-                    emit(Event(Resource.success(true)))
-                } else {
-                    emit(Event(Resource.error("Sub order is not deleted.", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                emit(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.deleteSubOrder(subOrderId: Int): ReceiveChannel<Event<Resource<DomainSubOrder>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteSubOrder(subOrderId) },
+            resultHandler = { r -> invDao.deleteSubOrder(r) }
+        )
     }
 
-    fun deleteSubOrderTask(taskId: Int): Flow<Event<Resource<Boolean>>> = flow {
-        runCatching {
-            emit(Event(Resource.loading(true)))
-            invService.deleteSubOrderTask(taskId).let { response ->
-                if (response.isSuccessful) {
-                    invDao.getSubOrderTaskById(taskId.toString())?.let { it ->
-                        invDao.deleteSubOrderTask(it)
-                        Log.d(TAG, "deleteSubOrderTask: $it")
-                    }
-                    emit(Event(Resource.success(true)))
-                } else {
-                    emit(Event(Resource.error("Sub order is not deleted.", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null) {
-                emit(Event(Resource.error("Network error", true)))
-            }
-        }
+    fun CoroutineScope.deleteSubOrderTask(taskId: Int): ReceiveChannel<Event<Resource<DomainSubOrderTask>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteSubOrderTask(taskId) },
+            resultHandler = { r -> invDao.deleteSubOrderTask(r) }
+        )
     }
 
-    fun deleteSample(sampleId: Int): Flow<Event<Resource<Boolean>>> = flow {
-        runCatching {
-            emit(Event(Resource.loading(true)))
-            invService.deleteSample(sampleId).let { response ->
-                if (response.isSuccessful) {
-                    invDao.getSampleById(sampleId.toString())?.let { it ->
-                        invDao.deleteSample(it)
-                        Log.d(TAG, "deleteSample: $it")
-                    }
-                    emit(Event(Resource.success(true)))
-                } else {
-                    emit(Event(Resource.error("Sub order is not deleted.", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                emit(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.deleteSample(sampleId: Int): ReceiveChannel<Event<Resource<DomainSample>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.deleteSample(sampleId) },
+            resultHandler = { r -> invDao.deleteSample(r) }
+        )
     }
 
-    fun deleteResults(taskId: Int = 0, id: Int = 0) = flow {
-        runCatching {
-            emit(Event(Resource.loading(true)))
-            invService.deleteResults(taskId, id).let { response ->
-                if (response.isSuccessful) {
-                    if (taskId == 0 && id != 0)
-                        invDao.getResultById(id.toString())?.let { it ->
-                            invDao.deleteResult(it)
-                        }
-                    else if (taskId != 0 && id == 0)
-                        invDao.getResultsByTaskId(taskId.toString()).forEach { it ->
-                            invDao.deleteResult(it)
-                        }
-                    else
-                        emit(Event(Resource.error("You mast select either taskId or resultId", true)))
-                    emit(Event(Resource.success(true)))
-                } else {
-                    emit(Event(Resource.error("Sub order is not deleted.", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                emit(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.deleteResults(taskId) },
+            resultHandler = { r -> invDao.deleteResults(r) }
+        )
     }
 
     /**
-     * Inv adding operations
+     * Inv create operations
      * */
-    fun CoroutineScope.insertOrder(record: DomainOrder) = produce {
-        val newOrder = invService.createOrder(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertOrder(newOrder)
-        send(newOrder.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    fun CoroutineScope.insertOrder(record: DomainOrder) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createOrder(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertOrder(r) }
+        )
     }
 
-    fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = produce {
-        runCatching {
-            send(Event(Resource.loading(null)))
-            invService.createSubOrder(record.toDatabaseModel().toNetworkModel()).let { response ->
-                if (response.isSuccessful) {
-                    response.body().let { newRecord ->
-                        if (newRecord != null) {
-                            invDao.insertSubOrder(newRecord.toDatabaseModel())
-                            send(Event(Resource.success(invDao.getSubOrderById(newRecord.id.toString()))))
-                        } else {
-                            send(Event(Resource.error("Response body is empty.",null)))
-                        }
-                    }
-                } else {
-                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error",null)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                send(Event(Resource.error("Network error", null)))
-        }
+    fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createSubOrder(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertSubOrder(r) }
+        )
     }
 
-    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = produce {
-        val newRecord = invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertSubOrderTask(newRecord)
-        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertSubOrderTask(r) }
+        )
     }
 
-    fun CoroutineScope.insertSample(record: DomainSample) = produce {
-        val newRecord = invService.createSample(record.toDatabaseModel().toNetworkModel()).toDatabaseModel()
-        invDao.insertSample(newRecord)
-        send(newRecord.toDomainModel()) //cold send, can be this.trySend(l).isSuccess //hot send
+    fun CoroutineScope.insertSample(record: DomainSample) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.createSample(record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.insertSample(r) }
+        )
     }
 
-    fun CoroutineScope.insertResults(records: List<DomainResult>) = produce {
-        runCatching {
-            send(Event(Resource.loading(true)))
-            invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }).let { response ->
-                if (response.isSuccessful) {
-                    response.body()?.let { ntResults ->
-                        invDao.insertResultsAll(ntResults.map { ntResult ->
-                            ntResult.toDatabaseModel()
-                        })
-                    }
-                    send(Event(Resource.success(true)))
-                } else {
-                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                send(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) },
+            resultHandler = { r -> invDao.insertResultsAll(r) }
+        )
     }
 
-
-    fun CoroutineScope.updateOrder(record: DomainOrder) = produce {
-        val nOrder = record.toDatabaseModel().toNetworkModel()
-        invService.editOrder(record.id, nOrder)
-        invDao.updateOrder(record.toDatabaseModel())
-        send(record)
+    /**
+     * Inv update operations
+     * */
+    fun CoroutineScope.updateOrder(record: DomainOrder) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editOrder(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateOrder(r) }
+        )
     }
 
-    fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = produce {
-        val nSubOrder = record.toDatabaseModel().toNetworkModel()
-        invService.editSubOrder(record.id, nSubOrder)
-        invDao.updateSubOrder(record.toDatabaseModel())
-        send(record)
+    fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editSubOrder(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateSubOrder(r) }
+        )
     }
 
-    fun CoroutineScope.updateTask(record: DomainSubOrderTask) = produce {
-        runCatching {
-            send(Event(Resource.loading(true)))
-            invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()).let { response ->
-                if (response.isSuccessful) {
-                    response.body()?.let { ntResult ->
-                        val dSubOrderTask = invService.getSubOrderTask(ntResult.id).toDatabaseModel()
-                        invDao.updateSubOrderTask(dSubOrderTask)
-                    }
-                    send(Event(Resource.success(true)))
-                } else {
-                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", true)))
-                }
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                send(Event(Resource.error("Network error", true)))
-        }
+    fun CoroutineScope.updateTask(record: DomainSubOrderTask) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateSubOrderTask(r) }
+        )
     }
 
-    fun CoroutineScope.updateResult(record: DomainResult) = produce {
-        val nNetwork = record.toDatabaseModel().toNetworkModel()
-        invService.editResult(record.id, nNetwork)
-        invDao.updateResult(record.toDatabaseModel())
-        send(record)
+    fun CoroutineScope.updateResult(record: DomainResult) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.editResult(record.id, record.toDatabaseModel().toNetworkModel()) },
+            resultHandler = { r -> invDao.updateResult(r) }
+        )
     }
 
-
-    fun CoroutineScope.syncOrder(record: DomainOrder) = produce {
-        val nOrder = invService.getOrder(record.id)
-        invDao.updateOrder(nOrder.toDatabaseModel())
-        send(nOrder.toDatabaseModel().toDomainModel())
+    /**
+     * Inv read operations
+     * */
+    fun CoroutineScope.getOrder(record: DomainOrder) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.getOrder(record.id) },
+            resultHandler = { r -> invDao.updateOrder(r) }
+        )
     }
 
-    fun CoroutineScope.syncSubOrder(record: DomainSubOrder) = produce {
-        val nSubOrder = invService.getSubOrder(record.id)
-        invDao.updateSubOrder(nSubOrder.toDatabaseModel())
-        send(nSubOrder.toDatabaseModel().toDomainModel())
+    fun CoroutineScope.getSubOrder(record: DomainSubOrder) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.getSubOrder(record.getRecordId().toString().toInt()) },
+            resultHandler = { r -> invDao.updateSubOrder(r) }
+        )
     }
 
-    fun CoroutineScope.syncTask(record: DomainSubOrderTask) = produce {
-        Log.d(TAG, "syncTask: $record")
-        val nSubOrderTask = invService.getSubOrderTask(record.id)
-        Log.d(TAG, "syncTask: $nSubOrderTask")
-        invDao.updateSubOrderTask(nSubOrderTask.toDatabaseModel())
-        send(nSubOrderTask.toDatabaseModel().toDomainModel())
+    fun CoroutineScope.getTask(record: DomainSubOrderTask) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { invService.getSubOrderTask(record.getRecordId().toString().toInt()) },
+            resultHandler = { r -> invDao.updateSubOrderTask(r) }
+        )
     }
 
 //    ToDO - change this part to return exactly what is needed
