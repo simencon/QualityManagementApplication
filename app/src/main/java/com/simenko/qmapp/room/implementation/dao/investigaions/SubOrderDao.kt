@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentModel<DatabaseSubOrder> {
-    @Query("SELECT * FROM `13_sub_orders` ORDER BY id ASC")
+    @Query("SELECT * FROM `13_sub_orders` order by orderId asc")
     abstract override fun getRecords(): List<DatabaseSubOrder>
 
-    @Query("select * from `13_sub_orders` order by orderId asc")
+    @Query("select * from `13_sub_orders` where orderId = :parentId order by orderId asc")
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSubOrder>
 
     @Query("SELECT * FROM `13_sub_orders` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseSubOrder
+    abstract override fun getRecordById(id: String): DatabaseSubOrder?
 
     @Query("SELECT * FROM `13_sub_orders` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseSubOrder>>
@@ -43,5 +43,5 @@ abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentMod
 
     @Transaction
     @Query("select so.* from `13_sub_orders` so where so.id = :id")
-    abstract fun getRecordByIdComplete(id: Int): DatabaseSubOrderComplete
+    abstract fun getRecordByIdComplete(id: Int): DatabaseSubOrderComplete?
 }

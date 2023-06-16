@@ -15,12 +15,11 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
     abstract override fun getRecords(): List<DatabaseOrder>
 
-    //    ToDo - change this when order and company will be connected
-    @Query("select * from `12_orders` order by id asc")
+    @Query("select * from `12_orders` where orderTypeId = :parentId order by orderNumber asc")
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseOrder>
 
     @Query("SELECT * FROM `12_orders` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseOrder
+    abstract override fun getRecordById(id: String): DatabaseOrder?
 
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseOrder>>

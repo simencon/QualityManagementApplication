@@ -164,7 +164,7 @@ class InvestigationsViewModel @Inject constructor(
         _lastVisibleItemKey.value = key
     }
 
-    private val _currentOrdersRange = MutableStateFlow(Pair(0L, 0L))
+    private val _currentOrdersRange = MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
@@ -787,67 +787,46 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     fun uploadNewInvestigations() {
-        viewModelScope.launch {
-            if (!_isLoadingInProgress.value)
-                withContext(Dispatchers.IO) {
-                    repository.uploadNewInvestigations().collect { event ->
-                        event.getContentIfNotHandled()?.let { resource ->
-                            when (resource.status) {
-                                Status.LOADING -> {
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = true
-                                    }
-                                }
-                                Status.SUCCESS -> {
-                                    resource.data?.let { data ->
-                                        if (data) {
-                                            setLastVisibleItemKey(repository.latestLocalOrderId())
-                                            withContext(Dispatchers.Main) {
-                                                _isLoadingInProgress.value = false
-                                            }
-                                        }
-                                    }
-                                }
-                                Status.ERROR -> {
-                                    if (resource.data == true)
-                                        _isLoadingInProgress.value = false
-                                    _isErrorMessage.value = resource.message
-                                    coroutineContext[Job]?.cancelAndJoin()
-                                }
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
+                repository.run { uploadNewInvestigationsTest() }.consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                            }
+                            Status.SUCCESS -> {
+                                setLastVisibleItemKey(repository.latestLocalOrderId())
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                            }
+                            Status.ERROR -> {
+                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                _isErrorMessage.value = resource.message
                             }
                         }
                     }
                 }
+            }
         }
     }
 
     private fun uploadOlderInvestigations(earliestOrderDate: Long) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                repository.uploadOldInvestigations(earliestOrderDate).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { uploadOldInvestigations(earliestOrderDate) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            resource.data?.let {
+                                if (it.isNotEmpty()) setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
                             }
-                            Status.SUCCESS -> {
-                                resource.data?.let { data ->
-                                    if (data) {
-                                        setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
-                                        withContext(Dispatchers.Main) {
-                                            _isLoadingInProgress.value = false
-                                        }
-                                    }
-                                }
-                            }
-                            Status.ERROR -> {
-                                if (resource.data == true)
-                                    _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
-                            }
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                            _isErrorMessage.value = resource.message
                         }
                     }
                 }

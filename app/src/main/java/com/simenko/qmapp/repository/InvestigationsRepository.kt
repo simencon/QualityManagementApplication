@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
@@ -16,6 +17,8 @@ import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import javax.inject.Inject
@@ -23,6 +26,7 @@ import javax.inject.Singleton
 
 private const val TAG = "InvestigationsRepository"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class InvestigationsRepository @Inject constructor(
     private val database: QualityManagementDB,
@@ -95,7 +99,7 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Investigations sync logic
      * */
-    private suspend fun insertInvEntities(ntOrders: List<NetworkOrder>) {
+    private fun insertInvEntities(ntOrders: List<NetworkOrder>) {
         runBlocking {
             val timeRange = ntOrders.getOrdersRange()
 
@@ -120,93 +124,68 @@ class InvestigationsRepository @Inject constructor(
         }
     }
 
-    fun uploadNewInvestigations(): Flow<Event<Resource<Boolean>>> = flow {
-        runCatching {
-            invService.getLatestOrderDate().let {
-                val rmLatestDate = when (it.isSuccessful) {
-                    true -> {
-                        it.body() ?: NoRecord.num.toLong()
-                    }
-                    else -> {
-                        emit(Event(Resource.error("Network error, latest order date not available.", false)))
-                        NoRecord.num.toLong()
+    fun CoroutineScope.uploadNewInvestigationsTest() = produce {
+        crudeOperations.run {
+            responseHandlerForService(
+                taskExecutor = { invService.getLatestOrderDate() },
+            ).consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            send(Event(Resource.loading(null)))
+                        }
+                        Status.SUCCESS -> {
+                            resource.data?.also { rmDate ->
+                                database.orderDao.getLatestOrderDate().let { locDate ->
+                                    val finalLocalDate = locDate ?: (rmDate - SyncPeriods.LAST_DAY.latestMillis)
+                                    if (rmDate > finalLocalDate) {
+                                        responseHandlerForListOfRecords(
+                                            taskExecutor = { invService.getOrdersByDateRange(Pair(finalLocalDate, rmDate)) },
+                                            resultHandler = { list -> insertInvEntities(list.map { it.toNetworkModel() }) }
+                                        ).consumeEach { event ->
+                                            event.getContentIfNotHandled()?.let { resource ->
+                                                when (resource.status) {
+                                                    Status.LOADING -> {}
+                                                    Status.SUCCESS -> {
+                                                        send(Event(Resource.success(true)))
+                                                    }
+                                                    Status.ERROR -> {
+                                                        send(Event(Resource.error(resource.message ?: "Unknown error", null)))
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        send(Event(Resource.success(true)))
+                                    }
+                                }
+                            } ?: send(Event(Resource.success(true)))
+                        }
+                        Status.ERROR -> {
+                            send(Event(Resource.error(resource.message ?: "Unknown error", null)))
+                        }
                     }
                 }
-
-                if (rmLatestDate != NoRecord.num.toLong())
-                    database.orderDao.getLatestOrderDate().let { lcLatestDate ->
-                        if (lcLatestDate != null && rmLatestDate > lcLatestDate) {
-                            emit(Event(Resource.loading(true)))
-                            invService.getOrdersByDateRange(Pair(lcLatestDate, rmLatestDate)).let { response ->
-                                if (response.isSuccessful) {
-                                    if ((response.body() ?: listOf()).isNotEmpty()) {
-                                        runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
-                                            if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
-                                        }
-                                    } else {
-                                        emit(Event(Resource.error("Data not loaded", true)))
-                                    }
-                                } else {
-                                    emit(Event(Resource.error("Network error, orders not available.", true)))
-                                }
-                            }
-                        } else if (lcLatestDate == null) {
-                            emit(Event(Resource.loading(true)))
-                            invService.getOrdersByDateRange(Pair(rmLatestDate - SyncPeriods.LAST_DAY.latestMillis, rmLatestDate)).let { response ->
-                                if (response.isSuccessful) {
-                                    if ((response.body() ?: listOf()).isNotEmpty()) {
-                                        runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
-                                            if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
-                                        }
-                                    } else {
-                                        emit(Event(Resource.error("Data not loaded", true)))
-                                    }
-                                } else {
-                                    emit(Event(Resource.error("Network error, orders not available.", true)))
-                                }
-                            }
-                        } else {
-                            emit(Event(Resource.success(false)))
-                        }
-                    }
-                else
-                    emit(Event(Resource.success(false)))
             }
-        }.exceptionOrNull().also {
-            if (it != null)
-                emit(Event(Resource.error("Network error.", false)))
         }
     }
 
-    fun uploadOldInvestigations(earliestOrderDate: Long): Flow<Event<Resource<Boolean>>> = flow {
-        runCatching {
-            if (earliestOrderDate == database.orderDao.getEarliestOrderDate()) {
-                emit(Event(Resource.loading(true)))
-                invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate)
-                    .let { response ->
-                        if (response.isSuccessful) {
-                            if ((response.body() ?: listOf()).isNotEmpty()) {
-                                runCatching { insertInvEntities(response.body()!!) }.exceptionOrNull().also { e ->
-                                    if (e != null) emit(Event(Resource.error(e.message ?: "", true))) else emit(Event(Resource.success(true)))
-                                }
-                            } else {
-                                emit(Event(Resource.error("Data not loaded", true)))
-                            }
-                        } else {
-                            emit(Event(Resource.error("Network error, orders not available.", true)))
-                        }
-                    }
-            } else {
-                emit(Event(Resource.success(false)))
-            }
-        }.exceptionOrNull().also {
-            if (it != null)
-                emit(Event(Resource.error("Network error.", false)))
+    fun CoroutineScope.uploadOldInvestigations(earliestOrderDate: Long) = crudeOperations.run {
+        if (earliestOrderDate == database.orderDao.getEarliestOrderDate())
+            responseHandlerForListOfRecords(
+                taskExecutor = { invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate) },
+                resultHandler = { list -> insertInvEntities(list.map { it.toNetworkModel() }) }
+            )
+        else {
+            produce{ send(Event(Resource.success(emptyList()))) }
         }
     }
 
-    suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
-        return Pair(database.orderDao.getEarliestOrderDate() ?: NoRecord.num.toLong(), database.orderDao.getLatestOrderDate() ?: NoRecord.num.toLong())
+    fun getCompleteOrdersRange(): Pair<Long, Long> {
+        return Pair(
+            database.orderDao.getEarliestOrderDate() ?: NoRecord.num.toLong(),
+            database.orderDao.getLatestOrderDate() ?: NoRecord.num.toLong()
+        )
     }
 
     suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>): List<NotificationData> {
@@ -378,7 +357,7 @@ class InvestigationsRepository @Inject constructor(
 
 //    ToDO - change this part to return exactly what is needed
 
-    suspend fun getOrderById(id: Int): DomainOrder =
+    fun getOrderById(id: Int): DomainOrder =
         database.orderDao.getRecordById(id.toString()).let {
             it?.toDomainModel() ?: throw IOException("no such order in local DB")
         }
