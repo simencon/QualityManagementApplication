@@ -24,9 +24,12 @@ interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseMo
 
     fun getRecords(): List<DB>
 
+    /**
+     * when Entity has no parent, function returns single record where id = parentId
+     * */
     fun getRecordsByParentId(parentId: Int): List<DB>
 
-    fun getRecordById(id: String): DB
+    fun getRecordById(id: String): DB?
 
     fun getRecordsForUI(): LiveData<List<DB>>
 }

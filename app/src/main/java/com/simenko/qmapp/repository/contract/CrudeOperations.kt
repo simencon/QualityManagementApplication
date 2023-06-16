@@ -26,6 +26,27 @@ import javax.inject.Singleton
 class CrudeOperations @Inject constructor(
     private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
 ) {
+    fun <N : Number> CoroutineScope.responseHandlerForService(
+        taskExecutor: suspend () -> Response<N>
+    ): ReceiveChannel<Event<Resource<Long>>> = produce {
+        runCatching {
+            send(Event(Resource.loading(null)))
+            taskExecutor().let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.also {
+                        send(Event(Resource.success(response.body()!!.toLong())))
+                    } ?: send(Event(Resource.error("No response body", null)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null) {
+                send(Event(Resource.error(it.message ?: "Network Error", null)))
+            }
+        }
+    }
+
     fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForSingleRecord(
         taskExecutor: suspend () -> Response<N>,
         resultHandler: (DB) -> Unit

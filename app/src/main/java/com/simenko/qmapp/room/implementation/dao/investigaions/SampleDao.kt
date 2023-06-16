@@ -17,7 +17,7 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSample>
 
     @Query("SELECT * FROM `14_samples` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseSample
+    abstract override fun getRecordById(id: String): DatabaseSample?
 
     @Query("SELECT * FROM `14_samples` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseSample>>

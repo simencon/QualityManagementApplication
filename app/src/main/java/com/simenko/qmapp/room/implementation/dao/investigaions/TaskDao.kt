@@ -17,7 +17,7 @@ abstract class TaskDao : DaoBaseModel<DatabaseSubOrderTask>, DaoTimeDependentMod
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSubOrderTask>
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseSubOrderTask
+    abstract override fun getRecordById(id: String): DatabaseSubOrderTask?
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseSubOrderTask>>

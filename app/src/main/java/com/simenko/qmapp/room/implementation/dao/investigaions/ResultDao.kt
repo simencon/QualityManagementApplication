@@ -18,7 +18,7 @@ abstract class ResultDao : DaoBaseModel<DatabaseResult>, DaoTimeDependentModel<D
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseResult>
 
     @Query("SELECT * FROM `14_8_results` WHERE id = :id")
-    abstract override fun getRecordById(id: String): DatabaseResult
+    abstract override fun getRecordById(id: String): DatabaseResult?
 
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseResult>>
