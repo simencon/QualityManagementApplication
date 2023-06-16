@@ -788,21 +788,36 @@ class InvestigationsViewModel @Inject constructor(
 
     fun uploadNewInvestigations() {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.IO) {
-                repository.run { uploadNewInvestigationsTest() }.consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
-                            }
-                            Status.SUCCESS -> {
-                                setLastVisibleItemKey(repository.latestLocalOrderId())
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                            }
-                            Status.ERROR -> {
-                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
-                                _isErrorMessage.value = resource.message
-                            }
+            repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            resource.data?.also {
+                                repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
+                                    event.getContentIfNotHandled()?.let { resource ->
+                                        when (resource.status) {
+                                            Status.LOADING -> {}
+                                            Status.SUCCESS -> {
+                                                resource.data?.let {
+                                                    if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
+                                                }
+                                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                            }
+                                            Status.ERROR -> {
+                                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                                _isErrorMessage.value = resource.message
+                                            }
+                                        }
+                                    }
+                                }
+                            } ?: withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                            _isErrorMessage.value = resource.message
                         }
                     }
                 }

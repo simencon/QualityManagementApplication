@@ -7,7 +7,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
-import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
@@ -20,6 +19,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.*
+import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -102,69 +102,40 @@ class InvestigationsRepository @Inject constructor(
     private fun insertInvEntities(ntOrders: List<NetworkOrder>) {
         runBlocking {
             val timeRange = ntOrders.getOrdersRange()
-
-            val ntSubOrders = invService.getSubOrdersByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
+            crudeOperations.run {
+                responseHandlerForListOfRecords(
+                    taskExecutor = { Response.success(ntOrders) }
+                ) { list -> database.orderDao.insertRecords(list) }.consumeEach { }
+                responseHandlerForListOfRecords(
+                    taskExecutor = { invService.getSubOrdersByDateRange(timeRange) }
+                ) { list -> database.subOrderDao.insertRecords(list) }.consumeEach { }
+                responseHandlerForListOfRecords(
+                    taskExecutor = { invService.getTasksDateRange(timeRange) }
+                ) { list -> database.taskDao.insertRecords(list) }.consumeEach { }
+                responseHandlerForListOfRecords(
+                    taskExecutor = { invService.getSamplesByDateRange(timeRange) }
+                ) { list -> database.sampleDao.insertRecords(list) }.consumeEach { }
+                responseHandlerForListOfRecords(
+                    taskExecutor = { invService.getResultsByDateRange(timeRange) }
+                ) { list -> database.resultDao.insertRecords(list) }.consumeEach { }
             }
-            val ntTasks = invService.getTasksDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, tasks not available.")
-            }
-            val ntSamples = invService.getSamplesByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, samples not available.")
-            }
-            val ntResults = invService.getResultsByDateRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
-            }
-
-            database.orderDao.insertRecords(ntOrders.map { it.toDatabaseModel() })
-            database.subOrderDao.insertRecords(ntSubOrders.map { it.toDatabaseModel() })
-            database.taskDao.insertRecords(ntTasks.map { it.toDatabaseModel() })
-            database.sampleDao.insertRecords(ntSamples.map { it.toDatabaseModel() })
-            database.resultDao.insertRecords(ntResults.map { it.toDatabaseModel() })
         }
     }
 
-    fun CoroutineScope.uploadNewInvestigationsTest() = produce {
+    fun CoroutineScope.getRemoteLatestOrderDate() = crudeOperations.run {
+        responseHandlerForService() { invService.getLatestOrderDate() }
+    }
+
+    fun CoroutineScope.uploadNewInvestigations(rmDate: Long): ReceiveChannel<Event<Resource<List<DomainOrder>>>> {
         crudeOperations.run {
-            responseHandlerForService(
-                taskExecutor = { invService.getLatestOrderDate() },
-            ).consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> {
-                            send(Event(Resource.loading(null)))
-                        }
-                        Status.SUCCESS -> {
-                            resource.data?.also { rmDate ->
-                                database.orderDao.getLatestOrderDate().let { locDate ->
-                                    val finalLocalDate = locDate ?: (rmDate - SyncPeriods.LAST_DAY.latestMillis)
-                                    if (rmDate > finalLocalDate) {
-                                        responseHandlerForListOfRecords(
-                                            taskExecutor = { invService.getOrdersByDateRange(Pair(finalLocalDate, rmDate)) },
-                                            resultHandler = { list -> insertInvEntities(list.map { it.toNetworkModel() }) }
-                                        ).consumeEach { event ->
-                                            event.getContentIfNotHandled()?.let { resource ->
-                                                when (resource.status) {
-                                                    Status.LOADING -> {}
-                                                    Status.SUCCESS -> {
-                                                        send(Event(Resource.success(true)))
-                                                    }
-                                                    Status.ERROR -> {
-                                                        send(Event(Resource.error(resource.message ?: "Unknown error", null)))
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        send(Event(Resource.success(true)))
-                                    }
-                                }
-                            } ?: send(Event(Resource.success(true)))
-                        }
-                        Status.ERROR -> {
-                            send(Event(Resource.error(resource.message ?: "Unknown error", null)))
-                        }
-                    }
+            database.orderDao.getLatestOrderDate().also { locDate ->
+                val finalLocalDate = locDate ?: (rmDate - SyncPeriods.LAST_DAY.latestMillis)
+                return if (rmDate > finalLocalDate) {
+                    responseHandlerForListOfRecords(
+                        taskExecutor = { invService.getOrdersByDateRange(Pair(finalLocalDate, rmDate)) }
+                    ) { list -> insertInvEntities(list.map { it.toNetworkModel() }) }
+                } else {
+                    produce { send(Event(Resource.success(emptyList()))) }
                 }
             }
         }
@@ -173,11 +144,10 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.uploadOldInvestigations(earliestOrderDate: Long) = crudeOperations.run {
         if (earliestOrderDate == database.orderDao.getEarliestOrderDate())
             responseHandlerForListOfRecords(
-                taskExecutor = { invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate) },
-                resultHandler = { list -> insertInvEntities(list.map { it.toNetworkModel() }) }
-            )
+                taskExecutor = { invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate) }
+            ) { list -> insertInvEntities(list.map { it.toNetworkModel() }) }
         else {
-            produce{ send(Event(Resource.success(emptyList()))) }
+            produce { send(Event(Resource.success(emptyList()))) }
         }
     }
 
@@ -257,9 +227,8 @@ class InvestigationsRepository @Inject constructor(
 
     fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
         responseHandlerForListOfRecords(
-            taskExecutor = { invService.deleteResults(taskId) },
-            resultHandler = { r -> database.resultDao.deleteRecords(r) }
-        )
+            taskExecutor = { invService.deleteResults(taskId) }
+        ) { r -> database.resultDao.deleteRecords(r) }
     }
 
     /**
@@ -295,9 +264,8 @@ class InvestigationsRepository @Inject constructor(
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
         responseHandlerForListOfRecords(
-            taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) },
-            resultHandler = { r -> database.resultDao.insertRecords(r) }
-        )
+            taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.resultDao.insertRecords(r) }
     }
 
     /**
