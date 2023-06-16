@@ -6,12 +6,16 @@ import com.simenko.qmapp.room.entities.DatabaseSubOrder
 import com.simenko.qmapp.room.entities.DatabaseSubOrderComplete
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.contract.DaoTimeDependentModel
+import com.simenko.qmapp.room.entities.DatabaseOrder
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentModel<DatabaseSubOrder> {
     @Query("SELECT * FROM `13_sub_orders` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseSubOrder>
+
+    @Query("select * from `13_sub_orders` order by orderId asc")
+    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSubOrder>
 
     @Query("SELECT * FROM `13_sub_orders` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseSubOrder
@@ -38,6 +42,6 @@ abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentMod
     abstract fun getRecordsByTimeRangeForUI(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderComplete>>
 
     @Transaction
-    @Query("select so.* from `13_sub_orders` so where so.id = :subOrderId")
-    abstract fun getRecordByIdComplete(subOrderId: Int): DatabaseSubOrderComplete
+    @Query("select so.* from `13_sub_orders` so where so.id = :id")
+    abstract fun getRecordByIdComplete(id: Int): DatabaseSubOrderComplete
 }

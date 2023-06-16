@@ -12,13 +12,17 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<DatabaseOrder> {
-    @Query("SELECT * FROM `12_orders` ORDER BY id ASC")
+    @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
     abstract override fun getRecords(): List<DatabaseOrder>
+
+    //    ToDo - change this when order and company will be connected
+    @Query("select * from `12_orders` order by id asc")
+    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseOrder>
 
     @Query("SELECT * FROM `12_orders` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseOrder
 
-    @Query("SELECT * FROM `12_orders` ORDER BY id ASC")
+    @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseOrder>>
 
     @Transaction

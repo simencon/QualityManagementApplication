@@ -10,6 +10,9 @@ abstract class ResultDecryptionDao : DaoBaseModel<DatabaseResultsDecryption> {
     @Query("SELECT * FROM `0_results_decryptions` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseResultsDecryption>
 
+    @Query("select * from `0_results_decryptions` order by id asc")
+    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseResultsDecryption>
+
     @Query("SELECT * FROM `0_results_decryptions` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseResultsDecryption
 

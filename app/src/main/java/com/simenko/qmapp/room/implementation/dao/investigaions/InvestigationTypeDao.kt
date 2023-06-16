@@ -10,6 +10,9 @@ abstract class InvestigationTypeDao : DaoBaseModel<DatabaseOrdersType> {
     @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseOrdersType>
 
+    @Query("select * from `0_orders_types` order by id asc")
+    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseOrdersType>
+
     @Query("SELECT * FROM `0_orders_types` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseOrdersType
 

@@ -13,6 +13,9 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
     @Query("SELECT * FROM `14_samples` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseSample>
 
+    @Query("SELECT s.* FROM `14_samples` as s where s.subOrderId = :parentId")
+    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSample>
+
     @Query("SELECT * FROM `14_samples` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseSample
 
@@ -28,10 +31,6 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
                 "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
     )
     abstract override fun getRecordsByTimeRange(timeRange: Pair<Long, Long>): List<DatabaseSample>
-
-    @Transaction
-    @Query("SELECT s.* FROM `14_samples` as s where s.subOrderId = :parentId")
-    abstract fun getRecordsByParentId(parentId: Int): List<DatabaseSample>
 
     @Transaction
     @Query(
