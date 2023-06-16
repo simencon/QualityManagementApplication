@@ -11,7 +11,6 @@ import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
-import com.simenko.qmapp.room.implementation.dao.InvestigationsDao
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.works.SyncPeriods
@@ -19,7 +18,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import java.io.IOException
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,7 +26,6 @@ private const val TAG = "InvestigationsRepository"
 @Singleton
 class InvestigationsRepository @Inject constructor(
     private val database: QualityManagementDB,
-    private val invDao: InvestigationsDao,
     private val invService: InvestigationsService,
     private val crudeOperations: CrudeOperations
 ) {
@@ -67,47 +64,32 @@ class InvestigationsRepository @Inject constructor(
     suspend fun syncOrders(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getOrdersByDateRange(tr) },
-        { tr -> invDao.getOrdersByDateRange(tr) },
-        { r -> invDao.insertOrder(r) },
-        { r -> invDao.updateOrder(r) },
-        { r -> invDao.deleteOrder(r) }
+        database.orderDao
     )
 
     suspend fun syncSubOrders(timeRange: Pair<Long, Long>): List<NotificationData> = crudeOperations.syncStatusRecordsByTimeRange(
         timeRange,
         { tr -> invService.getSubOrdersByDateRange(tr) },
-        { tr -> invDao.getSubOrdersByDateRangeL(tr) },
-        { r -> invDao.insertSubOrder(r) },
-        { id -> invDao.getSubOrdersById(id) },
-        { r -> invDao.updateSubOrder(r) },
-        { r -> invDao.deleteSubOrder(r) }
+        { id -> database.subOrderDao.getRecordByIdComplete(id) },
+        database.subOrderDao
     )
 
     suspend fun syncSubOrderTasks(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getTasksDateRange(tr) },
-        { tr -> invDao.getTasksByDateRangeL(tr) },
-        { r -> invDao.insertSubOrderTask(r) },
-        { r -> invDao.updateSubOrderTask(r) },
-        { r -> invDao.deleteSubOrderTask(r) }
+        database.taskDao
     )
 
     suspend fun syncSamples(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getSamplesByDateRange(tr) },
-        { tr -> invDao.getSamplesByDateRange(tr) },
-        { r -> invDao.insertSample(r) },
-        { r -> invDao.updateSample(r) },
-        { r -> invDao.deleteSample(r) }
+        database.sampleDao
     )
 
     suspend fun syncResults(timeRange: Pair<Long, Long>) = crudeOperations.syncRecordsByTimeRange(
         timeRange,
         { tr -> invService.getResultsByDateRange(tr) },
-        { tr -> invDao.getResultsByDateRange(tr) },
-        { r -> invDao.insertResult(r) },
-        { r -> invDao.updateResult(r) },
-        { r -> invDao.deleteResult(r) }
+        database.resultDao
     )
 
     /**
@@ -130,11 +112,11 @@ class InvestigationsRepository @Inject constructor(
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, results not available.")
             }
 
-            invDao.insertOrdersAll(ntOrders.map { it.toDatabaseModel() })
-            invDao.insertSubOrdersAll(ntSubOrders.map { it.toDatabaseModel() })
-            invDao.insertSubOrderTasksAll(ntTasks.map { it.toDatabaseModel() })
-            invDao.insertSamplesAll(ntSamples.map { it.toDatabaseModel() })
-            invDao.insertResultsAll(ntResults.map { it.toDatabaseModel() })
+            database.orderDao.insertRecords(ntOrders.map { it.toDatabaseModel() })
+            database.subOrderDao.insertRecords(ntSubOrders.map { it.toDatabaseModel() })
+            database.taskDao.insertRecords(ntTasks.map { it.toDatabaseModel() })
+            database.sampleDao.insertRecords(ntSamples.map { it.toDatabaseModel() })
+            database.resultDao.insertRecords(ntResults.map { it.toDatabaseModel() })
         }
     }
 
@@ -152,7 +134,7 @@ class InvestigationsRepository @Inject constructor(
                 }
 
                 if (rmLatestDate != NoRecord.num.toLong())
-                    invDao.getLatestOrderDate().let { lcLatestDate ->
+                    database.orderDao.getLatestOrderDate().let { lcLatestDate ->
                         if (lcLatestDate != null && rmLatestDate > lcLatestDate) {
                             emit(Event(Resource.loading(true)))
                             invService.getOrdersByDateRange(Pair(lcLatestDate, rmLatestDate)).let { response ->
@@ -198,7 +180,7 @@ class InvestigationsRepository @Inject constructor(
 
     fun uploadOldInvestigations(earliestOrderDate: Long): Flow<Event<Resource<Boolean>>> = flow {
         runCatching {
-            if (earliestOrderDate == invDao.getEarliestOrderDate()) {
+            if (earliestOrderDate == database.orderDao.getEarliestOrderDate()) {
                 emit(Event(Resource.loading(true)))
                 invService.getEarliestOrdersByStartingOrderDate(earliestOrderDate)
                     .let { response ->
@@ -224,37 +206,37 @@ class InvestigationsRepository @Inject constructor(
     }
 
     suspend fun getCompleteOrdersRange(): Pair<Long, Long> {
-        return Pair(invDao.getEarliestOrderDate() ?: NoRecord.num.toLong(), invDao.getLatestOrderDate() ?: NoRecord.num.toLong())
+        return Pair(database.orderDao.getEarliestOrderDate() ?: NoRecord.num.toLong(), database.orderDao.getLatestOrderDate() ?: NoRecord.num.toLong())
     }
 
     suspend fun syncInvEntitiesByTimeRange(timeRange: Pair<Long, Long>): List<NotificationData> {
         val mList = mutableListOf<NotificationData>()
 
-        val oList = invDao.getOrdersByDateRange(timeRange)
+        val oList = database.orderDao.getRecordsByTimeRange(timeRange)
         val localOrdersHashCode = oList.sumOf { it.hashCode() }
         val remoteOrdersHashCode = invService.getOrdersHashCodeForDatePeriod(timeRange)
         if (localOrdersHashCode != remoteOrdersHashCode) syncOrders(timeRange)
         Log.d(TAG, "Orders: local = $localOrdersHashCode; remote = $remoteOrdersHashCode")
 
-        val soList = invDao.getSubOrdersByDateRangeL(timeRange)
+        val soList = database.subOrderDao.getRecordsByTimeRange(timeRange)
         val localSubOrdersHashCode = soList.sumOf { it.hashCode() }
         val remoteSubOrdersHashCode = invService.getSubOrdersHashCodeForDatePeriod(timeRange)
         if (localSubOrdersHashCode != remoteSubOrdersHashCode) mList.addAll(syncSubOrders(timeRange))
         Log.d(TAG, "SubOrders: local = $localSubOrdersHashCode; remote = $remoteSubOrdersHashCode")
 
-        val tList = invDao.getTasksByDateRangeL(timeRange)
+        val tList = database.taskDao.getRecordsByTimeRange(timeRange)
         val localTasksHashCode = tList.sumOf { it.hashCode() }
         val remoteTasksHashCode = invService.getTasksHashCodeForDatePeriod(timeRange)
         if (localTasksHashCode != remoteTasksHashCode) syncSubOrderTasks(timeRange)
         Log.d(TAG, "Tasks: local = $localTasksHashCode; remote = $remoteTasksHashCode")
 
-        val sList = invDao.getSamplesByDateRange(timeRange)
+        val sList = database.sampleDao.getRecordsByTimeRange(timeRange)
         val localSamplesHashCode = sList.sumOf { it.hashCode() }
         val remoteSamplesHashCode = invService.getSamplesHashCodeForDatePeriod(timeRange)
         if (localSamplesHashCode != remoteSamplesHashCode) syncSamples(timeRange)
         Log.d(TAG, "Samples: local = $localSamplesHashCode; remote = $remoteSamplesHashCode")
 
-        val rList = invDao.getResultsByDateRange(timeRange)
+        val rList = database.resultDao.getRecordsByTimeRange(timeRange)
         val localResultsHashCode = rList.sumOf { it.hashCode() }
         val remoteResultsHashCode = invService.getResultsHashCodeForDatePeriod(timeRange)
         if (localResultsHashCode != remoteResultsHashCode) syncResults(timeRange)
@@ -269,35 +251,35 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.deleteOrder(orderId: Int): ReceiveChannel<Event<Resource<DomainOrder>>> = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.deleteOrder(orderId) },
-            resultHandler = { r -> invDao.deleteOrder(r) }
+            resultHandler = { r -> database.orderDao.deleteRecord(r) }
         )
     }
 
     fun CoroutineScope.deleteSubOrder(subOrderId: Int): ReceiveChannel<Event<Resource<DomainSubOrder>>> = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.deleteSubOrder(subOrderId) },
-            resultHandler = { r -> invDao.deleteSubOrder(r) }
+            resultHandler = { r -> database.subOrderDao.deleteRecord(r) }
         )
     }
 
     fun CoroutineScope.deleteSubOrderTask(taskId: Int): ReceiveChannel<Event<Resource<DomainSubOrderTask>>> = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.deleteSubOrderTask(taskId) },
-            resultHandler = { r -> invDao.deleteSubOrderTask(r) }
+            resultHandler = { r -> database.taskDao.deleteRecord(r) }
         )
     }
 
     fun CoroutineScope.deleteSample(sampleId: Int): ReceiveChannel<Event<Resource<DomainSample>>> = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.deleteSample(sampleId) },
-            resultHandler = { r -> invDao.deleteSample(r) }
+            resultHandler = { r -> database.sampleDao.deleteRecord(r) }
         )
     }
 
     fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
         responseHandlerForListOfRecords(
             taskExecutor = { invService.deleteResults(taskId) },
-            resultHandler = { r -> invDao.deleteResults(r) }
+            resultHandler = { r -> database.resultDao.deleteRecords(r) }
         )
     }
 
@@ -307,35 +289,35 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.insertOrder(record: DomainOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.createOrder(record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.insertOrder(r) }
+            resultHandler = { r -> database.orderDao.insertRecord(r) }
         )
     }
 
     fun CoroutineScope.insertSubOrder(record: DomainSubOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.createSubOrder(record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.insertSubOrder(r) }
+            resultHandler = { r -> database.subOrderDao.insertRecord(r) }
         )
     }
 
     fun CoroutineScope.insertTask(record: DomainSubOrderTask) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.insertSubOrderTask(r) }
+            resultHandler = { r -> database.taskDao.insertRecord(r) }
         )
     }
 
     fun CoroutineScope.insertSample(record: DomainSample) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.createSample(record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.insertSample(r) }
+            resultHandler = { r -> database.sampleDao.insertRecord(r) }
         )
     }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
         responseHandlerForListOfRecords(
             taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) },
-            resultHandler = { r -> invDao.insertResultsAll(r) }
+            resultHandler = { r -> database.resultDao.insertRecords(r) }
         )
     }
 
@@ -345,28 +327,28 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.updateOrder(record: DomainOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.editOrder(record.id, record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.updateOrder(r) }
+            resultHandler = { r -> database.orderDao.updateRecord(r) }
         )
     }
 
     fun CoroutineScope.updateSubOrder(record: DomainSubOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.editSubOrder(record.id, record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.updateSubOrder(r) }
+            resultHandler = { r -> database.subOrderDao.updateRecord(r) }
         )
     }
 
     fun CoroutineScope.updateTask(record: DomainSubOrderTask) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.editSubOrderTask(record.id, record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.updateSubOrderTask(r) }
+            resultHandler = { r -> database.taskDao.updateRecord(r) }
         )
     }
 
     fun CoroutineScope.updateResult(record: DomainResult) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.editResult(record.id, record.toDatabaseModel().toNetworkModel()) },
-            resultHandler = { r -> invDao.updateResult(r) }
+            resultHandler = { r -> database.resultDao.updateRecord(r) }
         )
     }
 
@@ -376,45 +358,45 @@ class InvestigationsRepository @Inject constructor(
     fun CoroutineScope.getOrder(record: DomainOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.getOrder(record.id) },
-            resultHandler = { r -> invDao.updateOrder(r) }
+            resultHandler = { r -> database.orderDao.updateRecord(r) }
         )
     }
 
     fun CoroutineScope.getSubOrder(record: DomainSubOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.getSubOrder(record.getRecordId().toString().toInt()) },
-            resultHandler = { r -> invDao.updateSubOrder(r) }
+            resultHandler = { r -> database.subOrderDao.updateRecord(r) }
         )
     }
 
     fun CoroutineScope.getTask(record: DomainSubOrderTask) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { invService.getSubOrderTask(record.getRecordId().toString().toInt()) },
-            resultHandler = { r -> invDao.updateSubOrderTask(r) }
+            resultHandler = { r -> database.taskDao.updateRecord(r) }
         )
     }
 
 //    ToDO - change this part to return exactly what is needed
 
     suspend fun getOrderById(id: Int): DomainOrder =
-        invDao.getOrderById(id.toString()).let {
+        database.orderDao.getRecordById(id.toString()).let {
             it?.toDomainModel() ?: throw IOException("no such order in local DB")
         }
 
 
-    suspend fun getSubOrderById(id: Int): DomainSubOrder =
-        invDao.getSubOrderById(id.toString()).let {
+    fun getSubOrderById(id: Int): DomainSubOrder =
+        database.subOrderDao.getRecordById(id.toString()).let {
             it?.toDomainModel() ?: throw IOException("no such sub order in local DB")
         }
 
 
-    suspend fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
-        val list = invDao.getTasksBySubOrderId(subOrderId.toString())
+    fun getTasksBySubOrderId(subOrderId: Int): List<DomainSubOrderTask> {
+        val list = database.taskDao.getRecordsByParentId(subOrderId)
         return list.map { it.toDomainModel() }
     }
 
-    suspend fun getSamplesBySubOrderId(subOrderId: Int): List<DomainSample> {
-        val list = invDao.getSamplesBySubOrderId(subOrderId)
+    fun getSamplesBySubOrderId(subOrderId: Int): List<DomainSample> {
+        val list = database.sampleDao.getRecordsByParentId(subOrderId)
         return list.map { it.toDomainModel() }
     }
 
@@ -425,38 +407,37 @@ class InvestigationsRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }.flowOn(Dispatchers.IO).conflate()
 
-    suspend fun latestLocalOrderId(): Int {
-        val localLatestOrderDate = invDao
-            .getLatestOrderDate() ?: NoRecord.num.toLong()
-        return invDao.getLatestOrderId(localLatestOrderDate) ?: NoRecord.num
+    fun latestLocalOrderId(): Int {
+        val localLatestOrderDate = database.orderDao.getLatestOrderDate() ?: NoRecord.num.toLong()
+        return database.orderDao.getLatestOrderId(localLatestOrderDate) ?: NoRecord.num
     }
 
     suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
-        val dbOrder = invDao.getOrderById(lastVisibleId.toString())
+        val dbOrder = database.orderDao.getRecordById(lastVisibleId.toString())
         return if (dbOrder != null)
-            invDao.ordersListByLastVisibleId(dbOrder.createdDate).map { list ->
+            database.orderDao.ordersListByLastVisibleId(dbOrder.createdDate).map { list ->
                 list.map { it.toDomainModel() }
             }
         else flow { emit(listOf()) }
     }
 
     fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        invDao.getSubOrdersByDateRange(pair).map { list ->
+        database.subOrderDao.getRecordsByTimeRangeForUI(pair).map { list ->
             list.map { it.toDomainModel() }
         }
 
     fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        invDao.getTasksDateRange(pair).map { list ->
+        database.taskDao.getRecordsByTimeRangeForUI(pair).map { list ->
             list.map { it.toDomainModel() }
         }
 
     fun samplesRangeList(subOrderId: Int): Flow<List<DomainSampleComplete>> =
-        invDao.getSamplesBySubOrder(subOrderId).map { list ->
+        database.sampleDao.getRecordsByParentIdForUI(subOrderId).map { list ->
             list.map { it.toDomainModel() }
         }
 
     fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        invDao.getResultsBySubOrder(subOrderId).map { list ->
+        database.resultDao.getRecordsByParentIdForUI(subOrderId).map { list ->
             list.map { it.toDomainModel() }
         }
 
@@ -480,7 +461,7 @@ class InvestigationsRepository @Inject constructor(
         }
 
     val orders: LiveData<List<DomainOrder>> =
-        invDao.getOrders().map { list ->
+        database.orderDao.getRecordsForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 }

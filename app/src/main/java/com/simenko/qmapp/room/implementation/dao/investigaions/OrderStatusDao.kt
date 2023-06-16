@@ -3,11 +3,11 @@ package com.simenko.qmapp.room.implementation.dao.investigaions
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseOrdersStatus
-import com.simenko.qmapp.room.implementation.DaoBase
+import com.simenko.qmapp.room.contract.DaoBaseModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class OrderStatusDao : DaoBase<DatabaseOrdersStatus> {
+abstract class OrderStatusDao : DaoBaseModel<DatabaseOrdersStatus> {
     @Query("SELECT * FROM `0_orders_statuses` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseOrdersStatus>
 
