@@ -13,6 +13,10 @@ abstract class ResultDao : DaoBaseModel<DatabaseResult>, DaoTimeDependentModel<D
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseResult>
 
+    //    ToDo - is not 100% correct because parent is taskId + sampleId
+    @Query("SELECT s.* FROM `14_8_results` as s where s.taskId = :parentId")
+    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseResult>
+
     @Query("SELECT * FROM `14_8_results` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseResult
 

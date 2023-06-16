@@ -818,7 +818,6 @@ class InvestigationsViewModel @Inject constructor(
                         }
                     }
                 }
-
         }
     }
 
@@ -908,7 +907,7 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             setLastVisibleItemKey(repository.latestLocalOrderId())
         }
     }

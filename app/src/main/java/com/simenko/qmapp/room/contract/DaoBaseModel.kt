@@ -24,6 +24,8 @@ interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseMo
 
     fun getRecords(): List<DB>
 
+    fun getRecordsByParentId(parentId: Int): List<DB>
+
     fun getRecordById(id: String): DB
 
     fun getRecordsForUI(): LiveData<List<DB>>
