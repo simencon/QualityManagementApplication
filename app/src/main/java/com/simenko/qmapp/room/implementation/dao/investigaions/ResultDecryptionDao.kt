@@ -2,12 +2,11 @@ package com.simenko.qmapp.room.implementation.dao.investigaions
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.simenko.qmapp.room.entities.DatabaseInputForOrder
 import com.simenko.qmapp.room.entities.DatabaseResultsDecryption
-import com.simenko.qmapp.room.implementation.DaoBase
+import com.simenko.qmapp.room.contract.DaoBaseModel
 
 @Dao
-abstract class ResultDecryptionDao : DaoBase<DatabaseResultsDecryption> {
+abstract class ResultDecryptionDao : DaoBaseModel<DatabaseResultsDecryption> {
     @Query("SELECT * FROM `0_results_decryptions` ORDER BY id ASC")
     abstract override fun getRecords(): List<DatabaseResultsDecryption>
 

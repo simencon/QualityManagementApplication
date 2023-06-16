@@ -2,7 +2,7 @@ package com.simenko.qmapp.room.implementation
 
 import androidx.room.*
 import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.room.implementation.dao.InvestigationsDao
+import com.simenko.qmapp.room.implementation.dao.Converters
 import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
 import com.simenko.qmapp.room.implementation.dao.ProductsDao
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
@@ -81,11 +81,16 @@ import com.simenko.qmapp.room.implementation.dao.investigaions.*
 abstract class QualityManagementDB : RoomDatabase() {
     abstract val manufacturingDao: ManufacturingDao
     abstract val productsDao: ProductsDao
-    abstract val investigationsDao: InvestigationsDao
 
     abstract val inputForOrderDao: InputForOrderDao
     abstract val orderStatusDao: OrderStatusDao
     abstract val measurementReasonDao: MeasurementReasonDao
     abstract val investigationTypeDao: InvestigationTypeDao
     abstract val resultDecryptionDao: ResultDecryptionDao
+
+    abstract val resultDao: ResultDao
+    abstract val sampleDao: SampleDao
+    abstract val taskDao: TaskDao
+    abstract val subOrderDao: SubOrderDao
+    abstract val orderDao: OrderDao
 }

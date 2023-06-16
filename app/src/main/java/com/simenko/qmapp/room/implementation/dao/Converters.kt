@@ -1,4 +1,4 @@
-package com.simenko.qmapp.room.implementation
+package com.simenko.qmapp.room.implementation.dao
 
 import androidx.room.TypeConverter
 
