@@ -5,6 +5,7 @@ import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.room.contract.StatusHolderModel
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -28,7 +29,7 @@ class CrudeOperations @Inject constructor(
 ) {
     fun <N : Number> CoroutineScope.responseHandlerForService(
         taskExecutor: suspend () -> Response<N>
-    ): ReceiveChannel<Event<Resource<Long>>> = produce {
+    ): ReceiveChannel<Event<Resource<Number>>> = produce {
         runCatching {
             send(Event(Resource.loading(null)))
             taskExecutor().let { response ->

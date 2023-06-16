@@ -39,9 +39,9 @@ class NewItemViewModel @Inject constructor(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
 
-    fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
-        runBlocking {
-            currentSubOrder.value = when {
+    suspend fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
+        withContext(Dispatchers.IO) {
+            val subOrder = when {
                 orderId == NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
                     DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
                 )
@@ -56,6 +56,7 @@ class NewItemViewModel @Inject constructor(
                 )
                 else -> throw IllegalArgumentException("orderId = $orderId; subOrderId = $subOrderId")
             }
+            withContext(Dispatchers.Main) { currentSubOrder.value = subOrder }
         }
     }
 
