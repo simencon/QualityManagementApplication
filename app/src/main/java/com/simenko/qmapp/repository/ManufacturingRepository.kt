@@ -8,7 +8,7 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.room.implementation.ManufacturingDao
+import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

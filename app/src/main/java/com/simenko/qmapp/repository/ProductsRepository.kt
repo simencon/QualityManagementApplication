@@ -3,10 +3,9 @@ package com.simenko.qmapp.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.implementation.ProductsService
-import com.simenko.qmapp.room.implementation.ProductsDao
+import com.simenko.qmapp.room.implementation.dao.ProductsDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
