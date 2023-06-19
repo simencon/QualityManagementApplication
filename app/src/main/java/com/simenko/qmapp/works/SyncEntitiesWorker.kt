@@ -1,9 +1,13 @@
 package com.simenko.qmapp.works
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
@@ -12,6 +16,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
@@ -62,7 +67,8 @@ class SyncEntitiesWorker @AssistedInject constructor(
         }
     }
 
-    @RequiresPermission("android.permission.POST_NOTIFICATIONS")
+
+    @SuppressLint("MissingPermission")
     fun makeNotification(notificationData: NotificationData) {
         val intent = createMainActivityIntent(
             context,
@@ -80,7 +86,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
         val pendingIntent = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(Objects.hash(notificationData.orderId, notificationData.subOrderId), PendingIntent.FLAG_IMMUTABLE)
+            getPendingIntent(Objects.hash(notificationData.orderId, notificationData.subOrderId),PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         val builder = NotificationCompat.Builder(
@@ -91,6 +97,9 @@ class SyncEntitiesWorker @AssistedInject constructor(
             .setContentTitle(title)
             .setContentText(msg)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVibrate(longArrayOf(1000, 1000, 1000, 1000))
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
             .setContentIntent(pendingIntent)
 
         with(notificationManagerCompat) {

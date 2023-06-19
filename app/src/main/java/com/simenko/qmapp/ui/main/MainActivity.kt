@@ -1,7 +1,10 @@
 package com.simenko.qmapp.ui.main
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
@@ -9,9 +12,11 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -43,6 +48,7 @@ import javax.inject.Inject
 
 internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
 internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
+internal const val REQUEST_PUSH_NOTIFICATIONS_PERMISSION = 1
 
 data class CreatedRecord(
     val orderId: Int = NoRecord.num,
@@ -87,8 +93,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
     private lateinit var analytics: FirebaseAnalytics
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode) {
+            REQUEST_PUSH_NOTIFICATIONS_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
+        }
 
         appModel = ViewModelProvider(this)[ManufacturingViewModel::class.java]
         teamModel = ViewModelProvider(this)[TeamViewModel::class.java]
@@ -174,9 +198,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal, ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
             }
+
             ActionType.ADD_ORDER.ordinal, ActionType.EDIT_ORDER.ordinal, ActionType.ADD_SUB_ORDER.ordinal, ActionType.EDIT_SUB_ORDER.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
             }
+
             ActionType.DEFAULT.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
             }
@@ -233,9 +259,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 R.id.search -> {
 //                    is implemented within on search listener
                 }
+
                 R.id.upload_master_data -> {
                     investigationsModel.refreshMasterDataFromRepository()
                 }
+
                 R.id.sync_investigations -> {
                     workManager.beginUniqueWork(
                         "testWork",
@@ -245,21 +273,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         .then(syncLastDayOneTimeWork)
                         .enqueue()
                 }
+
                 R.id.ppap -> {
                     TODO("Will filter accordingly")
                 }
+
                 R.id.incoming_inspection -> {
                     TODO("Will filter accordingly")
                 }
+
                 R.id.process_control -> {
                     TODO("Will filter accordingly")
                 }
+
                 R.id.product_audit -> {
                     TODO("Will filter accordingly")
                 }
+
                 R.id.custom_filter -> {
                     TODO("Will filter accordingly")
                 }
+
                 else -> {
                 }
             }
@@ -289,42 +323,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val selectedFragment =
                 when (item.itemId) {
                     R.id.nav_company_profile -> {
-                        analytics.logEvent("nav_company_profile_click",bundle)
+                        analytics.logEvent("nav_company_profile_click", bundle)
                         TODO("Will be fragment to display company profile")
                     }
+
                     R.id.nav_team -> {
-                        analytics.logEvent("nav_team_click",bundle)
+                        analytics.logEvent("nav_team_click", bundle)
                         TeamFragment()
                     }
+
                     R.id.nav_structure -> {
-                        analytics.logEvent("nav_structure_click",bundle)
+                        analytics.logEvent("nav_structure_click", bundle)
                         ManufacturingFragment()
                     }
+
                     R.id.nav_products -> {
-                        analytics.logEvent("nav_products_click",bundle)
+                        analytics.logEvent("nav_products_click", bundle)
                         TODO("Will be pager fragment for products")
                     }
+
                     R.id.nav_inv_orders_general -> {
-                        analytics.logEvent("nav_inv_orders_general_click",bundle)
+                        analytics.logEvent("nav_inv_orders_general_click", bundle)
                         investigationsModel.setCurrentSubOrdersFilter(type = NoRecord)
                         InvestigationsFragment()
                     }
+
                     R.id.nav_inv_orders_process_control -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
+                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
                         investigationsModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
                         InvestigationsFragment()
                     }
 
                     R.id.nav_scrap_level -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
+                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
                         TODO("Will be monitoring page")
                     }
+
                     R.id.nav_settings -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
+                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
                         TODO("Will be settings page")
                     }
+
                     else -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
+                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
                         TODO("Will be monitoring page")
                     }
                 }
