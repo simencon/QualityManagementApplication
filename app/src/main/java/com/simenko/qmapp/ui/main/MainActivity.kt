@@ -17,6 +17,9 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.domain.NoRecord
@@ -82,6 +85,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var workManager: WorkManager
     private lateinit var syncLastHourOneTimeWork: OneTimeWorkRequest
     private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
+    private lateinit var analytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +93,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         appModel = ViewModelProvider(this)[ManufacturingViewModel::class.java]
         teamModel = ViewModelProvider(this)[TeamViewModel::class.java]
         investigationsModel = ViewModelProvider(this)[InvestigationsViewModel::class.java]
+
+        analytics = Firebase.analytics
 
         appModel.currentTitle.observe(this) {}
 
@@ -268,6 +274,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
+        val bundle = Bundle()
+        bundle.putString("key1", "Roman")
+        bundle.putString("key2", "Semenyshyn")
+
         item.isCheckable = true
         item.isChecked = true
         if (mPreviousMenuItem != null && mPreviousMenuItem != item) {
@@ -279,33 +289,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val selectedFragment =
                 when (item.itemId) {
                     R.id.nav_company_profile -> {
+                        analytics.logEvent("nav_company_profile_click",bundle)
                         TODO("Will be fragment to display company profile")
                     }
                     R.id.nav_team -> {
+                        analytics.logEvent("nav_team_click",bundle)
                         TeamFragment()
                     }
                     R.id.nav_structure -> {
+                        analytics.logEvent("nav_structure_click",bundle)
                         ManufacturingFragment()
                     }
                     R.id.nav_products -> {
+                        analytics.logEvent("nav_products_click",bundle)
                         TODO("Will be pager fragment for products")
                     }
                     R.id.nav_inv_orders_general -> {
+                        analytics.logEvent("nav_inv_orders_general_click",bundle)
                         investigationsModel.setCurrentSubOrdersFilter(type = NoRecord)
                         InvestigationsFragment()
                     }
                     R.id.nav_inv_orders_process_control -> {
+                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
                         investigationsModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
                         InvestigationsFragment()
                     }
 
                     R.id.nav_scrap_level -> {
+                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
                         TODO("Will be monitoring page")
                     }
                     R.id.nav_settings -> {
+                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
                         TODO("Will be settings page")
                     }
                     else -> {
+                        analytics.logEvent("nav_inv_orders_process_control_click",bundle)
                         TODO("Will be monitoring page")
                     }
                 }

@@ -96,9 +96,9 @@ class CrudeOperations @Inject constructor(
 
     suspend fun <N, DB, DBC, DM, DAO> syncStatusRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
-        serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
+        dao: DAO,
         daoReadDetailedRecordById: suspend (Int) -> DBC?,
-        dao: DAO
+        serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
     ): List<NotificationData> where
             N : NetworkBaseModel<DB>,
             DB : DatabaseBaseModel<N, DM>,
@@ -170,8 +170,8 @@ class CrudeOperations @Inject constructor(
 
     suspend fun <N, DB, DM, DAO> syncRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
+        dao: DAO,
         serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
-        dao: DAO
     ) where N : NetworkBaseModel<DB>,
             DB : DatabaseBaseModel<N, DM>,
             DM : DomainBaseModel<DB>,
@@ -223,8 +223,8 @@ class CrudeOperations @Inject constructor(
     }
 
     suspend fun <N, DB, DM, DAO> syncRecordsAll(
+        dao: DAO,
         serviceGetRecords: suspend () -> Response<List<N>>,
-        dao: DAO
     ) where
             N : NetworkBaseModel<DB>,
             DB : DatabaseBaseModel<N, DM>,

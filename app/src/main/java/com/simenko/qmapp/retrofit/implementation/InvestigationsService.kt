@@ -29,7 +29,7 @@ interface InvestigationsService {
     @GET("orders/hashCode/{timeRange}")
     suspend fun getOrdersHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("orders/{timeRange}")
     suspend fun getOrdersByDateRange(
@@ -52,7 +52,7 @@ interface InvestigationsService {
     @GET("subOrders/hashCode/{timeRange}")
     suspend fun getSubOrdersHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("subOrders/{timeRange}")
     suspend fun getSubOrdersByDateRange(
@@ -75,7 +75,7 @@ interface InvestigationsService {
     @GET("subOrderTasks/hashCode/{timeRange}")
     suspend fun getTasksHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("subOrderTasks/{timeRange}")
     suspend fun getTasksDateRange(
@@ -101,7 +101,7 @@ interface InvestigationsService {
     @GET("samples/hashCode/{timeRange}")
     suspend fun getSamplesHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("samples/{timeRange}")
     suspend fun getSamplesByDateRange(
@@ -120,7 +120,7 @@ interface InvestigationsService {
     @GET("results/hashCode/{timeRange}")
     suspend fun getResultsHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("results/{timeRange}")
     suspend fun getResultsByDateRange(
