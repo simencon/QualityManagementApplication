@@ -7,16 +7,16 @@ import retrofit2.http.*
 
 interface InvestigationsService {
     @GET("inputsForMeasurementRegister")
-    suspend fun getInputForOrder(): List<NetworkInputForOrder>
+    suspend fun getInputForOrder(): Response<List<NetworkInputForOrder>>
 
     @GET("ordersStatuses")
-    suspend fun getOrdersStatuses(): List<NetworkOrdersStatus>
+    suspend fun getOrdersStatuses(): Response<List<NetworkOrdersStatus>>
 
     @GET("measurementReasons")
-    suspend fun getMeasurementReasons(): List<NetworkReason>
+    suspend fun getMeasurementReasons(): Response<List<NetworkReason>>
 
     @GET("ordersTypes")
-    suspend fun getOrdersTypes(): List<NetworkOrdersType>
+    suspend fun getOrdersTypes(): Response<List<NetworkOrdersType>>
 
     @GET("orders/latestOrder")
     suspend fun getLatestOrderDate(): Response<Long>
@@ -29,7 +29,7 @@ interface InvestigationsService {
     @GET("orders/hashCode/{timeRange}")
     suspend fun getOrdersHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("orders/{timeRange}")
     suspend fun getOrdersByDateRange(
@@ -52,7 +52,7 @@ interface InvestigationsService {
     @GET("subOrders/hashCode/{timeRange}")
     suspend fun getSubOrdersHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("subOrders/{timeRange}")
     suspend fun getSubOrdersByDateRange(
@@ -75,7 +75,7 @@ interface InvestigationsService {
     @GET("subOrderTasks/hashCode/{timeRange}")
     suspend fun getTasksHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("subOrderTasks/{timeRange}")
     suspend fun getTasksDateRange(
@@ -101,7 +101,7 @@ interface InvestigationsService {
     @GET("samples/hashCode/{timeRange}")
     suspend fun getSamplesHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("samples/{timeRange}")
     suspend fun getSamplesByDateRange(
@@ -115,12 +115,12 @@ interface InvestigationsService {
     suspend fun deleteSample(@Path("id") id: Int): Response<NetworkSample>
 
     @GET("resultsDecriptions")
-    suspend fun getResultsDecryptions(): List<NetworkResultsDecryption>
+    suspend fun getResultsDecryptions(): Response<List<NetworkResultsDecryption>>
 
     @GET("results/hashCode/{timeRange}")
     suspend fun getResultsHashCodeForDatePeriod(
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
-    ): Int
+    ): Response<Int>
 
     @GET("results/{timeRange}")
     suspend fun getResultsByDateRange(

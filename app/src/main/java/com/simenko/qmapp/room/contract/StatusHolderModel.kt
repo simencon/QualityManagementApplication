@@ -1,4 +1,4 @@
-package com.simenko.qmapp.room
+package com.simenko.qmapp.room.contract
 
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons

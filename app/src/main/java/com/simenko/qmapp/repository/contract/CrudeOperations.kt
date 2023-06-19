@@ -5,15 +5,16 @@ import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
-import com.simenko.qmapp.room.DatabaseBaseModel
-import com.simenko.qmapp.room.StatusHolderModel
+import com.simenko.qmapp.retrofit.entities.NetworkOrder
+import com.simenko.qmapp.room.contract.DatabaseBaseModel
+import com.simenko.qmapp.room.contract.StatusHolderModel
+import com.simenko.qmapp.room.contract.DaoBaseModel
+import com.simenko.qmapp.room.contract.DaoTimeDependentModel
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Response
@@ -26,6 +27,27 @@ import javax.inject.Singleton
 class CrudeOperations @Inject constructor(
     private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
 ) {
+    fun <N : Number> CoroutineScope.responseHandlerForService(
+        taskExecutor: suspend () -> Response<N>
+    ): ReceiveChannel<Event<Resource<Number>>> = produce {
+        runCatching {
+            send(Event(Resource.loading(null)))
+            taskExecutor().let { response ->
+                if (response.isSuccessful) {
+                    response.body()?.also {
+                        send(Event(Resource.success(response.body()!!.toLong())))
+                    } ?: send(Event(Resource.error("No response body", null)))
+                } else {
+                    send(Event(Resource.error(response.errorBody()?.run { errorConverter.convert(this)?.message } ?: "Undefined error", null)))
+                }
+            }
+        }.exceptionOrNull().also {
+            if (it != null) {
+                send(Event(Resource.error(it.message ?: "Network Error", null)))
+            }
+        }
+    }
+
     fun <N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB>> CoroutineScope.responseHandlerForSingleRecord(
         taskExecutor: suspend () -> Response<N>,
         resultHandler: (DB) -> Unit
@@ -72,25 +94,24 @@ class CrudeOperations @Inject constructor(
         }
     }
 
-    suspend fun <N, DB, DBC, DM> syncStatusRecords(
+    suspend fun <N, DB, DBC, DM, DAO> syncStatusRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
-        serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
-        daoGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> List<DB>,
-        daoCreateRecord: (DB) -> Unit,
+        dao: DAO,
         daoReadDetailedRecordById: suspend (Int) -> DBC?,
-        daoUpdateRecord: (DB) -> Unit,
-        daoDeleteRecord: (DB) -> Unit
+        serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
     ): List<NotificationData> where
             N : NetworkBaseModel<DB>,
             DB : DatabaseBaseModel<N, DM>,
             DBC : StatusHolderModel,
-            DM : DomainBaseModel<DB> {
+            DM : DomainBaseModel<DB>,
+            DAO : DaoBaseModel<DB>,
+            DAO : DaoTimeDependentModel<DB> {
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
             val ntSubOrders = serviceGetRecordsByTimeRange(timeRange).run {
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
             }
-            val dbSubOrders = daoGetRecordsByTimeRange(timeRange)
+            val dbSubOrders = dao.getRecordsByTimeRange(timeRange)
             ntSubOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbSubOrders.forEach byBlock2@{ dbIt ->
@@ -100,7 +121,7 @@ class CrudeOperations @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    daoCreateRecord(ntIt.toDatabaseModel())
+                    dao.insertRecord(ntIt.toDatabaseModel())
                     daoReadDetailedRecordById(ntIt.getRecordId().toString().toInt())?.let {
                         result.add(
                             it.toNotificationData(NotificationReasons.CREATED)
@@ -118,7 +139,7 @@ class CrudeOperations @Inject constructor(
                     }
                 }
                 if (recordStatusChanged) {
-                    daoUpdateRecord(ntIt.toDatabaseModel())
+                    dao.updateRecord(ntIt.toDatabaseModel())
                     daoReadDetailedRecordById(ntIt.getRecordId().toString().toInt())?.let {
                         result.add(
                             it.toNotificationData(NotificationReasons.CHANGED)
@@ -140,26 +161,27 @@ class CrudeOperations @Inject constructor(
                             it.toNotificationData(NotificationReasons.DELETED)
                         )
                     }
-                    daoDeleteRecord(dbIt)
+                    dao.deleteRecord(dbIt)
                 }
             }
         }
         return result
     }
 
-    suspend fun <N, DB, DM> syncRecords(
+    suspend fun <N, DB, DM, DAO> syncRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
+        dao: DAO,
         serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
-        daoGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> List<DB>,
-        daoCreateRecord: (DB) -> Unit,
-        daoUpdateRecord: (DB) -> Unit,
-        daoDeleteRecord: (DB) -> Unit
-    ) where N : NetworkBaseModel<DB>, DB : DatabaseBaseModel<N, DM>, DM : DomainBaseModel<DB> {
+    ) where N : NetworkBaseModel<DB>,
+            DB : DatabaseBaseModel<N, DM>,
+            DM : DomainBaseModel<DB>,
+            DAO : DaoBaseModel<DB>,
+            DAO : DaoTimeDependentModel<DB> {
         withContext(Dispatchers.IO) {
             val ntOrders = serviceGetRecordsByTimeRange(timeRange).run {
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
             }
-            val dbOrders = daoGetRecordsByTimeRange(timeRange)
+            val dbOrders = dao.getRecordsByTimeRange(timeRange)
             ntOrders.forEach byBlock1@{ ntIt ->
                 var recordExists = false
                 dbOrders.forEach byBlock2@{ dbIt ->
@@ -169,7 +191,7 @@ class CrudeOperations @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    daoCreateRecord(ntIt.toDatabaseModel())
+                    dao.insertRecord(ntIt.toDatabaseModel())
                 }
             }
             ntOrders.forEach byBlock1@{ ntIt ->
@@ -182,7 +204,7 @@ class CrudeOperations @Inject constructor(
                     }
                 }
                 if (recordStatusChanged) {
-                    daoUpdateRecord(ntIt.toDatabaseModel())
+                    dao.updateRecord(ntIt.toDatabaseModel())
                 }
             }
             dbOrders.forEach byBlock1@{ dbIt ->
@@ -194,7 +216,60 @@ class CrudeOperations @Inject constructor(
                     }
                 }
                 if (!recordExists) {
-                    daoDeleteRecord(dbIt)
+                    dao.deleteRecord(dbIt)
+                }
+            }
+        }
+    }
+
+    suspend fun <N, DB, DM, DAO> syncRecordsAll(
+        dao: DAO,
+        serviceGetRecords: suspend () -> Response<List<N>>,
+    ) where
+            N : NetworkBaseModel<DB>,
+            DB : DatabaseBaseModel<N, DM>,
+            DM : DomainBaseModel<DB>,
+            DAO : DaoBaseModel<DB> {
+        withContext(Dispatchers.IO) {
+            val ntOrders = serviceGetRecords().run {
+                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
+            }
+            val dbOrders = dao.getRecords()
+            ntOrders.forEach byBlock1@{ ntIt ->
+                var recordExists = false
+                dbOrders.forEach byBlock2@{ dbIt ->
+                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    dao.insertRecord(ntIt.toDatabaseModel())
+                }
+            }
+            ntOrders.forEach byBlock1@{ ntIt ->
+                var recordStatusChanged = false
+                dbOrders.forEach byBlock2@{ dbIt ->
+                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
+                        if (dbIt != ntIt.toDatabaseModel())
+                            recordStatusChanged = true
+                        return@byBlock2
+                    }
+                }
+                if (recordStatusChanged) {
+                    dao.updateRecord(ntIt.toDatabaseModel())
+                }
+            }
+            dbOrders.forEach byBlock1@{ dbIt ->
+                var recordExists = false
+                ntOrders.forEach byBlock2@{ ntIt ->
+                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
+                        recordExists = true
+                        return@byBlock2
+                    }
+                }
+                if (!recordExists) {
+                    dao.deleteRecord(dbIt)
                 }
             }
         }

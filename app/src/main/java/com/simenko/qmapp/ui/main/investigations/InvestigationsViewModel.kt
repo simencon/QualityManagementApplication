@@ -2,6 +2,8 @@ package com.simenko.qmapp.ui.main.investigations
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
@@ -164,7 +166,7 @@ class InvestigationsViewModel @Inject constructor(
         _lastVisibleItemKey.value = key
     }
 
-    private val _currentOrdersRange = MutableStateFlow(Pair(0L, 0L))
+    private val _currentOrdersRange = MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
@@ -787,68 +789,61 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     fun uploadNewInvestigations() {
-        viewModelScope.launch {
-            if (!_isLoadingInProgress.value)
-                withContext(Dispatchers.IO) {
-                    repository.uploadNewInvestigations().collect { event ->
-                        event.getContentIfNotHandled()?.let { resource ->
-                            when (resource.status) {
-                                Status.LOADING -> {
-                                    withContext(Dispatchers.Main) {
-                                        _isLoadingInProgress.value = true
-                                    }
-                                }
-                                Status.SUCCESS -> {
-                                    resource.data?.let { data ->
-                                        if (data) {
-                                            setLastVisibleItemKey(repository.latestLocalOrderId())
-                                            withContext(Dispatchers.Main) {
-                                                _isLoadingInProgress.value = false
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            resource.data?.also {
+                                repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
+                                    event.getContentIfNotHandled()?.let { resource ->
+                                        when (resource.status) {
+                                            Status.LOADING -> {}
+                                            Status.SUCCESS -> {
+                                                resource.data?.let {
+                                                    if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
+                                                }
+                                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                            }
+                                            Status.ERROR -> {
+                                                withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                                                _isErrorMessage.value = resource.message
                                             }
                                         }
                                     }
                                 }
-                                Status.ERROR -> {
-                                    if (resource.data == true)
-                                        _isLoadingInProgress.value = false
-                                    _isErrorMessage.value = resource.message
-                                    coroutineContext[Job]?.cancelAndJoin()
-                                }
-                            }
+                            } ?: withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                            _isErrorMessage.value = resource.message
                         }
                     }
                 }
-
+            }
         }
     }
 
     private fun uploadOlderInvestigations(earliestOrderDate: Long) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                repository.uploadOldInvestigations(earliestOrderDate).collect { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> {
-                                withContext(Dispatchers.Main) {
-                                    _isLoadingInProgress.value = true
-                                }
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { uploadOldInvestigations(earliestOrderDate) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
+                        }
+                        Status.SUCCESS -> {
+                            resource.data?.let {
+                                if (it.isNotEmpty()) setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
                             }
-                            Status.SUCCESS -> {
-                                resource.data?.let { data ->
-                                    if (data) {
-                                        setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
-                                        withContext(Dispatchers.Main) {
-                                            _isLoadingInProgress.value = false
-                                        }
-                                    }
-                                }
-                            }
-                            Status.ERROR -> {
-                                if (resource.data == true)
-                                    _isLoadingInProgress.value = false
-                                _isErrorMessage.value = resource.message
-                                coroutineContext[Job]?.cancelAndJoin()
-                            }
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                        }
+                        Status.ERROR -> {
+                            withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
+                            _isErrorMessage.value = resource.message
                         }
                     }
                 }
@@ -892,11 +887,11 @@ class InvestigationsViewModel @Inject constructor(
                 productsRepository.refreshComponentsToLines()
                 productsRepository.refreshComponentInStagesToLines()
 
-                repository.insertInputForOrder()
-                repository.insertOrdersStatuses()
-                repository.insertInvestigationReasons()
-                repository.insertInvestigationTypes()
-                repository.insertResultsDecryptions()
+                repository.syncInputForOrder()
+                repository.syncOrdersStatuses()
+                repository.syncInvestigationReasons()
+                repository.syncInvestigationTypes()
+                repository.syncResultsDecryptions()
 
                 _isLoadingInProgress.value = false
 
@@ -908,7 +903,7 @@ class InvestigationsViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             setLastVisibleItemKey(repository.latestLocalOrderId())
         }
     }

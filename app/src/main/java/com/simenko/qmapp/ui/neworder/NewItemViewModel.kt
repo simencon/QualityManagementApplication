@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.neworder
 
-import android.util.Log
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
@@ -40,9 +39,9 @@ class NewItemViewModel @Inject constructor(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
 
-    fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
-        runBlocking {
-            currentSubOrder.value = when {
+    suspend fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
+        withContext(Dispatchers.IO) {
+            val subOrder = when {
                 orderId == NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
                     DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
                 )
@@ -57,6 +56,7 @@ class NewItemViewModel @Inject constructor(
                 )
                 else -> throw IllegalArgumentException("orderId = $orderId; subOrderId = $subOrderId")
             }
+            withContext(Dispatchers.Main) { currentSubOrder.value = subOrder }
         }
     }
 
@@ -193,9 +193,9 @@ class NewItemViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                repository.insertInvestigationTypes()
-                repository.insertInvestigationReasons()
-                repository.insertInputForOrder()
+                repository.syncInvestigationTypes()
+                repository.syncInvestigationReasons()
+                repository.syncInputForOrder()
                 manufacturingRepository.refreshDepartments()
                 manufacturingRepository.refreshTeamMembers()
 
