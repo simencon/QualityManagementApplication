@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.SearchView
@@ -31,6 +32,9 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.ui.auth.login.LoginActivity
+import com.simenko.qmapp.ui.auth.registration.RegistrationActivity
+import com.simenko.qmapp.ui.auth.user.UserManager
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -80,9 +84,12 @@ private const val TAG = "MainActivity"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    lateinit var appModel: ManufacturingViewModel
-    lateinit var teamModel: TeamViewModel
-    lateinit var investigationsModel: InvestigationsViewModel
+    @Inject
+    lateinit var userManager: UserManager
+
+    val appModel: ManufacturingViewModel by viewModels()
+    val teamModel: TeamViewModel by viewModels()
+    val investigationsModel: InvestigationsViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawer: DrawerLayout
     private lateinit var navigationView: NavigationView
@@ -110,43 +117,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
-        }
+        if (!userManager.isUserLoggedIn()) {
+            if (!userManager.isUserRegistered()) {
+                startActivity(Intent(this, RegistrationActivity::class.java))
+                finish()
+            } else {
+                startActivity(Intent(this, LoginActivity::class.java))
+                finish()
+            }
+        } else {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
+            }
 
-        appModel = ViewModelProvider(this)[ManufacturingViewModel::class.java]
-        teamModel = ViewModelProvider(this)[TeamViewModel::class.java]
-        investigationsModel = ViewModelProvider(this)[InvestigationsViewModel::class.java]
+            analytics = Firebase.analytics
 
-        analytics = Firebase.analytics
+            appModel.currentTitle.observe(this) {}
 
-        appModel.currentTitle.observe(this) {}
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+            val toolbar: Toolbar = binding.toolBar
+            setSupportActionBar(toolbar)
 
-        val toolbar: Toolbar = binding.toolBar
-        setSupportActionBar(toolbar)
+            this.drawer = binding.drawerLayout
 
-        this.drawer = binding.drawerLayout
+            val toggle = ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close
+            )
+            drawer.addDrawerListener(toggle)
 
-        val toggle = ActionBarDrawerToggle(
-            this, drawer, toolbar,
-            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawer.addDrawerListener(toggle)
+            toggle.syncState()
 
-        toggle.syncState()
+            navigationView = binding.navView
+            navigationView.setNavigationItemSelectedListener(this)
 
-        navigationView = binding.navView
-        navigationView.setNavigationItemSelectedListener(this)
+            prepareOneTimeWorks()
 
-        prepareOneTimeWorks()
-
-        if (savedInstanceState == null && intent.extras == null) {
-            this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
-        } else if (intent.extras != null) {
-            navigateToProperRecord(bundle = intent.extras)
+            if (savedInstanceState == null && intent.extras == null) {
+                this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
+            } else if (intent.extras != null) {
+                navigateToProperRecord(bundle = intent.extras)
+            }
         }
     }
 
