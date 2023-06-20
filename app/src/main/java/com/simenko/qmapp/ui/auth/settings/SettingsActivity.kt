@@ -79,7 +79,7 @@ fun Settings(
         })
         TextButton(onClick = { onClickLogOut() }, content = {
             Text(
-                text = "Refresh notifications",
+                text = "Logout",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

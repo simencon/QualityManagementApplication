@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.auth.user
 
+import android.util.Log
 import com.simenko.qmapp.ui.auth.storage.Storage
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,6 +14,7 @@ private const val PASSWORD_SUFFIX = "password"
  *
  * Marked with @Singleton since we only one an instance of UserManager in the application graph.
  */
+private const val TAG = "UserManager"
 @Singleton
 class UserManager @Inject constructor(
     private val storage: Storage,
@@ -24,9 +26,15 @@ class UserManager @Inject constructor(
     val username: String
         get() = storage.getString(REGISTERED_USER)
 
-    fun isUserLoggedIn() = userDataRepository.username != null
+    fun isUserLoggedIn(): Boolean {
+        Log.d(TAG, "isUserLoggedIn: ${storage.getString(REGISTERED_USER)}")
+        return userDataRepository.username != null
+    }
 
-    fun isUserRegistered() = storage.getString(REGISTERED_USER).isNotEmpty()
+    fun isUserRegistered(): Boolean {
+        Log.d(TAG, "isUserRegistered: ${storage.getString(REGISTERED_USER)}")
+        return storage.getString(REGISTERED_USER).isNotEmpty()
+    }
 
     fun registerUser(username: String, password: String) {
         storage.setString(REGISTERED_USER, username)

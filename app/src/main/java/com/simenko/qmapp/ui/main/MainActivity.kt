@@ -34,6 +34,7 @@ import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.auth.login.LoginActivity
 import com.simenko.qmapp.ui.auth.registration.RegistrationActivity
+import com.simenko.qmapp.ui.auth.settings.SettingsActivity
 import com.simenko.qmapp.ui.auth.user.UserManager
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
@@ -368,13 +369,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
 
                     R.id.nav_scrap_level -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
+                        analytics.logEvent("nav_scrap_level_click", bundle)
                         TODO("Will be monitoring page")
                     }
 
                     R.id.nav_settings -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
-                        TODO("Will be settings page")
+                        analytics.logEvent("nav_settings_click", bundle)
+                        startActivity(Intent(this, SettingsActivity::class.java))
+                        TODO("Change this view from Activity to Fragment")
                     }
 
                     else -> {
