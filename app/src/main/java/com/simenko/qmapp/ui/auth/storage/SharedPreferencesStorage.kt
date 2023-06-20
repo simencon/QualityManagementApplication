@@ -8,7 +8,7 @@ import javax.inject.Inject
 class SharedPreferencesStorage @Inject constructor(@ApplicationContext context: Context) : Storage {
 
     private val sharedPreferences = context.getSharedPreferences(
-        "Dagger",
+        "QualityManagementApp",
         Context.MODE_PRIVATE
     )
 
