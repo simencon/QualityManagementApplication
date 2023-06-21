@@ -33,6 +33,8 @@ val level_3_record_color = reference1.copy(alpha = 0.99f)
 val level_4_record_color = reference2.copy(alpha = 0.99f)
 val level_5_record_color = reference3.copy(alpha = 0.99f)
 
+val TestColor = Color(0xFFFF0000)
+
 
 val _level_5_record_color = Color(0xFF487386)
 val _level_5_record_color_details = Color(0xFF5B4886)
