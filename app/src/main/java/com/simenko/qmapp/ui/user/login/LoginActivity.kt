@@ -168,7 +168,7 @@ fun LogIn(
         if (error != "")
             Text(
                 text = error,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
