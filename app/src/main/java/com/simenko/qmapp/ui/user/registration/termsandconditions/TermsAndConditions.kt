@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -60,6 +61,7 @@ fun TermsAndConditions(
                 .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 20.dp)
         )
         TextButton(
+            modifier = Modifier.width(150.dp),
             onClick = {
                 registrationViewModel.acceptTCs()
                 registrationViewModel.registerUser()

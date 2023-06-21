@@ -33,8 +33,8 @@ import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.user.login.LoginActivity
 import com.simenko.qmapp.ui.user.registration.RegistrationActivity
-import com.simenko.qmapp.ui.user.settings.SettingsFragment
-import com.simenko.qmapp.ui.user.user.UserManager
+import com.simenko.qmapp.ui.main.settings.SettingsFragment
+import com.simenko.qmapp.ui.user.model.UserManager
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
