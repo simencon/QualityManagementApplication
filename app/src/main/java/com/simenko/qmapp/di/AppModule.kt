@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
 import androidx.work.WorkManager
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.other.Constants.BASE_URL
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
@@ -102,4 +104,8 @@ object AppModule {
     @Provides
     fun provideNotificationManager(@ApplicationContext context: Context) =
         NotificationManagerCompat.from(context.applicationContext)
+
+    @Singleton
+    @Provides
+    fun provideFirebaseAuth() = Firebase.auth
 }

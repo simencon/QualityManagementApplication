@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "284233264021-mv1ffrpiqfpmo0au0mgbtvib71arfta9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.simenko.qmapp",
+            "certificate_hash": "93ceecb91e5debd68debe8171157cbc8cba652c3"
+          }
+        },
+        {
           "client_id": "284233264021-sgp2oqbkqmu6h44meslm76180i86aulk.apps.googleusercontent.com",
           "client_type": 3
         }

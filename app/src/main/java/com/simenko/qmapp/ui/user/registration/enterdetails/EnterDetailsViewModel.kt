@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-private const val MAX_LENGTH = 5
+private const val MIN_LENGTH = 6
 
 /**
  * EnterDetailsViewModel is the ViewModel that [EnterDetailsFragment] uses to
@@ -22,10 +22,10 @@ class EnterDetailsViewModel @Inject constructor() : ViewModel() {
 
     fun validateInput(username: String, password: String) {
         when {
-            username.length < MAX_LENGTH -> _enterDetailsState.value =
-                Event(EnterDetailsError("Username has to be longer than 4 characters"))
-            password.length < MAX_LENGTH -> _enterDetailsState.value =
-                Event(EnterDetailsError("Password has to be longer than 4 characters"))
+            username.length < MIN_LENGTH -> _enterDetailsState.value =
+                Event(EnterDetailsError("Username has to be longer than 6 characters"))
+            password.length < MIN_LENGTH -> _enterDetailsState.value =
+                Event(EnterDetailsError("Password has to be longer than 6 characters"))
             else -> _enterDetailsState.value = Event(EnterDetailsSuccess)
         }
     }
