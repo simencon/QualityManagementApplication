@@ -28,13 +28,13 @@
         </activity>
 
         <activity
-            android:name=".ui.auth.registration.RegistrationActivity"
+            android:name=".ui.user.registration.RegistrationActivity"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".ui.auth.login.LoginActivity"
+            android:name=".ui.user.login.LoginActivity"
             android:screenOrientation="fullSensor" />
         <activity
-            android:name=".ui.auth.settings.SettingsActivity"
+            android:name=".ui.user.settings.SettingsActivity"
             android:screenOrientation="fullSensor" />
 
         <activity

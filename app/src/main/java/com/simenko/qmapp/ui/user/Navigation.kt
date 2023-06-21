@@ -1,5 +1,6 @@
-package com.simenko.qmapp.ui.auth
+package com.simenko.qmapp.ui.user
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -12,9 +13,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.simenko.qmapp.ui.auth.registration.RegistrationViewModel
-import com.simenko.qmapp.ui.auth.registration.enterdetails.EnterDetails
-import com.simenko.qmapp.ui.auth.registration.termsandconditions.TermsAndConditions
+import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
+import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
+import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @Composable
@@ -26,7 +27,7 @@ fun Navigation() {
                 EnterDetails(
                     modifier = Modifier
                         .padding(all = 0.dp)
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
                     navController = navController
                 )
             }

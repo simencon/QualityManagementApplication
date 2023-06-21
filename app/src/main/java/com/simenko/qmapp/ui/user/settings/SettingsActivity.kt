@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.auth.settings
+package com.simenko.qmapp.ui.user.settings
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,8 +17,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.simenko.qmapp.ui.auth.login.LoginActivity
-import com.simenko.qmapp.ui.auth.user.UserManager
+import com.simenko.qmapp.ui.user.login.LoginActivity
+import com.simenko.qmapp.ui.user.user.UserManager
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

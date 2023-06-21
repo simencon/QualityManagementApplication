@@ -1,7 +1,7 @@
-package com.simenko.qmapp.ui.auth.user
+package com.simenko.qmapp.ui.user.user
 
 import android.util.Log
-import com.simenko.qmapp.ui.auth.storage.Storage
+import com.simenko.qmapp.ui.user.storage.Storage
 import javax.inject.Inject
 import javax.inject.Singleton
 

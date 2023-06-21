@@ -20,7 +20,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -32,10 +31,10 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.ui.auth.login.LoginActivity
-import com.simenko.qmapp.ui.auth.registration.RegistrationActivity
-import com.simenko.qmapp.ui.auth.settings.SettingsActivity
-import com.simenko.qmapp.ui.auth.user.UserManager
+import com.simenko.qmapp.ui.user.login.LoginActivity
+import com.simenko.qmapp.ui.user.registration.RegistrationActivity
+import com.simenko.qmapp.ui.user.settings.SettingsActivity
+import com.simenko.qmapp.ui.user.user.UserManager
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
