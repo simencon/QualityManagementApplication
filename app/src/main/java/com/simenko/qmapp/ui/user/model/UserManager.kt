@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.user
+package com.simenko.qmapp.ui.user.model
 
 import android.util.Log
 import com.simenko.qmapp.ui.user.storage.Storage
