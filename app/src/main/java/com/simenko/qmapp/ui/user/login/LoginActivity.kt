@@ -1,9 +1,8 @@
-package com.simenko.qmapp.ui.auth.login
+package com.simenko.qmapp.ui.user.login
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.simenko.qmapp.ui.auth.registration.RegistrationActivity
+import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint

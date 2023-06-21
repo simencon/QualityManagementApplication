@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.auth.registration.enterdetails
+package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event

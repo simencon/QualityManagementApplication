@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.simenko.qmapp.ui.auth.registration
+package com.simenko.qmapp.ui.user.registration
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.ui.auth.user.UserManager
+import com.simenko.qmapp.ui.user.user.UserManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
