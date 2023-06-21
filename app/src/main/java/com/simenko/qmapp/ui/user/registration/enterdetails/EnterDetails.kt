@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -18,12 +20,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -39,6 +49,7 @@ import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
     modifier: Modifier,
@@ -54,7 +65,7 @@ fun EnterDetails(
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    var errorText by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf("") }
 
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
@@ -64,11 +75,20 @@ fun EnterDetails(
             }
 
             is EnterDetailsError -> {
-                errorText = state.error
+                error = state.error
             }
 
             is EnterDetailsInitialState -> {}
         }
+    }
+
+    val (focusRequesterEmail) = FocusRequester.createRefs()
+    val (focusRequesterPassword) = FocusRequester.createRefs()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        focusRequesterEmail.requestFocus()
     }
 
     Column(
@@ -91,7 +111,11 @@ fun EnterDetails(
             onValueChange = { userName = it },
             label = { Text("Email") },
             placeholder = { Text(text = "Enter your email") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusRequesterPassword.requestFocus() }),
+            modifier = Modifier.focusRequester(focusRequesterEmail)
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
@@ -100,7 +124,6 @@ fun EnterDetails(
             label = { Text("Password") },
             placeholder = { Text(text = "Enter your password") },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
 
@@ -109,12 +132,17 @@ fun EnterDetails(
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, description)
                 }
-            }
+            },
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+            modifier = Modifier.focusRequester(focusRequesterPassword)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        if (errorText != "")
+        if (error != "")
             Text(
-                text = errorText,
+                text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -123,6 +151,7 @@ fun EnterDetails(
             )
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
+            modifier = Modifier.width(150.dp),
             onClick = {
                 enterDetailsViewModel.validateInput(userName, password)
             },

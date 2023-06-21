@@ -32,7 +32,6 @@ class EnterDetailsViewModel @Inject constructor() : ViewModel() {
 }
 
 sealed class EnterDetailsViewState
-
 object EnterDetailsInitialState : EnterDetailsViewState()
 object EnterDetailsSuccess : EnterDetailsViewState()
 data class EnterDetailsError(val error: String) : EnterDetailsViewState()

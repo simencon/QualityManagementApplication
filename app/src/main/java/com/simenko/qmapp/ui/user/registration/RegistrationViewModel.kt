@@ -17,7 +17,7 @@
 package com.simenko.qmapp.ui.user.registration
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.ui.user.user.UserManager
+import com.simenko.qmapp.ui.user.model.UserManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
