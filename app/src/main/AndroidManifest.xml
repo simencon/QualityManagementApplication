@@ -33,9 +33,6 @@
         <activity
             android:name=".ui.user.login.LoginActivity"
             android:screenOrientation="fullSensor" />
-        <activity
-            android:name=".ui.user.settings.SettingsActivity"
-            android:screenOrientation="fullSensor" />
 
         <activity
             android:name=".ui.neworder.NewItemActivity"
