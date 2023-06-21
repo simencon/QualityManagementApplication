@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 /**
- * SettingsViewModel is the ViewModel that [SettingsActivity] uses to handle complex logic.
+ * SettingsViewModel is the ViewModel that [SettingsFragment] uses to handle complex logic.
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(

@@ -33,7 +33,7 @@ import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.user.login.LoginActivity
 import com.simenko.qmapp.ui.user.registration.RegistrationActivity
-import com.simenko.qmapp.ui.user.settings.SettingsActivity
+import com.simenko.qmapp.ui.user.settings.SettingsFragment
 import com.simenko.qmapp.ui.user.user.UserManager
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
@@ -374,8 +374,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     R.id.nav_settings -> {
                         analytics.logEvent("nav_settings_click", bundle)
-                        startActivity(Intent(this, SettingsActivity::class.java))
-                        TODO("Change this view from Activity to Fragment")
+                        SettingsFragment()
                     }
 
                     else -> {
