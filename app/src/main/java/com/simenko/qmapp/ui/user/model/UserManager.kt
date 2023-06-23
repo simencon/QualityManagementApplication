@@ -1,7 +1,18 @@
 package com.simenko.qmapp.ui.user.model
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.ui.user.registration.RegistrationActivity
+import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewState
 import com.simenko.qmapp.ui.user.storage.Storage
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityScoped
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,13 +26,17 @@ private const val PASSWORD_SUFFIX = "password"
  * Marked with @Singleton since we only one an instance of UserManager in the application graph.
  */
 private const val TAG = "UserManager"
-@Singleton
+
+@ActivityScoped
 class UserManager @Inject constructor(
     private val storage: Storage,
-    // Since UserManager will be in charge of managing the UserComponent lifecycle,
-    // it needs to know how to create instances of it
-    private val userDataRepository: UserDataRepository
+    private val auth: FirebaseAuth,
+    private val userDataRepository: UserDataRepository,
+    @ActivityContext private val activity: Context,
 ) {
+    private val _userRegisteredState: MutableStateFlow<Event<UserState>> = MutableStateFlow(Event(UserInitialState))
+    val userRegisteredState: StateFlow<Event<UserState>>
+        get() = _userRegisteredState
 
     val username: String
         get() = storage.getString(REGISTERED_USER)
@@ -37,9 +52,19 @@ class UserManager @Inject constructor(
     }
 
     fun registerUser(username: String, password: String) {
-        storage.setString(REGISTERED_USER, username)
-        storage.setString("$username$PASSWORD_SUFFIX", password)
-        userJustLoggedIn(username)
+        auth.createUserWithEmailAndPassword(username, password)
+            .addOnCompleteListener(activity as RegistrationActivity) { task ->
+                if (task.isSuccessful) {
+                    storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
+                    storage.setString("$username$PASSWORD_SUFFIX", password)
+                    userJustLoggedIn(storage.getString(REGISTERED_USER))
+                    _userRegisteredState.value = Event(UserRegisteredState)
+                    Log.d(TAG, "createUserWithEmail:success")
+                } else {
+                    _userRegisteredState.value = Event(UserErrorState(task.exception?.message))
+                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                }
+            }
     }
 
     fun loginUser(username: String, password: String): Boolean {
@@ -69,3 +94,9 @@ class UserManager @Inject constructor(
         userDataRepository.initData(username)
     }
 }
+
+sealed class UserState
+
+object UserInitialState : UserState()
+object UserRegisteredState : UserState()
+data class UserErrorState(val error: String?) : UserState()
