@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.work.*
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -47,6 +48,10 @@ import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
 
@@ -102,7 +107,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode) {
+        when (requestCode) {
             REQUEST_PUSH_NOTIFICATIONS_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
@@ -117,50 +122,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!userManager.isUserLoggedIn()) {
-            Log.d(TAG, "onCreate: ${userManager.isUserRegistered()}")
-            if (!userManager.isUserRegistered()) {
-                startActivity(Intent(this, RegistrationActivity::class.java))
-                finish()
+        val context = this
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (!userManager.isUserLoggedIn()) {
+                if (!userManager.isUserRegistered()) {
+                    Log.d(TAG, "onCreate: RegistrationActivity")
+                    startActivity(Intent(context, RegistrationActivity::class.java))
+                    finish()
+                } else {
+                    Log.d(TAG, "onCreate: LogInActivity")
+                    startActivity(Intent(context, LoginActivity::class.java))
+                    finish()
+                }
             } else {
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
+                }
+
+                analytics = Firebase.analytics
+
+                appModel.currentTitle.observe(context) {}
+
+                binding = ActivityMainBinding.inflate(layoutInflater)
+                setContentView(binding.root)
+
+                val toolbar: Toolbar = binding.toolBar
+                setSupportActionBar(toolbar)
+
+                context.drawer = binding.drawerLayout
+
+                val toggle = ActionBarDrawerToggle(
+                    context, drawer, toolbar,
+                    R.string.navigation_drawer_open, R.string.navigation_drawer_close
+                )
+                drawer.addDrawerListener(toggle)
+
+                toggle.syncState()
+
+                navigationView = binding.navView
+                navigationView.setNavigationItemSelectedListener(context)
+
+                prepareOneTimeWorks()
+
+                if (savedInstanceState == null && intent.extras == null) {
+                    context.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
+                } else if (intent.extras != null) {
+                    navigateToProperRecord(bundle = intent.extras)
+                }
             }
-        } else {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
-            }
 
-            analytics = Firebase.analytics
-
-            appModel.currentTitle.observe(this) {}
-
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            setContentView(binding.root)
-
-            val toolbar: Toolbar = binding.toolBar
-            setSupportActionBar(toolbar)
-
-            this.drawer = binding.drawerLayout
-
-            val toggle = ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close
-            )
-            drawer.addDrawerListener(toggle)
-
-            toggle.syncState()
-
-            navigationView = binding.navView
-            navigationView.setNavigationItemSelectedListener(this)
-
-            prepareOneTimeWorks()
-
-            if (savedInstanceState == null && intent.extras == null) {
-                this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
-            } else if (intent.extras != null) {
-                navigateToProperRecord(bundle = intent.extras)
-            }
         }
     }
 
