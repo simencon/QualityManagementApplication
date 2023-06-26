@@ -28,9 +28,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.model.UserErrorState
-import com.simenko.qmapp.ui.user.model.UserInitialState
-import com.simenko.qmapp.ui.user.model.UserRegisteredState
+import com.simenko.qmapp.ui.user.repository.UserErrorState
+import com.simenko.qmapp.ui.user.repository.UserInitialState
+import com.simenko.qmapp.ui.user.repository.UserLogInState
+import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 
 @Composable
 fun TermsAndConditions(
@@ -45,14 +46,9 @@ fun TermsAndConditions(
 
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
-            is UserRegisteredState -> {
-                (context as RegistrationActivity).onTermsAndConditionsAccepted()
-            }
-
-            is UserErrorState -> {
-                error = state.error ?: "Unknown error"
-            }
-
+            is UserRegisteredState -> (context as RegistrationActivity).onTermsAndConditionsAccepted()
+            is UserLogInState -> {}
+            is UserErrorState -> error = state.error ?: "Unknown error"
             is UserInitialState -> {}
         }
     }

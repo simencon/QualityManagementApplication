@@ -1,8 +1,8 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.ui.user.model.UserDataRepository
-import com.simenko.qmapp.ui.user.model.UserManager
+import com.simenko.qmapp.ui.user.repository.UserDataRepository
+import com.simenko.qmapp.ui.user.repository.UserManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

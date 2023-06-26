@@ -1,11 +1,9 @@
 package com.simenko.qmapp.ui.user.login
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.ui.user.model.UserManager
-import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewState
+import com.simenko.qmapp.ui.user.repository.UserManager
+import com.simenko.qmapp.ui.user.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,17 +15,11 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(private val userManager: UserManager): ViewModel() {
-
-    private val _loginState = MutableStateFlow<Event<LoginViewState>>(Event(LoginInitialState))
-    val loginState: StateFlow<Event<LoginViewState>>
-        get() = _loginState
+    val userState: StateFlow<Event<UserState>>
+        get() = userManager.userState
 
     fun login(username: String, password: String) {
-        if (userManager.loginUser(username, password)) {
-            _loginState.value = Event(LoginSuccess)
-        } else {
-            _loginState.value = Event(LoginError)
-        }
+        userManager.loginUser(username, password)
     }
 
     fun unregister() {

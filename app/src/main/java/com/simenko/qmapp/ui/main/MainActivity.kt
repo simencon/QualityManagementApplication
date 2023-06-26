@@ -34,7 +34,7 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.user.login.LoginActivity
 import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.main.settings.SettingsFragment
-import com.simenko.qmapp.ui.user.model.UserManager
+import com.simenko.qmapp.ui.user.repository.UserManager
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
 
         if (!userManager.isUserLoggedIn()) {
+            Log.d(TAG, "onCreate: ${userManager.isUserRegistered()}")
             if (!userManager.isUserRegistered()) {
                 startActivity(Intent(this, RegistrationActivity::class.java))
                 finish()
