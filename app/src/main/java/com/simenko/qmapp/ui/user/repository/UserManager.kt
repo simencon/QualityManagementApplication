@@ -52,12 +52,12 @@ class UserManager @Inject constructor(
                     storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
                     storage.setString("$username$PASSWORD_SUFFIX", password)
                     userJustLoggedIn(storage.getString(REGISTERED_USER))
-                    _userState.value = Event(UserRegisteredState)
+                    _userState.value = Event(UserLoggedInState)
                     Log.d(TAG, "createUserWithEmail:success")
                 } else {
                     when(task.exception) {
                         is FirebaseAuthUserCollisionException -> {
-                            _userState.value = Event(UserRegisteredState)
+                            _userState.value = Event(UserRegisteredState(task.exception?.message))
                         }
                         else -> {
                             _userState.value = Event(UserErrorState(task.exception?.message))
@@ -77,13 +77,13 @@ class UserManager @Inject constructor(
                 if (task.isSuccessful) {
                     storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
                     storage.setString("$username$PASSWORD_SUFFIX", password)
-                    _userState.value = Event(UserLogInState)
+                    _userState.value = Event(UserLoggedInState)
                     userJustLoggedIn(username)
                 } else {
                     when (task.exception) {
                         is FirebaseNetworkException -> {
                             if (this.username == username && storage.getString("$username$PASSWORD_SUFFIX") == password) {
-                                _userState.value = Event(UserLogInState)
+                                _userState.value = Event(UserLoggedInState)
                                 userJustLoggedIn(username)
                             } else if (this.username != username) {
                                 _userState.value = Event(UserErrorState("Wrong email"))
@@ -105,9 +105,11 @@ class UserManager @Inject constructor(
             auth.signOut()
             if (auth.currentUser == null) {
                 userDataRepository.cleanUp()
+                _userState.value = Event(UserRegisteredState("Registered, not logged In"))
             }
         } else {
             userDataRepository.cleanUp()
+            _userState.value = Event(UserRegisteredState("Registered, not logged In"))
         }
     }
 
@@ -142,6 +144,6 @@ class UserManager @Inject constructor(
 sealed class UserState
 
 object UserInitialState : UserState()
-object UserRegisteredState : UserState()
-object UserLogInState : UserState()
+data class UserRegisteredState(val msg: String?) : UserState()
+object UserLoggedInState : UserState()
 data class UserErrorState(val error: String?) : UserState()

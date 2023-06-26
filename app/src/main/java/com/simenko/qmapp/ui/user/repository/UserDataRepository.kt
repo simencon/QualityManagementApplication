@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.user.repository
 
+import com.simenko.qmapp.domain.NoRecord
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -33,7 +34,7 @@ class UserDataRepository @Inject constructor() {
 
     fun cleanUp() {
         username = null
-        unreadNotifications = -1
+        unreadNotifications = NoRecord.num
     }
 
     private fun randomInt(): Int {

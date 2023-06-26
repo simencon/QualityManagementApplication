@@ -51,6 +51,7 @@ fun Navigation() {
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxWidth(),
+                    navController = navController,
                     user = backStackEntry.arguments?.getString("name"),
                     registrationViewModel = registrationViewModel
                 )

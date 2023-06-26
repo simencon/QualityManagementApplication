@@ -49,7 +49,7 @@ import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.repository.UserErrorState
 import com.simenko.qmapp.ui.user.repository.UserInitialState
-import com.simenko.qmapp.ui.user.repository.UserLogInState
+import com.simenko.qmapp.ui.user.repository.UserLoggedInState
 import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -112,10 +112,10 @@ fun LogIn(
 
     userStateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
-            is UserRegisteredState -> {}
-            is UserLogInState -> logInSuccess()
-            is UserErrorState -> error = state.error ?: "Unknown error"
             is UserInitialState -> { onClickUnregister() }
+            is UserRegisteredState -> {}
+            is UserLoggedInState -> logInSuccess()
+            is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
 

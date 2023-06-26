@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.entities.DomainTeamMember
-import com.simenko.qmapp.ui.common.scrollToSelectedItem
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.neworder.selectSingleRecord
 import com.simenko.qmapp.ui.theme.Primary900

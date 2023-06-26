@@ -66,6 +66,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-config-ktx'
 
     implementation 'androidx.compose.material3:material3:1.1.0-beta02'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'

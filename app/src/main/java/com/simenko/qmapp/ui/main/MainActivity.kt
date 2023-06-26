@@ -402,7 +402,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
-        investigationsModel.hideReportDialog()
+        investigationsModel.hideStatusUpdateDialog()
         super.onDestroy()
     }
 }
