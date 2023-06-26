@@ -16,11 +16,14 @@
 
 package com.simenko.qmapp.ui.user.registration
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.ui.user.repository.UserManager
 import com.simenko.qmapp.ui.user.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
@@ -57,5 +60,14 @@ class RegistrationViewModel @Inject constructor(private val userManager: UserMan
         assert(acceptedTCs == true)
 
         userManager.registerUser(username!!, password!!)
+    }
+
+    private val _isUserExistDialogVisible = MutableStateFlow(false)
+    val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
+    fun hideUserExistDialog() {
+        _isUserExistDialogVisible.value = false
+    }
+    fun showUserExistDialog() {
+        _isUserExistDialogVisible.value = true
     }
 }

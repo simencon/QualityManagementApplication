@@ -2,15 +2,13 @@ package com.simenko.qmapp.ui.main.investigations
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
-import com.simenko.qmapp.ui.common.DialogInput
+import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
@@ -58,23 +56,22 @@ class InvestigationsViewModel @Inject constructor(
         _isErrorMessage.value = null
     }
 
-    private val _isReportDialogVisible = MutableLiveData(false)
-    val isReportDialogVisible: LiveData<Boolean> = _isReportDialogVisible
-    fun hideReportDialog() {
-        _isReportDialogVisible.value = false
+    private val _isStatusUpdateDialogVisible = MutableLiveData(false)
+    val isStatusUpdateDialogVisible: LiveData<Boolean> = _isStatusUpdateDialogVisible
+    fun hideStatusUpdateDialog() {
+        _isStatusUpdateDialogVisible.value = false
     }
 
     private val _dialogInput = MutableLiveData(DialogInput())
     val dialogInput: LiveData<DialogInput> = _dialogInput
-    fun statusDialog(
+    fun showStatusUpdateDialog(
         currentOrder: DomainOrderComplete? = null,
         currentSubOrder: DomainSubOrderComplete? = null,
         currentSubOrderTask: DomainSubOrderTaskComplete? = null,
         performerId: Int? = null
     ) {
-        _dialogInput.value =
-            DialogInput(currentOrder, currentSubOrder, currentSubOrderTask, performerId)
-        _isReportDialogVisible.value = true
+        _dialogInput.value = DialogInput(currentOrder, currentSubOrder, currentSubOrderTask, performerId)
+        _isStatusUpdateDialogVisible.value = true
     }
 
     private val _invStatusListSF = repository.investigationStatuses()
@@ -628,7 +625,7 @@ class InvestigationsViewModel @Inject constructor(
                         repository.run { getOrder(order) }.consumeEach {}
                     }
                 }
-                hideReportDialog()
+                hideStatusUpdateDialog()
                 _isErrorMessage.value = null
                 _isLoadingInProgress.value = false
             } catch (e: IOException) {
@@ -655,7 +652,7 @@ class InvestigationsViewModel @Inject constructor(
 
                     }
                 }
-                hideReportDialog()
+                hideStatusUpdateDialog()
                 _isErrorMessage.value = null
                 _isLoadingInProgress.value = false
             } catch (e: IOException) {
@@ -784,7 +781,7 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
             }
-            withContext(Dispatchers.Main) { hideReportDialog() }
+            withContext(Dispatchers.Main) { hideStatusUpdateDialog() }
         }
     }
 

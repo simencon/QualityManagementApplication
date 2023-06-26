@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.user.login
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.ui.user.repository.UserManager
+import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 import com.simenko.qmapp.ui.user.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,10 +27,7 @@ class LoginViewModel @Inject constructor(private val userManager: UserManager): 
         userManager.unregister()
     }
 
-    fun getUsername(): String = userManager.username
+    fun getUsername(): String {
+        return userManager.username
+    }
 }
-
-sealed class LoginViewState
-object LoginInitialState : LoginViewState()
-object LoginSuccess : LoginViewState()
-object LoginError : LoginViewState()
