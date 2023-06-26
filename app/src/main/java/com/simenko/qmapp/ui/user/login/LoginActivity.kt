@@ -47,6 +47,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.repository.UserErrorState
+import com.simenko.qmapp.ui.user.repository.UserInitialState
+import com.simenko.qmapp.ui.user.repository.UserLogInState
+import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -104,13 +108,14 @@ fun LogIn(
 
     var error by rememberSaveable { mutableStateOf("") }
 
-    val stateEvent by loginViewModel.loginState.collectAsStateWithLifecycle()
+    val userStateEvent by loginViewModel.userState.collectAsStateWithLifecycle()
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
+    userStateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
-            is LoginSuccess -> logInSuccess()
-            is LoginError -> error = "Error logging you in. Try again."
-            else -> {}
+            is UserRegisteredState -> {}
+            is UserLogInState -> logInSuccess()
+            is UserErrorState -> error = state.error ?: "Unknown error"
+            is UserInitialState -> { onClickUnregister() }
         }
     }
 
@@ -197,7 +202,6 @@ fun LogIn(
             modifier = Modifier.width(150.dp),
             onClick = {
                 loginViewModel.unregister()
-                onClickUnregister()
             },
             content = {
                 Text(

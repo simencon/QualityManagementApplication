@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.model
+package com.simenko.qmapp.ui.user.repository
 
 import javax.inject.Inject
 import javax.inject.Singleton
