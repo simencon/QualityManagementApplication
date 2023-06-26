@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -112,7 +113,10 @@ fun LogIn(
 
     userStateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
-            is UserInitialState -> { onClickUnregister() }
+            is UserInitialState -> {
+                onClickUnregister()
+            }
+
             is UserRegisteredState -> {}
             is UserLoggedInState -> logInSuccess()
             is UserErrorState -> error = state.error ?: "Unknown error"
@@ -174,10 +178,9 @@ fun LogIn(
             Text(
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    .padding(all = 5.dp),
+                textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
@@ -201,7 +204,7 @@ fun LogIn(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                loginViewModel.unregister()
+                loginViewModel.deleteProfile(userName, password)
             },
             content = {
                 Text(

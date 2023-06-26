@@ -3,10 +3,8 @@ package com.simenko.qmapp.ui.user.login
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.ui.user.repository.UserManager
-import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 import com.simenko.qmapp.ui.user.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
@@ -23,8 +21,8 @@ class LoginViewModel @Inject constructor(private val userManager: UserManager): 
         userManager.loginUser(username, password)
     }
 
-    fun unregister() {
-        userManager.unregister()
+    fun deleteProfile(username: String, password: String) {
+        userManager.deleteProfile(username, password)
     }
 
     fun getUsername(): String {
