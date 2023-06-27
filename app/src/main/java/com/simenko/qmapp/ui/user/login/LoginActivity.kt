@@ -139,7 +139,7 @@ fun LogIn(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                .padding(all = 5.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         TextField(

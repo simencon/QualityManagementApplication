@@ -38,9 +38,7 @@ class UserManager @Inject constructor(
         get() = storage.getString(REGISTERED_USER)
 
     fun isUserLoggedIn(): Boolean {
-        val result = userDataRepository.username != null
-        if (result) _userState.value = Event(UserLoggedInState)
-        return result
+        return userDataRepository.username != null
     }
 
     suspend fun isUserRegistered() = suspendCoroutine { continuation ->
@@ -103,7 +101,6 @@ class UserManager @Inject constructor(
             auth.signInWithEmailAndPassword(username, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        Log.d(TAG, "loginUser: ${auth.currentUser?.email}")
                         storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
                         storage.setString("$username$PASSWORD_SUFFIX", password)
                         userJustLoggedIn(username)
