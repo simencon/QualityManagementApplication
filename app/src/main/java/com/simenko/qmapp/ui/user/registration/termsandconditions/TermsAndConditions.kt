@@ -96,25 +96,27 @@ fun TermsAndConditions(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    .padding(all = 5.dp)
             )
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Terms and Conditions",
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .padding(top = 20.dp, start = 0.dp, end = 0.dp, bottom = 20.dp)
+                    .padding(all = 5.dp)
             )
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Here will be terms and conditions later ...",
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 20.dp)
+                    .padding(all = 5.dp)
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             if (error != "")
                 Text(
                     text = error,

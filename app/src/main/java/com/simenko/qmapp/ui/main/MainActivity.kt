@@ -121,16 +121,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val context = this
+
         lifecycleScope.launch(Dispatchers.Main) {
             if (!userManager.isUserLoggedIn()) {
                 if (!userManager.isUserRegistered()) {
-                    Log.d(TAG, "onCreate: RegistrationActivity")
                     startActivity(Intent(context, RegistrationActivity::class.java))
                     finish()
                 } else {
-                    Log.d(TAG, "onCreate: LogInActivity")
                     startActivity(Intent(context, LoginActivity::class.java))
                     finish()
                 }
