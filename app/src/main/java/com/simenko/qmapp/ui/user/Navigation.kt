@@ -63,8 +63,7 @@ fun Navigation() {
 sealed class Screen(val route: String) {
     object EnterDetails : Screen("enter_details")
     object TermsAndConditions : Screen("terms_and_conditions")
-    object Settings : Screen("settings")
-    object Login : Screen("login")
+    object WaitingForVerification : Screen("waiting_for_verification")
 
     fun withArgs(vararg args: String) = buildString {
         append(route)

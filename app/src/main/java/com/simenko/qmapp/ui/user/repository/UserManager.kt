@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.user.repository
 
 import android.util.Log
 import com.google.android.gms.tasks.Task
-import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -19,6 +18,8 @@ import kotlin.coroutines.suspendCoroutine
 
 private const val REGISTERED_USER = "registered_user"
 private const val PASSWORD_SUFFIX = "password"
+private const val IS_EMAIL_VERIFIED = "is_email_verified"
+private const val IS_VERIFIED_BY_ORGANISATION = "is_verified_by_organisation"
 
 /**
  * Handles User lifecycle. Manages registrations, logs in and logs out.
@@ -36,14 +37,53 @@ class UserManager @Inject constructor(
     private val functions: FirebaseFunctions
 ) {
     private val _userState: MutableStateFlow<Event<UserState>> = MutableStateFlow(Event(UserInitialState))
+
     val userState: StateFlow<Event<UserState>>
         get() = _userState
 
     val username: String
         get() = storage.getString(REGISTERED_USER)
 
-    fun isUserLoggedIn(): Boolean {
-        return userDataRepository.username != null
+    suspend fun isUserLoggedIn() = suspendCoroutine { continuation ->
+        val registeredUser = storage.getString(REGISTERED_USER)
+        val registeredPassword = storage.getString("$username$PASSWORD_SUFFIX")
+        val isVerifiedEmail = storage.getBoolean(IS_EMAIL_VERIFIED)
+
+        if (registeredUser.isEmpty() || registeredPassword.isEmpty()) {
+            _userState.value = Event(UserInitialState)
+            continuation.resume(false)
+        } else {
+            auth.signInWithEmailAndPassword(registeredUser, registeredPassword)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        if (auth.currentUser?.isEmailVerified == true) {
+                            _userState.value = Event(UserLoggedInState("user is registered - verified with Firebase"))
+                            storage.setBoolean(IS_EMAIL_VERIFIED, true)
+                            continuation.resume(true)
+                        } else {
+                            _userState.value = Event(UserNeedToVerifyEmailState("Please check your email box"))
+                            continuation.resume(false)
+                        }
+                    } else {
+                        when (task.exception) {
+                            is FirebaseNetworkException -> {
+                                if (isVerifiedEmail) {
+                                    _userState.value = Event(UserLoggedInState("No network - just continue with Storage"))
+                                    continuation.resume(true)
+                                } else {
+                                    _userState.value = Event(UserNeedToVerifyEmailState("Please check your email box"))
+                                    continuation.resume(false)
+                                }
+                            }
+
+                            else -> {
+                                _userState.value = Event(UserInitialState)
+                                continuation.resume(false)
+                            }
+                        }
+                    }
+                }
+        }
     }
 
     suspend fun isUserRegistered() = suspendCoroutine { continuation ->
@@ -77,19 +117,26 @@ class UserManager @Inject constructor(
         }
     }
 
-    fun registerUser(username: String, password: String) {
-        auth.createUserWithEmailAndPassword(username, password)
+    fun registerUser(email: String, password: String) {
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
-                    storage.setString("$username$PASSWORD_SUFFIX", password)
-                    userJustLoggedIn(storage.getString(REGISTERED_USER))
-                    _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                    storage.setString("$email$PASSWORD_SUFFIX", password)
+
+                    auth.currentUser?.sendEmailVerification()?.addOnCompleteListener { task1 ->
+                        if (task1.isSuccessful) {
+                            userJustLoggedIn(storage.getString(REGISTERED_USER))
+                            _userState.value = Event(UserNeedToVerifyEmailState(auth.currentUser?.email ?: "Please check your email box"))
+                        } else {
+                            _userState.value = Event(UserErrorState(task1.exception?.message))
+                        }
+                    }
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
-                            storage.setString(REGISTERED_USER, username)
-                            storage.setString("$username$PASSWORD_SUFFIX", password)
+                            storage.setString(REGISTERED_USER, email)
+                            storage.setString("$email$PASSWORD_SUFFIX", password)
                             _userState.value = Event(UserRegisteredState(task.exception?.message))
                         }
 
@@ -163,7 +210,7 @@ class UserManager @Inject constructor(
                             }
                         }
                     } else {
-                        if(task1.exception?.message?.contains("User has been disabled") == true) {
+                        if (task1.exception?.message?.contains("User has been disabled") == true) {
                             storage.setString(REGISTERED_USER, "")
                             storage.setString("$username$PASSWORD_SUFFIX", "")
                             logout()
@@ -220,5 +267,7 @@ class UserManager @Inject constructor(
 sealed class UserState
 object UserInitialState : UserState()
 data class UserRegisteredState(val msg: String?) : UserState()
+data class UserNeedToVerifyEmailState(val msg: String) : UserState()
+data class UserNeedToVerifiedByOrganisationState(val msg: String) : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
