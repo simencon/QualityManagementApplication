@@ -5,6 +5,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.other.Constants.BASE_URL
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
@@ -108,4 +109,8 @@ object AppModule {
     @Singleton
     @Provides
     fun provideFirebaseAuth() = Firebase.auth
+
+    @Singleton
+    @Provides
+    fun provideFirebaseFunctions() = Firebase.functions
 }

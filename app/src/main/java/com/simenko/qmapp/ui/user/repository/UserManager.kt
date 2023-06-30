@@ -1,9 +1,13 @@
 package com.simenko.qmapp.ui.user.repository
 
 import android.util.Log
+import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.ui.user.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +32,8 @@ private const val TAG = "UserManager"
 class UserManager @Inject constructor(
     private val storage: Storage,
     private val auth: FirebaseAuth,
-    private val userDataRepository: UserDataRepository
+    private val userDataRepository: UserDataRepository,
+    private val functions: FirebaseFunctions
 ) {
     private val _userState: MutableStateFlow<Event<UserState>> = MutableStateFlow(Event(UserInitialState))
     val userState: StateFlow<Event<UserState>>
@@ -79,7 +84,7 @@ class UserManager @Inject constructor(
                     storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
                     storage.setString("$username$PASSWORD_SUFFIX", password)
                     userJustLoggedIn(storage.getString(REGISTERED_USER))
-                    _userState.value = Event(UserLoggedInState)
+                    _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
@@ -104,13 +109,13 @@ class UserManager @Inject constructor(
                         storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
                         storage.setString("$username$PASSWORD_SUFFIX", password)
                         userJustLoggedIn(username)
-                        _userState.value = Event(UserLoggedInState)
+                        _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
                     } else {
                         when (task.exception) {
                             is FirebaseNetworkException -> {
                                 if (this.username == username && storage.getString("$username$PASSWORD_SUFFIX") == password) {
                                     userJustLoggedIn(username)
-                                    _userState.value = Event(UserLoggedInState)
+                                    _userState.value = Event(UserLoggedInState(username))
                                 } else if (this.username != username) {
                                     _userState.value = Event(UserErrorState("Wrong email"))
                                 } else if (storage.getString("$username$PASSWORD_SUFFIX") != password) {
@@ -153,13 +158,19 @@ class UserManager @Inject constructor(
                                 storage.setString("$username$PASSWORD_SUFFIX", "")
                                 logout()
                                 _userState.value = Event(UserInitialState)
-                                Log.d(TAG, "deleteUser:success")
                             } else {
                                 _userState.value = Event(UserErrorState(task2.exception?.message ?: "Unknown error"))
                             }
                         }
                     } else {
-                        _userState.value = Event(UserErrorState(task1.exception?.message ?: "Unknown error"))
+                        if(task1.exception?.message?.contains("User has been disabled") == true) {
+                            storage.setString(REGISTERED_USER, "")
+                            storage.setString("$username$PASSWORD_SUFFIX", "")
+                            logout()
+                            _userState.value = Event(UserInitialState)
+                        } else {
+                            _userState.value = Event(UserErrorState(task1.exception?.message ?: "Unknown error"))
+                        }
                     }
                 }
         else {
@@ -171,11 +182,43 @@ class UserManager @Inject constructor(
         // When the user logs in, we create populate data in UserComponent
         userDataRepository.initData(username)
     }
+
+    fun setUserJobRole(userJobRole: String) {
+        Log.d(TAG, "setUserJobRole: auth = ${auth.currentUser}")
+        addMessage(userJobRole).addOnCompleteListener { task ->
+            val e = task.exception
+            if (e is FirebaseFunctionsException) {
+                Log.d(TAG, "setUserJobRole: exception: $e")
+                _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
+            } else {
+                Log.d(TAG, "setUserJobRole: success: ${task.result}")
+                _userState.value = Event(UserLoggedInState(task.result))
+            }
+        }
+    }
+
+    private fun addMessage(text: String): Task<String> {
+        // Create the arguments to the callable function.
+        val data = hashMapOf(
+            "userJobRole" to text
+        )
+
+        return functions
+            .getHttpsCallable("addRequest")
+            .call(data)
+            .continueWith { task ->
+                // This continuation runs on either success or failure, but if the task
+                // has failed then result will throw an Exception which will be
+                // propagated down.
+                Log.d(TAG, "addMessage: $task")
+                val result = task.result?.data as String
+                result
+            }
+    }
 }
 
 sealed class UserState
-
 object UserInitialState : UserState()
 data class UserRegisteredState(val msg: String?) : UserState()
-object UserLoggedInState : UserState()
+data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
