@@ -2,7 +2,7 @@ package com.simenko.qmapp.ui.user.login
 
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.ui.user.repository.UserManager
+import com.simenko.qmapp.ui.user.repository.UserRepository
 import com.simenko.qmapp.ui.user.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
  * obtain information of what to show on the screen and handle complex logic.
  */
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userManager: UserManager): ViewModel() {
+class LoginViewModel @Inject constructor(private val userManager: UserRepository): ViewModel() {
     val userState: StateFlow<Event<UserState>>
         get() = userManager.userState
 
@@ -27,5 +27,9 @@ class LoginViewModel @Inject constructor(private val userManager: UserManager): 
 
     fun getUsername(): String {
         return userManager.username
+    }
+
+    fun restoreUserStateEvent() {
+        userManager.restoreUserStateEvent()
     }
 }

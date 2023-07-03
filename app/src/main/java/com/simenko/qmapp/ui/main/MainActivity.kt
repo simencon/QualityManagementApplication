@@ -35,7 +35,7 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.user.login.LoginActivity
 import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.main.settings.SettingsFragment
-import com.simenko.qmapp.ui.user.repository.UserManager
+import com.simenko.qmapp.ui.user.repository.UserRepository
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -43,6 +43,8 @@ import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.user.Screen
+import com.simenko.qmapp.ui.user.registration.createRegistrationActivityIntent
 import com.simenko.qmapp.ui.user.repository.UserErrorState
 import com.simenko.qmapp.ui.user.repository.UserInitialState
 import com.simenko.qmapp.ui.user.repository.UserLoggedInState
@@ -95,7 +97,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     @Inject
-    lateinit var userManager: UserManager
+    lateinit var userRepository: UserRepository
 
     val appModel: ManufacturingViewModel by viewModels()
     val teamModel: TeamViewModel by viewModels()
@@ -130,10 +132,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         lifecycleScope.launch(Dispatchers.Main) {
 
-            userManager.getUserState().peekContent().let { state ->
+            userRepository.getUserState().let { state ->
                 when (state) {
                     is UserInitialState -> {
-                        startActivity(Intent(context, RegistrationActivity::class.java))
+                        startActivity(createRegistrationActivityIntent(context, Screen.EnterDetails.route()))
                         finish()
                     }
 

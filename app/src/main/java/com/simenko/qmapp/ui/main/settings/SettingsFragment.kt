@@ -35,6 +35,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.ui.user.login.LoginActivity
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.login.Screen
+import com.simenko.qmapp.ui.user.login.createLoginActivityIntent
 import com.simenko.qmapp.ui.user.repository.UserErrorState
 import com.simenko.qmapp.ui.user.repository.UserLoggedInState
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,7 +62,7 @@ class SettingsFragment : Fragment() {
                                 .padding(all = 0.dp)
                                 .fillMaxWidth(),
                             onClickLogOut = {
-                                val intent = Intent(activity, LoginActivity::class.java)
+                                val intent = createLoginActivityIntent(requireActivity(), Screen.LogIn.route())
                                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
                                         Intent.FLAG_ACTIVITY_CLEAR_TASK or
                                         Intent.FLAG_ACTIVITY_NEW_TASK

@@ -61,7 +61,7 @@ fun TermsAndConditions(
 
     val onRegisterUnderAnotherEmailLambda = remember<() -> Unit> {
         {
-            navController.navigate(Screen.EnterDetails.route)
+            navController.navigate(Screen.EnterDetails.destination)
         }
     }
 
