@@ -40,6 +40,7 @@ import com.simenko.qmapp.ui.user.login.LoginActivity
 import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.user.repository.UserErrorState
 import com.simenko.qmapp.ui.user.repository.UserInitialState
+import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.user.repository.UserLoggedInState
 import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
 import com.simenko.qmapp.ui.user.repository.UserRegisteredState
@@ -76,12 +77,13 @@ fun TermsAndConditions(
         when (state) {
             is UserInitialState -> {}
             is UserRegisteredState -> {
-                msg = state.msg ?: "Unknown reason"
+                msg = state.msg
                 registrationViewModel.showUserExistDialog()
             }
             is UserNeedToVerifyEmailState -> (context as RegistrationActivity).onTermsAndConditionsAccepted()
             is UserNeedToVerifiedByOrganisationState -> {}
             is UserLoggedInState -> {}
+            is UserLoggedOutState -> {}
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }

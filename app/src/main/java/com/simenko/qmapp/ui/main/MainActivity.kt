@@ -43,14 +43,19 @@ import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.user.repository.UserErrorState
+import com.simenko.qmapp.ui.user.repository.UserInitialState
+import com.simenko.qmapp.ui.user.repository.UserLoggedInState
+import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
+import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
@@ -124,55 +129,63 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val context = this
 
         lifecycleScope.launch(Dispatchers.Main) {
-            if (!userManager.isUserLoggedIn()) {
-                if (!userManager.isUserRegistered()) {
-                    startActivity(Intent(context, RegistrationActivity::class.java))
-                    finish()
-                } else {
-                    startActivity(Intent(context, LoginActivity::class.java))
-                    finish()
-                }
-            } else {
-                if (ActivityCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
-                }
 
-                analytics = Firebase.analytics
+            userManager.getUserState().peekContent().let { state ->
+                when (state) {
+                    is UserInitialState -> {
+                        startActivity(Intent(context, RegistrationActivity::class.java))
+                        finish()
+                    }
 
-                appModel.currentTitle.observe(context) {}
+                    is UserLoggedOutState, is UserNeedToVerifyEmailState, is UserNeedToVerifiedByOrganisationState -> {
+                        startActivity(Intent(context, LoginActivity::class.java))
+                        finish()
+                    }
 
-                binding = ActivityMainBinding.inflate(layoutInflater)
-                setContentView(binding.root)
+                    is UserLoggedInState -> {
+                        if (ActivityCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
+                        }
 
-                val toolbar: Toolbar = binding.toolBar
-                setSupportActionBar(toolbar)
+                        analytics = Firebase.analytics
 
-                context.drawer = binding.drawerLayout
+                        appModel.currentTitle.observe(context) {}
 
-                val toggle = ActionBarDrawerToggle(
-                    context, drawer, toolbar,
-                    R.string.navigation_drawer_open, R.string.navigation_drawer_close
-                )
-                drawer.addDrawerListener(toggle)
+                        binding = ActivityMainBinding.inflate(layoutInflater)
+                        setContentView(binding.root)
 
-                toggle.syncState()
+                        val toolbar: Toolbar = binding.toolBar
+                        setSupportActionBar(toolbar)
 
-                navigationView = binding.navView
-                navigationView.setNavigationItemSelectedListener(context)
+                        context.drawer = binding.drawerLayout
 
-                prepareOneTimeWorks()
+                        val toggle = ActionBarDrawerToggle(
+                            context, drawer, toolbar,
+                            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+                        )
+                        drawer.addDrawerListener(toggle)
 
-                if (savedInstanceState == null && intent.extras == null) {
-                    context.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
-                } else if (intent.extras != null) {
-                    navigateToProperRecord(bundle = intent.extras)
+                        toggle.syncState()
+
+                        navigationView = binding.navView
+                        navigationView.setNavigationItemSelectedListener(context)
+
+                        prepareOneTimeWorks()
+
+                        if (savedInstanceState == null && intent.extras == null) {
+                            context.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
+                        } else if (intent.extras != null) {
+                            navigateToProperRecord(bundle = intent.extras)
+                        }
+                    }
+
+                    is UserErrorState, is UserRegisteredState -> {}
                 }
             }
-
         }
     }
 
