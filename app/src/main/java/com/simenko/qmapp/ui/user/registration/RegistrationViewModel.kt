@@ -16,11 +16,9 @@
 
 package com.simenko.qmapp.ui.user.registration
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.ui.user.repository.UserManager
+import com.simenko.qmapp.ui.user.repository.UserRepository
 import com.simenko.qmapp.ui.user.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +34,7 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class RegistrationViewModel @Inject constructor(private val userManager: UserManager) : ViewModel() {
+class RegistrationViewModel @Inject constructor(private val userManager: UserRepository) : ViewModel() {
 
     val userState : StateFlow<Event<UserState>>
         get() = userManager.userState

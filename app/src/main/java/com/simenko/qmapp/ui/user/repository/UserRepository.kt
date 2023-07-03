@@ -31,7 +31,7 @@ private const val IS_VERIFIED_BY_ORGANISATION = "is_verified_by_organisation"
 private const val TAG = "UserManager"
 
 @Singleton
-class UserManager @Inject constructor(
+class UserRepository @Inject constructor(
     private val storage: Storage,
     private val auth: FirebaseAuth,
     private val functions: FirebaseFunctions
@@ -44,6 +44,10 @@ class UserManager @Inject constructor(
     val username: String
         get() = storage.getString(REGISTERED_USER)
 
+    fun restoreUserStateEvent() {
+        _userState.value = Event(_userState.value.peekContent())
+    }
+
     suspend fun getUserState() = suspendCoroutine { continuation ->
         val registeredUser = storage.getString(REGISTERED_USER)
         val registeredPassword = storage.getString("$username$PASSWORD_SUFFIX")
@@ -52,24 +56,24 @@ class UserManager @Inject constructor(
 
         if (registeredUser.isEmpty() || registeredPassword.isEmpty()) {
             _userState.value = Event(UserInitialState)
-            continuation.resume(_userState.value)
+            continuation.resume(_userState.value.peekContent())
         } else {
             auth.signInWithEmailAndPassword(registeredUser, registeredPassword)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         if (auth.currentUser?.isEmailVerified == true) {
                             if (isUserLogIn) {
+                                storage.setBoolean(IS_EMAIL_VERIFIED, true)
                                 _userState.value = Event(UserLoggedInState("user is registered - verified with Firebase"))
-                                storage.setBoolean(IS_EMAIL_VERIFIED, true)
-                                continuation.resume(_userState.value)
+                                continuation.resume(_userState.value.peekContent())
                             } else {
-                                _userState.value = Event(UserLoggedOutState("user is registered - verified with Firebase - log out in the app"))
                                 storage.setBoolean(IS_EMAIL_VERIFIED, true)
-                                continuation.resume(_userState.value)
+                                _userState.value = Event(UserLoggedOutState("user is registered - verified with Firebase - log out in the app"))
+                                continuation.resume(_userState.value.peekContent())
                             }
                         } else {
                             _userState.value = Event(UserNeedToVerifyEmailState("Please check your email box"))
-                            continuation.resume(_userState.value)
+                            continuation.resume(_userState.value.peekContent())
                         }
                     } else {
                         when (task.exception) {
@@ -77,20 +81,20 @@ class UserManager @Inject constructor(
                                 if (isVerifiedEmail) {
                                     if (isUserLogIn) {
                                         _userState.value = Event(UserLoggedInState("No network - just continue with Storage"))
-                                        continuation.resume(_userState.value)
+                                        continuation.resume(_userState.value.peekContent())
                                     } else {
                                         _userState.value = Event(UserLoggedOutState("No network - just continue with Storage - log out in the app"))
-                                        continuation.resume(_userState.value)
+                                        continuation.resume(_userState.value.peekContent())
                                     }
                                 } else {
                                     _userState.value = Event(UserNeedToVerifyEmailState("Please check your email box"))
-                                    continuation.resume(_userState.value)
+                                    continuation.resume(_userState.value.peekContent())
                                 }
                             }
 
                             else -> {
                                 _userState.value = Event(UserInitialState)
-                                continuation.resume(_userState.value)
+                                continuation.resume(_userState.value.peekContent())
                             }
                         }
                     }

@@ -37,7 +37,8 @@ import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 @Composable
 fun WaitingForVerification(
     modifier: Modifier,
-    navController: NavController = rememberNavController()
+    navController: NavController = rememberNavController(),
+    logInSuccess: () -> Unit
 ) {
     val loginViewModel: LoginViewModel = hiltViewModel()
     val context = LocalContext.current
@@ -46,35 +47,38 @@ fun WaitingForVerification(
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
-    stateEvent.peekContent().let { state ->
+    stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
             is UserInitialState -> {}
-            is UserRegisteredState -> {}
-            is UserNeedToVerifyEmailState -> msg = state.msg ?: "Unknown reason"
-            is UserNeedToVerifiedByOrganisationState -> msg = state.msg ?: "Unknown reason"
-            is UserLoggedInState -> navController.navigate(Screen.LogIn.route)
-            is UserLoggedOutState -> navController.navigate(Screen.LogIn.route)
+            is UserRegisteredState -> navController.navigate(Screen.LogIn.route())
+            is UserNeedToVerifyEmailState -> msg = state.msg
+            is UserNeedToVerifiedByOrganisationState -> msg = state.msg
+            is UserLoggedInState -> logInSuccess()
+            is UserLoggedOutState -> navController.navigate(Screen.LogIn.destination)
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
 
-    Box {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(all = 0.dp)
-        ) {
-            Text(
-                text = "Please check your email box",
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+    LaunchedEffect(key1 = Unit, block = {
+        loginViewModel.restoreUserStateEvent()
+    })
+
+    if (msg != "")
+        Box {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .padding(all = 5.dp)
-            )
+                    .padding(all = 0.dp)
+            ) {
+                Text(
+                    text = msg,
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .padding(all = 5.dp)
+                )
+            }
         }
-    }
-
-
 }
 
 @Preview(name = "Lite Mode Waiting For Verification", showBackground = true, widthDp = 360)
@@ -84,7 +88,8 @@ fun WaitingForVerificationPreview() {
         WaitingForVerification(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 0.dp)
+                .padding(all = 0.dp),
+            logInSuccess = {}
         )
     }
 }

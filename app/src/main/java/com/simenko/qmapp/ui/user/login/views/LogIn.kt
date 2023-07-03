@@ -57,11 +57,11 @@ import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 @Composable
 fun LogIn(
     modifier: Modifier,
-    logInViewModel: LoginViewModel = hiltViewModel(),
     navController: NavController = rememberNavController(),
     logInSuccess: () -> Unit,
     onClickUnregister: () -> Unit
 ) {
+    val logInViewModel: LoginViewModel = hiltViewModel()
     val userName = logInViewModel.getUsername()
 
     var password by rememberSaveable { mutableStateOf("") }
@@ -75,8 +75,8 @@ fun LogIn(
         when (state) {
             is UserInitialState -> onClickUnregister()
             is UserRegisteredState -> {}
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route)
-            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route)
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.destination)
+            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.destination)
             is UserLoggedInState -> logInSuccess()
             is UserLoggedOutState -> {}
             is UserErrorState -> error = state.error ?: "Unknown error"
