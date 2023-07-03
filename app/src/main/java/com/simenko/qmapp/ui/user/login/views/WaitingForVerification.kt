@@ -23,19 +23,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LoginViewModel
 import com.simenko.qmapp.ui.user.login.Screen
 import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.user.repository.UserErrorState
 import com.simenko.qmapp.ui.user.repository.UserInitialState
+import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.user.repository.UserLoggedInState
 import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
 import com.simenko.qmapp.ui.user.repository.UserRegisteredState
 
 @Composable
-fun WaitingForEmailVerification(
+fun WaitingForVerification(
     modifier: Modifier,
     navController: NavController = rememberNavController()
 ) {
@@ -46,19 +46,16 @@ fun WaitingForEmailVerification(
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
+    stateEvent.peekContent().let { state ->
         when (state) {
             is UserInitialState -> {}
             is UserRegisteredState -> {}
             is UserNeedToVerifyEmailState -> msg = state.msg ?: "Unknown reason"
             is UserNeedToVerifiedByOrganisationState -> msg = state.msg ?: "Unknown reason"
             is UserLoggedInState -> navController.navigate(Screen.LogIn.route)
+            is UserLoggedOutState -> navController.navigate(Screen.LogIn.route)
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
-    }
-
-    LaunchedEffect(Unit) {
-        loginViewModel.refreshUserState()
     }
 
     Box {
@@ -84,7 +81,7 @@ fun WaitingForEmailVerification(
 @Composable
 fun WaitingForVerificationPreview() {
     QMAppTheme {
-        WaitingForEmailVerification(
+        WaitingForVerification(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 0.dp)

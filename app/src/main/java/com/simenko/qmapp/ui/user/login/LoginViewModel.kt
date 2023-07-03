@@ -17,10 +17,6 @@ class LoginViewModel @Inject constructor(private val userManager: UserManager): 
     val userState: StateFlow<Event<UserState>>
         get() = userManager.userState
 
-    suspend fun refreshUserState() {
-        userManager.isUserLoggedIn()
-    }
-
     fun login(username: String, password: String) {
         userManager.loginUser(username, password)
     }

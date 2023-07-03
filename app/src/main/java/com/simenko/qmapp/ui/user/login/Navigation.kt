@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.views.LogIn
-import com.simenko.qmapp.ui.user.login.views.WaitingForEmailVerification
+import com.simenko.qmapp.ui.user.login.views.WaitingForVerification
 
 @Composable
 fun Navigation(
@@ -24,7 +24,7 @@ fun Navigation(
     NavHost(navController = navController, startDestination = Screen.WaitingForEmailVerification.route) {
         composable(route = Screen.WaitingForEmailVerification.route) {
             QMAppTheme {
-                WaitingForEmailVerification(
+                WaitingForVerification(
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxSize(),

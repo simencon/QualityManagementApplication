@@ -47,6 +47,7 @@ import com.simenko.qmapp.ui.user.login.Screen
 import com.simenko.qmapp.ui.user.repository.UserErrorState
 import com.simenko.qmapp.ui.user.repository.UserInitialState
 import com.simenko.qmapp.ui.user.repository.UserLoggedInState
+import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
 import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.user.repository.UserRegisteredState
@@ -77,6 +78,7 @@ fun LogIn(
             is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route)
             is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route)
             is UserLoggedInState -> logInSuccess()
+            is UserLoggedOutState -> {}
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
