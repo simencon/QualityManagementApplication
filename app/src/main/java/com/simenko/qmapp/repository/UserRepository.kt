@@ -4,6 +4,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.other.Event
@@ -59,7 +60,7 @@ class UserRepository @Inject constructor(
                                 continuation.resume(_userState.value.peekContent())
                             }
                         } else {
-                            _userState.value = Event(UserNeedToVerifyEmailState("Please check your email box"))
+                            _userState.value = Event(UserNeedToVerifyEmailState("Verification link was send to email: ${auth.currentUser?.email}"))
                             continuation.resume(_userState.value.peekContent())
                         }
                     } else {
@@ -95,14 +96,7 @@ class UserRepository @Inject constructor(
                 if (task.isSuccessful) {
                     storage.setString(REGISTERED_USER, auth.currentUser?.email ?: "no mail")
                     storage.setString("$email$PASSWORD_SUFFIX", password)
-
-                    auth.currentUser?.sendEmailVerification()?.addOnCompleteListener { task1 ->
-                        if (task1.isSuccessful) {
-                            _userState.value = Event(UserNeedToVerifyEmailState(auth.currentUser?.email ?: "Please check your email box"))
-                        } else {
-                            _userState.value = Event(UserErrorState(task1.exception?.message))
-                        }
-                    }
+                    sendVerificationEmail(auth.currentUser)
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
@@ -117,6 +111,29 @@ class UserRepository @Inject constructor(
                     }
                 }
             }
+    }
+
+    fun sendVerificationEmail(user: FirebaseUser?) {
+        user.let {
+            if (it != null) {
+                it.sendEmailVerification()?.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        _userState.value = Event(UserNeedToVerifyEmailState("Verification link was send to email: ${auth.currentUser?.email}"))
+                    } else {
+                        _userState.value = Event(UserErrorState(task.exception?.message))
+                    }
+                }
+            } else {
+                val email = storage.getString(REGISTERED_USER)
+                auth.signInWithEmailAndPassword(email, storage.getString("$email$PASSWORD_SUFFIX")).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        sendVerificationEmail(auth.currentUser)
+                    } else {
+                        _userState.value = Event(UserErrorState(task.exception?.message))
+                    }
+                }
+            }
+        }
     }
 
     fun loginUser(username: String, password: String) {

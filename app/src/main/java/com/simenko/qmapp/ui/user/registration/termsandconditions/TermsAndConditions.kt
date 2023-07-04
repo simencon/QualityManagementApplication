@@ -75,13 +75,13 @@ fun TermsAndConditions(
             }
 
             is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
-                popUpTo(Screen.Registration.TermsAndConditions.route) {
+                popUpTo(Screen.Registration.route) {
                     inclusive = true
                 }
             }
 
             is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
-                popUpTo(Screen.Registration.TermsAndConditions.route) {
+                popUpTo(Screen.Registration.route) {
                     inclusive = true
                 }
             }

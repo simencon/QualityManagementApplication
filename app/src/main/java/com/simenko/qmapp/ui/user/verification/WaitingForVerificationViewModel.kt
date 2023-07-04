@@ -16,4 +16,6 @@ import javax.inject.Inject
 class WaitingForVerificationViewModel @Inject constructor(private val userManager: UserRepository): ViewModel() {
     val userState: StateFlow<Event<UserState>>
         get() = userManager.userState
+
+    fun resendVerificationEmail() = userManager.sendVerificationEmail(null)
 }
