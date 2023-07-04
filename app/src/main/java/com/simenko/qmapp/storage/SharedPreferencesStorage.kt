@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.storage
+package com.simenko.qmapp.storage
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext

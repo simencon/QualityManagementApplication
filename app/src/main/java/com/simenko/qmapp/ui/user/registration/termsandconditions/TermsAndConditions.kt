@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.user.registration.termsandconditions
 
-import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,7 +20,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,18 +30,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
-import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.Screen
-import com.simenko.qmapp.ui.user.login.LoginActivity
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.ui.user.repository.UserErrorState
-import com.simenko.qmapp.ui.user.repository.UserInitialState
-import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
-import com.simenko.qmapp.ui.user.repository.UserLoggedInState
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
-import com.simenko.qmapp.ui.user.repository.UserRegisteredState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserRegisteredState
 
 @Composable
 fun TermsAndConditions(
@@ -52,7 +48,6 @@ fun TermsAndConditions(
     navController: NavController = rememberNavController(),
     user: String? = null
 ) {
-    val context = LocalContext.current
     val stateEvent by registrationViewModel.userState.collectAsStateWithLifecycle()
     val userExistDialogVisibility by registrationViewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
@@ -61,15 +56,13 @@ fun TermsAndConditions(
 
     val onRegisterUnderAnotherEmailLambda = remember<() -> Unit> {
         {
-            navController.navigate(Screen.EnterDetails.destination)
+            navController.popBackStack()
         }
     }
 
     val onLoginLambda = remember<(String) -> Unit> {
         {
-            val intent = Intent((context as RegistrationActivity), LoginActivity::class.java)
-            context.startActivity(intent)
-            context.finish()
+            navController.navigate(Screen.LogIn.route)
         }
     }
 
@@ -80,8 +73,19 @@ fun TermsAndConditions(
                 msg = state.msg
                 registrationViewModel.showUserExistDialog()
             }
-            is UserNeedToVerifyEmailState -> (context as RegistrationActivity).onTermsAndConditionsAccepted()
-            is UserNeedToVerifiedByOrganisationState -> {}
+
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.Registration.TermsAndConditions.route) {
+                    inclusive = true
+                }
+            }
+
+            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.Registration.TermsAndConditions.route) {
+                    inclusive = true
+                }
+            }
+
             is UserLoggedInState -> {}
             is UserLoggedOutState -> {}
             is UserErrorState -> error = state.error ?: "Unknown error"

@@ -72,7 +72,7 @@ fun EnterDetails(
         when (state) {
             is EnterDetailsSuccess -> {
                 registrationViewModel.updateUserData(userName, password)
-                navController.navigate(Screen.TermsAndConditions.withArgs(userName))
+                navController.navigate(Screen.Registration.TermsAndConditions.withArgs(userName))
             }
 
             is EnterDetailsError -> {

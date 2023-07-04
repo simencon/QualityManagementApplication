@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.login
+package com.simenko.qmapp.ui.user.verification
 
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
@@ -13,19 +13,7 @@ import javax.inject.Inject
  * obtain information of what to show on the screen and handle complex logic.
  */
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userManager: UserRepository): ViewModel() {
+class WaitingForVerificationViewModel @Inject constructor(private val userManager: UserRepository): ViewModel() {
     val userState: StateFlow<Event<UserState>>
         get() = userManager.userState
-
-    fun login(username: String, password: String) {
-        userManager.loginUser(username, password)
-    }
-
-    fun deleteProfile(username: String, password: String) {
-        userManager.deleteProfile(username, password)
-    }
-
-    fun getUsername(): String {
-        return userManager.username
-    }
 }

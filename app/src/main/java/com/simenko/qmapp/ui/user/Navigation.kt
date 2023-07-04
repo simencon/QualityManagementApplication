@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.user
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,18 +21,21 @@ import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.login.LogIn
+import com.simenko.qmapp.ui.user.verification.WaitingForVerification
 
 @Composable
 fun Navigation(
-    initiatedRoute: String
+    initiatedRoute: String,
+    logInSuccess: () -> Unit
 ) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = initiatedRoute) {
         navigation(
-            startDestination = Screen.EnterDetails.destination,
-            route = Screen.EnterDetails.route()
+            startDestination = Screen.Registration.EnterDetails.route,
+            route = Screen.Registration.route
         ) {
-            composable(route = Screen.EnterDetails.destination) {
+            composable(route = Screen.Registration.EnterDetails.route) {
                 QMAppTheme {
                     EnterDetails(
                         modifier = Modifier
@@ -44,7 +46,7 @@ fun Navigation(
                 }
             }
             composable(
-                route = Screen.TermsAndConditions.destination + "/{name}",
+                route = Screen.Registration.TermsAndConditions.route + "/{name}",
                 arguments = listOf(
                     navArgument("user") {
                         type = NavType.StringType
@@ -52,42 +54,55 @@ fun Navigation(
                         nullable = true
                     }
                 )
-            ) { backStackEntry ->
-                val parentEntry = remember(backStackEntry) {
-                    navController.getBackStackEntry(Screen.EnterDetails.destination)
-                }
-                val registrationViewModel = hiltViewModel<RegistrationViewModel>(parentEntry)
+            ) {
                 QMAppTheme {
                     TermsAndConditions(
                         modifier = Modifier
                             .padding(all = 0.dp)
                             .fillMaxWidth(),
                         navController = navController,
-                        user = backStackEntry.arguments?.getString("name"),
-                        registrationViewModel = registrationViewModel
+                        user = it.arguments?.getString("name"),
+                        registrationViewModel = it.sharedViewModel(navController = navController)
                     )
                 }
+            }
+        }
+        composable(route = Screen.WaitingForEmailVerification.route) {
+            QMAppTheme {
+                WaitingForVerification(
+                    modifier = Modifier
+                        .padding(all = 0.dp)
+                        .fillMaxSize(),
+                    navController = navController,
+                    logInSuccess = logInSuccess
+                )
+            }
+        }
+        composable(route = Screen.LogIn.route) {
+            QMAppTheme {
+                LogIn(
+                    modifier = Modifier
+                        .padding(all = 0.dp)
+                        .fillMaxWidth(),
+                    navController = navController,
+                    logInSuccess = logInSuccess
+                )
             }
         }
     }
 }
 
-sealed class Screen(val destination: String) {
-    object Home : Screen("home")
-    object EnterDetails : Screen("enter_details")
-    object TermsAndConditions : Screen("terms_and_conditions")
-    object LogIn : Screen("log_in")
+sealed class Screen(val route: String) {
+    object Registration : Screen("registration") {
+        object EnterDetails : Screen("enter_details")
+        object TermsAndConditions : Screen("terms_and_conditions")
+    }
     object WaitingForEmailVerification : Screen("waiting_for_email_verification")
     object WaitingForVerificationByOrganisation : Screen("waiting_for_verification_by_organisation")
-
-    fun route() = buildString {
-        append(destination)
-        append("_")
-        append("route")
-    }
+    object LogIn : Screen("log_in")
 
     fun withArgs(vararg args: String) = buildString {
-        append(destination)
+        append(route)
         args.forEach { arg ->
             append("/$arg")
         }
@@ -96,8 +111,7 @@ sealed class Screen(val destination: String) {
 
 @Composable
 inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-    val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
-    Log.d("Navigation", "sharedViewModel: $navGraphRoute")
+    val navGraphRoute = destination.parent?.startDestinationRoute ?: return hiltViewModel()
     val parentEntry = remember(this) {
         navController.getBackStackEntry(navGraphRoute)
     }

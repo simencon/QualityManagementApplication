@@ -1,6 +1,5 @@
-package com.simenko.qmapp.ui.user.repository
+package com.simenko.qmapp.repository
 
-import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -8,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.ui.user.storage.Storage
+import com.simenko.qmapp.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
@@ -21,14 +20,6 @@ private const val PASSWORD_SUFFIX = "password"
 private const val IS_EMAIL_VERIFIED = "is_email_verified"
 private const val IS_USER_LOG_IN = "is_user_log_in"
 private const val IS_VERIFIED_BY_ORGANISATION = "is_verified_by_organisation"
-
-/**
- * Handles User lifecycle. Manages registrations, logs in and logs out.
- * Knows when the user is logged in.
- *
- * Marked with @Singleton since we only one an instance of UserManager in the application graph.
- */
-private const val TAG = "UserManager"
 
 @Singleton
 class UserRepository @Inject constructor(
@@ -43,10 +34,6 @@ class UserRepository @Inject constructor(
 
     val username: String
         get() = storage.getString(REGISTERED_USER)
-
-    fun restoreUserStateEvent() {
-        _userState.value = Event(_userState.value.peekContent())
-    }
 
     suspend fun getUserState() = suspendCoroutine { continuation ->
         val registeredUser = storage.getString(REGISTERED_USER)
@@ -211,14 +198,11 @@ class UserRepository @Inject constructor(
     }
 
     fun setUserJobRole(userJobRole: String) {
-        Log.d(TAG, "setUserJobRole: auth = ${auth.currentUser}")
         addMessage(userJobRole).addOnCompleteListener { task ->
             val e = task.exception
             if (e is FirebaseFunctionsException) {
-                Log.d(TAG, "setUserJobRole: exception: $e")
                 _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
             } else {
-                Log.d(TAG, "setUserJobRole: success: ${task.result}")
                 _userState.value = Event(UserLoggedInState(task.result))
             }
         }
@@ -237,7 +221,6 @@ class UserRepository @Inject constructor(
                 // This continuation runs on either success or failure, but if the task
                 // has failed then result will throw an Exception which will be
                 // propagated down.
-                Log.d(TAG, "addMessage: $task")
                 val result = task.result?.data as String
                 result
             }

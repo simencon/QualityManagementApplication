@@ -2,8 +2,8 @@ package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.ui.user.repository.UserRepository
-import com.simenko.qmapp.ui.user.repository.UserState
+import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
