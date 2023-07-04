@@ -96,6 +96,7 @@ sealed class Screen(val route: String) {
         object EnterDetails : Screen("enter_details")
         object TermsAndConditions : Screen("terms_and_conditions")
     }
+
     object WaitingForEmailVerification : Screen("waiting_for_email_verification")
     object WaitingForVerificationByOrganisation : Screen("waiting_for_verification_by_organisation")
     object LogIn : Screen("log_in")
