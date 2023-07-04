@@ -18,15 +18,15 @@ package com.simenko.qmapp.ui.user.registration
 
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.ui.user.repository.UserRepository
-import com.simenko.qmapp.ui.user.repository.UserState
+import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 /**
- * RegistrationViewModel is the ViewModel that the Registration flow ([RegistrationActivity]
+ * RegistrationViewModel is the ViewModel that the Registration flow ([LoginActivity]
  * and fragments) uses to keep user's input data.
  *
  * @Inject tells Dagger how to provide instances of this type. Dagger also knows

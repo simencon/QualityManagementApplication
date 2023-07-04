@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.login.views
+package com.simenko.qmapp.ui.user.login
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -42,24 +42,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.ui.user.login.LoginViewModel
-import com.simenko.qmapp.ui.user.login.Screen
-import com.simenko.qmapp.ui.user.repository.UserErrorState
-import com.simenko.qmapp.ui.user.repository.UserInitialState
-import com.simenko.qmapp.ui.user.repository.UserLoggedInState
-import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.ui.user.repository.UserRegisteredState
-
+import com.simenko.qmapp.ui.user.Screen
+import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.repository.UserRegisteredState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogIn(
     modifier: Modifier,
     navController: NavController = rememberNavController(),
-    logInSuccess: () -> Unit,
-    onClickUnregister: () -> Unit
+    logInSuccess: () -> Unit
 ) {
     val logInViewModel: LoginViewModel = hiltViewModel()
     val userName = logInViewModel.getUsername()
@@ -73,10 +70,22 @@ fun LogIn(
 
     userStateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
-            is UserInitialState -> onClickUnregister()
+            is UserInitialState -> navController.navigate(Screen.Registration.route) {
+                popUpTo(Screen.LogIn.route) {
+                    inclusive = true
+                }
+            }
             is UserRegisteredState -> {}
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.destination)
-            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.destination)
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.LogIn.route) {
+                    inclusive = true
+                }
+            }
+            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route) {
+                popUpTo(Screen.LogIn.route) {
+                    inclusive = true
+                }
+            }
             is UserLoggedInState -> logInSuccess()
             is UserLoggedOutState -> {}
             is UserErrorState -> error = state.error ?: "Unknown error"

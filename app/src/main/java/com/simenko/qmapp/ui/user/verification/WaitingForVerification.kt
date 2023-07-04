@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.login.views
+package com.simenko.qmapp.ui.user.verification
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,14 +8,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,15 +22,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.ui.user.login.LoginViewModel
-import com.simenko.qmapp.ui.user.login.Screen
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.ui.user.repository.UserErrorState
-import com.simenko.qmapp.ui.user.repository.UserInitialState
-import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
-import com.simenko.qmapp.ui.user.repository.UserLoggedInState
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
-import com.simenko.qmapp.ui.user.repository.UserRegisteredState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserRegisteredState
 
 @Composable
 fun WaitingForVerification(
@@ -40,9 +38,8 @@ fun WaitingForVerification(
     navController: NavController = rememberNavController(),
     logInSuccess: () -> Unit
 ) {
-    val loginViewModel: LoginViewModel = hiltViewModel()
-    val context = LocalContext.current
-    val stateEvent by loginViewModel.userState.collectAsStateWithLifecycle()
+    val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
+    val stateEvent by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
@@ -50,18 +47,22 @@ fun WaitingForVerification(
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
             is UserInitialState -> {}
-            is UserRegisteredState -> navController.navigate(Screen.LogIn.route())
+            is UserRegisteredState -> navController.navigate(Screen.LogIn.route) {
+                popUpTo(Screen.WaitingForEmailVerification.route) {
+                    inclusive = true
+                }
+            }
             is UserNeedToVerifyEmailState -> msg = state.msg
             is UserNeedToVerifiedByOrganisationState -> msg = state.msg
             is UserLoggedInState -> logInSuccess()
-            is UserLoggedOutState -> navController.navigate(Screen.LogIn.destination)
+            is UserLoggedOutState -> navController.navigate(Screen.LogIn.route) {
+                popUpTo(Screen.WaitingForEmailVerification.route) {
+                    inclusive = true
+                }
+            }
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
-
-    LaunchedEffect(key1 = Unit, block = {
-        loginViewModel.restoreUserStateEvent()
-    })
 
     if (msg != "")
         Box {

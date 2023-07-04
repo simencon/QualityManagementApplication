@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.user.storage
+package com.simenko.qmapp.storage
 
 interface Storage {
     fun setBoolean(key: String, value: Boolean)

@@ -32,10 +32,8 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.ui.user.login.LoginActivity
-import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.main.settings.SettingsFragment
-import com.simenko.qmapp.ui.user.repository.UserRepository
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -44,14 +42,14 @@ import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.user.Screen
-import com.simenko.qmapp.ui.user.registration.createRegistrationActivityIntent
-import com.simenko.qmapp.ui.user.repository.UserErrorState
-import com.simenko.qmapp.ui.user.repository.UserInitialState
-import com.simenko.qmapp.ui.user.repository.UserLoggedInState
-import com.simenko.qmapp.ui.user.repository.UserLoggedOutState
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifiedByOrganisationState
-import com.simenko.qmapp.ui.user.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.ui.user.repository.UserRegisteredState
+import com.simenko.qmapp.ui.user.createLoginActivityIntent
+import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
@@ -128,25 +126,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val context = this
 
         lifecycleScope.launch(Dispatchers.Main) {
 
             userRepository.getUserState().let { state ->
                 when (state) {
                     is UserInitialState -> {
-                        startActivity(createRegistrationActivityIntent(context, Screen.EnterDetails.route()))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.Registration.route))
                         finish()
                     }
 
-                    is UserLoggedOutState, is UserNeedToVerifyEmailState, is UserNeedToVerifiedByOrganisationState -> {
-                        startActivity(Intent(context, LoginActivity::class.java))
+                    is UserNeedToVerifyEmailState, is UserNeedToVerifiedByOrganisationState -> {
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForEmailVerification.route))
+                        finish()
+                    }
+
+                    is UserLoggedOutState -> {
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))
                         finish()
                     }
 
                     is UserLoggedInState -> {
                         if (ActivityCompat.checkSelfPermission(
-                                context,
+                                this@MainActivity,
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) != PackageManager.PERMISSION_GRANTED
                         ) {
@@ -155,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                         analytics = Firebase.analytics
 
-                        appModel.currentTitle.observe(context) {}
+                        appModel.currentTitle.observe(this@MainActivity) {}
 
                         binding = ActivityMainBinding.inflate(layoutInflater)
                         setContentView(binding.root)
@@ -163,10 +165,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         val toolbar: Toolbar = binding.toolBar
                         setSupportActionBar(toolbar)
 
-                        context.drawer = binding.drawerLayout
+                        this@MainActivity.drawer = binding.drawerLayout
 
                         val toggle = ActionBarDrawerToggle(
-                            context, drawer, toolbar,
+                            this@MainActivity, drawer, toolbar,
                             R.string.navigation_drawer_open, R.string.navigation_drawer_close
                         )
                         drawer.addDrawerListener(toggle)
@@ -174,12 +176,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         toggle.syncState()
 
                         navigationView = binding.navView
-                        navigationView.setNavigationItemSelectedListener(context)
+                        navigationView.setNavigationItemSelectedListener(this@MainActivity)
 
                         prepareOneTimeWorks()
 
                         if (savedInstanceState == null && intent.extras == null) {
-                            context.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
+                            this@MainActivity.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
                         } else if (intent.extras != null) {
                             navigateToProperRecord(bundle = intent.extras)
                         }
