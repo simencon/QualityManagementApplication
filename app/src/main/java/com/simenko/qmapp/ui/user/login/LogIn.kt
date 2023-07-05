@@ -65,6 +65,7 @@ fun LogIn(
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     var error by rememberSaveable { mutableStateOf("") }
+    var msg by rememberSaveable { mutableStateOf("") }
 
     val userStateEvent by logInViewModel.userState.collectAsStateWithLifecycle()
 
@@ -75,20 +76,32 @@ fun LogIn(
                     inclusive = true
                 }
             }
+
             is UserRegisteredState -> {}
+
             is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
                 popUpTo(Screen.LogIn.route) {
                     inclusive = true
                 }
             }
+
             is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route) {
                 popUpTo(Screen.LogIn.route) {
                     inclusive = true
                 }
             }
+
             is UserLoggedInState -> logInSuccess()
-            is UserLoggedOutState -> {}
-            is UserErrorState -> error = state.error ?: "Unknown error"
+
+            is UserLoggedOutState -> {
+                msg = state.msg
+                error = ""
+            }
+
+            is UserErrorState -> {
+                error = state.error ?: "Unknown error"
+                msg = ""
+            }
         }
     }
 
@@ -110,7 +123,17 @@ fun LogIn(
             modifier = Modifier
                 .padding(all = 5.dp)
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = msg,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(all = 5.dp),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         TextField(
             value = userName,
             onValueChange = {},
@@ -173,7 +196,7 @@ fun LogIn(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                logInViewModel.deleteProfile(userName, password)
+                logInViewModel.sendResetPasswordEmail(userName)
             },
             content = {
                 Text(

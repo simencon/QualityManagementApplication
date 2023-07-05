@@ -13,19 +13,23 @@ import javax.inject.Inject
  * obtain information of what to show on the screen and handle complex logic.
  */
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userManager: UserRepository): ViewModel() {
+class LoginViewModel @Inject constructor(private val userRepository: UserRepository): ViewModel() {
     val userState: StateFlow<Event<UserState>>
-        get() = userManager.userState
+        get() = userRepository.userState
 
     fun login(username: String, password: String) {
-        userManager.loginUser(username, password)
+        userRepository.loginUser(username, password)
     }
 
     fun deleteProfile(username: String, password: String) {
-        userManager.deleteProfile(username, password)
+        userRepository.deleteProfile(username, password)
     }
 
     fun getUsername(): String {
-        return userManager.username
+        return userRepository.username
+    }
+
+    fun sendResetPasswordEmail(email: String) {
+        userRepository.sendResetPasswordEmail(email)
     }
 }

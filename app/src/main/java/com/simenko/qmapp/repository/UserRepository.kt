@@ -3,6 +3,7 @@ package com.simenko.qmapp.repository
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
@@ -80,6 +81,11 @@ class UserRepository @Inject constructor(
                                 }
                             }
 
+                            is FirebaseAuthInvalidCredentialsException -> {
+                                _userState.value = Event(UserLoggedOutState("user is registered - verified with Firebase - password was reset"))
+                                continuation.resume(_userState.value.peekContent())
+                            }
+
                             else -> {
                                 _userState.value = Event(UserInitialState)
                                 continuation.resume(_userState.value.peekContent())
@@ -116,7 +122,7 @@ class UserRepository @Inject constructor(
     fun sendVerificationEmail(user: FirebaseUser?) {
         user.let {
             if (it != null) {
-                it.sendEmailVerification()?.addOnCompleteListener { task ->
+                it.sendEmailVerification().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         _userState.value = Event(UserNeedToVerifyEmailState("Verification link was send to email: ${auth.currentUser?.email}"))
                     } else {
@@ -132,6 +138,16 @@ class UserRepository @Inject constructor(
                         _userState.value = Event(UserErrorState(task.exception?.message))
                     }
                 }
+            }
+        }
+    }
+
+    fun sendResetPasswordEmail(email: String) {
+        auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                _userState.value = Event(UserLoggedOutState("Reset password email was send to: ${auth.currentUser?.email}"))
+            } else {
+                _userState.value = Event(UserErrorState(task.exception?.message))
             }
         }
     }
@@ -156,6 +172,10 @@ class UserRepository @Inject constructor(
                                 } else if (storage.getString("$username$PASSWORD_SUFFIX") != password) {
                                     _userState.value = Event(UserErrorState("Wrong password"))
                                 }
+                            }
+
+                            is FirebaseAuthInvalidCredentialsException -> {
+                                _userState.value = Event(UserErrorState(task.exception?.message))
                             }
 
                             else -> {
