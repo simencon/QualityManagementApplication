@@ -1,5 +1,6 @@
 package com.simenko.qmapp.repository
 
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -22,6 +23,8 @@ private const val PASSWORD_SUFFIX = "password"
 private const val IS_EMAIL_VERIFIED = "is_email_verified"
 private const val IS_USER_LOG_IN = "is_user_log_in"
 private const val IS_VERIFIED_BY_ORGANISATION = "is_verified_by_organisation"
+
+private const val TAG = "UserRepository"
 
 @Singleton
 class UserRepository @Inject constructor(
