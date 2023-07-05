@@ -21,12 +21,8 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
         userRepository.loginUser(username, password)
     }
 
-    fun deleteProfile(username: String, password: String) {
-        userRepository.deleteProfile(username, password)
-    }
-
-    fun getUsername(): String {
-        return userRepository.username
+    fun getUserEmail(): String {
+        return userRepository.userEmail
     }
 
     fun sendResetPasswordEmail(email: String) {

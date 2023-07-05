@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -308,11 +309,12 @@ fun EnterDetails(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
+                registrationViewModel.setLocalEmptyUser()
                 navController.navigate(Screen.LogIn.route)
             },
             content = {
                 Text(
-                    text = "Log in",
+                    text = "Have account",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -320,6 +322,10 @@ fun EnterDetails(
                         .padding(all = 0.dp)
                 )
             },
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary
+            ),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             shape = MaterialTheme.shapes.medium
         )

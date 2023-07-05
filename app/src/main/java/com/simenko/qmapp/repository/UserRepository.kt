@@ -1,6 +1,5 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -37,12 +36,14 @@ class UserRepository @Inject constructor(
     val userState: StateFlow<Event<UserState>>
         get() = _userState
 
-    val username: String
+    val userEmail: String
         get() = storage.getString(REGISTERED_USER)
+
+    fun getUserPassword(userEmail: String) = storage.getString("$userEmail$PASSWORD_SUFFIX")
 
     suspend fun getActualUserState() = suspendCoroutine { continuation ->
         val registeredUserEmail = storage.getString(REGISTERED_USER)
-        val registeredPassword = storage.getString("$username$PASSWORD_SUFFIX")
+        val registeredPassword = storage.getString("$userEmail$PASSWORD_SUFFIX")
         val isVerifiedEmail = storage.getBoolean(IS_EMAIL_VERIFIED)
         val isUserLogIn = storage.getBoolean(IS_USER_LOG_IN)
 
@@ -122,6 +123,15 @@ class UserRepository @Inject constructor(
             }
     }
 
+    fun setLocalEmptyUser() {
+        val email = storage.getString(REGISTERED_USER)
+        storage.setString(REGISTERED_USER, "")
+        storage.setString("$email$PASSWORD_SUFFIX", "")
+        storage.setBoolean(IS_EMAIL_VERIFIED, false)
+        storage.setBoolean(IS_USER_LOG_IN, false)
+        _userState.value = Event(UserRegisteredState("not yet registered on the phone"))
+    }
+
     fun sendVerificationEmail(user: FirebaseUser?) {
         user.let {
             if (it != null) {
@@ -167,10 +177,10 @@ class UserRepository @Inject constructor(
                     } else {
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-                                if (this.username == username && storage.getString("$username$PASSWORD_SUFFIX") == password) {
+                                if (this.userEmail == username && storage.getString("$username$PASSWORD_SUFFIX") == password) {
                                     storage.setBoolean(IS_USER_LOG_IN, true)
                                     _userState.value = Event(UserLoggedInState(username))
-                                } else if (this.username != username) {
+                                } else if (this.userEmail != username) {
                                     _userState.value = Event(UserErrorState("Wrong email"))
                                 } else if (storage.getString("$username$PASSWORD_SUFFIX") != password) {
                                     _userState.value = Event(UserErrorState("Wrong password"))
@@ -205,7 +215,7 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun deleteProfile(username: String, password: String) {
+    fun deleteAccount(username: String, password: String) {
         if (username.isNotEmpty() && password.isNotEmpty())
             auth.signInWithEmailAndPassword(username, password)
                 .addOnCompleteListener { task1 ->
