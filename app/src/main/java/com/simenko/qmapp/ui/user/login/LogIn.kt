@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
@@ -137,6 +139,7 @@ fun LogIn(
         TextField(
             value = userName,
             onValueChange = {},
+            leadingIcon = { Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = MaterialTheme.colorScheme.surfaceTint) },
             enabled = false,
             label = { Text("Email") }
         )
@@ -147,6 +150,7 @@ fun LogIn(
                 error = ""
                 password = it
             },
+            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "password", tint = MaterialTheme.colorScheme.surfaceTint) },
             label = { Text("Password") },
             placeholder = { Text(text = "Enter your password") },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -156,7 +160,7 @@ fun LogIn(
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description)
+                    Icon(imageVector = image, description, tint = MaterialTheme.colorScheme.surfaceTint)
                 }
             },
             maxLines = 1,
