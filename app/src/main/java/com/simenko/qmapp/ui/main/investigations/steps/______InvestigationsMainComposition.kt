@@ -27,8 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
-import com.simenko.qmapp.ui.common.CustomDialogUI
-import com.simenko.qmapp.ui.common.DialogInput
+import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
+import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
@@ -55,7 +55,7 @@ fun InvestigationsMainComposition(
     var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
     val rowState = rememberScrollState()
 
-    val showStatusChangeDialog = invModel.isReportDialogVisible.observeAsState()
+    val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
     val dialogInput by invModel.dialogInput.observeAsState()
 
 
@@ -111,8 +111,7 @@ fun InvestigationsMainComposition(
                 )
 
                 Box(
-                    Modifier
-                        .pullRefresh(pullRefreshState)
+                    Modifier.pullRefresh(pullRefreshState)
                 ) {
                     Row(
                         Modifier
@@ -204,7 +203,7 @@ fun InvestigationsMainComposition(
                     }
 
                     if (showStatusChangeDialog.value == true)
-                        CustomDialogUI(
+                        StatusUpdateDialog(
                             dialogInput = dialogInput ?: DialogInput(),
                             teamModel = teamModel,
                             invModel = invModel

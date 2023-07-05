@@ -20,6 +20,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import androidx.work.*
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -31,10 +32,8 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.ui.user.login.LoginActivity
-import com.simenko.qmapp.ui.user.registration.RegistrationActivity
 import com.simenko.qmapp.ui.main.settings.SettingsFragment
-import com.simenko.qmapp.ui.user.model.UserManager
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -42,11 +41,22 @@ import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.user.Screen
+import com.simenko.qmapp.ui.user.createLoginActivityIntent
+import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
 import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
 
@@ -85,7 +95,7 @@ private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     @Inject
-    lateinit var userManager: UserManager
+    lateinit var userRepository: UserRepository
 
     val appModel: ManufacturingViewModel by viewModels()
     val teamModel: TeamViewModel by viewModels()
@@ -102,7 +112,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode) {
+        when (requestCode) {
             REQUEST_PUSH_NOTIFICATIONS_PERMISSION -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
@@ -117,48 +127,71 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!userManager.isUserLoggedIn()) {
-            if (!userManager.isUserRegistered()) {
-                startActivity(Intent(this, RegistrationActivity::class.java))
-                finish()
-            } else {
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            }
-        } else {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
-            }
+        lifecycleScope.launch(Dispatchers.Main) {
 
-            analytics = Firebase.analytics
+            userRepository.getActualUserState().let { state ->
+                when (state) {
+                    is UserInitialState -> {
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.Registration.route))
+                        finish()
+                    }
 
-            appModel.currentTitle.observe(this) {}
+                    is UserNeedToVerifyEmailState -> {
+                        Log.d(TAG, "onCreate: ${state.msg}")
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForEmailVerification.withArgs(state.msg)))
+                        finish()
+                    }
 
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            setContentView(binding.root)
+                    is UserNeedToVerifiedByOrganisationState -> {}
 
-            val toolbar: Toolbar = binding.toolBar
-            setSupportActionBar(toolbar)
+                    is UserLoggedOutState -> {
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))
+                        finish()
+                    }
 
-            this.drawer = binding.drawerLayout
+                    is UserLoggedInState -> {
+                        if (ActivityCompat.checkSelfPermission(
+                                this@MainActivity,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
+                        }
 
-            val toggle = ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close
-            )
-            drawer.addDrawerListener(toggle)
+                        analytics = Firebase.analytics
 
-            toggle.syncState()
+                        appModel.currentTitle.observe(this@MainActivity) {}
 
-            navigationView = binding.navView
-            navigationView.setNavigationItemSelectedListener(this)
+                        binding = ActivityMainBinding.inflate(layoutInflater)
+                        setContentView(binding.root)
 
-            prepareOneTimeWorks()
+                        val toolbar: Toolbar = binding.toolBar
+                        setSupportActionBar(toolbar)
 
-            if (savedInstanceState == null && intent.extras == null) {
-                this.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
-            } else if (intent.extras != null) {
-                navigateToProperRecord(bundle = intent.extras)
+                        this@MainActivity.drawer = binding.drawerLayout
+
+                        val toggle = ActionBarDrawerToggle(
+                            this@MainActivity, drawer, toolbar,
+                            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+                        )
+                        drawer.addDrawerListener(toggle)
+
+                        toggle.syncState()
+
+                        navigationView = binding.navView
+                        navigationView.setNavigationItemSelectedListener(this@MainActivity)
+
+                        prepareOneTimeWorks()
+
+                        if (savedInstanceState == null && intent.extras == null) {
+                            this@MainActivity.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
+                        } else if (intent.extras != null) {
+                            navigateToProperRecord(bundle = intent.extras)
+                        }
+                    }
+
+                    is UserErrorState, is UserRegisteredState -> {}
+                }
             }
         }
     }
@@ -401,7 +434,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onDestroy() {
-        investigationsModel.hideReportDialog()
+        investigationsModel.hideStatusUpdateDialog()
         super.onDestroy()
     }
 }

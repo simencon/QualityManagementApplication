@@ -17,12 +17,16 @@
 package com.simenko.qmapp.ui.user.registration
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.ui.user.model.UserManager
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 /**
- * RegistrationViewModel is the ViewModel that the Registration flow ([RegistrationActivity]
+ * RegistrationViewModel is the ViewModel that the Registration flow ([LoginActivity]
  * and fragments) uses to keep user's input data.
  *
  * @Inject tells Dagger how to provide instances of this type. Dagger also knows
@@ -30,7 +34,10 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class RegistrationViewModel @Inject constructor(private val userManager: UserManager) : ViewModel() {
+class RegistrationViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+
+    val userState : StateFlow<Event<UserState>>
+        get() = userRepository.userState
 
     private var username: String? = null
     private var password: String? = null
@@ -50,6 +57,19 @@ class RegistrationViewModel @Inject constructor(private val userManager: UserMan
         assert(password != null)
         assert(acceptedTCs == true)
 
-        userManager.registerUser(username!!, password!!)
+        userRepository.registerUser(username!!, password!!)
+    }
+
+    private val _isUserExistDialogVisible = MutableStateFlow(false)
+    val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
+    fun hideUserExistDialog() {
+        _isUserExistDialogVisible.value = false
+    }
+    fun showUserExistDialog() {
+        _isUserExistDialogVisible.value = true
+    }
+
+    fun setLocalEmptyUser() {
+        userRepository.setLocalEmptyUser()
     }
 }

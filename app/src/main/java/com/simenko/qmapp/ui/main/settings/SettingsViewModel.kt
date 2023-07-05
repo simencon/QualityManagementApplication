@@ -1,9 +1,12 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.ui.user.model.UserDataRepository
-import com.simenko.qmapp.ui.user.model.UserManager
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 /**
@@ -11,15 +14,35 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val userDataRepository: UserDataRepository,
-    private val userManager: UserManager
+    private val userRepository: UserRepository
 ) : ViewModel() {
+    val userState: StateFlow<Event<UserState>>
+        get() = userRepository.userState
 
-    fun refreshNotifications() {
-        userDataRepository.refreshUnreadNotifications()
+    fun getUserEmail(): String = userRepository.userEmail
+
+    fun getUserPassword(userEmail: String): String {
+        return userRepository.getUserPassword(userEmail)
     }
 
     fun logout() {
-        userManager.logout()
+        userRepository.logout()
+    }
+
+    fun deleteAccount(userEmail: String, password: String) {
+        userRepository.deleteAccount(userEmail, password)
+    }
+
+    fun setUserJobRole(userJobRole: String) {
+        userRepository.setUserJobRole(userJobRole)
+    }
+
+    private val _isApproveActionVisible = MutableStateFlow(false)
+    val isApproveActionVisible: StateFlow<Boolean> = _isApproveActionVisible
+    fun hideActionApproveDialog() {
+        _isApproveActionVisible.value = false
+    }
+    fun showActionApproveDialog() {
+        _isApproveActionVisible.value = true
     }
 }

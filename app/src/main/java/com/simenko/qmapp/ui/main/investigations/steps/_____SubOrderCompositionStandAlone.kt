@@ -13,7 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.common.*
+import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
@@ -65,7 +65,7 @@ fun SubOrdersStandAlone(
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
         { subOrderComplete, completedById ->
-            appModel.statusDialog(
+            appModel.showStatusUpdateDialog(
                 currentSubOrder = subOrderComplete,
                 performerId = completedById
             )

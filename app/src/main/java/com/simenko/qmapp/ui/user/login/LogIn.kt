@@ -1,27 +1,20 @@
-package com.simenko.qmapp.ui.user.registration.enterdetails
+package com.simenko.qmapp.ui.user.login
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.Work
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,180 +39,120 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.user.Screen
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
-import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.repository.UserRegisteredState
+
+private const val TAG = "LogIn"
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EnterDetails(
+fun LogIn(
     modifier: Modifier,
-    navController: NavHostController = rememberNavController(),
+    navController: NavController = rememberNavController(),
+    logInSuccess: () -> Unit
 ) {
-    val registrationViewModel: RegistrationViewModel = hiltViewModel()
-    val enterDetailsViewModel: EnterDetailsViewModel = hiltViewModel()
-
-    val stateEvent by enterDetailsViewModel.enterDetailsState.collectAsStateWithLifecycle()
-
-    var userFullName by rememberSaveable { mutableStateOf("") }
-    var fullNameError by rememberSaveable { mutableStateOf(false) }
-    var userDepartment by rememberSaveable { mutableStateOf("") }
-    var departmentError by rememberSaveable { mutableStateOf(false) }
-    var userSubDepartment by rememberSaveable { mutableStateOf("") }
-    var userJobRole by rememberSaveable { mutableStateOf("") }
-    var jobRoleError by rememberSaveable { mutableStateOf(false) }
+    val logInViewModel: LoginViewModel = hiltViewModel()
     var userEmail by rememberSaveable { mutableStateOf("") }
     var emailError by rememberSaveable { mutableStateOf(false) }
+    var newUser by rememberSaveable { mutableStateOf(true) }
 
     var password by rememberSaveable { mutableStateOf("") }
     var passwordError by rememberSaveable { mutableStateOf(false) }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     var error by rememberSaveable { mutableStateOf("") }
+    var msg by rememberSaveable { mutableStateOf("") }
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
-        when (state) {
-            is EnterDetailsSuccess -> {
-                registrationViewModel.updateUserData(userEmail, password)
-                navController.navigate(Screen.Registration.TermsAndConditions.withArgs(userEmail))
-            }
+    val userStateEvent by logInViewModel.userState.collectAsStateWithLifecycle()
 
-            is EnterDetailsError -> {
-                error = state.errorMsg
-                fullNameError = state.errorTarget.fullNameError
-                departmentError = state.errorTarget.departmentError
-                jobRoleError = state.errorTarget.jobRoleError
-                emailError = state.errorTarget.emailError
-                passwordError = state.errorTarget.passwordError
-            }
-
-            is EnterDetailsInitialState -> {}
+    LaunchedEffect(key1 = Unit) {
+        val email = logInViewModel.getUserEmail()
+        Log.d(TAG, "LogInLaunchedEffect: $email")
+        if (email.isNotEmpty()) {
+            userEmail = email
+            newUser = false
         }
     }
 
-    val (focusRequesterUserName) = FocusRequester.createRefs()
-    val (focusRequesterDepartment) = FocusRequester.createRefs()
-    val (focusRequesterSubDepartment) = FocusRequester.createRefs()
-    val (focusRequesterJobRole) = FocusRequester.createRefs()
-    val (focusRequesterEmail) = FocusRequester.createRefs()
-    val (focusRequesterPassword) = FocusRequester.createRefs()
+    userStateEvent.getContentIfNotHandled()?.let { state ->
+        when (state) {
+            is UserInitialState -> navController.navigate(Screen.Registration.route) {
+                popUpTo(Screen.LogIn.route) {
+                    inclusive = true
+                }
+            }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+            is UserRegisteredState -> {}
 
-    LaunchedEffect(Unit) {
-        focusRequesterUserName.requestFocus()
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.LogIn.route) {
+                    inclusive = true
+                }
+            }
+
+            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route) {
+                popUpTo(Screen.LogIn.route) {
+                    inclusive = true
+                }
+            }
+
+            is UserLoggedInState -> logInSuccess()
+
+            is UserLoggedOutState -> {
+                msg = state.msg
+                error = ""
+            }
+
+            is UserErrorState -> {
+                error = state.error ?: "Unknown error"
+                msg = ""
+            }
+        }
     }
 
-    val columnState = rememberScrollState()
+    val (focusRequesterEmail) = FocusRequester.createRefs()
+    val (focusRequesterPassword) = FocusRequester.createRefs()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(key1 = Unit, key2 = newUser) {
+        if (newUser) focusRequesterEmail.requestFocus() else focusRequesterPassword.requestFocus()
+    }
 
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(all = 0.dp)
-            .verticalScroll(columnState)
     ) {
         Text(
-            text = "Register to Quality Management",
+            text = "Welcome to Quality Management",
             style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .padding(all = 0.dp)
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        TextField(
-            value = userFullName,
-            onValueChange = {
-                userFullName = it
-                fullNameError = false
-            },
-            leadingIcon = {
-                val tint = if (fullNameError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Person, contentDescription = "fullName", tint = tint)
-            },
-            label = { Text("Full name *") },
-            isError = fullNameError,
-            placeholder = { Text(text = "Enter your name and surname") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterDepartment.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterUserName)
-                .width(320.dp)
+                .padding(all = 5.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = userDepartment,
-            onValueChange = {
-                userDepartment = it
-                departmentError = false
-            },
-            leadingIcon = {
-                val tint = if (departmentError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "department", tint = tint)
-            },
-            label = { Text("Department *") },
-            isError = departmentError,
-            placeholder = { Text(text = "Enter your department") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterSubDepartment.requestFocus() }),
+        Text(
+            text = msg,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .focusRequester(focusRequesterDepartment)
-                .width(320.dp)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = userSubDepartment,
-            onValueChange = { userSubDepartment = it },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.AccountTree,
-                    contentDescription = "subDepartment",
-                    tint = MaterialTheme.colorScheme.surfaceTint
-                )
-            },
-            label = { Text("Sub department") },
-            placeholder = { Text(text = "Enter only if applicable", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterJobRole.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterSubDepartment)
-                .width(320.dp)
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = userJobRole,
-            onValueChange = {
-                userJobRole = it
-                jobRoleError = false
-            },
-            leadingIcon = {
-                val tint = if (jobRoleError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Work, contentDescription = "jobRole", tint = tint)
-            },
-            label = { Text("Job role *") },
-            isError = jobRoleError,
-            placeholder = { Text(text = "Enter your job role / position") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterEmail.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterJobRole)
-                .width(320.dp)
+                .padding(all = 5.dp),
+            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
@@ -232,6 +165,7 @@ fun EnterDetails(
                 val tint = if (emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = tint)
             },
+            enabled = newUser,
             label = { Text("Email *") },
             isError = emailError,
             placeholder = { Text(text = "Enter your email") },
@@ -291,16 +225,16 @@ fun EnterDetails(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                enterDetailsViewModel.validateInput(userFullName, userDepartment, userJobRole, userEmail, password)
+                logInViewModel.login(userEmail, password)
             },
             content = {
                 Text(
-                    text = "Next",
+                    text = "Login",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .padding(all = 0.dp)
+                        .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp)
                 )
             },
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
@@ -309,37 +243,20 @@ fun EnterDetails(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                registrationViewModel.setLocalEmptyUser()
-                navController.navigate(Screen.LogIn.route)
+                logInViewModel.sendResetPasswordEmail(userEmail)
             },
             content = {
                 Text(
-                    text = "Have account",
+                    text = "Reset password",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .padding(all = 0.dp)
+                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             },
-            colors = ButtonDefaults.textButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             shape = MaterialTheme.shapes.medium
-        )
-    }
-}
-
-@Preview(name = "Lite Mode Enter Details", showBackground = true, widthDp = 360)
-@Composable
-fun EnterDetailsPreview() {
-    QMAppTheme {
-        EnterDetails(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 0.dp)
         )
     }
 }
