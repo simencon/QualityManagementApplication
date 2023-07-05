@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.user.login
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,8 @@ import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
 
+private const val TAG = "LogIn"
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogIn(
@@ -61,15 +64,27 @@ fun LogIn(
     logInSuccess: () -> Unit
 ) {
     val logInViewModel: LoginViewModel = hiltViewModel()
-    val userName = logInViewModel.getUsername()
+    var userEmail by rememberSaveable { mutableStateOf("") }
+    var emailError by rememberSaveable { mutableStateOf(false) }
+    var newUser by rememberSaveable { mutableStateOf(true) }
 
     var password by rememberSaveable { mutableStateOf("") }
+    var passwordError by rememberSaveable { mutableStateOf(false) }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
     val userStateEvent by logInViewModel.userState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = Unit) {
+        val email = logInViewModel.getUserEmail()
+        Log.d(TAG, "LogInLaunchedEffect: $email")
+        if (email.isNotEmpty()) {
+            userEmail = email
+            newUser = false
+        }
+    }
 
     userStateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
@@ -107,9 +122,13 @@ fun LogIn(
         }
     }
 
+    val (focusRequesterEmail) = FocusRequester.createRefs()
     val (focusRequesterPassword) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
-    LaunchedEffect(Unit) { focusRequesterPassword.requestFocus() }
+
+    LaunchedEffect(key1 = Unit, key2 = newUser) {
+        if (newUser) focusRequesterEmail.requestFocus() else focusRequesterPassword.requestFocus()
+    }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -137,21 +156,40 @@ fun LogIn(
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = userName,
-            onValueChange = {},
-            leadingIcon = { Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = MaterialTheme.colorScheme.surfaceTint) },
-            enabled = false,
-            label = { Text("Email") }
+            value = userEmail,
+            onValueChange = {
+                userEmail = it
+                emailError = false
+            },
+            leadingIcon = {
+                val tint = if (emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = tint)
+            },
+            enabled = newUser,
+            label = { Text("Email *") },
+            isError = emailError,
+            placeholder = { Text(text = "Enter your email") },
+            maxLines = 1,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = { focusRequesterPassword.requestFocus() }),
+            modifier = Modifier
+                .focusRequester(focusRequesterEmail)
+                .width(320.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
             value = password,
             onValueChange = {
-                error = ""
                 password = it
+                passwordError = false
+                error = ""
             },
-            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "password", tint = MaterialTheme.colorScheme.surfaceTint) },
-            label = { Text("Password") },
+            leadingIcon = {
+                val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                Icon(imageVector = Icons.Default.Lock, contentDescription = "password", tint = tint)
+            },
+            label = { Text("Password *") },
             placeholder = { Text(text = "Enter your password") },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
@@ -159,15 +197,20 @@ fun LogIn(
 
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
+                val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description, tint = MaterialTheme.colorScheme.surfaceTint)
+                    Icon(imageVector = image, description, tint = tint)
                 }
             },
+            isError = passwordError,
             maxLines = 1,
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier.focusRequester(focusRequesterPassword)
+            modifier = Modifier
+                .focusRequester(focusRequesterPassword)
+                .width(320.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         if (error != "")
@@ -182,7 +225,7 @@ fun LogIn(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                logInViewModel.login(userName, password)
+                logInViewModel.login(userEmail, password)
             },
             content = {
                 Text(
@@ -200,7 +243,7 @@ fun LogIn(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                logInViewModel.sendResetPasswordEmail(userName)
+                logInViewModel.sendResetPasswordEmail(userEmail)
             },
             content = {
                 Text(
@@ -210,24 +253,6 @@ fun LogIn(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
-        )
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                logInViewModel.deleteProfile(userName, password)
-            },
-            content = {
-                Text(
-                    text = "Unregister",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp)
                 )
             },
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),

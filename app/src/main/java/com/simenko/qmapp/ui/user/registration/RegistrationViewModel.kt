@@ -34,10 +34,10 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class RegistrationViewModel @Inject constructor(private val userManager: UserRepository) : ViewModel() {
+class RegistrationViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
 
     val userState : StateFlow<Event<UserState>>
-        get() = userManager.userState
+        get() = userRepository.userState
 
     private var username: String? = null
     private var password: String? = null
@@ -57,7 +57,7 @@ class RegistrationViewModel @Inject constructor(private val userManager: UserRep
         assert(password != null)
         assert(acceptedTCs == true)
 
-        userManager.registerUser(username!!, password!!)
+        userRepository.registerUser(username!!, password!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)
@@ -67,5 +67,9 @@ class RegistrationViewModel @Inject constructor(private val userManager: UserRep
     }
     fun showUserExistDialog() {
         _isUserExistDialogVisible.value = true
+    }
+
+    fun setLocalEmptyUser() {
+        userRepository.setLocalEmptyUser()
     }
 }
