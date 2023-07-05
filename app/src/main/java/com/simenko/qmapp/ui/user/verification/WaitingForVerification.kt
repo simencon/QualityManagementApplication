@@ -43,7 +43,8 @@ import com.simenko.qmapp.repository.UserRegisteredState
 fun WaitingForVerification(
     modifier: Modifier,
     navController: NavController = rememberNavController(),
-    logInSuccess: () -> Unit
+    logInSuccess: () -> Unit,
+    message: String? = null
 ) {
     val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
     val stateEvent by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
@@ -64,10 +65,12 @@ fun WaitingForVerification(
                 msg = state.msg
                 error = ""
             }
+
             is UserNeedToVerifiedByOrganisationState -> {
                 msg = state.msg
                 error = ""
             }
+
             is UserLoggedInState -> logInSuccess()
             is UserLoggedOutState -> navController.navigate(Screen.LogIn.route) {
                 popUpTo(Screen.WaitingForEmailVerification.route) {
@@ -78,6 +81,7 @@ fun WaitingForVerification(
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
+    LaunchedEffect(key1 = Unit, block = { message?.let { msg = message } })
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
@@ -107,6 +111,7 @@ fun WaitingForVerification(
             TextButton(
                 modifier = Modifier.width(150.dp),
                 onClick = {
+                    msg = ""
                     waitingForVerificationViewModel.resendVerificationEmail()
                 },
                 content = {

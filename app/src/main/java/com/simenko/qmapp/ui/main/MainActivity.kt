@@ -129,17 +129,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         lifecycleScope.launch(Dispatchers.Main) {
 
-            userRepository.getUserState().let { state ->
+            userRepository.getActualUserState().let { state ->
                 when (state) {
                     is UserInitialState -> {
                         startActivity(createLoginActivityIntent(this@MainActivity, Screen.Registration.route))
                         finish()
                     }
 
-                    is UserNeedToVerifyEmailState, is UserNeedToVerifiedByOrganisationState -> {
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForEmailVerification.route))
+                    is UserNeedToVerifyEmailState -> {
+                        Log.d(TAG, "onCreate: ${state.msg}")
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForEmailVerification.withArgs(state.msg)))
                         finish()
                     }
+
+                    is UserNeedToVerifiedByOrganisationState -> {}
 
                     is UserLoggedOutState -> {
                         startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))

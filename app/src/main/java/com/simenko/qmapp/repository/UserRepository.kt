@@ -36,17 +36,17 @@ class UserRepository @Inject constructor(
     val username: String
         get() = storage.getString(REGISTERED_USER)
 
-    suspend fun getUserState() = suspendCoroutine { continuation ->
-        val registeredUser = storage.getString(REGISTERED_USER)
+    suspend fun getActualUserState() = suspendCoroutine { continuation ->
+        val registeredUserEmail = storage.getString(REGISTERED_USER)
         val registeredPassword = storage.getString("$username$PASSWORD_SUFFIX")
         val isVerifiedEmail = storage.getBoolean(IS_EMAIL_VERIFIED)
         val isUserLogIn = storage.getBoolean(IS_USER_LOG_IN)
 
-        if (registeredUser.isEmpty() || registeredPassword.isEmpty()) {
+        if (registeredUserEmail.isEmpty() || registeredPassword.isEmpty()) {
             _userState.value = Event(UserInitialState)
             continuation.resume(_userState.value.peekContent())
         } else {
-            auth.signInWithEmailAndPassword(registeredUser, registeredPassword)
+            auth.signInWithEmailAndPassword(registeredUserEmail, registeredPassword)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         if (auth.currentUser?.isEmailVerified == true) {
@@ -60,7 +60,7 @@ class UserRepository @Inject constructor(
                                 continuation.resume(_userState.value.peekContent())
                             }
                         } else {
-                            _userState.value = Event(UserNeedToVerifyEmailState("Verification link was send to email: ${auth.currentUser?.email}"))
+                            _userState.value = Event(UserNeedToVerifyEmailState("Verification link was sent to email: ${auth.currentUser?.email}"))
                             continuation.resume(_userState.value.peekContent())
                         }
                     } else {
@@ -75,7 +75,7 @@ class UserRepository @Inject constructor(
                                         continuation.resume(_userState.value.peekContent())
                                     }
                                 } else {
-                                    _userState.value = Event(UserNeedToVerifyEmailState("Please check your email box"))
+                                    _userState.value = Event(UserNeedToVerifyEmailState("Verification link was sent to email: $registeredUserEmail"))
                                     continuation.resume(_userState.value.peekContent())
                                 }
                             }
