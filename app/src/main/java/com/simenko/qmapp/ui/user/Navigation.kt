@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.user
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,8 @@ import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditi
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LogIn
 import com.simenko.qmapp.ui.user.verification.WaitingForVerification
+
+private const val TAG = "Navigation"
 
 @Composable
 fun Navigation(
@@ -66,14 +69,24 @@ fun Navigation(
                 }
             }
         }
-        composable(route = Screen.WaitingForEmailVerification.route) {
+        composable(
+            route = Screen.WaitingForEmailVerification.route + "/{message}",
+            arguments = listOf(
+                navArgument("message") {
+                    type = NavType.StringType
+                    defaultValue = "Verification link was sent to your email"
+                    nullable = true
+                }
+            )
+        ) {
             QMAppTheme {
                 WaitingForVerification(
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxSize(),
                     navController = navController,
-                    logInSuccess = logInSuccess
+                    logInSuccess = logInSuccess,
+                    message = it.arguments?.getString("message")
                 )
             }
         }

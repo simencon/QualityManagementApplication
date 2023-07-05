@@ -74,7 +74,7 @@ fun TermsAndConditions(
                 registrationViewModel.showUserExistDialog()
             }
 
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.withArgs(state.msg)) {
                 popUpTo(Screen.Registration.route) {
                     inclusive = true
                 }

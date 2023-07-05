@@ -57,7 +57,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         lifecycleScope.launch {
-            userRepository.getUserState()
+            userRepository.getActualUserState()
         }
     }
 
