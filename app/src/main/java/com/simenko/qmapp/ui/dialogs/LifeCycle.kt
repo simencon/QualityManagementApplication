@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.common
+package com.simenko.qmapp.ui.dialogs
 
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.lazy.LazyListState

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.common
+package com.simenko.qmapp.ui.dialogs
 
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -41,7 +41,7 @@ data class DialogInput(
 )
 
 @Composable
-fun CustomDialogUI(
+fun StatusUpdateDialog(
     modifier: Modifier = Modifier,
     dialogInput: DialogInput,
     teamModel: TeamViewModel,
@@ -105,7 +105,7 @@ fun CustomDialogUI(
     }
 
     Dialog(
-        onDismissRequest = { invModel.hideReportDialog() },
+        onDismissRequest = { invModel.hideStatusUpdateDialog() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
@@ -147,7 +147,7 @@ fun CustomDialogUI(
                             enableToEdit = true
                         },
                         dropdownItem = { test ->
-                            DropDownItem(test = test)
+                            DropDownAssignee(test = test)
                         }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -159,7 +159,7 @@ fun CustomDialogUI(
                         modifier = Modifier.padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        StatusesSelection(
+                        StatusSelection(
                             modifier = Modifier
                                 .padding(top = 10.dp)
                                 .height(50.dp),
@@ -177,7 +177,7 @@ fun CustomDialogUI(
                 ) {
 
                     TextButton(onClick = {
-                        invModel.hideReportDialog()
+                        invModel.hideStatusUpdateDialog()
                     }) {
 
                         Text(
@@ -192,7 +192,7 @@ fun CustomDialogUI(
                         onClick = {
                             when {
                                 currentOrder != null ->
-                                    invModel.hideReportDialog()
+                                    invModel.hideStatusUpdateDialog()
 
                                 currentSubOrder != null -> {
                                     currentSubOrder.subOrder.completedById = dialogInput.performerId
@@ -226,7 +226,7 @@ fun CustomDialogUI(
 
 
 @Composable
-fun StatusesSelection(
+fun StatusSelection(
     modifier: Modifier = Modifier,
     statuses: List<DomainOrdersStatus>,
     onSelectStatus: (Int) -> Unit
@@ -243,7 +243,7 @@ fun StatusesSelection(
     ) {
         items(statuses.size) { item ->
             if (statuses[item].id != 2) //To remove In Progress
-                InvestigationStatusCard(
+                StatusCard(
                     input = statuses[item],
                     modifier = modifier.padding(top = 0.dp),
                     onClick = {
@@ -256,7 +256,7 @@ fun StatusesSelection(
 
 
 @Composable
-fun InvestigationStatusCard(
+fun StatusCard(
     input: DomainOrdersStatus,
     modifier: Modifier = Modifier,
     onClick: (DomainOrdersStatus) -> Unit
@@ -299,7 +299,7 @@ fun InvestigationStatusCard(
 }
 
 @Composable
-fun DropDownItem(test: DomainTeamMember) {
+fun DropDownAssignee(test: DomainTeamMember) {
     Row(
         modifier = Modifier
             .padding(8.dp)
