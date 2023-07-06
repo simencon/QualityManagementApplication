@@ -33,8 +33,8 @@ class SettingsViewModel @Inject constructor(
         userRepository.deleteAccount(userEmail, password)
     }
 
-    fun setUserJobRole(userJobRole: String) {
-        userRepository.setUserJobRole(userJobRole)
+    fun refreshUserData() {
+        userRepository.updateUserData(null)
     }
 
     private val _isApproveActionVisible = MutableStateFlow(false)

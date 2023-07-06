@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -147,11 +146,11 @@ fun Settings(
                 onClick = {
                     error = ""
                     msg = ""
-                    settingsViewModel.setUserJobRole("Quality Manager - " + (1..300).random())
+                    settingsViewModel.refreshUserData()
                 },
                 content = {
                     Text(
-                        text = "Add request",
+                        text = "Update user data",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
