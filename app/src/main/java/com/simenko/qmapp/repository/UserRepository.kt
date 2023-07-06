@@ -61,11 +61,11 @@ class UserRepository @Inject constructor(
                                 continuation.resume(_userState.value.peekContent())
                             } else {
                                 storage.setBoolean(IS_EMAIL_VERIFIED, true)
-                                _userState.value = Event(UserLoggedOutState("user is registered - verified with Firebase - log out in the app"))
+                                _userState.value = Event(UserLoggedOutState())
                                 continuation.resume(_userState.value.peekContent())
                             }
                         } else {
-                            _userState.value = Event(UserNeedToVerifyEmailState("Verification link was sent to email: ${auth.currentUser?.email}"))
+                            _userState.value = Event(UserNeedToVerifyEmailState())
                             continuation.resume(_userState.value.peekContent())
                         }
                     } else {
@@ -76,17 +76,17 @@ class UserRepository @Inject constructor(
                                         _userState.value = Event(UserLoggedInState("No network - just continue with Storage"))
                                         continuation.resume(_userState.value.peekContent())
                                     } else {
-                                        _userState.value = Event(UserLoggedOutState("No network - just continue with Storage - log out in the app"))
+                                        _userState.value = Event(UserLoggedOutState())
                                         continuation.resume(_userState.value.peekContent())
                                     }
                                 } else {
-                                    _userState.value = Event(UserNeedToVerifyEmailState("Verification link was sent to email: $registeredUserEmail"))
+                                    _userState.value = Event(UserNeedToVerifyEmailState())
                                     continuation.resume(_userState.value.peekContent())
                                 }
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserLoggedOutState("user is registered - verified with Firebase - password was reset"))
+                                _userState.value = Event(UserLoggedOutState("Password was reset or reset process not yet finished"))
                                 continuation.resume(_userState.value.peekContent())
                             }
 
@@ -137,7 +137,8 @@ class UserRepository @Inject constructor(
             if (it != null) {
                 it.sendEmailVerification().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        _userState.value = Event(UserNeedToVerifyEmailState("Verification link was send to email: ${auth.currentUser?.email}"))
+                        _userState.value = Event(UserNeedToVerifyEmailState())
+//                        ToDo - post extra info
                     } else {
                         _userState.value = Event(UserErrorState(task.exception?.message))
                     }
@@ -158,7 +159,7 @@ class UserRepository @Inject constructor(
     fun sendResetPasswordEmail(email: String) {
         auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                _userState.value = Event(UserLoggedOutState("Reset password email was send to: ${auth.currentUser?.email}"))
+                _userState.value = Event(UserLoggedOutState("Check your email box and set new password"))
             } else {
                 _userState.value = Event(UserErrorState(task.exception?.message))
             }
@@ -207,11 +208,11 @@ class UserRepository @Inject constructor(
             auth.signOut()
             if (auth.currentUser == null) {
                 storage.setBoolean(IS_USER_LOG_IN, false)
-                _userState.value = Event(UserLoggedOutState("Registered, not logged In"))
+                _userState.value = Event(UserLoggedOutState())
             }
         } else {
             storage.setBoolean(IS_USER_LOG_IN, false)
-            _userState.value = Event(UserLoggedOutState("Registered, not logged In"))
+            _userState.value = Event(UserLoggedOutState())
         }
     }
 
@@ -281,8 +282,8 @@ sealed class UserState
 object UserInitialState : UserState()
 
 data class UserRegisteredState(val msg: String) : UserState()
-data class UserNeedToVerifyEmailState(val msg: String) : UserState()
+data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
 data class UserNeedToVerifiedByOrganisationState(val msg: String) : UserState()
-data class UserLoggedOutState(val msg: String) : UserState()
+data class UserLoggedOutState(val msg: String = "") : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
