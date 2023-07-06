@@ -64,9 +64,8 @@ fun LogIn(
     logInSuccess: () -> Unit
 ) {
     val logInViewModel: LoginViewModel = hiltViewModel()
-    var userEmail by rememberSaveable { mutableStateOf("") }
+    var userEmail by rememberSaveable { mutableStateOf(logInViewModel.getUserEmail()) }
     var emailError by rememberSaveable { mutableStateOf(false) }
-    var newUser by rememberSaveable { mutableStateOf(true) }
 
     var password by rememberSaveable { mutableStateOf("") }
     var passwordError by rememberSaveable { mutableStateOf(false) }
@@ -76,15 +75,6 @@ fun LogIn(
     var msg by rememberSaveable { mutableStateOf("") }
 
     val userStateEvent by logInViewModel.userState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(key1 = Unit) {
-        val email = logInViewModel.getUserEmail()
-        Log.d(TAG, "LogInLaunchedEffect: $email")
-        if (email.isNotEmpty()) {
-            userEmail = email
-            newUser = false
-        }
-    }
 
     userStateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
@@ -126,8 +116,8 @@ fun LogIn(
     val (focusRequesterPassword) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(key1 = Unit, key2 = newUser) {
-        if (newUser) focusRequesterEmail.requestFocus() else focusRequesterPassword.requestFocus()
+    LaunchedEffect(key1 = Unit, key2 = userEmail) {
+        if (userEmail.isNotEmpty()) focusRequesterPassword.requestFocus() else focusRequesterEmail.requestFocus()
     }
 
     Column(
@@ -145,16 +135,6 @@ fun LogIn(
                 .padding(all = 5.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = msg,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .padding(all = 5.dp),
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(10.dp))
         TextField(
             value = userEmail,
             onValueChange = {
@@ -165,7 +145,6 @@ fun LogIn(
                 val tint = if (emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = tint)
             },
-            enabled = newUser,
             label = { Text("Email *") },
             isError = emailError,
             placeholder = { Text(text = "Enter your email") },
@@ -221,6 +200,16 @@ fun LogIn(
                     .padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
+        else if (msg != "")
+            Text(
+                text = msg,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 5.dp),
+                textAlign = TextAlign.Center
+            )
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             modifier = Modifier.width(150.dp),
@@ -255,6 +244,7 @@ fun LogIn(
                         .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             },
+            enabled = msg == "",
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             shape = MaterialTheme.shapes.medium
         )
