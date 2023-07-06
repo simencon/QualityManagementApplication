@@ -116,7 +116,7 @@ fun LogIn(
     val (focusRequesterPassword) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(key1 = Unit, key2 = userEmail) {
+    LaunchedEffect(key1 = Unit) {
         if (userEmail.isNotEmpty()) focusRequesterPassword.requestFocus() else focusRequesterEmail.requestFocus()
     }
 
