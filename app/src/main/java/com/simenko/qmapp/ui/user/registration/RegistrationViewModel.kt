@@ -75,6 +75,6 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
     }
 
     fun setLocalEmptyUser() {
-        userRepository.setLocalEmptyUser()
+        userRepository.clearUserData()
     }
 }

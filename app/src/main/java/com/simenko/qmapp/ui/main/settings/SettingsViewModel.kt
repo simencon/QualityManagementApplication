@@ -33,7 +33,15 @@ class SettingsViewModel @Inject constructor(
         userRepository.deleteAccount(userEmail, password)
     }
 
-    fun refreshUserData() {
+    fun getUserData() {
+        userRepository.getUserData(getUserEmail(), getUserPassword(getUserEmail()))
+    }
+
+    fun logUserData() {
+        userRepository.logUserData(null)
+    }
+
+    fun updateUserData() {
         userRepository.updateUserData(null)
     }
 
