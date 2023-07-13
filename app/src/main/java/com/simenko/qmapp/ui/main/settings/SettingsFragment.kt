@@ -146,6 +146,26 @@ fun Settings(
                 onClick = {
                     error = ""
                     msg = ""
+                    settingsViewModel.createUserOnApiSide()
+                },
+                content = {
+                    Text(
+                        text = "Create user on Api",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                    )
+                },
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                shape = MaterialTheme.shapes.medium
+            )
+            TextButton(
+                modifier = Modifier.width(150.dp),
+                onClick = {
+                    error = ""
+                    msg = ""
                     settingsViewModel.getUserData()
                 },
                 content = {

@@ -1,5 +1,6 @@
 package com.simenko.qmapp.repository
 
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -347,6 +348,25 @@ class UserRepository @Inject constructor(
                     append("\n")
                     append("user job roles: ")
                     append((result["jobRoles"] as ArrayList<out Any?>).joinToString())
+                }
+            }
+    }
+
+    fun createNewUser(): Task<String> {
+        return functions
+            .getHttpsCallable("createNewTeamMember")
+            .call(hashMapOf("email" to userEmail))
+            .continueWith { task ->
+                Log.d(TAG, "createNewUser: $task")
+                val result: Map<String, Any> = task.result?.data as Map<String, Any>
+                (result["email"] ?: "has no email") as String
+            }.addOnCompleteListener { result ->
+                val e = result.exception
+                Log.d(TAG, "createNewUser: $e")
+                if (e is FirebaseFunctionsException) {
+                    _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
+                } else {
+                    _userState.value = Event(UserLoggedInState(result.result.toString()))
                 }
             }
     }
