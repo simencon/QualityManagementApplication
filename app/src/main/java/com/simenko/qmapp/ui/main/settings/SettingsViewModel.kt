@@ -45,6 +45,10 @@ class SettingsViewModel @Inject constructor(
         userRepository.updateUserData(null)
     }
 
+    fun createUserOnApiSide() {
+        userRepository.createNewUser()
+    }
+
     private val _isApproveActionVisible = MutableStateFlow(false)
     val isApproveActionVisible: StateFlow<Boolean> = _isApproveActionVisible
     fun hideActionApproveDialog() {
