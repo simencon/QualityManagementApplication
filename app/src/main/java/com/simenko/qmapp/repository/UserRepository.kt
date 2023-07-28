@@ -9,10 +9,12 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -166,7 +168,6 @@ class UserRepository @Inject constructor(
         firebaseUser?.sendEmailVerification()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 _userState.value = Event(UserNeedToVerifyEmailState())
-                logUserData(this.user)
             } else {
                 _userState.value = Event(UserErrorState(task.exception?.message))
             }
@@ -190,6 +191,18 @@ class UserRepository @Inject constructor(
         }
     }
 
+    private var token: String = ""
+    private var epochFirebaseDiff: Long = NoRecord.num.toLong()
+    private var tokenExp: Long = NoRecord.num.toLong()
+
+    public fun getActualToken(): String {
+        return if (Instant.now().epochSecond + epochFirebaseDiff < tokenExp) {
+            token
+        } else {
+            "need to make functionality to update token"
+        }
+    }
+
     fun loginUser(username: String, password: String) {
         if (username.isNotEmpty() && password.isNotEmpty())
             auth.signInWithEmailAndPassword(username, password)
@@ -198,6 +211,14 @@ class UserRepository @Inject constructor(
                         storage.setString(USER_EMAIL, auth.currentUser?.email ?: "no mail")
                         storage.setString("$username$PASSWORD_SUFFIX", password)
                         storage.setBoolean(IS_USER_LOG_IN, true)
+                        auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
+                            if (task2.isSuccessful) {
+                                this.token = task2.result.token?:""
+                                this.epochFirebaseDiff = Instant.now().epochSecond - task2.result.authTimestamp
+                                this.tokenExp = task2.result.expirationTimestamp
+                                Log.d(TAG, "loginUser: ${this.token}")
+                            }
+                        }
                         _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
                     } else {
                         when (task.exception) {
@@ -279,42 +300,6 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun logUserData(userRaw: UserRaw?) {
-        val user: UserRaw = userRaw ?: this.user
-        updateUserDataTask(user, "logUserData").addOnCompleteListener { task ->
-            val e = task.exception
-            if (e is FirebaseFunctionsException) {
-                _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
-            } else {
-                _userState.value = Event(UserLoggedInState(task.result))
-            }
-        }
-    }
-
-    fun getUserData(userEmail: String, password: String): Task<UserRaw> {
-        return functions
-            .getHttpsCallable("getUserData")
-            .call(hashMapOf("email" to userEmail))
-            .continueWith { task ->
-                val result: Map<String, Any> = task.result?.data as Map<String, Any>
-                UserRaw(
-                    fullName = (result["fullName"] ?: "has no full name") as String,
-                    department = (result["department"] ?: "has no department") as String,
-                    subDepartment = (result["subDepartment"] ?: "has no sub department") as String,
-                    jobRole = (result["jobRoles"] as ArrayList<out Any?>)[0] as String,
-                    email = (result["email"] ?: "has no email") as String,
-                    password = password
-                )
-            }.addOnCompleteListener { result ->
-                val e = result.exception
-                if (e is FirebaseFunctionsException) {
-                    _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
-                } else {
-                    _userState.value = Event(UserLoggedInState(result.result.toString()))
-                }
-            }
-    }
-
     private fun updateUserDataTask(user: UserRaw, fbFunction: String): Task<String> {
         // Create the arguments to the callable function.
         val data = hashMapOf(
@@ -322,7 +307,7 @@ class UserRepository @Inject constructor(
             "fullName" to user.fullName,
             "department" to user.department,
             "subDepartment" to user.subDepartment,
-            "jobRoles" to listOf(user.jobRole, "похуїст")
+            "jobRole" to user.jobRole
         )
 
         return functions
@@ -346,23 +331,28 @@ class UserRepository @Inject constructor(
                     append("user sub department: ")
                     append((result["subDepartment"] ?: "has no sub department") as String)
                     append("\n")
-                    append("user job roles: ")
-                    append((result["jobRoles"] as ArrayList<out Any?>).joinToString())
+                    append("user job role: ")
+                    append((result["jobRole"] ?: "has no job role") as String)
                 }
             }
     }
 
-    fun createNewUser(): Task<String> {
+    fun getUserData(userEmail: String, password: String): Task<UserRaw> {
         return functions
-            .getHttpsCallable("createNewTeamMember")
+            .getHttpsCallable("getUserData")
             .call(hashMapOf("email" to userEmail))
             .continueWith { task ->
-                Log.d(TAG, "createNewUser: $task")
                 val result: Map<String, Any> = task.result?.data as Map<String, Any>
-                (result["email"] ?: "has no email") as String
+                UserRaw(
+                    fullName = (result["fullName"] ?: "has no full name") as String,
+                    department = (result["department"] ?: "has no department") as String,
+                    subDepartment = (result["subDepartment"] ?: "has no sub department") as String,
+                    jobRole = (result["jobRole"] ?: "has no job role") as String,
+                    email = (result["email"] ?: "has no email") as String,
+                    password = password
+                )
             }.addOnCompleteListener { result ->
                 val e = result.exception
-                Log.d(TAG, "createNewUser: $e")
                 if (e is FirebaseFunctionsException) {
                     _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
                 } else {
@@ -371,7 +361,6 @@ class UserRepository @Inject constructor(
             }
     }
 }
-
 data class UserRaw(
     val fullName: String,
     val department: String,
@@ -380,7 +369,6 @@ data class UserRaw(
     val email: String,
     val password: String
 )
-
 sealed class UserState
 object UserInitialState : UserState()
 
