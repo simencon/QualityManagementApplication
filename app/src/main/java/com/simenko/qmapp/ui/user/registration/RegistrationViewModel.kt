@@ -44,14 +44,15 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
     private var userRaw: UserRaw? = null
 
     fun updateUserData(fullName: String, department: String, subDepartment: String, jobRole: String, email: String, password: String) {
-        userRaw = UserRaw(
-            fullName = fullName,
-            department = department,
-            subDepartment = subDepartment,
-            jobRole = jobRole,
-            email = email,
-            password = password
-        )
+        val user = userRepository.user
+        user.fullName = fullName
+        user.department = department
+        user.subDepartment = subDepartment
+        user.jobRole = jobRole
+        user.email = email
+        user.password = password
+
+        userRaw = user
     }
 
     fun acceptTCs() {
