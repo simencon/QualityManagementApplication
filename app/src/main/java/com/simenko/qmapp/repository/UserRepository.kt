@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,9 @@ private const val USER_SUB_DEPARTMENT = "user_sub_department"
 private const val USER_JOB_ROLE = "user_job_role"
 private const val USER_EMAIL = "user_email"
 private const val PASSWORD_SUFFIX = "password_suffix"
+private const val FB_TOKEN = "fb_token"
+private const val EPOCH_FB_DIFF = "epoch_fb_diff"
+private const val FB_TOKEN_EXP = "fb_token_exp"
 
 private const val IS_EMAIL_VERIFIED = "is_email_verified"
 private const val IS_USER_LOG_IN = "is_user_log_in"
@@ -55,28 +59,37 @@ class UserRepository @Inject constructor(
             subDepartment = storage.getString(USER_SUB_DEPARTMENT),
             jobRole = storage.getString(USER_JOB_ROLE),
             email = storage.getString(USER_EMAIL),
-            password = storage.getString("${storage.getString(USER_EMAIL)}$PASSWORD_SUFFIX")
+            password = storage.getString("${storage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
+            fbToken = storage.getString(FB_TOKEN),
+            epochFbDiff = storage.getLong(EPOCH_FB_DIFF),
+            fbTokenExp = storage.getLong(FB_TOKEN_EXP)
         )
 
     private fun storeUserData(user: UserRaw) {
         storage.setString(USER_FULL_NAME, user.fullName)
         storage.setString(USER_DEPARTMENT, user.department)
-        storage.setString(USER_SUB_DEPARTMENT, user.subDepartment ?: "")
+        storage.setString(USER_SUB_DEPARTMENT, user.subDepartment ?: NoString.str)
         storage.setString(USER_JOB_ROLE, user.jobRole)
         storage.setString(USER_EMAIL, user.email)
         storage.setString("${user.email}$PASSWORD_SUFFIX", user.password)
+        storage.setString(FB_TOKEN, user.fbToken)
+        storage.setLong(EPOCH_FB_DIFF, user.epochFbDiff)
+        storage.setLong(FB_TOKEN_EXP, user.fbTokenExp)
     }
 
     fun clearUserData() {
-        storage.setString(USER_FULL_NAME, "")
-        storage.setString(USER_DEPARTMENT, "")
-        storage.setString(USER_SUB_DEPARTMENT, "")
-        storage.setString(USER_JOB_ROLE, "")
+        storage.setString(USER_FULL_NAME, NoString.str)
+        storage.setString(USER_DEPARTMENT, NoString.str)
+        storage.setString(USER_SUB_DEPARTMENT, NoString.str)
+        storage.setString(USER_JOB_ROLE, NoString.str)
         val email = storage.getString(USER_EMAIL)
-        storage.setString(USER_EMAIL, "")
-        storage.setString("$email$PASSWORD_SUFFIX", "")
+        storage.setString(USER_EMAIL, NoString.str)
+        storage.setString("$email$PASSWORD_SUFFIX", NoString.str)
         storage.setBoolean(IS_EMAIL_VERIFIED, false)
         storage.setBoolean(IS_USER_LOG_IN, false)
+        storage.setString(FB_TOKEN, NoString.str)
+        storage.setLong(EPOCH_FB_DIFF, NoRecord.num.toLong())
+        storage.setLong(FB_TOKEN_EXP, NoRecord.num.toLong())
         _userState.value = Event(UserRegisteredState("not yet registered on the phone"))
     }
 
@@ -191,13 +204,9 @@ class UserRepository @Inject constructor(
         }
     }
 
-    private var token: String = ""
-    private var epochFirebaseDiff: Long = NoRecord.num.toLong()
-    private var tokenExp: Long = NoRecord.num.toLong()
-
-    public fun getActualToken(): String {
-        return if (Instant.now().epochSecond + epochFirebaseDiff < tokenExp) {
-            token
+    fun getActualToken(): String {
+        return if (Instant.now().epochSecond + user.epochFbDiff < user.fbTokenExp) {
+            user.fbToken
         } else {
             "need to make functionality to update token"
         }
@@ -213,10 +222,14 @@ class UserRepository @Inject constructor(
                         storage.setBoolean(IS_USER_LOG_IN, true)
                         auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
-                                this.token = task2.result.token?:""
-                                this.epochFirebaseDiff = Instant.now().epochSecond - task2.result.authTimestamp
-                                this.tokenExp = task2.result.expirationTimestamp
-                                Log.d(TAG, "loginUser: ${this.token}")
+                                val user = this.user
+                                user.fbToken = task2.result.token?:""
+                                user.epochFbDiff = Instant.now().epochSecond - task2.result.authTimestamp
+                                user.fbTokenExp = task2.result.expirationTimestamp
+                                this.storeUserData(user)
+                                Log.d(TAG, "loginUser, token: ${this.user.fbToken}")
+                                Log.d(TAG, "loginUser, epochDiff: ${this.user.epochFbDiff}")
+                                Log.d(TAG, "loginUser, tokenExp: ${this.user.fbTokenExp}")
                             }
                         }
                         _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
@@ -349,7 +362,10 @@ class UserRepository @Inject constructor(
                     subDepartment = (result["subDepartment"] ?: "has no sub department") as String,
                     jobRole = (result["jobRole"] ?: "has no job role") as String,
                     email = (result["email"] ?: "has no email") as String,
-                    password = password
+                    password = password,
+                    fbToken = user.fbToken,
+                    epochFbDiff = user.epochFbDiff,
+                    fbTokenExp = user.fbTokenExp
                 )
             }.addOnCompleteListener { result ->
                 val e = result.exception
@@ -362,12 +378,15 @@ class UserRepository @Inject constructor(
     }
 }
 data class UserRaw(
-    val fullName: String,
-    val department: String,
-    val subDepartment: String?,
-    val jobRole: String,
-    val email: String,
-    val password: String
+    var fullName: String,
+    var department: String,
+    var subDepartment: String?,
+    var jobRole: String,
+    var email: String,
+    var password: String,
+    var fbToken: String,
+    var epochFbDiff: Long,
+    var fbTokenExp: Long
 )
 sealed class UserState
 object UserInitialState : UserState()

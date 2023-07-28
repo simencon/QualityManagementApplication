@@ -63,10 +63,11 @@ object AppModule {
     @Singleton
     @Provides
     fun provideClient(token: String): OkHttpClient {
+        val refreshToken = token
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest: Request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $token")
+                    .addHeader("Authorization", "Bearer $refreshToken")
                     .build()
                 chain.proceed(newRequest)
             }
