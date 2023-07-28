@@ -37,16 +37,8 @@ class SettingsViewModel @Inject constructor(
         userRepository.getUserData(getUserEmail(), getUserPassword(getUserEmail()))
     }
 
-    fun logUserData() {
-        userRepository.logUserData(null)
-    }
-
     fun updateUserData() {
         userRepository.updateUserData(null)
-    }
-
-    fun createUserOnApiSide() {
-        userRepository.createNewUser()
     }
 
     private val _isApproveActionVisible = MutableStateFlow(false)

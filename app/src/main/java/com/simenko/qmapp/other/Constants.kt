@@ -9,17 +9,6 @@ object Constants {
     const val ANIMATION_DURATION = 500
     const val MIN_DRAG_AMOUNT = 6
 
-    const val DATABASE_NAME = "QualityManagementDB"
-
-    const val BASE_URL = "https://qualityappspring.azurewebsites.net/api/v1/"
-
-    /**
-     * teamMembersTesting - to test with real table on DB side
-     * teamMembers - the real one
-     * */
-
-    const val TEAM_URL = "teamMembers"
-
     /**
      * To update local DB only in this range of Order Numbers
      * */
@@ -36,4 +25,71 @@ object Constants {
 
     const val NOTIFICATION_ID_KEY = "notificationIdKey"
     const val NOTIFICATION_ID = 0
+
+    const val DATABASE_NAME = "QualityManagementDB"
+
+    /**
+     * teamMembersTesting - to test with real table on DB side
+     * teamMembers - the real one
+     * */
+
+    private const val API_VERSION = "v1"
+    private const val COMPANY = "skf"
+    const val BASE_URL = "https://qualityappspring.azurewebsites.net/api/$API_VERSION/$COMPANY/"
+
+    const val PRINCIPLE = "principles"
+
+    const val TEAM_MEMBERS = "teamMembers"
+    const val COMPANIES = "companies"
+    const val DEPARTMENTS = "departments"
+    const val SUB_DEPARTMENTS = "subDepartments"
+    const val MANUFACTURING_CHANNELS = "manufacturingChannels"
+    const val MANUFACTURING_LINES = "manufacturingLines"
+    const val MANUFACTURING_OPERATIONS = "manufacturingOperations"
+    const val MANUFACTURING_OPERATIONS_FLOWS = "manufacturingOperationsFlows"
+    const val POSITIONS_LEVELS = "positionLevels"
+
+    const val MANUFACTURING_PROJECTS = "manufacturingProjects"
+    const val PRODUCTS_KEYS = "productsKeys"
+    const val PRODUCT_BASES = "productBases"
+    const val CHARACTERISTICS_GROUPS = "characteristicGroups"
+    const val CHARACTERISTICS_SUB_GROUPS = "characteristicSubGroups"
+    const val CHARACTERISTICS = "characteristics"
+    const val METRICS = "metrics"
+    const val VERSION_STATUSES = "versionStatuses"
+    const val PRODUCTS = "products"
+    const val PRODUCT_VERSIONS = "productVersions"
+    const val PRODUCT_TOLERANCES = "productTolerances"
+    const val PRODUCTS_TO_LINES = "productsToLines"
+    const val COMPONENTS = "components"
+    const val COMPONENT_VERSIONS = "componentVersions"
+    const val COMPONENT_TOLERANCES = "componentTolerances"
+    const val COMPONENTS_TO_LINES = "componentsToLines"
+    const val COMPONENTS_IN_STAGE = "componentsInStage"
+    const val COMPONENT_IN_STAGE_VERSIONS = "componentInStageVersions"
+    const val COMPONENT_IN_STAGE_TOLERANCES = "componentInStageTolerances"
+    const val COMPONENTS_IN_STAGE_TO_LINES = "componentsInStageToLines"
+
+    const val INPUT_TO_PLACE_INVESTIGATION = "inputToPlaceInvestigation"
+    const val INVESTIGATION_TYPES = "investigationTypes"
+    const val INVESTIGATION_REASONS = "investigationReasons"
+    const val INVESTIGATION_STATUSES = "investigationStatuses"
+    const val RESULT_DECRIPTIONS = "resultsDecriptions"
+
+    const val HASH_CODE = "hashCode"
+
+    const val ORDERS = "orders"
+    const val LATEST_ORDER = "latestOrder"
+    const val EARLIEST_ORDER = "earliestOrder"
+
+    const val SUB_ORDERS = "subOrders"
+    const val SUB_ORDER_TASKS = "subOrderTasks"
+    const val SAMPLES = "samples"
+
+    const val RESULTS = "results"
+    const val RESULT_RECORDS = "records"
+    const val RESULT_TASK = "task"
+
+    const val MEASUREMENTS_REGISTER = "measurementsRegister"
+    const val MEASUREMENT_RESULTS = "measurementResults"
 }

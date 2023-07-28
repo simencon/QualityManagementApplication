@@ -9,6 +9,7 @@ import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.other.Constants.BASE_URL
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
@@ -23,12 +24,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -59,7 +62,22 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitInstance(moshi: Moshi): Retrofit = Retrofit
+    fun provideClient(token: String): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val newRequest: Request = chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer $token")
+                    .build()
+                chain.proceed(newRequest)
+            }
+            .readTimeout(360, TimeUnit.SECONDS)
+            .connectTimeout(360, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient): Retrofit = Retrofit
         .Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
@@ -68,12 +86,7 @@ object AppModule {
             )
         )
         .addConverterFactory(PairConverterFactory())
-        .client(
-            OkHttpClient.Builder()
-                .readTimeout(360, TimeUnit.SECONDS)
-                .connectTimeout(360, TimeUnit.SECONDS)
-                .build()
-        )
+        .client(client)
         .build()
 
     @Singleton
@@ -113,4 +126,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideFirebaseFunctions() = Firebase.functions
+
+    @Singleton
+    @Provides
+    fun provideActualToken(userRepository: UserRepository): String {
+        return userRepository.getActualToken()
+    }
 }
