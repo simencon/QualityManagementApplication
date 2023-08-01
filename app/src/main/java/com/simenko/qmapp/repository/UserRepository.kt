@@ -10,10 +10,9 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Storage
+import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,21 +22,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-
-
-private const val USER_FULL_NAME = "user_full_name"
-private const val USER_DEPARTMENT = "user_department"
-private const val USER_SUB_DEPARTMENT = "user_sub_department"
-private const val USER_JOB_ROLE = "user_job_role"
-private const val USER_EMAIL = "user_email"
-private const val PASSWORD_SUFFIX = "password_suffix"
-private const val IS_USER_LOG_IN = "is_user_log_in"
-private const val FB_TOKEN = "fb_token"
-private const val EPOCH_FB_DIFF = "epoch_fb_diff"
-private const val FB_TOKEN_EXP = "fb_token_exp"
-
-private const val IS_EMAIL_VERIFIED = "is_email_verified"
-private const val IS_VERIFIED_BY_ORGANISATION = "is_verified_by_organisation"
 
 private const val TAG = "UserRepository"
 
@@ -52,49 +36,11 @@ class UserRepository @Inject constructor(
     val userState: StateFlow<Event<UserState>>
         get() = _userState
 
-    val user: UserRaw
-        get() = UserRaw(
-            fullName = storage.getString(USER_FULL_NAME),
-            department = storage.getString(USER_DEPARTMENT),
-            subDepartment = storage.getString(USER_SUB_DEPARTMENT),
-            jobRole = storage.getString(USER_JOB_ROLE),
-            email = storage.getString(USER_EMAIL),
-            password = storage.getString("${storage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
-            isEmailVerified = storage.getBoolean(IS_EMAIL_VERIFIED),
-            isUserLoggedIn = storage.getBoolean(IS_USER_LOG_IN),
-            fbToken = storage.getString(FB_TOKEN),
-            epochFbDiff = storage.getLong(EPOCH_FB_DIFF),
-            fbTokenExp = storage.getLong(FB_TOKEN_EXP),
-            storage
-        )
-
-    private fun storeUserData(user: UserRaw) {
-        storage.setString(USER_FULL_NAME, user.fullName)
-        storage.setString(USER_DEPARTMENT, user.department)
-        storage.setString(USER_SUB_DEPARTMENT, user.subDepartment ?: EmptyString.str)
-        storage.setString(USER_JOB_ROLE, user.jobRole)
-        storage.setString(USER_EMAIL, user.email)
-        storage.setBoolean(IS_EMAIL_VERIFIED, user.isEmailVerified)
-        storage.setBoolean(IS_USER_LOG_IN, user.isUserLoggedIn)
-        storage.setString("${user.email}$PASSWORD_SUFFIX", user.password)
-        storage.setString(FB_TOKEN, user.fbToken)
-        storage.setLong(EPOCH_FB_DIFF, user.epochFbDiff)
-        storage.setLong(FB_TOKEN_EXP, user.fbTokenExp)
-    }
+    val user: Principle
+        get() = Principle(storage)
 
     fun clearUserData() {
-        storage.setString(USER_FULL_NAME, EmptyString.str)
-        storage.setString(USER_DEPARTMENT, EmptyString.str)
-        storage.setString(USER_SUB_DEPARTMENT, EmptyString.str)
-        storage.setString(USER_JOB_ROLE, EmptyString.str)
-        val email = storage.getString(USER_EMAIL)
-        storage.setString(USER_EMAIL, EmptyString.str)
-        storage.setString("$email$PASSWORD_SUFFIX", EmptyString.str)
-        storage.setBoolean(IS_EMAIL_VERIFIED, false)
-        storage.setBoolean(IS_USER_LOG_IN, false)
-        storage.setString(FB_TOKEN, EmptyString.str)
-        storage.setLong(EPOCH_FB_DIFF, NoRecord.num.toLong())
-        storage.setLong(FB_TOKEN_EXP, NoRecord.num.toLong())
+        user.clearUser()
         _userState.value = Event(UserRegisteredState("not yet registered on the phone"))
     }
 
@@ -107,7 +53,7 @@ class UserRepository @Inject constructor(
             _userState.value = Event(UserLoggedOutState())
             continuation.resume(_userState.value.peekContent())
         } else if (user.email.isNotEmpty() && user.password.isNotEmpty()) {
-            if (user.isUserLoggedIn) {
+            if (user.isUserLoggedIn && user.isEmailVerified) {
                 _userState.value = Event(UserLoggedInState("Logged in, verified on device"))
                 continuation.resume(_userState.value.peekContent())
             } else if (!user.isUserLoggedIn && user.isEmailVerified) {
@@ -121,7 +67,7 @@ class UserRepository @Inject constructor(
                             if (auth.currentUser?.isEmailVerified == true) {
                                 user.setUserIsEmailVerified(true)
                                 user.setUserIsUserLoggedIn(true)
-                                _userState.value = Event(UserLoggedInState("user is registered - verified with Firebase"))
+                                _userState.value = Event(UserLoggedInState("Logged in, verified on firebase"))
                                 continuation.resume(_userState.value.peekContent())
                             } else {
                                 _userState.value = Event(UserNeedToVerifyEmailState())
@@ -150,18 +96,19 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun registerUser(userRaw: UserRaw) {
-        auth.createUserWithEmailAndPassword(userRaw.email, userRaw.password)
+    fun registerUser(principle: Principle) {
+        auth.createUserWithEmailAndPassword(principle.email, principle.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    storeUserData(userRaw)
+                    user.storeUserData(principle)
                     sendVerificationEmail(auth.currentUser)
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
-                            storeUserData(userRaw)
+                            user.storeUserData(principle)
                             _userState.value = Event(UserRegisteredState(task.exception?.message ?: "user already registered"))
                         }
+
                         else -> {
                             _userState.value = Event(UserErrorState(task.exception?.message))
                         }
@@ -191,7 +138,7 @@ class UserRepository @Inject constructor(
         if (email.isNotEmpty())
             auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    user.setUserFullName(email)
+                    user.setUserEmail(email)
                     _userState.value = Event(UserLoggedOutState("Check your email box and set new password"))
                 } else {
                     _userState.value = Event(UserErrorState(task.exception?.message))
@@ -206,23 +153,19 @@ class UserRepository @Inject constructor(
             user.fbToken
         } else {
             refreshToken()
-            NoString.str
+            EmptyString.str
         }
 
     private fun refreshToken() {
         if (userState.value.peekContent() is UserLoggedInState) {
             auth.signInWithEmailAndPassword(user.email, user.password).addOnCompleteListener { task1 ->
                 if (task1.isSuccessful) {
-                    user.setUserFullName(auth.currentUser?.email ?: "no mail")
+                    user.setUserEmail(auth.currentUser?.email ?: "no mail")
                     user.setUserPassword(user.password)
                     user.setUserIsUserLoggedIn(true)
                     auth.currentUser!!.getIdToken(true).addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
-                            val user = this.user
-                            user.fbToken = task2.result.token ?: NoString.str
-                            user.epochFbDiff = Instant.now().epochSecond - task2.result.authTimestamp
-                            user.fbTokenExp = task2.result.expirationTimestamp
-                            this.storeUserData(user)
+                            user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
                         }
                     }
                 } else {
@@ -237,19 +180,12 @@ class UserRepository @Inject constructor(
             auth.signInWithEmailAndPassword(username, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        user.setUserFullName(auth.currentUser?.email ?: "no mail")
+                        user.setUserEmail(auth.currentUser?.email ?: "no mail")
                         user.setUserPassword(password)
                         user.setUserIsUserLoggedIn(true)
                         auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
-                                val user = this.user
-                                user.fbToken = task2.result.token ?: ""
-                                user.epochFbDiff = Instant.now().epochSecond - task2.result.authTimestamp
-                                user.fbTokenExp = task2.result.expirationTimestamp
-                                this.storeUserData(user)
-                                Log.d(TAG, "loginUser, token: ${this.user.fbToken}")
-                                Log.d(TAG, "loginUser, epochDiff: ${this.user.epochFbDiff}")
-                                Log.d(TAG, "loginUser, tokenExp: ${this.user.fbTokenExp}")
+                                user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
                             }
                         }
                         _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
@@ -257,7 +193,7 @@ class UserRepository @Inject constructor(
                         when (task.exception) {
                             is FirebaseNetworkException -> {
 //                                ToDo what if email is not verified?
-                                if (user.email == username && user.password == password) {
+                                if (user.email == username && user.password == password && user.isEmailVerified) {
                                     user.setUserIsUserLoggedIn(true)
                                     _userState.value = Event(UserLoggedInState(username))
                                 } else if (user.email != username) {
@@ -302,7 +238,7 @@ class UserRepository @Inject constructor(
                     if (task1.isSuccessful) {
                         auth.currentUser?.delete()?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
-                                clearUserData()
+                                this.clearUserData()
                                 _userState.value = Event(UserInitialState)
                             } else {
                                 _userState.value = Event(UserErrorState(task2.exception?.message ?: "Unknown error"))
@@ -310,7 +246,7 @@ class UserRepository @Inject constructor(
                         }
                     } else {
                         if (task1.exception?.message?.contains("User has been disabled") == true) {
-                            clearUserData()
+                            this.clearUserData()
                             _userState.value = Event(UserInitialState)
                         } else {
                             _userState.value = Event(UserErrorState(task1.exception?.message ?: "Unknown error"))
@@ -322,8 +258,9 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun updateUserData(userRaw: UserRaw?) {
-        val user: UserRaw = userRaw ?: this.user
+//    To interact with fb db
+    fun updateUserData(principle: Principle?) {
+        val user: Principle = principle ?: this.user
         updateUserDataTask(user, "updateUserData").addOnCompleteListener { task ->
             val e = task.exception
             if (e is FirebaseFunctionsException) {
@@ -334,7 +271,7 @@ class UserRepository @Inject constructor(
         }
     }
 
-    private fun updateUserDataTask(user: UserRaw, fbFunction: String): Task<String> {
+    private fun updateUserDataTask(user: Principle, fbFunction: String): Task<String> {
         // Create the arguments to the callable function.
         val data = hashMapOf(
             "email" to user.email,
@@ -371,7 +308,7 @@ class UserRepository @Inject constructor(
             }
     }
 
-    fun getUserData(): Task<UserRaw> {
+    fun getUserData(): Task<Principle> {
         val repository = this
         return functions
             .getHttpsCallable("getUserData")
@@ -380,7 +317,7 @@ class UserRepository @Inject constructor(
                 runBlocking {
                     repository.getActualToken()
                     val result: Map<String, Any> = task.result?.data as Map<String, Any>
-                    UserRaw(
+                    Principle(
                         fullName = (result["fullName"] ?: "has no full name") as String,
                         department = (result["department"] ?: "has no department") as String,
                         subDepartment = (result["subDepartment"] ?: "has no sub department") as String,
@@ -391,7 +328,7 @@ class UserRepository @Inject constructor(
                         isUserLoggedIn = true,
                         fbToken = "JWT provided by Firebase,\n" +
                                 "diff: ${user.epochFbDiff} seconds\n" +
-                                "expiration: ${getStringDate(user.fbTokenExp * 1000) ?: NoString.str}",
+                                "expiration: ${getStringDate(user.fbTokenExp * 1000) ?: EmptyString.str}",
                         epochFbDiff = user.epochFbDiff,
                         fbTokenExp = user.fbTokenExp
                     )
@@ -407,40 +344,8 @@ class UserRepository @Inject constructor(
     }
 }
 
-data class UserRaw(
-    var fullName: String,
-    var department: String,
-    var subDepartment: String?,
-    var jobRole: String,
-    var email: String,
-    var password: String,
-    var isEmailVerified: Boolean,
-    var isUserLoggedIn: Boolean,
-    var fbToken: String,
-    var epochFbDiff: Long,
-    var fbTokenExp: Long,
-    val userStorage: Storage? = null
-) {
-    fun setUserFullName(username: String) {
-        userStorage?.setString(USER_EMAIL, username)
-    }
-
-    fun setUserPassword(password: String) {
-        userStorage?.setString("$fullName$PASSWORD_SUFFIX", password)
-    }
-
-    fun setUserIsEmailVerified(isEmailVerified: Boolean) {
-        userStorage?.setBoolean(IS_EMAIL_VERIFIED, isEmailVerified)
-    }
-
-    fun setUserIsUserLoggedIn(isUserLoggedIn: Boolean) {
-        userStorage?.setBoolean(IS_USER_LOG_IN, isUserLoggedIn)
-    }
-}
-
 sealed class UserState
 object UserInitialState : UserState()
-
 data class UserRegisteredState(val msg: String) : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
 data class UserNeedToVerifiedByOrganisationState(val msg: String) : UserState()
