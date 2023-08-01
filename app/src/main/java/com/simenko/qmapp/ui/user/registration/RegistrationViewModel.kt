@@ -18,9 +18,9 @@ package com.simenko.qmapp.ui.user.registration
 
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.repository.UserRaw
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
+import com.simenko.qmapp.storage.Principle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +41,7 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         get() = userRepository.userState
 
     private var acceptedTCs: Boolean? = null
-    private var userRaw: UserRaw? = null
+    private var principle: Principle? = null
 
     fun updateUserData(fullName: String, department: String, subDepartment: String, jobRole: String, email: String, password: String) {
         val user = userRepository.user
@@ -52,7 +52,7 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         user.email = email
         user.password = password
 
-        userRaw = user
+        principle = user
     }
 
     fun acceptTCs() {
@@ -60,10 +60,10 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
     }
 
     fun registerUser() {
-        assert(userRaw != null)
+        assert(principle != null)
         assert(acceptedTCs == true)
 
-        userRepository.registerUser(userRaw!!)
+        userRepository.registerUser(principle!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)
