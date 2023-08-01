@@ -19,10 +19,10 @@ class SettingsViewModel @Inject constructor(
     val userState: StateFlow<Event<UserState>>
         get() = userRepository.userState
 
-    fun getUserEmail(): String = userRepository.userEmail
+    fun getUserEmail(): String = userRepository.user.email
 
-    fun getUserPassword(userEmail: String): String {
-        return userRepository.getUserPassword(userEmail)
+    fun getUserPassword(): String {
+        return userRepository.user.password
     }
 
     fun logout() {
@@ -34,7 +34,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun getUserData() {
-        userRepository.getUserData(getUserEmail(), getUserPassword(getUserEmail()))
+        userRepository.getUserData()
     }
 
     fun updateUserData() {

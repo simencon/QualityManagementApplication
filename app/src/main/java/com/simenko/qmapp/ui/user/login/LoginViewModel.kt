@@ -22,7 +22,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     fun getUserEmail(): String {
-        return userRepository.userEmail
+        return userRepository.user.email
     }
 
     fun sendResetPasswordEmail(email: String) {

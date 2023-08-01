@@ -87,7 +87,7 @@ fun Settings(
 ) {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val userEmail = settingsViewModel.getUserEmail()
-    val password = settingsViewModel.getUserPassword(userEmail)
+    val password = settingsViewModel.getUserPassword()
     val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
