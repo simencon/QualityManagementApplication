@@ -16,6 +16,7 @@ import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
+import com.simenko.qmapp.storage.Storage
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -30,6 +31,8 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 
@@ -62,12 +65,11 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideClient(token: String): OkHttpClient {
-        val refreshToken = token
+    fun provideClient(userRepository: UserRepository): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest: Request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $refreshToken")
+                    .addHeader("Authorization", "Bearer ${userRepository.getActualToken()}")
                     .build()
                 chain.proceed(newRequest)
             }
@@ -130,7 +132,15 @@ object AppModule {
 
     @Singleton
     @Provides
+    @Named("firebase_token")
     fun provideActualToken(userRepository: UserRepository): String {
         return userRepository.getActualToken()
+    }
+
+    @Singleton
+    @Provides
+    @Named("some_string_to_test")
+    fun provideSomeStringToTest(): String {
+        return "Roman Semenyshyn"
     }
 }
