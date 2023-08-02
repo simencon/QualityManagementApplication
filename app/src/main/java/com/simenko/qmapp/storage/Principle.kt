@@ -49,12 +49,12 @@ data class Principle(
         userStorage
     )
 
-    fun setUserEmail(username: String) {
-        userStorage?.setString(USER_EMAIL, username)
+    fun setUserEmail(userEmail: String) {
+        userStorage?.setString(USER_EMAIL, userEmail)
     }
 
     fun setUserPassword(password: String) {
-        userStorage?.setString("$fullName$PASSWORD_SUFFIX", password)
+        userStorage?.setString("$email$PASSWORD_SUFFIX", password)
     }
 
     fun setUserIsUserLoggedIn(isUserLoggedIn: Boolean) {
@@ -89,7 +89,7 @@ data class Principle(
         }
     }
 
-    fun clearUser() {
+    fun clearUserData() {
         userStorage?.let {
             it.setString(USER_FULL_NAME, EmptyString.str)
             it.setString(USER_DEPARTMENT, EmptyString.str)

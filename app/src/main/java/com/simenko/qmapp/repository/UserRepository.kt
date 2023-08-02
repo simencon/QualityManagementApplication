@@ -1,6 +1,5 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -40,7 +39,7 @@ class UserRepository @Inject constructor(
         get() = Principle(storage)
 
     fun clearUserData() {
-        user.clearUser()
+        user.clearUserData()
         _userState.value = Event(UserRegisteredState("not yet registered on the phone"))
     }
 
