@@ -6,10 +6,12 @@ import java.time.Instant
 
 data class Principle(
     var fullName: String,
+    var company: String,
     var department: String,
     var subDepartment: String?,
     var jobRole: String,
     var email: String,
+    var phoneNumber: Long,
     var password: String,
     var isEmailVerified: Boolean,
     var isUserLoggedIn: Boolean,
@@ -19,14 +21,16 @@ data class Principle(
     val userStorage: Storage? = null
 ) {
     companion object {
-        private const val USER_FULL_NAME = "user_full_name"
-        private const val USER_DEPARTMENT = "user_department"
-        private const val USER_SUB_DEPARTMENT = "user_sub_department"
-        private const val USER_JOB_ROLE = "user_job_role"
-        private const val USER_EMAIL = "user_email"
+        private const val USER_FULL_NAME = "fullName"
+        private const val USER_COMPANY = "company"
+        private const val USER_DEPARTMENT = "department"
+        private const val USER_SUB_DEPARTMENT = "subDepartment"
+        private const val USER_JOB_ROLE = "jobRole"
+        private const val USER_EMAIL = "email"
+        private const val USER_PHONE_NUMBER = "phoneNumber"
         private const val PASSWORD_SUFFIX = "password_suffix"
+        private const val IS_EMAIL_VERIFIED = "enabled"
         private const val IS_USER_LOG_IN = "is_user_log_in"
-        private const val IS_EMAIL_VERIFIED = "is_email_verified"
         private const val FB_TOKEN = "fb_token"
         private const val EPOCH_FB_DIFF = "epoch_fb_diff"
         private const val FB_TOKEN_EXP = "fb_token_exp"
@@ -36,17 +40,50 @@ data class Principle(
         userStorage: Storage
     ) : this(
         fullName = userStorage.getString(USER_FULL_NAME),
+        company = userStorage.getString(USER_COMPANY),
         department = userStorage.getString(USER_DEPARTMENT),
         subDepartment = userStorage.getString(USER_SUB_DEPARTMENT),
         jobRole = userStorage.getString(USER_JOB_ROLE),
         email = userStorage.getString(USER_EMAIL),
+        phoneNumber = userStorage.getLong(USER_PHONE_NUMBER),
         password = userStorage.getString("${userStorage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
         isEmailVerified = userStorage.getBoolean(IS_EMAIL_VERIFIED),
         isUserLoggedIn = userStorage.getBoolean(IS_USER_LOG_IN),
         fbToken = userStorage.getString(FB_TOKEN),
         epochFbDiff = userStorage.getLong(EPOCH_FB_DIFF),
         fbTokenExp = userStorage.getLong(FB_TOKEN_EXP),
-        userStorage
+        userStorage = userStorage
+    )
+
+    constructor(
+        userStorage: Storage,
+        result: Map<String, Any>
+    ) : this(
+        fullName = (result[USER_FULL_NAME] ?: EmptyString.str) as String,
+        company = (result[USER_COMPANY] ?: EmptyString.str) as String,
+        department = (result[USER_DEPARTMENT] ?: EmptyString.str) as String,
+        subDepartment = (result[USER_SUB_DEPARTMENT] ?: EmptyString.str) as String,
+        jobRole = (result[USER_JOB_ROLE] ?: EmptyString.str) as String,
+        email = userStorage.getString(USER_EMAIL),
+        phoneNumber = (result.getValue(USER_PHONE_NUMBER)).toString().toLong(),
+        password = userStorage.getString("${userStorage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
+        isEmailVerified = (result[IS_EMAIL_VERIFIED] ?: EmptyString.str) as Boolean,
+        isUserLoggedIn = userStorage.getBoolean(IS_USER_LOG_IN),
+        fbToken = userStorage.getString(FB_TOKEN),
+        epochFbDiff = userStorage.getLong(EPOCH_FB_DIFF),
+        fbTokenExp = userStorage.getLong(FB_TOKEN_EXP),
+        userStorage = userStorage
+    )
+
+    fun dataToFirebase() = hashMapOf(
+        USER_EMAIL to email,
+        USER_PHONE_NUMBER to phoneNumber,
+        USER_FULL_NAME to fullName,
+        USER_COMPANY to company,
+        USER_DEPARTMENT to department,
+        USER_SUB_DEPARTMENT to subDepartment,
+        USER_JOB_ROLE to jobRole,
+        IS_EMAIL_VERIFIED to isEmailVerified
     )
 
     fun setUserEmail(userEmail: String) {
@@ -80,6 +117,7 @@ data class Principle(
             it.setString(USER_SUB_DEPARTMENT, user.subDepartment ?: EmptyString.str)
             it.setString(USER_JOB_ROLE, user.jobRole)
             it.setString(USER_EMAIL, user.email)
+            it.setLong(USER_PHONE_NUMBER, user.phoneNumber)
             it.setString("${user.email}$PASSWORD_SUFFIX", user.password)
             it.setBoolean(IS_USER_LOG_IN, user.isUserLoggedIn)
             it.setBoolean(IS_EMAIL_VERIFIED, user.isEmailVerified)
@@ -95,8 +133,9 @@ data class Principle(
             it.setString(USER_DEPARTMENT, EmptyString.str)
             it.setString(USER_SUB_DEPARTMENT, EmptyString.str)
             it.setString(USER_JOB_ROLE, EmptyString.str)
-            it.setString(email, EmptyString.str)
-            it.setString("$email$PASSWORD_SUFFIX", EmptyString.str)
+            it.setString(USER_EMAIL, EmptyString.str)
+            it.setLong(USER_PHONE_NUMBER, NoRecord.num.toLong())
+            it.setString("$USER_EMAIL$PASSWORD_SUFFIX", EmptyString.str)
             it.setBoolean(IS_USER_LOG_IN, false)
             it.setBoolean(IS_EMAIL_VERIFIED, false)
             it.setString(FB_TOKEN, EmptyString.str)

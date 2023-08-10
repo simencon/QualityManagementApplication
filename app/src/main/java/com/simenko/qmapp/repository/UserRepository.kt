@@ -12,10 +12,8 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.utils.StringUtils.getStringDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.runBlocking
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,31 +41,38 @@ class UserRepository @Inject constructor(
         _userState.value = Event(UserRegisteredState("not yet registered on the phone"))
     }
 
+    /**
+     *@link (https://app.diagrams.net/#G1vvhdmr_4ATIBjb91JfzASgCwj16VsOkY)
+     * */
     suspend fun getActualUserState() = suspendCoroutine { continuation ->
-
-        if (user.email.isEmpty() && user.password.isEmpty()) {
+        if (user.email.isEmpty()) {
             _userState.value = Event(UserInitialState)
             continuation.resume(_userState.value.peekContent())
         } else if (user.email.isNotEmpty() && user.password.isEmpty()) {
             _userState.value = Event(UserLoggedOutState())
             continuation.resume(_userState.value.peekContent())
         } else if (user.email.isNotEmpty() && user.password.isNotEmpty()) {
-            if (user.isUserLoggedIn && user.isEmailVerified) {
-                _userState.value = Event(UserLoggedInState("Logged in, verified on device"))
-                continuation.resume(_userState.value.peekContent())
-            } else if (!user.isUserLoggedIn && user.isEmailVerified) {
-                user.setUserIsUserLoggedIn(true)
-                _userState.value = Event(UserLoggedInState("Logged in, verified on device"))
-                continuation.resume(_userState.value.peekContent())
-            } else if (!user.isUserLoggedIn && !user.isEmailVerified) {
+            if (user.isEmailVerified) {
+                if (user.isUserLoggedIn) {
+                    _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                    continuation.resume(_userState.value.peekContent())
+                } else {
+                    _userState.value = Event(UserLoggedOutState())
+                    continuation.resume(_userState.value.peekContent())
+                }
+            } else {
                 auth.signInWithEmailAndPassword(user.email, user.password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             if (auth.currentUser?.isEmailVerified == true) {
                                 user.setUserIsEmailVerified(true)
-                                user.setUserIsUserLoggedIn(true)
-                                _userState.value = Event(UserLoggedInState("Logged in, verified on firebase"))
-                                continuation.resume(_userState.value.peekContent())
+                                if (user.isUserLoggedIn) {
+                                    _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                    continuation.resume(_userState.value.peekContent())
+                                } else {
+                                    _userState.value = Event(UserLoggedOutState())
+                                    continuation.resume(_userState.value.peekContent())
+                                }
                             } else {
                                 _userState.value = Event(UserNeedToVerifyEmailState())
                                 continuation.resume(_userState.value.peekContent())
@@ -75,12 +80,12 @@ class UserRepository @Inject constructor(
                         } else {
                             when (task.exception) {
                                 is FirebaseNetworkException -> {
-                                    _userState.value = Event(UserLoggedOutState("No connection - check your network"))
+                                    _userState.value = Event(UserNeedToVerifyEmailState())
                                     continuation.resume(_userState.value.peekContent())
                                 }
 
                                 is FirebaseAuthInvalidCredentialsException -> {
-                                    _userState.value = Event(UserLoggedOutState("Password was reset or reset process not yet finished"))
+                                    _userState.value = Event(UserLoggedOutState("Password or user name was changed"))
                                     continuation.resume(_userState.value.peekContent())
                                 }
 
@@ -94,6 +99,7 @@ class UserRepository @Inject constructor(
             }
         }
     }
+
 
     fun registerUser(principle: Principle) {
         auth.createUserWithEmailAndPassword(principle.email, principle.password)
@@ -174,9 +180,9 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun loginUser(username: String, password: String) {
-        if (username.isNotEmpty() && password.isNotEmpty())
-            auth.signInWithEmailAndPassword(username, password)
+    fun loginUser(email: String, password: String) {
+        if (email.isNotEmpty() && password.isNotEmpty())
+            auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         user.setUserEmail(auth.currentUser?.email ?: "no mail")
@@ -191,11 +197,10 @@ class UserRepository @Inject constructor(
                     } else {
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-//                                ToDo what if email is not verified?
-                                if (user.email == username && user.password == password && user.isEmailVerified) {
+                                if (user.email == email && user.password == password && user.isEmailVerified) {
                                     user.setUserIsUserLoggedIn(true)
-                                    _userState.value = Event(UserLoggedInState(username))
-                                } else if (user.email != username) {
+                                    _userState.value = Event(UserLoggedInState(email))
+                                } else if (user.email != email) {
                                     _userState.value = Event(UserErrorState("Wrong email"))
                                 } else if (user.password != password) {
                                     _userState.value = Event(UserErrorState("Wrong password"))
@@ -257,87 +262,23 @@ class UserRepository @Inject constructor(
         }
     }
 
-//    To interact with fb db
-    fun updateUserData(principle: Principle?) {
-        val user: Principle = principle ?: this.user
-        updateUserDataTask(user, "updateUserData").addOnCompleteListener { task ->
-            val e = task.exception
-            if (e is FirebaseFunctionsException) {
-                _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
-            } else {
-                _userState.value = Event(UserLoggedInState(task.result))
-            }
-        }
-    }
-
-    private fun updateUserDataTask(user: Principle, fbFunction: String): Task<String> {
-        // Create the arguments to the callable function.
-        val data = hashMapOf(
-            "email" to user.email,
-            "fullName" to user.fullName,
-            "department" to user.department,
-            "subDepartment" to user.subDepartment,
-            "jobRole" to user.jobRole
-        )
-
+    fun callFirebaseFunction(user: Principle = this.user, fbFunction: String): Task<String> {
         return functions
             .getHttpsCallable(fbFunction)
-            .call(data)
+            .call(user.dataToFirebase())
             .continueWith { task ->
-                val result: Map<String, Any> = task.result?.data as Map<String, Any>
-                buildString {
-                    append("result: ")
-                    append((result["result"] ?: "has no result") as String)
-                    append("\n")
-                    append("user email: ")
-                    append((result["email"] ?: "has no email") as String)
-                    append("\n")
-                    append("user full name: ")
-                    append((result["fullName"] ?: "has no full name") as String)
-                    append("\n")
-                    append("user department: ")
-                    append((result["department"] ?: "has no department") as String)
-                    append("\n")
-                    append("user sub department: ")
-                    append((result["subDepartment"] ?: "has no sub department") as String)
-                    append("\n")
-                    append("user job role: ")
-                    append((result["jobRole"] ?: "has no job role") as String)
-                }
+                Principle(storage, task.result?.data as Map<String, Any>).toString()
             }
-    }
-
-    fun getUserData(): Task<Principle> {
-        val repository = this
-        return functions
-            .getHttpsCallable("getUserData")
-            .call(hashMapOf("email" to user.email))
-            .continueWith { task ->
-                runBlocking {
-                    repository.getActualToken()
-                    val result: Map<String, Any> = task.result?.data as Map<String, Any>
-                    Principle(
-                        fullName = (result["fullName"] ?: "has no full name") as String,
-                        department = (result["department"] ?: "has no department") as String,
-                        subDepartment = (result["subDepartment"] ?: "has no sub department") as String,
-                        jobRole = (result["jobRole"] ?: "has no job role") as String,
-                        email = (result["email"] ?: "has no email") as String,
-                        password = user.password,
-                        isEmailVerified = true,
-                        isUserLoggedIn = true,
-                        fbToken = "JWT provided by Firebase,\n" +
-                                "diff: ${user.epochFbDiff} seconds\n" +
-                                "expiration: ${getStringDate(user.fbTokenExp * 1000) ?: EmptyString.str}",
-                        epochFbDiff = user.epochFbDiff,
-                        fbTokenExp = user.fbTokenExp
-                    )
-                }
-            }.addOnCompleteListener { result ->
-                val e = result.exception
-                if (e is FirebaseFunctionsException) {
-                    _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
-                } else {
+            .addOnCompleteListener { result ->
+                if(result.isSuccessful) {
                     _userState.value = Event(UserLoggedInState(result.result.toString()))
+                } else {
+                    val e = result.exception
+                    if (e is FirebaseFunctionsException) {
+                        _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
+                    } else {
+                        _userState.value = Event(UserErrorState(e.toString()))
+                    }
                 }
             }
     }
