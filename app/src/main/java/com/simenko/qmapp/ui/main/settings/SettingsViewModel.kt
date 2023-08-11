@@ -34,11 +34,11 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun getUserData() {
-        userRepository.callFirebaseFunction(fbFunction = "getUserData")
+        userRepository.getUserData()
     }
 
-    fun updateUserData() {
-        userRepository.callFirebaseFunction(fbFunction = "updateUserData")
+    fun updateUserCompleteData() {
+        userRepository.updateUserCompleteData()
     }
 
     private val _isApproveActionVisible = MutableStateFlow(false)
