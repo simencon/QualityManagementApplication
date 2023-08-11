@@ -166,7 +166,7 @@ fun Settings(
                 onClick = {
                     error = ""
                     msg = ""
-                    settingsViewModel.updateUserData()
+                    settingsViewModel.updateUserCompleteData()
                 },
                 content = {
                     Text(
