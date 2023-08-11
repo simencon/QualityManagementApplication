@@ -47,6 +47,7 @@ class UserRepository @Inject constructor(
      * */
     suspend fun getActualUserState() = suspendCoroutine { continuation ->
         if (user.email.isEmpty()) {
+            user.clearUserData()
             _userState.value = Event(UserInitialState)
             continuation.resume(_userState.value.peekContent())
         } else if (user.email.isNotEmpty() && user.password.isEmpty()) {
@@ -115,12 +116,14 @@ class UserRepository @Inject constructor(
                                     _userState.value = Event(UserLoggedOutState("Account has been disabled"))
                                     continuation.resume(_userState.value.peekContent())
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
+                                    user.clearUserData()
                                     _userState.value = Event(UserInitialState)
                                     continuation.resume(_userState.value.peekContent())
                                 }
                             }
 
                             else -> {
+                                user.clearUserData()
                                 _userState.value = Event(UserInitialState)
                                 continuation.resume(_userState.value.peekContent())
                             }
