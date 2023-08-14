@@ -1,6 +1,5 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -247,7 +246,7 @@ class UserRepository @Inject constructor(
                                     }
                                 }
                             } else {
-                                _userState.value = Event(UserErrorState(task1.exception?.message))
+                                _userState.value = Event(UserErrorState(task1.exception?.message?:"Cannot obtain user data"))
                             }
                         }
                     } else {
@@ -268,7 +267,7 @@ class UserRepository @Inject constructor(
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserErrorState("Password was changed"))
+                                _userState.value = Event(UserErrorState(task.exception?.message?:"Wrong username or password"))
                             }
 
                             is FirebaseAuthInvalidUserException -> {
