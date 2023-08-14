@@ -107,7 +107,7 @@ class UserRepository @Inject constructor(
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserLoggedOutState("Password or user name was changed"))
+                                _userState.value = Event(UserLoggedOutState("Password was changed"))
                                 continuation.resume(_userState.value.peekContent())
                             }
 
@@ -202,7 +202,7 @@ class UserRepository @Inject constructor(
                 if (task1.isSuccessful) {
                     user.setUserEmail(auth.currentUser?.email ?: "no mail")
                     user.setUserPassword(user.password)
-                    user.setUserIsUserLoggedIn(true)
+                    user.setUserIsLoggedIn(true)
                     auth.currentUser!!.getIdToken(true).addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
                             user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
@@ -215,26 +215,47 @@ class UserRepository @Inject constructor(
         }
     }
 
+    /**
+     * @link (https://app.diagrams.net/#G1lU_2CKxfilfFdA1n6L66gEJCqNSH_wlY)
+     * */
     fun loginUser(email: String, password: String) {
         if (email.isNotEmpty() && password.isNotEmpty())
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        user.setUserEmail(auth.currentUser?.email ?: "no mail")
                         user.setUserPassword(password)
-                        user.setUserIsUserLoggedIn(true)
-                        auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
-                            if (task2.isSuccessful) {
-                                user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
+//                        Refresh locally user data
+                        callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
+                            if(task1.isSuccessful ) {
+                                auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
+                                    if (task2.isSuccessful) {
+                                        user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
+                                        user.setUserIsLoggedIn(true)
+                                        val principle = task1.result
+                                        user.storeUserData(principle)
+                                        if (user.isEmailVerified) {
+                                            _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                        } else {
+                                            _userState.value = Event(UserNeedToVerifyEmailState())
+                                        }
+                                    } else {
+                                        _userState.value = Event(UserErrorState(task2.exception?.message))
+                                    }
+                                }
+                            } else {
+                                _userState.value = Event(UserErrorState(task1.exception?.message))
                             }
                         }
-                        _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
                     } else {
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-                                if (user.email == email && user.password == password && user.isEmailVerified) {
-                                    user.setUserIsUserLoggedIn(true)
-                                    _userState.value = Event(UserLoggedInState(email))
+                                if (user.email == email && user.password == password) {
+                                    user.setUserIsLoggedIn(true)
+                                    if (user.isEmailVerified) {
+                                        _userState.value = Event(UserLoggedInState(email))
+                                    } else {
+                                        _userState.value = Event(UserNeedToVerifyEmailState())
+                                    }
                                 } else if (user.email != email) {
                                     _userState.value = Event(UserErrorState("Wrong email"))
                                 } else if (user.password != password) {
@@ -243,11 +264,21 @@ class UserRepository @Inject constructor(
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserErrorState(task.exception?.message))
+                                _userState.value = Event(UserErrorState("Password was changed"))
+                            }
+
+                            is FirebaseAuthInvalidUserException -> {
+                                if (task.exception?.message?.contains("account has been disabled") == true) {
+                                    _userState.value = Event(UserErrorState("Account has been disabled"))
+                                } else if (task.exception?.message?.contains("user may have been deleted") == true) {
+                                    user.clearUserData()
+                                    _userState.value = Event(UserInitialState)
+                                }
                             }
 
                             else -> {
-                                _userState.value = Event(UserErrorState(task.exception?.message))
+                                user.clearUserData()
+                                _userState.value = Event(UserInitialState)
                             }
                         }
                     }
@@ -261,11 +292,11 @@ class UserRepository @Inject constructor(
         if (auth.currentUser != null) {
             auth.signOut()
             if (auth.currentUser == null) {
-                user.setUserIsUserLoggedIn(false)
+                user.setUserIsLoggedIn(false)
                 _userState.value = Event(UserLoggedOutState())
             }
         } else {
-            user.setUserIsUserLoggedIn(false)
+            user.setUserIsLoggedIn(false)
             _userState.value = Event(UserLoggedOutState())
         }
     }
@@ -340,6 +371,6 @@ object UserInitialState : UserState()
 data class UserRegisteredState(val msg: String) : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
 data class UserNeedToVerifiedByOrganisationState(val msg: String) : UserState()
-data class UserLoggedOutState(val msg: String = "") : UserState()
+data class UserLoggedOutState(val msg: String = "Password was changed") : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()

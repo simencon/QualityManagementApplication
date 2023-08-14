@@ -30,7 +30,7 @@ data class Principle(
         private const val USER_PHONE_NUMBER = "phoneNumber"
         private const val PASSWORD_SUFFIX = "password_suffix"
         private const val IS_EMAIL_VERIFIED = "enabled"
-        private const val IS_USER_LOG_IN = "is_user_log_in"
+        private const val IS_USER_LOGGED_IN = "is_user_log_in"
         private const val FB_TOKEN = "fb_token"
         private const val EPOCH_FB_DIFF = "epoch_fb_diff"
         private const val FB_TOKEN_EXP = "fb_token_exp"
@@ -48,7 +48,7 @@ data class Principle(
         phoneNumber = userStorage.getLong(USER_PHONE_NUMBER),
         password = userStorage.getString("${userStorage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
         isEmailVerified = userStorage.getBoolean(IS_EMAIL_VERIFIED),
-        isUserLoggedIn = userStorage.getBoolean(IS_USER_LOG_IN),
+        isUserLoggedIn = userStorage.getBoolean(IS_USER_LOGGED_IN),
         fbToken = userStorage.getString(FB_TOKEN),
         epochFbDiff = userStorage.getLong(EPOCH_FB_DIFF),
         fbTokenExp = userStorage.getLong(FB_TOKEN_EXP),
@@ -68,7 +68,7 @@ data class Principle(
         phoneNumber = (result.getValue(USER_PHONE_NUMBER)).toString().toLong(),
         password = userStorage.getString("${userStorage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
         isEmailVerified = (result[IS_EMAIL_VERIFIED] ?: EmptyString.str) as Boolean,
-        isUserLoggedIn = userStorage.getBoolean(IS_USER_LOG_IN),
+        isUserLoggedIn = userStorage.getBoolean(IS_USER_LOGGED_IN),
         fbToken = userStorage.getString(FB_TOKEN),
         epochFbDiff = userStorage.getLong(EPOCH_FB_DIFF),
         fbTokenExp = userStorage.getLong(FB_TOKEN_EXP),
@@ -94,8 +94,8 @@ data class Principle(
         userStorage?.setString("$email$PASSWORD_SUFFIX", password)
     }
 
-    fun setUserIsUserLoggedIn(isUserLoggedIn: Boolean) {
-        userStorage?.setBoolean(IS_USER_LOG_IN, isUserLoggedIn)
+    fun setUserIsLoggedIn(isUserLoggedIn: Boolean) {
+        userStorage?.setBoolean(IS_USER_LOGGED_IN, isUserLoggedIn)
     }
 
     fun setUserIsEmailVerified(isEmailVerified: Boolean) {
@@ -119,7 +119,7 @@ data class Principle(
             it.setString(USER_EMAIL, user.email)
             it.setLong(USER_PHONE_NUMBER, user.phoneNumber)
             it.setString("${user.email}$PASSWORD_SUFFIX", user.password)
-            it.setBoolean(IS_USER_LOG_IN, user.isUserLoggedIn)
+            it.setBoolean(IS_USER_LOGGED_IN, user.isUserLoggedIn)
             it.setBoolean(IS_EMAIL_VERIFIED, user.isEmailVerified)
             it.setString(FB_TOKEN, user.fbToken)
             it.setLong(EPOCH_FB_DIFF, user.epochFbDiff)
@@ -136,7 +136,7 @@ data class Principle(
             it.setString(USER_EMAIL, EmptyString.str)
             it.setLong(USER_PHONE_NUMBER, NoRecord.num.toLong())
             it.setString("$USER_EMAIL$PASSWORD_SUFFIX", EmptyString.str)
-            it.setBoolean(IS_USER_LOG_IN, false)
+            it.setBoolean(IS_USER_LOGGED_IN, false)
             it.setBoolean(IS_EMAIL_VERIFIED, false)
             it.setString(FB_TOKEN, EmptyString.str)
             it.setLong(EPOCH_FB_DIFF, NoRecord.num.toLong())
