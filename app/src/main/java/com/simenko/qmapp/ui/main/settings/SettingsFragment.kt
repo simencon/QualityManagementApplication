@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
@@ -117,7 +119,7 @@ fun Settings(
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Start,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(all = 0.dp)
         ) {
@@ -131,108 +133,28 @@ fun Settings(
                 )
             Spacer(modifier = Modifier.height(10.dp))
 
-            Text(
-                text = "Full name",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .padding(all = 0.dp)
-            )
-            Text(
-                text = settingsViewModel.userLocalData.fullName,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = "Job role",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Text(
-                text = settingsViewModel.userLocalData.jobRole,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = "Department",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Text(
-                text = "${settingsViewModel.userLocalData.department}/${settingsViewModel.userLocalData.subDepartment}",
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = "Company",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Text(
-                text = settingsViewModel.userLocalData.company,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = "Email",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Text(
-                text = settingsViewModel.userLocalData.email,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = "Phone number",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Text(
-                text = settingsViewModel.userLocalData.phoneNumber.toString(),
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
-            )
-            Spacer(modifier = Modifier.height(5.dp))
+            ) {
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsViewModel.userLocalData.fullName)
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsViewModel.userLocalData.jobRole)
+                InfoLine(
+                    modifier = modifier.padding(start = 15.dp),
+                    title = "Department",
+                    body = settingsViewModel.userLocalData.department +
+                            if (settingsViewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsViewModel.userLocalData.subDepartment}"
+                )
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsViewModel.userLocalData.company)
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsViewModel.userLocalData.email)
+                InfoLine(
+                    modifier = modifier.padding(start = 15.dp),
+                    title = "Phone number",
+                    body = if (settingsViewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsViewModel.userLocalData.phoneNumber.toString()
+                )
+            }
 
             TextButton(
                 modifier = Modifier.width(150.dp),
@@ -336,6 +258,29 @@ fun Settings(
             )
         }
     }
+}
+
+@Composable
+fun InfoLine(
+    modifier: Modifier,
+    title: String,
+    body: String
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+    Text(
+        text = body,
+        style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+    Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Preview(name = "Lite Mode Settings", showBackground = true, widthDp = 360)
