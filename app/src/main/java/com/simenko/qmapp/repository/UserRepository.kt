@@ -1,5 +1,6 @@
 package com.simenko.qmapp.repository
 
+import android.util.Log
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
@@ -46,6 +47,7 @@ class UserRepository @Inject constructor(
      *@link (https://app.diagrams.net/#G1vvhdmr_4ATIBjb91JfzASgCwj16VsOkY)
      * */
     suspend fun getActualUserState() = suspendCoroutine { continuation ->
+//        user.refreshModelDataFromStorage()
         if (user.email.isEmpty()) {
             user.clearUserData()
             _userState.value = Event(UserInitialState)
@@ -223,16 +225,18 @@ class UserRepository @Inject constructor(
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        user.setUserPassword(password)
 //                        Refresh locally user data
                         callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
-                            if(task1.isSuccessful ) {
+                            if (task1.isSuccessful) {
                                 auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
                                     if (task2.isSuccessful) {
-                                        user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
-                                        user.setUserIsLoggedIn(true)
                                         val principle = task1.result
                                         user.storeUserData(principle)
+                                        user.setUserEmail(auth.currentUser?.email ?: "no mail")
+                                        user.setUserPassword(password)
+                                        user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
+                                        user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
+                                        user.setUserIsLoggedIn(true)
                                         if (user.isEmailVerified) {
                                             _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
                                         } else {

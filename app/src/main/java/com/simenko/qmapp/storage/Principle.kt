@@ -113,6 +113,7 @@ data class Principle(
     fun storeUserData(user: Principle) {
         userStorage?.let {
             it.setString(USER_FULL_NAME, user.fullName)
+            it.setString(USER_COMPANY, user.company)
             it.setString(USER_DEPARTMENT, user.department)
             it.setString(USER_SUB_DEPARTMENT, user.subDepartment ?: EmptyString.str)
             it.setString(USER_JOB_ROLE, user.jobRole)
@@ -126,6 +127,7 @@ data class Principle(
             it.setLong(FB_TOKEN_EXP, user.fbTokenExp)
         }
     }
+
 
     fun clearUserData() {
         userStorage?.let {
