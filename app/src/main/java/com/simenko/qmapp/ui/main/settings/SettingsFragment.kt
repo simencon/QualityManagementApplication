@@ -86,8 +86,6 @@ fun Settings(
     onClick: (String) -> Unit,
 ) {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val userEmail = settingsViewModel.getUserEmail()
-    val password = settingsViewModel.getUserPassword()
     val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
@@ -111,7 +109,7 @@ fun Settings(
 
     val onApproveLambda = remember<(String) -> Unit> {
         {
-            settingsViewModel.deleteAccount(userEmail, it)
+            settingsViewModel.deleteAccount(settingsViewModel.userLocalData.email, it)
             onClick(Screen.Registration.route)
         }
     }
@@ -119,19 +117,10 @@ fun Settings(
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             modifier = Modifier
                 .padding(all = 0.dp)
         ) {
-            Text(
-                text = userEmail,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
             if (msg != "")
                 Text(
                     text = msg,
@@ -141,6 +130,110 @@ fun Settings(
                     textAlign = TextAlign.Center
                 )
             Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = "Full name",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Text(
+                text = settingsViewModel.userLocalData.fullName,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Job role",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Text(
+                text = settingsViewModel.userLocalData.jobRole,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Department",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Text(
+                text = "${settingsViewModel.userLocalData.department}/${settingsViewModel.userLocalData.subDepartment}",
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Company",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Text(
+                text = settingsViewModel.userLocalData.company,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Email",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Text(
+                text = settingsViewModel.userLocalData.email,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "Phone number",
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Text(
+                text = settingsViewModel.userLocalData.phoneNumber.toString(),
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+
             TextButton(
                 modifier = Modifier.width(150.dp),
                 onClick = {
@@ -236,8 +329,8 @@ fun Settings(
         if (approveActionDialogVisibility) {
             ApproveAction(
                 registrationViewModel = settingsViewModel,
-                msg = "Delete $userEmail?",
-                derivedPassword = password,
+                msg = "Delete ${settingsViewModel.userLocalData.email}?",
+                derivedPassword = settingsViewModel.userLocalData.password,
                 onDenyClick = { onDenyLambda() },
                 onApproveClick = { p1 -> onApproveLambda(p1) }
             )
@@ -247,7 +340,7 @@ fun Settings(
 
 @Preview(name = "Lite Mode Settings", showBackground = true, widthDp = 360)
 @Composable
-fun TermsAndConditionsPreview() {
+fun SettingsPreview() {
     QMAppTheme {
         Settings(
             modifier = Modifier

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
+import com.simenko.qmapp.storage.Principle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,11 +20,8 @@ class SettingsViewModel @Inject constructor(
     val userState: StateFlow<Event<UserState>>
         get() = userRepository.userState
 
-    fun getUserEmail(): String = userRepository.user.email
-
-    fun getUserPassword(): String {
-        return userRepository.user.password
-    }
+    val userLocalData: Principle
+        get() = userRepository.user
 
     fun logout() {
         userRepository.logout()
