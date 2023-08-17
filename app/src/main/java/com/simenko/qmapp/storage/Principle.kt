@@ -12,6 +12,7 @@ data class Principle(
     var jobRole: String,
     var email: String,
     var phoneNumber: Long,
+    var restApiUrl: String,
     var password: String,
     var isEmailVerified: Boolean,
     var isUserLoggedIn: Boolean,
@@ -28,8 +29,9 @@ data class Principle(
         private const val USER_JOB_ROLE = "jobRole"
         private const val USER_EMAIL = "email"
         private const val USER_PHONE_NUMBER = "phoneNumber"
+        private const val REST_API_URL = "restApiUrl"
         private const val PASSWORD_SUFFIX = "password_suffix"
-        private const val IS_EMAIL_VERIFIED = "enabled"
+        private const val IS_EMAIL_VERIFIED = "isEmailVerified"
         private const val IS_USER_LOGGED_IN = "is_user_log_in"
         private const val FB_TOKEN = "fb_token"
         private const val EPOCH_FB_DIFF = "epoch_fb_diff"
@@ -46,6 +48,7 @@ data class Principle(
         jobRole = userStorage.getString(USER_JOB_ROLE),
         email = userStorage.getString(USER_EMAIL),
         phoneNumber = userStorage.getLong(USER_PHONE_NUMBER),
+        restApiUrl = userStorage.getString(REST_API_URL),
         password = userStorage.getString("${userStorage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
         isEmailVerified = userStorage.getBoolean(IS_EMAIL_VERIFIED),
         isUserLoggedIn = userStorage.getBoolean(IS_USER_LOGGED_IN),
@@ -66,6 +69,7 @@ data class Principle(
         jobRole = (result[USER_JOB_ROLE] ?: EmptyString.str) as String,
         email = userStorage.getString(USER_EMAIL),
         phoneNumber = (result.getValue(USER_PHONE_NUMBER)).toString().toLong(),
+        restApiUrl = (result[REST_API_URL] ?: EmptyString.str) as String,
         password = userStorage.getString("${userStorage.getString(USER_EMAIL)}$PASSWORD_SUFFIX"),
         isEmailVerified = (result[IS_EMAIL_VERIFIED] ?: EmptyString.str) as Boolean,
         isUserLoggedIn = userStorage.getBoolean(IS_USER_LOGGED_IN),
@@ -119,6 +123,7 @@ data class Principle(
             it.setString(USER_JOB_ROLE, user.jobRole)
             it.setString(USER_EMAIL, user.email)
             it.setLong(USER_PHONE_NUMBER, user.phoneNumber)
+            it.setString(REST_API_URL, user.restApiUrl)
             it.setString("${user.email}$PASSWORD_SUFFIX", user.password)
             it.setBoolean(IS_USER_LOGGED_IN, user.isUserLoggedIn)
             it.setBoolean(IS_EMAIL_VERIFIED, user.isEmailVerified)
@@ -137,6 +142,7 @@ data class Principle(
             it.setString(USER_JOB_ROLE, EmptyString.str)
             it.setString(USER_EMAIL, EmptyString.str)
             it.setLong(USER_PHONE_NUMBER, NoRecord.num.toLong())
+            it.setString(REST_API_URL, EmptyString.str)
             it.setString("$USER_EMAIL$PASSWORD_SUFFIX", EmptyString.str)
             it.setBoolean(IS_USER_LOGGED_IN, false)
             it.setBoolean(IS_EMAIL_VERIFIED, false)

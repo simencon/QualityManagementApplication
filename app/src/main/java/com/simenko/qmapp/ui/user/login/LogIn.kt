@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.user.login
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,7 +49,7 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
 
@@ -92,7 +91,7 @@ fun LogIn(
                 }
             }
 
-            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route) {
+            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route) {
                 popUpTo(Screen.LogIn.route) {
                     inclusive = true
                 }

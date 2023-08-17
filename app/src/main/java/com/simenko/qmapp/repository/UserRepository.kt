@@ -189,6 +189,14 @@ class UserRepository @Inject constructor(
             Event(UserErrorState("Wrong email"))
     }
 
+    fun getRestApiUrl(): String =
+        if (user.restApiUrl == EmptyString.str) {
+            _userState.value = Event(UserAuthoritiesNotVerifiedState())
+            EmptyString.str
+        } else {
+            user.restApiUrl
+        }
+
     fun getActualToken(): String =
         if (Instant.now().epochSecond + user.epochFbDiff < user.fbTokenExp) {
             user.fbToken
@@ -233,7 +241,11 @@ class UserRepository @Inject constructor(
                                         user.storeUserData(principle)
                                         user.setUserEmail(auth.currentUser?.email ?: "no mail")
                                         user.setUserPassword(password)
-                                        user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
+                                        user.updateToken(
+                                            task2.result.token ?: EmptyString.str,
+                                            task2.result.authTimestamp,
+                                            task2.result.expirationTimestamp
+                                        )
                                         user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
                                         user.setUserIsLoggedIn(true)
                                         if (user.isEmailVerified) {
@@ -246,7 +258,7 @@ class UserRepository @Inject constructor(
                                     }
                                 }
                             } else {
-                                _userState.value = Event(UserErrorState(task1.exception?.message?:"Cannot obtain user data"))
+                                _userState.value = Event(UserErrorState(task1.exception?.message ?: "Cannot obtain user data"))
                             }
                         }
                     } else {
@@ -267,7 +279,7 @@ class UserRepository @Inject constructor(
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserErrorState(task.exception?.message?:"Wrong username or password"))
+                                _userState.value = Event(UserErrorState(task.exception?.message ?: "Wrong username or password"))
                             }
 
                             is FirebaseAuthInvalidUserException -> {
@@ -373,7 +385,7 @@ sealed class UserState
 object UserInitialState : UserState()
 data class UserRegisteredState(val msg: String) : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
-data class UserNeedToVerifiedByOrganisationState(val msg: String) : UserState()
+data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization") : UserState()
 data class UserLoggedOutState(val msg: String = "Password was changed") : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
