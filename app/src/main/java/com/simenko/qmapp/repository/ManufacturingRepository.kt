@@ -27,7 +27,7 @@ private const val TAG = "ManufacturingRepository"
 @Singleton
 class ManufacturingRepository @Inject constructor(
     private val manufacturingDao: ManufacturingDao,
-    val manufacturingService: ManufacturingService
+    private val manufacturingService: ManufacturingService
 ) {
     /**
      * Update Manufacturing from the network
