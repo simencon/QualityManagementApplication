@@ -38,7 +38,7 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserRegisteredState
 
 @Composable
@@ -80,7 +80,7 @@ fun TermsAndConditions(
                 }
             }
 
-            is UserNeedToVerifiedByOrganisationState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
                 popUpTo(Screen.Registration.route) {
                     inclusive = true
                 }

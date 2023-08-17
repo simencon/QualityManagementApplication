@@ -16,6 +16,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
@@ -35,6 +36,7 @@ private const val TAG = "SyncEntitiesWorker"
 class SyncEntitiesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val workerParams: WorkerParameters,
+    private val userRepository: UserRepository,
     private val invRepository: InvestigationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat
 ) : CoroutineWorker(context, workerParams) {

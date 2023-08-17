@@ -80,7 +80,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient): Retrofit = Retrofit
+    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, userRepository: UserRepository): Retrofit = Retrofit
         .Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(
