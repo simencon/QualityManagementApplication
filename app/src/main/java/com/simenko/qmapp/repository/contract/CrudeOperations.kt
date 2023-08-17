@@ -3,6 +3,7 @@ package com.simenko.qmapp.repository.contract
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
@@ -25,12 +26,14 @@ import javax.inject.Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class CrudeOperations @Inject constructor(
-    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>
+    private val errorConverter: Converter<ResponseBody, NetworkErrorBody>,
+    private val userRepository: UserRepository
 ) {
     fun <N : Number> CoroutineScope.responseHandlerForService(
         taskExecutor: suspend () -> Response<N>
     ): ReceiveChannel<Event<Resource<Number>>> = produce {
         runCatching {
+            userRepository.refreshTokenIfNecessary()
             send(Event(Resource.loading(null)))
             taskExecutor().let { response ->
                 if (response.isSuccessful) {
@@ -53,6 +56,7 @@ class CrudeOperations @Inject constructor(
         resultHandler: (DB) -> Unit
     ): ReceiveChannel<Event<Resource<DM>>> = produce {
         runCatching {
+            userRepository.refreshTokenIfNecessary()
             send(Event(Resource.loading(null)))
             taskExecutor().let { response ->
                 if (response.isSuccessful) {
@@ -76,6 +80,7 @@ class CrudeOperations @Inject constructor(
         resultHandler: (List<DB>) -> Unit
     ): ReceiveChannel<Event<Resource<List<DM>>>> = produce {
         runCatching {
+            userRepository.refreshTokenIfNecessary()
             send(Event(Resource.loading(null)))
             taskExecutor().let { response ->
                 if (response.isSuccessful) {
@@ -108,6 +113,7 @@ class CrudeOperations @Inject constructor(
             DAO : DaoTimeDependentModel<DB> {
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val ntSubOrders = serviceGetRecordsByTimeRange(timeRange).run {
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
             }
@@ -178,6 +184,7 @@ class CrudeOperations @Inject constructor(
             DAO : DaoBaseModel<DB>,
             DAO : DaoTimeDependentModel<DB> {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val ntOrders = serviceGetRecordsByTimeRange(timeRange).run {
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
             }
@@ -231,6 +238,7 @@ class CrudeOperations @Inject constructor(
             DM : DomainBaseModel<DB>,
             DAO : DaoBaseModel<DB> {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val ntOrders = serviceGetRecords().run {
                 if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
             }

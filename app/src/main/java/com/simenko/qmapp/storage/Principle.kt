@@ -106,7 +106,7 @@ data class Principle(
         userStorage?.setBoolean(IS_EMAIL_VERIFIED, isEmailVerified)
     }
 
-    fun setRestApiUrl(restApiUrl: String) {
+    fun setUserRestApiUrl(restApiUrl: String) {
         userStorage?.setString(REST_API_URL, restApiUrl)
     }
 
