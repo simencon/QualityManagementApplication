@@ -106,6 +106,10 @@ data class Principle(
         userStorage?.setBoolean(IS_EMAIL_VERIFIED, isEmailVerified)
     }
 
+    fun setRestApiUrl(restApiUrl: String) {
+        userStorage?.setString(REST_API_URL, restApiUrl)
+    }
+
     fun updateToken(fbToken: String, epochFbTimeStampSec: Long, epochFbTokenSec: Long) {
         userStorage?.let {
             it.setString(FB_TOKEN, fbToken)
