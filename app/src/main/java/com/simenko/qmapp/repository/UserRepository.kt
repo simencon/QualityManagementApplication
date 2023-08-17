@@ -15,6 +15,7 @@ import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.storage.Principle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -197,28 +198,25 @@ class UserRepository @Inject constructor(
             user.restApiUrl
         }
 
-    fun getActualToken(): String =
-        if (Instant.now().epochSecond + user.epochFbDiff < user.fbTokenExp) {
-            user.fbToken
-        } else {
-            refreshToken()
-            EmptyString.str
-        }
+    val authToken: String
+        get() = user.fbToken
 
-    private fun refreshToken() {
-        if (userState.value.peekContent() is UserLoggedInState) {
+    suspend fun refreshTokenIfNecessary() = suspendCoroutine { continuation ->
+        if (Instant.now().epochSecond + user.epochFbDiff < user.fbTokenExp) {
+            continuation.resume(user.fbToken)
+        } else {
             auth.signInWithEmailAndPassword(user.email, user.password).addOnCompleteListener { task1 ->
                 if (task1.isSuccessful) {
-                    user.setUserEmail(auth.currentUser?.email ?: "no mail")
-                    user.setUserPassword(user.password)
-                    user.setUserIsLoggedIn(true)
                     auth.currentUser!!.getIdToken(true).addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
                             user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
+                            continuation.resume(user.fbToken)
+                        } else {
+                            throw IOException("Not possible to obtain token")
                         }
                     }
                 } else {
-                    _userState.value = Event(UserErrorState(task1.exception?.message))
+                    throw IOException("Not possible to obtain token")
                 }
             }
         }
@@ -235,27 +233,16 @@ class UserRepository @Inject constructor(
 //                        Refresh locally user data
                         callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
-                                auth.currentUser?.getIdToken(true)?.addOnCompleteListener { task2 ->
-                                    if (task2.isSuccessful) {
-                                        val principle = task1.result
-                                        user.storeUserData(principle)
-                                        user.setUserEmail(auth.currentUser?.email ?: "no mail")
-                                        user.setUserPassword(password)
-                                        user.updateToken(
-                                            task2.result.token ?: EmptyString.str,
-                                            task2.result.authTimestamp,
-                                            task2.result.expirationTimestamp
-                                        )
-                                        user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
-                                        user.setUserIsLoggedIn(true)
-                                        if (user.isEmailVerified) {
-                                            _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
-                                        } else {
-                                            _userState.value = Event(UserNeedToVerifyEmailState())
-                                        }
-                                    } else {
-                                        _userState.value = Event(UserErrorState(task2.exception?.message))
-                                    }
+                                val principle = task1.result
+                                user.storeUserData(principle)
+                                user.setUserEmail(auth.currentUser?.email ?: "no mail")
+                                user.setUserPassword(password)
+                                user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
+                                user.setUserIsLoggedIn(true)
+                                if (user.isEmailVerified) {
+                                    _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                } else {
+                                    _userState.value = Event(UserNeedToVerifyEmailState())
                                 }
                             } else {
                                 _userState.value = Event(UserErrorState(task1.exception?.message ?: "Cannot obtain user data"))

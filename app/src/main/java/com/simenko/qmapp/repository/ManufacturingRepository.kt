@@ -27,13 +27,15 @@ private const val TAG = "ManufacturingRepository"
 @Singleton
 class ManufacturingRepository @Inject constructor(
     private val manufacturingDao: ManufacturingDao,
-    private val manufacturingService: ManufacturingService
+    private val manufacturingService: ManufacturingService,
+    private val userRepository: UserRepository
 ) {
     /**
      * Update Manufacturing from the network
      */
     suspend fun refreshPositionLevels() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getPositionLevels()
             manufacturingDao.insertPositionLevelsAll(
                 list.map { it.toDatabaseModel() }
@@ -44,6 +46,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshTeamMembers() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getTeamMembers()
             manufacturingDao.insertTeamMembersAll(
                 list.map { it.toDatabaseModel() }
@@ -54,6 +57,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
+            userRepository.refreshTokenIfNecessary()
             val response = manufacturingService.insertTeamMember(
                 record.toDatabaseModel().toNetworkModel()
             )
@@ -69,6 +73,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun deleteRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
+            userRepository.refreshTokenIfNecessary()
             val response = manufacturingService.deleteTeamMember(record.id)
             if (response.isSuccessful) {
                 manufacturingDao.deleteTeamMember(record.toDatabaseModel())
@@ -78,6 +83,7 @@ class ManufacturingRepository @Inject constructor(
 
     fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
         coroutineScope.produce {
+            userRepository.refreshTokenIfNecessary()
             val response = manufacturingService
                 .updateTeamMember(record.id, record.toDatabaseModel().toNetworkModel()).body()
                 ?.toDatabaseModel()
@@ -88,6 +94,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshCompanies() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getCompanies()
             manufacturingDao.insertCompaniesAll(
                 list.map { it.toDatabaseModel() }
@@ -98,6 +105,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshDepartments() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getDepartments()
             manufacturingDao.insertDepartmentsAll(
                 list.map { it.toDatabaseModel() }
@@ -108,6 +116,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshSubDepartments() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getSubDepartments()
             manufacturingDao.insertSubDepartmentsAll(
                 list.map { it.toDatabaseModel() }
@@ -118,6 +127,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshManufacturingChannels() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getManufacturingChannels()
             manufacturingDao.insertManufacturingChannelsAll(
                 list.map { it.toDatabaseModel() }
@@ -128,6 +138,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshManufacturingLines() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getManufacturingLines()
             manufacturingDao.insertManufacturingLinesAll(
                 list.map { it.toDatabaseModel() }
@@ -138,6 +149,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshManufacturingOperations() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getManufacturingOperations()
             manufacturingDao.insertManufacturingOperationsAll(
                 list.map { it.toDatabaseModel() }
@@ -148,6 +160,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun refreshOperationsFlows() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = manufacturingService.getOperationsFlows()
             manufacturingDao.insertOperationsFlowsAll(
                 list.map { it.toDatabaseModel() }
