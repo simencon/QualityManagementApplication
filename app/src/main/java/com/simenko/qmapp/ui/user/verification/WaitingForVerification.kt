@@ -56,7 +56,7 @@ fun WaitingForVerification(
         when (state) {
             is UserInitialState -> {}
             is UserRegisteredState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.WaitingForValidation.route) {
                     inclusive = true
                 }
             }
@@ -73,7 +73,7 @@ fun WaitingForVerification(
 
             is UserLoggedInState -> logInSuccess()
             is UserLoggedOutState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.WaitingForValidation.route) {
                     inclusive = true
                 }
             }

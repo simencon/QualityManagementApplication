@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.storage.Principle
@@ -47,7 +48,6 @@ class UserRepository @Inject constructor(
      *@link (https://app.diagrams.net/#G1vvhdmr_4ATIBjb91JfzASgCwj16VsOkY)
      * */
     suspend fun getActualUserState() = suspendCoroutine { continuation ->
-//        user.refreshModelDataFromStorage()
         if (user.email.isEmpty()) {
             user.clearUserData()
             _userState.value = Event(UserInitialState)
@@ -60,26 +60,66 @@ class UserRepository @Inject constructor(
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         if (user.isEmailVerified) {
-                            if (user.isUserLoggedIn) {
-                                _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
-                                continuation.resume(_userState.value.peekContent())
+
+                            if (user.restApiUrl != EmptyString.str) {
+                                if (user.isUserLoggedIn) {
+                                    _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                    continuation.resume(_userState.value.peekContent())
+                                } else {
+                                    _userState.value = Event(UserLoggedOutState())
+                                    continuation.resume(_userState.value.peekContent())
+                                }
                             } else {
-                                _userState.value = Event(UserLoggedOutState())
-                                continuation.resume(_userState.value.peekContent())
+                                callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
+                                    if (task1.isSuccessful) {
+                                        val principle = task1.result
+                                        if (principle.restApiUrl != EmptyString.str) {
+                                            user.setUserRestApiUrl(principle.restApiUrl)
+                                            if (user.isUserLoggedIn) {
+                                                _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                                continuation.resume(_userState.value.peekContent())
+                                            } else {
+                                                _userState.value = Event(UserLoggedOutState())
+                                                continuation.resume(_userState.value.peekContent())
+                                            }
+                                        } else {
+                                            _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                            continuation.resume(_userState.value.peekContent())
+                                        }
+                                    } else {
+                                        _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                        continuation.resume(_userState.value.peekContent())
+                                    }
+                                }
                             }
+
                         } else {
                             if (auth.currentUser?.isEmailVerified == true) {
-                                val principle = this.user
+                                var principle = this.user
                                 principle.isEmailVerified = true
                                 callFirebaseFunction(principle, "updateUserData").addOnCompleteListener { task1 ->
                                     if (task1.isSuccessful) {
                                         user.setUserIsEmailVerified(true)
-                                        if (user.isUserLoggedIn) {
-                                            _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
-                                            continuation.resume(_userState.value.peekContent())
-                                        } else {
-                                            _userState.value = Event(UserLoggedOutState())
-                                            continuation.resume(_userState.value.peekContent())
+                                        callFirebaseFunction(user, "getUserData").addOnCompleteListener { task2 ->
+                                            if (task2.isSuccessful) {
+                                                principle = task2.result
+                                                if (principle.restApiUrl != EmptyString.str) {
+                                                    user.setUserRestApiUrl(principle.restApiUrl)
+                                                    if (user.isUserLoggedIn) {
+                                                        _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                                        continuation.resume(_userState.value.peekContent())
+                                                    } else {
+                                                        _userState.value = Event(UserLoggedOutState())
+                                                        continuation.resume(_userState.value.peekContent())
+                                                    }
+                                                } else {
+                                                    _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                                    continuation.resume(_userState.value.peekContent())
+                                                }
+                                            } else {
+                                                _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                                continuation.resume(_userState.value.peekContent())
+                                            }
                                         }
                                     } else {
                                         _userState.value = Event(UserNeedToVerifyEmailState())
@@ -95,11 +135,16 @@ class UserRepository @Inject constructor(
                         when (task.exception) {
                             is FirebaseNetworkException -> {
                                 if (user.isEmailVerified) {
-                                    if (user.isUserLoggedIn) {
-                                        _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
-                                        continuation.resume(_userState.value.peekContent())
+                                    if (user.restApiUrl != EmptyString.str) {
+                                        if (user.isUserLoggedIn) {
+                                            _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                            continuation.resume(_userState.value.peekContent())
+                                        } else {
+                                            _userState.value = Event(UserLoggedOutState())
+                                            continuation.resume(_userState.value.peekContent())
+                                        }
                                     } else {
-                                        _userState.value = Event(UserLoggedOutState())
+                                        _userState.value = Event(UserAuthoritiesNotVerifiedState())
                                         continuation.resume(_userState.value.peekContent())
                                     }
                                 } else {
@@ -190,12 +235,11 @@ class UserRepository @Inject constructor(
             Event(UserErrorState("Wrong email"))
     }
 
-    fun getRestApiUrl(): String =
-        if (user.restApiUrl == EmptyString.str) {
-            _userState.value = Event(UserAuthoritiesNotVerifiedState())
-            EmptyString.str
-        } else {
+    val getRestApiUrl: String
+        get() = if (user.restApiUrl != EmptyString.str) {
             user.restApiUrl
+        } else {
+            DEFAULT_REST_API_URL
         }
 
     val authToken: String
@@ -240,7 +284,11 @@ class UserRepository @Inject constructor(
                                 user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
                                 user.setUserIsLoggedIn(true)
                                 if (user.isEmailVerified) {
-                                    _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                    if (user.restApiUrl != EmptyString.str) {
+                                        _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                    } else {
+                                        _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                    }
                                 } else {
                                     _userState.value = Event(UserNeedToVerifyEmailState())
                                 }
@@ -254,7 +302,11 @@ class UserRepository @Inject constructor(
                                 if (user.email == email && user.password == password) {
                                     user.setUserIsLoggedIn(true)
                                     if (user.isEmailVerified) {
-                                        _userState.value = Event(UserLoggedInState(email))
+                                        if (user.restApiUrl != EmptyString.str) {
+                                            _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                        } else {
+                                            _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                        }
                                     } else {
                                         _userState.value = Event(UserNeedToVerifyEmailState())
                                     }

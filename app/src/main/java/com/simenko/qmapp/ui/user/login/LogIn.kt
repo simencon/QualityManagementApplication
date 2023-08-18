@@ -85,13 +85,13 @@ fun LogIn(
 
             is UserRegisteredState -> {}
 
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForEmailVerification.route) {
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForValidation.route) {
                 popUpTo(Screen.LogIn.route) {
                     inclusive = true
                 }
             }
 
-            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.WaitingForVerificationByOrganisation.route) {
+            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.WaitingForValidation.route) {
                 popUpTo(Screen.LogIn.route) {
                     inclusive = true
                 }

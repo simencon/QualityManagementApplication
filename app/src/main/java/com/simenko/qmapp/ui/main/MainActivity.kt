@@ -138,11 +138,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     is UserNeedToVerifyEmailState -> {
                         Log.d(TAG, "onCreate: ${state.msg}")
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForEmailVerification.withArgs(state.msg)))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
                         finish()
                     }
 
-                    is UserAuthoritiesNotVerifiedState -> {}
+                    is UserAuthoritiesNotVerifiedState -> {
+                        Log.d(TAG, "onCreate: ${state.msg}")
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
+                        finish()
+                    }
 
                     is UserLoggedOutState -> {
                         startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))
