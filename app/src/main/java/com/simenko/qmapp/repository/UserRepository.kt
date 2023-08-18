@@ -10,7 +10,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.storage.Principle
@@ -236,11 +235,7 @@ class UserRepository @Inject constructor(
     }
 
     val getRestApiUrl: String
-        get() = if (user.restApiUrl != EmptyString.str) {
-            user.restApiUrl
-        } else {
-            DEFAULT_REST_API_URL
-        }
+        get() = user.restApiUrl
 
     val authToken: String
         get() = user.fbToken

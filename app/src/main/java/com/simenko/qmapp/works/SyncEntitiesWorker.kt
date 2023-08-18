@@ -1,13 +1,10 @@
 package com.simenko.qmapp.works
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.TaskStackBuilder
 import android.content.Context
-import android.content.pm.PackageManager
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
@@ -15,11 +12,8 @@ import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
-import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
@@ -31,6 +25,7 @@ import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Objects
+import javax.inject.Named
 
 private const val TAG = "SyncEntitiesWorker"
 
@@ -38,7 +33,7 @@ private const val TAG = "SyncEntitiesWorker"
 class SyncEntitiesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val workerParams: WorkerParameters,
-    private val userRepository: UserRepository,
+    @Named("rest_api_url") private val url: String,
     private val invRepository: InvestigationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat
 ) : CoroutineWorker(context, workerParams) {
@@ -49,7 +44,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
         val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num.toLong())
 
         runCatching {
-            if (userRepository.getRestApiUrl != DEFAULT_REST_API_URL) {
+            if (url != EmptyString.str) {
                 invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.getCompleteOrdersRange(), latestMillis, excludeMillis))
             } else {
                 listOf()

@@ -7,7 +7,9 @@ import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
+import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
@@ -79,7 +81,7 @@ object AppModule {
     @Provides
     fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, @Named("rest_api_url") url: String): Retrofit = Retrofit
         .Builder()
-        .baseUrl(url)
+        .baseUrl(if (url != EmptyString.str) url else DEFAULT_REST_API_URL)
         .addConverterFactory(
             MoshiConverterFactory.create(
                 moshi
