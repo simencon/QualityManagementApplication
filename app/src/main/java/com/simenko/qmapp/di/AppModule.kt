@@ -7,7 +7,6 @@ import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.other.Constants.BASE_URL
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
@@ -63,11 +62,11 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideClient(userRepository: UserRepository): OkHttpClient {
+    fun provideClient(@Named("firebase_token") token: String): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor { chain ->
                 val newRequest: Request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer ${userRepository.authToken}")
+                    .addHeader("Authorization", "Bearer $token")
                     .build()
                 chain.proceed(newRequest)
             }
@@ -78,9 +77,9 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, userRepository: UserRepository): Retrofit = Retrofit
+    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, @Named("rest_api_url") url: String): Retrofit = Retrofit
         .Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(url)
         .addConverterFactory(
             MoshiConverterFactory.create(
                 moshi
@@ -130,15 +129,15 @@ object AppModule {
 
     @Singleton
     @Provides
-    @Named("firebase_token")
-    fun provideActualToken(userRepository: UserRepository): String {
-        return userRepository.authToken
+    @Named("rest_api_url")
+    fun provideRestApiUrl(userRepository: UserRepository): String {
+        return userRepository.getRestApiUrl
     }
 
     @Singleton
     @Provides
-    @Named("some_string_to_test")
-    fun provideSomeStringToTest(): String {
-        return "Roman Semenyshyn"
+    @Named("firebase_token")
+    fun provideFirebaseToken(userRepository: UserRepository): String {
+        return userRepository.authToken
     }
 }

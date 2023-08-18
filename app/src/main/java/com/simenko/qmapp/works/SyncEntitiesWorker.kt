@@ -13,7 +13,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.UserRepository
@@ -47,7 +49,11 @@ class SyncEntitiesWorker @AssistedInject constructor(
         val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num.toLong())
 
         runCatching {
-            invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.getCompleteOrdersRange(), latestMillis, excludeMillis))
+            if (userRepository.getRestApiUrl != DEFAULT_REST_API_URL) {
+                invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.getCompleteOrdersRange(), latestMillis, excludeMillis))
+            } else {
+                listOf()
+            }
         }.also { result ->
             result.getOrNull().also {
                 return if (it != null) {
@@ -88,7 +94,10 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
         val pendingIntent = TaskStackBuilder.create(context).run {
             addNextIntentWithParentStack(intent)
-            getPendingIntent(Objects.hash(notificationData.orderId, notificationData.subOrderId),PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            getPendingIntent(
+                Objects.hash(notificationData.orderId, notificationData.subOrderId),
+                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+            )
         }
 
         val builder = NotificationCompat.Builder(

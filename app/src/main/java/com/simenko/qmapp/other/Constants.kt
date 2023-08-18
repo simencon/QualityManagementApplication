@@ -1,5 +1,7 @@
 package com.simenko.qmapp.other
 
+import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer.ValueParametersHandler.DEFAULT
+
 object Constants {
 
     const val ACTION_ITEM_SIZE = 45
@@ -33,9 +35,7 @@ object Constants {
      * teamMembers - the real one
      * */
 
-    private const val API_VERSION = "v1"
-    private const val COMPANY = "skf"
-    const val BASE_URL = "https://qualityappspring.azurewebsites.net/api/$API_VERSION/$COMPANY/"
+    const val DEFAULT_REST_API_URL = "https://no.api.yet.com"
 
     const val PRINCIPLE = "principles"
 
