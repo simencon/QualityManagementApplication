@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.user
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -70,7 +69,7 @@ fun Navigation(
             }
         }
         composable(
-            route = Screen.WaitingForEmailVerification.route + "/{message}",
+            route = Screen.WaitingForValidation.route + "/{message}",
             arguments = listOf(
                 navArgument("message") {
                     type = NavType.StringType
@@ -110,8 +109,7 @@ sealed class Screen(val route: String) {
         object TermsAndConditions : Screen("terms_and_conditions")
     }
 
-    object WaitingForEmailVerification : Screen("waiting_for_email_verification")
-    object WaitingForVerificationByOrganisation : Screen("waiting_for_verification_by_organisation")
+    object WaitingForValidation : Screen("waiting_for_validation")
     object LogIn : Screen("log_in")
 
     fun withArgs(vararg args: String) = buildString {

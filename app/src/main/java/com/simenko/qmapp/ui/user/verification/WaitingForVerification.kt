@@ -36,7 +36,7 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserRegisteredState
 
 @Composable
@@ -56,7 +56,7 @@ fun WaitingForVerification(
         when (state) {
             is UserInitialState -> {}
             is UserRegisteredState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.WaitingForValidation.route) {
                     inclusive = true
                 }
             }
@@ -66,14 +66,14 @@ fun WaitingForVerification(
                 error = ""
             }
 
-            is UserNeedToVerifiedByOrganisationState -> {
+            is UserAuthoritiesNotVerifiedState -> {
                 msg = state.msg
                 error = ""
             }
 
             is UserLoggedInState -> logInSuccess()
             is UserLoggedOutState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForEmailVerification.route) {
+                popUpTo(Screen.WaitingForValidation.route) {
                     inclusive = true
                 }
             }
