@@ -20,7 +20,8 @@ private const val TAG = "ProductsRepository"
 @Singleton
 class ProductsRepository @Inject constructor(
     private val productsDao: ProductsDao,
-    private val productsService: ProductsService
+    private val productsService: ProductsService,
+    private val userRepository: UserRepository
 ) {
     /**
      * Update Products from the network
@@ -28,6 +29,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshElementIshModels() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val elementIshModels = productsService.getElementIshModels()
             productsDao.insertElementIshModelsAll(
                 elementIshModels.map { it.toDatabaseModel() }
@@ -38,6 +40,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshIshSubCharacteristics() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val ishSubCharacteristics = productsService.getIshSubCharacteristics()
             productsDao.insertIshSubCharacteristicsAll(
                 ishSubCharacteristics.map { it.toDatabaseModel() }
@@ -48,6 +51,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshManufacturingProjects() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val manufacturingProjects = productsService.getManufacturingProjects()
             productsDao.insertManufacturingProjectsAll(
                 manufacturingProjects.map { it.toDatabaseModel() }
@@ -58,6 +62,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshCharacteristics() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val characteristics = productsService.getCharacteristics()
             productsDao.insertCharacteristicsAll(
                 characteristics.map { it.toDatabaseModel() }
@@ -68,6 +73,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshMetrixes() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val metrixes = productsService.getMetrixes()
             productsDao.insertMetrixesAll(
                 metrixes.map { it.toDatabaseModel() }
@@ -78,6 +84,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshKeys() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getKeys()
             productsDao.insertKeysAll(
                 list.map { it.toDatabaseModel() }
@@ -88,6 +95,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshProductBases() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getProductBases()
             productsDao.insertProductBasesAll(
                 list.map { it.toDatabaseModel() }
@@ -98,6 +106,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshProducts() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getProducts()
             productsDao.insertProductsAll(
                 list.map { it.toDatabaseModel() }
@@ -108,6 +117,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponents() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponents()
             productsDao.insertComponentsAll(
                 list.map { it.toDatabaseModel() }
@@ -118,6 +128,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentInStages() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentInStages()
             productsDao.insertComponentInStagesAll(
                 list.map { it.toDatabaseModel() }
@@ -128,6 +139,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshVersionStatuses() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getVersionStatuses()
             productsDao.insertVersionStatusesAll(
                 list.map { it.toDatabaseModel() }
@@ -138,6 +150,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshProductVersions() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getProductVersions()
             productsDao.insertProductVersionsAll(
                 list.map { it.toDatabaseModel() }
@@ -148,6 +161,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentVersions() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentVersions()
             productsDao.insertComponentVersionsAll(
                 list.map { it.toDatabaseModel() }
@@ -158,6 +172,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentInStageVersions() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentInStageVersions()
             productsDao.insertComponentInStageVersionsAll(
                 list.map { it.toDatabaseModel() }
@@ -168,6 +183,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshProductTolerances() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getProductTolerances()
             productsDao.insertProductTolerancesAll(
                 list.map { it.toDatabaseModel() }
@@ -178,6 +194,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentTolerances() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentTolerances()
             productsDao.insertComponentTolerancesAll(
                 list.map { it.toDatabaseModel() }
@@ -188,6 +205,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentInStageTolerances() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentInStageTolerances()
             productsDao.insertComponentInStageTolerancesAll(
                 list.map { it.toDatabaseModel() }
@@ -198,6 +216,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshProductsToLines() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getProductsToLines()
             productsDao.insertProductsToLinesAll(
                 list.map { it.toDatabaseModel() }
@@ -208,6 +227,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentsToLines() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentsToLines()
             productsDao.insertComponentsToLinesAll(
                 list.map { it.toDatabaseModel() }
@@ -218,6 +238,7 @@ class ProductsRepository @Inject constructor(
 
     suspend fun refreshComponentInStagesToLines() {
         withContext(Dispatchers.IO) {
+            userRepository.refreshTokenIfNecessary()
             val list = productsService.getComponentInStagesToLines()
             productsDao.insertComponentInStagesToLinesAll(
                 list.map { it.toDatabaseModel() }

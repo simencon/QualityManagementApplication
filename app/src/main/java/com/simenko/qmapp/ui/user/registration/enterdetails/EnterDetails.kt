@@ -87,7 +87,7 @@ fun EnterDetails(
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
             is EnterDetailsSuccess -> {
-                registrationViewModel.updateUserData(userEmail, password)
+                registrationViewModel.updateUserData(userFullName, userDepartment, userSubDepartment, userJobRole, userEmail, password)
                 navController.navigate(Screen.Registration.TermsAndConditions.withArgs(userEmail))
             }
 
@@ -314,7 +314,7 @@ fun EnterDetails(
             },
             content = {
                 Text(
-                    text = "Have account",
+                    text = "Log in",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,

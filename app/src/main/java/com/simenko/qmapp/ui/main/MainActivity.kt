@@ -47,7 +47,7 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserNeedToVerifiedByOrganisationState
+import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.works.SyncEntitiesWorker
@@ -138,11 +138,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     is UserNeedToVerifyEmailState -> {
                         Log.d(TAG, "onCreate: ${state.msg}")
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForEmailVerification.withArgs(state.msg)))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
                         finish()
                     }
 
-                    is UserNeedToVerifiedByOrganisationState -> {}
+                    is UserAuthoritiesNotVerifiedState -> {
+                        Log.d(TAG, "onCreate: ${state.msg}")
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
+                        finish()
+                    }
 
                     is UserLoggedOutState -> {
                         startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))

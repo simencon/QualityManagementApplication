@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +37,8 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
@@ -87,8 +88,6 @@ fun Settings(
     onClick: (String) -> Unit,
 ) {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val userEmail = settingsViewModel.getUserEmail()
-    val password = settingsViewModel.getUserPassword(userEmail)
     val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
@@ -112,7 +111,7 @@ fun Settings(
 
     val onApproveLambda = remember<(String) -> Unit> {
         {
-            settingsViewModel.deleteAccount(userEmail, it)
+            settingsViewModel.deleteAccount(settingsViewModel.userLocalData.email, it)
             onClick(Screen.Registration.route)
         }
     }
@@ -124,15 +123,6 @@ fun Settings(
             modifier = Modifier
                 .padding(all = 0.dp)
         ) {
-            Text(
-                text = userEmail,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
             if (msg != "")
                 Text(
                     text = msg,
@@ -142,16 +132,60 @@ fun Settings(
                     textAlign = TextAlign.Center
                 )
             Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            ) {
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsViewModel.userLocalData.fullName)
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsViewModel.userLocalData.jobRole)
+                InfoLine(
+                    modifier = modifier.padding(start = 15.dp),
+                    title = "Department",
+                    body = settingsViewModel.userLocalData.department +
+                            if (settingsViewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsViewModel.userLocalData.subDepartment}"
+                )
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsViewModel.userLocalData.company)
+                InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsViewModel.userLocalData.email)
+                InfoLine(
+                    modifier = modifier.padding(start = 15.dp),
+                    title = "Phone number",
+                    body = if (settingsViewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsViewModel.userLocalData.phoneNumber.toString()
+                )
+            }
+
             TextButton(
                 modifier = Modifier.width(150.dp),
                 onClick = {
                     error = ""
                     msg = ""
-                    settingsViewModel.setUserJobRole("Quality Manager - " + (1..300).random())
+                    settingsViewModel.getUserData()
                 },
                 content = {
                     Text(
-                        text = "Add request",
+                        text = "Get user data",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                    )
+                },
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                shape = MaterialTheme.shapes.medium
+            )
+            TextButton(
+                modifier = Modifier.width(150.dp),
+                onClick = {
+                    error = ""
+                    msg = ""
+                    settingsViewModel.updateUserCompleteData()
+                },
+                content = {
+                    Text(
+                        text = "Update user data",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -217,8 +251,8 @@ fun Settings(
         if (approveActionDialogVisibility) {
             ApproveAction(
                 registrationViewModel = settingsViewModel,
-                msg = "Delete $userEmail?",
-                derivedPassword = password,
+                msg = "Delete ${settingsViewModel.userLocalData.email}?",
+                derivedPassword = settingsViewModel.userLocalData.password,
                 onDenyClick = { onDenyLambda() },
                 onApproveClick = { p1 -> onApproveLambda(p1) }
             )
@@ -226,9 +260,32 @@ fun Settings(
     }
 }
 
+@Composable
+fun InfoLine(
+    modifier: Modifier,
+    title: String,
+    body: String
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+    Text(
+        text = body,
+        style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+    Spacer(modifier = Modifier.height(5.dp))
+}
+
 @Preview(name = "Lite Mode Settings", showBackground = true, widthDp = 360)
 @Composable
-fun TermsAndConditionsPreview() {
+fun SettingsPreview() {
     QMAppTheme {
         Settings(
             modifier = Modifier

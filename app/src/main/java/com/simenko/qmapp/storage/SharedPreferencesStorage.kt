@@ -1,6 +1,9 @@
 package com.simenko.qmapp.storage
 
 import android.content.Context
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -31,6 +34,18 @@ class SharedPreferencesStorage @Inject constructor(@ApplicationContext context: 
     }
 
     override fun getString(key: String): String {
-        return sharedPreferences.getString(key, "")!!
+        return sharedPreferences.getString(key, EmptyString.str)!!
     }
+
+    override fun setLong(key: String, value: Long) {
+        with(sharedPreferences.edit()) {
+            putLong(key, value)
+            apply()
+        }
+    }
+
+    override fun getLong(key: String): Long {
+        return sharedPreferences.getLong(key, NoRecord.num.toLong())
+    }
+
 }
