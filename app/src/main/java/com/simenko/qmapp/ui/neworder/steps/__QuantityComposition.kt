@@ -20,8 +20,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainSample
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.theme.Accent200
-import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.ui.theme.Secondary
 import java.util.*
 
 private const val TAG = "InputInvestigationTypeComposition"
@@ -96,7 +95,7 @@ fun ButtonsSectionQuantity(
         Spacer(Modifier.height(0.dp))
         Divider(
             modifier = modifier.height(2.dp),
-            color = Accent200
+            color = Secondary
         )
     }
 }

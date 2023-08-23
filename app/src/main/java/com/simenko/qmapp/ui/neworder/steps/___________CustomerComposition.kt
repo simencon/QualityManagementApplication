@@ -19,8 +19,8 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.theme.Primary900
-import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.ui.theme.Primary
+import com.simenko.qmapp.ui.theme.TertiaryContainer
 import kotlinx.coroutines.launch
 
 fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
@@ -82,7 +82,7 @@ fun InvestigationCustomerCard(
     modifier: Modifier = Modifier,
     onClick: (DomainDepartment) -> Unit
 ) {
-    val btnBackgroundColor = if (inputForOrder.isSelected) Primary900 else StatusBar400
+    val btnBackgroundColor = if (inputForOrder.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,

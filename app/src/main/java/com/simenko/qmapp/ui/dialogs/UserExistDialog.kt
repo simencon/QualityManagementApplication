@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -58,7 +57,7 @@ fun UserExistDialog(
                     contentDescription = null, // decorative
                     contentScale = ContentScale.Fit,
                     colorFilter = ColorFilter.tint(
-                        color = Primary900
+                        color = Primary
                     ),
                     modifier = Modifier
                         .padding(vertical = 20.dp)
@@ -82,7 +81,7 @@ fun UserExistDialog(
                     Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp)
-                        .background(Primary900),
+                        .background(Primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
 

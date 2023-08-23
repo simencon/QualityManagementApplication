@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -111,7 +110,7 @@ class NewItemActivity : ComponentActivity() {
                                     color = Color.White
                                 )
                             },
-                            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Primary900)
+                            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Primary)
                         )
                     },
                     floatingActionButton = {
@@ -175,7 +174,7 @@ class NewItemActivity : ComponentActivity() {
                                 Icon(
                                     imageVector = Icons.Default.Save,
                                     contentDescription = null,
-                                    tint = Primary900
+                                    tint = Primary
                                 )
                             }
                         )
@@ -397,7 +396,7 @@ fun ButtonsSection(
         Spacer(Modifier.height(16.dp))
         Divider(
             modifier = modifier.height(2.dp),
-            color = Accent200
+            color = Secondary
         )
     }
 }

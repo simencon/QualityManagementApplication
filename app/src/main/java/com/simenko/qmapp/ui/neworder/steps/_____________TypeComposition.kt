@@ -20,8 +20,8 @@ import com.simenko.qmapp.ui.neworder.FilteringMode
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.neworder.performFiltration
 import com.simenko.qmapp.ui.neworder.selectSingleRecord
-import com.simenko.qmapp.ui.theme.Primary900
-import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.ui.theme.Primary
+import com.simenko.qmapp.ui.theme.TertiaryContainer
 import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
@@ -98,7 +98,7 @@ fun InvestigationTypeCard(
     modifier: Modifier = Modifier,
     onClick: (DomainOrdersType) -> Unit
 ) {
-    val btnBackgroundColor = if (inputForOrder.isSelected) Primary900 else StatusBar400
+    val btnBackgroundColor = if (inputForOrder.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,

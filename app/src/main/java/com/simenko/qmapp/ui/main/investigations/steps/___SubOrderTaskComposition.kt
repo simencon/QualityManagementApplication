@@ -130,11 +130,11 @@ fun SubOrderTaskCard(
 
     val cardBgColor =
         when (task.isExpanded) {
-            true -> Accent200
+            true -> Secondary
             false -> {
                 when (task.detailsVisibility) {
-                    true -> _level_3_record_color_details
-                    else -> _level_3_record_color
+                    true -> level_3_record_color_details
+                    else -> level_3_record_color
                 }
             }
         }
@@ -149,7 +149,7 @@ fun SubOrderTaskCard(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Delete,
-                        tint = PrimaryVariant900,
+                        tint = Tertiary,
                         contentDescription = "delete action",
                     )
                 }
@@ -161,7 +161,7 @@ fun SubOrderTaskCard(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.AttachFile,
-                        tint = PrimaryVariant900,
+                        tint = Tertiary,
                         contentDescription = "edit action",
                     )
                 },
@@ -398,8 +398,8 @@ fun SubOrderTask(
                         elevation = ButtonDefaults.buttonElevation(4.dp),
                         border = null,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = _level_3_record_color,
-                            contentColor = Primary900
+                            containerColor = level_3_record_color,
+                            contentColor = Primary
                         )
                     )
                 }

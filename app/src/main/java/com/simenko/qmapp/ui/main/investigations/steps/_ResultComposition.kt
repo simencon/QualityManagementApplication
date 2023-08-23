@@ -97,8 +97,8 @@ fun ResultCard(
 ) {
     val cardBgColor =
         when (result.detailsVisibility) {
-            true -> _level_2_record_color_details
-            else -> _level_2_record_color
+            true -> level_2_record_color_details
+            else -> level_2_record_color
         }
 
     Card(

@@ -40,6 +40,15 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity
+            android:name=".ui.main.MainActivityCompose"
+            android:exported="false"
+            android:label="@string/title_activity_new_order"
+            android:theme="@style/Theme.QMApp">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
 
         <provider
             android:name="androidx.startup.InitializationProvider"

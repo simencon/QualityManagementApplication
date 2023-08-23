@@ -19,8 +19,8 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.theme.Primary900
-import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.ui.theme.Primary
+import com.simenko.qmapp.ui.theme.TertiaryContainer
 import kotlinx.coroutines.launch
 
 private const val TAG = "InputInvestigationTypeComposition"
@@ -108,7 +108,7 @@ fun ChannelCard(
     modifier: Modifier = Modifier,
     onClick: (DomainManufacturingChannel) -> Unit
 ) {
-    val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
+    val btnBackgroundColor = if (input.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,

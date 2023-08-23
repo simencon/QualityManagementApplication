@@ -192,11 +192,11 @@ fun OrderCard(
 
     val cardBgColor =
         when (order.isExpanded) {
-            true -> Accent200
+            true -> Secondary
             false -> {
                 when (order.detailsVisibility) {
-                    true -> _level_1_record_color_details
-                    else -> _level_1_record_color
+                    true -> level_1_record_color_details
+                    else -> level_1_record_color
                 }
             }
         }
@@ -212,7 +212,7 @@ fun OrderCard(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Delete,
-                        tint = PrimaryVariant900,
+                        tint = Tertiary,
                         contentDescription = "delete action",
                     )
                 }
@@ -226,7 +226,7 @@ fun OrderCard(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Edit,
-                        tint = PrimaryVariant900,
+                        tint = Tertiary,
                         contentDescription = "edit action",
                     )
                 },

@@ -32,7 +32,7 @@ import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
-import com.simenko.qmapp.ui.theme.Primary900
+import com.simenko.qmapp.ui.theme.Primary
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 private const val TAG = "InvestigationsMainComposition"
@@ -94,7 +94,7 @@ fun InvestigationsMainComposition(
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = null,
-                            tint = Primary900
+                            tint = Primary
                         )
                     }
                 )
