@@ -26,7 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentTeamBinding
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
-import com.simenko.qmapp.ui.theme.Primary900
+import com.simenko.qmapp.ui.theme.Primary
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -69,7 +69,7 @@ class TeamFragment : Fragment() {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = null,
-                                        tint = Primary900
+                                        tint = Primary
                                     )
                                 }
                             )

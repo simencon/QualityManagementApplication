@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainInputForOrder
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
-import com.simenko.qmapp.ui.theme.Primary900
-import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.ui.theme.Primary
+import com.simenko.qmapp.ui.theme.TertiaryContainer
 import com.simenko.qmapp.utils.StringUtils
 
 @Composable
@@ -96,7 +96,7 @@ fun ProductCard(
 
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    val btnBackgroundColor = if (checked) Primary900 else StatusBar400
+    val btnBackgroundColor = if (checked) Primary else TertiaryContainer
     val btnContentColor = if (checked) Color.White else Color.Black
 
     val btnColors = ButtonDefaults.buttonColors(

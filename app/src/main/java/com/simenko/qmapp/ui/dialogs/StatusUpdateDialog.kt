@@ -127,7 +127,7 @@ fun StatusUpdateDialog(
                     contentDescription = null, // decorative
                     contentScale = ContentScale.Fit,
                     colorFilter = ColorFilter.tint(
-                        color = Primary900
+                        color = Primary
                     ),
                     modifier = Modifier
                         .padding(vertical = 20.dp)
@@ -172,7 +172,7 @@ fun StatusUpdateDialog(
                     Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp)
-                        .background(Primary900),
+                        .background(Primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
 
@@ -262,7 +262,7 @@ fun StatusCard(
     onClick: (DomainOrdersStatus) -> Unit
 ) {
 
-    val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
+    val btnBackgroundColor = if (input.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,

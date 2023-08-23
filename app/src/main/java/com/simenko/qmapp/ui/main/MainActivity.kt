@@ -325,7 +325,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.ppap -> {
-                    TODO("Will filter accordingly")
+                    launchMainActivityCompose(this, NoRecord.num)
                 }
 
                 R.id.incoming_inspection -> {

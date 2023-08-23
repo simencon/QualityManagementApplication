@@ -23,8 +23,8 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainItemVersionComplete
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.theme.Primary900
-import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.ui.theme.Primary
+import com.simenko.qmapp.ui.theme.TertiaryContainer
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 import kotlinx.coroutines.launch
@@ -111,7 +111,7 @@ fun VersionCard(
     modifier: Modifier = Modifier,
     onClick: (DomainItemVersionComplete) -> Unit
 ) {
-    val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
+    val btnBackgroundColor = if (input.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (input.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,

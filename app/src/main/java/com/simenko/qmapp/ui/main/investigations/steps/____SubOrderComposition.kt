@@ -148,7 +148,7 @@ fun SubOrdersFlowColumn(
         }
         Divider(modifier = modifier.height(0.dp))
         FloatingActionButton(
-            containerColor = _level_2_record_color,
+            containerColor = level_2_record_color,
             modifier = Modifier.padding(vertical = 4.dp),
             onClick = {
                 launchNewItemActivityForResult(
@@ -161,7 +161,7 @@ fun SubOrdersFlowColumn(
                 androidx.compose.material.Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = null,
-                    tint = Primary900
+                    tint = Primary
                 )
             }
         )
@@ -199,11 +199,11 @@ fun SubOrderCard(
 
     val cardBgColor =
         when (subOrder.isExpanded) {
-            true -> Accent200
+            true -> Secondary
             false -> {
                 when (subOrder.detailsVisibility) {
-                    true -> _level_2_record_color_details
-                    else -> _level_2_record_color
+                    true -> level_2_record_color_details
+                    else -> level_2_record_color
                 }
             }
         }
@@ -219,7 +219,7 @@ fun SubOrderCard(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Delete,
-                        tint = PrimaryVariant900,
+                        tint = Tertiary,
                         contentDescription = "delete action",
                     )
                 }
@@ -233,7 +233,7 @@ fun SubOrderCard(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Edit,
-                        tint = PrimaryVariant900,
+                        tint = Tertiary,
                         contentDescription = "edit action",
                     )
                 },
@@ -503,8 +503,8 @@ fun SubOrder(
                         elevation = ButtonDefaults.buttonElevation(4.dp),
                         border = null,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = _level_2_record_color,
-                            contentColor = Primary900
+                            containerColor = level_2_record_color,
+                            contentColor = Primary
                         )
                     )
                 }

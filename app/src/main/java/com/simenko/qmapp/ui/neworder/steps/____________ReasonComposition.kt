@@ -21,8 +21,8 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainReason
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.theme.Primary900
-import com.simenko.qmapp.ui.theme.StatusBar400
+import com.simenko.qmapp.ui.theme.Primary
+import com.simenko.qmapp.ui.theme.TertiaryContainer
 import kotlinx.coroutines.launch
 
 fun filterAllAfterReasons(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
@@ -155,7 +155,7 @@ fun InvestigationReasonCard(
     onClick: (DomainReason) -> Unit
 ) {
 
-    val btnBackgroundColor = if (inputForOrder.isSelected) Primary900 else StatusBar400
+    val btnBackgroundColor = if (inputForOrder.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = btnContentColor,

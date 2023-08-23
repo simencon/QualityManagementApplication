@@ -27,9 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.entities.DomainSample
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
-import com.simenko.qmapp.domain.entities.DomainSampleResult
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -95,8 +93,8 @@ fun SampleCard(
 ) {
     val cardBgColor =
         when (sample.detailsVisibility) {
-            true -> _level_1_record_color_details
-            else -> _level_1_record_color
+            true -> level_1_record_color_details
+            else -> level_1_record_color
         }
 
     Card(
