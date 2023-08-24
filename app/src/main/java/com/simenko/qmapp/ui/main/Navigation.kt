@@ -14,14 +14,23 @@ import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Factory
+import androidx.compose.material.icons.filled.Filter1
+import androidx.compose.material.icons.filled.Filter2
+import androidx.compose.material.icons.filled.Filter3
+import androidx.compose.material.icons.filled.Filter4
+import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
@@ -53,14 +63,17 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
-    onNavigationItemClick: () -> Unit,
+    onNavigationMenuClick: () -> Unit,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    drawerState: DrawerState
+    drawerState: DrawerState,
+    isActionsMenuVisible: Boolean,
+    onActionsMenuClick: () -> Unit,
+    onDismissRequest: () -> Unit,
 ) {
     TopAppBar(
         title = { Text(text = "Here will be search field", modifier = Modifier.padding(all = 8.dp)) },
         navigationIcon = {
-            IconButton(onClick = onNavigationItemClick) {
+            IconButton(onClick = onNavigationMenuClick) {
                 Icon(
                     imageVector = Icons.Filled.Menu,
                     contentDescription = "Toggle drawer",
@@ -71,9 +84,13 @@ fun AppBar(
             }
         },
         actions = {
-            IconButton(onClick = onNavigationItemClick) {
+            IconButton(onClick = onActionsMenuClick) {
                 Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More", tint = contentColor)
             }
+            ActionsMenu(
+                isActionsMenuVisible = isActionsMenuVisible,
+                onDismissRequest = { onDismissRequest() },
+                onItemMenuClick = {})
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -131,20 +148,20 @@ fun DrawerHeader() {
 @Composable
 fun DrawerBody(
     scope: CoroutineScope,
-    selectedItem: MutableState<MenuItem>,
+    selectedItemId: MutableState<String>,
     drawerState: DrawerState
 ) {
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.COMPANY.group, withDivider = false)
-    navigationDrawerItems.forEach { item ->
+    navigationAndActionItems.forEach { item ->
         if (item.category == MenuItem.MenuGroup.COMPANY)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
-                selected = item == selectedItem.value,
+                selected = item.id == selectedItemId.value,
                 onClick = {
                     scope.launch { drawerState.close() }
-                    selectedItem.value = item
+                    selectedItemId.value = item.id
                 },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -154,15 +171,15 @@ fun DrawerBody(
     }
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.QUALITY.group)
-    navigationDrawerItems.forEach { item ->
+    navigationAndActionItems.forEach { item ->
         if (item.category == MenuItem.MenuGroup.QUALITY)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
-                selected = item == selectedItem.value,
+                selected = item.id == selectedItemId.value,
                 onClick = {
                     scope.launch { drawerState.close() }
-                    selectedItem.value = item
+                    selectedItemId.value = item.id
                 },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -172,15 +189,15 @@ fun DrawerBody(
     }
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.GENERAL.group)
-    navigationDrawerItems.forEach { item ->
+    navigationAndActionItems.forEach { item ->
         if (item.category == MenuItem.MenuGroup.GENERAL)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
-                selected = item == selectedItem.value,
+                selected = item.id == selectedItemId.value,
                 onClick = {
                     scope.launch { drawerState.close() }
-                    selectedItem.value = item
+                    selectedItemId.value = item.id
                 },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -188,6 +205,43 @@ fun DrawerBody(
             )
         else return@forEach
     }
+}
+
+@Composable
+fun ActionsMenu(
+    isActionsMenuVisible: Boolean = false,
+    onDismissRequest: () -> Unit,
+    onItemMenuClick: (MenuItem.MenuGroup) -> Unit
+) {
+    DropdownMenu(
+        expanded = isActionsMenuVisible,
+        onDismissRequest = onDismissRequest,
+        offset = DpOffset(x = (-102).dp, y = (-48).dp),
+    )
+    {
+        ActionsTopMenu(onItemMenuClick = onItemMenuClick)
+    }
+}
+
+@Composable
+fun ActionsTopMenu(
+    onItemMenuClick: (MenuItem.MenuGroup) -> Unit
+) {
+    navigationAndActionItems
+        .groupBy { it.category }
+        .keys
+        .toSet()
+        .filter { it == MenuItem.MenuGroup.ACTIONS || it == MenuItem.MenuGroup.FILTER }
+        .forEach { item ->
+            DropdownMenuItem(
+                text = { Text(item.group) },
+                onClick = { onItemMenuClick(item) },
+                leadingIcon = { Icon(Icons.Filled.NavigateNext, contentDescription = item.group) },
+                modifier = Modifier
+                    .padding(NavigationDrawerItemDefaults.ItemPadding)
+//                    .height(48.dp)
+            )
+        }
 }
 
 @Composable
@@ -225,16 +279,20 @@ data class MenuItem(
     val category: MenuGroup
 ) {
     companion object {
-        fun getStartingMenuItem() = navigationDrawerItems[0]
+        fun getStartingDrawerMenuItem() = navigationAndActionItems[0]
+        fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
     }
+
     enum class MenuGroup(val group: String) {
         COMPANY("Company"),
         QUALITY("Quality management"),
-        GENERAL("General")
+        GENERAL("General"),
+        ACTIONS("Actions"),
+        FILTER("Filter")
     }
 }
 
-private val navigationDrawerItems = listOf(
+private val navigationAndActionItems = listOf(
     MenuItem("company_profile", "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
     MenuItem("employees", "Employees", "Employees", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
     MenuItem("company_structure", "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
@@ -244,7 +302,16 @@ private val navigationDrawerItems = listOf(
     MenuItem("process_control", "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
     MenuItem("scrap_level", "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
-    MenuItem("settings", "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL)
+    MenuItem("settings", "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
+
+    MenuItem("upload_master_data", "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem("sync_investigations", "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+
+    MenuItem("clear_all_filters", "Clear all filters", "Clear all filters", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
+    MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
+    MenuItem("incoming_inspection", "Incoming inspection", "Incoming inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
+    MenuItem("process_control", "Process control", "Process control", Icons.Filled.Filter3, MenuItem.MenuGroup.FILTER),
+    MenuItem("product_audit", "Product audit", "Product audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER),
 )
 
 @Preview(name = "Light DrawerHeader", showBackground = true, widthDp = 409)
