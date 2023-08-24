@@ -2,15 +2,23 @@ package com.simenko.qmapp.ui.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Factory
@@ -22,10 +30,9 @@ import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.SquareFoot
@@ -40,18 +47,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldDefaults.colors
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,7 +81,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
-    title: String,
+    screen: MenuItem,
 
     onNavigationMenuClick: () -> Unit,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -80,20 +97,85 @@ fun AppBar(
     actionsGroup: MenuItem.MenuGroup,
     onDismissContextMenu: () -> Unit,
     selectedItemId: MutableState<String>,
-    onContextMenuItemClick: (String) -> Unit
+    onClickBack: () -> Unit,
+    onContextMenuItemClick: (String) -> Unit,
+
+    onSearchMenuClick: () -> Unit,
+    isSearchModeActivated: Boolean,
+    hideSearchBar: () -> Unit
 ) {
+    val orderToSearch = rememberSaveable { mutableStateOf("") }
+
     TopAppBar(
-        title = { Text(text = title, modifier = Modifier.padding(all = 8.dp)) },
-        navigationIcon = {
-            IconButton(onClick = onNavigationMenuClick) {
-                Icon(
-                    imageVector = Icons.Filled.Menu,
-                    contentDescription = "Toggle drawer",
-                    tint = contentColor,
-                    modifier = Modifier
-                        .rotate(drawerState.offset.value / 1080f * 360f)
-                )
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isSearchModeActivated) {
+                    Box(modifier = Modifier.padding(top = 8.dp, start = 18.dp)) {
+                        BasicTextField(
+                            value = orderToSearch.value,
+                            textStyle = TextStyle(fontSize = 20.sp, color = contentColor, fontWeight = FontWeight.Medium),
+                            cursorBrush = SolidColor(contentColor),
+                            onValueChange = { orderToSearch.value = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            maxLines = 1,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(onSearch = { /*ToDo - search the proper order*/ }),
+                        ) { innerTextField ->
+                            TextFieldDefaults.DecorationBox(
+                                value = orderToSearch.value,
+                                colors = colors(unfocusedContainerColor = MaterialTheme.colorScheme.primary, unfocusedIndicatorColor = contentColor),
+                                placeholder = {
+                                    Text(text = "Search by order number", color = MaterialTheme.colorScheme.primaryContainer)
+                                },
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = true,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = remember { MutableInteractionSource() },
+                                contentPadding = PaddingValues(2.dp), // this is how you can remove the padding
+                            )
+                        }
+                    }
+                } else {
+                    Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
+
+                    if (screen.id == "all_investigations" || screen.id == "process_control")
+                        IconButton(onClick = onSearchMenuClick) {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = "Search order by number",
+                                tint = contentColor
+                            )
+                        }
+                }
             }
+        },
+        navigationIcon = {
+            if (isSearchModeActivated)
+                IconButton(onClick = hideSearchBar) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Hide search bar",
+                        tint = contentColor,
+                        modifier = Modifier
+                            .rotate(drawerState.offset.value / 1080f * 360f)
+                    )
+                }
+            else
+                IconButton(onClick = onNavigationMenuClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = "Toggle drawer",
+                        tint = contentColor,
+                        modifier = Modifier
+                            .rotate(drawerState.offset.value / 1080f * 360f)
+                    )
+                }
         },
         actions = {
             IconButton(onClick = onActionsMenuClick) {
@@ -107,6 +189,7 @@ fun AppBar(
                 actionsGroup = actionsGroup,
                 onDismissContextMenu = onDismissContextMenu,
                 selectedItemId = selectedItemId,
+                onClickBack = onClickBack,
                 onContextMenuItemClick = onContextMenuItemClick
             )
         },
@@ -235,6 +318,7 @@ fun ActionsMenu(
     actionsGroup: MenuItem.MenuGroup,
     onDismissContextMenu: () -> Unit,
     selectedItemId: MutableState<String>,
+    onClickBack: () -> Unit,
     onContextMenuItemClick: (String) -> Unit
 ) {
     DropdownMenu(
@@ -250,7 +334,12 @@ fun ActionsMenu(
         onDismissRequest = onDismissContextMenu
     )
     {
-        ActionsMenuContext(actionsGroup = actionsGroup, selectedItemId = selectedItemId, onContextMenuItemClick = onContextMenuItemClick)
+        ActionsMenuContext(
+            actionsGroup = actionsGroup,
+            selectedItemId = selectedItemId,
+            onClickBack = onClickBack,
+            onContextMenuItemClick = onContextMenuItemClick
+        )
     }
 }
 
@@ -267,7 +356,7 @@ fun ActionsMenuTop(
             DropdownMenuItem(
                 text = { Text(item.group) },
                 onClick = { onTopMenuItemClick(item) },
-                leadingIcon = { Icon(Icons.Filled.NavigateBefore, contentDescription = item.group) },
+                leadingIcon = { Icon(Icons.Filled.ArrowBack, contentDescription = item.group) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
             )
@@ -278,9 +367,16 @@ fun ActionsMenuTop(
 fun ActionsMenuContext(
     actionsGroup: MenuItem.MenuGroup,
     selectedItemId: MutableState<String>,
+    onClickBack: () -> Unit,
     onContextMenuItemClick: (String) -> Unit
 ) {
-    ItemsGroup(actionsGroup.group, false)
+    DropdownMenuItem(
+        text = { Text(actionsGroup.group) },
+        onClick = onClickBack,
+        trailingIcon = { Icon(Icons.Filled.ArrowForward, contentDescription = actionsGroup.group) },
+        modifier = Modifier
+            .padding(NavigationDrawerItemDefaults.ItemPadding)
+    )
 
     navigationAndActionItems.filter { it.category == actionsGroup }.forEach { item ->
         val enabled = if (item.category != MenuItem.MenuGroup.ACTIONS && item.id != "custom_filter") {

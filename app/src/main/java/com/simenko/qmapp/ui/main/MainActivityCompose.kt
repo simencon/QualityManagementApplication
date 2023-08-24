@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.rememberScrollState
@@ -36,13 +37,17 @@ class MainActivityCompose : ComponentActivity() {
             QMAppTheme {
                 val scope = rememberCoroutineScope()
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
-                val selectedItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingDrawerMenuItem().id) }
+                val selectedDrawerMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingDrawerMenuItem().id) }
+                BackHandler(enabled = drawerState.isOpen, onBack = { scope.launch { drawerState.close() } })
 
                 val actionsTopMenuState = rememberSaveable { mutableStateOf(false) }
 
                 val actionsContextMenuState = rememberSaveable { mutableStateOf(false) }
                 val selectedActionTopMenuGroup = rememberSaveable { mutableStateOf(MenuItem.MenuGroup.ACTIONS) }
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
+
+                val isSearchModeActivated = rememberSaveable { mutableStateOf(false) }
+                BackHandler(enabled = isSearchModeActivated.value, onBack = { scope.launch { isSearchModeActivated.value = false } })
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -53,14 +58,14 @@ class MainActivityCompose : ComponentActivity() {
                                 .verticalScroll(rememberScrollState())
                         ) {
                             DrawerHeader()
-                            DrawerBody(scope = scope, selectedItemId = selectedItemId, drawerState = drawerState)
+                            DrawerBody(scope = scope, selectedItemId = selectedDrawerMenuItemId, drawerState = drawerState)
                         }
                     },
                     content = {
                         Scaffold(
                             topBar = {
                                 AppBar(
-                                    title = MenuItem.getItemById(selectedItemId.value)?.title ?: "Not found",
+                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId.value) ?: MenuItem.getStartingDrawerMenuItem(),
 
                                     onNavigationMenuClick = { scope.launch { drawerState.open() } },
                                     drawerState = drawerState,
@@ -80,7 +85,19 @@ class MainActivityCompose : ComponentActivity() {
                                     actionsGroup = selectedActionTopMenuGroup.value,
                                     onDismissContextMenu = { scope.launch { actionsContextMenuState.value = false } },
                                     selectedItemId = selectedContextMenuItemId,
-                                    onContextMenuItemClick = { scope.launch { selectedContextMenuItemId.value = it } }
+                                    onClickBack = {
+                                        scope.launch {
+                                            scope.launch {
+                                                actionsTopMenuState.value = true
+                                                actionsContextMenuState.value = false
+                                            }
+                                        }
+                                    },
+                                    onContextMenuItemClick = { scope.launch { selectedContextMenuItemId.value = it } },
+
+                                    onSearchMenuClick = {scope.launch { isSearchModeActivated.value = true }},
+                                    isSearchModeActivated = isSearchModeActivated.value,
+                                    hideSearchBar = { isSearchModeActivated.value = false }
                                 )
                             }
                         ) {
