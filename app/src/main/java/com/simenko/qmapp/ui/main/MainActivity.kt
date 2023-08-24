@@ -310,6 +310,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                    is implemented within on search listener
                 }
 
+                R.id.proper_ui -> {
+                    launchMainActivityCompose(this, NoRecord.num)
+                }
+
                 R.id.upload_master_data -> {
                     investigationsModel.refreshMasterDataFromRepository()
                 }
@@ -325,7 +329,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.ppap -> {
-                    launchMainActivityCompose(this, NoRecord.num)
+                    TODO("Will filter accordingly")
                 }
 
                 R.id.incoming_inspection -> {
