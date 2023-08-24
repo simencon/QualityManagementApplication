@@ -10,6 +10,11 @@
 
     <group>
         <item
+            android:id="@+id/proper_ui"
+            android:icon="@drawable/ic_refresh"
+            android:title="Proper ui (development)"
+            app:showAsAction = "never"/>
+        <item
             android:title="Actions">
             <menu>
                 <item

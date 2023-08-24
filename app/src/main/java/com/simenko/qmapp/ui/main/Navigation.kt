@@ -18,9 +18,11 @@ import androidx.compose.material.icons.filled.Filter1
 import androidx.compose.material.icons.filled.Filter2
 import androidx.compose.material.icons.filled.Filter3
 import androidx.compose.material.icons.filled.Filter4
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
@@ -52,7 +54,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
@@ -63,15 +64,26 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
+    title: String,
+
     onNavigationMenuClick: () -> Unit,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     drawerState: DrawerState,
-    isActionsMenuVisible: Boolean,
+
     onActionsMenuClick: () -> Unit,
-    onDismissRequest: () -> Unit,
+
+    isTopMenuVisible: Boolean,
+    onDismissTopMenu: () -> Unit,
+    onTopMenuItemClick: (MenuItem.MenuGroup) -> Unit,
+
+    isContextMenuVisible: Boolean,
+    actionsGroup: MenuItem.MenuGroup,
+    onDismissContextMenu: () -> Unit,
+    selectedItemId: MutableState<String>,
+    onContextMenuItemClick: (String) -> Unit
 ) {
     TopAppBar(
-        title = { Text(text = "Here will be search field", modifier = Modifier.padding(all = 8.dp)) },
+        title = { Text(text = title, modifier = Modifier.padding(all = 8.dp)) },
         navigationIcon = {
             IconButton(onClick = onNavigationMenuClick) {
                 Icon(
@@ -88,15 +100,22 @@ fun AppBar(
                 Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More", tint = contentColor)
             }
             ActionsMenu(
-                isActionsMenuVisible = isActionsMenuVisible,
-                onDismissRequest = { onDismissRequest() },
-                onItemMenuClick = {})
+                isTopMenuVisible = isTopMenuVisible,
+                onDismissTopMenu = onDismissTopMenu,
+                onTopMenuItemClick = onTopMenuItemClick,
+                isContextMenuVisible = isContextMenuVisible,
+                actionsGroup = actionsGroup,
+                onDismissContextMenu = onDismissContextMenu,
+                selectedItemId = selectedItemId,
+                onContextMenuItemClick = onContextMenuItemClick
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = contentColor
         ),
-        modifier = Modifier.height(48.dp)
+        modifier = Modifier
+            .height(48.dp)
     )
 }
 
@@ -209,23 +228,35 @@ fun DrawerBody(
 
 @Composable
 fun ActionsMenu(
-    isActionsMenuVisible: Boolean = false,
-    onDismissRequest: () -> Unit,
-    onItemMenuClick: (MenuItem.MenuGroup) -> Unit
+    isTopMenuVisible: Boolean,
+    onDismissTopMenu: () -> Unit,
+    onTopMenuItemClick: (MenuItem.MenuGroup) -> Unit,
+    isContextMenuVisible: Boolean,
+    actionsGroup: MenuItem.MenuGroup,
+    onDismissContextMenu: () -> Unit,
+    selectedItemId: MutableState<String>,
+    onContextMenuItemClick: (String) -> Unit
 ) {
     DropdownMenu(
-        expanded = isActionsMenuVisible,
-        onDismissRequest = onDismissRequest,
-        offset = DpOffset(x = (-102).dp, y = (-48).dp),
+        expanded = isTopMenuVisible,
+        onDismissRequest = onDismissTopMenu
     )
     {
-        ActionsTopMenu(onItemMenuClick = onItemMenuClick)
+        ActionsMenuTop(onTopMenuItemClick = onTopMenuItemClick)
+    }
+
+    DropdownMenu(
+        expanded = isContextMenuVisible,
+        onDismissRequest = onDismissContextMenu
+    )
+    {
+        ActionsMenuContext(actionsGroup = actionsGroup, selectedItemId = selectedItemId, onContextMenuItemClick = onContextMenuItemClick)
     }
 }
 
 @Composable
-fun ActionsTopMenu(
-    onItemMenuClick: (MenuItem.MenuGroup) -> Unit
+fun ActionsMenuTop(
+    onTopMenuItemClick: (MenuItem.MenuGroup) -> Unit
 ) {
     navigationAndActionItems
         .groupBy { it.category }
@@ -235,13 +266,37 @@ fun ActionsTopMenu(
         .forEach { item ->
             DropdownMenuItem(
                 text = { Text(item.group) },
-                onClick = { onItemMenuClick(item) },
-                leadingIcon = { Icon(Icons.Filled.NavigateNext, contentDescription = item.group) },
+                onClick = { onTopMenuItemClick(item) },
+                leadingIcon = { Icon(Icons.Filled.NavigateBefore, contentDescription = item.group) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
-//                    .height(48.dp)
             )
         }
+}
+
+@Composable
+fun ActionsMenuContext(
+    actionsGroup: MenuItem.MenuGroup,
+    selectedItemId: MutableState<String>,
+    onContextMenuItemClick: (String) -> Unit
+) {
+    ItemsGroup(actionsGroup.group, false)
+
+    navigationAndActionItems.filter { it.category == actionsGroup }.forEach { item ->
+        val enabled = if (item.category != MenuItem.MenuGroup.ACTIONS && item.id != "custom_filter") {
+            selectedItemId.value != item.id
+        } else {
+            true
+        }
+        DropdownMenuItem(
+            text = { Text(item.title) },
+            onClick = { onContextMenuItemClick(item.id) },
+            enabled = enabled,
+            leadingIcon = { Icon(item.image, contentDescription = item.contentDescription) },
+            modifier = Modifier
+                .padding(NavigationDrawerItemDefaults.ItemPadding)
+        )
+    }
 }
 
 @Composable
@@ -281,6 +336,8 @@ data class MenuItem(
     companion object {
         fun getStartingDrawerMenuItem() = navigationAndActionItems[0]
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
+
+        fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id }
     }
 
     enum class MenuGroup(val group: String) {
@@ -307,11 +364,12 @@ private val navigationAndActionItems = listOf(
     MenuItem("upload_master_data", "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     MenuItem("sync_investigations", "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
 
-    MenuItem("clear_all_filters", "Clear all filters", "Clear all filters", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
+    MenuItem("no_filter", "No filter", "No filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
     MenuItem("incoming_inspection", "Incoming inspection", "Incoming inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
     MenuItem("process_control", "Process control", "Process control", Icons.Filled.Filter3, MenuItem.MenuGroup.FILTER),
     MenuItem("product_audit", "Product audit", "Product audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER),
+    MenuItem("custom_filter", "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
 )
 
 @Preview(name = "Light DrawerHeader", showBackground = true, widthDp = 409)
