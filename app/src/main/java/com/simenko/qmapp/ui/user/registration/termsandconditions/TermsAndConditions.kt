@@ -32,7 +32,6 @@ import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
@@ -40,6 +39,7 @@ import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserRegisteredState
+import com.simenko.qmapp.ui.Screen
 
 @Composable
 fun TermsAndConditions(
@@ -62,7 +62,7 @@ fun TermsAndConditions(
 
     val onLoginLambda = remember<(String) -> Unit> {
         {
-            navController.navigate(Screen.LogIn.route)
+            navController.navigate(Screen.LoggedOut.LogIn.route)
         }
     }
 
@@ -74,14 +74,14 @@ fun TermsAndConditions(
                 registrationViewModel.showUserExistDialog()
             }
 
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.WaitingForValidation.withArgs(state.msg)) {
-                popUpTo(Screen.Registration.route) {
+            is UserNeedToVerifyEmailState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) {
+                popUpTo(Screen.LoggedOut.Registration.route) {
                     inclusive = true
                 }
             }
 
-            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.WaitingForValidation.route) {
-                popUpTo(Screen.Registration.route) {
+            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.route) {
+                popUpTo(Screen.LoggedOut.Registration.route) {
                     inclusive = true
                 }
             }

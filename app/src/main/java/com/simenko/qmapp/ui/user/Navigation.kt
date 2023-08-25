@@ -4,26 +4,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LogIn
 import com.simenko.qmapp.ui.user.verification.WaitingForVerification
-
-private const val TAG = "Navigation"
 
 @Composable
 fun Navigation(
@@ -33,10 +28,10 @@ fun Navigation(
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = initiatedRoute) {
         navigation(
-            startDestination = Screen.Registration.EnterDetails.route,
-            route = Screen.Registration.route
+            startDestination = Screen.LoggedOut.Registration.EnterDetails.route,
+            route = Screen.LoggedOut.Registration.route
         ) {
-            composable(route = Screen.Registration.EnterDetails.route) {
+            composable(route = Screen.LoggedOut.Registration.EnterDetails.route) {
                 QMAppTheme {
                     EnterDetails(
                         modifier = Modifier
@@ -47,7 +42,7 @@ fun Navigation(
                 }
             }
             composable(
-                route = Screen.Registration.TermsAndConditions.route + "/{name}",
+                route = Screen.LoggedOut.Registration.TermsAndConditions.route + "/{name}",
                 arguments = listOf(
                     navArgument("user") {
                         type = NavType.StringType
@@ -69,7 +64,7 @@ fun Navigation(
             }
         }
         composable(
-            route = Screen.WaitingForValidation.route + "/{message}",
+            route = Screen.LoggedOut.WaitingForValidation.route + "/{message}",
             arguments = listOf(
                 navArgument("message") {
                     type = NavType.StringType
@@ -89,7 +84,7 @@ fun Navigation(
                 )
             }
         }
-        composable(route = Screen.LogIn.route) {
+        composable(route = Screen.LoggedOut.LogIn.route) {
             QMAppTheme {
                 LogIn(
                     modifier = Modifier
@@ -101,30 +96,4 @@ fun Navigation(
             }
         }
     }
-}
-
-sealed class Screen(val route: String) {
-    object Registration : Screen("registration") {
-        object EnterDetails : Screen("enter_details")
-        object TermsAndConditions : Screen("terms_and_conditions")
-    }
-
-    object WaitingForValidation : Screen("waiting_for_validation")
-    object LogIn : Screen("log_in")
-
-    fun withArgs(vararg args: String) = buildString {
-        append(route)
-        args.forEach { arg ->
-            append("/$arg")
-        }
-    }
-}
-
-@Composable
-inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-    val navGraphRoute = destination.parent?.startDestinationRoute ?: return hiltViewModel()
-    val parentEntry = remember(this) {
-        navController.getBackStackEntry(navGraphRoute)
-    }
-    return hiltViewModel(parentEntry)
 }

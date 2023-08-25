@@ -6,7 +6,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerValue
@@ -21,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.simenko.qmapp.R
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -95,7 +98,7 @@ class MainActivityCompose : ComponentActivity() {
                                 )
                             }
                         ) {
-
+                            Navigation(Modifier.padding(it), selectedDrawerMenuItemId.value)
                         }
                     }
                 )

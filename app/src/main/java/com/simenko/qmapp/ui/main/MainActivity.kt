@@ -41,7 +41,6 @@ import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
@@ -50,6 +49,7 @@ import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
@@ -132,24 +132,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             userRepository.getActualUserState().let { state ->
                 when (state) {
                     is UserInitialState -> {
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.Registration.route))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LoggedOut.Registration.route))
                         finish()
                     }
 
                     is UserNeedToVerifyEmailState -> {
                         Log.d(TAG, "onCreate: ${state.msg}")
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)))
                         finish()
                     }
 
                     is UserAuthoritiesNotVerifiedState -> {
                         Log.d(TAG, "onCreate: ${state.msg}")
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)))
                         finish()
                     }
 
                     is UserLoggedOutState -> {
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))
+                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LoggedOut.LogIn.route))
                         finish()
                     }
 

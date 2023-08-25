@@ -100,8 +100,7 @@ fun InvestigationsMainComposition(
                 )
             },
             floatingActionButtonPosition = fabPositionToSet,
-            content = { padding ->
-
+            content = {
                 val observerLoadingProcess by invModel.isLoadingInProgress.observeAsState(false)
                 val observerIsNetworkError by invModel.isErrorMessage.observeAsState(null)
 
@@ -121,6 +120,7 @@ fun InvestigationsMainComposition(
                                     screenWidth > 720 -> {
                                         screenWidth.dp
                                     }
+
                                     else -> {
                                         (screenWidth * (1 + 0.88 * isSamplesNumVisible)).dp
                                     }
@@ -150,11 +150,13 @@ fun InvestigationsMainComposition(
                                         0 -> {
                                             screenWidth.dp
                                         }
+
                                         else -> {
                                             when {
                                                 screenWidth > 720 -> {
                                                     (screenWidth * 0.57).dp
                                                 }
+
                                                 else -> {
                                                     screenWidth.dp
                                                 }
@@ -172,11 +174,13 @@ fun InvestigationsMainComposition(
                                         0 -> {
                                             screenWidth.dp
                                         }
+
                                         else -> {
                                             when {
                                                 screenWidth > 720 -> {
                                                     (screenWidth * 0.57).dp
                                                 }
+
                                                 else -> {
                                                     screenWidth.dp
                                                 }
@@ -194,6 +198,7 @@ fun InvestigationsMainComposition(
                                         screenWidth > 720 -> {
                                             (screenWidth * 0.43 * isSamplesNumVisible).dp
                                         }
+
                                         else -> {
                                             (screenWidth * 0.88 * isSamplesNumVisible).dp
                                         }

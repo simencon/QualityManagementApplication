@@ -80,6 +80,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.utils.StringUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -447,7 +448,7 @@ data class MenuItem(
     val category: MenuGroup
 ) {
     companion object {
-        fun getStartingDrawerMenuItem() = navigationAndActionItems[4]
+        fun getStartingDrawerMenuItem() = navigationAndActionItems.find { it.id == Screen.Main.Employees.route } ?: navigationAndActionItems[4]
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
         fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id }
@@ -463,16 +464,16 @@ data class MenuItem(
 }
 
 private val navigationAndActionItems = listOf(
-    MenuItem("company_profile", "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
-    MenuItem("employees", "Employees", "Employees", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
-    MenuItem("company_structure", "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
-    MenuItem("company_products", "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Screen.Main.CompanyProfile.route, "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Screen.Main.Employees.route, "Employees", "Employees", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem("all_investigations", "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem("process_control", "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
-    MenuItem("scrap_level", "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.AllInvestigations.route, "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.ProcessControl.route, "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
-    MenuItem("settings", "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
+    MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
     MenuItem("upload_master_data", "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     MenuItem("sync_investigations", "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),

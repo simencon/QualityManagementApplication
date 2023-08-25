@@ -53,7 +53,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.ui.user.Screen
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
@@ -88,7 +88,7 @@ fun EnterDetails(
         when (state) {
             is EnterDetailsSuccess -> {
                 registrationViewModel.updateUserData(userFullName, userDepartment, userSubDepartment, userJobRole, userEmail, password)
-                navController.navigate(Screen.Registration.TermsAndConditions.withArgs(userEmail))
+                navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(userEmail))
             }
 
             is EnterDetailsError -> {
@@ -310,7 +310,7 @@ fun EnterDetails(
             modifier = Modifier.width(150.dp),
             onClick = {
                 registrationViewModel.setLocalEmptyUser()
-                navController.navigate(Screen.LogIn.route)
+                navController.navigate(Screen.LoggedOut.LogIn.route)
             },
             content = {
                 Text(
