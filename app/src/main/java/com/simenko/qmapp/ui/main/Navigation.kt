@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.settings.Settings
 import com.simenko.qmapp.ui.main.team.TeamComposition
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -26,6 +27,17 @@ fun Navigation(
         composable(route = Screen.Main.Employees.route) {
             QMAppTheme {
                 TeamComposition()
+            }
+        }
+        composable(route = Screen.Main.AllInvestigations.route) {
+            QMAppTheme {
+                InvestigationsMainComposition(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 2.dp,
+                            horizontal = 2.dp
+                        )
+                )
             }
         }
         composable(route = Screen.Main.Settings.route) {

@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
@@ -41,8 +42,7 @@ fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
 ) {
-    val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val appModel: InvestigationsViewModel = hiltViewModel()
 
     val items by appModel.tasksSF.collectAsStateWithLifecycle(listOf())
 

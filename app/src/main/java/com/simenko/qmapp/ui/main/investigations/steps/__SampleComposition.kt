@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
@@ -38,8 +39,7 @@ import kotlin.math.roundToInt
 fun SampleComposition(
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val appModel: InvestigationsViewModel = hiltViewModel()
 
     val observeCurrentSubOrderTask by appModel.currentTaskDetails.observeAsState()
 

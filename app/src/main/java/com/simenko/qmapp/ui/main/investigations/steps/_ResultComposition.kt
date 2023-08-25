@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainResultComplete
@@ -39,8 +40,7 @@ import com.simenko.qmapp.utils.StringUtils
 fun ResultsComposition(
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val appModel: InvestigationsViewModel = hiltViewModel()
 
     val currentSubOrderTask by appModel.currentTaskDetails.observeAsState()
     val currentSample by appModel.currentSampleDetails.observeAsState()
@@ -200,11 +200,13 @@ fun Result(
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 2
                                     }
+
                                     (text.toDouble() < result.resultTolerance.lsl!!) -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 3
                                     }
+
                                     else -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = true
@@ -212,6 +214,7 @@ fun Result(
                                     }
                                 }
                             }
+
                             (result.resultTolerance.usl == null && result.resultTolerance.lsl != null) -> {
                                 when {
                                     (text.toDouble() < result.resultTolerance.lsl!!) -> {
@@ -219,6 +222,7 @@ fun Result(
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 3
                                     }
+
                                     else -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = true
@@ -226,6 +230,7 @@ fun Result(
                                     }
                                 }
                             }
+
                             (result.resultTolerance.usl != null && result.resultTolerance.lsl == null) -> {
                                 when {
                                     (text.toDouble() > result.resultTolerance.usl!!) -> {
@@ -233,6 +238,7 @@ fun Result(
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 2
                                     }
+
                                     else -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = true

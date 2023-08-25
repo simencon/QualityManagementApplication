@@ -25,11 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.Primary
@@ -43,8 +46,8 @@ fun InvestigationsMainComposition(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val invModel = (context as MainActivity).investigationsModel
-    val teamModel = (context as MainActivity).teamModel
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    val teamModel: TeamViewModel = hiltViewModel()
 
     val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
     val configuration = LocalConfiguration.current
