@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -17,8 +18,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import com.simenko.qmapp.R
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 fun launchMainActivityCompose(
     activity: MainActivity,
@@ -30,7 +36,11 @@ fun launchMainActivityCompose(
     )
 }
 
+@AndroidEntryPoint
 class MainActivityCompose : ComponentActivity() {
+    @Inject
+    lateinit var userRepository: UserRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -40,14 +50,10 @@ class MainActivityCompose : ComponentActivity() {
                 val selectedDrawerMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingDrawerMenuItem().id) }
                 BackHandler(enabled = drawerState.isOpen, onBack = { scope.launch { drawerState.close() } })
 
-                val actionsTopMenuState = rememberSaveable { mutableStateOf(false) }
-
-                val actionsContextMenuState = rememberSaveable { mutableStateOf(false) }
-                val selectedActionTopMenuGroup = rememberSaveable { mutableStateOf(MenuItem.MenuGroup.ACTIONS) }
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
-                val isSearchModeActivated = rememberSaveable { mutableStateOf(false) }
-                BackHandler(enabled = isSearchModeActivated.value, onBack = { scope.launch { isSearchModeActivated.value = false } })
+                val searchBarState = rememberSaveable { mutableStateOf(false) }
+                BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
 
                 ModalNavigationDrawer(
                     drawerState = drawerState,
@@ -57,8 +63,17 @@ class MainActivityCompose : ComponentActivity() {
                                 .fillMaxHeight()
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            DrawerHeader()
-                            DrawerBody(scope = scope, selectedItemId = selectedDrawerMenuItemId, drawerState = drawerState)
+                            DrawerHeader(
+                                logo = painterResource(id = R.drawable.ic_launcher_round),
+                                userInfo = userRepository.user
+                            )
+                            DrawerBody(
+                                selectedItemId = selectedDrawerMenuItemId,
+                                onDrawerItemClick = {
+                                    scope.launch { drawerState.close() }
+                                    selectedDrawerMenuItemId.value = it
+                                }
+                            )
                         }
                     },
                     content = {
@@ -67,37 +82,16 @@ class MainActivityCompose : ComponentActivity() {
                                 AppBar(
                                     screen = MenuItem.getItemById(selectedDrawerMenuItemId.value) ?: MenuItem.getStartingDrawerMenuItem(),
 
-                                    onNavigationMenuClick = { scope.launch { drawerState.open() } },
+                                    onDrawerMenuClick = { scope.launch { drawerState.open() } },
                                     drawerState = drawerState,
 
-                                    onActionsMenuClick = { scope.launch { actionsTopMenuState.value = true } },
+                                    selectedActionsMenuItemId = selectedContextMenuItemId,
+                                    onActionsMenuItemClick = { selectedContextMenuItemId.value = it },
 
-                                    isTopMenuVisible = actionsTopMenuState.value,
-                                    onDismissTopMenu = { scope.launch { actionsTopMenuState.value = false } },
-                                    onTopMenuItemClick = {
-                                        scope.launch {
-                                            selectedActionTopMenuGroup.value = it
-                                            actionsTopMenuState.value = false
-                                            actionsContextMenuState.value = true
-                                        }
-                                    },
-                                    isContextMenuVisible = actionsContextMenuState.value,
-                                    actionsGroup = selectedActionTopMenuGroup.value,
-                                    onDismissContextMenu = { scope.launch { actionsContextMenuState.value = false } },
-                                    selectedItemId = selectedContextMenuItemId,
-                                    onClickBack = {
-                                        scope.launch {
-                                            scope.launch {
-                                                actionsTopMenuState.value = true
-                                                actionsContextMenuState.value = false
-                                            }
-                                        }
-                                    },
-                                    onContextMenuItemClick = { scope.launch { selectedContextMenuItemId.value = it } },
-
-                                    onSearchMenuClick = {scope.launch { isSearchModeActivated.value = true }},
-                                    isSearchModeActivated = isSearchModeActivated.value,
-                                    hideSearchBar = { isSearchModeActivated.value = false }
+                                    searchBarState = searchBarState,
+                                    onSearchBarSearch = {
+                                        Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                                    }
                                 )
                             }
                         ) {

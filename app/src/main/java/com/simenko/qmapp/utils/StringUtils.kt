@@ -61,13 +61,15 @@ object StringUtils {
     }
 
     @JvmStatic
-    fun concatTwoStrings4(str1: String?, str2: String?): String {
-        return "${str1 ?: "_"}|${str2 ?: "_"}"
+    fun concatThreeStrings(str1: String?, str2: String?, str3: String?): String {
+        return "${str1 ?: "-"} / ${str2 ?: "-"} / ${str3 ?: "-"}"
     }
 
     @JvmStatic
-    fun concatThreeStrings(str1: String?, str2: String?, str3: String?): String {
-        return "${str1 ?: "-"} / ${str2 ?: "-"} / ${str3 ?: "-"}"
+    fun concatThreeStrings1(str1: String?, str2: String?, str3: String?) = buildString {
+        if(!str1.isNullOrEmpty()) append(str1)
+        if(!str2.isNullOrEmpty()) append(", $str2")
+        if(!str3.isNullOrEmpty()) append(", $str3")
     }
 
     @JvmStatic
