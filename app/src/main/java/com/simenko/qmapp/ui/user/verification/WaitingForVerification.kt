@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
@@ -38,6 +37,7 @@ import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserRegisteredState
+import com.simenko.qmapp.ui.Screen
 
 @Composable
 fun WaitingForVerification(
@@ -55,8 +55,8 @@ fun WaitingForVerification(
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
             is UserInitialState -> {}
-            is UserRegisteredState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForValidation.route) {
+            is UserRegisteredState -> navController.navigate(Screen.LoggedOut.LogIn.route) {
+                popUpTo(Screen.LoggedOut.WaitingForValidation.route) {
                     inclusive = true
                 }
             }
@@ -72,8 +72,8 @@ fun WaitingForVerification(
             }
 
             is UserLoggedInState -> logInSuccess()
-            is UserLoggedOutState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForValidation.route) {
+            is UserLoggedOutState -> navController.navigate(Screen.LoggedOut.LogIn.route) {
+                popUpTo(Screen.LoggedOut.WaitingForValidation.route) {
                     inclusive = true
                 }
             }

@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -41,8 +42,7 @@ private const val TAG = "TeamComposition"
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TeamComposition(
-    modifier: Modifier = Modifier,
-    appModel: TeamViewModel
+    appModel: TeamViewModel = hiltViewModel()
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
 
@@ -74,8 +74,7 @@ fun TeamComposition(
             .pullRefresh(pullRefreshState)
     ) {
         LazyColumn(
-            state = listState,
-            modifier = modifier.padding(vertical = 4.dp)
+            state = listState
         ) {
             items(items = items, key = { it.teamMember.id }
             ) { teamMember ->
