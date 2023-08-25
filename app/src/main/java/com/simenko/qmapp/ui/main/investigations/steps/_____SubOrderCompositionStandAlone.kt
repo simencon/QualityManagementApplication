@@ -9,12 +9,14 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.utils.dp
@@ -28,7 +30,7 @@ fun SubOrdersStandAlone(
     onListEnd: (FabPosition) -> Unit
 ) {
     val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val appModel: InvestigationsViewModel = hiltViewModel()
 
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
@@ -33,6 +34,7 @@ import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
@@ -50,7 +52,7 @@ fun SubOrdersFlowColumn(
     parentId: Int = 0
 ) {
     val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val appModel: InvestigationsViewModel = hiltViewModel()
 
     val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
