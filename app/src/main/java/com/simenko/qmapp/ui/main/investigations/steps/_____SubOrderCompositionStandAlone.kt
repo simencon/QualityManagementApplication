@@ -30,27 +30,31 @@ fun SubOrdersStandAlone(
     onListEnd: (FabPosition) -> Unit
 ) {
     val context = LocalContext.current
-    val appModel: InvestigationsViewModel = hiltViewModel()
+    val invModel: InvestigationsViewModel = hiltViewModel()
 
-    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
-    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
-    val items by appModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
+    val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
+    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
+    val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
+
+    LaunchedEffect(Unit) {
+        invModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
+    }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
+            invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
         }
     }
 
     val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
+            invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
         }
     }
 
     val onClickDeleteLambda = remember<(Int) -> Unit> {
         {
-            appModel.deleteSubOrder(it)
+            invModel.deleteSubOrder(it)
         }
     }
 
@@ -67,7 +71,7 @@ fun SubOrdersStandAlone(
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
         { subOrderComplete, completedById ->
-            appModel.showStatusUpdateDialog(
+            invModel.showStatusUpdateDialog(
                 currentSubOrder = subOrderComplete,
                 performerId = completedById
             )
@@ -99,7 +103,7 @@ fun SubOrdersStandAlone(
 
                 if (subOrder != null && !subOrder.detailsVisibility) {
                     onClickDetailsLambda(subOrder.subOrder.id)
-                    appModel.resetCreatedSubOrderId()
+                    invModel.resetCreatedSubOrderId()
                 }
             }
         }

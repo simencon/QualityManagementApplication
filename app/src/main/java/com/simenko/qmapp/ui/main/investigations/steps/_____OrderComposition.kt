@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
@@ -51,30 +52,31 @@ private const val TAG = "OrderComposition"
 @Composable
 fun Orders(
     modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel,
     onListEnd: (FabPosition) -> Unit
 ) {
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
     val context = LocalContext.current
 
-    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
+    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
-    val items by appModel.ordersSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentOrderVisibility(dId = SelectedNumber(it))
+            invModel.setCurrentOrderVisibility(dId = SelectedNumber(it))
         }
     }
 
     val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentOrderVisibility(aId = SelectedNumber(it))
+            invModel.setCurrentOrderVisibility(aId = SelectedNumber(it))
         }
     }
 
     val onClickDeleteLambda = remember<(Int) -> Unit> {
         {
-            appModel.deleteOrder(it)
+            invModel.deleteOrder(it)
         }
     }
 
@@ -115,7 +117,7 @@ fun Orders(
                 if (order != null) {
                     if (!order.detailsVisibility)
                         onClickDetailsLambda(order.order.id)
-                    appModel.resetCreatedOrderId()
+                    invModel.resetCreatedOrderId()
                 }
             }
         }
@@ -127,7 +129,7 @@ fun Orders(
         }
     }
 
-    if (!listState.isScrollInProgress) lastVisibleItemKey?.let { appModel.setLastVisibleItemKey(it) }
+    if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
 
     val lastItemIsVisible by remember {
         derivedStateOf {

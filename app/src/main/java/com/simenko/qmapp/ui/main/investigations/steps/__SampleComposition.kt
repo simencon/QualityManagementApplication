@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
@@ -18,7 +19,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,24 +30,25 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
 
+private const val TAG = "SampleComposition"
 @Composable
 fun SampleComposition(
     modifier: Modifier = Modifier
 ) {
-    val appModel: InvestigationsViewModel = hiltViewModel()
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val observeCurrentSubOrderTask by appModel.currentTaskDetails.observeAsState()
+    val observeCurrentSubOrderTask by invModel.currentTaskDetails.observeAsState()
 
-    val items by appModel.samplesSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.samplesSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {
-            appModel.setCurrentSampleVisibility(dId = SelectedNumber(it.sample.id))
+            invModel.setCurrentSampleVisibility(dId = SelectedNumber(it.sample.id))
         }
     }
 
@@ -67,7 +68,7 @@ fun SampleComposition(
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
                 SampleCard(
                     modifier = modifier,
-                    appModel = appModel,
+                    appModel = invModel,
                     sample = sample,
                     onClickDetails = { it ->
                         onClickDetailsLambda(it)

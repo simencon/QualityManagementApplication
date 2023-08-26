@@ -163,7 +163,10 @@ class InvestigationsViewModel @Inject constructor(
         _lastVisibleItemKey.value = key
     }
 
-    private val _currentOrdersRange = MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
+//    ToDo - change it to default when functionality done for ProcessControlOnly
+    private val _currentOrdersRange =
+//        MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
+        MutableStateFlow(Pair(1691991128021L, 1692061376021L))
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
@@ -252,9 +255,11 @@ class InvestigationsViewModel @Inject constructor(
                                 Status.LOADING -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
+
                                 Status.SUCCESS -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                                 }
+
                                 Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
@@ -360,9 +365,11 @@ class InvestigationsViewModel @Inject constructor(
                                 Status.LOADING -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
+
                                 Status.SUCCESS -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                                 }
+
                                 Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
@@ -439,9 +446,11 @@ class InvestigationsViewModel @Inject constructor(
                                 Status.LOADING -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
+
                                 Status.SUCCESS -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                                 }
+
                                 Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
@@ -591,9 +600,11 @@ class InvestigationsViewModel @Inject constructor(
                                 Status.LOADING -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                                 }
+
                                 Status.SUCCESS -> {
                                     withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                                 }
+
                                 Status.ERROR -> {
                                     withContext(Dispatchers.Main) {
                                         _isLoadingInProgress.value = false
@@ -752,6 +763,7 @@ class InvestigationsViewModel @Inject constructor(
                                 }
                             }
                         }
+
                         Status.ERROR -> {
                             _isErrorMessage.value = resource.message
                         }
@@ -769,9 +781,11 @@ class InvestigationsViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) {
                                 _isLoadingInProgress.value = true
@@ -793,6 +807,7 @@ class InvestigationsViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             resource.data?.also {
                                 repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
@@ -805,6 +820,7 @@ class InvestigationsViewModel @Inject constructor(
                                                 }
                                                 withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                                             }
+
                                             Status.ERROR -> {
                                                 withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                                                 _isErrorMessage.value = resource.message
@@ -814,6 +830,7 @@ class InvestigationsViewModel @Inject constructor(
                                 }
                             } ?: withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             _isErrorMessage.value = resource.message
@@ -832,12 +849,14 @@ class InvestigationsViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             resource.data?.let {
                                 if (it.isNotEmpty()) setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
                             }
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) { _isLoadingInProgress.value = false }
                             _isErrorMessage.value = resource.message

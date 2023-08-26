@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -13,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,36 +37,39 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
+private const val TAG = "SubOrderTaskComposition"
+
 @Composable
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
 ) {
-    val appModel: InvestigationsViewModel = hiltViewModel()
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val items by appModel.tasksSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.tasksSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
-            appModel.setCurrentTaskVisibility(dId = SelectedNumber(it.subOrderTask.id))
+            invModel.setCurrentTaskVisibility(dId = SelectedNumber(it.subOrderTask.id))
         }
     }
 
     val onClickActionsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
         {
-            appModel.setCurrentTaskVisibility(aId = SelectedNumber(it.subOrderTask.id))
+            invModel.setCurrentTaskVisibility(aId = SelectedNumber(it.subOrderTask.id))
         }
     }
 
     val onClickDeleteLambda = remember<(Int) -> Unit> {
         {
-            appModel.deleteSubOrderTask(it)
+            invModel.deleteSubOrderTask(it)
         }
     }
 
     val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, Int?) -> Unit> {
         { subOrderComplete, completedById ->
-            appModel.showStatusUpdateDialog(
+            invModel.showStatusUpdateDialog(
                 currentSubOrderTask = subOrderComplete,
                 performerId = completedById
             )
@@ -80,7 +83,7 @@ fun SubOrderTasksFlowColumn(
                 Box(Modifier.fillMaxWidth()) {
                     SubOrderTaskCard(
                         modifier = modifier,
-                        appModel = appModel,
+                        appModel = invModel,
                         task = task,
                         onClickDetails = { it ->
                             onClickDetailsLambda(it)
