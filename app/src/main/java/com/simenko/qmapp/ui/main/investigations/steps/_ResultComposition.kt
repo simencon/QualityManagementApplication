@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
@@ -22,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,30 +31,31 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainResultComplete
-import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 
+private const val TAG = "ResultComposition"
 @Composable
 fun ResultsComposition(
     modifier: Modifier = Modifier,
 ) {
-    val appModel: InvestigationsViewModel = hiltViewModel()
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val currentSubOrderTask by appModel.currentTaskDetails.observeAsState()
-    val currentSample by appModel.currentSampleDetails.observeAsState()
+    val currentSubOrderTask by invModel.currentTaskDetails.observeAsState()
+    val currentSample by invModel.currentSampleDetails.observeAsState()
 
-    val items by appModel.resultsSF.collectAsState(initial = listOf())
+    val items by invModel.resultsSF.collectAsState(initial = listOf())
 
     val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
         {
-            appModel.setCurrentResultVisibility(dId = SelectedNumber(it.result.id))
+            invModel.setCurrentResultVisibility(dId = SelectedNumber(it.result.id))
         }
     }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> {
         {
-            appModel.editResult(it.result)
+            invModel.editResult(it.result)
         }
     }
 
@@ -72,7 +73,7 @@ fun ResultsComposition(
             ) {
                 ResultCard(
                     modifier = modifier,
-                    appModel = appModel,
+                    appModel = invModel,
                     result = result,
                     onSelect = {
                         onClickDetailsLambda(it)

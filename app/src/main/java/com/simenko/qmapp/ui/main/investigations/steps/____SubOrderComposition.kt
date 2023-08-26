@@ -52,30 +52,31 @@ fun SubOrdersFlowColumn(
     parentId: Int = 0
 ) {
     val context = LocalContext.current
-    val appModel: InvestigationsViewModel = hiltViewModel()
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
-    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
+    val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
+    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
-    val items by appModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     val coroutineScope = rememberCoroutineScope()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
+            invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
         }
     }
 
     val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
+            invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
         }
     }
 
     val onClickDeleteLambda = remember<(Int) -> Unit> {
         {
-            appModel.deleteSubOrder(it)
+            invModel.deleteSubOrder(it)
         }
     }
 
@@ -92,7 +93,7 @@ fun SubOrdersFlowColumn(
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
         { subOrderComplete, completedById ->
-            appModel.showStatusUpdateDialog(
+            invModel.showStatusUpdateDialog(
                 currentSubOrder = subOrderComplete,
                 performerId = completedById
             )
@@ -108,7 +109,7 @@ fun SubOrdersFlowColumn(
                 }
                 if (subOrder != null) {
                     onClickDetailsLambda(subOrder.subOrder.id)
-                    appModel.resetCreatedSubOrderId()
+                    invModel.resetCreatedSubOrderId()
                 }
             }
     }

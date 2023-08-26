@@ -43,19 +43,20 @@ private const val TAG = "InvestigationsMainComposition"
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun InvestigationsMainComposition(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    processControlOnly: Boolean = false
 ) {
     val context = LocalContext.current
     val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
     val teamModel: TeamViewModel = hiltViewModel()
 
-    val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
     val currentTask by invModel.currentTaskDetails.observeAsState()
 
-    var isSamplesNumVisible by rememberSaveable { mutableStateOf(1) }
+    var isSamplesNumVisible by rememberSaveable { mutableIntStateOf(1) }
     val rowState = rememberScrollState()
 
     val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
@@ -82,15 +83,15 @@ fun InvestigationsMainComposition(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        if (parentOrderTypeId != OrderTypeProcessOnly)
-                            launchNewItemActivityForResult(
-                                context as MainActivity,
-                                ActionType.ADD_ORDER.ordinal
-                            )
-                        else
+                        if (processControlOnly)
                             launchNewItemActivityForResult(
                                 (context as MainActivity),
                                 ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal
+                            )
+                        else
+                            launchNewItemActivityForResult(
+                                context as MainActivity,
+                                ActionType.ADD_ORDER.ordinal
                             )
                     },
                     content = {
@@ -103,7 +104,8 @@ fun InvestigationsMainComposition(
                 )
             },
             floatingActionButtonPosition = fabPositionToSet,
-            content = {
+            content = { padding ->
+                Log.d(TAG, "InvestigationsMainComposition: $padding")
                 val observerLoadingProcess by invModel.isLoadingInProgress.observeAsState(false)
                 val observerIsNetworkError by invModel.isErrorMessage.observeAsState(null)
 
@@ -146,8 +148,8 @@ fun InvestigationsMainComposition(
                                 )
                         }
 
-                        if (parentOrderTypeId != OrderTypeProcessOnly)
-                            Orders(
+                        if (processControlOnly)
+                            SubOrdersStandAlone(
                                 modifier = modifier.width(
                                     when (isSamplesNumVisible) {
                                         0 -> {
@@ -167,11 +169,10 @@ fun InvestigationsMainComposition(
                                         }
                                     }
                                 ),
-                                appModel = invModel,
                                 onListEnd = { changeFlaBtnPosition(it) }
                             )
                         else
-                            SubOrdersStandAlone(
+                            Orders(
                                 modifier = modifier.width(
                                     when (isSamplesNumVisible) {
                                         0 -> {
