@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -79,6 +81,8 @@ fun Settings(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
 ) {
+    val columnState = rememberScrollState()
+
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
 
@@ -107,153 +111,148 @@ fun Settings(
             onClick(Screen.LoggedOut.Registration.route)
         }
     }
+
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(all = 0.dp)
+            .verticalScroll(columnState)
     ) {
-        Box {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+        if (msg != "")
+            Text(
+                text = msg,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                 modifier = Modifier
-                    .padding(all = 0.dp)
-            ) {
-                if (msg != "")
-                    Text(
-                        text = msg,
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                        modifier = Modifier
-                            .padding(all = 5.dp),
-                        textAlign = TextAlign.Center
-                    )
-                Spacer(modifier = Modifier.height(10.dp))
+                    .padding(all = 5.dp),
+                textAlign = TextAlign.Center
+            )
+        Spacer(modifier = Modifier.height(10.dp))
 
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start,
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .padding(all = 0.dp)
+        ) {
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsViewModel.userLocalData.fullName)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsViewModel.userLocalData.jobRole)
+            InfoLine(
+                modifier = modifier.padding(start = 15.dp),
+                title = "Department",
+                body = settingsViewModel.userLocalData.department +
+                        if (settingsViewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsViewModel.userLocalData.subDepartment}"
+            )
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsViewModel.userLocalData.company)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsViewModel.userLocalData.email)
+            InfoLine(
+                modifier = modifier.padding(start = 15.dp),
+                title = "Phone number",
+                body = if (settingsViewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsViewModel.userLocalData.phoneNumber.toString()
+            )
+        }
+
+        TextButton(
+            modifier = Modifier.width(150.dp),
+            onClick = {
+                error = ""
+                msg = ""
+                settingsViewModel.getUserData()
+            },
+            content = {
+                Text(
+                    text = "Get user data",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                )
+            },
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            shape = MaterialTheme.shapes.medium
+        )
+        TextButton(
+            modifier = Modifier.width(150.dp),
+            onClick = {
+                error = ""
+                msg = ""
+                settingsViewModel.updateUserCompleteData()
+            },
+            content = {
+                Text(
+                    text = "Update user data",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                )
+            },
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            shape = MaterialTheme.shapes.medium
+        )
+        TextButton(
+            modifier = Modifier.width(150.dp),
+            onClick = {
+                settingsViewModel.logout()
+                onClick(Screen.LoggedOut.LogIn.route)
+            },
+            content = {
+                Text(
+                    text = "Logout",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp),
+                )
+            },
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            shape = MaterialTheme.shapes.medium
+        )
+        TextButton(
+            modifier = Modifier.width(150.dp),
+            onClick = {
+                settingsViewModel.showActionApproveDialog()
+            },
+            content = {
+                Text(
+                    text = "Delete account",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .padding(all = 0.dp)
-                ) {
-                    InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsViewModel.userLocalData.fullName)
-                    InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsViewModel.userLocalData.jobRole)
-                    InfoLine(
-                        modifier = modifier.padding(start = 15.dp),
-                        title = "Department",
-                        body = settingsViewModel.userLocalData.department +
-                                if (settingsViewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsViewModel.userLocalData.subDepartment}"
-                    )
-                    InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsViewModel.userLocalData.company)
-                    InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsViewModel.userLocalData.email)
-                    InfoLine(
-                        modifier = modifier.padding(start = 15.dp),
-                        title = "Phone number",
-                        body = if (settingsViewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsViewModel.userLocalData.phoneNumber.toString()
-                    )
-                }
+                )
+            },
+            colors = ButtonDefaults.textButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.error
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onErrorContainer),
+            shape = MaterialTheme.shapes.medium
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        if (error != "")
+            Text(
+                text = error,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
+                modifier = Modifier
+                    .padding(all = 5.dp),
+                textAlign = TextAlign.Center
+            )
+    }
 
-                TextButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = {
-                        error = ""
-                        msg = ""
-                        settingsViewModel.getUserData()
-                    },
-                    content = {
-                        Text(
-                            text = "Get user data",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                        )
-                    },
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    shape = MaterialTheme.shapes.medium
-                )
-                TextButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = {
-                        error = ""
-                        msg = ""
-                        settingsViewModel.updateUserCompleteData()
-                    },
-                    content = {
-                        Text(
-                            text = "Update user data",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                        )
-                    },
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    shape = MaterialTheme.shapes.medium
-                )
-                TextButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = {
-                        settingsViewModel.logout()
-                        onClick(Screen.LoggedOut.LogIn.route)
-                    },
-                    content = {
-                        Text(
-                            text = "Logout",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp),
-                        )
-                    },
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                    shape = MaterialTheme.shapes.medium
-                )
-                TextButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = {
-                        settingsViewModel.showActionApproveDialog()
-                    },
-                    content = {
-                        Text(
-                            text = "Delete account",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(all = 0.dp)
-                        )
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.error
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onErrorContainer),
-                    shape = MaterialTheme.shapes.medium
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                if (error != "")
-                    Text(
-                        text = error,
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                        modifier = Modifier
-                            .padding(all = 5.dp),
-                        textAlign = TextAlign.Center
-                    )
-            }
-
-            if (approveActionDialogVisibility) {
-                ApproveAction(
-                    registrationViewModel = settingsViewModel,
-                    msg = "Delete ${settingsViewModel.userLocalData.email}?",
-                    derivedPassword = settingsViewModel.userLocalData.password,
-                    onDenyClick = { onDenyLambda() },
-                    onApproveClick = { p1 -> onApproveLambda(p1) }
-                )
-            }
-        }
+    if (approveActionDialogVisibility) {
+        ApproveAction(
+            registrationViewModel = settingsViewModel,
+            msg = "Delete ${settingsViewModel.userLocalData.email}?",
+            derivedPassword = settingsViewModel.userLocalData.password,
+            onDenyClick = { onDenyLambda() },
+            onApproveClick = { p1 -> onApproveLambda(p1) }
+        )
     }
 }
 

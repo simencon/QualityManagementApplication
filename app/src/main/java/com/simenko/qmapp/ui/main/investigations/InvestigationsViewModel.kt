@@ -6,7 +6,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
-import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
@@ -29,7 +28,6 @@ private const val TAG = "InvestigationsViewModel"
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
-    private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
@@ -863,57 +861,6 @@ class InvestigationsViewModel @Inject constructor(
                         }
                     }
                 }
-            }
-        }
-    }
-
-    fun refreshMasterDataFromRepository() {
-        viewModelScope.launch {
-            try {
-                _isLoadingInProgress.value = true
-
-                manufacturingRepository.refreshPositionLevels()
-                manufacturingRepository.refreshTeamMembers()
-                manufacturingRepository.refreshCompanies()
-                manufacturingRepository.refreshDepartments()
-                manufacturingRepository.refreshSubDepartments()
-                manufacturingRepository.refreshManufacturingChannels()
-                manufacturingRepository.refreshManufacturingLines()
-                manufacturingRepository.refreshManufacturingOperations()
-                manufacturingRepository.refreshOperationsFlows()
-
-                productsRepository.refreshElementIshModels()
-                productsRepository.refreshIshSubCharacteristics()
-                productsRepository.refreshManufacturingProjects()
-                productsRepository.refreshCharacteristics()
-                productsRepository.refreshMetrixes()
-                productsRepository.refreshKeys()
-                productsRepository.refreshProductBases()
-                productsRepository.refreshProducts()
-                productsRepository.refreshComponents()
-                productsRepository.refreshComponentInStages()
-                productsRepository.refreshVersionStatuses()
-                productsRepository.refreshProductVersions()
-                productsRepository.refreshComponentVersions()
-                productsRepository.refreshComponentInStageVersions()
-                productsRepository.refreshProductTolerances()
-                productsRepository.refreshComponentTolerances()
-                productsRepository.refreshComponentInStageTolerances()
-                productsRepository.refreshProductsToLines()
-                productsRepository.refreshComponentsToLines()
-                productsRepository.refreshComponentInStagesToLines()
-
-                repository.syncInputForOrder()
-                repository.syncOrdersStatuses()
-                repository.syncInvestigationReasons()
-                repository.syncInvestigationTypes()
-                repository.syncResultsDecryptions()
-
-                _isLoadingInProgress.value = false
-
-            } catch (e: IOException) {
-                delay(500)
-                _isErrorMessage.value = e.message
             }
         }
     }

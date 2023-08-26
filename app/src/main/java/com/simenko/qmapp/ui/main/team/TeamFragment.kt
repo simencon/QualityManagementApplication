@@ -36,7 +36,6 @@ class TeamFragment : Fragment() {
 
     private lateinit var viewModel: TeamViewModel
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,7 +56,6 @@ class TeamFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 QMAppTheme {
-                    val context = LocalContext.current
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         floatingActionButton = {
@@ -76,26 +74,11 @@ class TeamFragment : Fragment() {
                         },
                         floatingActionButtonPosition = FabPosition.End,
                         content = { padding ->
-
-                            val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-                            val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
-
-                            val pullRefreshState = rememberPullRefreshState(
-                                refreshing = observerLoadingProcess!!,
-                                onRefresh = { viewModel.syncTeam() }
-                            )
-
                             Box(
                                 Modifier
-                                    .pullRefresh(pullRefreshState)
-                                    .padding()
+                                    .padding(padding)
                             ) {
                                 TeamComposition(appModel = viewModel)
-                            }
-
-                            if (observerIsNetworkError == true) {
-                                Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
-                                viewModel.onNetworkErrorShown()
                             }
                         }
                     )

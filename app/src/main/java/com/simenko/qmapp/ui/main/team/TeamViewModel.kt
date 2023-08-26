@@ -109,21 +109,17 @@ class TeamViewModel @Inject constructor(
             .conflate()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun syncTeam() {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
+    fun updateEmployeesData() = flow {
+        try {
+            emit(Pair(true, null))
 
-                repository.refreshCompanies()
-                repository.refreshDepartments()
-                repository.refreshTeamMembers()
+            repository.refreshCompanies()
+            repository.refreshDepartments()
+            repository.refreshTeamMembers()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
-            }
+            emit(Pair(false, null))
+        } catch (e: Exception) {
+            emit(Pair(false, e.message))
         }
     }
 }

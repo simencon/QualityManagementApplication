@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -20,10 +19,9 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.settings.Settings
 import com.simenko.qmapp.ui.main.team.TeamComposition
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
-
-private const val TAG = "Navigation"
 
 @Composable
 fun Navigation(
@@ -33,6 +31,8 @@ fun Navigation(
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         composable(route = Screen.Main.Employees.route) {
+            val invModel: TeamViewModel = hiltViewModel()
+            (LocalContext.current as MainActivityCompose).initTeamModel(invModel)
             QMAppTheme {
                 TeamComposition()
             }
@@ -46,9 +46,7 @@ fun Navigation(
             )
         ) {
             val invModel: InvestigationsViewModel = hiltViewModel()
-            Log.d(TAG, "InvestigationsViewModel: $invModel")
             (LocalContext.current as MainActivityCompose).initInvModel(invModel)
-            val processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
             QMAppTheme {
                 InvestigationsMainComposition(
                     modifier = Modifier
@@ -56,7 +54,7 @@ fun Navigation(
                             vertical = 2.dp,
                             horizontal = 2.dp
                         ),
-                    processControlOnly = processControlOnly
+                    processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
                 )
             }
         }

@@ -92,7 +92,7 @@ fun AppBar(
     drawerState: DrawerState,
 
     selectedActionsMenuItemId: MutableState<String>,
-    onActionsMenuItemClick: (String) -> Unit,
+    onActionsMenuItemClick: (String, String) -> Unit,
 
     searchBarState: MutableState<Boolean>,
     onSearchBarSearch: (String) -> Unit
@@ -332,7 +332,7 @@ fun DrawerBody(
 fun ActionsMenu(
     actionsMenuState: MutableState<Boolean>,
     selectedActionsMenuItemId: MutableState<String>,
-    onActionsMenuItemClick: (String) -> Unit
+    onActionsMenuItemClick: (String, String) -> Unit
 ) {
     val actionsGroup = rememberSaveable { mutableStateOf(MenuItem.MenuGroup.ACTIONS) }
     val isContextMenuVisible = rememberSaveable { mutableStateOf(false) }
@@ -387,7 +387,7 @@ fun ActionsMenuContext(
     actionsGroup: MenuItem.MenuGroup,
     selectedItemId: MutableState<String>,
     onClickBack: () -> Unit,
-    onContextMenuItemClick: (String) -> Unit
+    onContextMenuItemClick: (String, String) -> Unit
 ) {
     DropdownMenuItem(
         text = { Text(actionsGroup.group) },
@@ -402,7 +402,8 @@ fun ActionsMenuContext(
             text = { Text(item.title) },
             onClick = {
                 onContextMenuItemClick(
-                    if (item.category != MenuItem.MenuGroup.ACTIONS && item.id != "custom_filter") item.id else selectedItemId.value
+                    if (item.category != MenuItem.MenuGroup.ACTIONS && item.id != "custom_filter") item.id else selectedItemId.value,
+                    item.id
                 )
             },
             enabled = selectedItemId.value != item.id,
@@ -461,6 +462,12 @@ data class MenuItem(
         ACTIONS("Actions"),
         FILTER("Filter")
     }
+
+    enum class Actions(val action: String) {
+        UPLOAD_MASTER_DATA("upload_master_data"),
+        SYNC_INVESTIGATIONS("sync_investigations"),
+        CUSTOM_FILTER("custom_filter")
+    }
 }
 
 private val navigationAndActionItems = listOf(
@@ -475,13 +482,13 @@ private val navigationAndActionItems = listOf(
 
     MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
-    MenuItem("upload_master_data", "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
-    MenuItem("sync_investigations", "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem(MenuItem.Actions.UPLOAD_MASTER_DATA.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem(MenuItem.Actions.SYNC_INVESTIGATIONS.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
 
     MenuItem("no_filter", "No filter", "No filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
     MenuItem("incoming_inspection", "Incoming inspection", "Incoming inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
     MenuItem("process_control", "Process control", "Process control", Icons.Filled.Filter3, MenuItem.MenuGroup.FILTER),
     MenuItem("product_audit", "Product audit", "Product audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER),
-    MenuItem("custom_filter", "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
+    MenuItem(MenuItem.Actions.CUSTOM_FILTER.action, "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
 )

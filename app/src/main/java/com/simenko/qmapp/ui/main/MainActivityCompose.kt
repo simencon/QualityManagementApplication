@@ -2,39 +2,45 @@ package com.simenko.qmapp.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.viewModel
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -54,8 +60,12 @@ private const val TAG = "MainActivityCompose"
 class MainActivityCompose : ComponentActivity() {
     @Inject
     lateinit var userRepository: UserRepository
+    val viewModel: MainActivityViewModel by viewModels()
+
+    private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -67,6 +77,9 @@ class MainActivityCompose : ComponentActivity() {
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
+                val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
+                val observerIsNetworkError by viewModel.isErrorMessage.observeAsState()
+
                 val searchBarState = rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
 
@@ -75,7 +88,7 @@ class MainActivityCompose : ComponentActivity() {
                 fun onDrawerItemClick(id: String) {
                     scope.launch { drawerState.close() }
 
-                    if(id!=selectedDrawerMenuItemId.value) {
+                    if (id != selectedDrawerMenuItemId.value) {
                         selectedDrawerMenuItemId.value = id
                         when (id) {
                             Screen.Main.Employees.route -> navController.navigate(Screen.Main.Employees.route) { popUpTo(0) }
@@ -83,6 +96,20 @@ class MainActivityCompose : ComponentActivity() {
                             Screen.Main.ProcessControl.route -> navController.navigate(Screen.Main.AllInvestigations.withArgs("true")) { popUpTo(0) }
                             Screen.Main.Settings.route -> navController.navigate(Screen.Main.Settings.route) { popUpTo(0) }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
+                fun onActionsMenuItemClick(filterOnly: String, action: String) {
+                    selectedContextMenuItemId.value = filterOnly
+                    if (filterOnly != action) {
+                        when (action) {
+                            MenuItem.Actions.UPLOAD_MASTER_DATA.action -> scope.launch {
+                                viewModel.refreshMasterDataFromRepository().collect { viewModel.updateLoadingState(it) }
+                            }
+
+                            MenuItem.Actions.SYNC_INVESTIGATIONS.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                            MenuItem.Actions.CUSTOM_FILTER.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -123,18 +150,53 @@ class MainActivityCompose : ComponentActivity() {
                                     drawerState = drawerState,
 
                                     selectedActionsMenuItemId = selectedContextMenuItemId,
-                                    onActionsMenuItemClick = { selectedContextMenuItemId.value = it },
+                                    onActionsMenuItemClick = { filterOnly, action -> onActionsMenuItemClick(filterOnly, action) },
 
                                     searchBarState = searchBarState,
                                     onSearchBarSearch = { onSearchBarSearch(it) }
                                 )
                             }
                         ) {
-                            Navigation(
-                                Modifier.padding(it),
-                                MenuItem.getStartingDrawerMenuItem().id,
-                                navController
+                            val pullRefreshState = rememberPullRefreshState(
+                                refreshing = observerLoadingProcess!!,
+                                onRefresh = {
+                                    when (selectedDrawerMenuItemId.value) {
+                                        Screen.Main.Employees.route -> scope.launch {
+                                            teamModel.updateEmployeesData().collect { viewModel.updateLoadingState(it) }
+                                        }
+
+                                        Screen.Main.Settings.route -> scope.launch {
+                                            viewModel.updateLoadingState(Pair(true, null))
+                                            delay(3000)
+                                            viewModel.updateLoadingState(Pair(false, "Some test error!"))
+                                        }
+
+                                        else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                    }
+                                }
                             )
+                            Box {
+                                Navigation(
+                                    Modifier
+                                        .padding(it)
+                                        .pullRefresh(pullRefreshState),
+                                    MenuItem.getStartingDrawerMenuItem().id,
+                                    navController
+                                )
+                                PullRefreshIndicator(
+                                    refreshing = observerLoadingProcess!!,
+                                    state = pullRefreshState,
+                                    modifier = Modifier
+                                        .align(Alignment.TopCenter)
+                                        .padding(it),
+                                    backgroundColor = MaterialTheme.colorScheme.onSecondary,
+                                    contentColor = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            if (observerIsNetworkError != null) {
+                                Toast.makeText(this, observerIsNetworkError, Toast.LENGTH_SHORT).show()
+                                viewModel.onNetworkErrorShown()
+                            }
                         }
                     }
                 )
@@ -144,5 +206,9 @@ class MainActivityCompose : ComponentActivity() {
 
     fun initInvModel(model: InvestigationsViewModel) {
         this.invModel = model
+    }
+
+    fun initTeamModel(model: TeamViewModel) {
+        this.teamModel = model
     }
 }

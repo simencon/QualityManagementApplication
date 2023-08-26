@@ -39,17 +39,11 @@ import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "TeamComposition"
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TeamComposition(
     appModel: TeamViewModel = hiltViewModel()
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
-
-    val context = LocalContext.current
-
-    val observerLoadingProcess by appModel.isLoadingInProgress.observeAsState()
-    val observerIsNetworkError by appModel.isNetworkError.observeAsState()
 
     val items by appModel.teamSF.collectAsStateWithLifecycle(listOf())
 
@@ -64,41 +58,19 @@ fun TeamComposition(
 
     val listState = rememberLazyListState()
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = observerLoadingProcess!!,
-        onRefresh = { appModel.syncTeam() }
-    )
-
-    Box(
-        Modifier
-            .pullRefresh(pullRefreshState)
+    LazyColumn(
+        state = listState
     ) {
-        LazyColumn(
-            state = listState
-        ) {
-            items(items = items, key = { it.teamMember.id }
-            ) { teamMember ->
-                TeamMemberCard(
-                    teamMember = teamMember,
-                    onClickDetails = { onClickDetailsLambda(it) },
-                    onDoubleClick = {
-                        onDoubleClickLambda(it.teamMember)
-                    }
-                )
-            }
+        items(items = items, key = { it.teamMember.id }
+        ) { teamMember ->
+            TeamMemberCard(
+                teamMember = teamMember,
+                onClickDetails = { onClickDetailsLambda(it) },
+                onDoubleClick = {
+                    onDoubleClickLambda(it.teamMember)
+                }
+            )
         }
-
-        PullRefreshIndicator(
-            observerLoadingProcess!!,
-            pullRefreshState,
-            Modifier.align(Alignment.TopCenter),
-            contentColor = ProgressIndicatorDefaults.circularColor
-        )
-    }
-
-    if (observerIsNetworkError == true) {
-        Toast.makeText(context, "Network error!", Toast.LENGTH_SHORT).show()
-        appModel.onNetworkErrorShown()
     }
 }
 
