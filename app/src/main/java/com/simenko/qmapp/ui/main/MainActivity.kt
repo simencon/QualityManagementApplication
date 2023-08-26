@@ -315,7 +315,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
 
                 R.id.upload_master_data -> {
-                    investigationsModel.refreshMasterDataFromRepository()
+                    TODO("Will filter accordingly")
                 }
 
                 R.id.sync_investigations -> {
