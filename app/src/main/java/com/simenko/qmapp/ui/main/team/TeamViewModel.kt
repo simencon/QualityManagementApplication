@@ -5,6 +5,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
 import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.ui.main.MainActivityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -15,72 +16,60 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
-    private val repository: ManufacturingRepository
+    private val repository: ManufacturingRepository,
 ) : ViewModel() {
+    private lateinit var mainActivityViewModel: MainActivityViewModel
 
-    val isLoadingInProgress = MutableLiveData(false)
-    val isNetworkError = MutableLiveData(false)
-
-    fun onNetworkErrorShown() {
-        isLoadingInProgress.value = false
-        isNetworkError.value = false
+    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
+        this.mainActivityViewModel = viewModel
     }
 
-    fun insertRecord(record: DomainTeamMember) {
-        viewModelScope.launch {
-            try {
-                isLoadingInProgress.value = true
-                withContext(Dispatchers.IO) {
-                    val channel = repository.insertRecord(this, record)
-                    channel.consumeEach {
-                    }
-                }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+    fun insertRecord(record: DomainTeamMember) = viewModelScope.launch {
+        try {
+            mainActivityViewModel.updateLoadingState(Pair(true, null))
+            withContext(Dispatchers.IO) {
+                val channel = repository.insertRecord(this, record)
+                channel.consumeEach {}
             }
+            mainActivityViewModel.updateLoadingState(Pair(false, null))
+        } catch (e: Exception) {
+            mainActivityViewModel.updateLoadingState(Pair(false, e.message))
         }
     }
 
     fun deleteRecord(record: DomainTeamMember) = viewModelScope.launch {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                mainActivityViewModel.updateLoadingState(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     val channel = repository.deleteRecord(this, record)
                     channel.consumeEach {
                     }
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+                mainActivityViewModel.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
             }
         }
     }
 
-    fun updateRecord(record: DomainTeamMember) = viewModelScope.launch {
+    fun updateRecord(record: DomainTeamMember) =
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                mainActivityViewModel.updateLoadingState(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     val channel = repository.updateRecord(this, record)
-                    channel.consumeEach {
-                    }
+                    channel.consumeEach {}
                 }
-                isLoadingInProgress.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+                mainActivityViewModel.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainActivityViewModel.updateLoadingState(Pair(true, e.message))
             }
         }
-    }
 
     private val _currentMemberDetails = MutableStateFlow(NoRecord)
 
     private val _teamSF: Flow<List<DomainTeamMemberComplete>> = repository.teamCompleteList()
-
 
     fun changeCurrentTeamMember(id: Int) {
         if (_currentMemberDetails.value.num != id) {
@@ -109,17 +98,17 @@ class TeamViewModel @Inject constructor(
             .conflate()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun updateEmployeesData() = flow {
+    fun updateEmployeesData() = viewModelScope.launch {
         try {
-            emit(Pair(true, null))
+            mainActivityViewModel.updateLoadingState(Pair(true, null))
 
             repository.refreshCompanies()
             repository.refreshDepartments()
             repository.refreshTeamMembers()
 
-            emit(Pair(false, null))
+            mainActivityViewModel.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            emit(Pair(false, e.message))
+            mainActivityViewModel.updateLoadingState(Pair(false, e.message))
         }
     }
 }

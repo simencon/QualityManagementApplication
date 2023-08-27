@@ -7,23 +7,24 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -57,8 +59,6 @@ fun launchMainActivityCompose(
         actionType
     )
 }
-
-private const val TAG = "MainActivityCompose"
 
 @AndroidEntryPoint
 class MainActivityCompose : ComponentActivity() {
@@ -108,10 +108,7 @@ class MainActivityCompose : ComponentActivity() {
                     selectedContextMenuItemId.value = filterOnly
                     if (filterOnly != action) {
                         when (action) {
-                            MenuItem.Actions.UPLOAD_MASTER_DATA.action -> scope.launch {
-                                viewModel.refreshMasterDataFromRepository().collect { viewModel.updateLoadingState(it) }
-                            }
-
+                            MenuItem.Actions.UPLOAD_MASTER_DATA.action -> viewModel.refreshMasterDataFromRepository()
                             MenuItem.Actions.SYNC_INVESTIGATIONS.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                             MenuItem.Actions.CUSTOM_FILTER.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
@@ -159,15 +156,30 @@ class MainActivityCompose : ComponentActivity() {
                                     searchBarState = searchBarState,
                                     onSearchBarSearch = { onSearchBarSearch(it) }
                                 )
+                            },
+                            floatingActionButton = {
+                                if (selectedDrawerMenuItemId.value != Screen.Main.Settings.route)
+                                    FloatingActionButton(
+                                        onClick = {
+                                            when (selectedDrawerMenuItemId.value) {
+                                                Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
+                                                else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                            }
+                                        },
+                                        content = {
+                                            Icon(
+                                                imageVector = Icons.Default.Add,
+                                                contentDescription = "Add button"
+                                            )
+                                        }
+                                    )
                             }
                         ) {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess!!,
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId.value) {
-                                        Screen.Main.Employees.route -> scope.launch {
-                                            teamModel.updateEmployeesData().collect { viewModel.updateLoadingState(it) }
-                                        }
+                                        Screen.Main.Employees.route -> teamModel.updateEmployeesData()
 
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))
@@ -218,5 +230,6 @@ class MainActivityCompose : ComponentActivity() {
 
     fun initTeamModel(model: TeamViewModel) {
         this.teamModel = model
+        this.teamModel.initMainActivityViewModel(this.viewModel)
     }
 }
