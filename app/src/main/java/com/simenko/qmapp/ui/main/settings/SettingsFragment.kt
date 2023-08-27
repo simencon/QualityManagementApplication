@@ -81,8 +81,6 @@ fun Settings(
     modifier: Modifier = Modifier,
     onClick: (String) -> Unit,
 ) {
-    val columnState = rememberScrollState()
-
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
 
@@ -111,6 +109,7 @@ fun Settings(
             onClick(Screen.LoggedOut.Registration.route)
         }
     }
+    val columnState = rememberScrollState()
 
     Column(
         verticalArrangement = Arrangement.Center,
