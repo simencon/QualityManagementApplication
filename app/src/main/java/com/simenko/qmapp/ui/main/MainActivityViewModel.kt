@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -9,11 +8,8 @@ import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.io.IOException
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -38,10 +34,9 @@ class MainActivityViewModel @Inject constructor(
         _isErrorMessage.value = null
     }
 
-    fun refreshMasterDataFromRepository() = flow {
+    fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
-            emit(Pair(true, null))
-            _isLoadingInProgress.value = true
+            updateLoadingState(Pair(true, null))
 
             manufacturingRepository.refreshPositionLevels()
             manufacturingRepository.refreshTeamMembers()
@@ -80,10 +75,9 @@ class MainActivityViewModel @Inject constructor(
             repository.syncInvestigationTypes()
             repository.syncResultsDecryptions()
 
-            emit(Pair(false, null))
-
+            updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            emit(Pair(false, e.message))
+            updateLoadingState(Pair(false, e.message))
         }
     }
 }

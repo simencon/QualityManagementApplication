@@ -61,13 +61,12 @@ class TeamFragment : Fragment() {
                         floatingActionButton = {
                             FloatingActionButton(
                                 onClick = {
-                                    viewModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
+//                                    viewModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
                                 },
                                 content = {
                                     Icon(
                                         imageVector = Icons.Default.Add,
-                                        contentDescription = null,
-                                        tint = Primary
+                                        contentDescription = null
                                     )
                                 }
                             )
