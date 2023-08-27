@@ -362,7 +362,10 @@ fun ActionsMenu(
                 actionsMenuState.value = true
                 isContextMenuVisible.value = false
             },
-            onContextMenuItemClick = onActionsMenuItemClick
+            onContextMenuItemClick = { p1, p2 ->
+                onActionsMenuItemClick(p1, p2)
+                isContextMenuVisible.value = false
+            }
         )
     }
 }
@@ -482,8 +485,20 @@ private val navigationAndActionItems = listOf(
 
     MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
-    MenuItem(MenuItem.Actions.UPLOAD_MASTER_DATA.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
-    MenuItem(MenuItem.Actions.SYNC_INVESTIGATIONS.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem(
+        MenuItem.Actions.UPLOAD_MASTER_DATA.action,
+        "Upload master data",
+        "Upload master data",
+        Icons.Filled.Refresh,
+        MenuItem.MenuGroup.ACTIONS
+    ),
+    MenuItem(
+        MenuItem.Actions.SYNC_INVESTIGATIONS.action,
+        "Sync investigations",
+        "Sync investigations",
+        Icons.Filled.Refresh,
+        MenuItem.MenuGroup.ACTIONS
+    ),
 
     MenuItem("no_filter", "No filter", "No filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),

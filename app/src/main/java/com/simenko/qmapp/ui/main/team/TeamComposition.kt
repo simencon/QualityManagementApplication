@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
@@ -44,6 +46,7 @@ fun TeamComposition(
     appModel: TeamViewModel = hiltViewModel()
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
+    val columnState = rememberScrollState()
 
     val items by appModel.teamSF.collectAsStateWithLifecycle(listOf())
 
@@ -55,10 +58,10 @@ fun TeamComposition(
             appModel.deleteRecord(it)
         }
     }
-
     val listState = rememberLazyListState()
 
     LazyColumn(
+        modifier = Modifier.fillMaxSize(),
         state = listState
     ) {
         items(items = items, key = { it.teamMember.id }
