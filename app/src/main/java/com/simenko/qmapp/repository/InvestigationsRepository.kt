@@ -258,7 +258,6 @@ class InvestigationsRepository @Inject constructor(
             taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) }
         ) { r -> database.resultDao.insertRecords(r) }
     }
-
     /**
      * Inv update operations
      * */

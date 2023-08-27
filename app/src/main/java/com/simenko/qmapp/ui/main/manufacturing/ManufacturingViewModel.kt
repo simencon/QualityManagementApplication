@@ -43,7 +43,7 @@ class ManufacturingViewModel @Inject constructor(
                 isLoadingInProgress.value = true
 
                 manufacturingRepository.refreshPositionLevels()
-                manufacturingRepository.refreshTeamMembers()
+                manufacturingRepository.syncTeamMembers()
                 manufacturingRepository.refreshCompanies()
                 manufacturingRepository.refreshDepartments()
                 manufacturingRepository.refreshSubDepartments()

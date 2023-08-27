@@ -37,6 +37,7 @@ import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
+import com.simenko.qmapp.ui.main.MainActivityCompose
 import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "TeamComposition"
@@ -46,14 +47,13 @@ fun TeamComposition(
     appModel: TeamViewModel = hiltViewModel()
 ) {
     Log.d(TAG, "TeamMembersLiveData: Parent is build!")
-    val columnState = rememberScrollState()
 
     val items by appModel.teamSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda: (Int) -> Unit = {
         appModel.changeCurrentTeamMember(it)
     }
-    val onDoubleClickLambda = remember<(DomainTeamMember) -> Unit> {
+    val onDoubleClickLambda = remember<(Int) -> Unit> {
         {
             appModel.deleteRecord(it)
         }
@@ -70,7 +70,7 @@ fun TeamComposition(
                 teamMember = teamMember,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onDoubleClick = {
-                    onDoubleClickLambda(it.teamMember)
+                    onDoubleClickLambda(it)
                 }
             )
         }
@@ -81,15 +81,19 @@ fun TeamComposition(
 fun TeamMemberCard(
     teamMember: DomainTeamMemberComplete,
     onClickDetails: (Int) -> Unit,
-    onDoubleClick: (DomainTeamMemberComplete) -> Unit
+    onDoubleClick: (Int) -> Unit
 ) {
     Log.d(TAG, "TeamMemberCard: ${teamMember.teamMember.fullName}")
+    val activityScope = LocalContext.current
     Card(
         modifier = Modifier
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onDoubleTap = { onDoubleClick(teamMember) }
+                    onDoubleTap = {
+                        Toast.makeText(activityScope, "Name: ${teamMember.teamMember.fullName}, id: ${teamMember.teamMember.id}", Toast.LENGTH_LONG).show()
+//                        onDoubleClick(teamMember.teamMember.id)
+                    }
                 )
             },
         colors = CardDefaults.cardColors(

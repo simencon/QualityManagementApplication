@@ -14,20 +14,20 @@ interface ManufacturingDao {
     @Query("SELECT * FROM `0_position_levels` ORDER BY id ASC")
     fun getPositionLevels(): LiveData<List<DatabasePositionLevel>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTeamMembersAll(teamMember: List<DatabaseTeamMember>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTeamMember(teamMember: DatabaseTeamMember)
-
-    @Delete
-    suspend fun deleteTeamMember(teamMember: DatabaseTeamMember)
-
-    @Update
-    suspend fun updateTeamMember(teamMember: DatabaseTeamMember)
-
-    @Query("SELECT * FROM `8_team_members` ORDER BY id ASC")
-    fun getTeamMembers(): LiveData<List<DatabaseTeamMember>>
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    fun insertTeamMembersAll(teamMember: List<DatabaseTeamMember>)
+//
+//    @Insert(onConflict = OnConflictStrategy.REPLACE)
+//    suspend fun insertTeamMember(teamMember: DatabaseTeamMember)
+//
+//    @Delete
+//    suspend fun deleteTeamMember(teamMember: DatabaseTeamMember)
+//
+//    @Update
+//    suspend fun updateTeamMember(teamMember: DatabaseTeamMember)
+//
+//    @Query("SELECT * FROM `8_team_members` ORDER BY id ASC")
+//    fun getTeamMembers(): LiveData<List<DatabaseTeamMember>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCompaniesAll(company: List<DatabaseCompany>)
