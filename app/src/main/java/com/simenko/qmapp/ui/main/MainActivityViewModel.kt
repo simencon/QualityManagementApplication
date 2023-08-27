@@ -39,7 +39,7 @@ class MainActivityViewModel @Inject constructor(
             updateLoadingState(Pair(true, null))
 
             manufacturingRepository.refreshPositionLevels()
-            manufacturingRepository.refreshTeamMembers()
+            manufacturingRepository.syncTeamMembers()
             manufacturingRepository.refreshCompanies()
             manufacturingRepository.refreshDepartments()
             manufacturingRepository.refreshSubDepartments()

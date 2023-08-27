@@ -197,7 +197,7 @@ class NewItemViewModel @Inject constructor(
                 repository.syncInvestigationReasons()
                 repository.syncInputForOrder()
                 manufacturingRepository.refreshDepartments()
-                manufacturingRepository.refreshTeamMembers()
+                manufacturingRepository.syncTeamMembers()
 
                 productsRepository.refreshKeys()
                 productsRepository.refreshComponents()

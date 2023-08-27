@@ -5,14 +5,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.other.Resource
+import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -22,13 +26,13 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "ManufacturingRepository"
-
-@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ManufacturingRepository @Inject constructor(
+    private val database: QualityManagementDB,
     private val manufacturingDao: ManufacturingDao,
     private val manufacturingService: ManufacturingService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val crudeOperations: CrudeOperations
 ) {
     /**
      * Update Manufacturing from the network
@@ -44,53 +48,25 @@ class ManufacturingRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshTeamMembers() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getTeamMembers()
-            manufacturingDao.insertTeamMembersAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
+    suspend fun syncTeamMembers() = crudeOperations.syncRecordsAll(
+        database.teamMemberDao
+    ) { manufacturingService.getTeamMembers() }
+
+    fun CoroutineScope.deleteTeamMember(orderId: Int): ReceiveChannel<Event<Resource<DomainTeamMember>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { manufacturingService.deleteTeamMember(orderId) }
+        ) { r -> database.teamMemberDao.deleteRecord(r) }
     }
-
-    suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
-        coroutineScope.produce {
-            userRepository.refreshTokenIfNecessary()
-            val response = manufacturingService.insertTeamMember(
-                record.toDatabaseModel().toNetworkModel()
-            )
-
-            if (response.isSuccessful) {
-                response.body()?.let { manufacturingDao.insertTeamMember(it.toDatabaseModel()) }
-                response.body()?.toDatabaseModel()?.let { send(it.toDomainModel()) }
-            } else {
-                Log.d(TAG, "insertRecord: ${response.errorBody()}")
-            }
-        }
-
-
-    suspend fun deleteRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
-        coroutineScope.produce {
-            userRepository.refreshTokenIfNecessary()
-            val response = manufacturingService.deleteTeamMember(record.id)
-            if (response.isSuccessful) {
-                manufacturingDao.deleteTeamMember(record.toDatabaseModel())
-            }
-            send(response)
-        }
-
-    fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
-        coroutineScope.produce {
-            userRepository.refreshTokenIfNecessary()
-            val response = manufacturingService
-                .updateTeamMember(record.id, record.toDatabaseModel().toNetworkModel()).body()
-                ?.toDatabaseModel()
-
-            response?.let { manufacturingDao.updateTeamMember(it) }
-            response?.let { send(it.toDomainModel()) }
-        }
+    fun CoroutineScope.insertTeamMember(record: DomainTeamMember) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { manufacturingService.insertTeamMember(record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.teamMemberDao.insertRecord(r) }
+    }
+    fun CoroutineScope.updateTeamMember(record: DomainTeamMember) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { manufacturingService.editTeamMember(record.id, record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.teamMemberDao.updateRecord(r) }
+    }
 
     suspend fun refreshCompanies() {
         withContext(Dispatchers.IO) {
@@ -173,7 +149,7 @@ class ManufacturingRepository @Inject constructor(
      * Connecting with LiveData for ViewModel
      */
     val teamMembers: LiveData<List<DomainTeamMember>> =
-        manufacturingDao.getTeamMembers().map { list ->
+        database.teamMemberDao.getRecordsForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
