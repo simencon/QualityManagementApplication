@@ -62,24 +62,9 @@ fun Orders(
 
     val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setCurrentOrderVisibility(dId = SelectedNumber(it))
-        }
-    }
-
-    val onClickActionsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setCurrentOrderVisibility(aId = SelectedNumber(it))
-        }
-    }
-
-    val onClickDeleteLambda = remember<(Int) -> Unit> {
-        {
-            invModel.deleteOrder(it)
-        }
-    }
-
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> {
         {
             launchNewItemActivityForResult(
@@ -151,7 +136,6 @@ fun Orders(
                     onClickDetailsLambda(it)
                 },
                 modifier = modifier,
-                cardOffset = CARD_OFFSET.dp(),
                 onClickActions = {
                     onClickActionsLambda(it)
                 },
@@ -172,7 +156,6 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     order: DomainOrderComplete = DomainOrderComplete(),
     onClickDetails: (Int) -> Unit,
-    cardOffset: Float,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
@@ -189,11 +172,10 @@ fun OrderCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (order.isExpanded) cardOffset else 0f },
+        targetValueByState = { if (order.isExpanded) CARD_OFFSET.dp() else 0f },
     )
 
-    val cardBgColor =
-        when (order.isExpanded) {
+    val cardBgColor = when (order.isExpanded) {
             true -> Secondary
             false -> {
                 when (order.detailsVisibility) {
@@ -202,7 +184,6 @@ fun OrderCard(
                 }
             }
         }
-
 
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
@@ -414,6 +395,7 @@ fun Order(
                                     !conformity.isNaN() -> {
                                         (round(conformity * 10) / 10).toString() + "%"
                                     }
+
                                     else -> {
                                         ""
                                     }
@@ -575,7 +557,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = getStringDate(createdDate)?: NoString.str,
+                text = getStringDate(createdDate) ?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -598,7 +580,7 @@ fun OrderDetails(
                     .weight(weight = 0.35f)
             )
             Text(
-                text = getStringDate(completedDate)?: NoString.str,
+                text = getStringDate(completedDate) ?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

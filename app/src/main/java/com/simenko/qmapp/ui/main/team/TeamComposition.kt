@@ -1,28 +1,29 @@
 package com.simenko.qmapp.ui.main.team
 
 
-import android.util.Log
+import android.annotation.SuppressLint
 import android.widget.Toast
+
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -30,88 +31,116 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
-import com.simenko.qmapp.ui.main.MainActivityCompose
+import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.utils.StringUtils
-
-private const val TAG = "TeamComposition"
+import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.modifyColorTone
+import kotlin.math.roundToInt
 
 @Composable
 fun TeamComposition(
     appModel: TeamViewModel = hiltViewModel()
 ) {
-    Log.d(TAG, "TeamMembersLiveData: Parent is build!")
-
+    val context = LocalContext.current
     val items by appModel.teamSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda: (Int) -> Unit = {
-        appModel.changeCurrentTeamMember(it)
-    }
-    val onDoubleClickLambda = remember<(Int) -> Unit> {
-        {
-            appModel.deleteRecord(it)
-        }
-    }
+    val onClickDetailsLambda: (Int) -> Unit = { appModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { appModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { appModel.deleteRecord(it) } }
+    val onClickEditLambda = remember<(Int) -> Unit> { { Toast.makeText(context, "id = $it", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = listState
     ) {
-        items(items = items, key = { it.teamMember.id }
-        ) { teamMember ->
+        items(items = items, key = { it.teamMember.id }) { teamMember ->
             TeamMemberCard(
                 teamMember = teamMember,
                 onClickDetails = { onClickDetailsLambda(it) },
-                onDoubleClick = {
-                    onDoubleClickLambda(it)
-                }
+                onDoubleClick = { onClickActionsLambda(it) },
+                onClickDelete = { onClickDeleteLambda(it) },
+                onClickEdit = { onClickEditLambda(it) }
             )
         }
     }
 }
 
+@SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun TeamMemberCard(
     teamMember: DomainTeamMemberComplete,
     onClickDetails: (Int) -> Unit,
-    onDoubleClick: (Int) -> Unit
+    onDoubleClick: (Int) -> Unit,
+    onClickDelete: (Int) -> Unit,
+    onClickEdit: (Int) -> Unit
 ) {
-    Log.d(TAG, "TeamMemberCard: ${teamMember.teamMember.fullName}")
-    val activityScope = LocalContext.current
-    Card(
-        modifier = Modifier
-            .padding(vertical = 4.dp, horizontal = 8.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onDoubleTap = {
-                        Toast.makeText(activityScope, "Name: ${teamMember.teamMember.fullName}, id: ${teamMember.teamMember.id}", Toast.LENGTH_LONG).show()
-//                        onDoubleClick(teamMember.teamMember.id)
-                    }
-                )
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiary.copy(0.3f),
-        ),
+    val transitionState = remember {
+        MutableTransitionState(teamMember.isExpanded).apply {
+            targetState = !teamMember.isExpanded
+        }
+    }
 
+    val transition = updateTransition(transitionState, "cardTransition")
+
+    val offsetTransition by transition.animateFloat(
+        label = "cardOffsetTransition",
+        transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
+        targetValueByState = { if (teamMember.isExpanded) CARD_OFFSET.dp() else 0f },
+    )
+    val containerColor = when (teamMember.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    val borderColor = when (teamMember.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.onSurfaceVariant
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
+    Box(Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+            IconButton(
+                modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
+                onClick = { onClickDelete(teamMember.teamMember.id) },
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
+            )
+
+            IconButton(
+                modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
+                onClick = { onClickEdit(teamMember.teamMember.id) },
+                content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
+            )
+        }
+        Card(
+            modifier = Modifier
+                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
+                .pointerInput(teamMember.teamMember.id) {
+                    detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) })
+                },
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor)
         ) {
-        TeamMember(
-            id = teamMember.teamMember.id,
-            fullName = teamMember.teamMember.fullName,
-            email = teamMember.teamMember.email,
-            department = teamMember.department?.depName ?: "-",
-            jobRole = teamMember.teamMember.jobRole,
-            detailsVisibility = teamMember.detailsVisibility,
-            onClickDetails = {
-                onClickDetails(it)
-            }
-        )
+            TeamMember(
+                id = teamMember.teamMember.id,
+                fullName = teamMember.teamMember.fullName,
+                email = teamMember.teamMember.email,
+                department = teamMember.department?.depName ?: "-",
+                jobRole = teamMember.teamMember.jobRole,
+                detailsVisibility = teamMember.detailsVisibility,
+                onClickDetails = onClickDetails
+            )
+        }
     }
 }
 
@@ -140,8 +169,6 @@ fun TeamMember(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        Log.d(TAG, "TeamMember: $fullName")
-
         Row(
             modifier = modifier,
             horizontalArrangement = Arrangement.Start,
@@ -157,7 +184,7 @@ fun TeamMember(
                     .padding(start = 16.dp)
             )
 
-            IconButton(onClick = { if (detailsVisibility) onClickDetails(-1) else onClickDetails(id) }) {
+            IconButton(onClick = { onClickDetails(id) }) {
                 Icon(
                     imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (detailsVisibility) {
