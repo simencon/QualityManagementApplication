@@ -33,6 +33,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
@@ -132,19 +133,11 @@ fun Orders(
             Log.d(TAG, "OrdersLog: ${order.order.orderNumber}")
             OrderCard(
                 order = order,
-                onClickDetails = {
-                    onClickDetailsLambda(it)
-                },
-                modifier = modifier,
-                onClickActions = {
-                    onClickActionsLambda(it)
-                },
-                onClickDelete = {
-                    onClickDeleteLambda(it)
-                },
-                onClickEdit = {
-                    onClickEditLambda(it)
-                }
+                onClickDetails = { onClickDetailsLambda(it) },
+                modifier = modifier.padding(CARDS_PADDING),
+                onClickActions = { onClickActionsLambda(it) },
+                onClickDelete = { onClickDeleteLambda(it) },
+                onClickEdit = { onClickEditLambda(it) }
             )
         }
     }

@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
@@ -69,15 +70,11 @@ fun SampleComposition(
             }) { sample ->
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
                 SampleCard(
-                    modifier = modifier,
+                    modifier = modifier.padding(CARDS_PADDING),
                     appModel = invModel,
                     sample = sample,
-                    onClickDetails = { it ->
-                        onClickDetailsLambda(it)
-                    },
-                    onChangeExpandState = {
-                        onClickDetailsLambda(it)
-                    }
+                    onClickDetails = { onClickDetailsLambda(it) },
+                    onChangeExpandState = { onClickDetailsLambda(it) }
                 )
             }
         }

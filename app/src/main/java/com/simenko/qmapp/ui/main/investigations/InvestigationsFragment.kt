@@ -47,20 +47,16 @@ class InvestigationsFragment() :
         )
 
         val tabLayout: TabLayout = binding.tabs
-        for (position in TargetInv.values().iterator()) {
-            tabLayout.addTab(
-                tabLayout.newTab()
-                    .setText(StringUtils.getWithSpaces(position.name))
-                    .setTag(position.name)
-            )
-        }
+//        for (position in TargetInv.values().iterator()) {
+//            tabLayout.addTab(
+//                tabLayout.newTab()
+//                    .setText(StringUtils.getWithSpaces(position.name))
+//                    .setTag(position.name)
+//            )
+//        }
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                if (viewModel.showSubOrderWithOrderType.value != OrderTypeProcessOnly)
-                    viewModel.setCurrentOrdersFilter(status = getStatus(tab?.tag.toString()))
-                else
-                    viewModel.setCurrentSubOrdersFilter(status = getStatus(tab?.tag.toString()))
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -96,12 +92,5 @@ class InvestigationsFragment() :
                 )
             }
         }
-    }
-
-    enum class TargetInv {
-        ALL,
-        TO_DO,
-        IN_PROGRESS,
-        DONE
     }
 }

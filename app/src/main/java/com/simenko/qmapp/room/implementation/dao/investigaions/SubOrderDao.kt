@@ -37,7 +37,8 @@ abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentMod
         "select so.* from `12_orders` o " +
                 "join `13_sub_orders` so on o.id = so.orderId " +
                 "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
-                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
+                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) " +
+                "order by o.orderNumber desc;"
     )
     abstract fun getRecordsByTimeRangeForUI(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderComplete>>
 
