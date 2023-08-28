@@ -230,7 +230,7 @@ fun SubOrderCard(
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(Unit) {
+                .pointerInput(subOrder.subOrder.id) {
                     detectTapGestures(
                         onDoubleTap = { onClickActions(subOrder.subOrder.id) }
                     )
