@@ -2,6 +2,8 @@ package com.simenko.qmapp.ui.theme
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpace
+import androidx.compose.ui.graphics.toArgb
 
 val md_theme_light_primary = Color(0xFF00658C)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
@@ -84,3 +86,4 @@ val level_2_record_color_details = Color(0xFFBDB4D1)
 val level_1_record_color = Color(0xFFDCE1E4)
 @Stable
 val level_1_record_color_details = Color(0xFFE0DCE4)
+val test = Primary.toArgb()

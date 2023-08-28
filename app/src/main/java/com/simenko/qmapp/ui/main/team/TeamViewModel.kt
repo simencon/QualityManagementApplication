@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -75,27 +76,27 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _currentMemberDetails = MutableStateFlow(NoRecord)
-
     private val _teamSF: Flow<List<DomainTeamMemberComplete>> = repository.teamCompleteList()
-
-    fun changeCurrentTeamMember(id: Int) {
-        if (_currentMemberDetails.value.num != id) {
-            _currentMemberDetails.value = SelectedNumber(id)
-        } else {
-            _currentMemberDetails.value = NoRecord
-        }
+    /**
+     * Visibility operations
+     * */
+    private val _currentTeamMemberVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    fun setCurrentOrderVisibility(
+        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
+    ) {
+        _currentTeamMemberVisibility.value = _currentTeamMemberVisibility.value.setVisibility(dId, aId)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val teamSF: StateFlow<List<DomainTeamMemberComplete>> =
         _teamSF.flatMapLatest { team ->
-            _currentMemberDetails.flatMapLatest { visibility ->
+            _currentTeamMemberVisibility.flatMapLatest { visibility ->
                 val cpy = mutableListOf<DomainTeamMemberComplete>()
                 team.forEach {
                     cpy.add(
                         it.copy(
-                            detailsVisibility = it.teamMember.id == visibility.num,
+                            detailsVisibility = it.teamMember.id == visibility.first.num,
+                            isExpanded = it.teamMember.id == visibility.second.num
                         )
                     )
                 }

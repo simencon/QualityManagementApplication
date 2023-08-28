@@ -191,8 +191,9 @@ data class DomainTeamMemberComplete(
     val teamMember: DomainTeamMember = DomainTeamMember(),
     val department: DomainDepartment? = DomainDepartment(),
     val company: DomainCompany? = DomainCompany(),
+    var isSelected: Boolean = false,
     var detailsVisibility: Boolean = false,
-    var isSelected: Boolean = false
+    var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseTeamMemberComplete>() {
     override fun getRecordId() = teamMember.id
     override fun getParentId() = teamMember.departmentId
