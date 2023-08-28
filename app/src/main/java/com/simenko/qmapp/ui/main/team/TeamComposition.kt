@@ -56,7 +56,7 @@ fun TeamComposition(
     val onClickDetailsLambda: (Int) -> Unit = { appModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(Int) -> Unit> { { appModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { appModel.deleteRecord(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> { { Toast.makeText(context, "id = $it", Toast.LENGTH_LONG).show() } }
+    val onClickEditLambda = remember<(Int, String) -> Unit> { {p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
 
     LazyColumn(
@@ -69,7 +69,7 @@ fun TeamComposition(
                 onClickDetails = { onClickDetailsLambda(it) },
                 onDoubleClick = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
-                onClickEdit = { onClickEditLambda(it) }
+                onClickEdit = {p1, p2 -> onClickEditLambda(p1, p2) }
             )
         }
     }
@@ -82,7 +82,7 @@ fun TeamMemberCard(
     onClickDetails: (Int) -> Unit,
     onDoubleClick: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int) -> Unit
+    onClickEdit: (Int, String) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(teamMember.isExpanded).apply {
@@ -120,7 +120,7 @@ fun TeamMemberCard(
 
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(teamMember.teamMember.id) },
+                onClick = { onClickEdit(teamMember.teamMember.id, teamMember.teamMember.fullName) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }

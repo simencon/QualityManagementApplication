@@ -213,30 +213,13 @@ fun SubOrderCard(
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickDelete(subOrder.subOrder.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        tint = Tertiary,
-                        contentDescription = "delete action",
-                    )
-                }
+                onClick = { onClickDelete(subOrder.subOrder.id) },
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
-
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickEdit(subOrder.subOrder.orderId, subOrder.subOrder.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        tint = Tertiary,
-                        contentDescription = "edit action",
-                    )
-                },
+                onClick = { onClickEdit(subOrder.subOrder.orderId, subOrder.subOrder.id) },
+                content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
             )
         }
 
