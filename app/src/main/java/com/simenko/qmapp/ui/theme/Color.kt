@@ -65,7 +65,6 @@ val md_theme_dark_onSurface = Color(0xFFC4C7C7)
 val md_theme_dark_surfaceVariant = Color(0xFF41484D)
 val md_theme_dark_onSurfaceVariant = Color(0xFFC1C7CE)
 
-
 val seed = Color(0xFF03506F)
 
 
@@ -73,17 +72,4 @@ val Primary = Color(0xFF03506F)
 
 val Secondary = Color(0xFFffa480)
 
-val Tertiary = Color(0xFF0A043C)
 val TertiaryContainer = Color(0xFFBBBBBB)
-
-val level_3_record_color = Color(0xFF9CBFCF)
-val level_3_record_color_details = Color(0xFFAE9CCF)
-
-val level_2_record_color = Color(0xFFB4C8D1)
-val level_2_record_color_details = Color(0xFFBDB4D1)
-
-@Stable
-val level_1_record_color = Color(0xFFDCE1E4)
-@Stable
-val level_1_record_color_details = Color(0xFFE0DCE4)
-val test = Primary.toArgb()

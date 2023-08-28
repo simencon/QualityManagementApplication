@@ -149,28 +149,13 @@ fun SubOrderTaskCard(
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickDelete(task.subOrderTask.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        tint = Tertiary,
-                        contentDescription = "delete action",
-                    )
-                }
+                onClick = { onClickDelete(task.subOrderTask.id) },
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action",) }
             )
-
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = {},
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.AttachFile,
-                        tint = Tertiary,
-                        contentDescription = "edit action",
-                    )
-                },
+                content = { Icon(imageVector = Icons.Filled.AttachFile, contentDescription = "edit action") }
             )
         }
 
