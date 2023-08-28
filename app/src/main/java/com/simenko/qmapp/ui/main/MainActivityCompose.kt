@@ -228,6 +228,7 @@ class MainActivityCompose : ComponentActivity() {
 
     fun initInvModel(model: InvestigationsViewModel) {
         this.invModel = model
+        this.invModel.initMainActivityViewModel(this.viewModel)
     }
 
     fun initTeamModel(model: TeamViewModel) {

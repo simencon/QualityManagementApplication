@@ -52,8 +52,7 @@ private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
-    modifier: Modifier = Modifier,
-    onListEnd: (FabPosition) -> Unit
+    modifier: Modifier = Modifier
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
@@ -123,7 +122,7 @@ fun Orders(
         }
     }
 
-    if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
+    if (lastItemIsVisible) invModel.onListEnd(FabPosition.Center) else invModel.onListEnd(FabPosition.End)
 
     LazyColumn(
         modifier = modifier,
@@ -210,7 +209,7 @@ fun OrderCard(
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(Unit) {
+                .pointerInput(order.order.id) {
                     detectTapGestures(
                         onDoubleTap = { onClickActions(order.order.id) }
                     )

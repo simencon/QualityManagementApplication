@@ -26,8 +26,7 @@ private const val TAG = "SubOrdersStandAlone"
 
 @Composable
 fun SubOrdersStandAlone(
-    modifier: Modifier = Modifier,
-    onListEnd: (FabPosition) -> Unit
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val invModel: InvestigationsViewModel = hiltViewModel()
@@ -115,7 +114,7 @@ fun SubOrdersStandAlone(
         }
     }
 
-    if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
+    if (lastItemIsVisible) invModel.onListEnd(FabPosition.Center) else invModel.onListEnd(FabPosition.End)
 
     LazyColumn(
         modifier = modifier,
