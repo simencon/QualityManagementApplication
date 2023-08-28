@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.team
 
+import androidx.compose.material3.FabPosition
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainTeamMember
@@ -23,6 +24,10 @@ class TeamViewModel @Inject constructor(
 
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this.mainActivityViewModel = viewModel
+    }
+
+    fun onListEnd(position: FabPosition) {
+        mainActivityViewModel.onListEnd(position)
     }
 
     fun deleteRecord(teamMemberId: Int) = viewModelScope.launch {

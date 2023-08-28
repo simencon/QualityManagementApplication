@@ -77,7 +77,7 @@ class TeamFragment : Fragment() {
                                 Modifier
                                     .padding(padding)
                             ) {
-                                TeamComposition(appModel = viewModel)
+//                                TeamComposition(appModel = viewModel)
                             }
                         }
                     )
