@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -151,7 +152,7 @@ fun SubOrdersFlowColumn(
         }
         Divider(modifier = modifier.height(0.dp))
         FloatingActionButton(
-            containerColor = level_2_record_color,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.padding(vertical = 4.dp),
             onClick = {
                 launchNewItemActivityForResult(
@@ -160,13 +161,7 @@ fun SubOrdersFlowColumn(
                     parentId
                 )
             },
-            content = {
-                androidx.compose.material.Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = Primary
-                )
-            }
+            content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }
 }
@@ -200,16 +195,18 @@ fun SubOrderCard(
         targetValueByState = { if (subOrder.isExpanded) cardOffset else 0f },
     )
 
-    val cardBgColor =
-        when (subOrder.isExpanded) {
-            true -> Secondary
-            false -> {
-                when (subOrder.detailsVisibility) {
-                    true -> level_2_record_color_details
-                    else -> level_2_record_color
-                }
-            }
+    val containerColor = when (subOrder.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.primaryContainer
+    }
+
+    val borderColor = when (subOrder.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> when (subOrder.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.primaryContainer
         }
+    }
 
     Box(Modifier.fillMaxWidth()) {
 
@@ -244,9 +241,9 @@ fun SubOrderCard(
         }
 
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = cardBgColor,
-            ),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
@@ -254,13 +251,7 @@ fun SubOrderCard(
                     detectTapGestures(
                         onDoubleTap = { onClickActions(subOrder.subOrder.id) }
                     )
-                },
-            elevation = CardDefaults.cardElevation(
-                when (subOrder.isExpanded) {
-                    true -> 40.dp
-                    false -> 0.dp
                 }
-            ),
         ) {
             SubOrder(
                 modifier = modifier,
@@ -286,6 +277,11 @@ fun SubOrder(
     onClickDetails: (Int) -> Unit = {},
     onClickStatus: (DomainSubOrderComplete, Int?) -> Unit,
 ) {
+    val containerColor = when (subOrder.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.primaryContainer
+    }
+
     Column(
         modifier = Modifier
             .animateContentSize(
@@ -469,6 +465,7 @@ fun SubOrder(
                                         !conformity.isNaN() -> {
                                             conformity.roundToInt().toString() + "%"
                                         }
+
                                         else -> {
                                             ""
                                         }
@@ -505,10 +502,7 @@ fun SubOrder(
                         shape = MaterialTheme.shapes.medium,
                         elevation = ButtonDefaults.buttonElevation(4.dp),
                         border = null,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = level_2_record_color,
-                            contentColor = Primary
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                     )
                 }
                 Row(
@@ -679,7 +673,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = getStringDate(subOrder.subOrder.createdDate)?: NoString.str,
+                text = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -725,7 +719,7 @@ fun SubOrderDetails(
                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
             )
             Text(
-                text = getStringDate(subOrder.subOrder.completedDate)?: NoString.str,
+                text = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

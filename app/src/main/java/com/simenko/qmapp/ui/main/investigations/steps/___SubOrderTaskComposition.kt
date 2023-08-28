@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -131,16 +132,18 @@ fun SubOrderTaskCard(
         targetValueByState = { if (task.isExpanded) cardOffset else 0f },
     )
 
-    val cardBgColor =
-        when (task.isExpanded) {
-            true -> Secondary
-            false -> {
-                when (task.detailsVisibility) {
-                    true -> level_3_record_color_details
-                    else -> level_3_record_color
-                }
-            }
+    val containerColor = when (task.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.tertiaryContainer
+    }
+
+    val borderColor = when (task.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> when (task.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.tertiaryContainer
         }
+    }
 
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
@@ -172,9 +175,9 @@ fun SubOrderTaskCard(
         }
 
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = cardBgColor,
-            ),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
@@ -183,12 +186,6 @@ fun SubOrderTaskCard(
                         onDoubleTap = { onClickActions(task) }
                     )
                 },
-            elevation = CardDefaults.cardElevation(
-                when (task.isExpanded) {
-                    true -> 40.dp
-                    false -> 0.dp
-                }
-            ),
         ) {
             SubOrderTask(
                 modifier = modifier,
@@ -212,6 +209,11 @@ fun SubOrderTask(
     subOrderTask: DomainSubOrderTaskComplete = DomainSubOrderTaskComplete(),
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
+    val containerColor = when (subOrderTask.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.tertiaryContainer
+    }
+
     Column(
         modifier = Modifier
             .animateContentSize(
@@ -364,6 +366,7 @@ fun SubOrderTask(
                                         !conformity.isNaN() -> {
                                             conformity.roundToInt().toString() + "%"
                                         }
+
                                         else -> {
                                             ""
                                         }
@@ -400,10 +403,7 @@ fun SubOrderTask(
                         shape = MaterialTheme.shapes.medium,
                         elevation = ButtonDefaults.buttonElevation(4.dp),
                         border = null,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = level_3_record_color,
-                            contentColor = Primary
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                     )
                 }
 

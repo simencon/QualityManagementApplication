@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,6 +37,7 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "ResultComposition"
+
 @Composable
 fun ResultsComposition(
     modifier: Modifier = Modifier,
@@ -96,16 +98,17 @@ fun ResultCard(
     onSelect: (DomainResultComplete) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
-    val cardBgColor =
-        when (result.detailsVisibility) {
-            true -> level_2_record_color_details
-            else -> level_2_record_color
-        }
+    val containerColor = MaterialTheme.colorScheme.primaryContainer
+
+    val borderColor = when (result.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> MaterialTheme.colorScheme.primaryContainer
+    }
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = cardBgColor,
-        ),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(width = 1.dp, borderColor),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = modifier
             .fillMaxWidth()
     ) {
@@ -184,14 +187,11 @@ fun Result(
                     value = text,
                     maxLines = 1,
                     singleLine = true,
-
                     textStyle = MaterialTheme.typography.titleSmall.copy(fontSize = 20.sp),
                     onValueChange = {
                         text = it
                     },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = {
                         when {
                             (result.resultTolerance.usl != null && result.resultTolerance.lsl != null) -> {
@@ -250,7 +250,13 @@ fun Result(
                         }
                         onChangeValue(result)
                         keyboardController?.hide()
-                    })
+                    }),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    )
                 )
             }
             Column(

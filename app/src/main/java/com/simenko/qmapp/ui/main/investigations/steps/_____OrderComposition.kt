@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -174,52 +175,38 @@ fun OrderCard(
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = { if (order.isExpanded) CARD_OFFSET.dp() else 0f },
     )
+    val containerColor = when (order.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
 
-    val cardBgColor = when (order.isExpanded) {
-            true -> Secondary
-            false -> {
-                when (order.detailsVisibility) {
-                    true -> level_1_record_color_details
-                    else -> level_1_record_color
-                }
-            }
+    val borderColor = when (order.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> when (order.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.surfaceVariant
         }
+    }
 
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickDelete(order.order.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        tint = Tertiary,
-                        contentDescription = "delete action",
-                    )
-                }
+                onClick = { onClickDelete(order.order.id) },
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
 
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickEdit(order.order.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        tint = Tertiary,
-                        contentDescription = "edit action",
-                    )
-                },
+                onClick = { onClickEdit(order.order.id) },
+                content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }
 
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = cardBgColor,
-            ),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
@@ -227,13 +214,7 @@ fun OrderCard(
                     detectTapGestures(
                         onDoubleTap = { onClickActions(order.order.id) }
                     )
-                },
-            elevation = CardDefaults.cardElevation(
-                when (order.isExpanded) {
-                    true -> 40.dp
-                    false -> 0.dp
                 }
-            ),
         ) {
             Order(
                 modifier = modifier,

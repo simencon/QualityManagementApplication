@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,6 +36,7 @@ import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
 
 private const val TAG = "SampleComposition"
+
 @Composable
 fun SampleComposition(
     modifier: Modifier = Modifier
@@ -92,16 +94,17 @@ fun SampleCard(
     onClickDetails: (DomainSampleComplete) -> Unit,
     onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
-    val cardBgColor =
-        when (sample.detailsVisibility) {
-            true -> level_1_record_color_details
-            else -> level_1_record_color
-        }
+    val containerColor = MaterialTheme.colorScheme.surfaceVariant
+
+    val borderColor = when (sample.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = cardBgColor,
-        ),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(width = 1.dp, borderColor),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = modifier
             .fillMaxWidth()
             .clickable { onChangeExpandState(sample) }

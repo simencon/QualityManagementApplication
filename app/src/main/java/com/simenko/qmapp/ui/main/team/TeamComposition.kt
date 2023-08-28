@@ -103,8 +103,11 @@ fun TeamMemberCard(
     }
 
     val borderColor = when (teamMember.detailsVisibility) {
-        true -> MaterialTheme.colorScheme.onSurfaceVariant
-        false -> MaterialTheme.colorScheme.surfaceVariant
+        true -> MaterialTheme.colorScheme.outline
+        false -> when (teamMember.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.surfaceVariant
+        }
     }
 
     Box(Modifier.fillMaxWidth()) {
@@ -122,14 +125,15 @@ fun TeamMemberCard(
             )
         }
         Card(
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
                 .padding(vertical = 4.dp, horizontal = 8.dp)
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(teamMember.teamMember.id) {
                     detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) })
                 },
-            colors = CardDefaults.cardColors(containerColor = containerColor),
-            border = BorderStroke(width = 1.dp, borderColor)
         ) {
             TeamMember(
                 id = teamMember.teamMember.id,
