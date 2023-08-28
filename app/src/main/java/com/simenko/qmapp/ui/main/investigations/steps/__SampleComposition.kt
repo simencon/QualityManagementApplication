@@ -45,7 +45,7 @@ fun SampleComposition(
     val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val observeCurrentSubOrderTask by invModel.currentTaskDetails.observeAsState()
+    val observeCurrentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
 
     val items by invModel.samplesSF.collectAsStateWithLifecycle(listOf())
 

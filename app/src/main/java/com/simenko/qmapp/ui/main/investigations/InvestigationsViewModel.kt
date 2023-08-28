@@ -376,7 +376,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentTaskVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _currentTaskVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
     fun setCurrentTaskVisibility(
         dId: SelectedNumber = NoRecord,
         aId: SelectedNumber = NoRecord
@@ -384,9 +384,12 @@ class InvestigationsViewModel @Inject constructor(
         _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
     }
 
-    val currentTaskDetails: LiveData<SelectedNumber> = _currentTaskVisibility.flatMapLatest {
+    val currentTaskDetails: StateFlow<SelectedNumber> get() = _currentTaskVisibility.flatMapLatest {
         flow { emit(it.first) }
-    }.asLiveData()
+    }
+        .flowOn(Dispatchers.IO)
+        .conflate()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), NoRecord)
 
     /**
      * The result flow

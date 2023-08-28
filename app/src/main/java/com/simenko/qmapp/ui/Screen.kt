@@ -30,9 +30,8 @@ sealed class Screen(val route: String) {
         object ProcessControl: Screen("process_control")
         object ScrapLevel: Screen("scrap_level")
         object Settings: Screen("settings")
+        object NewOrder : Screen("new_order")
     }
-
-    object NewOrder : Screen("NewOrder")
 
     fun withArgs(vararg args: String) = buildString {
         append(route)

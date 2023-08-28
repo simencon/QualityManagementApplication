@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainResultComplete
@@ -45,7 +46,7 @@ fun ResultsComposition(
     val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val currentSubOrderTask by invModel.currentTaskDetails.observeAsState()
+    val currentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
     val currentSample by invModel.currentSampleDetails.observeAsState()
 
     val items by invModel.resultsSF.collectAsState(initial = listOf())
@@ -70,7 +71,7 @@ fun ResultsComposition(
         )
     ) {
         items.forEach { result ->
-            if (result.result.taskId == currentSubOrderTask?.num &&
+            if (result.result.taskId == currentSubOrderTask.num &&
                 result.result.sampleId == currentSample?.num
             ) {
                 ResultCard(

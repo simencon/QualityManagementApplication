@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -17,9 +16,12 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
@@ -28,6 +30,7 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.utils.StringUtils
+import kotlinx.coroutines.delay
 
 @Composable
 fun InvestigationsMainComposition(
@@ -40,14 +43,18 @@ fun InvestigationsMainComposition(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    val currentTask by invModel.currentTaskDetails.observeAsState()
+    val currentTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
 
-    var isSamplesNumVisible by rememberSaveable { mutableIntStateOf(1) }
+    var isSamplesNumVisible by rememberSaveable { mutableIntStateOf(0) }
     val rowState = rememberScrollState()
 
     val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
     val dialogInput by invModel.dialogInput.observeAsState()
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(InvStatus.ALL.ordinal) }
+
+    var screenSizes: Triple<Dp, Dp, Dp> by remember {
+        mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
+    }
 
     val onTabSelectedLambda = remember<(InvStatus, Int) -> Unit> {
         { status, tabIndex ->
@@ -66,14 +73,63 @@ fun InvestigationsMainComposition(
             invModel.setCurrentOrdersFilter(status = InvStatus.values()[selectedTabIndex].statusId)
     }
 
-    QMAppTheme {
-        LaunchedEffect(currentTask) {
-            isSamplesNumVisible = when ((currentTask?.num ?: 0) > 0) {
-                true -> 1
-                false -> 0
+    fun updateSizes() {
+        screenSizes = Triple(
+            when {
+                screenWidth > 720 -> screenWidth.dp
+                else -> (screenWidth * (1 + 0.88 * isSamplesNumVisible)).dp
+            },
+            when (isSamplesNumVisible) {
+                0 -> screenWidth.dp
+                else -> {
+                    when {
+                        screenWidth > 720 -> (screenWidth * 0.57).dp
+                        else -> screenWidth.dp
+                    }
+                }
+            },
+            when {
+                screenWidth > 720 -> (screenWidth * 0.43 * isSamplesNumVisible).dp
+                else -> (screenWidth * 0.88 * isSamplesNumVisible).dp
+            }
+        )
+    }
+
+    suspend fun animateScroll() {
+        if (isSamplesNumVisible == 1)
+            rowState.animateScrollTo(
+                rowState.maxValue, tween(
+                    durationMillis = ANIMATION_DURATION,
+                    easing = LinearOutSlowInEasing
+                )
+            )
+        else if (isSamplesNumVisible == 0) {
+            rowState.animateScrollTo(
+                0, tween(
+                    durationMillis = ANIMATION_DURATION,
+                    easing = LinearOutSlowInEasing
+                )
+            )
+        }
+    }
+
+    LaunchedEffect(currentTask) {
+        when (currentTask != NoRecord) {
+            true -> {
+                isSamplesNumVisible = 1
+                updateSizes()
+                if (screenWidth <= 720) animateScroll()
+            }
+
+            false -> {
+                isSamplesNumVisible = 0
+                if (screenWidth <= 720) animateScroll()
+                updateSizes()
             }
         }
+    }
 
+    QMAppTheme {
         Column(
             modifier = modifier.fillMaxWidth()
         ) {
@@ -91,67 +147,15 @@ fun InvestigationsMainComposition(
             Row(
                 Modifier
                     .horizontalScroll(rowState)
-                    .width(
-                        when {
-                            screenWidth > 720 -> screenWidth.dp
-                            else -> (screenWidth * (1 + 0.88 * isSamplesNumVisible)).dp
-                        }
-                    )
-//                    .animateContentSize(
-//                        tween(
-//                            durationMillis = ANIMATION_DURATION,
-//                            easing = LinearOutSlowInEasing
-//                        )
-//                    )
+                    .width(screenSizes.first)
             ) {
-                LaunchedEffect(isSamplesNumVisible) {
-                    if (isSamplesNumVisible == 1)
-                        rowState.animateScrollTo(
-                            rowState.maxValue, tween(
-                                durationMillis = ANIMATION_DURATION,
-                                easing = LinearOutSlowInEasing
-                            )
-                        )
-                }
-
                 if (processControlOnly)
-                    SubOrdersStandAlone(
-                        modifier = modifier.width(
-                            when (isSamplesNumVisible) {
-                                0 -> screenWidth.dp
-                                else -> {
-                                    when {
-                                        screenWidth > 720 -> (screenWidth * 0.57).dp
-                                        else -> screenWidth.dp
-                                    }
-                                }
-                            }
-                        )
-                    )
+                    SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
                 else
-                    Orders(
-                        modifier = modifier.width(
-                            when (isSamplesNumVisible) {
-                                0 -> screenWidth.dp
-                                else -> {
-                                    when {
-                                        screenWidth > 720 -> (screenWidth * 0.57).dp
-                                        else -> screenWidth.dp
-                                    }
-                                }
-                            }
-                        )
-                    )
+                    Orders(modifier = modifier.width(screenSizes.second))
 
                 if (isSamplesNumVisible == 1)
-                    SampleComposition(
-                        modifier = modifier.width(
-                            when {
-                                screenWidth > 720 -> (screenWidth * 0.43 * isSamplesNumVisible).dp
-                                else -> (screenWidth * 0.88 * isSamplesNumVisible).dp
-                            }
-                        )
-                    )
+                    SampleComposition(modifier = modifier.width(screenSizes.third))
             }
 
             if (showStatusChangeDialog.value == true)
