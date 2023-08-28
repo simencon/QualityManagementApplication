@@ -68,7 +68,6 @@ fun InvestigationsMainComposition(
         var fabPositionToSet by remember { mutableStateOf(FabPosition.End) }
 
         fun changeFlaBtnPosition(position: FabPosition) {
-            Log.d(TAG, "changeFlaBtnPosition: $position")
             fabPositionToSet = position
         }
 

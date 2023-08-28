@@ -28,7 +28,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.SelectedString
@@ -81,8 +81,9 @@ class MainActivityCompose : ComponentActivity() {
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
-                val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-                val observerIsNetworkError by viewModel.isErrorMessage.observeAsState()
+                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
+                val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
+                val fabPosition by viewModel.fabPosition.collectAsStateWithLifecycle()
 
                 val searchBarState = rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
@@ -173,7 +174,8 @@ class MainActivityCompose : ComponentActivity() {
                                             )
                                         }
                                     )
-                            }
+                            },
+                            floatingActionButtonPosition = fabPosition
                         ) {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess!!,

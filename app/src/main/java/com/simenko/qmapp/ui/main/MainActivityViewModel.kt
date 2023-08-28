@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main
 
+import androidx.compose.material3.FabPosition
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -9,6 +10,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -20,9 +22,9 @@ class MainActivityViewModel @Inject constructor(
     private val repository: InvestigationsRepository
 ) : ViewModel() {
     private val _isLoadingInProgress = MutableStateFlow(false)
-    val isLoadingInProgress: LiveData<Boolean> = _isLoadingInProgress.asLiveData()
+    val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
-    val isErrorMessage: LiveData<String?> = _isErrorMessage.asLiveData()
+    val isErrorMessage: StateFlow<String?> get() = _isErrorMessage
 
     fun updateLoadingState(state: Pair<Boolean, String?>) {
         _isLoadingInProgress.value = state.first
@@ -32,6 +34,13 @@ class MainActivityViewModel @Inject constructor(
     fun onNetworkErrorShown() {
         _isLoadingInProgress.value = false
         _isErrorMessage.value = null
+    }
+
+    private val _fabPosition: MutableStateFlow<FabPosition> = MutableStateFlow(FabPosition.End)
+    val fabPosition: StateFlow<FabPosition> get() = _fabPosition
+
+    fun onListEnd(position: FabPosition) {
+        _fabPosition.value = position
     }
 
     fun refreshMasterDataFromRepository() = viewModelScope.launch {

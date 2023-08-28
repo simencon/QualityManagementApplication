@@ -59,6 +59,14 @@ fun TeamComposition(
     val onClickEditLambda = remember<(Int, String) -> Unit> { {p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
 
+    val lastItemIsVisible by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
+        }
+    }
+
+    if (lastItemIsVisible) appModel.onListEnd(FabPosition.Center) else appModel.onListEnd(FabPosition.End)
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = listState
