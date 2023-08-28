@@ -79,6 +79,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.utils.StringUtils
@@ -507,3 +509,10 @@ private val navigationAndActionItems = listOf(
     MenuItem("product_audit", "Product audit", "Product audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER),
     MenuItem(MenuItem.Actions.CUSTOM_FILTER.action, "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
 )
+
+enum class InvStatus(val statusId: SelectedNumber) {
+    ALL(NoRecord),
+    TO_DO(SelectedNumber(1)),
+    IN_PROGRESS(SelectedNumber(2)),
+    DONE(SelectedNumber(3))
+}

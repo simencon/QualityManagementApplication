@@ -282,20 +282,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Handle search query text change
-                if (investigationsModel.showSubOrderWithOrderType.value == OrderTypeProcessOnly)
-                    investigationsModel.setCurrentSubOrdersFilter(
-                        number = SelectedString(
-                            newText ?: NoString.str
-                        )
-                    )
-                else
-                    investigationsModel.setCurrentOrdersFilter(
-                        number = SelectedString(
-                            newText ?: NoString.str
-                        )
-                    )
-                Log.d(TAG, "onQueryTextChange: $newText")
                 return true
             }
 

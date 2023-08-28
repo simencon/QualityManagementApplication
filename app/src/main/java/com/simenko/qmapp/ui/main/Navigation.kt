@@ -49,11 +49,7 @@ fun Navigation(
             (LocalContext.current as MainActivityCompose).initInvModel(invModel)
             QMAppTheme {
                 InvestigationsMainComposition(
-                    modifier = Modifier
-                        .padding(
-                            vertical = 2.dp,
-                            horizontal = 2.dp
-                        ),
+                    modifier = Modifier.padding(all = 0.dp),
                     processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
                 )
             }

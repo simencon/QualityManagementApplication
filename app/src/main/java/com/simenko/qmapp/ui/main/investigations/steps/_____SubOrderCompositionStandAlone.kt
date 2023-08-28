@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.util.Log
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -13,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
@@ -31,7 +33,6 @@ fun SubOrdersStandAlone(
     val context = LocalContext.current
     val invModel: InvestigationsViewModel = hiltViewModel()
 
-    val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
@@ -123,17 +124,13 @@ fun SubOrdersStandAlone(
         items(items = items, key = { it.subOrder.id }) { subOrder ->
             Log.d(TAG, "SubOrdersStandAlone: ${subOrder.orderShort.order.orderNumber}")
             SubOrderCard(
-                modifier = modifier,
-                parentOrderTypeId = parentOrderTypeId ?: NoRecord,
+                modifier = modifier.padding(CARDS_PADDING),
+                processControlOnly = true,
                 subOrder = subOrder,
-                onClickDetails = { it ->
-                    onClickDetailsLambda(it)
-                },
+                onClickDetails = { onClickDetailsLambda(it) },
                 cardOffset = CARD_OFFSET.dp(),
-                onClickActions = {
-                    onClickActionsLambda(it)
-                },
-                onClickDelete = { it -> onClickDeleteLambda(it) },
+                onClickActions = { onClickActionsLambda(it) },
+                onClickDelete = {onClickDeleteLambda(it) },
                 onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
                 onClickStatus = { subOrderComplete, completedById ->
                     onClickStatusLambda(

@@ -56,7 +56,6 @@ fun SubOrdersFlowColumn(
     val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val parentOrderTypeId by invModel.showSubOrderWithOrderType.observeAsState()
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
@@ -122,28 +121,13 @@ fun SubOrdersFlowColumn(
 
                     SubOrderCard(
                         modifier = modifier,
-                        parentOrderTypeId = parentOrderTypeId ?: NoRecord,
                         subOrder = subOrder,
-                        onClickDetails = { it ->
-                            onClickDetailsLambda(it)
-                        },
+                        onClickDetails = { onClickDetailsLambda(it) },
                         cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = { it ->
-                            onClickActionsLambda(it)
-                        },
-                        onClickDelete = { it -> onClickDeleteLambda(it) },
-                        onClickEdit = { orderId, subOrderId ->
-                            onClickEditLambda(
-                                orderId,
-                                subOrderId
-                            )
-                        },
-                        onClickStatus = { subOrderComplete, completedById ->
-                            onClickStatusLambda(
-                                subOrderComplete,
-                                completedById
-                            )
-                        }
+                        onClickActions = {onClickActionsLambda(it) },
+                        onClickDelete = {onClickDeleteLambda(it) },
+                        onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
+                        onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
                     )
 
                     Divider(thickness = 4.dp, color = Color.Transparent)
@@ -170,7 +154,7 @@ fun SubOrdersFlowColumn(
 @Composable
 fun SubOrderCard(
     modifier: Modifier = Modifier,
-    parentOrderTypeId: SelectedNumber,
+    processControlOnly: Boolean = false,
     subOrder: DomainSubOrderComplete,
     onClickDetails: (Int) -> Unit,
     cardOffset: Float,
@@ -238,7 +222,7 @@ fun SubOrderCard(
         ) {
             SubOrder(
                 modifier = modifier,
-                parentOrderTypeId = parentOrderTypeId,
+                processControlOnly = processControlOnly,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetails(it) },
                 onClickStatus = { subOrderComplete, completedById ->
@@ -255,7 +239,7 @@ fun SubOrderCard(
 @Composable
 fun SubOrder(
     modifier: Modifier = Modifier,
-    parentOrderTypeId: SelectedNumber,
+    processControlOnly: Boolean,
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete(),
     onClickDetails: (Int) -> Unit = {},
     onClickStatus: (DomainSubOrderComplete, Int?) -> Unit,
@@ -312,7 +296,7 @@ fun SubOrder(
                                     .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
-                                text = when (parentOrderTypeId == OrderTypeProcessOnly) {
+                                text = when (processControlOnly) {
                                     false -> subOrder.subOrder.subOrderNumber.toString()
                                     else -> subOrder.orderShort.order.orderNumber.toString()
                                 },
@@ -344,7 +328,7 @@ fun SubOrder(
                                     .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             )
                         }
-                        if (parentOrderTypeId == OrderTypeProcessOnly)
+                        if (processControlOnly)
                             Row(
                                 modifier = Modifier
                                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),

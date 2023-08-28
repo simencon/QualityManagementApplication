@@ -10,6 +10,7 @@ import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.ui.main.InvStatus
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
@@ -37,10 +38,10 @@ class InvestigationsViewModel @Inject constructor(
     companion object {
         fun getStatus(status: String): SelectedNumber {
             return when (status) {
-                InvestigationsFragment.TargetInv.ALL.name -> NoRecord
-                InvestigationsFragment.TargetInv.TO_DO.name -> SelectedNumber(1)
-                InvestigationsFragment.TargetInv.IN_PROGRESS.name -> SelectedNumber(2)
-                InvestigationsFragment.TargetInv.DONE.name -> SelectedNumber(3)
+                InvStatus.ALL.name -> NoRecord
+                InvStatus.TO_DO.name -> SelectedNumber(1)
+                InvStatus.IN_PROGRESS.name -> SelectedNumber(2)
+                InvStatus.DONE.name -> SelectedNumber(3)
                 else -> NoRecord
             }
         }
@@ -305,11 +306,6 @@ class InvestigationsViewModel @Inject constructor(
             if (number != NoString) number.str else _currentSubOrdersFilter.value.orderNumber
         )
     }
-
-    val showSubOrderWithOrderType: LiveData<SelectedNumber> =
-        _currentSubOrdersFilter.flatMapLatest {
-            flow { emit(SelectedNumber(it.typeId)) }
-        }.asLiveData()
 
     /**
      * The result flow
