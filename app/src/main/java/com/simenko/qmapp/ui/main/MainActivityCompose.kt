@@ -182,7 +182,9 @@ class MainActivityCompose : ComponentActivity() {
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId.value) {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
-
+                                        Screen.Main.AllInvestigations.route -> invModel.uploadNewInvestigations()
+                                        Screen.Main.ProcessControl.route -> invModel.uploadNewInvestigations()
+                                        
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))
                                             delay(3000)
