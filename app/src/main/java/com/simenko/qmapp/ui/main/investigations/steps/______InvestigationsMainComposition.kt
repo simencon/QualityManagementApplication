@@ -114,6 +114,7 @@ fun InvestigationsMainComposition(
     }
 
     LaunchedEffect(currentTask) {
+        println("current task is: $currentTask")
         when (currentTask != NoRecord) {
             true -> {
                 isSamplesNumVisible = 1
