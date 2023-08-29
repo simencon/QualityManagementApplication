@@ -50,15 +50,16 @@ fun SubOrderTasksFlowColumn(
 
     val items by invModel.tasksSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            invModel.setCurrentTaskVisibility(dId = SelectedNumber(it.subOrderTask.id))
+            println("selected task is: $it")
+            invModel.setCurrentTaskVisibility(dId = SelectedNumber(it))
         }
     }
 
-    val onClickActionsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
+    val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            invModel.setCurrentTaskVisibility(aId = SelectedNumber(it.subOrderTask.id))
+            invModel.setCurrentTaskVisibility(aId = SelectedNumber(it))
         }
     }
 
@@ -86,18 +87,11 @@ fun SubOrderTasksFlowColumn(
                         modifier = modifier,
                         appModel = invModel,
                         task = task,
-                        onClickDetails = { it ->
-                            onClickDetailsLambda(it)
-                        },
+                        onClickDetails = { onClickDetailsLambda(it) },
                         cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = { it -> onClickActionsLambda(it) },
-                        onClickDelete = { it -> onClickDeleteLambda(it) },
-                        onClickStatus = { taskComplete, completedById ->
-                            onClickStatusLambda(
-                                taskComplete,
-                                completedById
-                            )
-                        }
+                        onClickActions = { onClickActionsLambda(it) },
+                        onClickDelete = { onClickDeleteLambda(it) },
+                        onClickStatus = { taskComplete, completedById -> onClickStatusLambda(taskComplete, completedById) }
                     )
                 }
                 Divider(thickness = 4.dp, color = Color.Transparent)
@@ -112,9 +106,9 @@ fun SubOrderTaskCard(
     modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel? = null,
     task: DomainSubOrderTaskComplete,
-    onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
+    onClickDetails: (Int) -> Unit,
     cardOffset: Float,
-    onClickActions: (DomainSubOrderTaskComplete) -> Unit,
+    onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
@@ -150,7 +144,7 @@ fun SubOrderTaskCard(
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(task.subOrderTask.id) },
-                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action",) }
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
@@ -166,16 +160,16 @@ fun SubOrderTaskCard(
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(Unit) {
+                .pointerInput(task.subOrderTask.id) {
                     detectTapGestures(
-                        onDoubleTap = { onClickActions(task) }
+                        onDoubleTap = { onClickActions(task.subOrderTask.id) }
                     )
                 },
         ) {
             SubOrderTask(
                 modifier = modifier,
                 subOrderTask = task,
-                onClickDetails = { onClickDetails(task) },
+                onClickDetails = { onClickDetails(task.subOrderTask.id) },
                 onClickStatus = { taskComplete, performedById ->
                     onClickStatus(
                         taskComplete,
