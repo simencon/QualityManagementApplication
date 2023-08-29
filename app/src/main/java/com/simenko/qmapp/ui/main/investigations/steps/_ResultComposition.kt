@@ -51,16 +51,8 @@ fun ResultsComposition(
 
     val items by invModel.resultsSF.collectAsState(initial = listOf())
 
-    val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
-        {
-            invModel.setCurrentResultVisibility(dId = SelectedNumber(it.result.id))
-        }
-    }
-    val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> {
-        {
-            invModel.editResult(it.result)
-        }
-    }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentResultVisibility(dId = SelectedNumber(it)) } }
+    val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> { { invModel.editResult(it.result) } }
 
     FlowRow(
         modifier = modifier.animateContentSize(
@@ -78,12 +70,8 @@ fun ResultsComposition(
                     modifier = modifier,
                     appModel = invModel,
                     result = result,
-                    onSelect = {
-                        onClickDetailsLambda(it)
-                    },
-                    onChangeValue = {
-                        onChangeValueLambda(it)
-                    }
+                    onSelect = { onClickDetailsLambda(it) },
+                    onChangeValue = { onChangeValueLambda(it) }
                 )
             }
         }
@@ -96,7 +84,7 @@ fun ResultCard(
     modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel,
     result: DomainResultComplete,
-    onSelect: (DomainResultComplete) -> Unit,
+    onSelect: (Int) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
     val containerColor = MaterialTheme.colorScheme.primaryContainer
@@ -128,7 +116,7 @@ fun Result(
     modifier: Modifier = Modifier,
     result: DomainResultComplete = DomainResultComplete(),
     onChangeValue: (DomainResultComplete) -> Unit = {},
-    onSelect: (DomainResultComplete) -> Unit,
+    onSelect: (Int) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var text: String by rememberSaveable {
@@ -181,7 +169,7 @@ fun Result(
                         .onFocusChanged {
                             if (it.isFocused) {
                                 if (text == "-") text = ""
-                                onSelect(result)
+                                onSelect(result.result.id)
                             } else
                                 if (text == "") text = "-"
                         },

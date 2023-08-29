@@ -369,8 +369,8 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with tasks __________________________________________________________
      * */
     private val _tasksSF: Flow<List<DomainSubOrderTaskComplete>> =
-        _currentOrdersRange.flatMapLatest { ordersRange ->
-            repository.tasksRangeList(ordersRange)
+        _currentSubOrderVisibility.flatMapLatest { subOrdersIds ->
+            repository.tasksRangeList(subOrdersIds.first.num)
         }
 
     /**
@@ -513,8 +513,10 @@ class InvestigationsViewModel @Inject constructor(
      * Operations with results __________________________________________________________
      * */
     private val _resultsSF: Flow<List<DomainResultComplete>> =
-        _currentSubOrderVisibility.flatMapLatest { subOrderId ->
-            repository.resultsRangeList(subOrderId.first.num)
+        _currentTaskVisibility.flatMapLatest { taskIds ->
+            _currentSampleVisibility.flatMapLatest { sampleIds ->
+                repository.resultsRangeList(taskIds.first.num, sampleIds.first.num)
+            }
         }
 
     /**
