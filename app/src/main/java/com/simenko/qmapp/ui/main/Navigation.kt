@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main
 
 import android.content.Intent
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import com.simenko.qmapp.ui.user.createLoginActivityIntent
 @Composable
 fun Navigation(
     modifier: Modifier = Modifier,
+    mainScreenPadding: PaddingValues,
     initiatedRoute: String,
     navController: NavHostController
 ) {
@@ -50,6 +52,7 @@ fun Navigation(
             QMAppTheme {
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
+                    mainScreenPadding = mainScreenPadding,
                     processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
                 )
             }

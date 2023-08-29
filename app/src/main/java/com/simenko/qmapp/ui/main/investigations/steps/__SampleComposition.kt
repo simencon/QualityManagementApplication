@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,7 +55,7 @@ fun SampleComposition(
     }
 
     LazyColumn(
-        modifier = modifier.animateContentSize(
+        modifier = Modifier.animateContentSize(
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
                 stiffness = Spring.StiffnessLow
@@ -124,7 +123,7 @@ fun Sample(
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
+            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
     ) {
         Row(
             modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
@@ -167,12 +166,7 @@ fun Sample(
             ) {
 
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -217,7 +211,7 @@ fun Sample(
 
         if (appModel != null && sample.detailsVisibility)
             ResultsComposition(
-                modifier
+                modifier = modifier
             )
     }
 }
