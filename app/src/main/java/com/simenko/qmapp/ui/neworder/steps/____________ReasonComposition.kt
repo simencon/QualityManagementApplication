@@ -82,8 +82,6 @@ fun InvestigationReasonCard(
                 .width(224.dp)
                 .height(56.dp),
             onClick = { onClick(inputForOrder.id) }
-        ) {
-            Text(text = inputForOrder.reasonDescription ?: "-")
-        }
+        ) { Text(text = inputForOrder.reasonDescription ?: "-") }
     }
 }

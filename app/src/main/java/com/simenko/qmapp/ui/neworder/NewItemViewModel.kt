@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.neworder
 
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -49,12 +48,18 @@ class NewItemViewModel @Inject constructor(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
 
+
     private val _currentOrder: MutableStateFlow<DomainOrder> = MutableStateFlow(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
     )
     val currentOrderSF: StateFlow<DomainOrder> = _currentOrder.flatMapLatest { order ->
         flow { emit(order) }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentOrder.value)
+
+    fun loadCurrentOrder(id: Int) {
+        _currentOrder.value = repository.getOrderById(id)
+        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
+    }
 
     private val _currentSubOrder: MutableStateFlow<DomainSubOrderShort> = MutableStateFlow(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
@@ -63,10 +68,6 @@ class NewItemViewModel @Inject constructor(
         flow { emit(order) }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentSubOrder.value)
 
-    fun selectOrderType(id: Int) {
-        _currentOrder.value = _currentOrder.value.copy(orderTypeId = id, reasonId = NoRecord.num)
-        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
-    }
     private val _orderTypes = repository.getOrderTypes
     val orderTypes: StateFlow<List<DomainOrdersType>> = _orderTypes.flatMapLatest { types ->
         _currentOrder.flatMapLatest { currentOrder ->
@@ -76,10 +77,12 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun selectOrderReason(id: Int) {
-        _currentOrder.value = _currentOrder.value.copy(reasonId = id)
+    fun selectOrderType(id: Int) {
+        _currentOrder.value =
+            _currentOrder.value.copy(orderTypeId = id, reasonId = NoRecord.num, customerId = NoRecord.num, orderedById = NoRecord.num)
         _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
+
     private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
     val orderReasons: StateFlow<List<DomainReason>> = _orderReasons.flatMapLatest { reasons ->
         _currentOrder.flatMapLatest { currentOrder ->
@@ -93,24 +96,49 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val customersMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
-    val customersMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
-            addSource(customersMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(customersMutable.value, it) }
-        }
+    fun selectOrderReason(id: Int) {
+        _currentOrder.value = _currentOrder.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
+        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
+    }
 
-    val teamMembers = manufacturingRepository.teamMembers
-    val orderPlacersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
-    val teamMembersMediator: MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(orderPlacersMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(orderPlacersMutable.value, it) }
+    private val _orderCustomers: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
+    val orderCustomers: StateFlow<List<DomainDepartment>> = _orderCustomers.flatMapLatest { reasons ->
+        _currentOrder.flatMapLatest { currentOrder ->
+            if (currentOrder.reasonId != NoRecord.num) {
+                val cpy = mutableListOf<DomainDepartment>()
+                reasons.forEach { cpy.add(it.copy(isSelected = it.id == currentOrder.customerId)) }
+                flow { emit(cpy) }
+            } else {
+                flow { emit(emptyList<DomainDepartment>()) }
+            }
         }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectOrderCustomer(id: Int) {
+        _currentOrder.value = _currentOrder.value.copy(customerId = id, orderedById = NoRecord.num)
+        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
+    }
+
+    private val _orderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
+    val orderPlacers: StateFlow<List<DomainTeamMember>> = _orderPlacers.flatMapLatest { reasons ->
+        _currentOrder.flatMapLatest { currentOrder ->
+            if (currentOrder.customerId != NoRecord.num) {
+                val cpy = mutableListOf<DomainTeamMember>()
+                reasons.forEach { cpy.add(it.copy(isSelected = it.id == currentOrder.orderedById)) }
+                flow { emit(cpy) }
+            } else {
+                flow { emit(emptyList<DomainTeamMember>()) }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectOrderPlacer(id: Int) {
+        _currentOrder.value = _currentOrder.value.copy(orderedById = id)
+        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
+    }
 
     val inputForOrder = repository.inputForOrder
 
-    val departments = manufacturingRepository.departments
     val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
     val departmentsMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {

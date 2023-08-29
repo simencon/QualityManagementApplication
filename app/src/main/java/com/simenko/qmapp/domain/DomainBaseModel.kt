@@ -44,4 +44,7 @@ val InvestigationsKey = SelectedString("processControlOnly")
 val AllInvestigations = SelectedString("false")
 val ProcessControl = SelectedString("true")
 
+val CurrentOrderIdKey = SelectedString("currentOrderId")
+val NoRecordStr = SelectedString("-1")
+
 

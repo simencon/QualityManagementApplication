@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.AllInvestigations
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
@@ -168,7 +169,7 @@ class MainActivityCompose : ComponentActivity() {
                                             when (selectedDrawerMenuItemId.value) {
                                                 Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
                                                 Screen.Main.Investigations.withArgs(AllInvestigations.str) -> navController.navigate(
-                                                    Screen.Main.OrderAddEdit.route
+                                                    Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str)
                                                 )
                                                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                             }

@@ -30,12 +30,12 @@ import kotlinx.coroutines.launch
 private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterSubDepartments(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.subOrderPlacersMutable.performFiltration(
-        s = appModel.teamMembers,
-        action = FilteringMode.ADD_BY_PARENT_ID,
-        trigger = appModel.pairedTrigger,
-        p1Id = appModel.currentSubOrder.value?.subOrder?.departmentId?:NoRecord.num
-    )
+//    appModel.subOrderPlacersMutable.performFiltration(
+//        s = appModel.teamMembers,
+//        action = FilteringMode.ADD_BY_PARENT_ID,
+//        trigger = appModel.pairedTrigger,
+//        p1Id = appModel.currentSubOrder.value?.subOrder?.departmentId?:NoRecord.num
+//    )
     appModel.channelsMutable.performFiltration(
         action = FilteringMode.REMOVE_ALL,
         trigger = appModel.pairedTrigger

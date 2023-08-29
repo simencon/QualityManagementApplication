@@ -8,44 +8,41 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.NoRecord
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Primary
 import com.simenko.qmapp.ui.theme.TertiaryContainer
-import kotlinx.coroutines.launch
-
-fun filterAllAfterCustomers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-    appModel.orderPlacersMutable.performFiltration(
-        appModel.teamMembers,
-        FilteringMode.ADD_ALL,
-        appModel.pairedTrigger
-    )
-    selectSingleRecord(appModel.customersMutable, appModel.pairedTrigger, selectedId)
-
-    if (clear) {
-        appModel.currentOrder.value?.orderedById = NoRecord.num
-    }
-}
 
 @Composable
 fun CustomersSelection(
-    modifier: Modifier = Modifier,
-    appModel: NewItemViewModel
+    modifier: Modifier = Modifier
 ) {
-    val observeInputForOrder by appModel.customersMediator.observeAsState()
+    val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
-    observeInputForOrder?.apply {
+    val items by viewModel.orderCustomers.collectAsStateWithLifecycle()
+    val currentOrder by viewModel.currentOrderSF.collectAsStateWithLifecycle()
+
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderCustomer(it) } }
+
+    LaunchedEffect(currentOrder) {
+        gritState.scrollToSelectedItem(
+            list = items.map { it.id }.toList(),
+            selectedId = currentOrder.customerId,
+        )
+    }
+
+    items.let {
         LazyHorizontalGrid(
             rows = GridCells.Fixed(1),
             state = gritState,
@@ -54,33 +51,20 @@ fun CustomersSelection(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = modifier.height(60.dp)
         ) {
-            items(first!!.size) { item ->
+            items(it.size) { item ->
                 InvestigationCustomerCard(
-                    inputForOrder = first!![item],
-                    modifier = modifier,
-                    onClick = {
-                        appModel.currentOrder.value?.customerId = it.id
-                        filterAllAfterCustomers(appModel, it.id, true)
-                    }
+                    inputForOrder = it[item],
+                    onClick = { onSelectLambda(it) }
                 )
             }
         }
-
-        if (first != null && appModel.currentOrder.value != null)
-            coroutineScope.launch {
-                gritState.scrollToSelectedItem(
-                    list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentOrder.value!!.customerId,
-                )
-            }
     }
 }
 
 @Composable
 fun InvestigationCustomerCard(
     inputForOrder: DomainDepartment,
-    modifier: Modifier = Modifier,
-    onClick: (DomainDepartment) -> Unit
+    onClick: (Int) -> Unit
 ) {
     val btnBackgroundColor = if (inputForOrder.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
@@ -97,13 +81,7 @@ fun InvestigationCustomerCard(
             modifier = Modifier
                 .width(224.dp)
                 .height(56.dp),
-            onClick = {
-                onClick(inputForOrder)
-            }
-        ) {
-            Text(
-                text = inputForOrder.depAbbr ?: "-"
-            )
-        }
+            onClick = { onClick(inputForOrder.id) }
+        ) { Text(text = inputForOrder.depAbbr ?: "-") }
     }
 }

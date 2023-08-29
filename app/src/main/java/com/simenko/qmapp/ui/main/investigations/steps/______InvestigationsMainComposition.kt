@@ -25,8 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.InvStatus
@@ -38,9 +40,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun InvestigationsMainComposition(
+    navController: NavHostController,
     modifier: Modifier = Modifier,
     mainScreenPadding: PaddingValues,
-    processControlOnly: Boolean = false
+    processControlOnly: Boolean = false,
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
     val teamModel: TeamViewModel = hiltViewModel()
@@ -163,7 +166,10 @@ fun InvestigationsMainComposition(
                 if (processControlOnly)
                     SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
                 else
-                    Orders(modifier = modifier.width(screenSizes.second))
+                    Orders(
+                        modifier = modifier.width(screenSizes.second),
+                        onClickEdit = { navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString())) }
+                    )
 
                 if (currentTask != NoRecord)
                     SampleComposition(modifier = modifier.width(screenSizes.third))
