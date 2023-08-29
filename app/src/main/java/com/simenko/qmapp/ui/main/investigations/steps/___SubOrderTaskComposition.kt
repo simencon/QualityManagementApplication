@@ -52,8 +52,8 @@ fun SubOrderTasksFlowColumn(
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            println("selected task is: $it")
             invModel.setCurrentTaskVisibility(dId = SelectedNumber(it))
+            println("selected task is: $it")
         }
     }
 
@@ -154,13 +154,8 @@ fun SubOrderTaskCard(
             SubOrderTask(
                 modifier = modifier,
                 subOrderTask = task,
-                onClickDetails = { onClickDetails(task.subOrderTask.id) },
-                onClickStatus = { taskComplete, performedById ->
-                    onClickStatus(
-                        taskComplete,
-                        performedById
-                    )
-                }
+                onClickDetails = onClickDetails,
+                onClickStatus = onClickStatus
             )
         }
     }
@@ -169,7 +164,7 @@ fun SubOrderTaskCard(
 @Composable
 fun SubOrderTask(
     modifier: Modifier = Modifier,
-    onClickDetails: () -> Unit = {},
+    onClickDetails: (Int) -> Unit = {},
     subOrderTask: DomainSubOrderTaskComplete = DomainSubOrderTaskComplete(),
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
@@ -271,12 +266,7 @@ fun SubOrderTask(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = {
-                            onClickStatus(
-                                subOrderTask,
-                                subOrderTask.subOrderTask.completedById
-                            )
-                        },
+                        onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
                         content = {
                             Text(
                                 text = subOrderTask.status.statusDescription ?: "-",
@@ -401,7 +391,8 @@ fun SubOrderTask(
                 }
             }
             IconButton(
-                onClick = onClickDetails, modifier = Modifier
+                onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
+                modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     .fillMaxWidth()

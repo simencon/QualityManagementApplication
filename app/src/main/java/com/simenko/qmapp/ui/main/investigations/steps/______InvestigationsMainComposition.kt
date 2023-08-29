@@ -45,7 +45,6 @@ fun InvestigationsMainComposition(
 
     val currentTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
 
-    var isSamplesNumVisible by rememberSaveable { mutableIntStateOf(0) }
     val rowState = rememberScrollState()
 
     val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
@@ -73,13 +72,13 @@ fun InvestigationsMainComposition(
             invModel.setCurrentOrdersFilter(status = InvStatus.values()[selectedTabIndex].statusId)
     }
 
-    fun updateSizes() {
+    fun updateSizes(samplesFactor: Int) {
         screenSizes = Triple(
             when {
                 screenWidth > 720 -> screenWidth.dp
-                else -> (screenWidth * (1 + 0.88 * isSamplesNumVisible)).dp
+                else -> (screenWidth * (1 + 0.88 * samplesFactor)).dp
             },
-            when (isSamplesNumVisible) {
+            when (samplesFactor) {
                 0 -> screenWidth.dp
                 else -> {
                     when {
@@ -89,21 +88,21 @@ fun InvestigationsMainComposition(
                 }
             },
             when {
-                screenWidth > 720 -> (screenWidth * 0.43 * isSamplesNumVisible).dp
-                else -> (screenWidth * 0.88 * isSamplesNumVisible).dp
+                screenWidth > 720 -> (screenWidth * 0.43 * samplesFactor).dp
+                else -> (screenWidth * 0.88 * samplesFactor).dp
             }
         )
     }
 
-    suspend fun animateScroll() {
-        if (isSamplesNumVisible == 1)
+    suspend fun animateScroll(samplesFactor: Int) {
+        if (samplesFactor == 1)
             rowState.animateScrollTo(
                 rowState.maxValue, tween(
                     durationMillis = ANIMATION_DURATION,
                     easing = LinearOutSlowInEasing
                 )
             )
-        else if (isSamplesNumVisible == 0) {
+        else if (samplesFactor == 0) {
             rowState.animateScrollTo(
                 0, tween(
                     durationMillis = ANIMATION_DURATION,
@@ -115,17 +114,14 @@ fun InvestigationsMainComposition(
 
     LaunchedEffect(currentTask) {
         println("current task is: $currentTask")
-        when (currentTask != NoRecord) {
+        when (currentTask == NoRecord) {
             true -> {
-                isSamplesNumVisible = 1
-                updateSizes()
-                if (screenWidth <= 720) animateScroll()
+                if (screenWidth <= 720) animateScroll(0)
+                updateSizes(0)
             }
-
             false -> {
-                isSamplesNumVisible = 0
-                if (screenWidth <= 720) animateScroll()
-                updateSizes()
+                updateSizes(1)
+                if (screenWidth <= 720) animateScroll(1)
             }
         }
     }
@@ -155,7 +151,7 @@ fun InvestigationsMainComposition(
                 else
                     Orders(modifier = modifier.width(screenSizes.second))
 
-                if (isSamplesNumVisible == 1)
+                if (currentTask != NoRecord)
                     SampleComposition(modifier = modifier.width(screenSizes.third))
             }
 
