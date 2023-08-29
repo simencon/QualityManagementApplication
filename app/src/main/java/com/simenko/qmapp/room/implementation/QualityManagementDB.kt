@@ -6,6 +6,7 @@ import com.simenko.qmapp.room.implementation.dao.Converters
 import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
 import com.simenko.qmapp.room.implementation.dao.ProductsDao
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
+import com.simenko.qmapp.room.implementation.dao.manufacturing.DepartmentDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.TeamMemberDao
 
 @Database(
@@ -82,6 +83,7 @@ import com.simenko.qmapp.room.implementation.dao.manufacturing.TeamMemberDao
 abstract class QualityManagementDB : RoomDatabase() {
     abstract val manufacturingDao: ManufacturingDao
     abstract val teamMemberDao: TeamMemberDao
+    abstract val departmentDao: DepartmentDao
 
     abstract val productsDao: ProductsDao
 

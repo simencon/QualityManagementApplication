@@ -13,11 +13,21 @@ import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import java.io.IOException
 import javax.inject.Inject
 
 private const val TAG = "NewItemViewModel"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NewItemViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
@@ -39,51 +49,50 @@ class NewItemViewModel @Inject constructor(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
 
-    suspend fun prepareCurrentSubOrder(orderId: Int, subOrderId: Int) {
-        withContext(Dispatchers.IO) {
-            val subOrder = when {
-                orderId == NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
-                    DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
-                )
-                orderId != NoRecord.num && subOrderId == NoRecord.num -> DomainSubOrderShort(
-                    DomainSubOrder().copy(orderId = orderId, statusId = InvStatuses.TO_DO.statusId), repository.getOrderById(orderId)
-                )
-                orderId != NoRecord.num && subOrderId != NoRecord.num -> DomainSubOrderShort(
-                    repository.getSubOrderById(subOrderId),
-                    repository.getOrderById(orderId),
-                    repository.getSamplesBySubOrderId(subOrderId).toMutableStateList(),
-                    repository.getTasksBySubOrderId(subOrderId).toMutableStateList()
-                )
-                else -> throw IllegalArgumentException("orderId = $orderId; subOrderId = $subOrderId")
-            }
-            withContext(Dispatchers.Main) { currentSubOrder.value = subOrder }
-        }
+    private val _currentOrder: MutableStateFlow<DomainOrder> = MutableStateFlow(
+        DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
+    )
+    val currentOrderSF: StateFlow<DomainOrder> = _currentOrder.flatMapLatest { order ->
+        flow { emit(order) }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentOrder.value)
+
+    private val _currentSubOrder: MutableStateFlow<DomainSubOrderShort> = MutableStateFlow(
+        DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
+    )
+    val currentSubOrderSF: StateFlow<DomainSubOrderShort> = _currentSubOrder.flatMapLatest { order ->
+        flow { emit(order) }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentSubOrder.value)
+
+    fun selectOrderType(id: Int) {
+        _currentOrder.value = _currentOrder.value.copy(orderTypeId = id, reasonId = NoRecord.num)
+        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
-
-    val currentSubOrderMediator: MediatorLiveData<Pair<DomainSubOrderShort?, Boolean?>> =
-        MediatorLiveData<Pair<DomainSubOrderShort?, Boolean?>>().apply {
-            addSource(currentSubOrder) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(currentSubOrder.value, it) }
+    private val _orderTypes = repository.getOrderTypes
+    val orderTypes: StateFlow<List<DomainOrdersType>> = _orderTypes.flatMapLatest { types ->
+        _currentOrder.flatMapLatest { currentOrder ->
+            val cpy = mutableListOf<DomainOrdersType>()
+            types.forEach { cpy.add(it.copy(isSelected = it.id == currentOrder.orderTypeId)) }
+            flow { emit(cpy) }
         }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    val investigationTypes = repository.investigationTypes
-    val investigationTypesMutable = MutableLiveData<MutableList<DomainOrdersType>>(mutableListOf())
-    val investigationTypesMediator: MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainOrdersType>?, Boolean?>>().apply {
-            addSource(investigationTypesMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(investigationTypesMutable.value, it) }
+    fun selectOrderReason(id: Int) {
+        _currentOrder.value = _currentOrder.value.copy(reasonId = id)
+        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
+    }
+    private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
+    val orderReasons: StateFlow<List<DomainReason>> = _orderReasons.flatMapLatest { reasons ->
+        _currentOrder.flatMapLatest { currentOrder ->
+            if (currentOrder.orderTypeId != NoRecord.num) {
+                val cpy = mutableListOf<DomainReason>()
+                reasons.forEach { cpy.add(it.copy(isSelected = it.id == currentOrder.reasonId)) }
+                flow { emit(cpy) }
+            } else {
+                flow { emit(emptyList<DomainReason>()) }
+            }
         }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val investigationReasons = repository.investigationReasons
-    val investigationReasonsMutable =
-        MutableLiveData<MutableList<DomainReason>>(mutableListOf())
-    val investigationReasonsMediator: MediatorLiveData<Pair<MutableList<DomainReason>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainReason>?, Boolean?>>().apply {
-            addSource(investigationReasonsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(investigationReasonsMutable.value, it) }
-        }
-
-    val customers = manufacturingRepository.departments
     val customersMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
     val customersMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
@@ -196,7 +205,7 @@ class NewItemViewModel @Inject constructor(
                 repository.syncInvestigationTypes()
                 repository.syncInvestigationReasons()
                 repository.syncInputForOrder()
-                manufacturingRepository.refreshDepartments()
+                manufacturingRepository.syncDepartments()
                 manufacturingRepository.syncTeamMembers()
 
                 productsRepository.refreshKeys()
@@ -283,6 +292,7 @@ class NewItemViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             postDeleteSubOrderTasks(resource.data!!.id, subOrder)
                             postDeleteSamples(resource.data.id, subOrder)
@@ -290,6 +300,7 @@ class NewItemViewModel @Inject constructor(
                             setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
                             activity.finish()
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) {
                                 isLoadingInProgress.value = false
@@ -310,11 +321,13 @@ class NewItemViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
                             setMainActivityResult(activity, activity.actionTypeEnum, resource.data!!.id)
                             activity.finish()
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) {
                                 isLoadingInProgress.value = false
@@ -335,10 +348,12 @@ class NewItemViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             subOrder.subOrder.orderId = resource.data!!.id
                             postNewSubOrder(activity, subOrder)
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) {
                                 isLoadingInProgress.value = false
@@ -359,6 +374,7 @@ class NewItemViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             postDeleteSubOrderTasks(resource.data!!.id, subOrder)
                             postDeleteSamples(resource.data.id, subOrder)
@@ -366,6 +382,7 @@ class NewItemViewModel @Inject constructor(
                             setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
                             activity.finish()
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) { isNetworkError.value = true }
                         }
@@ -387,10 +404,12 @@ class NewItemViewModel @Inject constructor(
                         Status.LOADING -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
                         }
+
                         Status.SUCCESS -> {
                             setMainActivityResult(activity, activity.actionTypeEnum, resource.data!!.id)
                             activity.finish()
                         }
+
                         Status.ERROR -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
                             isNetworkError.value = false
@@ -538,11 +557,13 @@ fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltratio
             d.value?.clear()
             s?.value?.let { d.value?.addAll(it.toList()) }
         }
+
         FilteringMode.REMOVE_ALL -> {
             //Is made because previously selected/filtered/unfiltered item again selected
             selectSingleRecord(d, trigger)
             d.value?.clear()
         }
+
         FilteringMode.ADD_BY_PARENT_ID -> {
             //Is made because previously selected/filtered/unfiltered item again selected
             selectSingleRecord(d, trigger)
@@ -555,6 +576,7 @@ fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltratio
                 }
             }
         }
+
         FilteringMode.ADD_ALL_FROM_META_TABLE -> {
             if ((m != null) && (m.value != null)) {
                 m.value!!.forEach { mIt ->
@@ -565,6 +587,7 @@ fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltratio
                 }
             }
         }
+
         FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE -> {
             selectSingleRecord(d, trigger)
             d.value?.clear()
@@ -588,21 +611,27 @@ fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltratio
                                     FilteringStep.NOT_FROM_META_TABLE -> {
                                         it.getRecordId() == NoRecord.num
                                     }
+
                                     FilteringStep.SUB_DEPARTMENTS -> {
                                         it.getRecordId() == mIt.subDepId
                                     }
+
                                     FilteringStep.CHANNELS -> {
                                         it.getRecordId() == mIt.chId
                                     }
+
                                     FilteringStep.LINES -> {
                                         it.getRecordId() == mIt.lineId
                                     }
+
                                     FilteringStep.ITEM_VERSIONS -> {
                                         it.getRecordId() == mIt.itemPrefix + mIt.itemVersionId.toString()
                                     }
+
                                     FilteringStep.OPERATIONS -> {
                                         it.getRecordId() == mIt.operationId && p2Id == mIt.itemPrefix + mIt.itemVersionId.toString()
                                     }
+
                                     FilteringStep.CHARACTERISTICS -> {
                                         it.getRecordId() == mIt.charId && p2Id == mIt.itemPrefix + mIt.itemVersionId.toString()
                                                 &&

@@ -46,6 +46,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
+import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -70,6 +71,7 @@ class MainActivityCompose : ComponentActivity() {
 
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
+    private lateinit var newOrderModel: NewItemViewModel
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,6 +167,9 @@ class MainActivityCompose : ComponentActivity() {
                                         onClick = {
                                             when (selectedDrawerMenuItemId.value) {
                                                 Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
+                                                Screen.Main.Investigations.withArgs(AllInvestigations.str) -> navController.navigate(
+                                                    Screen.Main.OrderAddEdit.route
+                                                )
                                                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                             }
                                         },
@@ -238,5 +243,9 @@ class MainActivityCompose : ComponentActivity() {
     fun initTeamModel(model: TeamViewModel) {
         this.teamModel = model
         this.teamModel.initMainActivityViewModel(this.viewModel)
+    }
+
+    fun initNewOrderModel(newOrderModel: NewItemViewModel) {
+        this.newOrderModel = newOrderModel
     }
 }

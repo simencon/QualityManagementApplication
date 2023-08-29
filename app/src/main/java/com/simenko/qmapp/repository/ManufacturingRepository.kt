@@ -79,16 +79,9 @@ class ManufacturingRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshDepartments() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getDepartments()
-            manufacturingDao.insertDepartmentsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
+    suspend fun syncDepartments() = crudeOperations.syncRecordsAll(
+        database.departmentDao
+    ) { manufacturingService.getDepartments() }
 
     suspend fun refreshSubDepartments() {
         withContext(Dispatchers.IO) {
@@ -154,13 +147,13 @@ class ManufacturingRepository @Inject constructor(
         }
 
     fun teamCompleteList(): Flow<List<DomainTeamMemberComplete>> =
-        manufacturingDao.getTeamDetailedList().map { list ->
+        database.teamMemberDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
 
     val departments: LiveData<List<DomainDepartment>> =
-        manufacturingDao.getDepartments().map {list ->
+        database.departmentDao.getRecordsForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
@@ -190,7 +183,7 @@ class ManufacturingRepository @Inject constructor(
         }
 
     val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> =
-        manufacturingDao.getDepartmentsDetailed().map { list ->
+        database.departmentDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 }

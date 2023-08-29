@@ -14,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
@@ -102,25 +104,25 @@ fun ButtonsSectionQuantity(
 
 @Composable
 fun QuantitySelection(
-    modifier: Modifier = Modifier,
-    appModel: NewItemViewModel? = null
+    modifier: Modifier = Modifier
 ) {
-    val observeInputForOrder by appModel!!.currentSubOrderMediator.observeAsState()
+    val appModel: NewItemViewModel = hiltViewModel()
+    val observeInputForOrder by appModel.currentSubOrderSF.collectAsStateWithLifecycle()
 
-    observeInputForOrder?.apply {
+    observeInputForOrder.apply {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
                 .padding(horizontal = 16.dp)
         ) {
-            if (first?.subOrder?.operationId != NoRecord.num)
+            if (subOrder.operationId != NoRecord.num)
                 AndroidView(
                     modifier = modifier.width(224.dp),
                     factory = { context ->
                         NumberPicker(context).apply {
                             setOnValueChangedListener { picker, oldVal, newVal ->
-                                appModel!!.currentSubOrder.value?.subOrder?.samplesCount = newVal
+                                appModel.currentSubOrder.value?.subOrder?.samplesCount = newVal
                                 if (oldVal == ZeroValue.num || newVal == ZeroValue.num)
                                     filterAllAfterQuantity(appModel, newVal, true)
                                 else
@@ -130,11 +132,11 @@ fun QuantitySelection(
                             scaleY = 1f
                             minValue = ZeroValue.num
                             maxValue = 10
-                            this.value = first?.subOrder?.samplesCount ?: ZeroValue.num
+                            this.value = subOrder.samplesCount ?: ZeroValue.num
                         }
                     },
                     update = {
-                        it.value = first?.subOrder?.samplesCount ?: ZeroValue.num
+                        it.value = subOrder.samplesCount ?: ZeroValue.num
                     }
                 )
         }

@@ -185,7 +185,6 @@ class NewItemActivity : ComponentActivity() {
                         actionTypeEnum == ActionType.ADD_ORDER -> {
                             OrderForm(
                                 modifier = Modifier.padding(padding),
-                                viewModel = viewModel,
                                 actionType = actionTypeEnum,
                                 parentId = NoRecord.num,
                             )
@@ -193,7 +192,6 @@ class NewItemActivity : ComponentActivity() {
                         actionTypeEnum == ActionType.EDIT_ORDER -> {
                             OrderForm(
                                 modifier = Modifier.padding(padding),
-                                viewModel = viewModel,
                                 actionType = actionTypeEnum,
                                 parentId = NoRecord.num,
                             )
@@ -224,7 +222,7 @@ class NewItemActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.investigationTypes.observe(this) {
+        /*viewModel.investigationTypes.observe(this) {
             viewModel.investigationReasons.observe(this) {
                 viewModel.customers.observe(this) {
                     viewModel.teamMembers.observe(this) {
@@ -374,7 +372,7 @@ class NewItemActivity : ComponentActivity() {
                     }
                 }
             }
-        }
+        }*/
     }
 }
 

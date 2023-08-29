@@ -386,8 +386,18 @@ class InvestigationsRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
+    val getOrderTypes: Flow<List<DomainOrdersType>> =
+        database.investigationTypeDao.getRecordsFlowForUI().map { list ->
+            list.map { it.toDomainModel() }
+        }
+
     val investigationReasons: LiveData<List<DomainReason>> =
         database.measurementReasonDao.getRecordsForUI().map { list ->
+            list.map { it.toDomainModel() }
+        }
+
+    val getOrderReasons: Flow<List<DomainReason>> =
+        database.measurementReasonDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 

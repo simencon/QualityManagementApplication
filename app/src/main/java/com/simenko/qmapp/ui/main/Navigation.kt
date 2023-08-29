@@ -17,12 +17,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.InvestigationsKey
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.settings.Settings
 import com.simenko.qmapp.ui.main.team.TeamComposition
 import com.simenko.qmapp.ui.main.team.TeamViewModel
+import com.simenko.qmapp.ui.neworder.ActionType
+import com.simenko.qmapp.ui.neworder.NewItemViewModel
+import com.simenko.qmapp.ui.neworder.OrderForm
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.utils.StringUtils.getBoolean
@@ -61,6 +65,20 @@ fun Navigation(
                 )
             }
         }
+
+        composable(
+            route = Screen.Main.OrderAddEdit.route
+        ) {
+            val newOrderModel: NewItemViewModel = hiltViewModel()
+            (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
+            QMAppTheme {
+                OrderForm(
+                    actionType = ActionType.ADD_ORDER,
+                    parentId = NoRecord.num
+                )
+            }
+        }
+
         composable(route = Screen.Main.Settings.route) {
             QMAppTheme {
                 Settings(
