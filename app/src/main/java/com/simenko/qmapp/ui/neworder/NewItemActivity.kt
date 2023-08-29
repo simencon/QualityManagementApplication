@@ -376,26 +376,3 @@ class NewItemActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun ButtonsSection(
-    @StringRes title: Int,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Column(modifier) {
-        Text(
-            text = stringResource(title).uppercase(Locale.getDefault()),
-            style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
-            modifier = Modifier
-                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
-                .padding(horizontal = 16.dp)
-        )
-        content()
-        Spacer(Modifier.height(16.dp))
-        Divider(
-            modifier = modifier.height(2.dp),
-            color = Secondary
-        )
-    }
-}
-

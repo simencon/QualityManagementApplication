@@ -1,14 +1,25 @@
 package com.simenko.qmapp.ui.neworder
 
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProgressIndicatorDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,7 +27,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
@@ -25,8 +38,9 @@ import com.simenko.qmapp.ui.neworder.steps.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
-@OptIn(ExperimentalMaterialApi::class)
+//@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
@@ -34,15 +48,13 @@ fun OrderForm(
     orderId: Int
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
-    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
+//    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
+//    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = observerLoadingProcess!!,
-        onRefresh = {
-            viewModel.refreshDataFromRepository()
-        }
-    )
+//    val pullRefreshState = rememberPullRefreshState(
+//        refreshing = observerLoadingProcess!!,
+//        onRefresh = { viewModel.refreshDataFromRepository() }
+//    )
 
     LaunchedEffect(orderId) {
         if (orderId != NoRecord.num) {
@@ -53,10 +65,9 @@ fun OrderForm(
         }
     }
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
         Column(
-            modifier
-                .verticalScroll(rememberScrollState())
+            modifier.verticalScroll(rememberScrollState())
         ) {
             ButtonsSection(title = R.string.select_type) { TypesSelection(modifier = Modifier.padding(top = 0.dp)) }
             ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp)) }
@@ -70,15 +81,76 @@ fun OrderForm(
 
             Spacer(Modifier.height((16 + 56).dp))
         }
-        PullRefreshIndicator(
-            observerLoadingProcess!!,
-            pullRefreshState,
-            modifier.align(Alignment.TopCenter),
-            contentColor = ProgressIndicatorDefaults.circularColor
+//        PullRefreshIndicator(
+//            observerLoadingProcess!!,
+//            pullRefreshState,
+//            modifier.align(Alignment.TopCenter),
+//            contentColor = ProgressIndicatorDefaults.circularColor
+//        )
+    }
+//    if (observerIsNetworkError == true) {
+//        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
+//        viewModel.onNetworkErrorShown()
+//    }
+}
+
+@Composable
+fun ButtonsSection(
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Column(modifier) {
+        Text(
+            text = stringResource(title).uppercase(Locale.getDefault()),
+            style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
+            modifier = Modifier
+                .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
+        )
+        content()
+        Spacer(Modifier.height(16.dp))
+        Divider(
+            modifier = modifier.height(2.dp),
+            color = MaterialTheme.colorScheme.secondary
         )
     }
-    if (observerIsNetworkError == true) {
-        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
-        viewModel.onNetworkErrorShown()
+}
+
+@Composable
+fun SearchBarProducts(
+    modifier: Modifier = Modifier
+) {
+    TextField(
+        value = "",
+        onValueChange = {},
+        leadingIcon = { Icon(imageVector = Icons.Filled.Search, contentDescription = null) },
+        colors = TextFieldDefaults.colors(),
+        placeholder = { Text("Search") },
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+    )
+}
+
+@Composable
+fun ItemToSelect(
+    item: Triple<Int, String, Boolean>,
+    onClick: (Int) -> Unit
+) {
+    val btnColors = ButtonDefaults.buttonColors(
+        contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+        containerColor = if (item.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(
+            colors = btnColors,
+            modifier = Modifier
+                .width(224.dp)
+                .height(56.dp),
+            onClick = { onClick(item.first) }
+        ) { Text(text = item.second) }
     }
 }
