@@ -389,7 +389,7 @@ class InvestigationsViewModel @Inject constructor(
     }
         .flowOn(Dispatchers.IO)
         .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), NoRecord)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentTaskVisibility.value.first)
 
     /**
      * The result flow

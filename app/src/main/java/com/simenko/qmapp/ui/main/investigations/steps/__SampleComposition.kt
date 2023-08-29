@@ -68,7 +68,7 @@ fun SampleComposition(
             key = {
                 it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString()
             }) { sample ->
-            if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
+            if (sample.sampleResult.taskId == observeCurrentSubOrderTask.num) {
                 SampleCard(
                     modifier = modifier.padding(CARDS_PADDING),
                     appModel = invModel,
