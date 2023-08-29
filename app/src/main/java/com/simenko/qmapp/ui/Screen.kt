@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.simenko.qmapp.domain.AllInvestigations
+import com.simenko.qmapp.domain.ProcessControl
 
 sealed class Screen(val route: String) {
 
@@ -26,13 +28,8 @@ sealed class Screen(val route: String) {
         object Employees : Screen("employees")
         object CompanyStructure : Screen("company_structure")
         object CompanyProducts : Screen("company_products")
-        object Investigations : Screen("all_investigations") {
-            object Orders : Screen("orders")
-            object NewOrder : Screen("new_order")
-        }
-
-        object AllInvestigations : Screen("all_investigations")
-        object ProcessControl : Screen("process_control")
+        object Investigations : Screen("all_investigations")
+        object Orders : Screen("orders")
         object ScrapLevel : Screen("scrap_level")
         object Settings : Screen("settings")
     }
@@ -42,17 +39,6 @@ sealed class Screen(val route: String) {
         args.forEach { arg ->
             append("/$arg")
         }
-    }
-
-    companion object {
-        fun resolveRoute(route: String): Pair<String, Int>? =
-            when (route) {
-                Main.Employees.route -> Pair(route, 0)
-                Main.AllInvestigations.route -> Pair(Main.AllInvestigations.withArgs("false"), 0)
-                Main.ProcessControl.route -> Pair(Main.AllInvestigations.withArgs("true"), 0)
-                Main.Settings.route -> Pair(route, 0)
-                else -> null
-            }
     }
 }
 

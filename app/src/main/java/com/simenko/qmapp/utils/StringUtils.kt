@@ -32,8 +32,7 @@ object StringUtils {
         } else {
             "-"
         }
-        if (result != "-")
-        {
+        if (result != "-") {
             result = result.split(".").toTypedArray()[0]
         }
 
@@ -47,7 +46,7 @@ object StringUtils {
 
     @JvmStatic
     fun concatTwoStrings1(str1: String?, str2: String?): String {
-        return "${str1?:"_"} (${str2?:"_"})"
+        return "${str1 ?: "_"} (${str2 ?: "_"})"
     }
 
     @JvmStatic
@@ -67,9 +66,9 @@ object StringUtils {
 
     @JvmStatic
     fun concatThreeStrings1(str1: String?, str2: String?, str3: String?) = buildString {
-        if(!str1.isNullOrEmpty()) append(str1)
-        if(!str2.isNullOrEmpty()) append(", $str2")
-        if(!str3.isNullOrEmpty()) append(", $str3")
+        if (!str1.isNullOrEmpty()) append(str1)
+        if (!str2.isNullOrEmpty()) append(", $str2")
+        if (!str3.isNullOrEmpty()) append(", $str3")
     }
 
     @JvmStatic
@@ -99,10 +98,23 @@ object StringUtils {
         }
         return NoRecord.num.toLong()
     }
+
     val FormatForRestService = SelectedNumber(0)
+
     @JvmStatic
     fun getStringDate(myDateTimeLong: Long?, formatType: Int = 5): String? {
-        if(myDateTimeLong == null) return null
+        if (myDateTimeLong == null) return null
         return mySimpleFormatters[formatType].format(Date(myDateTimeLong))
+    }
+
+    @JvmStatic
+    fun getBoolean(original: String): Boolean {
+        val arr = original.split("/").toTypedArray()
+        val last = arr[arr.lastIndex]
+
+        return if(last == "true" || last == "false")
+            last.toBoolean()
+        else
+            false
     }
 }
