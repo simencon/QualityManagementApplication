@@ -6,7 +6,6 @@ import com.simenko.qmapp.room.entities.DatabaseSubOrder
 import com.simenko.qmapp.room.entities.DatabaseSubOrderComplete
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.contract.DaoTimeDependentModel
-import com.simenko.qmapp.room.entities.DatabaseOrder
 import kotlinx.coroutines.flow.Flow
 
 @Dao

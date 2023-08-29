@@ -1,6 +1,5 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
@@ -348,7 +347,7 @@ class InvestigationsRepository @Inject constructor(
     suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
         val dbOrder = database.orderDao.getRecordById(lastVisibleId.toString())
         return if (dbOrder != null)
-            database.orderDao.ordersListByLastVisibleId(dbOrder.createdDate).map { list ->
+            database.orderDao.ordersListByLastVisibleIdForUI(dbOrder.createdDate).map { list ->
                 list.map { it.toDomainModel() }
             }
         else flow { emit(listOf()) }
@@ -359,8 +358,8 @@ class InvestigationsRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
-    fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        database.taskDao.getRecordsByTimeRangeForUI(pair).map { list ->
+    fun tasksRangeList(subOrderId: Int): Flow<List<DomainSubOrderTaskComplete>> =
+        database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list ->
             list.map { it.toDomainModel() }
         }
 
@@ -369,8 +368,8 @@ class InvestigationsRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
-    fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        database.resultDao.getRecordsByParentIdForUI(subOrderId).map { list ->
+    fun resultsRangeList(taskId: Int, sampleId: Int): Flow<List<DomainResultComplete>> =
+        database.resultDao.getRecordsByParentIdForUI(taskId, sampleId).map { list ->
             list.map { it.toDomainModel() }
         }
 

@@ -62,24 +62,9 @@ fun SubOrdersFlowColumn(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
-        }
-    }
-
-    val onClickActionsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
-        }
-    }
-
-    val onClickDeleteLambda = remember<(Int) -> Unit> {
-        {
-            invModel.deleteSubOrder(it)
-        }
-    }
-
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
     val onClickEditLambda = remember<(Int, Int) -> Unit> {
         { orderId, subOrderId ->
             launchNewItemActivityForResult(
