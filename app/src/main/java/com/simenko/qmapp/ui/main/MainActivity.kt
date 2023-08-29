@@ -29,9 +29,6 @@ import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.ActivityMainBinding
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.OrderTypeProcessOnly
-import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.main.settings.SettingsFragment
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
@@ -390,7 +387,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     R.id.nav_inv_orders_process_control -> {
                         analytics.logEvent("nav_inv_orders_process_control_click", bundle)
-                        investigationsModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
                         InvestigationsFragment()
                     }
 

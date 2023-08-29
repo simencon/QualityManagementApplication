@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,7 +36,7 @@ fun SubOrdersStandAlone(
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {
-        invModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
+        invModel.setCurrentSubOrdersFilter(type = ProcessControlOrderTypeId)
     }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {

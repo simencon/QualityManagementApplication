@@ -79,7 +79,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.simenko.qmapp.domain.AllInvestigations
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.Screen
@@ -164,7 +166,12 @@ fun AppBar(
                 } else {
                     Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
 
-                    if (screen.id == "all_investigations" || screen.id == "process_control")
+                    NoRecord
+
+                    if (
+                        screen.id == Screen.Main.Investigations.withArgs(AllInvestigations.str) ||
+                        screen.id == Screen.Main.Investigations.withArgs(ProcessControl.str)
+                    )
                         IconButton(onClick = { searchBarState.value = true }) {
                             Icon(
                                 imageVector = Icons.Filled.Search,
@@ -454,7 +461,9 @@ data class MenuItem(
     val category: MenuGroup
 ) {
     companion object {
-        fun getStartingDrawerMenuItem() = navigationAndActionItems.find { it.id == Screen.Main.ProcessControl.route } ?: navigationAndActionItems[4]
+        fun getStartingDrawerMenuItem() =
+            navigationAndActionItems.find { it.id == Screen.Main.Investigations.withArgs(AllInvestigations.str) } ?: navigationAndActionItems[4]
+
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
         fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id }
@@ -481,26 +490,14 @@ private val navigationAndActionItems = listOf(
     MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem(Screen.Main.AllInvestigations.route, "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Screen.Main.ProcessControl.route, "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.Investigations.withArgs(AllInvestigations.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.Investigations.withArgs(ProcessControl.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
     MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
     MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
-    MenuItem(
-        MenuItem.Actions.UPLOAD_MASTER_DATA.action,
-        "Upload master data",
-        "Upload master data",
-        Icons.Filled.Refresh,
-        MenuItem.MenuGroup.ACTIONS
-    ),
-    MenuItem(
-        MenuItem.Actions.SYNC_INVESTIGATIONS.action,
-        "Sync investigations",
-        "Sync investigations",
-        Icons.Filled.Refresh,
-        MenuItem.MenuGroup.ACTIONS
-    ),
+    MenuItem(MenuItem.Actions.UPLOAD_MASTER_DATA.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem(MenuItem.Actions.SYNC_INVESTIGATIONS.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
 
     MenuItem("no_filter", "No filter", "No filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),

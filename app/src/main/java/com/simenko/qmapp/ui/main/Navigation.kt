@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.simenko.qmapp.domain.InvestigationsKey
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -24,6 +25,7 @@ import com.simenko.qmapp.ui.main.team.TeamComposition
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
+import com.simenko.qmapp.utils.StringUtils.getBoolean
 
 @Composable
 fun Navigation(
@@ -40,50 +42,12 @@ fun Navigation(
                 TeamComposition()
             }
         }
-
-//        navigation(
-//            startDestination = Screen.Main.Investigations.route,
-//            route = Screen.Main.Investigations.Orders.route
-//        ) {
-//            composable(route = Screen.Main.Investigations.Orders.route) {
-//                val invModel: InvestigationsViewModel = hiltViewModel()
-//                (LocalContext.current as MainActivityCompose).initInvModel(invModel)
-//                QMAppTheme {
-//                    InvestigationsMainComposition(
-//                        modifier = Modifier.padding(all = 0.dp),
-//                        mainScreenPadding = mainScreenPadding,
-//                        processControlOnly = false
-//                    )
-//                }
-//            }
-//
-//            composable(
-//                route = Screen.Main.Investigations.Orders.route + "/{processControlOnly}",
-//                arguments = listOf(
-//                    navArgument("processControlOnly") {
-//                        type = NavType.BoolType
-//                        defaultValue = false
-//                    }
-//                )
-//            ) {
-//                val invModel: InvestigationsViewModel = hiltViewModel()
-//                (LocalContext.current as MainActivityCompose).initInvModel(invModel)
-//                QMAppTheme {
-//                    InvestigationsMainComposition(
-//                        modifier = Modifier.padding(all = 0.dp),
-//                        mainScreenPadding = mainScreenPadding,
-//                        processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
-//                    )
-//                }
-//            }
-//        }
-
         composable(
-            route = Screen.Main.AllInvestigations.route + "/{processControlOnly}",
+            route = Screen.Main.Investigations.route + "/{${InvestigationsKey.str}}",
             arguments = listOf(
-                navArgument("processControlOnly") {
+                navArgument(InvestigationsKey.str) {
                     type = NavType.BoolType
-                    defaultValue = false
+                    defaultValue = getBoolean(MenuItem.getStartingDrawerMenuItem().id)
                 }
             )
         ) {
@@ -93,7 +57,7 @@ fun Navigation(
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
                     mainScreenPadding = mainScreenPadding,
-                    processControlOnly = it.arguments?.getBoolean("processControlOnly")?:true
+                    processControlOnly = it.arguments?.getBoolean(InvestigationsKey.str)?:false
                 )
             }
         }

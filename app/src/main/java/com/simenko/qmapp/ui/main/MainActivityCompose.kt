@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.AllInvestigations
+import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
@@ -92,15 +94,14 @@ class MainActivityCompose : ComponentActivity() {
 
                 fun onDrawerItemClick(id: String) {
                     scope.launch { drawerState.close() }
-
                     if (id != selectedDrawerMenuItemId.value) {
                         selectedDrawerMenuItemId.value = id
-
-                        Screen.resolveRoute(id).let {
-                            if (it != null)
-                                navController.navigate(it.first) { popUpTo(it.second) }
-                            else
-                                Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                        when (id) {
+                            Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Investigations.withArgs(AllInvestigations.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Investigations.withArgs(ProcessControl.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
+                            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -118,8 +119,8 @@ class MainActivityCompose : ComponentActivity() {
 
                 fun onSearchBarSearch(searchValues: String) {
                     when (selectedDrawerMenuItemId.value) {
-                        Screen.Main.AllInvestigations.route -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-                        Screen.Main.ProcessControl.route -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Investigations.withArgs(AllInvestigations.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Investigations.withArgs(ProcessControl.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -182,8 +183,8 @@ class MainActivityCompose : ComponentActivity() {
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId.value) {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
-                                        Screen.Main.AllInvestigations.route -> invModel.uploadNewInvestigations()
-                                        Screen.Main.ProcessControl.route -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Investigations.withArgs(AllInvestigations.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Investigations.withArgs(ProcessControl.str) -> invModel.uploadNewInvestigations()
 
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))
@@ -205,7 +206,7 @@ class MainActivityCompose : ComponentActivity() {
                                         .padding(it)
                                         .pullRefresh(pullRefreshState),
                                     it,
-                                    Screen.resolveRoute(MenuItem.getStartingDrawerMenuItem().id)!!.first,
+                                    MenuItem.getStartingDrawerMenuItem().id,
                                     navController
                                 )
                                 PullRefreshIndicator(
