@@ -47,9 +47,7 @@ fun SubOrderForm(
                 actionType == ActionType.EDIT_SUB_ORDER_STAND_ALONE) {
                 ButtonsSection(title = R.string.select_reason) {
                     ReasonsSelection(
-                        modifier = Modifier.padding(top = 0.dp),
-                        appModel = viewModel,
-                        actionType = actionType
+                        modifier = Modifier.padding(top = 0.dp)
                     )
                 }
             }
@@ -97,8 +95,7 @@ fun SubOrderForm(
             }
             ButtonsSectionQuantity(title = R.string.select_quantity) {
                 QuantitySelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
+                    modifier = Modifier.padding(top = 0.dp)
                 )
             }
             ButtonsSection(title = R.string.select_characteristics) {

@@ -10,12 +10,15 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.neworder.steps.*
 
@@ -24,9 +27,9 @@ import com.simenko.qmapp.ui.neworder.steps.*
 fun OrderForm(
     modifier: Modifier = Modifier,
     actionType: ActionType,
-    viewModel: NewItemViewModel,
     parentId: Int
 ) {
+    val viewModel: NewItemViewModel = hiltViewModel()
     val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
     val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
 
@@ -44,14 +47,12 @@ fun OrderForm(
         ) {
             ButtonsSection(title = R.string.select_type) {
                 TypesSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
+                    modifier = Modifier.padding(top = 0.dp)
                 )
             }
             ButtonsSection(title = R.string.select_reason) {
                 ReasonsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
+                    modifier = Modifier.padding(top = 0.dp)
                 )
             }
             ButtonsSection(title = R.string.select_customer) {

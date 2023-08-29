@@ -8,60 +8,38 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.NoRecord
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.entities.DomainOrdersType
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.FilteringMode
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
-import com.simenko.qmapp.ui.neworder.performFiltration
-import com.simenko.qmapp.ui.neworder.selectSingleRecord
 import com.simenko.qmapp.ui.theme.Primary
 import com.simenko.qmapp.ui.theme.TertiaryContainer
-import kotlinx.coroutines.launch
-
-private const val TAG = "InputInvestigationTypeComposition"
-
-fun filterAllAfterTypes(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
-
-    appModel.investigationReasonsMutable.performFiltration(
-        appModel.investigationReasons,
-        FilteringMode.ADD_ALL,
-        appModel.pairedTrigger
-    )
-    appModel.customersMutable.performFiltration(
-        appModel.customers,
-        FilteringMode.REMOVE_ALL,
-        appModel.pairedTrigger
-    )
-    appModel.orderPlacersMutable.performFiltration(
-        appModel.teamMembers,
-        FilteringMode.REMOVE_ALL,
-        appModel.pairedTrigger
-    )
-    selectSingleRecord(appModel.investigationTypesMutable, appModel.pairedTrigger, selectedId)
-
-    if (clear) {
-        appModel.currentOrder.value?.reasonId = NoRecord.num
-        appModel.currentOrder.value?.customerId = NoRecord.num
-        appModel.currentOrder.value?.orderedById = NoRecord.num
-    }
-}
 
 @Composable
 fun TypesSelection(
-    modifier: Modifier = Modifier,
-    appModel: NewItemViewModel
+    modifier: Modifier = Modifier
 ) {
-    val observeInputForOrder by appModel.investigationTypesMediator.observeAsState()
+    val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
-    observeInputForOrder?.apply {
+    val items by viewModel.orderTypes.collectAsStateWithLifecycle()
+    val currentOrder by viewModel.currentOrderSF.collectAsStateWithLifecycle()
+
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderType(it) } }
+
+    LaunchedEffect(currentOrder) {
+        gritState.scrollToSelectedItem(
+            list = items.map {it.id }.toList(),
+            selectedId = currentOrder.orderTypeId,
+        )
+    }
+
+    items.let { it ->
         LazyHorizontalGrid(
             rows = GridCells.Fixed(1),
             state = gritState,
@@ -70,33 +48,20 @@ fun TypesSelection(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = modifier.height(60.dp)
         ) {
-            items(first!!.size) { item ->
+            items(it.size) { item ->
                 InvestigationTypeCard(
-                    inputForOrder = first!![item],
-                    modifier = modifier,
-                    onClick = {
-                        appModel.currentOrder.value?.orderTypeId = it.id
-                        filterAllAfterTypes(appModel, it.id, true)
-                    }
+                    inputForOrder = it[item],
+                    onClick = { onSelectLambda(it) }
                 )
             }
         }
-
-        if (first != null && appModel.currentOrder.value != null)
-            coroutineScope.launch {
-                gritState.scrollToSelectedItem(
-                    list = first!!.map { it.id }.toList(),
-                    selectedId = appModel.currentOrder.value!!.orderTypeId,
-                )
-            }
     }
 }
 
 @Composable
 fun InvestigationTypeCard(
     inputForOrder: DomainOrdersType,
-    modifier: Modifier = Modifier,
-    onClick: (DomainOrdersType) -> Unit
+    onClick: (Int) -> Unit
 ) {
     val btnBackgroundColor = if (inputForOrder.isSelected) Primary else TertiaryContainer
     val btnContentColor = if (inputForOrder.isSelected) Color.White else Color.Black
@@ -113,7 +78,7 @@ fun InvestigationTypeCard(
             modifier = Modifier
                 .width(224.dp)
                 .height(56.dp),
-            onClick = { onClick(inputForOrder) }
+            onClick = { onClick(inputForOrder.id) }
         ) {
             Text(
                 text = inputForOrder.typeDescription ?: "-"

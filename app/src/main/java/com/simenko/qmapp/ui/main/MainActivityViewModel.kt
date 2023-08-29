@@ -50,7 +50,7 @@ class MainActivityViewModel @Inject constructor(
             manufacturingRepository.refreshPositionLevels()
             manufacturingRepository.syncTeamMembers()
             manufacturingRepository.refreshCompanies()
-            manufacturingRepository.refreshDepartments()
+            manufacturingRepository.syncDepartments()
             manufacturingRepository.refreshSubDepartments()
             manufacturingRepository.refreshManufacturingChannels()
             manufacturingRepository.refreshManufacturingLines()

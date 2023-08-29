@@ -31,7 +31,7 @@ interface ManufacturingService {
     suspend fun getCompanies(): List<NetworkCompany>
 
     @GET(DEPARTMENTS)
-    suspend fun getDepartments(): List<NetworkDepartment>
+    suspend fun getDepartments(): Response<List<NetworkDepartment>>
 
     @GET(SUB_DEPARTMENTS)
     suspend fun getSubDepartments(): List<NetworkSubDepartment>
