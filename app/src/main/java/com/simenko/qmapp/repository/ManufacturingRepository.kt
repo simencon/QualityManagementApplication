@@ -3,19 +3,15 @@ package com.simenko.qmapp.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
-import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
-import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -141,19 +137,19 @@ class ManufacturingRepository @Inject constructor(
     /**
      * Connecting with LiveData for ViewModel
      */
-    val teamMembers: LiveData<List<DomainTeamMember>> =
-        database.teamMemberDao.getRecordsForUI().map { list ->
-            list.map { it.toDomainModel() }
-        }
-
-    fun teamCompleteList(): Flow<List<DomainTeamMemberComplete>> =
+    val getTeamMembers: Flow<List<DomainTeamMember>> =
         database.teamMemberDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
+    fun teamCompleteList(): Flow<List<DomainTeamMemberComplete>> =
+        database.teamMemberDao.getRecordsCompleteFlowForUI().map { list ->
+            list.map { it.toDomainModel() }
+        }
 
-    val departments: LiveData<List<DomainDepartment>> =
-        database.departmentDao.getRecordsForUI().map {list ->
+
+    val getDepartments: Flow<List<DomainDepartment>> =
+        database.departmentDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
@@ -183,7 +179,7 @@ class ManufacturingRepository @Inject constructor(
         }
 
     val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> =
-        database.departmentDao.getRecordsFlowForUI().map { list ->
+        database.departmentDao.getRecordsDetailedFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 }

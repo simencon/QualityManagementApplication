@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseDepartment
 import com.simenko.qmapp.room.entities.DatabaseDepartmentsComplete
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class DepartmentDao: DaoBaseModel<DatabaseDepartment> {
@@ -25,7 +26,10 @@ abstract class DepartmentDao: DaoBaseModel<DatabaseDepartment> {
     @Query("SELECT * FROM `10_departments` ORDER BY depOrder ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseDepartment>>
 
+    @Query("SELECT * FROM `10_departments` ORDER BY depOrder ASC")
+    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseDepartment>>
+
     @Transaction
     @Query("select * from `10_departments` order by depOrder")
-    abstract fun getRecordsFlowForUI(): LiveData<List<DatabaseDepartmentsComplete>>
+    abstract fun getRecordsDetailedFlowForUI(): LiveData<List<DatabaseDepartmentsComplete>>
 }

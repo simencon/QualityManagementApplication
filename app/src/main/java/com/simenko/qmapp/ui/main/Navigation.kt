@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.InvestigationsKey
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.Screen
@@ -59,6 +60,7 @@ fun Navigation(
             (LocalContext.current as MainActivityCompose).initInvModel(invModel)
             QMAppTheme {
                 InvestigationsMainComposition(
+                    navController = navController,
                     modifier = Modifier.padding(all = 0.dp),
                     mainScreenPadding = mainScreenPadding,
                     processControlOnly = it.arguments?.getBoolean(InvestigationsKey.str)?:false
@@ -67,14 +69,20 @@ fun Navigation(
         }
 
         composable(
-            route = Screen.Main.OrderAddEdit.route
+            route = Screen.Main.OrderAddEdit.route + "/{${CurrentOrderIdKey.str}}",
+            arguments = listOf(
+                navArgument(CurrentOrderIdKey.str) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                }
+            )
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
             QMAppTheme {
                 OrderForm(
                     actionType = ActionType.ADD_ORDER,
-                    parentId = NoRecord.num
+                    orderId = it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num
                 )
             }
         }

@@ -182,20 +182,20 @@ class NewItemActivity : ComponentActivity() {
                 ) { padding ->
 
                     when {
-                        actionTypeEnum == ActionType.ADD_ORDER -> {
-                            OrderForm(
-                                modifier = Modifier.padding(padding),
-                                actionType = actionTypeEnum,
-                                parentId = NoRecord.num,
-                            )
-                        }
-                        actionTypeEnum == ActionType.EDIT_ORDER -> {
-                            OrderForm(
-                                modifier = Modifier.padding(padding),
-                                actionType = actionTypeEnum,
-                                parentId = NoRecord.num,
-                            )
-                        }
+//                        actionTypeEnum == ActionType.ADD_ORDER -> {
+//                            OrderForm(
+//                                modifier = Modifier.padding(padding),
+//                                actionType = actionTypeEnum,
+//                                parentId = NoRecord.num,
+//                            )
+//                        }
+//                        actionTypeEnum == ActionType.EDIT_ORDER -> {
+//                            OrderForm(
+//                                modifier = Modifier.padding(padding),
+//                                actionType = actionTypeEnum,
+//                                parentId = NoRecord.num,
+//                            )
+//                        }
                         (actionTypeEnum == ActionType.ADD_SUB_ORDER ||
                                 actionTypeEnum == ActionType.ADD_SUB_ORDER_STAND_ALONE) -> {
                             SubOrderForm(

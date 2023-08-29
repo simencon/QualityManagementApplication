@@ -20,14 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.neworder.steps.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
     actionType: ActionType,
-    parentId: Int
+    orderId: Int
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
@@ -40,35 +44,28 @@ fun OrderForm(
         }
     )
 
+    LaunchedEffect(orderId) {
+        if (orderId != NoRecord.num) {
+            withContext(Dispatchers.Default) {
+                delay(50L)
+                viewModel.loadCurrentOrder(orderId)
+            }
+        }
+    }
+
     Box(Modifier.pullRefresh(pullRefreshState)) {
         Column(
             modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            ButtonsSection(title = R.string.select_type) {
-                TypesSelection(
-                    modifier = Modifier.padding(top = 0.dp)
-                )
-            }
-            ButtonsSection(title = R.string.select_reason) {
-                ReasonsSelection(
-                    modifier = Modifier.padding(top = 0.dp)
-                )
-            }
-            ButtonsSection(title = R.string.select_customer) {
-                CustomersSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
+            ButtonsSection(title = R.string.select_type) { TypesSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_customer) { CustomersSelection(modifier = Modifier.padding(top = 0.dp)) }
 
             ButtonsSection(title = R.string.select_placer) {
                 SearchBarProducts(Modifier.padding(horizontal = 16.dp))
                 Spacer(Modifier.height(16.dp))
-                PlacersSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
+                PlacersSelection(modifier = Modifier.padding(top = 0.dp))
             }
 
             Spacer(Modifier.height((16 + 56).dp))

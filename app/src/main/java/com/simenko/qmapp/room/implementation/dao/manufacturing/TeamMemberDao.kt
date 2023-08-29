@@ -26,7 +26,10 @@ abstract class TeamMemberDao : DaoBaseModel<DatabaseTeamMember> {
     @Query("SELECT * FROM `8_team_members` ORDER BY fullName ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseTeamMember>>
 
+    @Query("SELECT * FROM `8_team_members` ORDER BY fullName ASC")
+    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseTeamMember>>
+
     @Transaction
     @Query("SELECT * FROM '8_team_members' ORDER BY fullName ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseTeamMemberComplete>>
+    abstract fun getRecordsCompleteFlowForUI(): Flow<List<DatabaseTeamMemberComplete>>
 }

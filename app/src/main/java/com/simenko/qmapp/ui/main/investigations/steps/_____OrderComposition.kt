@@ -53,7 +53,8 @@ private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickEdit: (Int) -> Unit
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
@@ -66,15 +67,7 @@ fun Orders(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> {
-        {
-            launchNewItemActivityForResult(
-                context as MainActivity,
-                ActionType.EDIT_ORDER.ordinal,
-                it
-            )
-        }
-    }
+    val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
 
     val listState = rememberLazyListState()
 
@@ -567,17 +560,5 @@ fun OrderDetails(
             modifier = Modifier,
             parentId = orderId
         )
-    }
-}
-
-@Preview(name = "Light Mode Order", showBackground = true, widthDp = 409)
-@Composable
-fun MyOrderPreview() {
-    QMAppTheme {
-//        Order(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(vertical = 1.5.dp)
-//        )
     }
 }
