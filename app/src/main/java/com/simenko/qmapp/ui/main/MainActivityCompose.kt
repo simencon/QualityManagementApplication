@@ -95,12 +95,12 @@ class MainActivityCompose : ComponentActivity() {
 
                     if (id != selectedDrawerMenuItemId.value) {
                         selectedDrawerMenuItemId.value = id
-                        when (id) {
-                            Screen.Main.Employees.route -> navController.navigate(Screen.Main.Employees.route) { popUpTo(0) }
-                            Screen.Main.AllInvestigations.route -> navController.navigate(Screen.Main.AllInvestigations.withArgs("false")) { popUpTo(0) }
-                            Screen.Main.ProcessControl.route -> navController.navigate(Screen.Main.AllInvestigations.withArgs("true")) { popUpTo(0) }
-                            Screen.Main.Settings.route -> navController.navigate(Screen.Main.Settings.route) { popUpTo(0) }
-                            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+
+                        Screen.resolveRoute(id).let {
+                            if (it != null)
+                                navController.navigate(it.first) { popUpTo(it.second) }
+                            else
+                                Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -184,7 +184,7 @@ class MainActivityCompose : ComponentActivity() {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
                                         Screen.Main.AllInvestigations.route -> invModel.uploadNewInvestigations()
                                         Screen.Main.ProcessControl.route -> invModel.uploadNewInvestigations()
-                                        
+
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))
                                             delay(3000)
@@ -205,11 +205,11 @@ class MainActivityCompose : ComponentActivity() {
                                         .padding(it)
                                         .pullRefresh(pullRefreshState),
                                     it,
-                                    MenuItem.getStartingDrawerMenuItem().id,
+                                    Screen.resolveRoute(MenuItem.getStartingDrawerMenuItem().id)!!.first,
                                     navController
                                 )
                                 PullRefreshIndicator(
-                                    refreshing = observerLoadingProcess!!,
+                                    refreshing = observerLoadingProcess,
                                     state = pullRefreshState,
                                     modifier = Modifier
                                         .padding(it)

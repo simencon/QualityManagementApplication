@@ -10,7 +10,7 @@ import androidx.navigation.NavController
 
 sealed class Screen(val route: String) {
 
-    object LoggedOut: Screen("logged_out") {
+    object LoggedOut : Screen("logged_out") {
         object Registration : Screen("registration") {
             object EnterDetails : Screen("enter_details")
             object TermsAndConditions : Screen("terms_and_conditions")
@@ -22,15 +22,19 @@ sealed class Screen(val route: String) {
     }
 
     object Main : Screen("main") {
-        object CompanyProfile: Screen("company_profile")
-        object Employees: Screen("employees")
-        object CompanyStructure: Screen("company_structure")
-        object CompanyProducts: Screen("company_products")
-        object AllInvestigations: Screen("all_investigations")
-        object ProcessControl: Screen("process_control")
-        object ScrapLevel: Screen("scrap_level")
-        object Settings: Screen("settings")
-        object NewOrder : Screen("new_order")
+        object CompanyProfile : Screen("company_profile")
+        object Employees : Screen("employees")
+        object CompanyStructure : Screen("company_structure")
+        object CompanyProducts : Screen("company_products")
+        object Investigations : Screen("all_investigations") {
+            object Orders : Screen("orders")
+            object NewOrder : Screen("new_order")
+        }
+
+        object AllInvestigations : Screen("all_investigations")
+        object ProcessControl : Screen("process_control")
+        object ScrapLevel : Screen("scrap_level")
+        object Settings : Screen("settings")
     }
 
     fun withArgs(vararg args: String) = buildString {
@@ -38,6 +42,17 @@ sealed class Screen(val route: String) {
         args.forEach { arg ->
             append("/$arg")
         }
+    }
+
+    companion object {
+        fun resolveRoute(route: String): Pair<String, Int>? =
+            when (route) {
+                Main.Employees.route -> Pair(route, 0)
+                Main.AllInvestigations.route -> Pair(Main.AllInvestigations.withArgs("false"), 0)
+                Main.ProcessControl.route -> Pair(Main.AllInvestigations.withArgs("true"), 0)
+                Main.Settings.route -> Pair(route, 0)
+                else -> null
+            }
     }
 }
 

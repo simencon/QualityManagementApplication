@@ -454,7 +454,7 @@ data class MenuItem(
     val category: MenuGroup
 ) {
     companion object {
-        fun getStartingDrawerMenuItem() = navigationAndActionItems.find { it.id == Screen.Main.Employees.route } ?: navigationAndActionItems[4]
+        fun getStartingDrawerMenuItem() = navigationAndActionItems.find { it.id == Screen.Main.ProcessControl.route } ?: navigationAndActionItems[4]
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
         fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id }

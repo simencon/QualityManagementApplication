@@ -15,6 +15,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -39,11 +40,50 @@ fun Navigation(
                 TeamComposition()
             }
         }
+
+//        navigation(
+//            startDestination = Screen.Main.Investigations.route,
+//            route = Screen.Main.Investigations.Orders.route
+//        ) {
+//            composable(route = Screen.Main.Investigations.Orders.route) {
+//                val invModel: InvestigationsViewModel = hiltViewModel()
+//                (LocalContext.current as MainActivityCompose).initInvModel(invModel)
+//                QMAppTheme {
+//                    InvestigationsMainComposition(
+//                        modifier = Modifier.padding(all = 0.dp),
+//                        mainScreenPadding = mainScreenPadding,
+//                        processControlOnly = false
+//                    )
+//                }
+//            }
+//
+//            composable(
+//                route = Screen.Main.Investigations.Orders.route + "/{processControlOnly}",
+//                arguments = listOf(
+//                    navArgument("processControlOnly") {
+//                        type = NavType.BoolType
+//                        defaultValue = false
+//                    }
+//                )
+//            ) {
+//                val invModel: InvestigationsViewModel = hiltViewModel()
+//                (LocalContext.current as MainActivityCompose).initInvModel(invModel)
+//                QMAppTheme {
+//                    InvestigationsMainComposition(
+//                        modifier = Modifier.padding(all = 0.dp),
+//                        mainScreenPadding = mainScreenPadding,
+//                        processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
+//                    )
+//                }
+//            }
+//        }
+
         composable(
             route = Screen.Main.AllInvestigations.route + "/{processControlOnly}",
             arguments = listOf(
                 navArgument("processControlOnly") {
                     type = NavType.BoolType
+                    defaultValue = false
                 }
             )
         ) {
@@ -53,7 +93,7 @@ fun Navigation(
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
                     mainScreenPadding = mainScreenPadding,
-                    processControlOnly = it.arguments?.getBoolean("processControlOnly")?:false
+                    processControlOnly = it.arguments?.getBoolean("processControlOnly")?:true
                 )
             }
         }
