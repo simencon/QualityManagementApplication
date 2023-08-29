@@ -204,6 +204,7 @@ class MainActivityCompose : ComponentActivity() {
                                     Modifier
                                         .padding(it)
                                         .pullRefresh(pullRefreshState),
+                                    it,
                                     MenuItem.getStartingDrawerMenuItem().id,
                                     navController
                                 )

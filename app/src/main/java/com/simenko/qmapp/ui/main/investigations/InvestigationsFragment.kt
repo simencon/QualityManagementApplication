@@ -1,26 +1,16 @@
 package com.simenko.qmapp.ui.main.investigations
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.unit.dp
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.simenko.qmapp.R
 import com.simenko.qmapp.databinding.FragmentInvestigationsBinding
-import com.simenko.qmapp.domain.OrderTypeProcessOnly
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel.Companion.getStatus
-import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
-import com.simenko.qmapp.utils.StringUtils
-
-private const val TAG = "InvestigationsFragment"
 
 class InvestigationsFragment() :
     Fragment() {
@@ -83,13 +73,13 @@ class InvestigationsFragment() :
                 ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
             )
             setContent {
-                InvestigationsMainComposition(
-                    modifier = Modifier
-                        .padding(
-                            vertical = 2.dp,
-                            horizontal = 2.dp
-                        )
-                )
+//                InvestigationsMainComposition(
+//                    modifier = Modifier
+//                        .padding(
+//                            vertical = 2.dp,
+//                            horizontal = 2.dp
+//                        )
+//                )
             }
         }
     }

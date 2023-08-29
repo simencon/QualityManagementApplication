@@ -3,11 +3,14 @@ package com.simenko.qmapp.ui.main.investigations.steps
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -16,6 +19,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +39,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
+    mainScreenPadding: PaddingValues,
     processControlOnly: Boolean = false
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
@@ -42,15 +47,21 @@ fun InvestigationsMainComposition(
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val tabRowHeight = 36.dp
+    val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - tabRowHeight
 
     val currentTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
 
-    val rowState = rememberScrollState()
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
 
     val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
     val dialogInput by invModel.dialogInput.observeAsState()
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(InvStatus.ALL.ordinal) }
 
+    /**
+     * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
+     * */
     var screenSizes: Triple<Dp, Dp, Dp> by remember {
         mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
     }
@@ -72,81 +83,82 @@ fun InvestigationsMainComposition(
             invModel.setCurrentOrdersFilter(status = InvStatus.values()[selectedTabIndex].statusId)
     }
 
+    val limitToResize = 720
+
     fun updateSizes(samplesFactor: Int) {
         screenSizes = Triple(
             when {
-                screenWidth > 720 -> screenWidth.dp
+                screenWidth > limitToResize -> screenWidth.dp
                 else -> (screenWidth * (1 + 0.88 * samplesFactor)).dp
             },
             when (samplesFactor) {
                 0 -> screenWidth.dp
                 else -> {
                     when {
-                        screenWidth > 720 -> (screenWidth * 0.57).dp
+                        screenWidth > limitToResize -> (screenWidth * 0.57).dp
                         else -> screenWidth.dp
                     }
                 }
             },
             when {
-                screenWidth > 720 -> (screenWidth * 0.43 * samplesFactor).dp
+                screenWidth > limitToResize -> (screenWidth * 0.43 * samplesFactor).dp
                 else -> (screenWidth * 0.88 * samplesFactor).dp
             }
         )
     }
 
     suspend fun animateScroll(samplesFactor: Int) {
-        if (samplesFactor == 1)
-            rowState.animateScrollTo(
-                rowState.maxValue, tween(
-                    durationMillis = ANIMATION_DURATION,
-                    easing = LinearOutSlowInEasing
-                )
+        horizontalScrollState.animateScrollTo(
+            samplesFactor * horizontalScrollState.maxValue, tween(
+                durationMillis = ANIMATION_DURATION,
+                easing = LinearOutSlowInEasing
             )
-        else if (samplesFactor == 0) {
-            rowState.animateScrollTo(
-                0, tween(
-                    durationMillis = ANIMATION_DURATION,
-                    easing = LinearOutSlowInEasing
-                )
-            )
-        }
+        )
     }
 
     LaunchedEffect(currentTask) {
-        println("current task is: $currentTask")
         when (currentTask == NoRecord) {
             true -> {
-                if (screenWidth <= 720) animateScroll(0)
+                if (screenWidth <= limitToResize) animateScroll(0)
                 updateSizes(0)
             }
+
             false -> {
                 updateSizes(1)
 //                ToDo find a way to run animation exactly when screen resized
-                delay(100L)
-                if (screenWidth <= 720) animateScroll(1)
+                delay(50L)
+                if (screenWidth <= limitToResize) animateScroll(1)
             }
         }
     }
 
     QMAppTheme {
         Column(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
         ) {
             TabRow(selectedTabIndex = selectedTabIndex) {
                 InvStatus.values().forEach {
+                    val selected = selectedTabIndex == it.ordinal
                     Tab(
-                        modifier = Modifier.height(36.dp),
-                        selected = selectedTabIndex == it.ordinal,
+                        modifier = Modifier.height(tabRowHeight),
+                        selected = selected,
                         onClick = { onTabSelectedLambda(it, it.ordinal) }
                     ) {
-                        Text(text = StringUtils.getWithSpaces(it.name), fontSize = 12.sp)
+                        Text(
+                            text = StringUtils.getWithSpaces(it.name),
+                            fontSize = 12.sp,
+                            style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
+                        )
                     }
                 }
             }
             Row(
                 Modifier
-                    .horizontalScroll(rowState)
+                    .verticalScroll(verticalScrollState)
+                    .horizontalScroll(horizontalScrollState)
                     .width(screenSizes.first)
+                    .height(screenHeight)
             ) {
                 if (processControlOnly)
                     SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
