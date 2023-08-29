@@ -121,6 +121,8 @@ fun InvestigationsMainComposition(
             }
             false -> {
                 updateSizes(1)
+//                ToDo find a way to run animation exactly when screen resized
+                delay(100L)
                 if (screenWidth <= 720) animateScroll(1)
             }
         }
