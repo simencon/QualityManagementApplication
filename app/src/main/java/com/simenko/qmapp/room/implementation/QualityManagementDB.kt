@@ -3,15 +3,19 @@ package com.simenko.qmapp.room.implementation
 import androidx.room.*
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.implementation.dao.Converters
-import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
 import com.simenko.qmapp.room.implementation.dao.ProductsDao
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
+import com.simenko.qmapp.room.implementation.dao.manufacturing.ChannelDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.CompanyDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.DepartmentDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.LineDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationsFlowDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.SubDepartmentDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.TeamMemberDao
 
 @Database(
     entities = [
-        DatabasePositionLevel::class,
         DatabaseTeamMember::class,
         DatabaseCompany::class,
         DatabaseDepartment::class,
@@ -81,9 +85,14 @@ import com.simenko.qmapp.room.implementation.dao.manufacturing.TeamMemberDao
 )
 @TypeConverters(Converters::class)
 abstract class QualityManagementDB : RoomDatabase() {
-    abstract val manufacturingDao: ManufacturingDao
     abstract val teamMemberDao: TeamMemberDao
+    abstract val companyDao: CompanyDao
     abstract val departmentDao: DepartmentDao
+    abstract val subDepartmentDao: SubDepartmentDao
+    abstract val channelDao: ChannelDao
+    abstract val lineDao: LineDao
+    abstract val operationDao: OperationDao
+    abstract val operationsFlowDao: OperationsFlowDao
 
     abstract val productsDao: ProductsDao
 

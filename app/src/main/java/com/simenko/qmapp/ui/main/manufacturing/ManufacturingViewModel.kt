@@ -21,9 +21,8 @@ class ManufacturingViewModel @Inject constructor(
     private val isNetworkError = MutableLiveData(false)
 
     val departmentsDetailed = manufacturingRepository.departmentsDetailed
-    val channels = manufacturingRepository.channels
-    val lines = manufacturingRepository.lines
-    val operations = manufacturingRepository.operations
+    val lines = manufacturingRepository.lines.asLiveData()
+    val operations = manufacturingRepository.operations.asLiveData()
 
 
     var currentTitle = MutableLiveData("")
@@ -40,15 +39,14 @@ class ManufacturingViewModel @Inject constructor(
             try {
                 isLoadingInProgress.value = true
 
-                manufacturingRepository.refreshPositionLevels()
                 manufacturingRepository.syncTeamMembers()
-                manufacturingRepository.refreshCompanies()
+                manufacturingRepository.syncCompanies()
                 manufacturingRepository.syncDepartments()
-                manufacturingRepository.refreshSubDepartments()
-                manufacturingRepository.refreshManufacturingChannels()
-                manufacturingRepository.refreshManufacturingLines()
-                manufacturingRepository.refreshManufacturingOperations()
-                manufacturingRepository.refreshOperationsFlows()
+                manufacturingRepository.syncSubDepartments()
+                manufacturingRepository.syncChannels()
+                manufacturingRepository.syncLines()
+                manufacturingRepository.syncOperations()
+                manufacturingRepository.syncOperationsFlows()
 
                 isLoadingInProgress.value = false
             } catch (networkError: IOException) {

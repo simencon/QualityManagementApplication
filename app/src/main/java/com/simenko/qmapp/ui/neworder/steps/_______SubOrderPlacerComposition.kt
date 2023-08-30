@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.asLiveData
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ZeroValue
@@ -27,7 +28,7 @@ private const val TAG = "InputInvestigationTypeComposition"
 
 fun filterAllAfterSubOrderPlacers(appModel: NewItemViewModel, selectedId: Int, clear: Boolean = false) {
     appModel.channelsMutable.performFiltration(
-        s = appModel.channels,
+        s = appModel.channels.asLiveData(),
         action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
         trigger = appModel.pairedTrigger,
         p1Id = appModel.currentSubOrder.value?.subOrder?.subDepartmentId ?: NoRecord.num,

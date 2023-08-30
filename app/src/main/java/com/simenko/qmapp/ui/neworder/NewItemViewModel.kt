@@ -197,7 +197,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(channelsMutable.value, it) }
         }
 
-    val lines = manufacturingRepository.lines
+    val lines = manufacturingRepository.lines.asLiveData()
     val linesMutable = MutableLiveData<MutableList<DomainManufacturingLine>>(mutableListOf())
     val linesMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>> =
         MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>>().apply {
@@ -215,7 +215,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(itemVersionsCompleteMutable.value, it) }
         }
 
-    val operations = manufacturingRepository.operations
+    val operations = manufacturingRepository.operations.asLiveData()
     val operationsMutable =
         MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
     val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
@@ -224,7 +224,7 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(operationsMutable.value, it) }
         }
 
-    val operationsFlows = manufacturingRepository.operationsFlows
+    val operationsFlows = manufacturingRepository.operationsFlows.asLiveData()
 
     val characteristics = productsRepository.characteristics
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())

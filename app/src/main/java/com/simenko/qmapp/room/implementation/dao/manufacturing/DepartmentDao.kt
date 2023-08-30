@@ -14,9 +14,6 @@ abstract class DepartmentDao: DaoBaseModel<DatabaseDepartment> {
     @Query("SELECT * FROM `10_departments` ORDER BY depOrder ASC")
     abstract override fun getRecords(): List<DatabaseDepartment>
 
-    /**
-     * as parent is used lineId but in fact should be companyId in future
-     * */
     @Query("select * from `10_departments` where companyId = :parentId order by depOrder asc")
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseDepartment>
 

@@ -7,18 +7,6 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
-data class DomainPositionLevel(
-    var id: Int,
-    var levelDescription: String
-) : DomainBaseModel<DatabasePositionLevel>() {
-    override fun getRecordId() = id
-    override fun getParentId() = NoRecord.num
-    override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabasePositionLevel {
-        return ObjectTransformer(DomainPositionLevel::class, DatabasePositionLevel::class).transform(this)
-    }
-}
-
 @Stable
 data class DomainTeamMember(
     var id: Int = NoRecord.num,

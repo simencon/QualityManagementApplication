@@ -28,26 +28,23 @@ interface ManufacturingService {
     suspend fun editTeamMember(@Path("id") id: Int, @Body body: NetworkTeamMember): Response<NetworkTeamMember>
 
     @GET(COMPANIES)
-    suspend fun getCompanies(): List<NetworkCompany>
+    suspend fun getCompanies(): Response<List<NetworkCompany>>
 
     @GET(DEPARTMENTS)
     suspend fun getDepartments(): Response<List<NetworkDepartment>>
 
     @GET(SUB_DEPARTMENTS)
-    suspend fun getSubDepartments(): List<NetworkSubDepartment>
+    suspend fun getSubDepartments(): Response<List<NetworkSubDepartment>>
 
     @GET(MANUFACTURING_CHANNELS)
-    suspend fun getManufacturingChannels(): List<NetworkManufacturingChannel>
+    suspend fun getManufacturingChannels(): Response<List<NetworkManufacturingChannel>>
 
     @GET(MANUFACTURING_LINES)
-    suspend fun getManufacturingLines(): List<NetworkManufacturingLine>
+    suspend fun getManufacturingLines(): Response<List<NetworkManufacturingLine>>
 
     @GET(MANUFACTURING_OPERATIONS)
-    suspend fun getManufacturingOperations(): List<NetworkManufacturingOperation>
+    suspend fun getManufacturingOperations(): Response<List<NetworkManufacturingOperation>>
 
     @GET(MANUFACTURING_OPERATIONS_FLOWS)
-    suspend fun getOperationsFlows(): List<NetworkOperationsFlow>
-
-    @GET(POSITIONS_LEVELS)
-    suspend fun getPositionLevels(): List<NetworkPositionLevel>
+    suspend fun getOperationsFlows(): Response<List<NetworkOperationsFlow>>
 }
