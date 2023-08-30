@@ -376,8 +376,8 @@ class InvestigationsRepository @Inject constructor(
     /**
      * New order related data
      * */
-    val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        database.inputForOrderDao.getRecordsForUI().map { list ->
+    val inputForOrder: Flow<List<DomainInputForOrder>> =
+        database.inputForOrderDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
         }
 

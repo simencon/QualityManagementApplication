@@ -34,52 +34,17 @@ fun SubOrderForm(
                 .verticalScroll(rememberScrollState())
         ) {
             if (addEditMode == AddEditMode.ADD_SUB_ORDER_STAND_ALONE ||
-                addEditMode == AddEditMode.EDIT_SUB_ORDER_STAND_ALONE) {
-                ButtonsSection(title = R.string.select_reason) {
-                    ReasonsSelection(
-                        modifier = Modifier.padding(top = 0.dp)
-                    )
-                }
+                addEditMode == AddEditMode.EDIT_SUB_ORDER_STAND_ALONE
+            ) {
+                ButtonsSection(title = R.string.select_reason) { ReasonsSelection(modifier = Modifier.padding(top = 0.dp)) }
             }
-            ButtonsSection(title = R.string.select_department) {
-                DepartmentsSelection(modifier = Modifier.padding(top = 0.dp))
-            }
-            ButtonsSection(title = R.string.select_sub_department) {
-                SubDepartmentsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
-            ButtonsSection(title = R.string.select_ordered_by) {
-                SubOrderPlacersSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
-            ButtonsSection(title = R.string.select_channel) {
-                ChannelsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
-            ButtonsSection(title = R.string.select_line) {
-                LinesSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
-            ButtonsSection(title = R.string.select_item_type) {
-                VersionsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
-            ButtonsSection(title = R.string.select_operation) {
-                OperationsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
-            }
+            ButtonsSection(title = R.string.select_department) { DepartmentsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_sub_department) { SubDepartmentsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_ordered_by) { SubOrderPlacersSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_channel) { ChannelsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_line) { LinesSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_item_type) { VersionsSelection(modifier = Modifier.padding(top = 0.dp)) }
+            ButtonsSection(title = R.string.select_operation) { OperationsSelection(modifier = Modifier.padding(top = 0.dp)) }
             ButtonsSectionQuantity(title = R.string.select_quantity) {
                 QuantitySelection(
                     modifier = Modifier.padding(top = 0.dp)

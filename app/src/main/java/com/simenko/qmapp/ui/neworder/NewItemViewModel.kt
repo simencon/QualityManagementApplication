@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -107,6 +108,15 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectOrderReason(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(
+            subOrder = _currentSubOrder.value.subOrder.copy(
+                departmentId = NoRecord.num,
+                subDepartmentId = NoRecord.num,
+                orderedById = NoRecord.num,
+                channelId = NoRecord.num,
+                lineId = NoRecord.num
+            )
+        )
         _currentOrder.value = _currentOrder.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
     }
 
@@ -145,84 +155,207 @@ class NewItemViewModel @Inject constructor(
     }
 
 
-
+    private val _inputForOrder: Flow<List<DomainInputForOrder>> = repository.inputForOrder
 
 
     private val _subOrderDepartments: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
     val subOrderDepartments: StateFlow<List<DomainDepartment>> = _subOrderDepartments.flatMapLatest { departments ->
         _currentSubOrder.flatMapLatest { subOrder ->
             _currentOrder.flatMapLatest { currentOrder ->
-                if (currentOrder.reasonId != NoRecord.num) {
-                    val cpy = mutableListOf<DomainDepartment>()
-                    departments.forEach { cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.departmentId)) }
-                    flow { emit(cpy) }
-                } else {
-                    flow { emit(emptyList<DomainDepartment>()) }
+                _inputForOrder.flatMapLatest { master ->
+                    if (currentOrder.reasonId != NoRecord.num) {
+                        val ids = master.sortedBy { it.depOrder }.map { it.depId }.toSet()
+                        val cpy = mutableListOf<DomainDepartment>()
+                        ids.forEach { id ->
+                            departments.findLast { it.id == id }?.let {
+                                cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.departmentId))
+                            }
+                        }
+                        flow { emit(cpy) }
+                    } else {
+                        flow { emit(emptyList<DomainDepartment>()) }
+                    }
                 }
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
     fun selectSubOrderDepartment(id: Int) {
-        _currentSubOrder.value = _currentSubOrder.value.copy(subOrder = _currentSubOrder.value.subOrder.copy(departmentId = id))
+        _currentSubOrder.value = _currentSubOrder.value.copy(
+            subOrder = _currentSubOrder.value.subOrder.copy(
+                departmentId = id,
+                subDepartmentId = NoRecord.num,
+                orderedById = NoRecord.num,
+                channelId = NoRecord.num,
+                lineId = NoRecord.num
+            )
+        )
+    }
+
+
+    private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments
+    val subOrderSubDepartments: StateFlow<List<DomainSubDepartment>> = _subOrderSubDepartments.flatMapLatest { subDepartments ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _inputForOrder.flatMapLatest { master ->
+                if (subOrder.subOrder.departmentId != NoRecord.num) {
+                    val ids = master.filter { it.depId == subOrder.subOrder.departmentId }.sortedBy { it.subDepOrder }.map { it.subDepId }.toSet()
+                    val cpy = mutableListOf<DomainSubDepartment>()
+                    ids.forEach { id ->
+                        subDepartments.findLast { it.id == id }?.let {
+                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.departmentId))
+                        }
+                    }
+                    flow { emit(cpy) }
+                } else {
+                    flow { emit(emptyList<DomainSubDepartment>()) }
+                }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectSubOrderSubDepartment(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(
+            subOrder = _currentSubOrder.value.subOrder.copy(
+                subDepartmentId = id,
+                orderedById = NoRecord.num,
+                channelId = NoRecord.num,
+                lineId = NoRecord.num
+            )
+        )
+    }
+
+
+    private val _subOrderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
+    val subOrderPlacers: StateFlow<List<DomainTeamMember>> = _subOrderPlacers.flatMapLatest { placers ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            if (subOrder.subOrder.subDepartmentId != NoRecord.num) {
+                val cpy = mutableListOf<DomainTeamMember>()
+                placers.filter { it.departmentId == subOrder.subOrder.departmentId }
+                    .forEach { cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.subDepartmentId)) }
+                flow { emit(cpy) }
+            } else {
+                flow { emit(emptyList<DomainTeamMember>()) }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectSubOrderPlacer(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(
+            subOrder = _currentSubOrder.value.subOrder.copy(
+                orderedById = id,
+                channelId = NoRecord.num,
+                lineId = NoRecord.num
+            )
+        )
+    }
+
+
+    private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels
+    val subOrderChannels: StateFlow<List<DomainManufacturingChannel>> = _subOrderChannels.flatMapLatest { channels ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _inputForOrder.flatMapLatest { master ->
+                if (subOrder.subOrder.orderedById != NoRecord.num) {
+                    val ids = master.filter { it.subDepId == subOrder.subOrder.subDepartmentId }.sortedBy { it.channelOrder }.map { it.chId }.toSet()
+                    val cpy = mutableListOf<DomainManufacturingChannel>()
+                    ids.forEach { id ->
+                        channels.findLast { it.id == id }?.let {
+                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.channelId))
+                        }
+                    }
+                    flow { emit(cpy) }
+                } else {
+                    flow { emit(emptyList<DomainManufacturingChannel>()) }
+                }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectSubOrderChannel(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(subOrder = _currentSubOrder.value.subOrder.copy(channelId = id, lineId = NoRecord.num))
+    }
+
+
+    private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines
+    val subOrderLines: StateFlow<List<DomainManufacturingLine>> = _subOrderLines.flatMapLatest { lines ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _inputForOrder.flatMapLatest { master ->
+                if (subOrder.subOrder.channelId != NoRecord.num) {
+                    val ids = master.filter { it.chId == subOrder.subOrder.channelId }.sortedBy { it.lineOrder }.map { it.lineId }.toSet()
+                    val cpy = mutableListOf<DomainManufacturingLine>()
+                    ids.forEach { id ->
+                        lines.findLast { it.id == id }?.let {
+                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.lineId))
+                        }
+                    }
+                    flow { emit(cpy) }
+                } else {
+                    flow { emit(emptyList<DomainManufacturingLine>()) }
+                }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectSubOrderLine(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(subOrder = _currentSubOrder.value.subOrder.copy(lineId = id))
+    }
+
+
+    private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete
+    val subOrderItemVersions: StateFlow<List<DomainItemVersionComplete>> = _subOrderItemVersions.flatMapLatest { itemVersions ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _inputForOrder.flatMapLatest { master ->
+                if (subOrder.subOrder.lineId != NoRecord.num) {
+                    val ids = master.filter { it.lineId == subOrder.subOrder.lineId }
+                        .sortedBy { it.itemDesignation }.map { it.itemPrefix + it.itemVersionId }.toSet()
+                    val cpy = mutableListOf<DomainItemVersionComplete>()
+                    ids.forEach { id ->
+                        itemVersions.findLast { it.itemVersion.fId == id }?.let {
+                            cpy.add(it.copy(isSelected = it.itemVersion.fId == (subOrder.subOrder.itemPreffix + subOrder.subOrder.itemVersionId)))
+                        }
+                    }
+                    flow { emit(cpy) }
+                } else {
+                    flow { emit(emptyList<DomainItemVersionComplete>()) }
+                }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectSubOrderItemVersion(id: Triple<Char, Int, Int>) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(
+            subOrder = _currentSubOrder.value.subOrder.copy(itemPreffix = id.first.toString(), itemTypeId = id.second, itemVersionId = id.third)
+        )
     }
 
 
 
 
+    private val _subOrderOperations: Flow<List<DomainManufacturingOperation>> = manufacturingRepository.operations
+    val subOrderOperations: StateFlow<List<DomainManufacturingOperation>> = _subOrderOperations.flatMapLatest { operations ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _inputForOrder.flatMapLatest { master ->
+                if (subOrder.subOrder.itemVersionId != NoRecord.num) {
+                    val ids = master.filter { (it.itemPrefix + it.itemVersionId) == (subOrder.subOrder.itemPreffix + subOrder.subOrder.itemVersionId) }
+                        .sortedBy { it.operationOrder }.map { it.operationId }.toSet()
+                    val cpy = mutableListOf<DomainManufacturingOperation>()
+                    ids.forEach { id ->
+                        operations.findLast { it.id == id }?.let {
+                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.operationId))
+                        }
+                    }
+                    flow { emit(cpy) }
+                } else {
+                    flow { emit(emptyList<DomainManufacturingOperation>()) }
+                }
+            }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-
+    fun selectSubOrderOperation(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(subOrder = _currentSubOrder.value.subOrder.copy(operationId = id))
+    }
 
     val inputForOrder = repository.inputForOrder
-
-    val subDepartments = manufacturingRepository.subDepartments
-    val subDepartmentsMutable = MutableLiveData<MutableList<DomainSubDepartment>>(mutableListOf())
-    val subDepartmentsMediator: MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainSubDepartment>?, Boolean?>>().apply {
-            addSource(subDepartmentsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(subDepartmentsMutable.value, it) }
-        }
-
-    val subOrderPlacersMutable = MutableLiveData<MutableList<DomainTeamMember>>(mutableListOf())
-    val subOrderPlacersMediator: MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainTeamMember>?, Boolean?>>().apply {
-            addSource(subOrderPlacersMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(subOrderPlacersMutable.value, it) }
-        }
-
-    val channels = manufacturingRepository.channels
-    val channelsMutable = MutableLiveData<MutableList<DomainManufacturingChannel>>(mutableListOf())
-    val channelsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingChannel>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainManufacturingChannel>?, Boolean?>>().apply {
-            addSource(channelsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(channelsMutable.value, it) }
-        }
-
-    val lines = manufacturingRepository.lines.asLiveData()
-    val linesMutable = MutableLiveData<MutableList<DomainManufacturingLine>>(mutableListOf())
-    val linesMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainManufacturingLine>?, Boolean?>>().apply {
-            addSource(linesMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(linesMutable.value, it) }
-        }
-
-    val itemVersionsComplete = productsRepository.itemVersionsComplete
-
-    val itemVersionsCompleteMutable =
-        MutableLiveData<MutableList<DomainItemVersionComplete>>(mutableListOf())
-    val itemVersionsMediator: MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainItemVersionComplete>?, Boolean?>>().apply {
-            addSource(itemVersionsCompleteMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(itemVersionsCompleteMutable.value, it) }
-        }
-
-    val operations = manufacturingRepository.operations.asLiveData()
-    val operationsMutable =
-        MutableLiveData<MutableList<DomainManufacturingOperation>>(mutableListOf())
-    val operationsMediator: MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainManufacturingOperation>?, Boolean?>>().apply {
-            addSource(operationsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(operationsMutable.value, it) }
-        }
 
     val operationsFlows = manufacturingRepository.operationsFlows.asLiveData()
 
@@ -237,8 +370,8 @@ class NewItemViewModel @Inject constructor(
 
     val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
         MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
-            addSource(inputForOrder) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(inputForOrder.value, it) }
+            addSource(inputForOrder.asLiveData()) { value = Pair(it, pairedTrigger.value) }
+            addSource(pairedTrigger) { value = Pair(inputForOrder.asLiveData().value, it) }
         }
 
     fun refreshDataFromRepository() {

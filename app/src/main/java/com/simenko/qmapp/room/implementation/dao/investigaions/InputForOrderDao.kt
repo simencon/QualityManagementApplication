@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseInputForOrder
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class InputForOrderDao : DaoBaseModel<DatabaseInputForOrder> {
@@ -21,4 +22,7 @@ abstract class InputForOrderDao : DaoBaseModel<DatabaseInputForOrder> {
 
     @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseInputForOrder>>
+
+    @Query("SELECT * FROM `1_1_inputForMeasurementRegister` ORDER BY charOrder ASC")
+    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseInputForOrder>>
 }
