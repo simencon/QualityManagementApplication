@@ -176,21 +176,21 @@ class NewItemActivity : ComponentActivity() {
 //                        }
                         (addEditModeEnum == AddEditMode.ADD_SUB_ORDER ||
                                 addEditModeEnum == AddEditMode.ADD_SUB_ORDER_STAND_ALONE) -> {
-                            SubOrderForm(
-                                modifier = Modifier.padding(padding),
-                                viewModel = viewModel,
-                                addEditMode = addEditModeEnum,
-                                parentId = NoRecord.num,
-                            )
+//                            SubOrderForm(
+//                                modifier = Modifier.padding(padding),
+//                                viewModel = viewModel,
+//                                addEditMode = addEditModeEnum,
+//                                parentId = NoRecord.num,
+//                            )
                         }
                         (addEditModeEnum == AddEditMode.EDIT_SUB_ORDER ||
                                 addEditModeEnum == AddEditMode.EDIT_SUB_ORDER_STAND_ALONE) -> {
-                            SubOrderForm(
-                                modifier = Modifier.padding(padding),
-                                viewModel = viewModel,
-                                addEditMode = addEditModeEnum,
-                                parentId = NoRecord.num,
-                            )
+//                            SubOrderForm(
+//                                modifier = Modifier.padding(padding),
+//                                viewModel = viewModel,
+//                                addEditMode = addEditModeEnum,
+//                                parentId = NoRecord.num,
+//                            )
                         }
                     }
                 }
