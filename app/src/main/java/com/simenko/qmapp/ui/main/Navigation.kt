@@ -37,8 +37,7 @@ fun Navigation(
     modifier: Modifier = Modifier,
     mainScreenPadding: PaddingValues,
     initiatedRoute: String,
-    navController: NavHostController,
-    addEditMode: MutableIntState
+    navController: NavHostController
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         composable(route = Screen.Main.Employees.route) {
@@ -78,12 +77,12 @@ fun Navigation(
                 }
             )
         ) {
-            BackHandler {
-                navController.popBackStack()
-                addEditMode.intValue = AddEditMode.NO_MODE.ordinal
-            }
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
+            BackHandler {
+                navController.popBackStack()
+                newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
+            }
             QMAppTheme {
                 OrderForm(
                     addEditMode = AddEditMode.ADD_ORDER,

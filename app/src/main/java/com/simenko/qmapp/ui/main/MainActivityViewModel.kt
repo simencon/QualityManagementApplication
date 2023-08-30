@@ -1,9 +1,7 @@
 package com.simenko.qmapp.ui.main
 
 import androidx.compose.material3.FabPosition
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -41,6 +39,18 @@ class MainActivityViewModel @Inject constructor(
 
     fun onListEnd(position: FabPosition) {
         _fabPosition.value = position
+    }
+
+    private val _selectedDrawerMenuItemId: MutableStateFlow<String> = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
+    val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
+    fun setDrawerMenuItemId(id: String) {
+        this._selectedDrawerMenuItemId.value = id
+    }
+
+    private val _addEditMode: MutableStateFlow<Int> = MutableStateFlow(AddEditMode.NO_MODE.ordinal)
+    val addEditMode: StateFlow<Int> get() = _addEditMode
+    fun setAddEditMode(mode: AddEditMode) {
+        this._addEditMode.value = mode.ordinal
     }
 
     fun refreshMasterDataFromRepository() = viewModelScope.launch {

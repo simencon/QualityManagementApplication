@@ -1,13 +1,17 @@
 package com.simenko.qmapp.ui.neworder
 
 import androidx.lifecycle.*
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.ui.main.AddEditMode
+import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.setMainActivityResult
+import com.simenko.qmapp.ui.neworder.assemblers.checkIfPossibleToSave
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -33,9 +37,19 @@ class NewItemViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
+    private lateinit var navController: NavHostController
+    fun initNavController(controller: NavHostController) {
+        this.navController = controller
+    }
 
-    val isLoadingInProgress = MutableLiveData(false)
-    val isNetworkError = MutableLiveData(false)
+    private lateinit var mainActivityViewModel: MainActivityViewModel
+    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
+        this.mainActivityViewModel = viewModel
+    }
+
+    fun setAddEditMode(mode: AddEditMode) {
+        mainActivityViewModel.setAddEditMode(mode)
+    }
 
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
@@ -213,22 +227,10 @@ class NewItemViewModel @Inject constructor(
             addSource(pairedTrigger) { value = Pair(inputForOrder.value, it) }
         }
 
-    /**
-     *
-     */
-    fun onNetworkErrorShown() {
-        isLoadingInProgress.value = false
-        isNetworkError.value = false
-    }
-
-    /**
-     *
-     */
-
     fun refreshDataFromRepository() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                 repository.syncInvestigationTypes()
                 repository.syncInvestigationReasons()
@@ -241,11 +243,9 @@ class NewItemViewModel @Inject constructor(
                 productsRepository.refreshVersionStatuses()
                 productsRepository.refreshComponentVersions()
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+                mainActivityViewModel.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
             }
         }
     }
@@ -317,55 +317,50 @@ class NewItemViewModel @Inject constructor(
             repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
-                        }
-
+                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
                         Status.SUCCESS -> {
                             postDeleteSubOrderTasks(resource.data!!.id, subOrder)
                             postDeleteSamples(resource.data.id, subOrder)
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            mainActivityViewModel.updateLoadingState(Pair(false, null))
                             setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
                             activity.finish()
                         }
 
-                        Status.ERROR -> {
-                            withContext(Dispatchers.Main) {
-                                isLoadingInProgress.value = false
-                                isNetworkError.value = true
-                            }
-                        }
+                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
             }
         }
     }
 
-    fun postNewOrder(activity: NewItemActivity, order: DomainOrder) {
-        viewModelScope.launch(Dispatchers.IO) {
-            with(repository) { insertOrder(order) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
-                        }
+    fun saveOrder() {
+        if (checkIfPossibleToSave(_currentOrder.value) != null)
+            viewModelScope.launch(Dispatchers.IO) {
+                with(repository) { insertOrder(_currentOrder.value) }.consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> {
+                                mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            }
 
-                        Status.SUCCESS -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
-                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data!!.id)
-                            activity.finish()
-                        }
+                            Status.SUCCESS -> {
+                                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                setAddEditMode(AddEditMode.NO_MODE)
+                                withContext(Dispatchers.Main) {
+                                    navController.popBackStack()
+                                }
+                            }
 
-                        Status.ERROR -> {
-                            withContext(Dispatchers.Main) {
-                                isLoadingInProgress.value = false
-                                isNetworkError.value = true
+                            Status.ERROR -> {
+                                mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                navController.popBackStack()
                             }
                         }
                     }
                 }
             }
-        }
+        else
+            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
@@ -373,21 +368,14 @@ class NewItemViewModel @Inject constructor(
             repository.run { insertOrder(subOrder.order) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
-                        }
+                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                         Status.SUCCESS -> {
                             subOrder.subOrder.orderId = resource.data!!.id
                             postNewSubOrder(activity, subOrder)
                         }
 
-                        Status.ERROR -> {
-                            withContext(Dispatchers.Main) {
-                                isLoadingInProgress.value = false
-                                isNetworkError.value = true
-                            }
-                        }
+                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
             }
@@ -399,21 +387,17 @@ class NewItemViewModel @Inject constructor(
             repository.run { updateSubOrder(subOrder.subOrder) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
-                        }
+                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                         Status.SUCCESS -> {
                             postDeleteSubOrderTasks(resource.data!!.id, subOrder)
                             postDeleteSamples(resource.data.id, subOrder)
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
+                            mainActivityViewModel.updateLoadingState(Pair(false, null))
                             setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
                             activity.finish()
                         }
 
-                        Status.ERROR -> {
-                            withContext(Dispatchers.Main) { isNetworkError.value = true }
-                        }
+                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
             }
@@ -429,19 +413,14 @@ class NewItemViewModel @Inject constructor(
             repository.run { updateOrder(order) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = true }
-                        }
+                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                         Status.SUCCESS -> {
                             setMainActivityResult(activity, activity.addEditModeEnum, resource.data!!.id)
                             activity.finish()
                         }
 
-                        Status.ERROR -> {
-                            withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
-                            isNetworkError.value = false
-                        }
+                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
             }
@@ -451,16 +430,14 @@ class NewItemViewModel @Inject constructor(
     fun syncTasks() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                 repository.syncSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
                 repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+                mainActivityViewModel.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
             }
         }
     }
@@ -468,16 +445,14 @@ class NewItemViewModel @Inject constructor(
     fun syncSamples() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                 repository.syncSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
                 repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+                mainActivityViewModel.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
             }
         }
     }
@@ -485,15 +460,13 @@ class NewItemViewModel @Inject constructor(
     fun syncResults() {
         viewModelScope.launch {
             try {
-                isLoadingInProgress.value = true
+                mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                 repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
 
-                isLoadingInProgress.value = false
-                isNetworkError.value = false
-            } catch (networkError: IOException) {
-                delay(500)
-                isNetworkError.value = true
+                mainActivityViewModel.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
             }
         }
     }

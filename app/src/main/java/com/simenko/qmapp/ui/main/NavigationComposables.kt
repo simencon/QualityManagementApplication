@@ -102,7 +102,7 @@ fun AppBar(
     searchBarState: MutableState<Boolean>,
     onSearchBarSearch: (String) -> Unit,
 
-    addEditMode: MutableIntState,
+    addEditMode: Int,
     onBackFromAddEditModeClick: () -> Unit
 ) {
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
@@ -124,7 +124,7 @@ fun AppBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal)
+                if (addEditMode == AddEditMode.NO_MODE.ordinal)
                     if (searchBarState.value) {
                         BasicTextField(
                             modifier = Modifier
@@ -174,11 +174,11 @@ fun AppBar(
                             }
                     }
                 else
-                    Text(text = AddEditMode.values()[addEditMode.intValue].mode, modifier = Modifier.padding(all = 8.dp))
+                    Text(text = AddEditMode.values()[addEditMode].mode, modifier = Modifier.padding(all = 8.dp))
             }
         },
         navigationIcon = {
-            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal) {
+            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                 if (searchBarState.value)
                     IconButton(
                         onClick = { searchBarState.value = false },
@@ -208,7 +208,7 @@ fun AppBar(
             }
         },
         actions = {
-            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal) {
+            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                 IconButton(
                     onClick = { actionsMenuState.value = true },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
@@ -279,7 +279,7 @@ fun DrawerHeader(
 
 @Composable
 fun DrawerBody(
-    selectedItemId: MutableState<String>,
+    selectedItemId: String,
     onDrawerItemClick: (String) -> Unit
 ) {
     Spacer(modifier = Modifier.height(10.dp))
@@ -289,7 +289,7 @@ fun DrawerBody(
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
-                selected = item.id == selectedItemId.value,
+                selected = item.id == selectedItemId,
                 onClick = { onDrawerItemClick(item.id) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -304,7 +304,7 @@ fun DrawerBody(
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
-                selected = item.id == selectedItemId.value,
+                selected = item.id == selectedItemId,
                 onClick = { onDrawerItemClick(item.id) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -319,7 +319,7 @@ fun DrawerBody(
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
-                selected = item.id == selectedItemId.value,
+                selected = item.id == selectedItemId,
                 onClick = { onDrawerItemClick(item.id) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
