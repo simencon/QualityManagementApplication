@@ -6,17 +6,6 @@ import com.simenko.qmapp.utils.ObjectTransformer
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkPositionLevel(
-    var id: Int,
-    var levelDescription: String
-) : NetworkBaseModel<DatabasePositionLevel> {
-    override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabasePositionLevel {
-        return ObjectTransformer(NetworkPositionLevel::class, DatabasePositionLevel::class).transform(this)
-    }
-}
-
-@JsonClass(generateAdapter = true)
 data class NetworkTeamMember(
     var id: Int,
     var departmentId: Int,

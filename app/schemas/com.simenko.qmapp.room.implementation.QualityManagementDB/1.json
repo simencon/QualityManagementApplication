@@ -2,37 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "2e6a96b3af2e340304ea78ce96cc83ac",
+    "identityHash": "50de0b8a6ed1200f72353fef8fe03f62",
     "entities": [
       {
-        "tableName": "0_position_levels",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `levelDescription` TEXT NOT NULL)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "levelDescription",
-            "columnName": "levelDescription",
-            "affinity": "TEXT",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
         "tableName": "8_team_members",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `departmentId` INTEGER NOT NULL, `department` TEXT NOT NULL, `email` TEXT, `fullName` TEXT NOT NULL, `jobRole` TEXT NOT NULL, `roleLevelId` INTEGER NOT NULL, `passWord` TEXT, `companyId` INTEGER NOT NULL, FOREIGN KEY(`roleLevelId`) REFERENCES `0_position_levels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `departmentId` INTEGER NOT NULL, `department` TEXT NOT NULL, `email` TEXT, `fullName` TEXT NOT NULL, `jobRole` TEXT NOT NULL, `roleLevelId` INTEGER NOT NULL, `passWord` TEXT, `companyId` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -124,19 +98,7 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_companyId` ON `${TABLE_NAME}` (`companyId`)"
           }
         ],
-        "foreignKeys": [
-          {
-            "table": "0_position_levels",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "roleLevelId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "foreignKeys": []
       },
       {
         "tableName": "0_companies",
@@ -3426,7 +3388,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e6a96b3af2e340304ea78ce96cc83ac')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '50de0b8a6ed1200f72353fef8fe03f62')"
     ]
   }
 }

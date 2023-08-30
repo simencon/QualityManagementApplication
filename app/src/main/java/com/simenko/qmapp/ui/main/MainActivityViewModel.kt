@@ -57,15 +57,14 @@ class MainActivityViewModel @Inject constructor(
         try {
             updateLoadingState(Pair(true, null))
 
-            manufacturingRepository.refreshPositionLevels()
             manufacturingRepository.syncTeamMembers()
-            manufacturingRepository.refreshCompanies()
+            manufacturingRepository.syncCompanies()
             manufacturingRepository.syncDepartments()
-            manufacturingRepository.refreshSubDepartments()
-            manufacturingRepository.refreshManufacturingChannels()
-            manufacturingRepository.refreshManufacturingLines()
-            manufacturingRepository.refreshManufacturingOperations()
-            manufacturingRepository.refreshOperationsFlows()
+            manufacturingRepository.syncSubDepartments()
+            manufacturingRepository.syncChannels()
+            manufacturingRepository.syncLines()
+            manufacturingRepository.syncOperations()
+            manufacturingRepository.syncOperationsFlows()
 
             productsRepository.refreshElementIshModels()
             productsRepository.refreshIshSubCharacteristics()

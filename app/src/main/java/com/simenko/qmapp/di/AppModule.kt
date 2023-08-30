@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -47,10 +46,6 @@ object AppModule {
         QualityManagementDB::class.java,
         DATABASE_NAME
     ).build()
-
-    @Singleton
-    @Provides
-    fun provideManufacturingDao(database: QualityManagementDB) = database.manufacturingDao
 
     @Singleton
     @Provides

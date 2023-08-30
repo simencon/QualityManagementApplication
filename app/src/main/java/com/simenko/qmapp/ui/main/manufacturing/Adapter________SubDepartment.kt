@@ -40,31 +40,31 @@ class Adapter________SubDepartment(
     }
 
     override fun onBindViewHolder(holder: SubDepartmentViewHolder, position: Int) {
-        holder.viewDataBinding.also {
-            it.subDepartment = itemsList[position]
-            it.subDepartmentCallback = callback
-            it.position = position
-
-            val channelAdapter =
-                Adapter_______Channel(ChannelClick { channel, position ->
-                    channel.linesVisibility = !channel.linesVisibility
-                    it.childAdapter?.notifyItemChanged(position)
-                }, viewModel, lifecycleOwner)
-
-            it.childAdapter = channelAdapter
-
-            it.subDepartmentChannels.adapter = it.childAdapter
-
-            this.viewModel.channels.observe(this.lifecycleOwner,
-                Observer { items ->
-                    items?.apply {
-                        channelAdapter.itemsList =
-                            items.filter { item -> item.subDepId == itemsList[position].id }
-                                .toList()
-                    }
-                }
-            )
-        }
+//        holder.viewDataBinding.also {
+//            it.subDepartment = itemsList[position]
+//            it.subDepartmentCallback = callback
+//            it.position = position
+//
+//            val channelAdapter =
+//                Adapter_______Channel(ChannelClick { channel, position ->
+//                    channel.linesVisibility = !channel.linesVisibility
+//                    it.childAdapter?.notifyItemChanged(position)
+//                }, viewModel, lifecycleOwner)
+//
+//            it.childAdapter = channelAdapter
+//
+//            it.subDepartmentChannels.adapter = it.childAdapter
+//
+//            this.viewModel.channels.observe(this.lifecycleOwner,
+//                Observer { items ->
+//                    items?.apply {
+//                        channelAdapter.itemsList =
+//                            items.filter { item -> item.subDepId == itemsList[position].id }
+//                                .toList()
+//                    }
+//                }
+//            )
+//        }
     }
 
     override fun getItemCount(): Int {

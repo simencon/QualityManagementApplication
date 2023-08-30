@@ -6,17 +6,6 @@ import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.utils.ObjectTransformer
 
-@Entity(tableName = "0_position_levels")
-data class DatabasePositionLevel(
-    @PrimaryKey(autoGenerate = true)
-    var id: Int,
-    var levelDescription: String
-) : DatabaseBaseModel<NetworkPositionLevel, DomainPositionLevel> {
-    override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabasePositionLevel::class, NetworkPositionLevel::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabasePositionLevel::class, DomainPositionLevel::class).transform(this)
-}
-
 @Entity(
     tableName = "8_team_members",
     foreignKeys = [
@@ -28,13 +17,14 @@ data class DatabasePositionLevel(
 //            onDelete = ForeignKey.NO_ACTION,
 //            onUpdate = ForeignKey.NO_ACTION
 //        ),
-        ForeignKey(
-            entity = DatabasePositionLevel::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("roleLevelId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
-        )
+//        ToDo Useless field, access are managed vie REST Service
+//        ForeignKey(
+//            entity = DatabasePositionLevel::class,
+//            parentColumns = arrayOf("id"),
+//            childColumns = arrayOf("roleLevelId"),
+//            onDelete = ForeignKey.NO_ACTION,
+//            onUpdate = ForeignKey.NO_ACTION
+//        )
 //        ToDo Cannot be used as foreign key because appears before Companies
 //        ForeignKey(
 //            entity = DatabaseCompany::class,

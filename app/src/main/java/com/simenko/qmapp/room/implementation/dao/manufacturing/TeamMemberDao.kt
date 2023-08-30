@@ -14,9 +14,6 @@ abstract class TeamMemberDao : DaoBaseModel<DatabaseTeamMember> {
     @Query("SELECT * FROM `8_team_members` ORDER BY fullName ASC")
     abstract override fun getRecords(): List<DatabaseTeamMember>
 
-    /**
-     * as parent is used lineId but in fact should be companyId in future
-     * */
     @Query("select * from `8_team_members` where departmentId = :parentId order by fullName asc")
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseTeamMember>
 

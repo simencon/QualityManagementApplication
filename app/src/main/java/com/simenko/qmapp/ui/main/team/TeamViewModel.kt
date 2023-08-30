@@ -116,7 +116,7 @@ class TeamViewModel @Inject constructor(
         try {
             mainActivityViewModel.updateLoadingState(Pair(true, null))
 
-            repository.refreshCompanies()
+            repository.syncCompanies()
             repository.syncDepartments()
             repository.syncTeamMembers()
 
