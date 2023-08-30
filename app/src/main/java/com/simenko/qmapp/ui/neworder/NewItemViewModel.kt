@@ -25,11 +25,8 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-
-private const val TAG = "NewItemViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -90,8 +87,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun selectOrderType(id: Int) {
-        _currentOrder.value =
-            _currentOrder.value.copy(orderTypeId = id, reasonId = NoRecord.num, customerId = NoRecord.num, orderedById = NoRecord.num)
+        _currentOrder.value = _currentOrder.value.copy(orderTypeId = id, reasonId = NoRecord.num, customerId = NoRecord.num, orderedById = NoRecord.num)
     }
 
     private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
@@ -160,7 +156,7 @@ class NewItemViewModel @Inject constructor(
 
     private val _subOrderDepartments: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
     val subOrderDepartments: StateFlow<List<DomainDepartment>> = _subOrderDepartments.flatMapLatest { departments ->
-        _currentSubOrder.flatMapLatest { subOrder ->
+        _currentSubOrder.flatMapLatest { so ->
             _currentOrder.flatMapLatest { currentOrder ->
                 _inputForOrder.flatMapLatest { master ->
                     if (currentOrder.reasonId != NoRecord.num) {
@@ -168,7 +164,7 @@ class NewItemViewModel @Inject constructor(
                         val cpy = mutableListOf<DomainDepartment>()
                         ids.forEach { id ->
                             departments.findLast { it.id == id }?.let {
-                                cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.departmentId))
+                                cpy.add(it.copy(isSelected = it.id == so.subOrder.departmentId))
                             }
                         }
                         flow { emit(cpy) }
@@ -195,14 +191,14 @@ class NewItemViewModel @Inject constructor(
 
     private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments
     val subOrderSubDepartments: StateFlow<List<DomainSubDepartment>> = _subOrderSubDepartments.flatMapLatest { subDepartments ->
-        _currentSubOrder.flatMapLatest { subOrder ->
+        _currentSubOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
-                if (subOrder.subOrder.departmentId != NoRecord.num) {
-                    val ids = master.filter { it.depId == subOrder.subOrder.departmentId }.sortedBy { it.subDepOrder }.map { it.subDepId }.toSet()
+                if (so.subOrder.departmentId != NoRecord.num) {
+                    val ids = master.filter { it.depId == so.subOrder.departmentId }.sortedBy { it.subDepOrder }.map { it.subDepId }.toSet()
                     val cpy = mutableListOf<DomainSubDepartment>()
                     ids.forEach { id ->
                         subDepartments.findLast { it.id == id }?.let {
-                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.departmentId))
+                            cpy.add(it.copy(isSelected = it.id == so.subOrder.departmentId))
                         }
                     }
                     flow { emit(cpy) }
@@ -227,11 +223,11 @@ class NewItemViewModel @Inject constructor(
 
     private val _subOrderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
     val subOrderPlacers: StateFlow<List<DomainTeamMember>> = _subOrderPlacers.flatMapLatest { placers ->
-        _currentSubOrder.flatMapLatest { subOrder ->
-            if (subOrder.subOrder.subDepartmentId != NoRecord.num) {
+        _currentSubOrder.flatMapLatest { so ->
+            if (so.subOrder.subDepartmentId != NoRecord.num) {
                 val cpy = mutableListOf<DomainTeamMember>()
-                placers.filter { it.departmentId == subOrder.subOrder.departmentId }
-                    .forEach { cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.subDepartmentId)) }
+                placers.filter { it.departmentId == so.subOrder.departmentId }
+                    .forEach { cpy.add(it.copy(isSelected = it.id == so.subOrder.subDepartmentId)) }
                 flow { emit(cpy) }
             } else {
                 flow { emit(emptyList<DomainTeamMember>()) }
@@ -252,14 +248,14 @@ class NewItemViewModel @Inject constructor(
 
     private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels
     val subOrderChannels: StateFlow<List<DomainManufacturingChannel>> = _subOrderChannels.flatMapLatest { channels ->
-        _currentSubOrder.flatMapLatest { subOrder ->
+        _currentSubOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
-                if (subOrder.subOrder.orderedById != NoRecord.num) {
-                    val ids = master.filter { it.subDepId == subOrder.subOrder.subDepartmentId }.sortedBy { it.channelOrder }.map { it.chId }.toSet()
+                if (so.subOrder.orderedById != NoRecord.num) {
+                    val ids = master.filter { it.subDepId == so.subOrder.subDepartmentId }.sortedBy { it.channelOrder }.map { it.chId }.toSet()
                     val cpy = mutableListOf<DomainManufacturingChannel>()
                     ids.forEach { id ->
                         channels.findLast { it.id == id }?.let {
-                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.channelId))
+                            cpy.add(it.copy(isSelected = it.id == so.subOrder.channelId))
                         }
                     }
                     flow { emit(cpy) }
@@ -277,14 +273,14 @@ class NewItemViewModel @Inject constructor(
 
     private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines
     val subOrderLines: StateFlow<List<DomainManufacturingLine>> = _subOrderLines.flatMapLatest { lines ->
-        _currentSubOrder.flatMapLatest { subOrder ->
+        _currentSubOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
-                if (subOrder.subOrder.channelId != NoRecord.num) {
-                    val ids = master.filter { it.chId == subOrder.subOrder.channelId }.sortedBy { it.lineOrder }.map { it.lineId }.toSet()
+                if (so.subOrder.channelId != NoRecord.num) {
+                    val ids = master.filter { it.chId == so.subOrder.channelId }.sortedBy { it.lineOrder }.map { it.lineId }.toSet()
                     val cpy = mutableListOf<DomainManufacturingLine>()
                     ids.forEach { id ->
                         lines.findLast { it.id == id }?.let {
-                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.lineId))
+                            cpy.add(it.copy(isSelected = it.id == so.subOrder.lineId))
                         }
                     }
                     flow { emit(cpy) }
@@ -302,15 +298,15 @@ class NewItemViewModel @Inject constructor(
 
     private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete
     val subOrderItemVersions: StateFlow<List<DomainItemVersionComplete>> = _subOrderItemVersions.flatMapLatest { itemVersions ->
-        _currentSubOrder.flatMapLatest { subOrder ->
+        _currentSubOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
-                if (subOrder.subOrder.lineId != NoRecord.num) {
-                    val ids = master.filter { it.lineId == subOrder.subOrder.lineId }
+                if (so.subOrder.lineId != NoRecord.num) {
+                    val ids = master.filter { it.lineId == so.subOrder.lineId }
                         .sortedBy { it.itemDesignation }.map { it.itemPrefix + it.itemVersionId }.toSet()
                     val cpy = mutableListOf<DomainItemVersionComplete>()
                     ids.forEach { id ->
                         itemVersions.findLast { it.itemVersion.fId == id }?.let {
-                            cpy.add(it.copy(isSelected = it.itemVersion.fId == (subOrder.subOrder.itemPreffix + subOrder.subOrder.itemVersionId)))
+                            cpy.add(it.copy(isSelected = it.itemVersion.fId == (so.subOrder.itemPreffix + so.subOrder.itemVersionId)))
                         }
                     }
                     flow { emit(cpy) }
@@ -328,19 +324,17 @@ class NewItemViewModel @Inject constructor(
     }
 
 
-
-
     private val _subOrderOperations: Flow<List<DomainManufacturingOperation>> = manufacturingRepository.operations
     val subOrderOperations: StateFlow<List<DomainManufacturingOperation>> = _subOrderOperations.flatMapLatest { operations ->
-        _currentSubOrder.flatMapLatest { subOrder ->
+        _currentSubOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
-                if (subOrder.subOrder.itemVersionId != NoRecord.num) {
-                    val ids = master.filter { (it.itemPrefix + it.itemVersionId) == (subOrder.subOrder.itemPreffix + subOrder.subOrder.itemVersionId) }
-                        .sortedBy { it.operationOrder }.map { it.operationId }.toSet()
+                if (so.subOrder.itemVersionId != NoRecord.num) {
+                    val ids = master.filter { (it.itemPrefix + it.itemVersionId) == (so.subOrder.itemPreffix + so.subOrder.itemVersionId) }
+                            .sortedBy { it.operationOrder }.map { it.operationId }.toSet()
                     val cpy = mutableListOf<DomainManufacturingOperation>()
                     ids.forEach { id ->
                         operations.findLast { it.id == id }?.let {
-                            cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.operationId))
+                            cpy.add(it.copy(isSelected = it.id == so.subOrder.operationId))
                         }
                     }
                     flow { emit(cpy) }
@@ -355,47 +349,77 @@ class NewItemViewModel @Inject constructor(
         _currentSubOrder.value = _currentSubOrder.value.copy(subOrder = _currentSubOrder.value.subOrder.copy(operationId = id))
     }
 
-    val inputForOrder = repository.inputForOrder
 
-    val operationsFlows = manufacturingRepository.operationsFlows.asLiveData()
+    fun selectSubOrderItemsCount(count: Int) {
+        val cpy = _currentSubOrder.value.copy()
 
-    val characteristics = productsRepository.characteristics
-    val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
-    val characteristicsMediator: MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainCharacteristic>?, Boolean?>>().apply {
-            addSource(characteristicsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(characteristicsMutable.value, it) }
+        cpy.subOrder.samplesCount = count
+
+        cpy.subOrderTasks.removeIf { it.isNewRecord }
+        cpy.subOrderTasks.forEach { it.toBeDeleted = true }
+
+        val subOrderId = cpy.subOrder.id
+        var currentSize = ZeroValue.num
+        cpy.samples.forEach {
+            if (it.isNewRecord || !it.toBeDeleted)
+                currentSize++
         }
 
-
-    val inputForOrderMediator: MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>> =
-        MediatorLiveData<Pair<List<DomainInputForOrder>?, Boolean?>>().apply {
-            addSource(inputForOrder.asLiveData()) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(inputForOrder.asLiveData().value, it) }
+        if (count > currentSize) {
+            for (q in (currentSize + 1)..count)
+                if ((cpy.samples.size) >= q && !cpy.samples[q - 1].isNewRecord)
+                    cpy.samples[q - 1].toBeDeleted = false
+                else
+                    cpy.samples.add(DomainSample().copy(subOrderId = subOrderId, sampleNumber = q, isNewRecord = true))
+        } else if (count < currentSize) {
+            for (q in currentSize downTo count + 1)
+                if (cpy.samples[q - 1].isNewRecord)
+                    cpy.samples.removeAt(q - 1)
+                else
+                    cpy.samples[q - 1].toBeDeleted = true
         }
 
-    fun refreshDataFromRepository() {
-        viewModelScope.launch {
-            try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
+        _currentSubOrder.value = cpy
+    }
 
-                repository.syncInvestigationTypes()
-                repository.syncInvestigationReasons()
-                repository.syncInputForOrder()
-                manufacturingRepository.syncDepartments()
-                manufacturingRepository.syncTeamMembers()
 
-                productsRepository.refreshKeys()
-                productsRepository.refreshComponents()
-                productsRepository.refreshVersionStatuses()
-                productsRepository.refreshComponentVersions()
+    private val _subOrderCharacteristics: Flow<List<DomainCharacteristic>> = productsRepository.characteristics
+    private val _subOrderOperationsFlows: Flow<List<DomainOperationsFlow>> = manufacturingRepository.operationsFlows
+    val subOrderCharacteristics: StateFlow<List<DomainCharacteristic>> = _subOrderCharacteristics.flatMapLatest { characteristics ->
+        _subOrderOperationsFlows.flatMapLatest { opf ->
+            _currentSubOrder.flatMapLatest { so ->
+                _inputForOrder.flatMapLatest { master ->
+                    if (so.subOrder.samplesCount != NoRecord.num) {
+                        val ids = master
+                            .filter {
+                                (it.itemPrefix + it.itemVersionId) == (so.subOrder.itemPreffix + so.subOrder.itemVersionId) &&
+                                        (so.subOrder.operationId == it.operationId || isOperationInFlow(it.operationId, so.subOrder.operationId, opf))
+                            }
+                            .sortedBy { it.charOrder }.map { it.charId }.toSet()
 
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
-            } catch (e: Exception) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+                        val cpy = mutableListOf<DomainCharacteristic>()
+                        ids.forEach { id ->
+                            characteristics.findLast { it.id == id }?.let { ch ->
+                                var isSelected = false
+                                so.subOrderTasks.findLast { it.id == id }?.let { isSelected = true }
+                                cpy.add(ch.copy(isSelected = isSelected))
+                            }
+                        }
+                        flow { emit(cpy) }
+                    } else {
+                        flow { emit(emptyList<DomainCharacteristic>()) }
+                    }
+                }
             }
         }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
+    fun selectSubOrderCharacteristic(id: Int) {
+
     }
+
+    val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
+
 
     private suspend fun postDeleteSamples(subOrderId: Int, subOrder: DomainSubOrderShort) {
         withContext(Dispatchers.IO) {
@@ -629,24 +653,6 @@ class NewItemViewModel @Inject constructor(
     }
 }
 
-enum class FilteringMode {
-    ADD_ALL,
-    REMOVE_ALL,
-    ADD_BY_PARENT_ID,
-    ADD_ALL_FROM_META_TABLE,
-    ADD_BY_PARENT_ID_FROM_META_TABLE
-}
-
-enum class FilteringStep {
-    NOT_FROM_META_TABLE,
-    SUB_DEPARTMENTS,
-    CHANNELS,
-    LINES,
-    ITEM_VERSIONS,
-    OPERATIONS,
-    CHARACTERISTICS
-}
-
 fun <D, T : DomainBaseModel<D>> changeRecordSelection(
     d: MutableLiveData<MutableList<T>>,
     pairedTrigger: MutableLiveData<Boolean>,
@@ -655,18 +661,6 @@ fun <D, T : DomainBaseModel<D>> changeRecordSelection(
     val result = d.value?.find { it.getRecordId() == selectedId }?.changeCheckedState()
     pairedTrigger.value = !(pairedTrigger.value as Boolean)
     return result ?: false
-}
-
-fun <D, T : DomainBaseModel<D>> selectSingleRecord(
-    d: MutableLiveData<MutableList<T>>,
-    pairedTrigger: MutableLiveData<Boolean>,
-    selectedId: Any = NoRecord.num,
-) {
-    d.value?.forEach {
-        it.setIsSelected(false)
-    }
-    d.value?.find { it.getRecordId() == selectedId }?.setIsSelected(true)
-    pairedTrigger.value = !(pairedTrigger.value as Boolean)
 }
 
 fun isOperationInFlow(
@@ -694,118 +688,4 @@ fun getPreviousIds(currentId: Int, pairs: List<DomainOperationsFlow>): List<Int>
         }
     }
     return previousIds
-}
-
-fun <D, T : DomainBaseModel<D>> MutableLiveData<MutableList<T>>.performFiltration(
-    s: LiveData<List<T>>? = null,
-    action: FilteringMode,
-    trigger: MutableLiveData<Boolean>,
-    p1Id: Int = NoRecord.num,
-    p2Id: Any = NoRecord.num,
-    p3Id: Int = NoRecord.num,
-    pFlow: List<DomainOperationsFlow>? = null,
-    m: LiveData<List<DomainInputForOrder>>? = null,
-    step: FilteringStep = FilteringStep.NOT_FROM_META_TABLE
-) {
-    val d = this
-    when (action) {
-        FilteringMode.ADD_ALL -> {
-            //Is made because previously selected/filtered/unfiltered item again selected
-            selectSingleRecord(d, trigger)
-            d.value?.clear()
-            s?.value?.let { d.value?.addAll(it.toList()) }
-        }
-
-        FilteringMode.REMOVE_ALL -> {
-            //Is made because previously selected/filtered/unfiltered item again selected
-            selectSingleRecord(d, trigger)
-            d.value?.clear()
-        }
-
-        FilteringMode.ADD_BY_PARENT_ID -> {
-            //Is made because previously selected/filtered/unfiltered item again selected
-            selectSingleRecord(d, trigger)
-            d.value?.clear()
-            s.apply {
-                this?.value?.filter { it.getParentId() == p1Id }?.forEach { input ->
-                    if (d.value?.find { it.getRecordId() == input.getRecordId() } == null) {
-                        d.value?.add(input)
-                    }
-                }
-            }
-        }
-
-        FilteringMode.ADD_ALL_FROM_META_TABLE -> {
-            if ((m != null) && (m.value != null)) {
-                m.value!!.forEach { mIt ->
-                    val item = s?.value?.find { it.getRecordId() == mIt.depId }
-                    if (d.value?.find { it.getRecordId() == item?.getRecordId() } == null) {
-                        d.value?.add(item!!)
-                    }
-                }
-            }
-        }
-
-        FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE -> {
-            selectSingleRecord(d, trigger)
-            d.value?.clear()
-
-            if ((m != null) && (m.value != null)) {
-                val mSorted = m.value!!.sortedBy {
-                    when (step) {
-                        FilteringStep.NOT_FROM_META_TABLE -> it.depOrder
-                        FilteringStep.SUB_DEPARTMENTS -> it.subDepOrder
-                        FilteringStep.CHANNELS -> it.channelOrder
-                        FilteringStep.LINES -> it.lineOrder
-                        FilteringStep.ITEM_VERSIONS -> it.itemId
-                        FilteringStep.OPERATIONS -> it.operationOrder
-                        FilteringStep.CHARACTERISTICS -> it.operationOrder
-                    }
-                }
-                mSorted.forEach { mIt ->
-                    val item = s?.value?.find {
-                        (it.getParentId() == p1Id || it.hasParentId(p1Id)) &&
-                                when (step) {
-                                    FilteringStep.NOT_FROM_META_TABLE -> {
-                                        it.getRecordId() == NoRecord.num
-                                    }
-
-                                    FilteringStep.SUB_DEPARTMENTS -> {
-                                        it.getRecordId() == mIt.subDepId
-                                    }
-
-                                    FilteringStep.CHANNELS -> {
-                                        it.getRecordId() == mIt.chId
-                                    }
-
-                                    FilteringStep.LINES -> {
-                                        it.getRecordId() == mIt.lineId
-                                    }
-
-                                    FilteringStep.ITEM_VERSIONS -> {
-                                        it.getRecordId() == mIt.itemPrefix + mIt.itemVersionId.toString()
-                                    }
-
-                                    FilteringStep.OPERATIONS -> {
-                                        it.getRecordId() == mIt.operationId && p2Id == mIt.itemPrefix + mIt.itemVersionId.toString()
-                                    }
-
-                                    FilteringStep.CHARACTERISTICS -> {
-                                        it.getRecordId() == mIt.charId && p2Id == mIt.itemPrefix + mIt.itemVersionId.toString()
-                                                &&
-                                                (p3Id == mIt.operationId || isOperationInFlow(mIt.operationId, p3Id, pFlow!!))
-                                    }
-
-                                }
-                    }
-                    if (item != null)
-                        if (d.value?.find { it.getRecordId() == item.getRecordId() } == null) {
-                            d.value?.add(item)
-                        }
-                }
-            }
-        }
-    }
-
-    trigger.value = !(trigger.value as Boolean)
 }

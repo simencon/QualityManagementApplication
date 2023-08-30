@@ -30,7 +30,7 @@ interface ProductsDao {
     fun insertCharacteristicsAll(list: List<DatabaseCharacteristic>)
 
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
-    fun getCharacteristics(): LiveData<List<DatabaseCharacteristic>>
+    fun getCharacteristics(): Flow<List<DatabaseCharacteristic>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMetrixesAll(list: List<DatabaseMetrix>)

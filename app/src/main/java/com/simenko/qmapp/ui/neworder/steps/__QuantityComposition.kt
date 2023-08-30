@@ -7,7 +7,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,54 +14,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.entities.DomainSample
 import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.theme.Secondary
 import java.util.*
 
-private const val TAG = "InputInvestigationTypeComposition"
-
-fun filterAllAfterQuantity(
-    appModel: NewItemViewModel,
-    samplesQuantity: Int,
-    clear: Boolean = false
+@Composable
+fun QuantitySelection(
+    modifier: Modifier = Modifier
 ) {
-    if (clear) {
-        appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
-        appModel.currentSubOrder.value?.subOrderTasks?.forEach { it.toBeDeleted = true }
+    val viewModel: NewItemViewModel = hiltViewModel()
+    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
 
-        val subOrderId = appModel.currentSubOrder.value?.subOrder?.id
-        var currentSize = ZeroValue.num
-        appModel.currentSubOrder.value?.samples?.forEach {
-            if (it.isNewRecord || !it.toBeDeleted)
-                currentSize++
-        }
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderItemsCount(it) } }
 
-        if (samplesQuantity > currentSize) {
-            for (q in (currentSize + 1)..samplesQuantity)
-                if ((appModel.currentSubOrder.value?.samples?.size ?: ZeroValue.num) >= q &&
-                    appModel.currentSubOrder.value?.samples?.get(q - 1)?.isNewRecord == false
+    currentSubOrder.let {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .padding(horizontal = 16.dp)
+        ) {
+            if (it.subOrder.operationId != NoRecord.num)
+                AndroidView(
+                    modifier = modifier.width(224.dp),
+                    factory = { context ->
+                        NumberPicker(context).apply {
+                            setOnValueChangedListener { _, oldVal, newVal ->
+                                if (oldVal != newVal) onSelectLambda(newVal)
+                            }
+                            scaleX = 1f
+                            scaleY = 1f
+                            minValue = ZeroValue.num
+                            maxValue = 10
+                            this.value = it.subOrder.samplesCount ?: ZeroValue.num
+                        }
+                    },
+                    update = { picker ->
+                        picker.value = it.subOrder.samplesCount ?: ZeroValue.num
+                    }
                 )
-                    appModel.currentSubOrder.value?.samples?.get(q - 1)?.toBeDeleted = false
-                else
-                    appModel.currentSubOrder.value?.samples?.add(
-                        DomainSample().copy(subOrderId = subOrderId ?: NoRecord.num, sampleNumber = q, isNewRecord = true)
-                    )
-        } else if (samplesQuantity < currentSize) {
-            for (q in currentSize downTo samplesQuantity + 1)
-                if (appModel.currentSubOrder.value?.samples?.get(q - 1)?.isNewRecord != false)
-                    appModel.currentSubOrder.value?.samples?.removeAt(q - 1)
-                else
-                    appModel.currentSubOrder.value?.samples?.get(q - 1)?.toBeDeleted = true
         }
     }
-
 }
 
 @Composable
@@ -87,47 +83,6 @@ fun ButtonsSectionQuantity(
             modifier = modifier.height(2.dp),
             color = Secondary
         )
-    }
-}
-
-@Composable
-fun QuantitySelection(
-    modifier: Modifier = Modifier
-) {
-    val appModel: NewItemViewModel = hiltViewModel()
-    val observeInputForOrder by appModel.currentSubOrderSF.collectAsStateWithLifecycle()
-
-    observeInputForOrder.apply {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .padding(horizontal = 16.dp)
-        ) {
-            if (subOrder.operationId != NoRecord.num)
-                AndroidView(
-                    modifier = modifier.width(224.dp),
-                    factory = { context ->
-                        NumberPicker(context).apply {
-                            setOnValueChangedListener { _, oldVal, newVal ->
-                                appModel.currentSubOrder.value?.subOrder?.samplesCount = newVal
-                                if (oldVal == ZeroValue.num || newVal == ZeroValue.num)
-                                    filterAllAfterQuantity(appModel, newVal, true)
-                                else
-                                    filterAllAfterQuantity(appModel, newVal, true)
-                            }
-                            scaleX = 1f
-                            scaleY = 1f
-                            minValue = ZeroValue.num
-                            maxValue = 10
-                            this.value = subOrder.samplesCount ?: ZeroValue.num
-                        }
-                    },
-                    update = {
-                        it.value = subOrder.samplesCount ?: ZeroValue.num
-                    }
-                )
-        }
     }
 }
 
