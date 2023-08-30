@@ -17,6 +17,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -28,6 +29,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.AllInvestigations
+import com.simenko.qmapp.domain.AllInv
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedString
@@ -79,6 +81,8 @@ class MainActivityCompose : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             QMAppTheme {
+                val navController = rememberNavController()
+
                 val scope = rememberCoroutineScope()
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
                 val selectedDrawerMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingDrawerMenuItem().id) }
@@ -93,7 +97,7 @@ class MainActivityCompose : ComponentActivity() {
                 val searchBarState = rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
 
-                val navController = rememberNavController()
+                val addEditMode = rememberSaveable { mutableIntStateOf(AddEditMode.NO_MODE.ordinal) }
 
                 fun onDrawerItemClick(id: String) {
                     scope.launch { drawerState.close() }
@@ -101,8 +105,8 @@ class MainActivityCompose : ComponentActivity() {
                         selectedDrawerMenuItemId.value = id
                         when (id) {
                             Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Investigations.withArgs(AllInvestigations.str) -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Investigations.withArgs(ProcessControl.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(AllInv.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(ProcessControl.str) -> navController.navigate(id) { popUpTo(0) }
                             Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
@@ -113,8 +117,8 @@ class MainActivityCompose : ComponentActivity() {
                     selectedContextMenuItemId.value = filterOnly
                     if (filterOnly != action) {
                         when (action) {
-                            MenuItem.Actions.UPLOAD_MASTER_DATA.action -> viewModel.refreshMasterDataFromRepository()
-                            MenuItem.Actions.SYNC_INVESTIGATIONS.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                            MenuItem.Actions.UPLOAD_MD.action -> viewModel.refreshMasterDataFromRepository()
+                            MenuItem.Actions.SYNC_INV.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                             MenuItem.Actions.CUSTOM_FILTER.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }
@@ -122,13 +126,14 @@ class MainActivityCompose : ComponentActivity() {
 
                 fun onSearchBarSearch(searchValues: String) {
                     when (selectedDrawerMenuItemId.value) {
-                        Screen.Main.Investigations.withArgs(AllInvestigations.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-                        Screen.Main.Investigations.withArgs(ProcessControl.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(AllInv.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(ProcessControl.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                     }
                 }
 
                 ModalNavigationDrawer(
+                    gesturesEnabled = addEditMode.intValue == AddEditMode.NO_MODE.ordinal,
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet(
@@ -159,38 +164,66 @@ class MainActivityCompose : ComponentActivity() {
                                     onActionsMenuItemClick = { filterOnly, action -> onActionsMenuItemClick(filterOnly, action) },
 
                                     searchBarState = searchBarState,
-                                    onSearchBarSearch = { onSearchBarSearch(it) }
+                                    onSearchBarSearch = { onSearchBarSearch(it) },
+
+                                    addEditMode = addEditMode,
+                                    onBackFromAddEditModeClick = {
+                                        addEditMode.intValue = AddEditMode.NO_MODE.ordinal
+                                        navController.popBackStack()
+                                    }
                                 )
                             },
                             floatingActionButton = {
                                 if (selectedDrawerMenuItemId.value != Screen.Main.Settings.route)
                                     FloatingActionButton(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                         onClick = {
-                                            when (selectedDrawerMenuItemId.value) {
-                                                Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
-                                                Screen.Main.Investigations.withArgs(AllInvestigations.str) -> navController.navigate(
-                                                    Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str)
-                                                )
-                                                else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal)
+                                                when (selectedDrawerMenuItemId.value) {
+                                                    Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
+                                                    Screen.Main.Inv.withArgs(AllInv.str) -> {
+                                                        navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
+                                                        addEditMode.intValue = AddEditMode.ADD_ORDER.ordinal
+                                                    }
+
+                                                    else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                                }
+                                            else {
+                                                when (AddEditMode.values()[addEditMode.intValue]) {
+                                                    AddEditMode.ADD_ORDER -> {
+                                                        Toast.makeText(this, "Save new order and popStackBack", Toast.LENGTH_LONG).show()
+                                                    }
+
+                                                    else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                                }
                                             }
                                         },
                                         content = {
-                                            Icon(
-                                                imageVector = Icons.Default.Add,
-                                                contentDescription = "Add button"
-                                            )
+                                            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Add,
+                                                    contentDescription = "Add button",
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            } else {
+                                                Icon(
+                                                    imageVector = Icons.Default.Save,
+                                                    contentDescription = "Save button",
+                                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            }
                                         }
                                     )
                             },
                             floatingActionButtonPosition = fabPosition
                         ) {
                             val pullRefreshState = rememberPullRefreshState(
-                                refreshing = observerLoadingProcess!!,
+                                refreshing = observerLoadingProcess,
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId.value) {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
-                                        Screen.Main.Investigations.withArgs(AllInvestigations.str) -> invModel.uploadNewInvestigations()
-                                        Screen.Main.Investigations.withArgs(ProcessControl.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Inv.withArgs(AllInv.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Inv.withArgs(ProcessControl.str) -> invModel.uploadNewInvestigations()
 
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))
@@ -213,7 +246,8 @@ class MainActivityCompose : ComponentActivity() {
                                         .pullRefresh(pullRefreshState),
                                     it,
                                     MenuItem.getStartingDrawerMenuItem().id,
-                                    navController
+                                    navController,
+                                    addEditMode
                                 )
                                 PullRefreshIndicator(
                                     refreshing = observerLoadingProcess,

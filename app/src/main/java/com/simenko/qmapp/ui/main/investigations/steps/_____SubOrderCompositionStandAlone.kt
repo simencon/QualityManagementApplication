@@ -18,7 +18,6 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
@@ -61,7 +60,7 @@ fun SubOrdersStandAlone(
         { orderId, subOrderId ->
             launchNewItemActivityForResult(
                 context as MainActivity,
-                ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
+                AddEditMode.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
                 orderId,
                 subOrderId
             )

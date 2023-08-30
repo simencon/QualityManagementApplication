@@ -1,10 +1,12 @@
 package com.simenko.qmapp.ui.main
 
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -15,7 +17,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.InvestigationsKey
 import com.simenko.qmapp.domain.NoRecord
@@ -25,7 +26,6 @@ import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposit
 import com.simenko.qmapp.ui.main.settings.Settings
 import com.simenko.qmapp.ui.main.team.TeamComposition
 import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 import com.simenko.qmapp.ui.neworder.OrderForm
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -37,7 +37,8 @@ fun Navigation(
     modifier: Modifier = Modifier,
     mainScreenPadding: PaddingValues,
     initiatedRoute: String,
-    navController: NavHostController
+    navController: NavHostController,
+    addEditMode: MutableIntState
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         composable(route = Screen.Main.Employees.route) {
@@ -48,7 +49,7 @@ fun Navigation(
             }
         }
         composable(
-            route = Screen.Main.Investigations.route + "/{${InvestigationsKey.str}}",
+            route = Screen.Main.Inv.route + "/{${InvestigationsKey.str}}",
             arguments = listOf(
                 navArgument(InvestigationsKey.str) {
                     type = NavType.BoolType
@@ -77,11 +78,15 @@ fun Navigation(
                 }
             )
         ) {
+            BackHandler {
+                navController.popBackStack()
+                addEditMode.intValue = AddEditMode.NO_MODE.ordinal
+            }
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
             QMAppTheme {
                 OrderForm(
-                    actionType = ActionType.ADD_ORDER,
+                    addEditMode = AddEditMode.ADD_ORDER,
                     orderId = it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num
                 )
             }

@@ -56,6 +56,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,7 +80,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.simenko.qmapp.domain.AllInvestigations
+import com.simenko.qmapp.domain.AllInv
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedNumber
@@ -99,7 +100,10 @@ fun AppBar(
     onActionsMenuItemClick: (String, String) -> Unit,
 
     searchBarState: MutableState<Boolean>,
-    onSearchBarSearch: (String) -> Unit
+    onSearchBarSearch: (String) -> Unit,
+
+    addEditMode: MutableIntState,
+    onBackFromAddEditModeClick: () -> Unit
 ) {
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
 
@@ -120,115 +124,103 @@ fun AppBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (searchBarState.value) {
-                    BasicTextField(
-                        modifier = Modifier
-                            .width(202.dp)
-                            .padding(start = 10.dp)
-                            .focusRequester(focusRequesterSearchBar),
-                        value = orderToSearch.value,
-                        textStyle = TextStyle(fontSize = 20.sp, color = contentColor, fontWeight = FontWeight.Medium),
-                        cursorBrush = SolidColor(contentColor),
-                        onValueChange = { orderToSearch.value = it },
-                        maxLines = 1,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search),
-                        keyboardActions = KeyboardActions(onSearch = { onSearchBarSearch(orderToSearch.value) }),
-                    ) { innerTextField ->
-                        TextFieldDefaults.DecorationBox(
+                if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal)
+                    if (searchBarState.value) {
+                        BasicTextField(
+                            modifier = Modifier
+                                .width(202.dp)
+                                .padding(start = 10.dp)
+                                .focusRequester(focusRequesterSearchBar),
                             value = orderToSearch.value,
-                            colors = colors(unfocusedContainerColor = MaterialTheme.colorScheme.primary, unfocusedIndicatorColor = contentColor),
-                            placeholder = {
-                                Text(text = "Search by order number", color = MaterialTheme.colorScheme.primaryContainer)
-                            },
-                            innerTextField = innerTextField,
-                            enabled = true,
+                            textStyle = TextStyle(fontSize = 20.sp, color = contentColor, fontWeight = FontWeight.Medium),
+                            cursorBrush = SolidColor(contentColor),
+                            onValueChange = { orderToSearch.value = it },
+                            maxLines = 1,
                             singleLine = true,
-                            visualTransformation = VisualTransformation.None,
-                            interactionSource = remember { MutableInteractionSource() },
-                            contentPadding = PaddingValues(2.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = { orderToSearch.value = "" },
-                        enabled = orderToSearch.value != "",
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = contentColor,
-                            disabledContentColor = MaterialTheme.colorScheme.primaryContainer
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Search order by number"
-                        )
-                    }
-                } else {
-                    Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
-
-                    NoRecord
-
-                    if (
-                        screen.id == Screen.Main.Investigations.withArgs(AllInvestigations.str) ||
-                        screen.id == Screen.Main.Investigations.withArgs(ProcessControl.str)
-                    )
-                        IconButton(onClick = { searchBarState.value = true }) {
-                            Icon(
-                                imageVector = Icons.Filled.Search,
-                                contentDescription = "Search order by number",
-                                tint = contentColor
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(onSearch = { onSearchBarSearch(orderToSearch.value) }),
+                        ) { innerTextField ->
+                            TextFieldDefaults.DecorationBox(
+                                value = orderToSearch.value,
+                                colors = colors(unfocusedContainerColor = MaterialTheme.colorScheme.primary, unfocusedIndicatorColor = contentColor),
+                                placeholder = { Text(text = "Search by order number", color = MaterialTheme.colorScheme.primaryContainer) },
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = true,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = remember { MutableInteractionSource() },
+                                contentPadding = PaddingValues(2.dp)
                             )
                         }
-                }
+
+                        IconButton(
+                            onClick = { orderToSearch.value = "" },
+                            enabled = orderToSearch.value != "",
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = contentColor,
+                                disabledContentColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Icon(imageVector = Icons.Filled.Close, contentDescription = "Search order by number")
+                        }
+                    } else {
+                        Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
+                        if (
+                            screen.id == Screen.Main.Inv.withArgs(AllInv.str) ||
+                            screen.id == Screen.Main.Inv.withArgs(ProcessControl.str)
+                        )
+                            IconButton(onClick = { searchBarState.value = true }) {
+                                Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
+                            }
+                    }
+                else
+                    Text(text = AddEditMode.values()[addEditMode.intValue].mode, modifier = Modifier.padding(all = 8.dp))
             }
         },
         navigationIcon = {
-            if (searchBarState.value)
+            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal) {
+                if (searchBarState.value)
+                    IconButton(
+                        onClick = { searchBarState.value = false },
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                    ) {
+                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
+                    }
+                else
+                    IconButton(
+                        onClick = onDrawerMenuClick,
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Toggle drawer",
+                            modifier = Modifier
+                                .rotate(drawerState.offset.value / 1080f * 360f)
+                        )
+                    }
+            } else {
                 IconButton(
-                    onClick = { searchBarState.value = false },
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = contentColor
-                    )
+                    onClick = onBackFromAddEditModeClick,
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Hide search bar",
-                        modifier = Modifier
-                            .rotate(drawerState.offset.value / 1080f * 360f)
-                    )
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide add edit bar")
                 }
-            else
-                IconButton(
-                    onClick = onDrawerMenuClick,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = contentColor
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Menu,
-                        contentDescription = "Toggle drawer",
-                        modifier = Modifier
-                            .rotate(drawerState.offset.value / 1080f * 360f)
-                    )
-                }
+            }
         },
         actions = {
-            IconButton(
-                onClick = { actionsMenuState.value = true },
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = contentColor
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.MoreVert,
-                    contentDescription = "More"
+            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal) {
+                IconButton(
+                    onClick = { actionsMenuState.value = true },
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                ) {
+                    Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More")
+                }
+                ActionsMenu(
+                    actionsMenuState = actionsMenuState,
+                    selectedActionsMenuItemId = selectedActionsMenuItemId,
+                    onActionsMenuItemClick = onActionsMenuItemClick
                 )
             }
-            ActionsMenu(
-                actionsMenuState = actionsMenuState,
-                selectedActionsMenuItemId = selectedActionsMenuItemId,
-                onActionsMenuItemClick = onActionsMenuItemClick
-            )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -462,7 +454,7 @@ data class MenuItem(
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Screen.Main.Investigations.withArgs(AllInvestigations.str) } ?: navigationAndActionItems[4]
+            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(AllInv.str) } ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
@@ -478,8 +470,8 @@ data class MenuItem(
     }
 
     enum class Actions(val action: String) {
-        UPLOAD_MASTER_DATA("upload_master_data"),
-        SYNC_INVESTIGATIONS("sync_investigations"),
+        UPLOAD_MD("upload_master_data"),
+        SYNC_INV("sync_investigations"),
         CUSTOM_FILTER("custom_filter")
     }
 }
@@ -490,14 +482,14 @@ private val navigationAndActionItems = listOf(
     MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem(Screen.Main.Investigations.withArgs(AllInvestigations.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Screen.Main.Investigations.withArgs(ProcessControl.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.Inv.withArgs(AllInv.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.Inv.withArgs(ProcessControl.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
     MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
     MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
-    MenuItem(MenuItem.Actions.UPLOAD_MASTER_DATA.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
-    MenuItem(MenuItem.Actions.SYNC_INVESTIGATIONS.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem(MenuItem.Actions.UPLOAD_MD.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    MenuItem(MenuItem.Actions.SYNC_INV.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
 
     MenuItem("no_filter", "No filter", "No filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
@@ -512,4 +504,14 @@ enum class InvStatus(val statusId: SelectedNumber) {
     TO_DO(SelectedNumber(1)),
     IN_PROGRESS(SelectedNumber(2)),
     DONE(SelectedNumber(3))
+}
+
+enum class AddEditMode(val mode: String) {
+    NO_MODE("No mode"),
+    ADD_ORDER("Add new investigation"),
+    EDIT_ORDER("Edit investigation"),
+    ADD_SUB_ORDER("Add new order"),
+    EDIT_SUB_ORDER("Edit order"),
+    ADD_SUB_ORDER_STAND_ALONE("Add new process control order"),
+    EDIT_SUB_ORDER_STAND_ALONE("Edit process control order")
 }

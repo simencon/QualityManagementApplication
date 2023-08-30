@@ -1,39 +1,30 @@
 package com.simenko.qmapp.ui.neworder
 
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.neworder.steps.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -44,7 +35,7 @@ import java.util.Locale
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
-    actionType: ActionType,
+    addEditMode: AddEditMode,
     orderId: Int
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
@@ -136,7 +127,10 @@ fun SearchBarProducts(
 @Composable
 fun ItemToSelect(
     item: Triple<Int, String, Boolean>,
-    onClick: (Int) -> Unit
+    onClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+        .width(224.dp)
+        .height(56.dp)
 ) {
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -147,9 +141,7 @@ fun ItemToSelect(
     ) {
         TextButton(
             colors = btnColors,
-            modifier = Modifier
-                .width(224.dp)
-                .height(56.dp),
+            modifier = modifier,
             onClick = { onClick(item.first) }
         ) { Text(text = item.second) }
     }
