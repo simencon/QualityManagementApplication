@@ -24,29 +24,18 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.neworder.steps.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-//@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
-    addEditMode: AddEditMode,
     orderId: Int
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
-//    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-//    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
-
-//    val pullRefreshState = rememberPullRefreshState(
-//        refreshing = observerLoadingProcess!!,
-//        onRefresh = { viewModel.refreshDataFromRepository() }
-//    )
-
     LaunchedEffect(orderId) {
         if (orderId != NoRecord.num) {
             withContext(Dispatchers.Default) {
@@ -56,7 +45,7 @@ fun OrderForm(
         }
     }
 
-    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
+    Box {
         Column(
             modifier.verticalScroll(rememberScrollState())
         ) {
@@ -72,17 +61,7 @@ fun OrderForm(
 
             Spacer(Modifier.height((16 + 56).dp))
         }
-//        PullRefreshIndicator(
-//            observerLoadingProcess!!,
-//            pullRefreshState,
-//            modifier.align(Alignment.TopCenter),
-//            contentColor = ProgressIndicatorDefaults.circularColor
-//        )
     }
-//    if (observerIsNetworkError == true) {
-//        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
-//        viewModel.onNetworkErrorShown()
-//    }
 }
 
 @Composable

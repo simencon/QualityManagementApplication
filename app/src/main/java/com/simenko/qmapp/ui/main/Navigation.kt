@@ -97,7 +97,6 @@ fun Navigation(
             }
             QMAppTheme {
                 OrderForm(
-                    addEditMode = AddEditMode.ADD_ORDER,
                     orderId = it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num
                 )
             }
