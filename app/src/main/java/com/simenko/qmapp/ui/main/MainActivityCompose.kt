@@ -107,8 +107,8 @@ class MainActivityCompose : ComponentActivity() {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
                             Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(AllInv.str) -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(ProcessControl.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
                             Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
@@ -128,8 +128,8 @@ class MainActivityCompose : ComponentActivity() {
 
                 fun onSearchBarSearch(searchValues: String) {
                     when (selectedDrawerMenuItemId) {
-                        Screen.Main.Inv.withArgs(AllInv.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-                        Screen.Main.Inv.withArgs(ProcessControl.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -183,7 +183,7 @@ class MainActivityCompose : ComponentActivity() {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
                                                 when (selectedDrawerMenuItemId) {
                                                     Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
-                                                    Screen.Main.Inv.withArgs(AllInv.str) -> {
+                                                    Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                                                     }
@@ -192,9 +192,8 @@ class MainActivityCompose : ComponentActivity() {
                                                 }
                                             else {
                                                 when (AddEditMode.values()[addEditMode]) {
-                                                    AddEditMode.ADD_ORDER -> {
-                                                        newOrderModel.saveOrder()
-                                                    }
+                                                    AddEditMode.ADD_ORDER -> newOrderModel.postOrder()
+                                                    AddEditMode.EDIT_ORDER -> newOrderModel.editOrder()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
@@ -223,8 +222,8 @@ class MainActivityCompose : ComponentActivity() {
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId) {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
-                                        Screen.Main.Inv.withArgs(AllInv.str) -> invModel.uploadNewInvestigations()
-                                        Screen.Main.Inv.withArgs(ProcessControl.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
 
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))
@@ -273,6 +272,7 @@ class MainActivityCompose : ComponentActivity() {
     fun initInvModel(model: InvestigationsViewModel) {
         this.invModel = model
         this.invModel.initMainActivityViewModel(this.viewModel)
+        this.invModel.initNavController(this.navController)
     }
 
     fun initTeamModel(model: TeamViewModel) {

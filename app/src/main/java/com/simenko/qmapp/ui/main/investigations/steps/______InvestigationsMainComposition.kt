@@ -40,7 +40,6 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun InvestigationsMainComposition(
-    navController: NavHostController,
     modifier: Modifier = Modifier,
     mainScreenPadding: PaddingValues,
     processControlOnly: Boolean = false,
@@ -167,8 +166,7 @@ fun InvestigationsMainComposition(
                     SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
                 else
                     Orders(
-                        modifier = modifier.width(screenSizes.second),
-                        onClickEdit = { navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString())) }
+                        modifier = modifier.width(screenSizes.second)
                     )
 
                 if (currentTask != NoRecord)

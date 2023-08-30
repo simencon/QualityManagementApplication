@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.simenko.qmapp.domain.CurrentOrderIdKey
+import com.simenko.qmapp.domain.CurrentSubOrderIdKey
 import com.simenko.qmapp.domain.InvestigationsKey
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.Screen
@@ -48,19 +49,30 @@ fun Navigation(
             }
         }
         composable(
-            route = Screen.Main.Inv.route + "/{${InvestigationsKey.str}}",
+            route = Screen.Main.Inv.route + "/{${InvestigationsKey.str}}/{${CurrentOrderIdKey.str}}/{${CurrentSubOrderIdKey.str}}",
             arguments = listOf(
                 navArgument(InvestigationsKey.str) {
                     type = NavType.BoolType
                     defaultValue = getBoolean(MenuItem.getStartingDrawerMenuItem().id)
+                },
+                navArgument(CurrentOrderIdKey.str) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                },
+                navArgument(CurrentSubOrderIdKey.str) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
                 }
             )
         ) {
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivityCompose).initInvModel(invModel)
+            invModel.setCreatedRecord(
+                it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num,
+                it.arguments?.getInt(CurrentSubOrderIdKey.str)?: NoRecord.num
+            )
             QMAppTheme {
                 InvestigationsMainComposition(
-                    navController = navController,
                     modifier = Modifier.padding(all = 0.dp),
                     mainScreenPadding = mainScreenPadding,
                     processControlOnly = it.arguments?.getBoolean(InvestigationsKey.str)?:false
