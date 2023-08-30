@@ -68,11 +68,11 @@ data class CreatedRecord(
 
 fun setMainActivityResult(
     activity: NewItemActivity,
-    actionType: ActionType,
+    addEditMode: AddEditMode,
     orderId: Int = NoRecord.num,
     subOrderId: Int = NoRecord.num
 ) {
-    activity.setResult(actionType.ordinal, createMainActivityIntent(activity, orderId, subOrderId))
+    activity.setResult(addEditMode.ordinal, createMainActivityIntent(activity, orderId, subOrderId))
 }
 
 fun createMainActivityIntent(
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun navigateToProperRecord(
-        requestCode: Int = ActionType.DEFAULT.ordinal,
+        requestCode: Int = AddEditMode.NO_MODE.ordinal,
         bundle: Bundle?
     ) {
         investigationsModel.setCreatedRecord(
@@ -242,15 +242,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
 
         when (requestCode) {
-            ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal, ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal -> {
+            AddEditMode.ADD_SUB_ORDER_STAND_ALONE.ordinal, AddEditMode.EDIT_SUB_ORDER_STAND_ALONE.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
             }
 
-            ActionType.ADD_ORDER.ordinal, ActionType.EDIT_ORDER.ordinal, ActionType.ADD_SUB_ORDER.ordinal, ActionType.EDIT_SUB_ORDER.ordinal -> {
+            AddEditMode.ADD_ORDER.ordinal, AddEditMode.EDIT_ORDER.ordinal, AddEditMode.ADD_SUB_ORDER.ordinal, AddEditMode.EDIT_SUB_ORDER.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
             }
 
-            ActionType.DEFAULT.ordinal -> {
+            AddEditMode.NO_MODE.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
             }
         }

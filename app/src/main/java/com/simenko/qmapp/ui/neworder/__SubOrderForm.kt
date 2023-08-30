@@ -17,14 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.neworder.steps.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SubOrderForm(
     modifier: Modifier = Modifier,
-    actionType: ActionType,
+    addEditMode: AddEditMode,
     viewModel: NewItemViewModel,
     parentId: Int
 ) {
@@ -43,8 +43,8 @@ fun SubOrderForm(
             modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            if (actionType == ActionType.ADD_SUB_ORDER_STAND_ALONE ||
-                actionType == ActionType.EDIT_SUB_ORDER_STAND_ALONE) {
+            if (addEditMode == AddEditMode.ADD_SUB_ORDER_STAND_ALONE ||
+                addEditMode == AddEditMode.EDIT_SUB_ORDER_STAND_ALONE) {
                 ButtonsSection(title = R.string.select_reason) {
                     ReasonsSelection(
                         modifier = Modifier.padding(top = 0.dp)

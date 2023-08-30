@@ -1,7 +1,6 @@
 package com.simenko.qmapp.domain
 
 import androidx.compose.runtime.Stable
-import com.simenko.qmapp.ui.Screen
 
 @Stable
 abstract class DomainBaseModel<out T> {
@@ -41,7 +40,7 @@ val NoString = SelectedString("-")
 val EmptyString = SelectedString("")
 
 val InvestigationsKey = SelectedString("processControlOnly")
-val AllInvestigations = SelectedString("false")
+val AllInv = SelectedString("false")
 val ProcessControl = SelectedString("true")
 
 val CurrentOrderIdKey = SelectedString("currentOrderId")

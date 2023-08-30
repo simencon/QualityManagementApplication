@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +35,6 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.neworder.ActionType
 import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
@@ -69,7 +67,7 @@ fun SubOrdersFlowColumn(
         { orderId, subOrderId ->
             launchNewItemActivityForResult(
                 context as MainActivity,
-                ActionType.EDIT_SUB_ORDER.ordinal,
+                AddEditMode.EDIT_SUB_ORDER.ordinal,
                 orderId,
                 subOrderId
             )
@@ -126,7 +124,7 @@ fun SubOrdersFlowColumn(
             onClick = {
                 launchNewItemActivityForResult(
                     context as MainActivity,
-                    ActionType.ADD_SUB_ORDER.ordinal,
+                    AddEditMode.ADD_SUB_ORDER.ordinal,
                     parentId
                 )
             },

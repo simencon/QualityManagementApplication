@@ -325,7 +325,7 @@ class NewItemViewModel @Inject constructor(
                             postDeleteSubOrderTasks(resource.data!!.id, subOrder)
                             postDeleteSamples(resource.data.id, subOrder)
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
-                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
+                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
                             activity.finish()
                         }
 
@@ -352,7 +352,7 @@ class NewItemViewModel @Inject constructor(
 
                         Status.SUCCESS -> {
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
-                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data!!.id)
+                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data!!.id)
                             activity.finish()
                         }
 
@@ -407,7 +407,7 @@ class NewItemViewModel @Inject constructor(
                             postDeleteSubOrderTasks(resource.data!!.id, subOrder)
                             postDeleteSamples(resource.data.id, subOrder)
                             withContext(Dispatchers.Main) { isLoadingInProgress.value = false }
-                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data.orderId, resource.data.id)
+                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
                             activity.finish()
                         }
 
@@ -434,7 +434,7 @@ class NewItemViewModel @Inject constructor(
                         }
 
                         Status.SUCCESS -> {
-                            setMainActivityResult(activity, activity.actionTypeEnum, resource.data!!.id)
+                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data!!.id)
                             activity.finish()
                         }
 

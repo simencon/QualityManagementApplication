@@ -6,45 +6,28 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
 import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
-import com.simenko.qmapp.ui.neworder.assemblers.disassembleOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.*
 
 private const val TAG = "NewItemActivity"
-
-enum class ActionType {
-    DEFAULT,
-    ADD_ORDER,
-    EDIT_ORDER,
-    ADD_SUB_ORDER,
-    EDIT_SUB_ORDER,
-    ADD_SUB_ORDER_STAND_ALONE,
-    EDIT_SUB_ORDER_STAND_ALONE
-}
 
 internal const val KEY_ARG_REQUEST_CODE = "KEY_ARG_REQUEST_CODE"
 internal const val KEY_ARG_ORDER_ID = "KEY_ARG_ORDER_ID"
@@ -82,7 +65,7 @@ fun createNewItemActivityIntent(
 @AndroidEntryPoint
 class NewItemActivity : ComponentActivity() {
 
-    lateinit var actionTypeEnum: ActionType
+    lateinit var addEditModeEnum: AddEditMode
     private var orderId = NoRecord.num
     private var subOrderId = NoRecord.num
 
@@ -94,7 +77,7 @@ class NewItemActivity : ComponentActivity() {
 
         viewModel = ViewModelProvider(this)[NewItemViewModel::class.java]
 
-        actionTypeEnum = ActionType.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, NoRecord.num)]
+        addEditModeEnum = AddEditMode.values()[intent.getIntExtra(KEY_ARG_REQUEST_CODE, NoRecord.num)]
 
         orderId = intent.extras?.getInt(KEY_ARG_ORDER_ID) ?: NoRecord.num
         subOrderId = intent.extras?.getInt(KEY_ARG_SUB_ORDER_ID) ?: NoRecord.num
@@ -106,7 +89,7 @@ class NewItemActivity : ComponentActivity() {
                         TopAppBar(
                             title = {
                                 Text(
-                                    StringUtils.getWithSpaces(actionTypeEnum.name),
+                                    StringUtils.getWithSpaces(addEditModeEnum.name),
                                     color = Color.White
                                 )
                             },
@@ -127,44 +110,44 @@ class NewItemActivity : ComponentActivity() {
                                     ).show()
                                     return@FloatingActionButton
                                 } else {
-                                    when (actionTypeEnum) {
-                                        ActionType.DEFAULT -> {
+                                    when (addEditModeEnum) {
+                                        AddEditMode.NO_MODE -> {
                                             viewModel.postNewSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.ADD_ORDER -> {
+                                        AddEditMode.ADD_ORDER -> {
                                             viewModel.postNewOrder(
                                                 this,
                                                 checkCurrentOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.EDIT_ORDER -> {
+                                        AddEditMode.EDIT_ORDER -> {
                                             viewModel.editOrder(
                                                 this,
                                                 checkCurrentOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.ADD_SUB_ORDER -> {
+                                        AddEditMode.ADD_SUB_ORDER -> {
                                             viewModel.postNewSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.EDIT_SUB_ORDER -> {
+                                        AddEditMode.EDIT_SUB_ORDER -> {
                                             viewModel.editSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.ADD_SUB_ORDER_STAND_ALONE -> {
+                                        AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> {
                                             viewModel.postNewOrderWithSubOrder(
                                                 this,
                                                 checkCurrentSubOrder(viewModel)!!
                                             )
                                         }
-                                        ActionType.EDIT_SUB_ORDER_STAND_ALONE -> {
+                                        AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> {
 //                                            ToDo
                                         }
                                     }
@@ -196,21 +179,21 @@ class NewItemActivity : ComponentActivity() {
 //                                parentId = NoRecord.num,
 //                            )
 //                        }
-                        (actionTypeEnum == ActionType.ADD_SUB_ORDER ||
-                                actionTypeEnum == ActionType.ADD_SUB_ORDER_STAND_ALONE) -> {
+                        (addEditModeEnum == AddEditMode.ADD_SUB_ORDER ||
+                                addEditModeEnum == AddEditMode.ADD_SUB_ORDER_STAND_ALONE) -> {
                             SubOrderForm(
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
-                                actionType = actionTypeEnum,
+                                addEditMode = addEditModeEnum,
                                 parentId = NoRecord.num,
                             )
                         }
-                        (actionTypeEnum == ActionType.EDIT_SUB_ORDER ||
-                                actionTypeEnum == ActionType.EDIT_SUB_ORDER_STAND_ALONE) -> {
+                        (addEditModeEnum == AddEditMode.EDIT_SUB_ORDER ||
+                                addEditModeEnum == AddEditMode.EDIT_SUB_ORDER_STAND_ALONE) -> {
                             SubOrderForm(
                                 modifier = Modifier.padding(padding),
                                 viewModel = viewModel,
-                                actionType = actionTypeEnum,
+                                addEditMode = addEditModeEnum,
                                 parentId = NoRecord.num,
                             )
                         }

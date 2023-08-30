@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.simenko.qmapp.domain.AllInvestigations
-import com.simenko.qmapp.domain.ProcessControl
 
 sealed class Screen(val route: String) {
 
@@ -28,7 +26,7 @@ sealed class Screen(val route: String) {
         object Employees : Screen("employees")
         object CompanyStructure : Screen("company_structure")
         object CompanyProducts : Screen("company_products")
-        object Investigations : Screen("all_investigations")
+        object Inv : Screen("all_investigations")
         object OrderAddEdit : Screen("order_add_edit")
         object ScrapLevel : Screen("scrap_level")
         object Settings : Screen("settings")
