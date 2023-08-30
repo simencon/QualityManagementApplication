@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
@@ -32,19 +33,6 @@ fun filterAllAfterQuantity(
     samplesQuantity: Int,
     clear: Boolean = false
 ) {
-//    ToDo is not optimized while quantity is not reset
-    appModel.characteristicsMutable.performFiltration(
-        s = appModel.characteristics,
-        action = FilteringMode.ADD_BY_PARENT_ID_FROM_META_TABLE,
-        trigger = appModel.pairedTrigger,
-        p1Id = samplesQuantity,
-        p2Id = appModel.currentSubOrder.value?.subOrder?.itemPreffix ?: NoString.str,
-        p3Id = appModel.currentSubOrder.value?.subOrder?.operationId ?: NoRecord.num,
-        pFlow = appModel.operationsFlows.value,
-        m = appModel.inputForOrder,
-        step = FilteringStep.CHARACTERISTICS
-    )
-
     if (clear) {
         appModel.currentSubOrder.value?.subOrderTasks?.removeIf { it.isNewRecord }
         appModel.currentSubOrder.value?.subOrderTasks?.forEach { it.toBeDeleted = true }
@@ -84,7 +72,7 @@ fun ButtonsSectionQuantity(
     content: @Composable () -> Unit
 ) {
     Column(modifier) {
-        Row() {
+        Row {
             Text(
                 text = stringResource(title).uppercase(Locale.getDefault()),
                 style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
@@ -121,7 +109,7 @@ fun QuantitySelection(
                     modifier = modifier.width(224.dp),
                     factory = { context ->
                         NumberPicker(context).apply {
-                            setOnValueChangedListener { picker, oldVal, newVal ->
+                            setOnValueChangedListener { _, oldVal, newVal ->
                                 appModel.currentSubOrder.value?.subOrder?.samplesCount = newVal
                                 if (oldVal == ZeroValue.num || newVal == ZeroValue.num)
                                     filterAllAfterQuantity(appModel, newVal, true)

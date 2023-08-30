@@ -156,7 +156,7 @@ interface ProductsDao {
 
     @Transaction
     @Query("SELECT * FROM item_versions_complete")
-    fun getItemVersionsComplete(): LiveData<List<DatabaseItemVersionComplete>>
+    fun getItemVersionsComplete(): Flow<List<DatabaseItemVersionComplete>>
 
     @Transaction
     @Query("SELECT * FROM characteristic_complete")
