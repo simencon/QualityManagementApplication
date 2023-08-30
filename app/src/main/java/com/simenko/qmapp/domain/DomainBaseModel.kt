@@ -44,6 +44,7 @@ val AllInv = SelectedString("false")
 val ProcessControl = SelectedString("true")
 
 val CurrentOrderIdKey = SelectedString("currentOrderId")
+val CurrentSubOrderIdKey = SelectedString("currentSubOrderId")
 val NoRecordStr = SelectedString("-1")
 
 

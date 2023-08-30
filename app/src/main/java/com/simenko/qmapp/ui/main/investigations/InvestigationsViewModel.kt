@@ -3,12 +3,14 @@ package com.simenko.qmapp.ui.main.investigations
 import android.util.Log
 import androidx.compose.material3.FabPosition
 import androidx.lifecycle.*
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.dialogs.DialogInput
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.InvStatus
 import com.simenko.qmapp.ui.main.MainActivityViewModel
@@ -47,10 +49,18 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    private lateinit var mainActivityViewModel: MainActivityViewModel
+    private lateinit var _navController: NavHostController
+    val navController get() = _navController
+    fun initNavController(controller: NavHostController) {
+        this._navController = controller
+    }
 
+    private lateinit var mainActivityViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this.mainActivityViewModel = viewModel
+    }
+    fun setAddEditMode(mode: AddEditMode) {
+        mainActivityViewModel.setAddEditMode(mode)
     }
 
     private val _isLoadingInProgress: StateFlow<Boolean>
@@ -384,12 +394,13 @@ class InvestigationsViewModel @Inject constructor(
         _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
     }
 
-    val currentTaskDetails: StateFlow<SelectedNumber> get() = _currentTaskVisibility.flatMapLatest {
-        flow { emit(it.first) }
-    }
-        .flowOn(Dispatchers.IO)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentTaskVisibility.value.first)
+    val currentTaskDetails: StateFlow<SelectedNumber>
+        get() = _currentTaskVisibility.flatMapLatest {
+            flow { emit(it.first) }
+        }
+            .flowOn(Dispatchers.IO)
+            .conflate()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentTaskVisibility.value.first)
 
     /**
      * The result flow

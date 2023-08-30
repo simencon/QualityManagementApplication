@@ -8,6 +8,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.setMainActivityResult
@@ -25,7 +26,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
-import java.io.IOException
 import javax.inject.Inject
 
 private const val TAG = "NewItemViewModel"
@@ -333,7 +333,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    fun saveOrder() {
+    fun postOrder() {
         if (checkIfPossibleToSave(_currentOrder.value) != null)
             viewModelScope.launch(Dispatchers.IO) {
                 with(repository) { insertOrder(_currentOrder.value) }.consumeEach { event ->
@@ -347,7 +347,9 @@ class NewItemViewModel @Inject constructor(
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 setAddEditMode(AddEditMode.NO_MODE)
                                 withContext(Dispatchers.Main) {
-                                    navController.popBackStack()
+                                    navController.navigate(Screen.Main.Inv.withArgs(AllInv.str, resource.data?.id.toString(), NoRecordStr.str)) {
+                                        popUpTo(0)
+                                    }
                                 }
                             }
 
@@ -355,6 +357,33 @@ class NewItemViewModel @Inject constructor(
                                 mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                                 navController.popBackStack()
                             }
+                        }
+                    }
+                }
+            }
+        else
+            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+    }
+
+    fun editOrder() {
+        if (checkIfPossibleToSave(_currentOrder.value) != null)
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.run { updateOrder(_currentOrder.value) }.consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+
+                            Status.SUCCESS -> {
+                                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                setAddEditMode(AddEditMode.NO_MODE)
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(Screen.Main.Inv.withArgs(AllInv.str, resource.data?.id.toString(), NoRecordStr.str)) {
+                                        popUpTo(0)
+                                    }
+                                }
+                            }
+
+                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                         }
                     }
                 }
@@ -405,25 +434,6 @@ class NewItemViewModel @Inject constructor(
             syncTasks()
             syncSamples()
             syncResults()
-        }
-    }
-
-    fun editOrder(activity: NewItemActivity, order: DomainOrder) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.run { updateOrder(order) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-
-                        Status.SUCCESS -> {
-                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data!!.id)
-                            activity.finish()
-                        }
-
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                    }
-                }
-            }
         }
     }
 

@@ -82,6 +82,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.AllInv
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.storage.Principle
@@ -166,8 +167,8 @@ fun AppBar(
                     } else {
                         Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
                         if (
-                            screen.id == Screen.Main.Inv.withArgs(AllInv.str) ||
-                            screen.id == Screen.Main.Inv.withArgs(ProcessControl.str)
+                            screen.id == Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) ||
+                            screen.id == Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str)
                         )
                             IconButton(onClick = { searchBarState.value = true }) {
                                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
@@ -454,7 +455,7 @@ data class MenuItem(
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(AllInv.str) } ?: navigationAndActionItems[4]
+            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) } ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
@@ -482,8 +483,8 @@ private val navigationAndActionItems = listOf(
     MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem(Screen.Main.Inv.withArgs(AllInv.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Screen.Main.Inv.withArgs(ProcessControl.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
     MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
     MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),

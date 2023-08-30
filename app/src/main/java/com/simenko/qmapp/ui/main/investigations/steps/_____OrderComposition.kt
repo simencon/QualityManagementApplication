@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +34,7 @@ import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -51,12 +51,10 @@ private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
-    modifier: Modifier = Modifier,
-    onClickEdit: (Int) -> Unit
+    modifier: Modifier = Modifier
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
-    val context = LocalContext.current
 
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
@@ -65,7 +63,12 @@ fun Orders(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
+    val onClickEditLambda = remember<(Int) -> Unit> {
+        {
+            invModel.setAddEditMode(AddEditMode.EDIT_ORDER)
+            invModel.navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString()))
+        }
+    }
 
     val listState = rememberLazyListState()
 
