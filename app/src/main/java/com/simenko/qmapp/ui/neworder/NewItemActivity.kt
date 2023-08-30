@@ -3,24 +3,19 @@ package com.simenko.qmapp.ui.neworder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentOrder
-import com.simenko.qmapp.ui.neworder.assemblers.checkCurrentSubOrder
 import com.simenko.qmapp.ui.neworder.steps.*
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
@@ -97,7 +92,7 @@ class NewItemActivity : ComponentActivity() {
                         )
                     },
                     floatingActionButton = {
-                        FloatingActionButton(
+                        /*FloatingActionButton(
                             modifier = Modifier.padding(end = 29.dp),
                             onClick = {
                                 if (checkCurrentOrder(viewModel) == null
@@ -118,10 +113,10 @@ class NewItemActivity : ComponentActivity() {
                                             )
                                         }
                                         AddEditMode.ADD_ORDER -> {
-                                            viewModel.postNewOrder(
-                                                this,
-                                                checkCurrentOrder(viewModel)!!
-                                            )
+//                                            viewModel.postNewOrder(
+//                                                this,
+//                                                checkCurrentOrder(viewModel)!!
+//                                            )
                                         }
                                         AddEditMode.EDIT_ORDER -> {
                                             viewModel.editOrder(
@@ -160,7 +155,7 @@ class NewItemActivity : ComponentActivity() {
                                     tint = Primary
                                 )
                             }
-                        )
+                        )*/
                     },
                 ) { padding ->
 

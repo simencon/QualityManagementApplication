@@ -29,7 +29,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.AllInv
@@ -76,16 +76,18 @@ class MainActivityCompose : ComponentActivity() {
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
 
+    private lateinit var navController: NavHostController
+
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             QMAppTheme {
-                val navController = rememberNavController()
+                navController = rememberNavController()
 
                 val scope = rememberCoroutineScope()
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
-                val selectedDrawerMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingDrawerMenuItem().id) }
+                val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
                 BackHandler(enabled = drawerState.isOpen, onBack = { scope.launch { drawerState.close() } })
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
@@ -97,12 +99,12 @@ class MainActivityCompose : ComponentActivity() {
                 val searchBarState = rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
 
-                val addEditMode = rememberSaveable { mutableIntStateOf(AddEditMode.NO_MODE.ordinal) }
+                val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
 
                 fun onDrawerItemClick(id: String) {
                     scope.launch { drawerState.close() }
-                    if (id != selectedDrawerMenuItemId.value) {
-                        selectedDrawerMenuItemId.value = id
+                    if (id != selectedDrawerMenuItemId) {
+                        viewModel.setDrawerMenuItemId(id)
                         when (id) {
                             Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) }
                             Screen.Main.Inv.withArgs(AllInv.str) -> navController.navigate(id) { popUpTo(0) }
@@ -125,7 +127,7 @@ class MainActivityCompose : ComponentActivity() {
                 }
 
                 fun onSearchBarSearch(searchValues: String) {
-                    when (selectedDrawerMenuItemId.value) {
+                    when (selectedDrawerMenuItemId) {
                         Screen.Main.Inv.withArgs(AllInv.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
                         Screen.Main.Inv.withArgs(ProcessControl.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
@@ -133,7 +135,7 @@ class MainActivityCompose : ComponentActivity() {
                 }
 
                 ModalNavigationDrawer(
-                    gesturesEnabled = addEditMode.intValue == AddEditMode.NO_MODE.ordinal,
+                    gesturesEnabled = addEditMode == AddEditMode.NO_MODE.ordinal,
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet(
@@ -155,7 +157,7 @@ class MainActivityCompose : ComponentActivity() {
                         Scaffold(
                             topBar = {
                                 AppBar(
-                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId.value) ?: MenuItem.getStartingDrawerMenuItem(),
+                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId) ?: MenuItem.getStartingDrawerMenuItem(),
 
                                     onDrawerMenuClick = { scope.launch { drawerState.open() } },
                                     drawerState = drawerState,
@@ -168,38 +170,37 @@ class MainActivityCompose : ComponentActivity() {
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = {
-                                        addEditMode.intValue = AddEditMode.NO_MODE.ordinal
+                                        viewModel.setAddEditMode(AddEditMode.NO_MODE)
                                         navController.popBackStack()
                                     }
                                 )
                             },
                             floatingActionButton = {
-                                if (selectedDrawerMenuItemId.value != Screen.Main.Settings.route)
+                                if (selectedDrawerMenuItemId != Screen.Main.Settings.route)
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                                         onClick = {
-                                            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal)
-                                                when (selectedDrawerMenuItemId.value) {
+                                            if (addEditMode == AddEditMode.NO_MODE.ordinal)
+                                                when (selectedDrawerMenuItemId) {
                                                     Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
                                                     Screen.Main.Inv.withArgs(AllInv.str) -> {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
-                                                        addEditMode.intValue = AddEditMode.ADD_ORDER.ordinal
+                                                        viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                                                     }
 
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             else {
-                                                when (AddEditMode.values()[addEditMode.intValue]) {
+                                                when (AddEditMode.values()[addEditMode]) {
                                                     AddEditMode.ADD_ORDER -> {
-                                                        Toast.makeText(this, "Save new order and popStackBack", Toast.LENGTH_LONG).show()
+                                                        newOrderModel.saveOrder()
                                                     }
-
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
                                         },
                                         content = {
-                                            if (addEditMode.intValue == AddEditMode.NO_MODE.ordinal) {
+                                            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                                                 Icon(
                                                     imageVector = Icons.Default.Add,
                                                     contentDescription = "Add button",
@@ -220,7 +221,7 @@ class MainActivityCompose : ComponentActivity() {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = {
-                                    when (selectedDrawerMenuItemId.value) {
+                                    when (selectedDrawerMenuItemId) {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
                                         Screen.Main.Inv.withArgs(AllInv.str) -> invModel.uploadNewInvestigations()
                                         Screen.Main.Inv.withArgs(ProcessControl.str) -> invModel.uploadNewInvestigations()
@@ -246,8 +247,7 @@ class MainActivityCompose : ComponentActivity() {
                                         .pullRefresh(pullRefreshState),
                                     it,
                                     MenuItem.getStartingDrawerMenuItem().id,
-                                    navController,
-                                    addEditMode
+                                    navController
                                 )
                                 PullRefreshIndicator(
                                     refreshing = observerLoadingProcess,
@@ -282,5 +282,7 @@ class MainActivityCompose : ComponentActivity() {
 
     fun initNewOrderModel(newOrderModel: NewItemViewModel) {
         this.newOrderModel = newOrderModel
+        this.newOrderModel.initMainActivityViewModel(this.viewModel)
+        this.newOrderModel.initNavController(this.navController)
     }
 }

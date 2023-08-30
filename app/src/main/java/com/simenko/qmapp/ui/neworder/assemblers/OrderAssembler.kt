@@ -9,13 +9,13 @@ import com.simenko.qmapp.ui.neworder.NewItemViewModel
 
 private const val TAG = "OrderAssembler"
 
-fun checkCurrentOrder(viewModel: NewItemViewModel): DomainOrder? {
-    if (viewModel.currentOrder.value?.orderTypeId == NoRecord.num) return null
-    if (viewModel.currentOrder.value?.reasonId == NoRecord.num) return null
-    if (viewModel.currentOrder.value?.customerId == NoRecord.num) return null
-    if (viewModel.currentOrder.value?.orderedById == NoRecord.num) return null
+fun checkIfPossibleToSave(record: DomainOrder): DomainOrder? {
+    if (record.orderTypeId == NoRecord.num) return null
+    if (record.reasonId == NoRecord.num) return null
+    if (record.customerId == NoRecord.num) return null
+    if (record.orderedById == NoRecord.num) return null
 
-    return viewModel.currentOrder.value
+    return record
 }
 
 fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {

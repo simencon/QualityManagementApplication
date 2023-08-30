@@ -28,17 +28,17 @@ fun SubOrderForm(
     viewModel: NewItemViewModel,
     parentId: Int
 ) {
-    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
+//    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
+//    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
 
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = observerLoadingProcess!!,
-        onRefresh = {
-            viewModel.refreshDataFromRepository()
-        }
-    )
+//    val pullRefreshState = rememberPullRefreshState(
+//        refreshing = observerLoadingProcess!!,
+//        onRefresh = {
+//            viewModel.refreshDataFromRepository()
+//        }
+//    )
 
-    Box(Modifier.pullRefresh(pullRefreshState)) {
+    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
         Column(
             modifier
                 .verticalScroll(rememberScrollState())
@@ -106,15 +106,15 @@ fun SubOrderForm(
             }
             Spacer(Modifier.height((16 + 56).dp))
         }
-        PullRefreshIndicator(
-            observerLoadingProcess!!,
-            pullRefreshState,
-            modifier.align(Alignment.TopCenter),
-            contentColor = ProgressIndicatorDefaults.circularColor
-        )
+//        PullRefreshIndicator(
+//            observerLoadingProcess!!,
+//            pullRefreshState,
+//            modifier.align(Alignment.TopCenter),
+//            contentColor = ProgressIndicatorDefaults.circularColor
+//        )
     }
-    if (observerIsNetworkError == true) {
-        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
-        viewModel.onNetworkErrorShown()
-    }
+//    if (observerIsNetworkError == true) {
+//        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
+//        viewModel.onNetworkErrorShown()
+//    }
 }
