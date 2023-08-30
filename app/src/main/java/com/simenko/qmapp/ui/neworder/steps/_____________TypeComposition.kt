@@ -43,10 +43,7 @@ fun TypesSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(items = items, key = { it.id }) { item ->
-            InvestigationTypeCard(
-                inputForOrder = item,
-                onClick = { onSelectLambda(it) }
-            )
+            InvestigationTypeCard(inputForOrder = item, onClick = { onSelectLambda(it) })
         }
     }
 }

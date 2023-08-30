@@ -43,31 +43,31 @@ class Adapter__________Department(
     }
 
     override fun onBindViewHolder(holder: DepartmentViewHolder, position: Int) {
-        holder.viewDataBinding.also {
-            it.department = itemsList[position]
-            it.departmentCallback = callback
-            it.position = position
-
-            val subDepAdapter =
-                Adapter________SubDepartment(SubDepartmentClick { subDepartment, position ->
-                    subDepartment.channelsVisibility = !subDepartment.channelsVisibility
-                    it.childAdapter?.notifyItemChanged(position)
-                }, viewModel, lifecycleOwner)
-
-            it.childAdapter = subDepAdapter
-
-            it.departmentSubDepartments.adapter = it.childAdapter
-
-            this.viewModel.subDepartments.observe(this.lifecycleOwner,
-                Observer { items ->
-                    items?.apply {
-                        subDepAdapter.itemsList =
-                            items.filter { item -> item.depId == itemsList[position].department.id }
-                                .toList()
-                    }
-                }
-            )
-        }
+//        holder.viewDataBinding.also {
+//            it.department = itemsList[position]
+//            it.departmentCallback = callback
+//            it.position = position
+//
+//            val subDepAdapter =
+//                Adapter________SubDepartment(SubDepartmentClick { subDepartment, position ->
+//                    subDepartment.channelsVisibility = !subDepartment.channelsVisibility
+//                    it.childAdapter?.notifyItemChanged(position)
+//                }, viewModel, lifecycleOwner)
+//
+//            it.childAdapter = subDepAdapter
+//
+//            it.departmentSubDepartments.adapter = it.childAdapter
+//
+//            this.viewModel.subDepartments.observe(this.lifecycleOwner,
+//                Observer { items ->
+//                    items?.apply {
+//                        subDepAdapter.itemsList =
+//                            items.filter { item -> item.depId == itemsList[position].department.id }
+//                                .toList()
+//                    }
+//                }
+//            )
+//        }
     }
 
     override fun getItemCount(): Int {

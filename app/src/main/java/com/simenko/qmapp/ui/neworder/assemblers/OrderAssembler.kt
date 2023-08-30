@@ -19,7 +19,7 @@ fun checkIfPossibleToSave(record: DomainOrder): DomainOrder? {
 }
 
 fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
-    viewModel.currentOrder.value = viewModel.investigationOrders.value?.find { it.id == orderId }
+//    viewModel.currentOrder.value = viewModel.investigationOrders.value?.find { it.id == orderId }
 }
 
 fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderShort? {

@@ -53,11 +53,6 @@ class NewItemViewModel @Inject constructor(
 
     val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    val investigationOrders = repository.orders
-
-    val currentOrder = MutableLiveData(
-        DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
-    )
     val currentSubOrder = MutableLiveData(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
@@ -72,14 +67,16 @@ class NewItemViewModel @Inject constructor(
 
     fun loadCurrentOrder(id: Int) {
         _currentOrder.value = repository.getOrderById(id)
-        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
 
     private val _currentSubOrder: MutableStateFlow<DomainSubOrderShort> = MutableStateFlow(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
-    val currentSubOrderSF: StateFlow<DomainSubOrderShort> = _currentSubOrder.flatMapLatest { order ->
-        flow { emit(order) }
+    val currentSubOrderSF: StateFlow<DomainSubOrderShort> = _currentOrder.flatMapLatest { order ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _currentSubOrder.value = subOrder.copy(order = order)
+            flow { emit(_currentSubOrder.value) }
+        }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentSubOrder.value)
 
     private val _orderTypes = repository.getOrderTypes
@@ -94,7 +91,6 @@ class NewItemViewModel @Inject constructor(
     fun selectOrderType(id: Int) {
         _currentOrder.value =
             _currentOrder.value.copy(orderTypeId = id, reasonId = NoRecord.num, customerId = NoRecord.num, orderedById = NoRecord.num)
-        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
 
     private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
@@ -112,7 +108,6 @@ class NewItemViewModel @Inject constructor(
 
     fun selectOrderReason(id: Int) {
         _currentOrder.value = _currentOrder.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
-        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
 
     private val _orderCustomers: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
@@ -130,7 +125,6 @@ class NewItemViewModel @Inject constructor(
 
     fun selectOrderCustomer(id: Int) {
         _currentOrder.value = _currentOrder.value.copy(customerId = id, orderedById = NoRecord.num)
-        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
 
     private val _orderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
@@ -148,17 +142,37 @@ class NewItemViewModel @Inject constructor(
 
     fun selectOrderPlacer(id: Int) {
         _currentOrder.value = _currentOrder.value.copy(orderedById = id)
-        _currentSubOrder.value = _currentSubOrder.value.copy(order = _currentOrder.value)
     }
 
-    val inputForOrder = repository.inputForOrder
 
-    val departmentsMutable = MutableLiveData<MutableList<DomainDepartment>>(mutableListOf())
-    val departmentsMediator: MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>> =
-        MediatorLiveData<Pair<MutableList<DomainDepartment>?, Boolean?>>().apply {
-            addSource(departmentsMutable) { value = Pair(it, pairedTrigger.value) }
-            addSource(pairedTrigger) { value = Pair(departmentsMutable.value, it) }
+
+
+
+    private val _subOrderDepartments: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
+    val subOrderDepartments: StateFlow<List<DomainDepartment>> = _subOrderDepartments.flatMapLatest { departments ->
+        _currentSubOrder.flatMapLatest { subOrder ->
+            _currentOrder.flatMapLatest { currentOrder ->
+                if (currentOrder.reasonId != NoRecord.num) {
+                    val cpy = mutableListOf<DomainDepartment>()
+                    departments.forEach { cpy.add(it.copy(isSelected = it.id == subOrder.subOrder.departmentId)) }
+                    flow { emit(cpy) }
+                } else {
+                    flow { emit(emptyList<DomainDepartment>()) }
+                }
+            }
         }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    fun selectSubOrderDepartment(id: Int) {
+        _currentSubOrder.value = _currentSubOrder.value.copy(subOrder = _currentSubOrder.value.subOrder.copy(departmentId = id))
+    }
+
+
+
+
+
+
+
+    val inputForOrder = repository.inputForOrder
 
     val subDepartments = manufacturingRepository.subDepartments
     val subDepartmentsMutable = MutableLiveData<MutableList<DomainSubDepartment>>(mutableListOf())
@@ -442,8 +456,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 mainActivityViewModel.updateLoadingState(Pair(true, null))
 
-                repository.syncSubOrderTasks(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
-                repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncSubOrderTasks(Pair(_currentOrder.value.createdDate, _currentOrder.value.createdDate))
+                repository.syncResults(Pair(_currentOrder.value.createdDate, _currentOrder.value.createdDate))
 
                 mainActivityViewModel.updateLoadingState(Pair(false, null))
             } catch (e: Exception) {
@@ -457,8 +471,8 @@ class NewItemViewModel @Inject constructor(
             try {
                 mainActivityViewModel.updateLoadingState(Pair(true, null))
 
-                repository.syncSamples(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
-                repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncSamples(Pair(_currentOrder.value.createdDate, _currentOrder.value.createdDate))
+                repository.syncResults(Pair(_currentOrder.value.createdDate, _currentOrder.value.createdDate))
 
                 mainActivityViewModel.updateLoadingState(Pair(false, null))
             } catch (e: Exception) {
@@ -472,7 +486,7 @@ class NewItemViewModel @Inject constructor(
             try {
                 mainActivityViewModel.updateLoadingState(Pair(true, null))
 
-                repository.syncResults(Pair(currentOrder.value!!.createdDate, currentOrder.value!!.createdDate))
+                repository.syncResults(Pair(_currentOrder.value.createdDate, _currentOrder.value.createdDate))
 
                 mainActivityViewModel.updateLoadingState(Pair(false, null))
             } catch (e: Exception) {

@@ -21,7 +21,6 @@ class ManufacturingViewModel @Inject constructor(
     private val isNetworkError = MutableLiveData(false)
 
     val departmentsDetailed = manufacturingRepository.departmentsDetailed
-    val subDepartments = manufacturingRepository.subDepartments
     val channels = manufacturingRepository.channels
     val lines = manufacturingRepository.lines
     val operations = manufacturingRepository.operations

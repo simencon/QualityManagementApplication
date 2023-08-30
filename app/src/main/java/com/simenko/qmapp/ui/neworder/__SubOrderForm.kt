@@ -28,17 +28,7 @@ fun SubOrderForm(
     viewModel: NewItemViewModel,
     parentId: Int
 ) {
-//    val observerLoadingProcess by viewModel.isLoadingInProgress.observeAsState()
-//    val observerIsNetworkError by viewModel.isNetworkError.observeAsState()
-
-//    val pullRefreshState = rememberPullRefreshState(
-//        refreshing = observerLoadingProcess!!,
-//        onRefresh = {
-//            viewModel.refreshDataFromRepository()
-//        }
-//    )
-
-    Box(/*Modifier.pullRefresh(pullRefreshState)*/) {
+    Box {
         Column(
             modifier
                 .verticalScroll(rememberScrollState())
@@ -52,10 +42,7 @@ fun SubOrderForm(
                 }
             }
             ButtonsSection(title = R.string.select_department) {
-                DepartmentsSelection(
-                    modifier = Modifier.padding(top = 0.dp),
-                    appModel = viewModel
-                )
+                DepartmentsSelection(modifier = Modifier.padding(top = 0.dp))
             }
             ButtonsSection(title = R.string.select_sub_department) {
                 SubDepartmentsSelection(
@@ -106,15 +93,5 @@ fun SubOrderForm(
             }
             Spacer(Modifier.height((16 + 56).dp))
         }
-//        PullRefreshIndicator(
-//            observerLoadingProcess!!,
-//            pullRefreshState,
-//            modifier.align(Alignment.TopCenter),
-//            contentColor = ProgressIndicatorDefaults.circularColor
-//        )
     }
-//    if (observerIsNetworkError == true) {
-//        Toast.makeText(LocalContext.current, "Network error!", Toast.LENGTH_SHORT).show()
-//        viewModel.onNetworkErrorShown()
-//    }
 }
