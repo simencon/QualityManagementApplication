@@ -40,11 +40,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.AllInv
+import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.ProcessControl
+import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.domain.SubOrderStandAlone
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
@@ -108,8 +107,8 @@ class MainActivityCompose : ComponentActivity() {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
                             Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
                             Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
@@ -129,8 +128,8 @@ class MainActivityCompose : ComponentActivity() {
 
                 fun onSearchBarSearch(searchValues: String) {
                     when (selectedDrawerMenuItemId) {
-                        Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-                        Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -184,13 +183,13 @@ class MainActivityCompose : ComponentActivity() {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
                                                 when (selectedDrawerMenuItemId) {
                                                     Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
-                                                    Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                                    Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                                                     }
-                                                    Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                                    Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                                         navController.navigate(Screen.Main.SubOrderAddEdit
-                                                            .withArgs(NoRecordStr.str, NoRecordStr.str, SubOrderStandAlone.str))
+                                                            .withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
                                                     }
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
@@ -227,8 +226,8 @@ class MainActivityCompose : ComponentActivity() {
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId) {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
-                                        Screen.Main.Inv.withArgs(AllInv.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
-                                        Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
 
                                         Screen.Main.Settings.route -> scope.launch {
                                             viewModel.updateLoadingState(Pair(true, null))

@@ -40,7 +40,7 @@ fun OrderForm(
         if (orderId != NoRecord.num) {
             withContext(Dispatchers.Default) {
                 delay(50L)
-                viewModel.loadCurrentOrder(orderId)
+                viewModel.loadOrder(orderId)
             }
         }
     }
@@ -56,7 +56,7 @@ fun OrderForm(
             ButtonsSection(title = R.string.select_placer) {
                 SearchBarProducts(Modifier.padding(horizontal = 16.dp))
                 Spacer(Modifier.height(16.dp))
-                PlacersSelection(modifier = Modifier.padding(top = 0.dp))
+                InitiatorsSelection(modifier = Modifier.padding(top = 0.dp))
             }
 
             Spacer(Modifier.height((16 + 56).dp))

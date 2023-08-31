@@ -56,20 +56,24 @@ class NewItemViewModel @Inject constructor(
     )
 
     /**
-     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * Order logic -----------------------------------------------------------------------------------------------------------------------------------
      * */
     private val _order: MutableStateFlow<DomainOrder> = MutableStateFlow(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
     )
-    val currentOrderSF: StateFlow<DomainOrder> = _order.flatMapLatest { order ->
+    val order: StateFlow<DomainOrder> = _order.flatMapLatest { order ->
         flow { emit(order) }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _order.value)
 
-    fun loadCurrentOrder(id: Int) {
+    fun loadOrder(id: Int) {
         _order.value = repository.getOrderById(id)
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    fun setNewOrderForProcessControl() {
+        _order.value = _order.value.copy(orderTypeId = 3/*Process Control*/, customerId = 4/*УЯк*/, orderedById = 18/*Роман Семенишин*/)
+    }
+
+    // Order Type ------------------------------------------------------------------------------------------------------------------------------------
     private val _orderTypes = repository.getOrderTypes
     val orderTypes: StateFlow<List<DomainOrdersType>> = _orderTypes.flatMapLatest { types ->
         _order.flatMapLatest { currentOrder ->
@@ -84,7 +88,7 @@ class NewItemViewModel @Inject constructor(
             _order.value = _order.value.copy(orderTypeId = id, reasonId = NoRecord.num, customerId = NoRecord.num, orderedById = NoRecord.num)
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Order Reason ----------------------------------------------------------------------------------------------------------------------------------
     private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
     val orderReasons: StateFlow<List<DomainReason>> = _orderReasons.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
@@ -103,7 +107,7 @@ class NewItemViewModel @Inject constructor(
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Order Customer --------------------------------------------------------------------------------------------------------------------------------
     private val _orderCustomers: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
     val orderCustomers: StateFlow<List<DomainDepartment>> = _orderCustomers.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
@@ -122,9 +126,9 @@ class NewItemViewModel @Inject constructor(
             _order.value = _order.value.copy(customerId = id, orderedById = NoRecord.num)
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
-    private val _orderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
-    val orderPlacers: StateFlow<List<DomainTeamMember>> = _orderPlacers.flatMapLatest { reasons ->
+    // Order Initiator -------------------------------------------------------------------------------------------------------------------------------
+    private val _orderInitiators: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
+    val orderInitiators: StateFlow<List<DomainTeamMember>> = _orderInitiators.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
             if (currentOrder.customerId != NoRecord.num) {
                 val cpy = mutableListOf<DomainTeamMember>()
@@ -136,28 +140,35 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectOrderPlacer(id: Int) {
+    fun selectOrderInitiator(id: Int) {
         if (_order.value.orderedById != id)
             _order.value = _order.value.copy(orderedById = id)
     }
 
     /**
-     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * Sub Order logic -------------------------------------------------------------------------------------------------------------------------------
      * */
     private val _subOrder: MutableStateFlow<DomainSubOrderShort> = MutableStateFlow(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
-    val currentSubOrderSF: StateFlow<DomainSubOrderShort> = _order.flatMapLatest { order ->
+    val subOrder: StateFlow<DomainSubOrderShort> = _order.flatMapLatest { order ->
         _subOrder.flatMapLatest { subOrder ->
             _subOrder.value = subOrder.copy(order = order)
             flow { emit(_subOrder.value) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    fun loadSubOrder(id: Int) {
+        val subOrder = repository.getSubOrderById(id)
+        val samples = repository.getSamplesBySubOrderId(id)
+        val tasks = repository.getTasksBySubOrderId(id)
+        _subOrder.value = _subOrder.value.copy(subOrder = subOrder, samples = samples.toMutableList(), subOrderTasks = tasks.toMutableList())
+    }
+
+    // Master List -----------------------------------------------------------------------------------------------------------------------------------
     private val _inputForOrder: Flow<List<DomainInputForOrder>> = repository.inputForOrder
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Department --------------------------------------------------------------------------------------------------------------------------
     private val _subOrderDepartments: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
     val subOrderDepartments: StateFlow<List<DomainDepartment>> = _subOrderDepartments.flatMapLatest { departments ->
         _subOrder.flatMapLatest { so ->
@@ -197,7 +208,7 @@ class NewItemViewModel @Inject constructor(
             )
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Sub Department ----------------------------------------------------------------------------------------------------------------------
     private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments
     val subOrderSubDepartments: StateFlow<List<DomainSubDepartment>> = _subOrderSubDepartments.flatMapLatest { subDepartments ->
         _subOrder.flatMapLatest { so ->
@@ -234,7 +245,7 @@ class NewItemViewModel @Inject constructor(
             )
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Placer ------------------------------------------------------------------------------------------------------------------------------
     private val _subOrderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
     val subOrderPlacers: StateFlow<List<DomainTeamMember>> = _subOrderPlacers.flatMapLatest { placers ->
         _subOrder.flatMapLatest { so ->
@@ -264,7 +275,7 @@ class NewItemViewModel @Inject constructor(
             )
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Channel -----------------------------------------------------------------------------------------------------------------------------
     private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels
     val subOrderChannels: StateFlow<List<DomainManufacturingChannel>> = _subOrderChannels.flatMapLatest { channels ->
         _subOrder.flatMapLatest { so ->
@@ -299,7 +310,7 @@ class NewItemViewModel @Inject constructor(
             )
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Line --------------------------------------------------------------------------------------------------------------------------------
     private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines
     val subOrderLines: StateFlow<List<DomainManufacturingLine>> = _subOrderLines.flatMapLatest { lines ->
         _subOrder.flatMapLatest { so ->
@@ -333,14 +344,13 @@ class NewItemViewModel @Inject constructor(
             )
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Item --------------------------------------------------------------------------------------------------------------------------------
     private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete
     val subOrderItemVersions: StateFlow<List<DomainItemVersionComplete>> = _subOrderItemVersions.flatMapLatest { itemVersions ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
                 if (so.subOrder.lineId != NoRecord.num) {
-                    val ids = master.filter { it.lineId == so.subOrder.lineId }
-                        .sortedBy { it.itemDesignation }.map { it.itemPrefix + it.itemVersionId }.toSet()
+                    val ids = master.filter { it.lineId == so.subOrder.lineId }.sortedBy { it.itemDesignation }.map { it.getItemVersionPid() }.toSet()
                     val cpy = mutableListOf<DomainItemVersionComplete>()
                     ids.forEach { id ->
                         itemVersions.findLast { it.itemVersion.fId == id }?.let {
@@ -367,13 +377,13 @@ class NewItemViewModel @Inject constructor(
             )
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Operation ---------------------------------------------------------------------------------------------------------------------------
     private val _subOrderOperations: Flow<List<DomainManufacturingOperation>> = manufacturingRepository.operations
     val subOrderOperations: StateFlow<List<DomainManufacturingOperation>> = _subOrderOperations.flatMapLatest { operations ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
                 if (so.subOrder.itemVersionId != NoRecord.num) {
-                    val ids = master.filter { (it.itemPrefix + it.itemVersionId) == (so.subOrder.itemPreffix + so.subOrder.itemVersionId) }
+                    val ids = master.filter { it.getItemVersionPid() == so.subOrder.getItemVersionPid() && it.lineId == so.subOrder.lineId }
                         .sortedBy { it.operationOrder }.map { it.operationId }.toSet()
                     val cpy = mutableListOf<DomainManufacturingOperation>()
                     ids.forEach { id ->
@@ -394,7 +404,7 @@ class NewItemViewModel @Inject constructor(
             _subOrder.value = _subOrder.value.copy(subOrder = _subOrder.value.subOrder.copy(operationId = id))
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Items Count -------------------------------------------------------------------------------------------------------------------------
     fun selectSubOrderItemsCount(count: Int) {
         val cpy = _subOrder.value.copy()
 
@@ -427,7 +437,7 @@ class NewItemViewModel @Inject constructor(
         _subOrder.value = cpy
     }
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    // Sub Order Characteristics ---------------------------------------------------------------------------------------------------------------------
     private val _subOrderCharacteristics: Flow<List<DomainCharacteristic>> = productsRepository.characteristics
     private val _subOrderOperationsFlows: Flow<List<DomainOperationsFlow>> = manufacturingRepository.operationsFlows
     val subOrderCharacteristics: StateFlow<List<DomainCharacteristic>> = _subOrderCharacteristics.flatMapLatest { characteristics ->
@@ -435,12 +445,10 @@ class NewItemViewModel @Inject constructor(
             _subOrder.flatMapLatest { so ->
                 _inputForOrder.flatMapLatest { master ->
                     if (so.subOrder.samplesCount != NoRecord.num) {
-                        val ids = master
-                            .filter {
-                                (it.itemPrefix + it.itemVersionId) == (so.subOrder.itemPreffix + so.subOrder.itemVersionId) &&
-                                        (so.subOrder.operationId == it.operationId || isOperationInFlow(it.operationId, so.subOrder.operationId, opf))
-                            }
-                            .sortedBy { it.charOrder }.map { it.charId }.toSet()
+                        val ids = master.filter {
+                            it.getItemVersionPid() == so.subOrder.getItemVersionPid() &&
+                                    (it.operationId == so.subOrder.operationId || isOperationInFlow(it.operationId, so.subOrder.operationId, opf))
+                        }.sortedBy { it.charOrder }.map { it.charId }.toSet()
 
                         val cpy = mutableListOf<DomainCharacteristic>()
                         ids.forEach { id ->
@@ -461,7 +469,9 @@ class NewItemViewModel @Inject constructor(
 
     fun selectSubOrderCharacteristic(id: Int) {}
 
-    //    --------------------------------------------------------------------------------------------------------------------------------------------
+    /**
+     * Data Base Operations --------------------------------------------------------------------------------------------------------------------------
+     * */
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
 
 
@@ -541,7 +551,7 @@ class NewItemViewModel @Inject constructor(
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 setAddEditMode(AddEditMode.NO_MODE)
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.Main.Inv.withArgs(AllInv.str, resource.data?.id.toString(), NoRecordStr.str)) {
+                                    navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
                                         popUpTo(0)
                                     }
                                 }
@@ -571,7 +581,7 @@ class NewItemViewModel @Inject constructor(
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 setAddEditMode(AddEditMode.NO_MODE)
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.Main.Inv.withArgs(AllInv.str, resource.data?.id.toString(), NoRecordStr.str)) {
+                                    navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
                                         popUpTo(0)
                                     }
                                 }

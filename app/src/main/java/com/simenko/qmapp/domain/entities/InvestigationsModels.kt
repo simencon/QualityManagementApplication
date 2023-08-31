@@ -36,6 +36,7 @@ data class DomainInputForOrder constructor(
     var charDesignation: String? = null,
     var charOrder: Int
 ) : DomainBaseModel<DatabaseInputForOrder>() {
+    fun getItemVersionPid(): String = itemPrefix + itemVersionId
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
@@ -100,7 +101,7 @@ data class DomainReason constructor(
 
 @Stable
 data class DomainOrder constructor(
-    var id: Int  = NoRecord.num,
+    var id: Int = NoRecord.num,
     var orderTypeId: Int = NoRecord.num,
     var reasonId: Int = NoRecord.num,
     var orderNumber: Int? = null,
@@ -160,6 +161,8 @@ data class DomainSubOrder constructor(
         itemTypeId = id.second
         itemVersionId = id.third
     }
+
+    fun getItemVersionPid(): String = itemPreffix + itemVersionId
     override fun getRecordId() = id
     override fun getParentId() = orderId
     override fun setIsSelected(value: Boolean) {}

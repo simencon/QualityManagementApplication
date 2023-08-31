@@ -36,7 +36,6 @@ import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
@@ -67,17 +66,17 @@ fun SubOrdersFlowColumn(
     val onClickAddLambda = remember<(Int) -> Unit> {
         {
             invModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER)
-            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.toString(), NoRecordStr.str, SubOrderInOrder.str))
+            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.toString(), NoRecordStr.str, FalseStr.str))
         }
     }
-    val onClickEditLambda = remember<(Int, Int) -> Unit> {
-        { orderId, subOrderId ->
-            launchNewItemActivityForResult(
-                context as MainActivity,
-                AddEditMode.EDIT_SUB_ORDER.ordinal,
-                orderId,
-                subOrderId
-            )
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
+        {
+            invModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER)
+            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), FalseStr.str))
+
+            invModel.navController.currentBackStackEntry.let { bs ->
+                println("bsArguments/investigationsKey = ${bs?.arguments?.getBoolean(ToProcessControlScreen.str)}")
+            }
         }
     }
 
@@ -116,7 +115,7 @@ fun SubOrdersFlowColumn(
                         cardOffset = CARD_OFFSET.dp(),
                         onClickActions = { onClickActionsLambda(it) },
                         onClickDelete = { onClickDeleteLambda(it) },
-                        onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
+                        onClickEdit = { onClickEditLambda(it) },
                         onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
                     )
 
@@ -144,7 +143,7 @@ fun SubOrderCard(
     cardOffset: Float,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int, Int) -> Unit,
+    onClickEdit: (Pair<Int, Int>) -> Unit,
     onClickStatus: (DomainSubOrderComplete, Int?) -> Unit
 ) {
     Log.d(TAG, "SubOrderCard: ${subOrder.orderShort.order.orderNumber}")
@@ -186,7 +185,7 @@ fun SubOrderCard(
             )
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(subOrder.subOrder.orderId, subOrder.subOrder.id) },
+                onClick = { onClickEdit(Pair(subOrder.subOrder.orderId, subOrder.subOrder.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
             )
         }

@@ -23,7 +23,7 @@ fun OperationsSelection(
     val gritState = rememberLazyGridState()
 
     val items by viewModel.subOrderOperations.collectAsStateWithLifecycle()
-    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderOperation(it) } }
 

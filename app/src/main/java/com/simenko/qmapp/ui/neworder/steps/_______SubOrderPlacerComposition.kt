@@ -22,7 +22,7 @@ fun SubOrderPlacersSelection(
     val gritState = rememberLazyGridState()
 
     val items by viewModel.subOrderPlacers.collectAsStateWithLifecycle()
-    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderPlacer(it) } }
 

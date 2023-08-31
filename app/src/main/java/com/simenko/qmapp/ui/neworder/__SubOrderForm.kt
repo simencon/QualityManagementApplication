@@ -26,7 +26,15 @@ fun SubOrderForm(
         if (record.first != NoRecord.num) {
             withContext(Dispatchers.Default) {
                 delay(50L)
-                viewModel.loadCurrentOrder(record.first)
+                viewModel.loadOrder(record.first)
+                if (record.second != NoRecord.num) {
+                    viewModel.loadSubOrder(record.second)
+                }
+            }
+        } else {
+            withContext(Dispatchers.Default) {
+                delay(50L)
+                viewModel.setNewOrderForProcessControl()
             }
         }
     }

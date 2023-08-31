@@ -22,7 +22,7 @@ fun SubDepartmentsSelection(
     val gritState = rememberLazyGridState()
 
     val items by viewModel.subOrderSubDepartments.collectAsStateWithLifecycle()
-    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderSubDepartment(it) } }
 

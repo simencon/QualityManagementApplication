@@ -32,7 +32,7 @@ fun VersionsSelection(
     val gritState = rememberLazyGridState()
 
     val items by viewModel.subOrderItemVersions.collectAsStateWithLifecycle()
-    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Triple<String, Int, Int>) -> Unit> { { viewModel.selectSubOrderItemVersion(it) } }
 
