@@ -11,7 +11,6 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.main.setMainActivityResult
 import com.simenko.qmapp.ui.neworder.assemblers.checkIfPossibleToSave
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -469,13 +468,13 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderCharacteristic(id: Int) {
-        val subOrderId = _subOrder.value.subOrder.id
         _subOrder.value.subOrderTasks.findLast { it.charId == id }.let {
             if (it == null) {
                 _subOrder.value.subOrderTasks.add(
                     DomainSubOrderTask().copy(
                         statusId = InvStatuses.TO_DO.statusId,
-                        subOrderId = subOrderId,
+                        subOrderId = _subOrder.value.subOrder.id,
+                        orderedById = _subOrder.value.subOrder.orderedById,
                         charId = id,
                         isNewRecord = true
                     )
@@ -496,69 +495,6 @@ class NewItemViewModel @Inject constructor(
      * Data Base Operations --------------------------------------------------------------------------------------------------------------------------
      * */
     val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
-
-
-    private suspend fun postDeleteSamples(subOrderId: Int, subOrder: DomainSubOrderShort) {
-        withContext(Dispatchers.IO) {
-            subOrder.samples.forEach {
-                if (it.toBeDeleted) {
-                    withContext(Dispatchers.IO) {
-                        repository.run {
-                            deleteSample(it.id).consumeEach { event ->
-                                event.getContentIfNotHandled()?.let { resource ->
-                                    when (resource.status) {
-                                        Status.LOADING -> {}
-                                        Status.SUCCESS -> {}
-                                        Status.ERROR -> {}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else if (it.isNewRecord) {
-                    it.subOrderId = subOrderId
-                    repository.run { insertSample(it) }.consumeEach { }
-                }
-            }
-        }
-    }
-
-    private suspend fun postDeleteSubOrderTasks(
-        subOrderId: Int,
-        subOrder: DomainSubOrderShort
-    ) {
-        withContext(Dispatchers.IO) {
-            subOrder.subOrderTasks.forEach {
-                if (it.toBeDeleted) {
-                    withContext(Dispatchers.IO) {
-                        repository.run {
-                            deleteSubOrderTask(it.id).consumeEach { event ->
-                                event.getContentIfNotHandled()?.let { resource ->
-                                    when (resource.status) {
-                                        Status.LOADING -> {}
-                                        Status.SUCCESS -> {}
-                                        Status.ERROR -> {}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else if (it.isNewRecord) {
-                    it.subOrderId = subOrderId
-                    it.orderedById = subOrder.subOrder.orderedById
-                    repository.run { insertTask(it) }.consumeEach { event ->
-                        event.getContentIfNotHandled()?.let { resource ->
-                            when (resource.status) {
-                                Status.LOADING -> {}
-                                Status.SUCCESS -> {}
-                                Status.ERROR -> {}
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     fun postOrder() {
         if (checkIfPossibleToSave(_order.value) != null)
@@ -619,27 +555,6 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                        Status.SUCCESS -> {
-                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
-                            postDeleteSamples(resource.data.id, subOrder)
-                            mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
-                            activity.finish()
-                        }
-
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                    }
-                }
-            }
-        }
-    }
-
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.run { insertOrder(subOrder.order) }.consumeEach { event ->
@@ -649,9 +564,35 @@ class NewItemViewModel @Inject constructor(
 
                         Status.SUCCESS -> {
                             subOrder.subOrder.orderId = resource.data!!.id
-                            postNewSubOrder(activity, subOrder)
+                            postSubOrder()
                         }
 
+                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                    }
+                }
+            }
+        }
+    }
+
+    fun postSubOrder() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { insertSubOrder(_subOrder.value.subOrder) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                        Status.SUCCESS -> {
+                            resource.data?.let {
+                                postDeleteSubOrderTasks(it.id)
+                                postDeleteSamples(it.id)
+                            }
+                            mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            setAddEditMode(AddEditMode.NO_MODE)
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, _subOrder.value.subOrder.orderId.toString(), resource.data?.id.toString())) {
+                                    popUpTo(0)
+                                }
+                            }
+                        }
                         Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
@@ -667,77 +608,88 @@ class NewItemViewModel @Inject constructor(
                         Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
 
                         Status.SUCCESS -> {
-                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
-                            postDeleteSamples(resource.data.id, subOrder)
+                            resource.data?.let {
+                                postDeleteSubOrderTasks(it.id)
+                                postDeleteSamples(it.id)
+                            }
                             mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
-                            activity.finish()
                         }
 
                         Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
             }
-
-            syncTasks()
-            syncSamples()
-            syncResults()
         }
     }
 
-    fun syncTasks() {
-        viewModelScope.launch {
-            try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
+    private suspend fun postDeleteSamples(subOrderId: Int) {
+        withContext(Dispatchers.IO) {
 
-                repository.syncSubOrderTasks(Pair(_order.value.createdDate, _order.value.createdDate))
-                repository.syncResults(Pair(_order.value.createdDate, _order.value.createdDate))
-
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
-            } catch (e: Exception) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+            repository.run {
+                _subOrder.value.samples.map {
+                    it.subOrderId = subOrderId
+                    it
+                }.let { it ->
+                    it.filter { it.toBeDeleted }.let {
+                        deleteSamples(it).consumeEach { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                }
+                            }
+                        }
+                    }
+                    it.filter { it.isNewRecord }.let {
+                        insertSamples(it).consumeEach { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    fun syncSamples() {
-        viewModelScope.launch {
-            try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
-
-                repository.syncSamples(Pair(_order.value.createdDate, _order.value.createdDate))
-                repository.syncResults(Pair(_order.value.createdDate, _order.value.createdDate))
-
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
-            } catch (e: Exception) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+    private suspend fun postDeleteSubOrderTasks(subOrderId: Int) {
+        withContext(Dispatchers.IO) {
+            repository.run {
+                _subOrder.value.subOrderTasks.map {
+                    it.subOrderId = subOrderId
+                    it
+                }.let { it ->
+                    it.filter { it.toBeDeleted }.let {
+                        deleteTasks(it).consumeEach { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                }
+                            }
+                        }
+                    }
+                    it.filter { it.isNewRecord }.let {
+                        insertTasks(it).consumeEach { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
-
-    fun syncResults() {
-        viewModelScope.launch {
-            try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
-
-                repository.syncResults(Pair(_order.value.createdDate, _order.value.createdDate))
-
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
-            } catch (e: Exception) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
-            }
-        }
-    }
-}
-
-fun <D, T : DomainBaseModel<D>> changeRecordSelection(
-    d: MutableLiveData<MutableList<T>>,
-    pairedTrigger: MutableLiveData<Boolean>,
-    selectedId: Any = NoRecord.num,
-): Boolean {
-    val result = d.value?.find { it.getRecordId() == selectedId }?.changeCheckedState()
-    pairedTrigger.value = !(pairedTrigger.value as Boolean)
-    return result ?: false
 }
 
 fun isOperationInFlow(

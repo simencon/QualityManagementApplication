@@ -78,6 +78,7 @@ object Constants {
     const val INVESTIGATION_STATUSES = "investigationStatuses"
     const val RESULT_DECRIPTIONS = "resultsDecriptions"
 
+    const val RECORDS = "records"
     const val HASH_CODE = "hashCode"
 
     const val ORDERS = "orders"
@@ -89,7 +90,6 @@ object Constants {
     const val SAMPLES = "samples"
 
     const val RESULTS = "results"
-    const val RESULT_RECORDS = "records"
     const val RESULT_TASK = "task"
 
     const val MEASUREMENTS_REGISTER = "measurementsRegister"
