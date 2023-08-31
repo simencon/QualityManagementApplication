@@ -63,8 +63,8 @@ fun VersionCard(
     onClick: (Triple<String, Int, Int>) -> Unit
 ) {
     val btnColors = ButtonDefaults.buttonColors(
-        contentColor = if (input.isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        containerColor = if (input.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+        contentColor = if (input.isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        containerColor = if (input.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     )
 
     Row(
@@ -72,6 +72,7 @@ fun VersionCard(
     ) {
         TextButton(
             colors = btnColors,
+            elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
             modifier = Modifier
                 .width(224.dp)
                 .height(56.dp),

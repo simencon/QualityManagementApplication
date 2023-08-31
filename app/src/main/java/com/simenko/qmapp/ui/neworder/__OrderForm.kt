@@ -107,14 +107,15 @@ fun ItemToSelect(
         .height(56.dp)
 ) {
     val btnColors = ButtonDefaults.buttonColors(
-        contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-        containerColor = if (item.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+        contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        containerColor = if (item.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     )
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(
             colors = btnColors,
+            elevation = ButtonDefaults.buttonElevation(4.dp, 4.dp, 4.dp, 4.dp, 4.dp),
             modifier = modifier,
             onClick = { onClick(item.first) }
         ) { Text(text = item.second) }

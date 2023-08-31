@@ -178,7 +178,7 @@ class MainActivityCompose : ComponentActivity() {
                             floatingActionButton = {
                                 if (selectedDrawerMenuItemId != Screen.Main.Settings.route)
                                     FloatingActionButton(
-                                        containerColor = MaterialTheme.colorScheme.primary,
+                                        containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
                                                 when (selectedDrawerMenuItemId) {
@@ -207,13 +207,13 @@ class MainActivityCompose : ComponentActivity() {
                                                 Icon(
                                                     imageVector = Icons.Default.Add,
                                                     contentDescription = "Add button",
-                                                    tint = MaterialTheme.colorScheme.onPrimary
+                                                    tint = MaterialTheme.colorScheme.onTertiary
                                                 )
                                             } else {
                                                 Icon(
                                                     imageVector = Icons.Default.Save,
                                                     contentDescription = "Save button",
-                                                    tint = MaterialTheme.colorScheme.onPrimary
+                                                    tint = MaterialTheme.colorScheme.onTertiary
                                                 )
                                             }
                                         }
