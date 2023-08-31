@@ -444,6 +444,7 @@ class NewItemViewModel @Inject constructor(
         _subOrderOperationsFlows.flatMapLatest { opf ->
             _subOrder.flatMapLatest { so ->
                 _inputForOrder.flatMapLatest { master ->
+                    println("the list of tasks is: ${so.subOrderTasks}")
                     if (so.subOrder.samplesCount != NoRecord.num) {
                         val ids = master.filter {
                             it.getItemVersionPid() == so.subOrder.getItemVersionPid() &&
@@ -454,7 +455,7 @@ class NewItemViewModel @Inject constructor(
                         ids.forEach { id ->
                             characteristics.findLast { it.id == id }?.let { ch ->
                                 var isSelected = false
-                                so.subOrderTasks.findLast { it.charId == id }?.let { isSelected = true }
+                                so.subOrderTasks.findLast { it.charId == id }?.let { isSelected = !it.toBeDeleted }
                                 cpy.add(ch.copy(isSelected = isSelected))
                             }
                         }
@@ -467,7 +468,29 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderCharacteristic(id: Int) {}
+    fun selectSubOrderCharacteristic(id: Int) {
+        val subOrderId = _subOrder.value.subOrder.id
+        _subOrder.value.subOrderTasks.findLast { it.charId == id }.let {
+            if (it == null) {
+                _subOrder.value.subOrderTasks.add(
+                    DomainSubOrderTask().copy(
+                        statusId = InvStatuses.TO_DO.statusId,
+                        subOrderId = subOrderId,
+                        charId = id,
+                        isNewRecord = true
+                    )
+                )
+            } else {
+                if (it.isNewRecord) {
+                    _subOrder.value.subOrderTasks.remove(it)
+                } else {
+                    val index = _subOrder.value.subOrderTasks.indexOf(it)
+                    _subOrder.value.subOrderTasks[index].toBeDeleted = !_subOrder.value.subOrderTasks[index].toBeDeleted
+                }
+            }
+        }
+        _subOrder.value = _subOrder.value.copy(extraTrigger = !_subOrder.value.extraTrigger)
+    }
 
     /**
      * Data Base Operations --------------------------------------------------------------------------------------------------------------------------
