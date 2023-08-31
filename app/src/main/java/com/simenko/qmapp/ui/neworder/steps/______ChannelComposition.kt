@@ -26,7 +26,7 @@ fun ChannelsSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderChannel(it) } }
 
-    LaunchedEffect(currentSubOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentSubOrder.subOrder.channelId,

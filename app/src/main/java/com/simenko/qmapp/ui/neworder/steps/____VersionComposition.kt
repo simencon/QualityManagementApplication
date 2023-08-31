@@ -36,7 +36,7 @@ fun VersionsSelection(
 
     val onSelectLambda = remember<(Triple<String, Int, Int>) -> Unit> { { viewModel.selectSubOrderItemVersion(it) } }
 
-    LaunchedEffect(currentSubOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.itemVersion.id }.toList(),
             selectedId = currentSubOrder.subOrder.itemVersionId,

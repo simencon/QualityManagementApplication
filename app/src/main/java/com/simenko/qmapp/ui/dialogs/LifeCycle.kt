@@ -42,7 +42,7 @@ suspend fun < T : ScrollableState> T.scrollToSelectedItem(
         var index = 0
         list.forEach {
             if (it == selectedId) {
-                delay(200)
+                delay(100)
                 when {
                     (state::class.java == LazyListState::class.java) -> {
                         (state as LazyListState).animateScrollToItem(index = index)

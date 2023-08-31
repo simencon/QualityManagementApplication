@@ -26,7 +26,7 @@ fun SubOrderPlacersSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderPlacer(it) } }
 
-    LaunchedEffect(currentSubOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentSubOrder.subOrder.orderedById,
