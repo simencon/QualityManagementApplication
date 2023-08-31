@@ -213,10 +213,16 @@ class InvestigationsRepository @Inject constructor(
         ) { r -> database.taskDao.deleteRecord(r) }
     }
 
-    fun CoroutineScope.deleteSample(sampleId: Int): ReceiveChannel<Event<Resource<DomainSample>>> = crudeOperations.run {
-        responseHandlerForSingleRecord(
-            taskExecutor = { invService.deleteSample(sampleId) }
-        ) { r -> database.sampleDao.deleteRecord(r) }
+    fun CoroutineScope.deleteTasks(records: List<DomainSubOrderTask>): ReceiveChannel<Event<Resource<List<DomainSubOrderTask>>>> = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.deleteSubOrderTasks(records.map { it.id }) }
+        ) { r -> database.taskDao.deleteRecords(r) }
+    }
+
+    fun CoroutineScope.deleteSamples(records: List<DomainSample>): ReceiveChannel<Event<Resource<List<DomainSample>>>> = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.deleteSamples(records.map { it.id }) }
+        ) { r -> database.sampleDao.deleteRecords(r) }
     }
 
     fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
@@ -240,16 +246,16 @@ class InvestigationsRepository @Inject constructor(
         ) { r -> database.subOrderDao.insertRecord(r) }
     }
 
-    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = crudeOperations.run {
-        responseHandlerForSingleRecord(
-            taskExecutor = { invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()) }
-        ) { r -> database.taskDao.insertRecord(r) }
+    fun CoroutineScope.insertTasks(records: List<DomainSubOrderTask>) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.createTasks(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.taskDao.insertRecords(r) }
     }
 
-    fun CoroutineScope.insertSample(record: DomainSample) = crudeOperations.run {
-        responseHandlerForSingleRecord(
-            taskExecutor = { invService.createSample(record.toDatabaseModel().toNetworkModel()) }
-        ) { r -> database.sampleDao.insertRecord(r) }
+    fun CoroutineScope.insertSamples(records: List<DomainSample>) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.createSamples(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.sampleDao.insertRecords(r) }
     }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
@@ -257,6 +263,7 @@ class InvestigationsRepository @Inject constructor(
             taskExecutor = { invService.createResults(records.map { it.toDatabaseModel().toNetworkModel() }) }
         ) { r -> database.resultDao.insertRecords(r) }
     }
+
     /**
      * Inv update operations
      * */

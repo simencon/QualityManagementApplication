@@ -198,6 +198,7 @@ class MainActivityCompose : ComponentActivity() {
                                                 when (AddEditMode.values()[addEditMode]) {
                                                     AddEditMode.ADD_ORDER -> newOrderModel.postOrder()
                                                     AddEditMode.EDIT_ORDER -> newOrderModel.editOrder()
+                                                    AddEditMode.ADD_SUB_ORDER -> newOrderModel.postSubOrder()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }

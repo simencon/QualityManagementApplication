@@ -17,9 +17,6 @@ abstract class DomainBaseModel<out T> {
     abstract fun setIsSelected(value: Boolean)
 
     @Stable
-    open fun changeCheckedState(): Boolean = false
-
-    @Stable
     open fun getName(): String = "will be returned any string"
 
     @Stable
