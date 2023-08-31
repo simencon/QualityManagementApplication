@@ -454,7 +454,7 @@ class NewItemViewModel @Inject constructor(
                         ids.forEach { id ->
                             characteristics.findLast { it.id == id }?.let { ch ->
                                 var isSelected = false
-                                so.subOrderTasks.findLast { it.id == id }?.let { isSelected = true }
+                                so.subOrderTasks.findLast { it.charId == id }?.let { isSelected = true }
                                 cpy.add(ch.copy(isSelected = isSelected))
                             }
                         }

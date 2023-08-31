@@ -162,7 +162,7 @@ data class DomainSubOrder constructor(
         itemVersionId = id.third
     }
 
-    fun getItemVersionPid(): String = itemPreffix + itemVersionId
+    fun getItemVersionPid(): String = itemPreffix[0].toString() + itemVersionId
     override fun getRecordId() = id
     override fun getParentId() = orderId
     override fun setIsSelected(value: Boolean) {}
