@@ -354,7 +354,7 @@ class NewItemViewModel @Inject constructor(
                     val cpy = mutableListOf<DomainItemVersionComplete>()
                     ids.forEach { id ->
                         itemVersions.findLast { it.itemVersion.fId == id }?.let {
-                            cpy.add(it.copy(isSelected = it.itemVersion.fId == (so.subOrder.itemPreffix + so.subOrder.itemVersionId)))
+                            cpy.add(it.copy(isSelected = it.itemVersion.fId == (so.subOrder.getItemIds().first + so.subOrder.itemVersionId)))
                         }
                     }
                     flow { emit(cpy) }

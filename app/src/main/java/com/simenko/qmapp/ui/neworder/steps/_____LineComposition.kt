@@ -26,7 +26,7 @@ fun LinesSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderLine(it) } }
 
-    LaunchedEffect(currentSubOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentSubOrder.subOrder.lineId,

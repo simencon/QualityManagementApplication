@@ -26,7 +26,7 @@ fun DepartmentsSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderDepartment(it) } }
 
-    LaunchedEffect(currentSubOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentSubOrder.subOrder.departmentId,

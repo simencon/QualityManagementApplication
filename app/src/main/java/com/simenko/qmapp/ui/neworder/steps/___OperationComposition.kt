@@ -27,7 +27,7 @@ fun OperationsSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderOperation(it) } }
 
-    LaunchedEffect(currentSubOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentSubOrder.subOrder.operationId,

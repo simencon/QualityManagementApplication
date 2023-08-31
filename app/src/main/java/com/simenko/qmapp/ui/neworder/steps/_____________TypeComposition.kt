@@ -27,7 +27,7 @@ fun TypesSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderType(it) } }
 
-    LaunchedEffect(currentOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentOrder.orderTypeId,

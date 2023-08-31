@@ -12,7 +12,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.neworder.steps.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -25,7 +24,6 @@ fun SubOrderForm(
     LaunchedEffect(record) {
         if (record.first != NoRecord.num) {
             withContext(Dispatchers.Default) {
-                delay(50L)
                 viewModel.loadOrder(record.first)
                 if (record.second != NoRecord.num) {
                     viewModel.loadSubOrder(record.second)
@@ -33,7 +31,6 @@ fun SubOrderForm(
             }
         } else {
             withContext(Dispatchers.Default) {
-                delay(50L)
                 viewModel.setNewOrderForProcessControl()
             }
         }

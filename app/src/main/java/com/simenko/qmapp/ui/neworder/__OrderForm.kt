@@ -26,7 +26,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.neworder.steps.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
@@ -39,7 +38,6 @@ fun OrderForm(
     LaunchedEffect(orderId) {
         if (orderId != NoRecord.num) {
             withContext(Dispatchers.Default) {
-                delay(50L)
                 viewModel.loadOrder(orderId)
             }
         }

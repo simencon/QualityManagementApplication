@@ -30,7 +30,7 @@ fun InitiatorsSelection(
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderInitiator(it) } }
 
-    LaunchedEffect(currentOrder) {
+    LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
             selectedId = currentOrder.orderedById,
