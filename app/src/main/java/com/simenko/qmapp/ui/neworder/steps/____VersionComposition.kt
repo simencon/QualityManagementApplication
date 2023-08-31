@@ -34,7 +34,7 @@ fun VersionsSelection(
     val items by viewModel.subOrderItemVersions.collectAsStateWithLifecycle()
     val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Triple<Char, Int, Int>) -> Unit> { { viewModel.selectSubOrderItemVersion(it) } }
+    val onSelectLambda = remember<(Triple<String, Int, Int>) -> Unit> { { viewModel.selectSubOrderItemVersion(it) } }
 
     LaunchedEffect(currentSubOrder) {
         gritState.scrollToSelectedItem(
@@ -60,7 +60,7 @@ fun VersionsSelection(
 @Composable
 fun VersionCard(
     input: DomainItemVersionComplete,
-    onClick: (Triple<Char, Int, Int>) -> Unit
+    onClick: (Triple<String, Int, Int>) -> Unit
 ) {
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = if (input.isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -75,7 +75,7 @@ fun VersionCard(
             modifier = Modifier
                 .width(224.dp)
                 .height(56.dp),
-            onClick = { onClick(Triple(input.itemVersion.fId[0], input.itemVersion.itemId, input.itemVersion.itemId)) },
+            onClick = { onClick(Triple(input.itemVersion.fId[0].toString(), input.itemVersion.itemId, input.itemVersion.id)) },
 
             ) {
             Text(

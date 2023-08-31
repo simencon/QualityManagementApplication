@@ -29,7 +29,7 @@ fun SubOrderPlacersSelection(
     LaunchedEffect(currentSubOrder) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
-            selectedId = currentSubOrder.subOrder.subDepartmentId,
+            selectedId = currentSubOrder.subOrder.orderedById,
         )
     }
 
