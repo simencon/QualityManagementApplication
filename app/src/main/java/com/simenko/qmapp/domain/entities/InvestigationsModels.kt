@@ -307,7 +307,8 @@ data class DomainSubOrderShort constructor(
     var subOrder: DomainSubOrder,
     var order: DomainOrder,
     var samples: MutableList<DomainSample> = mutableListOf(),
-    var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
+    var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf(),
+    var extraTrigger: Boolean = false
 ) : DomainBaseModel<Any?>() {
     override fun getRecordId() = subOrder.getRecordId()
     override fun getParentId() = subOrder.getParentId()
