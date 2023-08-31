@@ -482,28 +482,6 @@ class NewItemViewModel @Inject constructor(
             }
         }
     }
-
-    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                        Status.SUCCESS -> {
-                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
-                            postDeleteSamples(resource.data.id, subOrder)
-                            mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
-                            activity.finish()
-                        }
-
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                    }
-                }
-            }
-        }
-    }
-
     fun postOrder() {
         if (checkIfPossibleToSave(_currentOrder.value) != null)
             viewModelScope.launch(Dispatchers.IO) {
@@ -561,6 +539,27 @@ class NewItemViewModel @Inject constructor(
             }
         else
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+    }
+
+    fun postNewSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.run { insertSubOrder(subOrder.subOrder) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                        Status.SUCCESS -> {
+                            postDeleteSubOrderTasks(resource.data!!.id, subOrder)
+                            postDeleteSamples(resource.data.id, subOrder)
+                            mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            setMainActivityResult(activity, activity.addEditModeEnum, resource.data.orderId, resource.data.id)
+                            activity.finish()
+                        }
+
+                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                    }
+                }
+            }
+        }
     }
 
     fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {

@@ -80,10 +80,7 @@ fun ButtonsSection(
         )
         content()
         Spacer(Modifier.height(16.dp))
-        Divider(
-            modifier = modifier.height(2.dp),
-            color = MaterialTheme.colorScheme.secondary
-        )
+        Divider(modifier = modifier.height(2.dp), color = MaterialTheme.colorScheme.secondary)
     }
 }
 

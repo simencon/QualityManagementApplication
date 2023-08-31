@@ -32,6 +32,7 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -63,6 +64,12 @@ fun SubOrdersFlowColumn(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
+    val onClickAddLambda = remember<(Int) -> Unit> {
+        {
+            invModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER)
+            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.toString(), NoRecordStr.str, SubOrderInOrder.str))
+        }
+    }
     val onClickEditLambda = remember<(Int, Int) -> Unit> {
         { orderId, subOrderId ->
             launchNewItemActivityForResult(
@@ -107,8 +114,8 @@ fun SubOrdersFlowColumn(
                         subOrder = subOrder,
                         onClickDetails = { onClickDetailsLambda(it) },
                         cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = {onClickActionsLambda(it) },
-                        onClickDelete = {onClickDeleteLambda(it) },
+                        onClickActions = { onClickActionsLambda(it) },
+                        onClickDelete = { onClickDeleteLambda(it) },
                         onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
                         onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
                     )
@@ -121,13 +128,7 @@ fun SubOrdersFlowColumn(
         FloatingActionButton(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.padding(vertical = 4.dp),
-            onClick = {
-                launchNewItemActivityForResult(
-                    context as MainActivity,
-                    AddEditMode.ADD_SUB_ORDER.ordinal,
-                    parentId
-                )
-            },
+            onClick = { onClickAddLambda(parentId) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }
