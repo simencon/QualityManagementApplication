@@ -154,6 +154,12 @@ data class DomainSubOrder constructor(
     var samplesCount: Int? = null,
     var remarkId: Int = 1 //means no remark
 ) : DomainBaseModel<DatabaseSubOrder>() {
+    fun getItemIds(): Triple<String, Int, Int> = Triple(itemPreffix, itemTypeId, itemVersionId)
+    fun setItemIds(id: Triple<String, Int, Int>) {
+        itemPreffix = id.first
+        itemTypeId = id.second
+        itemVersionId = id.third
+    }
     override fun getRecordId() = id
     override fun getParentId() = orderId
     override fun setIsSelected(value: Boolean) {}
