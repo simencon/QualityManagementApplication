@@ -19,16 +19,16 @@ import com.simenko.qmapp.ui.neworder.ItemToSelect
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 
 @Composable
-fun PlacersSelection(
+fun InitiatorsSelection(
     modifier: Modifier = Modifier
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
 
-    val items by viewModel.orderPlacers.collectAsStateWithLifecycle()
-    val currentOrder by viewModel.currentOrderSF.collectAsStateWithLifecycle()
+    val items by viewModel.orderInitiators.collectAsStateWithLifecycle()
+    val currentOrder by viewModel.order.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderPlacer(it) } }
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderInitiator(it) } }
 
     LaunchedEffect(currentOrder) {
         gritState.scrollToSelectedItem(
@@ -47,7 +47,7 @@ fun PlacersSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(items = items, key = { it.id }) { item ->
-            InvestigationPlacerCard(
+            InvestigationInitiatorCard(
                 inputForOrder = item,
                 onClick = { onSelectLambda(it) }
             )
@@ -56,7 +56,7 @@ fun PlacersSelection(
 }
 
 @Composable
-fun InvestigationPlacerCard(
+fun InvestigationInitiatorCard(
     inputForOrder: DomainTeamMember,
     onClick: (Int) -> Unit
 ) {

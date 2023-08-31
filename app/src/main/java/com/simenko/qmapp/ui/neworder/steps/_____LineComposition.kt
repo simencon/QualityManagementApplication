@@ -22,7 +22,7 @@ fun LinesSelection(
     val gritState = rememberLazyGridState()
 
     val items by viewModel.subOrderLines.collectAsStateWithLifecycle()
-    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderLine(it) } }
 

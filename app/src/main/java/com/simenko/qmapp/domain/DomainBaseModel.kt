@@ -38,15 +38,13 @@ value class SelectedString(val str: String)
 
 val NoString = SelectedString("-")
 val EmptyString = SelectedString("")
+val FalseStr = SelectedString("false")
+val TrueStr = SelectedString("true")
+val NoRecordStr = SelectedString("-1")
 
-val InvestigationsKey = SelectedString("investigationsKey")
-val AllInv = SelectedString("false")
-val ProcessControl = SelectedString("true")
+val ToProcessControlScreen = SelectedString("investigationsKey")
 
 val CurrentOrderIdKey = SelectedString("currentOrderId")
 val CurrentSubOrderIdKey = SelectedString("currentSubOrderId")
-val NoRecordStr = SelectedString("-1")
 
 val SubOrderAddEditModeKey = SelectedString("subOrderAddEditModeKey")
-val SubOrderInOrder = SelectedString("false")
-val SubOrderStandAlone = SelectedString("true")

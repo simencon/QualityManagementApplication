@@ -19,7 +19,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.theme.Secondary
 import java.util.*
 
 @Composable
@@ -27,7 +26,7 @@ fun QuantitySelection(
     modifier: Modifier = Modifier
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
-    val currentSubOrder by viewModel.currentSubOrderSF.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderItemsCount(it) } }
 

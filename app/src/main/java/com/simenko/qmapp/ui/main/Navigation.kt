@@ -18,7 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.CurrentSubOrderIdKey
-import com.simenko.qmapp.domain.InvestigationsKey
+import com.simenko.qmapp.domain.ToProcessControlScreen
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SubOrderAddEditModeKey
 import com.simenko.qmapp.ui.Screen
@@ -50,9 +50,9 @@ fun Navigation(
             }
         }
         composable(
-            route = Screen.Main.Inv.route + "/{${InvestigationsKey.str}}/{${CurrentOrderIdKey.str}}/{${CurrentSubOrderIdKey.str}}",
+            route = Screen.Main.Inv.route + "/{${ToProcessControlScreen.str}}/{${CurrentOrderIdKey.str}}/{${CurrentSubOrderIdKey.str}}",
             arguments = listOf(
-                navArgument(InvestigationsKey.str) {
+                navArgument(ToProcessControlScreen.str) {
                     type = NavType.BoolType
                     defaultValue = getBoolean(MenuItem.getStartingDrawerMenuItem().id)
                 },
@@ -76,7 +76,7 @@ fun Navigation(
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
                     mainScreenPadding = mainScreenPadding,
-                    processControlOnly = it.arguments?.getBoolean(InvestigationsKey.str)?:false
+                    processControlOnly = it.arguments?.getBoolean(ToProcessControlScreen.str)?:false
                 )
             }
         }

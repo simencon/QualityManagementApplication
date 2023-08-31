@@ -15,10 +15,10 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
@@ -56,14 +56,14 @@ fun SubOrdersStandAlone(
         }
     }
 
-    val onClickEditLambda = remember<(Int, Int) -> Unit> {
-        { orderId, subOrderId ->
-            launchNewItemActivityForResult(
-                context as MainActivity,
-                AddEditMode.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
-                orderId,
-                subOrderId
-            )
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
+        {
+            invModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
+            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), TrueStr.str))
+
+            invModel.navController.currentBackStackEntry.let { bs ->
+                println("bsArguments/investigationsKey = ${bs?.arguments?.getBoolean(ToProcessControlScreen.str)}")
+            }
         }
     }
 
@@ -129,7 +129,7 @@ fun SubOrdersStandAlone(
                 cardOffset = CARD_OFFSET.dp(),
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = {onClickDeleteLambda(it) },
-                onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
+                onClickEdit = { onClickEditLambda(it) },
                 onClickStatus = { subOrderComplete, completedById ->
                     onClickStatusLambda(
                         subOrderComplete,

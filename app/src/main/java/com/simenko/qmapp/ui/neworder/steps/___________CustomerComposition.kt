@@ -25,7 +25,7 @@ fun CustomersSelection(
     val gritState = rememberLazyGridState()
 
     val items by viewModel.orderCustomers.collectAsStateWithLifecycle()
-    val currentOrder by viewModel.currentOrderSF.collectAsStateWithLifecycle()
+    val currentOrder by viewModel.order.collectAsStateWithLifecycle()
 
     val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderCustomer(it) } }
 
