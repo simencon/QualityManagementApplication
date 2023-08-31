@@ -39,7 +39,7 @@ value class SelectedString(val str: String)
 val NoString = SelectedString("-")
 val EmptyString = SelectedString("")
 
-val InvestigationsKey = SelectedString("processControlOnly")
+val InvestigationsKey = SelectedString("investigationsKey")
 val AllInv = SelectedString("false")
 val ProcessControl = SelectedString("true")
 
@@ -47,4 +47,6 @@ val CurrentOrderIdKey = SelectedString("currentOrderId")
 val CurrentSubOrderIdKey = SelectedString("currentSubOrderId")
 val NoRecordStr = SelectedString("-1")
 
-
+val SubOrderAddEditModeKey = SelectedString("subOrderAddEditModeKey")
+val SubOrderInOrder = SelectedString("false")
+val SubOrderStandAlone = SelectedString("true")

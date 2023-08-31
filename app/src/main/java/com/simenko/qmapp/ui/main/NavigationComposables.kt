@@ -509,10 +509,10 @@ enum class InvStatus(val statusId: SelectedNumber) {
 
 enum class AddEditMode(val mode: String) {
     NO_MODE("No mode"),
-    ADD_ORDER("Add new investigation"),
-    EDIT_ORDER("Edit investigation"),
-    ADD_SUB_ORDER("Add new order"),
-    EDIT_SUB_ORDER("Edit order"),
-    ADD_SUB_ORDER_STAND_ALONE("Add new process control order"),
+    ADD_ORDER("New investigation order"),
+    EDIT_ORDER("Edit investigation order"),
+    ADD_SUB_ORDER("Add new sub order"),
+    EDIT_SUB_ORDER("Edit sub order"),
+    ADD_SUB_ORDER_STAND_ALONE("New process control order"),
     EDIT_SUB_ORDER_STAND_ALONE("Edit process control order")
 }

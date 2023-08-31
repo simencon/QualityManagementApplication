@@ -44,6 +44,7 @@ import com.simenko.qmapp.domain.AllInv
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.ProcessControl
 import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.domain.SubOrderStandAlone
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
@@ -187,7 +188,11 @@ class MainActivityCompose : ComponentActivity() {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                                                     }
-
+                                                    Screen.Main.Inv.withArgs(ProcessControl.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                                        navController.navigate(Screen.Main.SubOrderAddEdit
+                                                            .withArgs(NoRecordStr.str, NoRecordStr.str, SubOrderStandAlone.str))
+                                                        viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
+                                                    }
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             else {

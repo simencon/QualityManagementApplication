@@ -28,6 +28,7 @@ sealed class Screen(val route: String) {
         object CompanyProducts : Screen("company_products")
         object Inv : Screen("all_investigations")
         object OrderAddEdit : Screen("order_add_edit")
+        object SubOrderAddEdit : Screen("sub_order_add_edit")
         object ScrapLevel : Screen("scrap_level")
         object Settings : Screen("settings")
     }
