@@ -1,12 +1,19 @@
 package com.simenko.qmapp.ui.main
 
+import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,9 +43,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecordStr
@@ -51,13 +68,19 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.INITIAL_ROUTE
+import com.simenko.qmapp.ui.user.LoginActivity
+import com.simenko.qmapp.works.SyncEntitiesWorker
+import com.simenko.qmapp.works.SyncPeriods
+import com.simenko.qmapp.works.WorkerKeys
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Duration
 import javax.inject.Inject
 
 fun launchMainActivityCompose(
-    activity: MainActivity,
+    activity: Activity,
     actionType: Int
 ) {
     activity.startActivityForResult(
@@ -66,8 +89,21 @@ fun launchMainActivityCompose(
     )
 }
 
+fun mainActivityIntent(context: Context): Intent {
+    val intent = Intent(context, MainActivityCompose::class.java)
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+    return intent
+}
+
 @AndroidEntryPoint
 class MainActivityCompose : ComponentActivity() {
+
+    @Inject
+    lateinit var workManager: WorkManager
+    private lateinit var syncLastHourOneTimeWork: OneTimeWorkRequest
+    private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
+    private lateinit var analytics: FirebaseAnalytics
+
     @Inject
     lateinit var userRepository: UserRepository
     val viewModel: MainActivityViewModel by viewModels()
@@ -79,8 +115,21 @@ class MainActivityCompose : ComponentActivity() {
     private lateinit var navController: NavHostController
 
     @OptIn(ExperimentalMaterialApi::class)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (
+            ActivityCompat.checkSelfPermission(
+                this@MainActivityCompose,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        analytics = Firebase.analytics
+
         setContent {
             QMAppTheme {
                 navController = rememberNavController()
@@ -128,8 +177,18 @@ class MainActivityCompose : ComponentActivity() {
 
                 fun onSearchBarSearch(searchValues: String) {
                     when (selectedDrawerMenuItemId) {
-                        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-                        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.Inv.withArgs(
+                            FalseStr.str,
+                            NoRecordStr.str,
+                            NoRecordStr.str
+                        ) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+
+                        Screen.Main.Inv.withArgs(
+                            TrueStr.str,
+                            NoRecordStr.str,
+                            NoRecordStr.str
+                        ) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -187,11 +246,15 @@ class MainActivityCompose : ComponentActivity() {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                                                     }
+
                                                     Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
-                                                        navController.navigate(Screen.Main.SubOrderAddEdit
-                                                            .withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
+                                                        navController.navigate(
+                                                            Screen.Main.SubOrderAddEdit
+                                                                .withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
+                                                        )
                                                         viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
                                                     }
+
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             else {
@@ -292,5 +355,45 @@ class MainActivityCompose : ComponentActivity() {
         this.newOrderModel = newOrderModel
         this.newOrderModel.initMainActivityViewModel(this.viewModel)
         this.newOrderModel.initNavController(this.navController)
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun prepareOneTimeWorks() {
+        syncLastHourOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(
+                        NetworkType.CONNECTED
+                    )
+                    .build()
+            )
+            .setInputData(
+                Data.Builder()
+                    .putLong(WorkerKeys.LATEST_MILLIS, SyncPeriods.LAST_HOUR.latestMillis)
+                    .putLong(WorkerKeys.EXCLUDE_MILLIS, SyncPeriods.LAST_HOUR.excludeMillis)
+                    .build()
+            )
+            .setInitialDelay(Duration.ofSeconds(5))
+            .build()
+
+        syncLastDayOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(
+                        NetworkType.CONNECTED
+                    )
+                    .build()
+            )
+            .setInitialDelay(Duration.ofSeconds(5))
+            .build()
     }
 }

@@ -11,6 +11,7 @@ import androidx.navigation.NavController
 sealed class Screen(val route: String) {
 
     object LoggedOut : Screen("logged_out") {
+        object InitialScreen: Screen("initial_screen")
         object Registration : Screen("registration") {
             object EnterDetails : Screen("enter_details")
             object TermsAndConditions : Screen("terms_and_conditions")

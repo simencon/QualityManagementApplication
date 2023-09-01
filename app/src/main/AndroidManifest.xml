@@ -21,10 +21,6 @@
             android:name=".ui.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.QMApp.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
@@ -32,9 +28,13 @@
             android:screenOrientation="fullSensor" />
         <activity
             android:name=".ui.main.MainActivityCompose"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_activity_new_order"
             android:theme="@style/Theme.QMApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />

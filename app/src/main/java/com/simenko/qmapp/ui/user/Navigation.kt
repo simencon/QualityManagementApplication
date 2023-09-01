@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,14 +20,22 @@ import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditi
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LogIn
 import com.simenko.qmapp.ui.user.verification.WaitingForVerification
+import javax.inject.Inject
 
 @Composable
 fun Navigation(
+    navController: NavHostController,
     initiatedRoute: String,
     logInSuccess: () -> Unit
 ) {
-    val navController = rememberNavController()
     NavHost(navController = navController, startDestination = initiatedRoute) {
+        composable(
+            route = Screen.LoggedOut.InitialScreen.route
+        ) {
+            QMAppTheme {
+                InitialScreen()
+            }
+        }
         navigation(
             startDestination = Screen.LoggedOut.Registration.EnterDetails.route,
             route = Screen.LoggedOut.Registration.route
