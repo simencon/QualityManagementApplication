@@ -59,7 +59,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
@@ -80,14 +79,14 @@ import java.time.Duration
 import javax.inject.Inject
 
 fun mainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
-    val intent = Intent(context, MainActivityCompose::class.java)
+    val intent = Intent(context, MainActivity::class.java)
     intent.putExtra("initialRoute", route)
     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
     return intent
 }
 
 @AndroidEntryPoint
-class MainActivityCompose : ComponentActivity() {
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var workManager: WorkManager
@@ -116,7 +115,7 @@ class MainActivityCompose : ComponentActivity() {
 
         if (
             ActivityCompat.checkSelfPermission(
-                this@MainActivityCompose,
+                this@MainActivity,
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
