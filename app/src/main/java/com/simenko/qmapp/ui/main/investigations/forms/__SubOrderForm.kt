@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder
+package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,7 +10,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.neworder.steps.*
+import com.simenko.qmapp.ui.main.investigations.forms.steps.ButtonsSectionQuantity
+import com.simenko.qmapp.ui.main.investigations.forms.steps.ChannelsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.CharacteristicsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.DepartmentsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.LinesSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.OperationsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.QuantitySelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.SubDepartmentsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.SubOrderPlacersSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.VersionsSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

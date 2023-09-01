@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder
+package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.lifecycle.*
 import androidx.navigation.NavHostController
@@ -11,7 +11,6 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.neworder.assemblers.checkIfPossibleToSave
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -185,7 +184,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderDepartment(id: Int) {
-        if (_subOrder.value.subOrder.departmentId != id)
+        if (_subOrder.value.subOrder.departmentId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
                     departmentId = id,
@@ -199,6 +198,9 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Sub Department ----------------------------------------------------------------------------------------------------------------------
@@ -223,7 +225,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderSubDepartment(id: Int) {
-        if (_subOrder.value.subOrder.subDepartmentId != id)
+        if (_subOrder.value.subOrder.subDepartmentId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
                     subDepartmentId = id,
@@ -236,6 +238,9 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Placer ------------------------------------------------------------------------------------------------------------------------------
@@ -254,7 +259,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderPlacer(id: Int) {
-        if (_subOrder.value.subOrder.orderedById != id)
+        if (_subOrder.value.subOrder.orderedById != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
                     orderedById = id,
@@ -266,6 +271,9 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Channel -----------------------------------------------------------------------------------------------------------------------------
@@ -290,7 +298,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderChannel(id: Int) {
-        if (_subOrder.value.subOrder.channelId != id)
+        if (_subOrder.value.subOrder.channelId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
                     channelId = id,
@@ -301,6 +309,9 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Line --------------------------------------------------------------------------------------------------------------------------------
@@ -325,7 +336,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderLine(id: Int) {
-        if (_subOrder.value.subOrder.lineId != id)
+        if (_subOrder.value.subOrder.lineId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
                     lineId = id,
@@ -335,6 +346,9 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Item --------------------------------------------------------------------------------------------------------------------------------
@@ -359,7 +373,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderItemVersion(id: Triple<String, Int, Int>) {
-        if (_subOrder.value.subOrder.getItemIds() != id)
+        if (_subOrder.value.subOrder.getItemIds() != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
                     itemPreffix = id.first + id.third,
@@ -368,6 +382,9 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Operation ---------------------------------------------------------------------------------------------------------------------------
@@ -393,8 +410,11 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderOperation(id: Int) {
-        if (_subOrder.value.subOrder.operationId != id)
+        if (_subOrder.value.subOrder.operationId != id) {
             _subOrder.value = _subOrder.value.copy(subOrder = _subOrder.value.subOrder.copy(operationId = id))
+            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderCharacteristic(NoRecord.num)
+        }
     }
 
     // Sub Order Items Count -------------------------------------------------------------------------------------------------------------------------
@@ -462,23 +482,34 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectSubOrderCharacteristic(id: Int) {
-        _subOrder.value.subOrderTasks.findLast { it.charId == id }.let {
-            if (it == null) {
-                _subOrder.value.subOrderTasks.add(
-                    DomainSubOrderTask().copy(
-                        statusId = InvStatuses.TO_DO.statusId,
-                        subOrderId = _subOrder.value.subOrder.id,
-                        orderedById = _subOrder.value.subOrder.orderedById,
-                        charId = id,
-                        isNewRecord = true
-                    )
-                )
-            } else {
+        if (id == NoRecord.num) {
+            _subOrder.value.subOrderTasks.forEach {
                 if (it.isNewRecord) {
                     _subOrder.value.subOrderTasks.remove(it)
                 } else {
                     val index = _subOrder.value.subOrderTasks.indexOf(it)
-                    _subOrder.value.subOrderTasks[index].toBeDeleted = !_subOrder.value.subOrderTasks[index].toBeDeleted
+                    _subOrder.value.subOrderTasks[index].toBeDeleted = true
+                }
+            }
+        } else {
+            _subOrder.value.subOrderTasks.findLast { it.charId == id }.let {
+                if (it == null) {
+                    _subOrder.value.subOrderTasks.add(
+                        DomainSubOrderTask().copy(
+                            statusId = InvStatuses.TO_DO.statusId,
+                            subOrderId = _subOrder.value.subOrder.id,
+                            orderedById = _subOrder.value.subOrder.orderedById,
+                            charId = id,
+                            isNewRecord = true
+                        )
+                    )
+                } else {
+                    if (it.isNewRecord) {
+                        _subOrder.value.subOrderTasks.remove(it)
+                    } else {
+                        val index = _subOrder.value.subOrderTasks.indexOf(it)
+                        _subOrder.value.subOrderTasks[index].toBeDeleted = !_subOrder.value.subOrderTasks[index].toBeDeleted
+                    }
                 }
             }
         }
@@ -488,10 +519,10 @@ class NewItemViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun postOrder() {
+    fun postOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(_order.value))
             viewModelScope.launch(Dispatchers.IO) {
-                with(repository) { insertOrder(_order.value) }.consumeEach { event ->
+                with(repository) { if(newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
@@ -520,37 +551,10 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun editOrder() {
-        if (checkIfPossibleToSave(_order.value))
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.run { updateOrder(_order.value) }.consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-
-                            Status.SUCCESS -> {
-                                mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                setAddEditMode(AddEditMode.NO_MODE)
-                                withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
-                                        popUpTo(0)
-                                    }
-                                }
-                            }
-
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                        }
-                    }
-                }
-            }
-        else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
-    }
-
-    fun postNewOrderWithSubOrder() {
+    fun postNewOrderWithSubOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.size)))
             viewModelScope.launch(Dispatchers.IO) {
-                repository.run { insertOrder(_order.value) }.consumeEach { event ->
+                repository.run { if(newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
@@ -558,7 +562,7 @@ class NewItemViewModel @Inject constructor(
                             Status.SUCCESS -> {
                                 resource.data?.let {
                                     _order.value = _order.value.copy(id = it.id)
-                                    postSubOrder(TrueStr.str)
+                                    postSubOrder(TrueStr.str, newRecord)
                                 }
                             }
 
@@ -571,10 +575,10 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun postSubOrder(processControlOnly: String) {
+    fun postSubOrder(processControlOnly: String, newRecord: Boolean = true) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.size)))
             viewModelScope.launch(Dispatchers.IO) {
-                repository.run { insertSubOrder(_subOrder.value.subOrder) }.consumeEach { event ->
+                repository.run { if(newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
@@ -605,28 +609,6 @@ class NewItemViewModel @Inject constructor(
             }
         else
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
-    }
-
-    fun editSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.run { updateSubOrder(subOrder.subOrder) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-
-                        Status.SUCCESS -> {
-                            resource.data?.let {
-                                postDeleteSubOrderTasks(it.id)
-                                postDeleteSamples(it.id)
-                            }
-                            mainActivityViewModel.updateLoadingState(Pair(false, null))
-                        }
-
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                    }
-                }
-            }
-        }
     }
 
     private suspend fun postDeleteSamples(subOrderId: Int) {
@@ -723,4 +705,31 @@ fun getPreviousIds(currentId: Int, pairs: List<DomainOperationsFlow>): List<Int>
         }
     }
     return previousIds
+}
+
+fun checkIfPossibleToSave(record: DomainOrder): Boolean {
+    if (record.orderTypeId == NoRecord.num) return false
+    if (record.reasonId == NoRecord.num) return false
+    if (record.customerId == NoRecord.num) return false
+    if (record.orderedById == NoRecord.num) return false
+
+    return true
+}
+
+fun checkIfPossibleToSave(record: Triple<DomainOrder, DomainSubOrder, Int>): Boolean {
+
+    if (record.first.reasonId == NoRecord.num) return false
+
+    if (record.second.orderedById == NoRecord.num) return false
+    if (record.second.departmentId == NoRecord.num) return false
+    if (record.second.subDepartmentId == NoRecord.num) return false
+    if (record.second.channelId == NoRecord.num) return false
+    if (record.second.lineId == NoRecord.num) return false
+    if (record.second.operationId == NoRecord.num) return false
+    if (record.second.itemVersionId == NoRecord.num) return false
+    if (record.second.samplesCount == ZeroValue.num) return false
+
+    if (record.third == ZeroValue.num) return false
+
+    return true
 }

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder.steps
+package com.simenko.qmapp.ui.main.investigations.forms.steps
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.entities.DomainItemVersionComplete
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 

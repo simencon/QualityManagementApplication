@@ -49,7 +49,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.neworder.NewItemViewModel
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -196,10 +196,12 @@ class MainActivityCompose : ComponentActivity() {
                                                 }
                                             else {
                                                 when (AddEditMode.values()[addEditMode]) {
-                                                    AddEditMode.ADD_ORDER -> newOrderModel.postOrder()
-                                                    AddEditMode.EDIT_ORDER -> newOrderModel.editOrder()
-                                                    AddEditMode.ADD_SUB_ORDER -> newOrderModel.postSubOrder(FalseStr.str)
-                                                    AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.postNewOrderWithSubOrder()
+                                                    AddEditMode.ADD_ORDER -> newOrderModel.postOrder(newRecord = true)
+                                                    AddEditMode.EDIT_ORDER -> newOrderModel.postOrder(newRecord = false)
+                                                    AddEditMode.ADD_SUB_ORDER -> newOrderModel.postSubOrder(FalseStr.str, true)
+                                                    AddEditMode.EDIT_SUB_ORDER -> newOrderModel.postSubOrder(FalseStr.str, false)
+                                                    AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.postNewOrderWithSubOrder(newRecord = true)
+                                                    AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.postNewOrderWithSubOrder(newRecord = false)
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }

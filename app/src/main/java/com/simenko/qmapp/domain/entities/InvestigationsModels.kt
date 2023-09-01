@@ -152,7 +152,7 @@ data class DomainSubOrder constructor(
     var itemPreffix: String = NoString.str,
     var itemTypeId: Int = NoRecord.num,
     var itemVersionId: Int = NoRecord.num,
-    var samplesCount: Int? = null,
+    var samplesCount: Int? = ZeroValue.num,
     var remarkId: Int = 1 //means no remark
 ) : DomainBaseModel<DatabaseSubOrder>() {
     fun getItemIds(): Triple<String, Int, Int> = Triple(itemPreffix[0].toString(), itemTypeId, itemVersionId)

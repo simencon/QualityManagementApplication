@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder.steps
+package com.simenko.qmapp.ui.main.investigations.forms.steps
 
 import android.widget.NumberPicker
 import androidx.annotation.StringRes
@@ -18,7 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import java.util.*
 
 @Composable

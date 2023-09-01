@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder.steps
+package com.simenko.qmapp.ui.main.investigations.forms.steps
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,26 +10,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainManufacturingLine
+import com.simenko.qmapp.domain.entities.DomainOrdersType
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 
 @Composable
-fun LinesSelection(
+fun TypesSelection(
     modifier: Modifier = Modifier
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
 
-    val items by viewModel.subOrderLines.collectAsStateWithLifecycle()
-    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
+    val items by viewModel.orderTypes.collectAsStateWithLifecycle()
+    val currentOrder by viewModel.order.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderLine(it) } }
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderType(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
-            selectedId = currentSubOrder.subOrder.lineId,
+            selectedId = currentOrder.orderTypeId,
         )
     }
 
@@ -42,15 +43,15 @@ fun LinesSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(items = items, key = { it.id }) { item ->
-            LineCard(input = item, onClick = { onSelectLambda(it) })
+            InvestigationTypeCard(inputForOrder = item, onClick = { onSelectLambda(it) })
         }
     }
 }
 
 @Composable
-fun LineCard(
-    input: DomainManufacturingLine,
+fun InvestigationTypeCard(
+    inputForOrder: DomainOrdersType,
     onClick: (Int) -> Unit
 ) {
-    ItemToSelect(Triple(input.id, input.lineAbbr, input.isSelected), onClick)
+    ItemToSelect(Triple(inputForOrder.id, inputForOrder.typeDescription ?: "-", inputForOrder.isSelected), onClick)
 }

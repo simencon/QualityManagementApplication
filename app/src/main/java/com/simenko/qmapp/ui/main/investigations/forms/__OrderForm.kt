@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder
+package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
@@ -24,7 +24,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.neworder.steps.*
+import com.simenko.qmapp.ui.main.investigations.forms.steps.CustomersSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.InitiatorsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
+import com.simenko.qmapp.ui.main.investigations.forms.steps.TypesSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
