@@ -48,8 +48,6 @@ class NewItemViewModel @Inject constructor(
         mainActivityViewModel.setAddEditMode(mode)
     }
 
-    val pairedTrigger: MutableLiveData<Boolean> = MutableLiveData(true)
-
     val currentSubOrder = MutableLiveData(
         DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
     )
@@ -152,7 +150,7 @@ class NewItemViewModel @Inject constructor(
     )
     val subOrder: StateFlow<DomainSubOrderShort> = _order.flatMapLatest { order ->
         _subOrder.flatMapLatest { subOrder ->
-            _subOrder.value = subOrder.copy(order = order)
+            _subOrder.value = subOrder.copy(order = order, subOrder = _subOrder.value.subOrder.copy(orderId = order.id))
             flow { emit(_subOrder.value) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
@@ -368,7 +366,7 @@ class NewItemViewModel @Inject constructor(
         if (_subOrder.value.subOrder.getItemIds() != id)
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
-                    itemPreffix = id.first,
+                    itemPreffix = id.first + id.third,
                     itemTypeId = id.second,
                     itemVersionId = id.third,
                     operationId = NoRecord.num
