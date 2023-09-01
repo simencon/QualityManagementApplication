@@ -196,12 +196,12 @@ class MainActivityCompose : ComponentActivity() {
                                                 }
                                             else {
                                                 when (AddEditMode.values()[addEditMode]) {
-                                                    AddEditMode.ADD_ORDER -> newOrderModel.postOrder(newRecord = true)
-                                                    AddEditMode.EDIT_ORDER -> newOrderModel.postOrder(newRecord = false)
-                                                    AddEditMode.ADD_SUB_ORDER -> newOrderModel.postSubOrder(FalseStr.str, true)
-                                                    AddEditMode.EDIT_SUB_ORDER -> newOrderModel.postSubOrder(FalseStr.str, false)
-                                                    AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.postNewOrderWithSubOrder(newRecord = true)
-                                                    AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.postNewOrderWithSubOrder(newRecord = false)
+                                                    AddEditMode.ADD_ORDER -> newOrderModel.makeOrder(newRecord = true)
+                                                    AddEditMode.EDIT_ORDER -> newOrderModel.makeOrder(newRecord = false)
+                                                    AddEditMode.ADD_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, true)
+                                                    AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, false)
+                                                    AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
+                                                    AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }

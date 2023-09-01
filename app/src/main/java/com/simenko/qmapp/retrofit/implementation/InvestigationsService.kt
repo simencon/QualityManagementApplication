@@ -109,8 +109,8 @@ interface InvestigationsService {
     @DELETE("$SUB_ORDER_TASKS/{id}")
     suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<NetworkSubOrderTask>
 
-    @DELETE("$SUB_ORDER_TASKS/$RECORDS")
-    suspend fun deleteSubOrderTasks(@Body ids: List<Int>): Response<List<NetworkSubOrderTask>>
+    @HTTP(method = "DELETE", path = "$SUB_ORDER_TASKS/$RECORDS", hasBody = true)
+    suspend fun deleteSubOrderTasks(@Body records: List<NetworkSubOrderTask>): Response<List<NetworkSubOrderTask>>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$SUB_ORDER_TASKS/{id}")
@@ -140,8 +140,9 @@ interface InvestigationsService {
 
     @DELETE("$SAMPLES/{id}")
     suspend fun deleteSample(@Path("id") id: Int): Response<NetworkSample>
-    @DELETE("$SAMPLES/$RECORDS")
-    suspend fun deleteSamples(@Body ids: List<Int>): Response<List<NetworkSample>>
+
+    @HTTP(method = "DELETE", path = "$SAMPLES/$RECORDS", hasBody = true)
+    suspend fun deleteSamples(@Body records: List<NetworkSample>): Response<List<NetworkSample>>
 
     @GET("$RESULTS/$HASH_CODE/{timeRange}")
     suspend fun getResultsHashCodeForDatePeriod(

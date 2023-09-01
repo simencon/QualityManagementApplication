@@ -215,13 +215,13 @@ class InvestigationsRepository @Inject constructor(
 
     fun CoroutineScope.deleteTasks(records: List<DomainSubOrderTask>): ReceiveChannel<Event<Resource<List<DomainSubOrderTask>>>> = crudeOperations.run {
         responseHandlerForListOfRecords(
-            taskExecutor = { invService.deleteSubOrderTasks(records.map { it.id }) }
+            taskExecutor = { invService.deleteSubOrderTasks(records.map { it.toDatabaseModel().toNetworkModel() }) }
         ) { r -> database.taskDao.deleteRecords(r) }
     }
 
     fun CoroutineScope.deleteSamples(records: List<DomainSample>): ReceiveChannel<Event<Resource<List<DomainSample>>>> = crudeOperations.run {
         responseHandlerForListOfRecords(
-            taskExecutor = { invService.deleteSamples(records.map { it.id }) }
+            taskExecutor = { invService.deleteSamples(records.map { it.toDatabaseModel().toNetworkModel() }) }
         ) { r -> database.sampleDao.deleteRecords(r) }
     }
 

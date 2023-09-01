@@ -519,10 +519,10 @@ class NewItemViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun postOrder(newRecord: Boolean = true) {
+    fun makeOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(_order.value))
             viewModelScope.launch(Dispatchers.IO) {
-                with(repository) { if(newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
+                with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> {
@@ -551,10 +551,10 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun postNewOrderWithSubOrder(newRecord: Boolean = true) {
-        if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.size)))
+    fun makeNewOrderWithSubOrder(newRecord: Boolean = true) {
+        if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
-                repository.run { if(newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
+                repository.run { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
                             Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
@@ -562,7 +562,7 @@ class NewItemViewModel @Inject constructor(
                             Status.SUCCESS -> {
                                 resource.data?.let {
                                     _order.value = _order.value.copy(id = it.id)
-                                    postSubOrder(TrueStr.str, newRecord)
+                                    makeSubOrder(TrueStr.str, newRecord)
                                 }
                             }
 
@@ -575,37 +575,38 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun postSubOrder(processControlOnly: String, newRecord: Boolean = true) {
-        if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.size)))
+    fun makeSubOrder(processControlOnly: String, newRecord: Boolean = true) {
+        if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
-                repository.run { if(newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }.consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> {
-                                resource.data?.let {
-                                    postDeleteSubOrderTasks(it.id)
-                                    postDeleteSamples(it.id)
-                                }
-                                mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                setAddEditMode(AddEditMode.NO_MODE)
-                                withContext(Dispatchers.Main) {
-                                    navController.navigate(
-                                        Screen.Main.Inv.withArgs(
-                                            processControlOnly,
-                                            _subOrder.value.subOrder.orderId.toString(),
-                                            resource.data?.id.toString()
-                                        )
-                                    ) {
-                                        popUpTo(0)
+                repository.run { if (newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }
+                    .consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> {
+                                    resource.data?.let {
+                                        postDeleteSubOrderTasks(it.id)
+                                        postDeleteSamples(it.id)
+                                    }
+                                    mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                    setAddEditMode(AddEditMode.NO_MODE)
+                                    withContext(Dispatchers.Main) {
+                                        navController.navigate(
+                                            Screen.Main.Inv.withArgs(
+                                                processControlOnly,
+                                                _subOrder.value.subOrder.orderId.toString(),
+                                                resource.data?.id.toString()
+                                            )
+                                        ) {
+                                            popUpTo(0)
+                                        }
                                     }
                                 }
-                            }
 
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            }
                         }
                     }
-                }
             }
         else
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
@@ -619,7 +620,7 @@ class NewItemViewModel @Inject constructor(
                     it
                 }.let { it ->
                     it.filter { it.toBeDeleted }.let {
-                        deleteSamples(it).consumeEach { event ->
+                        if (it.isNotEmpty()) deleteSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
@@ -630,7 +631,7 @@ class NewItemViewModel @Inject constructor(
                         }
                     }
                     it.filter { it.isNewRecord }.let {
-                        insertSamples(it).consumeEach { event ->
+                        if (it.isNotEmpty()) insertSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
@@ -653,7 +654,7 @@ class NewItemViewModel @Inject constructor(
                     it
                 }.let { it ->
                     it.filter { it.toBeDeleted }.let {
-                        deleteTasks(it).consumeEach { event ->
+                        if (it.isNotEmpty()) deleteTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
@@ -664,7 +665,7 @@ class NewItemViewModel @Inject constructor(
                         }
                     }
                     it.filter { it.isNewRecord }.let {
-                        insertTasks(it).consumeEach { event ->
+                        if (it.isNotEmpty()) insertTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
                                     Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
