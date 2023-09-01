@@ -69,14 +69,14 @@ fun Navigation(
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
-                it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num,
-                it.arguments?.getInt(CurrentSubOrderIdKey.str)?: NoRecord.num
+                it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num,
+                it.arguments?.getInt(CurrentSubOrderIdKey.str) ?: NoRecord.num
             )
             QMAppTheme {
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
                     mainScreenPadding = mainScreenPadding,
-                    processControlOnly = it.arguments?.getBoolean(ToProcessControlScreen.str)?:false
+                    processControlOnly = it.arguments?.getBoolean(ToProcessControlScreen.str) ?: false
                 )
             }
         }
@@ -98,7 +98,7 @@ fun Navigation(
             }
             QMAppTheme {
                 OrderForm(
-                    orderId = it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num
+                    orderId = it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num
                 )
             }
         }
@@ -122,7 +122,7 @@ fun Navigation(
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
-            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditModeKey.str)?: false)
+            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditModeKey.str) ?: false)
             BackHandler {
                 navController.popBackStack()
                 newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
@@ -130,8 +130,8 @@ fun Navigation(
             QMAppTheme {
                 SubOrderForm(
                     record = Pair(
-                        it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num,
-                        it.arguments?.getInt(CurrentSubOrderIdKey.str)?: NoRecord.num
+                        it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num,
+                        it.arguments?.getInt(CurrentSubOrderIdKey.str) ?: NoRecord.num
                     )
                 )
             }
@@ -139,16 +139,15 @@ fun Navigation(
 
         composable(route = Screen.Main.Settings.route) {
             QMAppTheme {
+                val activity = (LocalContext.current as MainActivity)
                 Settings(
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxWidth(),
                     onClick = { route ->
                         val intent = createLoginActivityIntent(navController.context, route)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(navController.context, intent, null)
+                        activity.finish()
                     }
                 )
             }
