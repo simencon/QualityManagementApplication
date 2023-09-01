@@ -44,7 +44,7 @@ fun Navigation(
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         composable(route = Screen.Main.Employees.route) {
             val invModel: TeamViewModel = hiltViewModel()
-            (LocalContext.current as MainActivityCompose).initTeamModel(invModel)
+            (LocalContext.current as MainActivity).initTeamModel(invModel)
             QMAppTheme {
                 TeamComposition()
             }
@@ -67,7 +67,7 @@ fun Navigation(
             )
         ) {
             val invModel: InvestigationsViewModel = hiltViewModel()
-            (LocalContext.current as MainActivityCompose).initInvModel(invModel)
+            (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
                 it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num,
                 it.arguments?.getInt(CurrentSubOrderIdKey.str)?: NoRecord.num
@@ -91,7 +91,7 @@ fun Navigation(
             )
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
-            (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
+            (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
             BackHandler {
                 navController.popBackStack()
                 newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
@@ -121,7 +121,7 @@ fun Navigation(
             )
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
-            (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
+            (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
             newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditModeKey.str)?: false)
             BackHandler {
                 navController.popBackStack()
