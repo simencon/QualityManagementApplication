@@ -430,9 +430,6 @@ class NewItemViewModel @Inject constructor(
 
         cpy.subOrder.samplesCount = count
 
-        cpy.subOrderTasks.removeIf { it.isNewRecord }
-        cpy.subOrderTasks.forEach { it.toBeDeleted = true }
-
         val subOrderId = cpy.subOrder.id
         var currentSize = ZeroValue.num
         cpy.samples.forEach {
@@ -490,14 +487,8 @@ class NewItemViewModel @Inject constructor(
 
     fun selectSubOrderCharacteristic(id: Int) {
         if (id == NoRecord.num) {
-            _subOrder.value.subOrderTasks.forEach {
-                if (it.isNewRecord) {
-                    _subOrder.value.subOrderTasks.remove(it)
-                } else {
-                    val index = _subOrder.value.subOrderTasks.indexOf(it)
-                    _subOrder.value.subOrderTasks[index].toBeDeleted = true
-                }
-            }
+            _subOrder.value.subOrderTasks.removeIf { it.isNewRecord }
+            _subOrder.value.subOrderTasks.forEach { it.toBeDeleted = true }
         } else {
             _subOrder.value.subOrderTasks.findLast { it.charId == id }.let {
                 if (it == null) {
@@ -568,7 +559,7 @@ class NewItemViewModel @Inject constructor(
 
                             Status.SUCCESS -> {
                                 resource.data?.let {
-                                    _order.value = _order.value.copy(id = it.id)
+                                    _order.value = it
                                     makeSubOrder(TrueStr.str, newRecord)
                                 }
                             }
