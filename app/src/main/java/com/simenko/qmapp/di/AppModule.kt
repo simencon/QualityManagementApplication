@@ -2,6 +2,8 @@ package com.simenko.qmapp.di
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.ComposeNavigator
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
