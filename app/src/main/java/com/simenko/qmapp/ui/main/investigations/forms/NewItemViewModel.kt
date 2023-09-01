@@ -60,9 +60,7 @@ class NewItemViewModel @Inject constructor(
     private val _order: MutableStateFlow<DomainOrder> = MutableStateFlow(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
     )
-    val order: StateFlow<DomainOrder> = _order.flatMapLatest { order ->
-        flow { emit(order) }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _order.value)
+    val order: StateFlow<DomainOrder> get() = _order
 
     fun loadOrder(id: Int) {
         _order.value = repository.getOrderById(id)
@@ -104,7 +102,7 @@ class NewItemViewModel @Inject constructor(
     fun selectOrderReason(id: Int) {
         if (_order.value.reasonId != id && !_subOrderStandAlone.value)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
-        else if(_order.value.reasonId != id)
+        else if (_order.value.reasonId != id)
             _order.value = _order.value.copy(reasonId = id)
     }
 
