@@ -36,8 +36,6 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
 import com.simenko.qmapp.ui.main.team.TeamFragment
-import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.neworder.*
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
