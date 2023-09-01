@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.DomainBaseModel
 
-
 /**
  * 🚀 A Jetpack Compose Android Library to create a dropdown menu that is searchable.
  * @param modifier a modifier for this SearchableExpandedDropDownMenu and its children

@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -58,7 +57,9 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.FalseStr
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
@@ -69,7 +70,6 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.INITIAL_ROUTE
-import com.simenko.qmapp.ui.user.LoginActivity
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -79,18 +79,9 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
 
-fun launchMainActivityCompose(
-    activity: Activity,
-    actionType: Int
-) {
-    activity.startActivityForResult(
-        Intent(activity, MainActivityCompose::class.java),
-        actionType
-    )
-}
-
-fun mainActivityIntent(context: Context): Intent {
+fun mainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
     val intent = Intent(context, MainActivityCompose::class.java)
+    intent.putExtra("initialRoute", route)
     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
     return intent
 }
@@ -114,10 +105,14 @@ class MainActivityCompose : ComponentActivity() {
 
     private lateinit var navController: NavHostController
 
+    private lateinit var initialRoute: String
+
     @OptIn(ExperimentalMaterialApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: MenuItem.getStartingDrawerMenuItem().id
 
         if (
             ActivityCompat.checkSelfPermission(
@@ -316,7 +311,7 @@ class MainActivityCompose : ComponentActivity() {
                                         .padding(it)
                                         .pullRefresh(pullRefreshState),
                                     it,
-                                    MenuItem.getStartingDrawerMenuItem().id,
+                                    initialRoute,
                                     navController
                                 )
                                 PullRefreshIndicator(
@@ -397,3 +392,8 @@ class MainActivityCompose : ComponentActivity() {
             .build()
     }
 }
+
+data class CreatedRecord(
+    val orderId: Int = NoRecord.num,
+    val subOrderId: Int = NoRecord.num
+)

@@ -42,12 +42,7 @@ fun Navigation(
         ) {
             composable(route = Screen.LoggedOut.Registration.EnterDetails.route) {
                 QMAppTheme {
-                    EnterDetails(
-                        modifier = Modifier
-                            .padding(all = 0.dp)
-                            .fillMaxSize(),
-                        navController = navController
-                    )
+                    EnterDetails(navController = navController)
                 }
             }
             composable(
