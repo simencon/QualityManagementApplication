@@ -48,10 +48,6 @@ class NewItemViewModel @Inject constructor(
         mainActivityViewModel.setAddEditMode(mode)
     }
 
-    val currentSubOrder = MutableLiveData(
-        DomainSubOrderShort(DomainSubOrder().copy(statusId = InvStatuses.TO_DO.statusId), DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId))
-    )
-
     /**
      * Order logic -----------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -490,12 +486,10 @@ class NewItemViewModel @Inject constructor(
     }
 
     /**
-     * Data Base Operations --------------------------------------------------------------------------------------------------------------------------
+     * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    val characteristicsMutable = MutableLiveData<MutableList<DomainCharacteristic>>(mutableListOf())
-
     fun postOrder() {
-        if (checkIfPossibleToSave(_order.value) != null)
+        if (checkIfPossibleToSave(_order.value))
             viewModelScope.launch(Dispatchers.IO) {
                 with(repository) { insertOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
@@ -527,7 +521,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     fun editOrder() {
-        if (checkIfPossibleToSave(_order.value) != null)
+        if (checkIfPossibleToSave(_order.value))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
@@ -553,49 +547,64 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun postNewOrderWithSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.run { insertOrder(subOrder.order) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+    fun postNewOrderWithSubOrder() {
+        if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.size)))
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.run { insertOrder(_order.value) }.consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
 
-                        Status.SUCCESS -> {
-                            subOrder.subOrder.orderId = resource.data!!.id
-                            postSubOrder()
-                        }
-
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                    }
-                }
-            }
-        }
-    }
-
-    fun postSubOrder() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.run { insertSubOrder(_subOrder.value.subOrder) }.consumeEach { event ->
-                event.getContentIfNotHandled()?.let { resource ->
-                    when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                        Status.SUCCESS -> {
-                            resource.data?.let {
-                                postDeleteSubOrderTasks(it.id)
-                                postDeleteSamples(it.id)
-                            }
-                            mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            setAddEditMode(AddEditMode.NO_MODE)
-                            withContext(Dispatchers.Main) {
-                                navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, _subOrder.value.subOrder.orderId.toString(), resource.data?.id.toString())) {
-                                    popUpTo(0)
+                            Status.SUCCESS -> {
+                                resource.data?.let {
+                                    _order.value = _order.value.copy(id = it.id)
+                                    postSubOrder(TrueStr.str)
                                 }
                             }
+
+                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                         }
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                     }
                 }
             }
-        }
+        else
+            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+    }
+
+    fun postSubOrder(processControlOnly: String) {
+        if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.size)))
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.run { insertSubOrder(_subOrder.value.subOrder) }.consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> {
+                                resource.data?.let {
+                                    postDeleteSubOrderTasks(it.id)
+                                    postDeleteSamples(it.id)
+                                }
+                                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                setAddEditMode(AddEditMode.NO_MODE)
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(
+                                        Screen.Main.Inv.withArgs(
+                                            processControlOnly,
+                                            _subOrder.value.subOrder.orderId.toString(),
+                                            resource.data?.id.toString()
+                                        )
+                                    ) {
+                                        popUpTo(0)
+                                    }
+                                }
+                            }
+
+                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                        }
+                    }
+                }
+            }
+        else
+            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
     fun editSubOrder(activity: NewItemActivity, subOrder: DomainSubOrderShort) {
@@ -622,7 +631,6 @@ class NewItemViewModel @Inject constructor(
 
     private suspend fun postDeleteSamples(subOrderId: Int) {
         withContext(Dispatchers.IO) {
-
             repository.run {
                 _subOrder.value.samples.map {
                     it.subOrderId = subOrderId
