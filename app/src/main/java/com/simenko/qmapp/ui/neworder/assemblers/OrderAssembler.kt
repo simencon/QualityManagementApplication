@@ -1,45 +1,38 @@
 package com.simenko.qmapp.ui.neworder.assemblers
 
-import android.util.Log
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainOrder
-import com.simenko.qmapp.domain.entities.DomainSubOrderShort
+import com.simenko.qmapp.domain.entities.DomainSubOrder
 import com.simenko.qmapp.ui.neworder.NewItemViewModel
 
-private const val TAG = "OrderAssembler"
+fun checkIfPossibleToSave(record: DomainOrder): Boolean {
+    if (record.orderTypeId == NoRecord.num) return false
+    if (record.reasonId == NoRecord.num) return false
+    if (record.customerId == NoRecord.num) return false
+    if (record.orderedById == NoRecord.num) return false
 
-fun checkIfPossibleToSave(record: DomainOrder): DomainOrder? {
-    if (record.orderTypeId == NoRecord.num) return null
-    if (record.reasonId == NoRecord.num) return null
-    if (record.customerId == NoRecord.num) return null
-    if (record.orderedById == NoRecord.num) return null
-
-    return record
+    return true
 }
 
 fun disassembleOrder(viewModel: NewItemViewModel, orderId: Int) {
 //    viewModel.currentOrder.value = viewModel.investigationOrders.value?.find { it.id == orderId }
 }
 
-fun checkCurrentSubOrder(viewModel: NewItemViewModel): DomainSubOrderShort? {
+fun checkIfPossibleToSave(record: Triple<DomainOrder, DomainSubOrder, Int>): Boolean {
 
-    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value?.subOrder}")
-    Log.d(TAG, "checkCurrentSubOrder: ${viewModel.currentSubOrder.value!!.order}")
+    if (record.first.reasonId == NoRecord.num) return false
 
-    if(viewModel.currentSubOrder.value!!.order.reasonId == NoRecord.num) return null
+    if (record.second.orderedById == NoRecord.num) return false
+    if (record.second.departmentId == NoRecord.num) return false
+    if (record.second.subDepartmentId == NoRecord.num) return false
+    if (record.second.channelId == NoRecord.num) return false
+    if (record.second.lineId == NoRecord.num) return false
+    if (record.second.operationId == NoRecord.num) return false
+    if (record.second.itemVersionId == NoRecord.num) return false
+    if (record.second.samplesCount == ZeroValue.num) return false
 
-    val subOrder = viewModel.currentSubOrder.value!!.subOrder
+    if (record.third == ZeroValue.num) return false
 
-    if (subOrder.orderedById == NoRecord.num) return null
-    if (subOrder.departmentId == NoRecord.num) return null
-    if (subOrder.subDepartmentId == NoRecord.num) return null
-    if (subOrder.channelId == NoRecord.num) return null
-    if (subOrder.lineId == NoRecord.num) return null
-    if (subOrder.operationId == NoRecord.num) return null
-    if (subOrder.itemVersionId == NoRecord.num) return null
-    if (subOrder.samplesCount == ZeroValue.num) return null
-
-    return viewModel.currentSubOrder.value
-
+    return true
 }
