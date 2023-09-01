@@ -26,6 +26,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
+import java.time.Instant
 import javax.inject.Inject
 
 private const val TAG = "InvestigationsViewModel"
@@ -180,7 +181,7 @@ class InvestigationsViewModel @Inject constructor(
     //    ToDo - change it to default when functionality done for ProcessControlOnly
     private val _currentOrdersRange =
 //        MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
-        MutableStateFlow(Pair(1691991128021L, 1692061376021L))
+        MutableStateFlow(Pair(1691991128021L, Instant.now().toEpochMilli()))
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
