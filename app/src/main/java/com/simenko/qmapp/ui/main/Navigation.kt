@@ -27,9 +27,9 @@ import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposit
 import com.simenko.qmapp.ui.main.settings.Settings
 import com.simenko.qmapp.ui.main.team.TeamComposition
 import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.neworder.NewItemViewModel
-import com.simenko.qmapp.ui.neworder.OrderForm
-import com.simenko.qmapp.ui.neworder.SubOrderForm
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
+import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
+import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.utils.StringUtils.getBoolean

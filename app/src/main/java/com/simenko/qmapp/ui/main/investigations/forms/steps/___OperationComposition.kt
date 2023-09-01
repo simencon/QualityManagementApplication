@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder.steps
+package com.simenko.qmapp.ui.main.investigations.forms.steps
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,26 +10,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainSubDepartment
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
+import com.simenko.qmapp.utils.StringUtils
 
 @Composable
-fun SubDepartmentsSelection(
+fun OperationsSelection(
     modifier: Modifier = Modifier
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
 
-    val items by viewModel.subOrderSubDepartments.collectAsStateWithLifecycle()
+    val items by viewModel.subOrderOperations.collectAsStateWithLifecycle()
     val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderSubDepartment(it) } }
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderOperation(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
-            selectedId = currentSubOrder.subOrder.subDepartmentId,
+            selectedId = currentSubOrder.subOrder.operationId,
         )
     }
 
@@ -42,15 +44,15 @@ fun SubDepartmentsSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(items = items, key = { it.id }) { item ->
-            SubDepartmentCard(input = item, onClick = { onSelectLambda(it) })
+            OperationCard(input = item, onClick = { onSelectLambda(it) })
         }
     }
 }
 
 @Composable
-fun SubDepartmentCard(
-    input: DomainSubDepartment,
+fun OperationCard(
+    input: DomainManufacturingOperation,
     onClick: (Int) -> Unit
 ) {
-    ItemToSelect(Triple(input.id, input.subDepDesignation ?: "-", input.isSelected), onClick)
+    ItemToSelect(Triple(input.id, StringUtils.concatTwoStrings1(input.equipment, input.operationAbbr), input.isSelected), onClick)
 }

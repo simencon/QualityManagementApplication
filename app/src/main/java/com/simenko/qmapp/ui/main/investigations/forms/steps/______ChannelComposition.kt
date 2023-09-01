@@ -1,38 +1,36 @@
-package com.simenko.qmapp.ui.neworder.steps
+package com.simenko.qmapp.ui.main.investigations.forms.steps
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.*
+import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 
 @Composable
-fun CustomersSelection(
+fun ChannelsSelection(
     modifier: Modifier = Modifier
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
 
-    val items by viewModel.orderCustomers.collectAsStateWithLifecycle()
-    val currentOrder by viewModel.order.collectAsStateWithLifecycle()
+    val items by viewModel.subOrderChannels.collectAsStateWithLifecycle()
+    val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderCustomer(it) } }
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderChannel(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
-            selectedId = currentOrder.customerId,
+            selectedId = currentSubOrder.subOrder.channelId,
         )
     }
 
@@ -45,18 +43,15 @@ fun CustomersSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(items = items, key = { it.id }) { item ->
-            InvestigationCustomerCard(
-                inputForOrder = item,
-                onClick = { onSelectLambda(it) }
-            )
+            ChannelCard(input = item, onClick = { onSelectLambda(it) })
         }
     }
 }
 
 @Composable
-fun InvestigationCustomerCard(
-    inputForOrder: DomainDepartment,
+fun ChannelCard(
+    input: DomainManufacturingChannel,
     onClick: (Int) -> Unit
 ) {
-    ItemToSelect(Triple(inputForOrder.id, inputForOrder.depAbbr ?: "-", inputForOrder.isSelected), onClick)
+    ItemToSelect(Triple(input.id, input.channelAbbr ?: "-", input.isSelected), onClick)
 }

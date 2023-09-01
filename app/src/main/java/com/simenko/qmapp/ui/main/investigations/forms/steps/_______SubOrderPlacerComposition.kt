@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.neworder.steps
+package com.simenko.qmapp.ui.main.investigations.forms.steps
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,27 +10,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
+import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 
 @Composable
-fun OperationsSelection(
+fun SubOrderPlacersSelection(
     modifier: Modifier = Modifier
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
     val gritState = rememberLazyGridState()
 
-    val items by viewModel.subOrderOperations.collectAsStateWithLifecycle()
+    val items by viewModel.subOrderPlacers.collectAsStateWithLifecycle()
     val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderOperation(it) } }
+    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderPlacer(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
             list = items.map { it.id }.toList(),
-            selectedId = currentSubOrder.subOrder.operationId,
+            selectedId = currentSubOrder.subOrder.orderedById,
         )
     }
 
@@ -43,15 +43,15 @@ fun OperationsSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(items = items, key = { it.id }) { item ->
-            OperationCard(input = item, onClick = { onSelectLambda(it) })
+            SubOrderPlacerCard(input = item, onClick = { onSelectLambda(it) })
         }
     }
 }
 
 @Composable
-fun OperationCard(
-    input: DomainManufacturingOperation,
+fun SubOrderPlacerCard(
+    input: DomainTeamMember,
     onClick: (Int) -> Unit
 ) {
-    ItemToSelect(Triple(input.id, StringUtils.concatTwoStrings1(input.equipment, input.operationAbbr), input.isSelected), onClick)
+    ItemToSelect(Triple(input.id, input.fullName, input.isSelected), onClick)
 }

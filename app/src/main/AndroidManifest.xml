@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".BaseApplication"
@@ -30,16 +30,6 @@
         <activity
             android:name=".ui.user.LoginActivity"
             android:screenOrientation="fullSensor" />
-
-        <activity
-            android:name=".ui.neworder.NewItemActivity"
-            android:exported="false"
-            android:label="@string/title_activity_new_order"
-            android:theme="@style/Theme.QMApp">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
         <activity
             android:name=".ui.main.MainActivityCompose"
             android:exported="false"
@@ -53,8 +43,7 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove">
-        </provider>
+            tools:node="remove" />
 
     </application>
 

@@ -66,15 +66,6 @@ data class CreatedRecord(
     val subOrderId: Int = NoRecord.num
 )
 
-fun setMainActivityResult(
-    activity: NewItemActivity,
-    addEditMode: AddEditMode,
-    orderId: Int = NoRecord.num,
-    subOrderId: Int = NoRecord.num
-) {
-    activity.setResult(addEditMode.ordinal, createMainActivityIntent(activity, orderId, subOrderId))
-}
-
 fun createMainActivityIntent(
     context: Context,
     orderId: Int,
@@ -95,7 +86,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var userRepository: UserRepository
 
     val appModel: ManufacturingViewModel by viewModels()
-    val teamModel: TeamViewModel by viewModels()
     val investigationsModel: InvestigationsViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawer: DrawerLayout
