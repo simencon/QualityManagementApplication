@@ -224,11 +224,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         requestCode: Int = AddEditMode.NO_MODE.ordinal,
         bundle: Bundle?
     ) {
-        investigationsModel.setCreatedRecord(
-            bundle?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoRecord.num,
-            bundle?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoRecord.num
-        )
-
         when (requestCode) {
             AddEditMode.ADD_SUB_ORDER_STAND_ALONE.ordinal, AddEditMode.EDIT_SUB_ORDER_STAND_ALONE.ordinal -> {
                 this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
