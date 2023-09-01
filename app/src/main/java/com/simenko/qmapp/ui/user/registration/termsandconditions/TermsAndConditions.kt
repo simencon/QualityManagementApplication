@@ -29,12 +29,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
@@ -68,7 +69,7 @@ fun TermsAndConditions(
 
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
-            is UserInitialState -> {}
+            is UnregisteredState -> {}
             is UserRegisteredState -> {
                 msg = state.msg
                 registrationViewModel.showUserExistDialog()
@@ -87,7 +88,7 @@ fun TermsAndConditions(
             }
 
             is UserLoggedInState -> {}
-            is UserLoggedOutState -> {}
+            is UserLoggedOutState, NoState -> {}
             is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }

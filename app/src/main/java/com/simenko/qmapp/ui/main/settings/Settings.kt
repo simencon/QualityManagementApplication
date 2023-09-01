@@ -59,16 +59,12 @@ fun Settings(
 
     val approveActionDialogVisibility by settingsViewModel.isApproveActionVisible.collectAsStateWithLifecycle()
 
-    val onDenyLambda = remember<() -> Unit> {
-        {
-            settingsViewModel.hideActionApproveDialog()
-        }
-    }
+    val onDenyLambda = remember { { settingsViewModel.hideActionApproveDialog() } }
 
     val onApproveLambda = remember<(String) -> Unit> {
         {
             settingsViewModel.deleteAccount(settingsViewModel.userLocalData.email, it)
-            onClick(Screen.LoggedOut.Registration.route)
+            onClick(Screen.LoggedOut.LogIn.route)
         }
     }
     val columnState = rememberScrollState()

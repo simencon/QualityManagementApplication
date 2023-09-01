@@ -18,30 +18,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserInitialState
+import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.main.MenuItem
 import com.simenko.qmapp.ui.main.mainActivityIntent
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
@@ -51,12 +49,15 @@ fun createLoginActivityIntent(
     initiateRoute: String
 ): Intent {
     val intent = Intent(context, LoginActivity::class.java)
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
     intent.putExtra(INITIAL_ROUTE, initiateRoute)
     return intent
 }
 
 @AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
+
+    private var initialRoute: String = EmptyString.str
 
     @Inject
     lateinit var userRepository: UserRepository
@@ -68,15 +69,36 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: Screen.LoggedOut.InitialScreen.route
+
         setContent {
             QMAppTheme {
                 navController = rememberNavController()
-                val scope = rememberCoroutineScope()
-                var navigateToProperScreen by rememberSaveable { mutableStateOf(false) }
+                val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-                LaunchedEffect(navigateToProperScreen) {
-                    if (navigateToProperScreen) {
-                        scope.launch { navigateToProperScreen() }
+                LaunchedEffect(Unit) { viewModel.updateCurrentUserState() }
+
+                LaunchedEffect(userState) {
+                    userState.peekContent().let { state ->
+//                        ToDo this if to be reviewed during UserActivity adjustments
+//                        if (initialRoute != Screen.LoggedOut.LogIn.route)
+                            when (state) {
+                                is NoState -> navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) }
+                                is UnregisteredState -> navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) }
+                                is UserNeedToVerifyEmailState -> navController
+                                    .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) }
+
+                                is UserAuthoritiesNotVerifiedState -> navController
+                                    .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) }
+
+                                is UserLoggedOutState -> navController.navigate(Screen.LoggedOut.LogIn.route) { popUpTo(0) }
+                                is UserLoggedInState -> {
+                                    startActivity(mainActivityIntent(this@LoginActivity))
+                                    this@LoginActivity.finish()
+                                }
+//                            ToDo When Error show toast or some dialog with the error message instead of making red test on the activity
+                                is UserErrorState, is UserRegisteredState -> {}
+                            }
                     }
                 }
 
@@ -103,32 +125,14 @@ class LoginActivity : ComponentActivity() {
                         Navigation(
                             navController,
                             Screen.LoggedOut.InitialScreen.route,
-                            logInSuccess = { startActivity(mainActivityIntent(this@LoginActivity)) }
+                            logInSuccess = {
+                                startActivity(mainActivityIntent(this@LoginActivity))
+                                this@LoginActivity.finish()
+                            }
                         )
-                        navigateToProperScreen = true
                     }
                 }
             }
-        }
-    }
-
-    private suspend fun navigateToProperScreen() {
-        userRepository.getActualUserState().let { state ->
-            when (state) {
-                is UserInitialState -> navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) }
-                is UserNeedToVerifyEmailState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) }
-                is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) }
-                is UserLoggedOutState -> navController.navigate(Screen.LoggedOut.LogIn.route) { popUpTo(0) }
-                is UserLoggedInState -> startActivity(mainActivityIntent(this@LoginActivity))
-                is UserErrorState, is UserRegisteredState -> {}
-            }
-        }
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        lifecycleScope.launch {
-            userRepository.getActualUserState()
         }
     }
 }

@@ -1,14 +1,16 @@
 package com.simenko.qmapp.ui.user
 
-import androidx.compose.material3.FabPosition
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.repository.UserState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class UserViewModel @Inject constructor() : ViewModel() {
+class UserViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
@@ -22,5 +24,12 @@ class UserViewModel @Inject constructor() : ViewModel() {
     fun onNetworkErrorShown() {
         _isLoadingInProgress.value = false
         _isErrorMessage.value = null
+    }
+
+    val userState : StateFlow<Event<UserState>>
+        get() = userRepository.userState
+
+    fun updateCurrentUserState(){
+        userRepository.getActualUserState()
     }
 }
