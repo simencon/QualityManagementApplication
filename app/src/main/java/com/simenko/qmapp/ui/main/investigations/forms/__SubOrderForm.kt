@@ -5,9 +5,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ButtonsSectionQuantity
@@ -27,10 +29,11 @@ import kotlinx.coroutines.withContext
 @Composable
 fun SubOrderForm(
     modifier: Modifier = Modifier,
-    record: Pair<Int, Int>,
-    subOrderStandAlone: Boolean
+    record: Pair<Int, Int>
 ) {
     val viewModel: NewItemViewModel = hiltViewModel()
+    val subOrderStandAlone by viewModel.subOrderStandAlone.collectAsStateWithLifecycle()
+
     LaunchedEffect(record) {
         if (record.first != NoRecord.num) {
             withContext(Dispatchers.Default) {
