@@ -50,6 +50,13 @@ class NewItemViewModel @Inject constructor(
     /**
      * Order logic -----------------------------------------------------------------------------------------------------------------------------------
      * */
+    private val _subOrderStandAlone: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val subOrderStandAlone: StateFlow<Boolean> get() = _subOrderStandAlone
+    fun setSubOrderStandAlone(value: Boolean) {
+        _subOrderStandAlone.value = value
+    }
+
+
     private val _order: MutableStateFlow<DomainOrder> = MutableStateFlow(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
     )
@@ -95,8 +102,10 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectOrderReason(id: Int) {
-        if (_order.value.reasonId != id)
+        if (_order.value.reasonId != id && !_subOrderStandAlone.value)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
+        else if(_order.value.reasonId != id)
+            _order.value = _order.value.copy(reasonId = id)
     }
 
     // Order Customer --------------------------------------------------------------------------------------------------------------------------------
@@ -566,7 +575,11 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> {
+                                println("makeNewOrderWithSubOrder ${_order.value}")
+                                println("makeNewOrderWithSubOrder ${resource.message}")
+                                mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            }
                         }
                     }
                 }

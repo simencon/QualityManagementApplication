@@ -122,6 +122,7 @@ fun Navigation(
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivityCompose).initNewOrderModel(newOrderModel)
+            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditModeKey.str)?: false)
             BackHandler {
                 navController.popBackStack()
                 newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
@@ -131,8 +132,7 @@ fun Navigation(
                     record = Pair(
                         it.arguments?.getInt(CurrentOrderIdKey.str)?: NoRecord.num,
                         it.arguments?.getInt(CurrentSubOrderIdKey.str)?: NoRecord.num
-                    ),
-                    subOrderStandAlone = it.arguments?.getBoolean(SubOrderAddEditModeKey.str)?: false
+                    )
                 )
             }
         }
