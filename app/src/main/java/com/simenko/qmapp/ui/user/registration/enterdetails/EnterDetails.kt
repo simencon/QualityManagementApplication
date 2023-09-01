@@ -60,7 +60,6 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
-    modifier: Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
     val registrationViewModel: RegistrationViewModel = hiltViewModel()
@@ -336,10 +335,6 @@ fun EnterDetails(
 @Composable
 fun EnterDetailsPreview() {
     QMAppTheme {
-        EnterDetails(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 0.dp)
-        )
+        EnterDetails()
     }
 }

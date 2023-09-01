@@ -3,8 +3,6 @@ package com.simenko.qmapp.ui.user
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.AttributeSet
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -31,7 +29,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserInitialState
@@ -39,11 +36,8 @@ import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
-import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.MainActivityCompose
-import com.simenko.qmapp.ui.main.launchMainActivityCompose
 import com.simenko.qmapp.ui.main.mainActivityIntent
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,7 +68,6 @@ class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val initiateRoute = intent.extras?.getString(INITIAL_ROUTE) ?: ""
         setContent {
             QMAppTheme {
                 navController = rememberNavController()
