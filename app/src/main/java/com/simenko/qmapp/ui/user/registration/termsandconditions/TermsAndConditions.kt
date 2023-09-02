@@ -29,16 +29,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UnregisteredState
-import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.ui.Screen
 
