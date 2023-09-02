@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
@@ -49,24 +51,23 @@ fun Settings(
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
-    userState.let {
-        if (it is UserErrorState) {
-            error = it.error ?: "unknown error"
-        } else if (it is UserLoggedInState) {
-            msg = it.msg
+    LaunchedEffect(userState) {
+        userState.let {
+            if (it is UserErrorState) {
+                error = it.error ?: "unknown error"
+            } else if (it is UserLoggedInState) {
+                msg = it.msg
+            } else if (it is UnregisteredState) {
+                onClick(Screen.LoggedOut.LogIn.route)
+            }
         }
     }
 
     val approveActionDialogVisibility by settingsViewModel.isApproveActionVisible.collectAsStateWithLifecycle()
 
     val onDenyLambda = remember { { settingsViewModel.hideActionApproveDialog() } }
+    val onApproveLambda = remember<(String) -> Unit> { { settingsViewModel.deleteAccount(settingsViewModel.userLocalData.email, it) } }
 
-    val onApproveLambda = remember<(String) -> Unit> {
-        {
-            settingsViewModel.deleteAccount(settingsViewModel.userLocalData.email, it)
-            onClick(Screen.LoggedOut.LogIn.route)
-        }
-    }
     val columnState = rememberScrollState()
 
     Column(

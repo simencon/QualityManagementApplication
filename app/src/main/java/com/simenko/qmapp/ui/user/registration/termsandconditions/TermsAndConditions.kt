@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,45 +26,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserRegisteredState
-import com.simenko.qmapp.ui.Screen
 
 @Composable
 fun TermsAndConditions(
-    registrationViewModel: RegistrationViewModel = hiltViewModel(),
-    navController: NavController = rememberNavController(),
-    user: String? = null
+    regModel: RegistrationViewModel,
+    user: String? = null,
+    onChangeEmail: () -> Unit,
+    onLogin: () -> Unit
 ) {
-    val userState by registrationViewModel.userState.collectAsStateWithLifecycle()
-    val userExistDialogVisibility by registrationViewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
+    val userState by regModel.userState.collectAsStateWithLifecycle()
+    val userExistDialogVisibility by regModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
-    val onRegisterUnderAnotherEmailLambda = remember<() -> Unit> {
-        {
-            navController.popBackStack()
-        }
-    }
-
-    val onLoginLambda = remember<(String) -> Unit> {
-        {
-            navController.navigate(Screen.LoggedOut.LogIn.route)
-        }
-    }
-
     LaunchedEffect(userState) {
         userState.let { state ->
             if (state is UserErrorState) {
-                error = state.error ?: "Unknown error"
-            } else if (state is UserRegisteredState) {
-                msg = state.msg
+                if (state.error == UserError.USER_EXISTS.error)
+                    regModel.showUserExistDialog()
+                else
+                    error = state.error ?: "Unknown error"
             }
         }
     }
@@ -116,8 +102,8 @@ fun TermsAndConditions(
             TextButton(
                 modifier = Modifier.width(150.dp),
                 onClick = {
-                    registrationViewModel.acceptTCs()
-                    registrationViewModel.registerUser()
+                    regModel.acceptTCs()
+                    regModel.registerUser()
                 },
                 content = {
                     Text(
@@ -135,12 +121,7 @@ fun TermsAndConditions(
         }
 
         if (userExistDialogVisibility) {
-            UserExistDialog(
-                registrationViewModel = registrationViewModel,
-                msg = msg,
-                onRegisterUnderAnotherEmailClick = { onRegisterUnderAnotherEmailLambda() },
-                onLoginClick = { p1 -> onLoginLambda(p1) }
-            )
+            UserExistDialog(registrationViewModel = regModel, msg = msg, onChangeEmail = onChangeEmail, onLoginClick = onLogin)
         }
     }
 
@@ -151,6 +132,10 @@ fun TermsAndConditions(
 @Composable
 fun TermsAndConditionsPreview() {
     QMAppTheme {
-        TermsAndConditions()
+        TermsAndConditions(
+            regModel = hiltViewModel(),
+            onChangeEmail = {},
+            onLogin = {}
+        )
     }
 }

@@ -57,6 +57,7 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         user.password = password
 
         principle = user
+        println("principle = $principle")
     }
 
     fun acceptTCs() {
@@ -64,6 +65,7 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
     }
 
     fun registerUser() {
+        println("principle = $principle")
         assert(principle != null)
         assert(acceptedTCs == true)
 
@@ -79,7 +81,7 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         _isUserExistDialogVisible.value = true
     }
 
-    fun setLocalEmptyUser() {
-        userRepository.clearUserData()
+    fun clearErrorState() {
+        userRepository.clearErrorState()
     }
 }

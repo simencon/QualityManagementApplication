@@ -35,9 +35,8 @@ class UserRepository @Inject constructor(
     val user: Principle
         get() = Principle(storage)
 
-    fun clearUserData() {
-        user.clearUserData()
-        _userState.value = UserRegisteredState("not yet registered on the phone")
+    fun clearErrorState() {
+        _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
 
     /**
@@ -167,7 +166,7 @@ class UserRepository @Inject constructor(
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
                             user.storeUserData(principle)
-                            _userState.value = UserRegisteredState(task.exception?.message ?: "user already registered")
+                            _userState.value = UserErrorState(UserError.USER_EXISTS.error)
                         }
 
                         else -> {
@@ -206,7 +205,7 @@ class UserRepository @Inject constructor(
                 }
             }
         else
-            UserErrorState("Wrong email")
+            UserErrorState(UserError.WRONG_EMAIL.error)
     }
 
     val getRestApiUrl: String
@@ -263,7 +262,7 @@ class UserRepository @Inject constructor(
                                     _userState.value = UserNeedToVerifyEmailState()
                                 }
                             } else {
-                                _userState.value = UserErrorState(task1.exception?.message ?: "Cannot obtain user data")
+                                _userState.value = UserErrorState(task1.exception?.message ?: UserError.NO_USER_DATA.error)
                             }
                         }
                     } else {
@@ -281,19 +280,19 @@ class UserRepository @Inject constructor(
                                         _userState.value = UserNeedToVerifyEmailState()
                                     }
                                 } else if (user.email != email) {
-                                    _userState.value = UserErrorState("Wrong email")
+                                    _userState.value = UserErrorState(UserError.WRONG_EMAIL.error)
                                 } else if (user.password != password) {
-                                    _userState.value = UserErrorState("Wrong password")
+                                    _userState.value = UserErrorState(UserError.WRONG_PASSWORD.error)
                                 }
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = UserErrorState(task.exception?.message ?: "Wrong username or password")
+                                _userState.value = UserErrorState(task.exception?.message ?: UserError.WRONG_CREDENTIALS.error)
                             }
 
                             is FirebaseAuthInvalidUserException -> {
                                 if (task.exception?.message?.contains("account has been disabled") == true) {
-                                    _userState.value = UserErrorState("Account has been disabled")
+                                    _userState.value = UserErrorState(UserError.ACCOUNT_DISABLED.error)
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
                                     user.clearUserData()
                                     _userState.value = UnregisteredState
@@ -308,7 +307,7 @@ class UserRepository @Inject constructor(
                     }
                 }
         else {
-            _userState.value = UserErrorState("Email and Password fields should not be empty")
+            _userState.value = UserErrorState(UserError.EMPTY_CREDENTIALS.error)
         }
     }
 
@@ -332,23 +331,23 @@ class UserRepository @Inject constructor(
                     if (task1.isSuccessful) {
                         auth.currentUser?.delete()?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
-                                this.clearUserData()
+                                user.clearUserData()
                                 _userState.value = UnregisteredState
                             } else {
-                                _userState.value = UserErrorState(task2.exception?.message ?: "Unknown error")
+                                _userState.value = UserErrorState(task2.exception?.message ?: UserError.UNKNOWN_ERROR.error)
                             }
                         }
                     } else {
                         if (task1.exception?.message?.contains("User has been disabled") == true) {
-                            this.clearUserData()
+                            user.clearUserData()
                             _userState.value = UnregisteredState
                         } else {
-                            _userState.value = UserErrorState(task1.exception?.message ?: "Unknown error")
+                            _userState.value = UserErrorState(task1.exception?.message ?: UserError.UNKNOWN_ERROR.error)
                         }
                     }
                 }
         else {
-            _userState.value = UserErrorState("Email and Password fields should not be empty")
+            _userState.value = UserErrorState(UserError.EMPTY_CREDENTIALS.error)
         }
     }
 
@@ -394,9 +393,20 @@ sealed class UserState
 
 object NoState : UserState()
 object UnregisteredState : UserState()
-data class UserRegisteredState(val msg: String) : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
 data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization") : UserState()
 data class UserLoggedOutState(val msg: String = "Password was changed") : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
+
+enum class UserError(val error: String) {
+    NO_ERROR(""),
+    UNKNOWN_ERROR("Unknown error"),
+    WRONG_EMAIL("Wrong email"),
+    WRONG_PASSWORD("Wrong password"),
+    WRONG_CREDENTIALS("Wrong username or password"),
+    EMPTY_CREDENTIALS("Email and Password fields should not be empty"),
+    NO_USER_DATA("Cannot obtain user data"),
+    ACCOUNT_DISABLED("Account has been disabled"),
+    USER_EXISTS("user already registered")
+}
