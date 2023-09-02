@@ -49,7 +49,7 @@ fun Settings(
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
-    userState.getContentIfNotHandled()?.let {
+    userState.let {
         if (it is UserErrorState) {
             error = it.error ?: "unknown error"
         } else if (it is UserLoggedInState) {

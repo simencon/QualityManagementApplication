@@ -29,14 +29,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 
 @Composable
-fun WaitingForVerification(
-    logInSuccess: () -> Unit,
-    message: String? = null
-) {
+fun WaitingForVerification(message: String? = null) {
     val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
     val userState by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
 
@@ -53,8 +49,6 @@ fun WaitingForVerification(
             } else if (state is UserAuthoritiesNotVerifiedState) {
                 msg = state.msg
                 error = ""
-            } else if (state is UserLoggedInState) {
-                logInSuccess()
             }
         }
     }
@@ -122,8 +116,6 @@ fun WaitingForVerification(
 @Composable
 fun WaitingForVerificationPreview() {
     QMAppTheme {
-        WaitingForVerification(
-            logInSuccess = {}
-        )
+        WaitingForVerification()
     }
 }

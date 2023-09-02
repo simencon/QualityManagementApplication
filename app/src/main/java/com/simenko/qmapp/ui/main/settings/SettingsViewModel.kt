@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
@@ -17,7 +16,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
-    val userState: StateFlow<Event<UserState>>
+    val userState: StateFlow<UserState>
         get() = userRepository.userState
 
     val userLocalData: Principle

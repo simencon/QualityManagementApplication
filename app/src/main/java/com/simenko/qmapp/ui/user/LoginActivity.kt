@@ -36,7 +36,6 @@ import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.MenuItem
 import com.simenko.qmapp.ui.main.mainActivityIntent
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LoginViewModel
@@ -88,8 +87,6 @@ class LoginActivity : ComponentActivity() {
 
                 LaunchedEffect(userState) {
                     userState.let { state ->
-//                        ToDo this if to be reviewed during UserActivity adjustments
-//                        if (initialRoute != Screen.LoggedOut.LogIn.route)
                         when (state) {
                             is NoState -> navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
                             is UnregisteredState -> navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) { inclusive = true } }
@@ -105,7 +102,6 @@ class LoginActivity : ComponentActivity() {
                                 startActivity(mainActivityIntent(this@LoginActivity))
                                 this@LoginActivity.finish()
                             }
-//                            ToDo When Error show toast or some dialog with the error message instead of making red test on the activity
                             is UserErrorState -> {}
                         }
                     }
@@ -133,11 +129,7 @@ class LoginActivity : ComponentActivity() {
                     ) {
                         Navigation(
                             navController,
-                            Screen.LoggedOut.InitialScreen.route,
-                            logInSuccess = {
-                                startActivity(mainActivityIntent(this@LoginActivity))
-                                this@LoginActivity.finish()
-                            }
+                            Screen.LoggedOut.InitialScreen.route
                         )
                     }
                 }

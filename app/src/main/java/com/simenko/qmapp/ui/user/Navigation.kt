@@ -24,8 +24,7 @@ import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 @Composable
 fun Navigation(
     navController: NavHostController,
-    initiatedRoute: String,
-    logInSuccess: () -> Unit
+    initiatedRoute: String
 ) {
     NavHost(navController = navController, startDestination = initiatedRoute) {
         composable(
@@ -82,17 +81,14 @@ fun Navigation(
             val verificationModel: WaitingForVerificationViewModel = hiltViewModel()
             (LocalContext.current as LoginActivity).initVerificationModel(verificationModel)
             QMAppTheme {
-                WaitingForVerification(
-                    logInSuccess = logInSuccess,
-                    message = it.arguments?.getString("message")
-                )
+                WaitingForVerification(message = it.arguments?.getString("message"))
             }
         }
         composable(route = Screen.LoggedOut.LogIn.route) {
             val loginModel: LoginViewModel = hiltViewModel()
             (LocalContext.current as LoginActivity).initLoginModel(loginModel)
             QMAppTheme {
-                LogIn(logInSuccess = logInSuccess)
+                LogIn()
             }
         }
     }

@@ -43,14 +43,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LogIn(
-    logInSuccess: () -> Unit
-) {
+fun LogIn() {
     val logInViewModel: LoginViewModel = hiltViewModel()
     val userState by logInViewModel.userState.collectAsStateWithLifecycle()
 
@@ -71,8 +68,6 @@ fun LogIn(
             } else if (state is UserLoggedOutState) {
                 msg = state.msg
                 error = ""
-            } else if (state is UserLoggedInState) {
-                logInSuccess()
             }
         }
     }
