@@ -65,7 +65,7 @@ fun UserExistDialog(
                     Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp)
-                        .background(Primary),
+                        .background(MaterialTheme.colorScheme.primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     TextButton(
