@@ -461,7 +461,6 @@ class NewItemViewModel @Inject constructor(
         _subOrderOperationsFlows.flatMapLatest { opf ->
             _subOrder.flatMapLatest { so ->
                 _inputForOrder.flatMapLatest { master ->
-                    println("the list of tasks is: ${so.subOrderTasks}")
                     if (so.subOrder.samplesCount != NoRecord.num) {
                         val ids = master.filter {
                             it.getItemVersionPid() == so.subOrder.getItemVersionPid() &&
@@ -523,10 +522,7 @@ class NewItemViewModel @Inject constructor(
                 with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> {
-                                mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            }
-
+                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 setAddEditMode(AddEditMode.NO_MODE)
@@ -537,10 +533,7 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> {
-                                mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                                navController.popBackStack()
-                            }
+                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                         }
                     }
                 }
@@ -560,15 +553,13 @@ class NewItemViewModel @Inject constructor(
                             Status.SUCCESS -> {
                                 resource.data?.let {
                                     _order.value = it
+                                    _subOrder.value.order = it
+                                    _subOrder.value.subOrder.orderId = it.id
                                     makeSubOrder(TrueStr.str, newRecord)
                                 }
                             }
 
-                            Status.ERROR -> {
-                                println("makeNewOrderWithSubOrder ${_order.value}")
-                                println("makeNewOrderWithSubOrder ${resource.message}")
-                                mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
-                            }
+                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
                         }
                     }
                 }
@@ -577,7 +568,7 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun makeSubOrder(processControlOnly: String, newRecord: Boolean = true) {
+    fun makeSubOrder(pcOnly: String, newRecord: Boolean = true) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }
@@ -594,14 +585,8 @@ class NewItemViewModel @Inject constructor(
                                     setAddEditMode(AddEditMode.NO_MODE)
                                     withContext(Dispatchers.Main) {
                                         navController.navigate(
-                                            Screen.Main.Inv.withArgs(
-                                                processControlOnly,
-                                                _subOrder.value.subOrder.orderId.toString(),
-                                                resource.data?.id.toString()
-                                            )
-                                        ) {
-                                            popUpTo(0)
-                                        }
+                                            Screen.Main.Inv.withArgs(pcOnly, resource.data?.orderId.toString(), resource.data?.id.toString())
+                                        ) { popUpTo(0) }
                                     }
                                 }
 
