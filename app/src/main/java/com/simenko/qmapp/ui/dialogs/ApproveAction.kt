@@ -44,8 +44,8 @@ fun ApproveAction(
     registrationViewModel: SettingsViewModel,
     msg: String,
     derivedPassword: String,
-    onDenyClick: () -> Unit,
-    onApproveClick: (String) -> Unit
+    onCanselClick: () -> Unit,
+    onOkClick: (String) -> Unit
 ) {
     var error by rememberSaveable { mutableStateOf("") }
 
@@ -57,18 +57,15 @@ fun ApproveAction(
 
     val (focusRequesterPassword) = FocusRequester.createRefs()
 
-    LaunchedEffect(key1 = Unit, block = { focusRequesterPassword.requestFocus() })
+    LaunchedEffect(Unit) { focusRequesterPassword.requestFocus() }
 
     Dialog(
         onDismissRequest = { registrationViewModel.hideActionApproveDialog() },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
-
         Card(
-            //shape = MaterialTheme.shapes.medium,
             shape = RoundedCornerShape(10.dp),
-            // modifier = modifier.size(280.dp, 240.dp)
             modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
@@ -76,7 +73,6 @@ fun ApproveAction(
                 modifier.background(Color.White),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 //.......................................................................
                 Image(
                     imageVector = Icons.Filled.Person,
@@ -90,20 +86,17 @@ fun ApproveAction(
                         .height(50.dp)
                         .fillMaxWidth(),
                 )
-
                 Text(
                     text = msg,
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp, color = MaterialTheme.colorScheme.primary),
                     textAlign = TextAlign.Center,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .padding(all = 5.dp)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-
                 Spacer(modifier = Modifier.height(10.dp))
-
                 TextField(
                     value = password,
                     onValueChange = {
@@ -121,14 +114,9 @@ fun ApproveAction(
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-
                         val description = if (passwordVisible) "Hide password" else "Show password"
-
                         val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(imageVector = image, description, tint = tint)
-                        }
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) { Icon(imageVector = image, description, tint = tint) }
                     },
                     isError = passwordError,
                     maxLines = 1,
@@ -139,18 +127,14 @@ fun ApproveAction(
                         .focusRequester(focusRequesterPassword)
                         .width(320.dp)
                 )
-
                 Spacer(modifier = Modifier.height(10.dp))
-
                 Text(
                     text = error,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                     modifier = Modifier.padding(all = 5.dp),
                     textAlign = TextAlign.Center
                 )
-
                 Spacer(modifier = Modifier.height(10.dp))
-
                 //.......................................................................
                 Row(
                     Modifier
@@ -158,30 +142,27 @@ fun ApproveAction(
                         .background(MaterialTheme.colorScheme.primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-
                     TextButton(
                         modifier = Modifier.weight(1f),
                         onClick = {
                             registrationViewModel.hideActionApproveDialog()
-                            onDenyClick()
+                            onCanselClick()
                         },
                         content = {
                             Text(
-                                "Deny",
+                                "Cansel",
                                 fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                                 textAlign = TextAlign.Center
                             )
                         },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
                     )
                     TextButton(
                         modifier = Modifier.weight(1f),
                         onClick = {
                             if (derivedPassword == password)
-                                onApproveClick(password)
+                                onOkClick(password)
                             else {
                                 passwordError = true
                                 error = "Incorrect password"
@@ -189,15 +170,13 @@ fun ApproveAction(
                         },
                         content = {
                             Text(
-                                "Approve",
+                                "Ok",
                                 fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                                 textAlign = TextAlign.Center
                             )
                         },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
                         enabled = enableApprove
                     )
                 }
@@ -205,4 +184,3 @@ fun ApproveAction(
         }
     }
 }
-
