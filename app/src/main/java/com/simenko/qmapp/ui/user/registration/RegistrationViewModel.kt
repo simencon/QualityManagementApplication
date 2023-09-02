@@ -17,10 +17,10 @@
 package com.simenko.qmapp.ui.user.registration
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.user.UserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,9 +36,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+    private lateinit var _userViewModel: UserViewModel
+    fun initUserViewModel(model: UserViewModel) {
+        _userViewModel = model
+    }
 
-    val userState : StateFlow<Event<UserState>>
-        get() = userRepository.userState
+    val userState : StateFlow<UserState>
+        get() = _userViewModel.userState
 
     private var acceptedTCs: Boolean? = null
     private var principle: Principle? = null

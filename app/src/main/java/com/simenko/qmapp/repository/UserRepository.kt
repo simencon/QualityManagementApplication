@@ -10,9 +10,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.other.Event
-import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.IOException
@@ -28,9 +27,9 @@ class UserRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val functions: FirebaseFunctions
 ) {
-    private val _userState: MutableStateFlow<Event<UserState>> = MutableStateFlow(Event(NoState))
+    private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
 
-    val userState: StateFlow<Event<UserState>>
+    val userState: StateFlow<UserState>
         get() = _userState
 
     val user: Principle
@@ -38,7 +37,7 @@ class UserRepository @Inject constructor(
 
     fun clearUserData() {
         user.clearUserData()
-        _userState.value = Event(UserRegisteredState("not yet registered on the phone"))
+        _userState.value = UserRegisteredState("not yet registered on the phone")
     }
 
     /**
@@ -47,9 +46,9 @@ class UserRepository @Inject constructor(
     fun getActualUserState() {
         if (user.email.isEmpty()) {
             user.clearUserData()
-            _userState.value = Event(UnregisteredState)
+            _userState.value = UnregisteredState
         } else if (user.email.isNotEmpty() && user.password.isEmpty()) {
-            _userState.value = Event(UserLoggedOutState())
+            _userState.value = UserLoggedOutState()
         } else if (user.email.isNotEmpty() && user.password.isNotEmpty()) {
             auth.signInWithEmailAndPassword(user.email, user.password)
                 .addOnCompleteListener { task ->
@@ -58,9 +57,9 @@ class UserRepository @Inject constructor(
 
                             if (user.restApiUrl != EmptyString.str) {
                                 if (user.isUserLoggedIn) {
-                                    _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                    _userState.value = UserLoggedInState("Logged in, email is verified")
                                 } else {
-                                    _userState.value = Event(UserLoggedOutState())
+                                    _userState.value = UserLoggedOutState()
                                 }
                             } else {
                                 callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
@@ -69,15 +68,15 @@ class UserRepository @Inject constructor(
                                         if (principle.restApiUrl != EmptyString.str) {
                                             user.setUserRestApiUrl(principle.restApiUrl)
                                             if (user.isUserLoggedIn) {
-                                                _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                                _userState.value = UserLoggedInState("Logged in, email is verified")
                                             } else {
-                                                _userState.value = Event(UserLoggedOutState())
+                                                _userState.value = UserLoggedOutState()
                                             }
                                         } else {
-                                            _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                            _userState.value = UserAuthoritiesNotVerifiedState()
                                         }
                                     } else {
-                                        _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                        _userState.value = UserAuthoritiesNotVerifiedState()
                                     }
                                 }
                             }
@@ -95,23 +94,23 @@ class UserRepository @Inject constructor(
                                                 if (principle.restApiUrl != EmptyString.str) {
                                                     user.setUserRestApiUrl(principle.restApiUrl)
                                                     if (user.isUserLoggedIn) {
-                                                        _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                                        _userState.value = UserLoggedInState("Logged in, email is verified")
                                                     } else {
-                                                        _userState.value = Event(UserLoggedOutState())
+                                                        _userState.value = UserLoggedOutState()
                                                     }
                                                 } else {
-                                                    _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                                    _userState.value = UserAuthoritiesNotVerifiedState()
                                                 }
                                             } else {
-                                                _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                                _userState.value = UserAuthoritiesNotVerifiedState()
                                             }
                                         }
                                     } else {
-                                        _userState.value = Event(UserNeedToVerifyEmailState())
+                                        _userState.value = UserNeedToVerifyEmailState()
                                     }
                                 }
                             } else {
-                                _userState.value = Event(UserNeedToVerifyEmailState())
+                                _userState.value = UserNeedToVerifyEmailState()
                             }
                         }
                     } else {
@@ -120,34 +119,34 @@ class UserRepository @Inject constructor(
                                 if (user.isEmailVerified) {
                                     if (user.restApiUrl != EmptyString.str) {
                                         if (user.isUserLoggedIn) {
-                                            _userState.value = Event(UserLoggedInState("Logged in, email is verified"))
+                                            _userState.value = UserLoggedInState("Logged in, email is verified")
                                         } else {
-                                            _userState.value = Event(UserLoggedOutState())
+                                            _userState.value = UserLoggedOutState()
                                         }
                                     } else {
-                                        _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                        _userState.value = UserAuthoritiesNotVerifiedState()
                                     }
                                 } else {
-                                    _userState.value = Event(UserNeedToVerifyEmailState())
+                                    _userState.value = UserNeedToVerifyEmailState()
                                 }
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserLoggedOutState("Password was changed"))
+                                _userState.value = UserLoggedOutState("Password was changed")
                             }
 
                             is FirebaseAuthInvalidUserException -> {
                                 if (task.exception?.message?.contains("account has been disabled") == true) {
-                                    _userState.value = Event(UserLoggedOutState("Account has been disabled"))
+                                    _userState.value = UserLoggedOutState("Account has been disabled")
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
                                     user.clearUserData()
-                                    _userState.value = Event(UnregisteredState)
+                                    _userState.value = UnregisteredState
                                 }
                             }
 
                             else -> {
                                 user.clearUserData()
-                                _userState.value = Event(UnregisteredState)
+                                _userState.value = UnregisteredState
                             }
                         }
                     }
@@ -168,11 +167,11 @@ class UserRepository @Inject constructor(
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
                             user.storeUserData(principle)
-                            _userState.value = Event(UserRegisteredState(task.exception?.message ?: "user already registered"))
+                            _userState.value = UserRegisteredState(task.exception?.message ?: "user already registered")
                         }
 
                         else -> {
-                            _userState.value = Event(UserErrorState(task.exception?.message))
+                            _userState.value = UserErrorState(task.exception?.message)
                         }
                     }
                 }
@@ -182,16 +181,16 @@ class UserRepository @Inject constructor(
     fun sendVerificationEmail(firebaseUser: FirebaseUser?) {
         firebaseUser?.sendEmailVerification()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                _userState.value = Event(UserNeedToVerifyEmailState())
+                _userState.value = UserNeedToVerifyEmailState()
             } else {
-                _userState.value = Event(UserErrorState(task.exception?.message))
+                _userState.value = UserErrorState(task.exception?.message)
             }
         }
             ?: auth.signInWithEmailAndPassword(this.user.email, this.user.password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     sendVerificationEmail(auth.currentUser)
                 } else {
-                    _userState.value = Event(UserErrorState(task.exception?.message))
+                    _userState.value = UserErrorState(task.exception?.message)
                 }
             }
     }
@@ -201,13 +200,13 @@ class UserRepository @Inject constructor(
             auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     user.setUserEmail(email)
-                    _userState.value = Event(UserLoggedOutState("Check your email box and set new password"))
+                    _userState.value = UserLoggedOutState("Check your email box and set new password")
                 } else {
-                    _userState.value = Event(UserErrorState(task.exception?.message))
+                    _userState.value = UserErrorState(task.exception?.message)
                 }
             }
         else
-            Event(UserErrorState("Wrong email"))
+            UserErrorState("Wrong email")
     }
 
     val getRestApiUrl: String
@@ -256,15 +255,15 @@ class UserRepository @Inject constructor(
                                 user.setUserIsLoggedIn(true)
                                 if (user.isEmailVerified) {
                                     if (user.restApiUrl != EmptyString.str) {
-                                        _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                        _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
                                     } else {
-                                        _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                        _userState.value = UserAuthoritiesNotVerifiedState()
                                     }
                                 } else {
-                                    _userState.value = Event(UserNeedToVerifyEmailState())
+                                    _userState.value = UserNeedToVerifyEmailState()
                                 }
                             } else {
-                                _userState.value = Event(UserErrorState(task1.exception?.message ?: "Cannot obtain user data"))
+                                _userState.value = UserErrorState(task1.exception?.message ?: "Cannot obtain user data")
                             }
                         }
                     } else {
@@ -274,42 +273,42 @@ class UserRepository @Inject constructor(
                                     user.setUserIsLoggedIn(true)
                                     if (user.isEmailVerified) {
                                         if (user.restApiUrl != EmptyString.str) {
-                                            _userState.value = Event(UserLoggedInState(auth.currentUser?.email ?: "no mail"))
+                                            _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
                                         } else {
-                                            _userState.value = Event(UserAuthoritiesNotVerifiedState())
+                                            _userState.value = UserAuthoritiesNotVerifiedState()
                                         }
                                     } else {
-                                        _userState.value = Event(UserNeedToVerifyEmailState())
+                                        _userState.value = UserNeedToVerifyEmailState()
                                     }
                                 } else if (user.email != email) {
-                                    _userState.value = Event(UserErrorState("Wrong email"))
+                                    _userState.value = UserErrorState("Wrong email")
                                 } else if (user.password != password) {
-                                    _userState.value = Event(UserErrorState("Wrong password"))
+                                    _userState.value = UserErrorState("Wrong password")
                                 }
                             }
 
                             is FirebaseAuthInvalidCredentialsException -> {
-                                _userState.value = Event(UserErrorState(task.exception?.message ?: "Wrong username or password"))
+                                _userState.value = UserErrorState(task.exception?.message ?: "Wrong username or password")
                             }
 
                             is FirebaseAuthInvalidUserException -> {
                                 if (task.exception?.message?.contains("account has been disabled") == true) {
-                                    _userState.value = Event(UserErrorState("Account has been disabled"))
+                                    _userState.value = UserErrorState("Account has been disabled")
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
                                     user.clearUserData()
-                                    _userState.value = Event(UnregisteredState)
+                                    _userState.value = UnregisteredState
                                 }
                             }
 
                             else -> {
                                 user.clearUserData()
-                                _userState.value = Event(UnregisteredState)
+                                _userState.value = UnregisteredState
                             }
                         }
                     }
                 }
         else {
-            _userState.value = Event(UserErrorState("Email and Password fields should not be empty"))
+            _userState.value = UserErrorState("Email and Password fields should not be empty")
         }
     }
 
@@ -318,11 +317,11 @@ class UserRepository @Inject constructor(
             auth.signOut()
             if (auth.currentUser == null) {
                 user.setUserIsLoggedIn(false)
-                _userState.value = Event(UserLoggedOutState())
+                _userState.value = UserLoggedOutState()
             }
         } else {
             user.setUserIsLoggedIn(false)
-            _userState.value = Event(UserLoggedOutState())
+            _userState.value = UserLoggedOutState()
         }
     }
 
@@ -334,35 +333,35 @@ class UserRepository @Inject constructor(
                         auth.currentUser?.delete()?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
                                 this.clearUserData()
-                                _userState.value = Event(UnregisteredState)
+                                _userState.value = UnregisteredState
                             } else {
-                                _userState.value = Event(UserErrorState(task2.exception?.message ?: "Unknown error"))
+                                _userState.value = UserErrorState(task2.exception?.message ?: "Unknown error")
                             }
                         }
                     } else {
                         if (task1.exception?.message?.contains("User has been disabled") == true) {
                             this.clearUserData()
-                            _userState.value = Event(UnregisteredState)
+                            _userState.value = UnregisteredState
                         } else {
-                            _userState.value = Event(UserErrorState(task1.exception?.message ?: "Unknown error"))
+                            _userState.value = UserErrorState(task1.exception?.message ?: "Unknown error")
                         }
                     }
                 }
         else {
-            _userState.value = Event(UserErrorState("Email and Password fields should not be empty"))
+            _userState.value = UserErrorState("Email and Password fields should not be empty")
         }
     }
 
     fun getUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                _userState.value = Event(UserLoggedInState(result.result.toString()))
+                _userState.value = UserLoggedInState(result.result.toString())
             } else {
                 val e = result.exception
                 if (e is FirebaseFunctionsException) {
-                    _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
+                    _userState.value = UserErrorState("${e.code}, ${e.details}")
                 } else {
-                    _userState.value = Event(UserErrorState(e.toString()))
+                    _userState.value = UserErrorState(e.toString())
                 }
             }
         }
@@ -370,13 +369,13 @@ class UserRepository @Inject constructor(
     fun updateUserCompleteData() = this.callFirebaseFunction(fbFunction = "updateUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                _userState.value = Event(UserLoggedInState(result.result.toString()))
+                _userState.value = UserLoggedInState(result.result.toString())
             } else {
                 val e = result.exception
                 if (e is FirebaseFunctionsException) {
-                    _userState.value = Event(UserErrorState("${e.code}, ${e.details}"))
+                    _userState.value = UserErrorState("${e.code}, ${e.details}")
                 } else {
-                    _userState.value = Event(UserErrorState(e.toString()))
+                    _userState.value = UserErrorState(e.toString())
                 }
             }
         }

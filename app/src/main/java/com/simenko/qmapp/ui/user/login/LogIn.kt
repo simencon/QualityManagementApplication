@@ -42,28 +42,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
-import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.repository.UserRegisteredState
-import com.simenko.qmapp.ui.Screen
-
-private const val TAG = "LogIn"
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogIn(
-    modifier: Modifier,
-    navController: NavController = rememberNavController(),
     logInSuccess: () -> Unit
 ) {
     val logInViewModel: LoginViewModel = hiltViewModel()
+    val userState by logInViewModel.userState.collectAsStateWithLifecycle()
+
     var userEmail by rememberSaveable { mutableStateOf(logInViewModel.getUserEmail()) }
     var emailError by rememberSaveable { mutableStateOf(false) }
 
@@ -74,40 +64,15 @@ fun LogIn(
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
 
-    val userStateEvent by logInViewModel.userState.collectAsStateWithLifecycle()
-
-    userStateEvent.getContentIfNotHandled()?.let { state ->
-        when (state) {
-            is UnregisteredState -> navController.navigate(Screen.LoggedOut.Registration.route) {
-                popUpTo(Screen.LoggedOut.LogIn.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserRegisteredState, NoState -> {}
-
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.route) {
-                popUpTo(Screen.LoggedOut.LogIn.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.route) {
-                popUpTo(Screen.LoggedOut.LogIn.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserLoggedInState -> logInSuccess()
-
-            is UserLoggedOutState -> {
+    LaunchedEffect(userState) {
+        userState.let { state ->
+            if (state is UserErrorState) {
+                error = state.error ?: "Unknown error"
+            } else if (state is UserLoggedOutState) {
                 msg = state.msg
                 error = ""
-            }
-
-            is UserErrorState -> {
-                error = state.error ?: "Unknown error"
-                msg = ""
+            } else if (state is UserLoggedInState) {
+                logInSuccess()
             }
         }
     }

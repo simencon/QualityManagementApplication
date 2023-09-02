@@ -1,16 +1,12 @@
 package com.simenko.qmapp.ui.user
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.ui.Screen
@@ -19,8 +15,11 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LogIn
+import com.simenko.qmapp.ui.user.login.LoginViewModel
+import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
+import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import com.simenko.qmapp.ui.user.verification.WaitingForVerification
-import javax.inject.Inject
+import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 
 @Composable
 fun Navigation(
@@ -41,6 +40,10 @@ fun Navigation(
             route = Screen.LoggedOut.Registration.route
         ) {
             composable(route = Screen.LoggedOut.Registration.EnterDetails.route) {
+                val regModel: RegistrationViewModel = hiltViewModel()
+                (LocalContext.current as LoginActivity).initRegModel(regModel)
+                val enterDetModel: EnterDetailsViewModel = hiltViewModel()
+                (LocalContext.current as LoginActivity).initEnterDetModel(enterDetModel)
                 QMAppTheme {
                     EnterDetails(navController = navController)
                 }
@@ -55,11 +58,10 @@ fun Navigation(
                     }
                 )
             ) {
+                val regModel: RegistrationViewModel = hiltViewModel()
+                (LocalContext.current as LoginActivity).initRegModel(regModel)
                 QMAppTheme {
                     TermsAndConditions(
-                        modifier = Modifier
-                            .padding(all = 0.dp)
-                            .fillMaxWidth(),
                         navController = navController,
                         user = it.arguments?.getString("name"),
                         registrationViewModel = it.sharedViewModel(navController = navController)
@@ -77,26 +79,20 @@ fun Navigation(
                 }
             )
         ) {
+            val verificationModel: WaitingForVerificationViewModel = hiltViewModel()
+            (LocalContext.current as LoginActivity).initVerificationModel(verificationModel)
             QMAppTheme {
                 WaitingForVerification(
-                    modifier = Modifier
-                        .padding(all = 0.dp)
-                        .fillMaxSize(),
-                    navController = navController,
                     logInSuccess = logInSuccess,
                     message = it.arguments?.getString("message")
                 )
             }
         }
         composable(route = Screen.LoggedOut.LogIn.route) {
+            val loginModel: LoginViewModel = hiltViewModel()
+            (LocalContext.current as LoginActivity).initLoginModel(loginModel)
             QMAppTheme {
-                LogIn(
-                    modifier = Modifier
-                        .padding(all = 0.dp)
-                        .fillMaxWidth(),
-                    navController = navController,
-                    logInSuccess = logInSuccess
-                )
+                LogIn(logInSuccess = logInSuccess)
             }
         }
     }
