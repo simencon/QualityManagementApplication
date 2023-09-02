@@ -28,9 +28,7 @@ class UserRepository @Inject constructor(
     private val functions: FirebaseFunctions
 ) {
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
-
     val userState: StateFlow<UserState> get() = _userState
-
     val user: Principle get() = Principle(storage)
 
     fun clearErrorMessage() {
@@ -39,7 +37,7 @@ class UserRepository @Inject constructor(
 
     fun clearUserData() {
         user.clearUserData()
-        _userState.value = UserErrorState(UserError.NO_ERROR.error)
+        clearErrorMessage()
     }
 
     /**
@@ -393,12 +391,11 @@ class UserRepository @Inject constructor(
 }
 
 sealed class UserState
-
 object NoState : UserState()
 object UnregisteredState : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
 data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization") : UserState()
-data class UserLoggedOutState(val msg: String = "Password was changed") : UserState()
+data class UserLoggedOutState(val msg: String = "") : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
 

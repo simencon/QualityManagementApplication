@@ -64,6 +64,7 @@ fun LogIn() {
     LaunchedEffect(userState) {
         userState.let { state ->
             if (state is UserErrorState) {
+                msg = ""
                 error = state.error ?: "Unknown error"
             } else if (state is UserLoggedOutState) {
                 msg = state.msg
@@ -174,9 +175,7 @@ fun LogIn() {
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             modifier = Modifier.width(150.dp),
-            onClick = {
-                logInViewModel.login(userEmail, password)
-            },
+            onClick = { logInViewModel.login(userEmail, password) },
             content = {
                 Text(
                     text = "Login",
@@ -194,6 +193,7 @@ fun LogIn() {
             modifier = Modifier.width(150.dp),
             onClick = {
                 logInViewModel.sendResetPasswordEmail(userEmail)
+                logInViewModel.updateLoadingState(Pair(true, null))
             },
             content = {
                 Text(

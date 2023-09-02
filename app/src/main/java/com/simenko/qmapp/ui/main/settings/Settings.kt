@@ -202,10 +202,10 @@ fun Settings(
     if (approveActionDialogVisibility) {
         ApproveAction(
             registrationViewModel = settingsViewModel,
-            msg = "Delete ${settingsViewModel.userLocalData.email}?",
+            msg = "Are you sure you want to delete your account: ${settingsViewModel.userLocalData.email}?",
             derivedPassword = settingsViewModel.userLocalData.password,
-            onDenyClick = { onDenyLambda() },
-            onApproveClick = { p1 -> onApproveLambda(p1) }
+            onCanselClick = { onDenyLambda() },
+            onOkClick = { p1 -> onApproveLambda(p1) }
         )
     }
 }
