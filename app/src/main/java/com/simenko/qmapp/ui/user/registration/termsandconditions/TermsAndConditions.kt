@@ -54,6 +54,7 @@ fun TermsAndConditions(
                 }
             }
         }
+        regModel.updateLoadingState(Pair(false, null))
     }
 
     Box {

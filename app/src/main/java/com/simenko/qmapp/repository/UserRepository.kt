@@ -33,7 +33,12 @@ class UserRepository @Inject constructor(
 
     val user: Principle get() = Principle(storage)
 
-    fun clearErrorState() {
+    fun clearErrorMessage() {
+        _userState.value = UserErrorState(UserError.NO_ERROR.error)
+    }
+
+    fun clearUserData() {
+        user.clearUserData()
         _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
 

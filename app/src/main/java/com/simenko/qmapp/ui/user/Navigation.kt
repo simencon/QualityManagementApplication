@@ -40,9 +40,9 @@ fun Navigation(
         ) {
             composable(route = Screen.LoggedOut.Registration.EnterDetails.route) {
                 val regModel: RegistrationViewModel = hiltViewModel()
-                (LocalContext.current as LoginActivity).initRegModel(regModel)
+                (LocalContext.current as UserActivity).initRegModel(regModel)
                 val enterDetModel: EnterDetailsViewModel = hiltViewModel()
-                (LocalContext.current as LoginActivity).initEnterDetModel(enterDetModel)
+                (LocalContext.current as UserActivity).initEnterDetModel(enterDetModel)
                 QMAppTheme {
                     EnterDetails(navController = navController)
                 }
@@ -88,14 +88,14 @@ fun Navigation(
             )
         ) {
             val verificationModel: WaitingForVerificationViewModel = hiltViewModel()
-            (LocalContext.current as LoginActivity).initVerificationModel(verificationModel)
+            (LocalContext.current as UserActivity).initVerificationModel(verificationModel)
             QMAppTheme {
                 WaitingForVerification(message = it.arguments?.getString("message"))
             }
         }
         composable(route = Screen.LoggedOut.LogIn.route) {
             val loginModel: LoginViewModel = hiltViewModel()
-            (LocalContext.current as LoginActivity).initLoginModel(loginModel)
+            (LocalContext.current as UserActivity).initLoginModel(loginModel)
             QMAppTheme {
                 LogIn()
             }
