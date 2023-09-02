@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,61 +26,39 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UnregisteredState
-import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
-import com.simenko.qmapp.repository.UserRegisteredState
-import com.simenko.qmapp.ui.Screen
 
 @Composable
 fun WaitingForVerification(
-    modifier: Modifier,
-    navController: NavController = rememberNavController(),
     logInSuccess: () -> Unit,
     message: String? = null
 ) {
     val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
-    val stateEvent by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
+    val userState by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("Please check your email box") }
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
-        when (state) {
-            is UnregisteredState, NoState -> {}
-            is UserRegisteredState -> navController.navigate(Screen.LoggedOut.LogIn.route) {
-                popUpTo(Screen.LoggedOut.WaitingForValidation.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserNeedToVerifyEmailState -> {
+    LaunchedEffect(userState) {
+        userState.let { state ->
+            if (state is UserErrorState) {
+                error = state.error ?: "Unknown error"
+            } else if (state is UserNeedToVerifyEmailState) {
                 msg = state.msg
                 error = ""
-            }
-
-            is UserAuthoritiesNotVerifiedState -> {
+            } else if (state is UserAuthoritiesNotVerifiedState) {
                 msg = state.msg
                 error = ""
+            } else if (state is UserLoggedInState) {
+                logInSuccess()
             }
-
-            is UserLoggedInState -> logInSuccess()
-            is UserLoggedOutState -> navController.navigate(Screen.LoggedOut.LogIn.route) {
-                popUpTo(Screen.LoggedOut.WaitingForValidation.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
+
     LaunchedEffect(key1 = Unit, block = { message?.let { msg = message } })
     Box {
         Column(
@@ -146,9 +123,6 @@ fun WaitingForVerification(
 fun WaitingForVerificationPreview() {
     QMAppTheme {
         WaitingForVerification(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 0.dp),
             logInSuccess = {}
         )
     }

@@ -20,26 +20,26 @@ import javax.inject.Inject
 class TeamViewModel @Inject constructor(
     private val repository: ManufacturingRepository,
 ) : ViewModel() {
-    private lateinit var mainActivityViewModel: MainActivityViewModel
+    private lateinit var _mainActivityViewModel: MainActivityViewModel
 
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this.mainActivityViewModel = viewModel
+        this._mainActivityViewModel = viewModel
     }
 
     fun onListEnd(position: FabPosition) {
-        mainActivityViewModel.onListEnd(position)
+        _mainActivityViewModel.onListEnd(position)
     }
 
     fun deleteRecord(teamMemberId: Int) = viewModelScope.launch {
-        mainActivityViewModel.updateLoadingState(Pair(true, null))
+        _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> _mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> _mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> _mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -48,15 +48,15 @@ class TeamViewModel @Inject constructor(
     }
 
     fun insertRecord(record: DomainTeamMember) = viewModelScope.launch {
-        mainActivityViewModel.updateLoadingState(Pair(true, null))
+        _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run {
                 insertTeamMember(record).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> _mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> _mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> _mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -65,15 +65,15 @@ class TeamViewModel @Inject constructor(
     }
 
     fun updateRecord(record: DomainTeamMember) = viewModelScope.launch {
-        mainActivityViewModel.updateLoadingState(Pair(true, null))
+        _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run {
                 updateTeamMember(record).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> _mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> _mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> _mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -114,15 +114,15 @@ class TeamViewModel @Inject constructor(
 
     fun updateEmployeesData() = viewModelScope.launch {
         try {
-            mainActivityViewModel.updateLoadingState(Pair(true, null))
+            _mainActivityViewModel.updateLoadingState(Pair(true, null))
 
             repository.syncCompanies()
             repository.syncDepartments()
             repository.syncTeamMembers()
 
-            mainActivityViewModel.updateLoadingState(Pair(false, null))
+            _mainActivityViewModel.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+            _mainActivityViewModel.updateLoadingState(Pair(false, e.message))
         }
     }
 }

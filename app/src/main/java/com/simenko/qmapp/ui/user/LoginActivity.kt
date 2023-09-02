@@ -39,6 +39,10 @@ import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.MenuItem
 import com.simenko.qmapp.ui.main.mainActivityIntent
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.login.LoginViewModel
+import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
+import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
+import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import javax.inject.Inject
@@ -62,6 +66,10 @@ class LoginActivity : ComponentActivity() {
     @Inject
     lateinit var userRepository: UserRepository
     val viewModel: UserViewModel by viewModels()
+    private lateinit var regModel: RegistrationViewModel
+    private lateinit var enterDetModel: EnterDetailsViewModel
+    private lateinit var verificationModel: WaitingForVerificationViewModel
+    private lateinit var loginModel: LoginViewModel
 
     private lateinit var navController: NavHostController
 
@@ -79,26 +87,27 @@ class LoginActivity : ComponentActivity() {
                 LaunchedEffect(Unit) { viewModel.updateCurrentUserState() }
 
                 LaunchedEffect(userState) {
-                    userState.peekContent().let { state ->
+                    userState.let { state ->
 //                        ToDo this if to be reviewed during UserActivity adjustments
 //                        if (initialRoute != Screen.LoggedOut.LogIn.route)
-                            when (state) {
-                                is NoState -> navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) }
-                                is UnregisteredState -> navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) }
-                                is UserNeedToVerifyEmailState -> navController
-                                    .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) }
+                        when (state) {
+                            is NoState -> navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
+                            is UnregisteredState -> navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) { inclusive = true } }
+                            is UserRegisteredState -> regModel.showUserExistDialog()
+                            is UserNeedToVerifyEmailState -> navController
+                                .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
 
-                                is UserAuthoritiesNotVerifiedState -> navController
-                                    .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) }
+                            is UserAuthoritiesNotVerifiedState -> navController
+                                .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
 
-                                is UserLoggedOutState -> navController.navigate(Screen.LoggedOut.LogIn.route) { popUpTo(0) }
-                                is UserLoggedInState -> {
-                                    startActivity(mainActivityIntent(this@LoginActivity))
-                                    this@LoginActivity.finish()
-                                }
-//                            ToDo When Error show toast or some dialog with the error message instead of making red test on the activity
-                                is UserErrorState, is UserRegisteredState -> {}
+                            is UserLoggedOutState -> navController.navigate(Screen.LoggedOut.LogIn.route) { popUpTo(0) { inclusive = true } }
+                            is UserLoggedInState -> {
+                                startActivity(mainActivityIntent(this@LoginActivity))
+                                this@LoginActivity.finish()
                             }
+//                            ToDo When Error show toast or some dialog with the error message instead of making red test on the activity
+                            is UserErrorState -> {}
+                        }
                     }
                 }
 
@@ -134,5 +143,24 @@ class LoginActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    fun initRegModel(regModel: RegistrationViewModel) {
+        this.regModel = regModel
+        this.regModel.initUserViewModel(viewModel)
+    }
+
+    fun initEnterDetModel(enterDetModel: EnterDetailsViewModel) {
+        this.enterDetModel = enterDetModel
+    }
+
+    fun initVerificationModel(verificationModel: WaitingForVerificationViewModel) {
+        this.verificationModel = verificationModel
+        this.verificationModel.initUserViewModel(viewModel)
+    }
+
+    fun initLoginModel(loginModel: LoginViewModel) {
+        this.loginModel = loginModel
+        this.loginModel.initUserViewModel(viewModel)
     }
 }

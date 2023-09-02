@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -13,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,12 +44,11 @@ import com.simenko.qmapp.ui.Screen
 
 @Composable
 fun TermsAndConditions(
-    modifier: Modifier,
     registrationViewModel: RegistrationViewModel = hiltViewModel(),
     navController: NavController = rememberNavController(),
     user: String? = null
 ) {
-    val stateEvent by registrationViewModel.userState.collectAsStateWithLifecycle()
+    val userState by registrationViewModel.userState.collectAsStateWithLifecycle()
     val userExistDialogVisibility by registrationViewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
@@ -67,29 +66,13 @@ fun TermsAndConditions(
         }
     }
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
-        when (state) {
-            is UnregisteredState -> {}
-            is UserRegisteredState -> {
+    LaunchedEffect(userState) {
+        userState.let { state ->
+            if (state is UserErrorState) {
+                error = state.error ?: "Unknown error"
+            } else if (state is UserRegisteredState) {
                 msg = state.msg
-                registrationViewModel.showUserExistDialog()
             }
-
-            is UserNeedToVerifyEmailState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) {
-                popUpTo(Screen.LoggedOut.Registration.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserAuthoritiesNotVerifiedState -> navController.navigate(Screen.LoggedOut.WaitingForValidation.route) {
-                popUpTo(Screen.LoggedOut.Registration.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserLoggedInState -> {}
-            is UserLoggedOutState, NoState -> {}
-            is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
 
@@ -174,10 +157,6 @@ fun TermsAndConditions(
 @Composable
 fun TermsAndConditionsPreview() {
     QMAppTheme {
-        TermsAndConditions(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 0.dp)
-        )
+        TermsAndConditions()
     }
 }
