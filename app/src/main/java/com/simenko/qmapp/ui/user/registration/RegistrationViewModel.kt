@@ -41,7 +41,11 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         _userViewModel = model
     }
 
-    val userState : StateFlow<UserState>
+    fun updateLoadingState(state: Pair<Boolean, String?>) {
+        _userViewModel.updateLoadingState(state)
+    }
+
+    val userState: StateFlow<UserState>
         get() = _userViewModel.userState
 
     private var acceptedTCs: Boolean? = null
@@ -68,16 +72,18 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         println("principle = $principle")
         assert(principle != null)
         assert(acceptedTCs == true)
-
+        _userViewModel.updateLoadingState(Pair(true, null))
         userRepository.registerUser(principle!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)
     val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
     fun hideUserExistDialog() {
-        userRepository.clearErrorState()
+        _userViewModel.updateLoadingState(Pair(false, null))
+        userRepository.clearUserData()
         _isUserExistDialogVisible.value = false
     }
+
     fun showUserExistDialog() {
         _isUserExistDialogVisible.value = true
     }

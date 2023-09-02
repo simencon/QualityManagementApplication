@@ -69,6 +69,7 @@ fun LogIn() {
                 msg = state.msg
                 error = ""
             }
+            logInViewModel.updateLoadingState(Pair(false, null))
         }
     }
 
