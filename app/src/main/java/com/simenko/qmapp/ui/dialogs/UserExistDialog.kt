@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -45,11 +44,9 @@ fun UserExistDialog(
                 //.......................................................................
                 Image(
                     imageVector = Icons.Filled.Person,
-                    contentDescription = null, // decorative
+                    contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(
-                        color = Primary
-                    ),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .padding(vertical = 20.dp)
                         .height(50.dp)
