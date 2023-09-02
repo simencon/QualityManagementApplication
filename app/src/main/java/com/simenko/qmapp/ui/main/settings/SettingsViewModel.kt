@@ -16,33 +16,18 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
-    val userState: StateFlow<UserState>
-        get() = userRepository.userState
-
-    val userLocalData: Principle
-        get() = userRepository.user
-
-    fun logout() {
-        userRepository.logout()
-    }
-
-    fun deleteAccount(userEmail: String, password: String) {
-        userRepository.deleteAccount(userEmail, password)
-    }
-
-    fun getUserData() {
-        userRepository.getUserData()
-    }
-
-    fun updateUserCompleteData() {
-        userRepository.updateUserCompleteData()
-    }
-
+    val userState: StateFlow<UserState> get() = userRepository.userState
+    val userLocalData: Principle get() = userRepository.user
+    fun logout() = userRepository.logout()
+    fun deleteAccount(userEmail: String, password: String) = userRepository.deleteAccount(userEmail, password)
+    fun getUserData() = userRepository.getUserData()
+    fun updateUserCompleteData() = userRepository.updateUserCompleteData()
     private val _isApproveActionVisible = MutableStateFlow(false)
     val isApproveActionVisible: StateFlow<Boolean> = _isApproveActionVisible
     fun hideActionApproveDialog() {
         _isApproveActionVisible.value = false
     }
+
     fun showActionApproveDialog() {
         _isApproveActionVisible.value = true
     }
