@@ -26,8 +26,8 @@ import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 @Composable
 fun UserExistDialog(
     modifier: Modifier = Modifier,
-    registrationViewModel: RegistrationViewModel,
     msg: String,
+    onDismiss: ()-> Unit,
     onChangeEmail: () -> Unit,
     onLoginClick: () -> Unit
 ) {
@@ -35,7 +35,7 @@ fun UserExistDialog(
     var placeHolder by rememberSaveable { mutableStateOf("") }
 
     Dialog(
-        onDismissRequest = { registrationViewModel.hideUserExistDialog() },
+        onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(

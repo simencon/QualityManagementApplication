@@ -75,13 +75,10 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
     private val _isUserExistDialogVisible = MutableStateFlow(false)
     val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
     fun hideUserExistDialog() {
+        userRepository.clearErrorState()
         _isUserExistDialogVisible.value = false
     }
     fun showUserExistDialog() {
         _isUserExistDialogVisible.value = true
-    }
-
-    fun clearErrorState() {
-        userRepository.clearErrorState()
     }
 }

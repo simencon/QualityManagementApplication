@@ -62,10 +62,17 @@ fun Navigation(
                     TermsAndConditions(
                         regModel = regModel,
                         user = it.arguments?.getString("name"),
+                        onDismiss = {
+                            regModel.hideUserExistDialog()
+                        },
                         onChangeEmail = {
+                            regModel.hideUserExistDialog()
                             navController.popBackStack()
                         },
-                        onLogin = { navController.navigate(Screen.LoggedOut.LogIn.route) }
+                        onLogin = {
+                            regModel.hideUserExistDialog()
+                            navController.navigate(Screen.LoggedOut.LogIn.route)
+                        }
                     )
                 }
             }

@@ -29,11 +29,9 @@ class UserRepository @Inject constructor(
 ) {
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
 
-    val userState: StateFlow<UserState>
-        get() = _userState
+    val userState: StateFlow<UserState> get() = _userState
 
-    val user: Principle
-        get() = Principle(storage)
+    val user: Principle get() = Principle(storage)
 
     fun clearErrorState() {
         _userState.value = UserErrorState(UserError.NO_ERROR.error)

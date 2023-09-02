@@ -36,6 +36,7 @@ import com.simenko.qmapp.repository.UserErrorState
 fun TermsAndConditions(
     regModel: RegistrationViewModel,
     user: String? = null,
+    onDismiss: ()-> Unit,
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
@@ -43,15 +44,14 @@ fun TermsAndConditions(
     val userExistDialogVisibility by regModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
-    var msg by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(userState) {
         userState.let { state ->
             if (state is UserErrorState) {
-                if (state.error == UserError.USER_EXISTS.error)
+                error = state.error ?: UserError.UNKNOWN_ERROR.error
+                if (state.error == UserError.USER_EXISTS.error) {
                     regModel.showUserExistDialog()
-                else
-                    error = state.error ?: "Unknown error"
+                }
             }
         }
     }
@@ -121,7 +121,7 @@ fun TermsAndConditions(
         }
 
         if (userExistDialogVisibility) {
-            UserExistDialog(registrationViewModel = regModel, msg = msg, onChangeEmail = onChangeEmail, onLoginClick = onLogin)
+            UserExistDialog(msg = error, onChangeEmail = onChangeEmail, onLoginClick = onLogin, onDismiss = onDismiss)
         }
     }
 
@@ -134,6 +134,7 @@ fun TermsAndConditionsPreview() {
     QMAppTheme {
         TermsAndConditions(
             regModel = hiltViewModel(),
+            onDismiss = {},
             onChangeEmail = {},
             onLogin = {}
         )
