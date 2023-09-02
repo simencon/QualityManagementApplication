@@ -17,6 +17,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -56,7 +57,6 @@ import com.simenko.qmapp.domain.DomainBaseModel
  * @param dropdownItem Provide a composable that will be used to populate the dropdown and that takes a type i.e String,Int or even a custom type
  */
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
     modifier: Modifier = Modifier,
@@ -67,7 +67,7 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
     openedIcon: ImageVector = Icons.Outlined.KeyboardArrowUp,
     closedIcon: ImageVector = Icons.Outlined.KeyboardArrowDown,
     parentTextFieldCornerRadius: Dp = 12.dp,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
+    colors: TextFieldColors = TextFieldDefaults.colors(),
     onDropDownItemSelected: (T) -> Unit = {},
     dropdownItem: @Composable (T) -> Unit,
     isError: Boolean = false
@@ -110,7 +110,7 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
             value = selectedOptionText,
             readOnly = readOnly,
             enabled = enable,
-            onValueChange = { selectedOptionText = it},
+            onValueChange = { selectedOptionText = it },
             placeholder = {
                 Text(text = placeholder)
             },
@@ -137,7 +137,7 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
                     LaunchedEffect(interactionSource) {
                         interactionSource.interactions.collect {
                             if (it is PressInteraction.Release) {
-                                expanded  = !expanded
+                                expanded = !expanded
                             }
                         }
                     }
@@ -190,10 +190,8 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
                                 searchedOption = ""
                                 expanded = false
                             },
-                            text = {
-                                dropdownItem(selectedItem)
-                            },
-                            colors = MenuDefaults.itemColors()
+                            text = { dropdownItem(selectedItem) },
+                            colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.primary),
                         )
                     }
                 }
