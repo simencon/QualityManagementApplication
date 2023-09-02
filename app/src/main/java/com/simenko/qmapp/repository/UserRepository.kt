@@ -408,5 +408,5 @@ enum class UserError(val error: String) {
     EMPTY_CREDENTIALS("Email and Password fields should not be empty"),
     NO_USER_DATA("Cannot obtain user data"),
     ACCOUNT_DISABLED("Account has been disabled"),
-    USER_EXISTS("user already registered")
+    USER_EXISTS("User already registered")
 }
