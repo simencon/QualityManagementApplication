@@ -70,7 +70,7 @@ fun ApproveAction(
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(
-                modifier.background(Color.White),
+                modifier.background(MaterialTheme.colorScheme.onPrimary),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 //.......................................................................
@@ -156,8 +156,12 @@ fun ApproveAction(
                                 textAlign = TextAlign.Center
                             )
                         },
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                     )
+                    Divider(modifier = modifier.width(1.dp).height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
                     TextButton(
                         modifier = Modifier.weight(1f),
                         onClick = {
@@ -176,7 +180,10 @@ fun ApproveAction(
                                 textAlign = TextAlign.Center
                             )
                         },
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimary),
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                         enabled = enableApprove
                     )
                 }

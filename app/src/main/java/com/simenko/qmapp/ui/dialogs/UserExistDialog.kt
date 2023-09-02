@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.simenko.qmapp.ui.theme.*
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 
 @Composable
 fun UserExistDialog(
@@ -31,25 +29,19 @@ fun UserExistDialog(
     onChangeEmail: () -> Unit,
     onLoginClick: () -> Unit
 ) {
-    var enableToEdit by rememberSaveable { mutableStateOf(false) }
-    var placeHolder by rememberSaveable { mutableStateOf("") }
-
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
-            //shape = MaterialTheme.shapes.medium,
             shape = RoundedCornerShape(10.dp),
-            // modifier = modifier.size(280.dp, 240.dp)
             modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(
-                modifier.background(Color.White),
+                modifier.background(MaterialTheme.colorScheme.onPrimary),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 //.......................................................................
                 Image(
                     imageVector = Icons.Filled.Person,
@@ -63,18 +55,14 @@ fun UserExistDialog(
                         .height(50.dp)
                         .fillMaxWidth(),
                 )
-
                 Spacer(modifier = Modifier.height(10.dp))
-
                 Text(
                     text = msg,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                     modifier = Modifier.padding(all = 5.dp),
                     textAlign = TextAlign.Center
                 )
-
                 Spacer(modifier = Modifier.height(10.dp))
-
                 //.......................................................................
                 Row(
                     Modifier
@@ -83,27 +71,33 @@ fun UserExistDialog(
                         .background(Primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onChangeEmail
+                        onClick = onChangeEmail,
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                     ) {
                         Text(
                             "Change email",
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center
                         )
                     }
+                    Divider(modifier = modifier.width(1.dp).height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onLoginClick
+                        onClick = onLoginClick,
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                     ) {
                         Text(
                             "Login",
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center
                         )
