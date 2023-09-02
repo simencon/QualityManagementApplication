@@ -144,8 +144,8 @@ fun Navigation(
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxWidth(),
-                    onClick = { route ->
-                        val intent = createLoginActivityIntent(navController.context, route)
+                    onClick = {
+                        val intent = createLoginActivityIntent(navController.context)
                         startActivity(navController.context, intent, null)
                         activity.finish()
                     }

@@ -68,7 +68,6 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.INITIAL_ROUTE
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -78,9 +77,11 @@ import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
 
+internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
+
 fun mainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
     val intent = Intent(context, MainActivity::class.java)
-    intent.putExtra("initialRoute", route)
+    intent.putExtra(INITIAL_ROUTE, route)
     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
     return intent
 }

@@ -33,17 +33,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.dialogs.ApproveAction
 
 @Composable
 fun Settings(
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit,
+    onClick: () -> Unit,
 ) {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
@@ -57,8 +56,8 @@ fun Settings(
                 error = it.error ?: "unknown error"
             } else if (it is UserLoggedInState) {
                 msg = it.msg
-            } else if (it is UnregisteredState) {
-                onClick(Screen.LoggedOut.LogIn.route)
+            } else if (it is UserLoggedOutState) {
+                onClick()
             }
         }
     }
@@ -153,10 +152,7 @@ fun Settings(
         )
         TextButton(
             modifier = Modifier.width(150.dp),
-            onClick = {
-                settingsViewModel.logout()
-                onClick(Screen.LoggedOut.LogIn.route)
-            },
+            onClick = { settingsViewModel.logout() },
             content = {
                 Text(
                     text = "Logout",

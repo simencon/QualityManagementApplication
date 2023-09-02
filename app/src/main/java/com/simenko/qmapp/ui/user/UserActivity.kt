@@ -56,23 +56,17 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
-internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
 fun createLoginActivityIntent(
-    context: Context,
-    initiateRoute: String
+    context: Context
 ): Intent {
     val intent = Intent(context, UserActivity::class.java)
     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-    intent.putExtra(INITIAL_ROUTE, initiateRoute)
     return intent
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @AndroidEntryPoint
 class UserActivity : ComponentActivity() {
-
-    private var initialRoute: String = EmptyString.str
-
     @Inject
     lateinit var userRepository: UserRepository
     val viewModel: UserViewModel by viewModels()
@@ -87,8 +81,6 @@ class UserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: Screen.LoggedOut.InitialScreen.route
-
         setContent {
             QMAppTheme {
                 val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
@@ -96,14 +88,14 @@ class UserActivity : ComponentActivity() {
                 navController = rememberNavController()
                 val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-                LaunchedEffect(Unit) {
-                    viewModel.updateCurrentUserState()
-                }
-
                 LaunchedEffect(userState) {
                     userState.let { state ->
                         when (state) {
-                            is NoState -> navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
+                            is NoState -> {
+                                navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
+                                viewModel.updateCurrentUserState()
+                            }
+
                             is UnregisteredState -> {
                                 viewModel.updateLoadingState(Pair(false, null))
                                 navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) { inclusive = true } }
