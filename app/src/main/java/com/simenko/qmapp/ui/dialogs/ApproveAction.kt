@@ -76,11 +76,9 @@ fun ApproveAction(
                 //.......................................................................
                 Image(
                     imageVector = Icons.Filled.Person,
-                    contentDescription = null, // decorative
+                    contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(
-                        color = MaterialTheme.colorScheme.surfaceTint
-                    ),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .padding(vertical = 20.dp)
                         .height(50.dp)
@@ -161,7 +159,9 @@ fun ApproveAction(
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                     )
-                    Divider(modifier = modifier.width(1.dp).height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    Divider(modifier = modifier
+                        .width(1.dp)
+                        .height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
                     TextButton(
                         modifier = Modifier.weight(1f),
                         onClick = {
