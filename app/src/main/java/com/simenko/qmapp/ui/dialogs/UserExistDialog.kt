@@ -28,10 +28,9 @@ fun UserExistDialog(
     modifier: Modifier = Modifier,
     registrationViewModel: RegistrationViewModel,
     msg: String,
-    onRegisterUnderAnotherEmailClick: () -> Unit,
-    onLoginClick: (String) -> Unit
+    onChangeEmail: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
-
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }
 
@@ -87,12 +86,10 @@ fun UserExistDialog(
 
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            registrationViewModel.hideUserExistDialog()
-                            onRegisterUnderAnotherEmailClick()
-                        }) {
+                        onClick = onChangeEmail
+                    ) {
                         Text(
-                            "Register under another email",
+                            "Change email",
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
@@ -101,11 +98,10 @@ fun UserExistDialog(
                     }
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            onLoginClick(msg)
-                        }) {
+                        onClick = onLoginClick
+                    ) {
                         Text(
-                            "Login with registered email",
+                            "Login",
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),

@@ -57,13 +57,15 @@ fun Navigation(
                     }
                 )
             ) {
-                val regModel: RegistrationViewModel = hiltViewModel()
-                (LocalContext.current as LoginActivity).initRegModel(regModel)
+                val regModel: RegistrationViewModel = it.sharedViewModel(navController = navController)
                 QMAppTheme {
                     TermsAndConditions(
-                        navController = navController,
+                        regModel = regModel,
                         user = it.arguments?.getString("name"),
-                        registrationViewModel = it.sharedViewModel(navController = navController)
+                        onChangeEmail = {
+                            navController.popBackStack()
+                        },
+                        onLogin = { navController.navigate(Screen.LoggedOut.LogIn.route) }
                     )
                 }
             }

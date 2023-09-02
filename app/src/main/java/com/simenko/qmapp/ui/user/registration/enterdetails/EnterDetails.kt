@@ -307,7 +307,6 @@ fun EnterDetails(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                registrationViewModel.setLocalEmptyUser()
                 navController.navigate(Screen.LoggedOut.LogIn.route)
             },
             content = {

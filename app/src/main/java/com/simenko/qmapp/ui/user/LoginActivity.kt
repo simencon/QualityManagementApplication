@@ -33,7 +33,6 @@ import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.repository.UserRegisteredState
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.mainActivityIntent
@@ -90,7 +89,6 @@ class LoginActivity : ComponentActivity() {
                         when (state) {
                             is NoState -> navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
                             is UnregisteredState -> navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) { inclusive = true } }
-                            is UserRegisteredState -> regModel.showUserExistDialog()
                             is UserNeedToVerifyEmailState -> navController
                                 .navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
 
