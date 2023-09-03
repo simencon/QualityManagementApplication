@@ -33,10 +33,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.repository.UnregisteredState
+import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.dialogs.ApproveAction
 
 @Composable
@@ -44,8 +45,8 @@ fun Settings(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val userState by settingsViewModel.userState.collectAsStateWithLifecycle()
+    val settingsModel: SettingsViewModel = hiltViewModel()
+    val userState by settingsModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
     var msg by rememberSaveable { mutableStateOf("") }
@@ -53,19 +54,29 @@ fun Settings(
     LaunchedEffect(userState) {
         userState.let {
             if (it is UserErrorState) {
-                error = it.error ?: "unknown error"
+                error = it.error ?: UserError.UNKNOWN_ERROR.error
             } else if (it is UserLoggedInState) {
                 msg = it.msg
-            } else if (it is UserLoggedOutState) {
+            } else {
                 onClick()
             }
         }
+        settingsModel.clearLoadingState()
     }
 
-    val approveActionDialogVisibility by settingsViewModel.isApproveActionVisible.collectAsStateWithLifecycle()
+    val approveActionDialogVisibility by settingsModel.isApproveActionVisible.collectAsStateWithLifecycle()
 
-    val onDenyLambda = remember { { settingsViewModel.hideActionApproveDialog() } }
-    val onApproveLambda = remember<(String) -> Unit> { { settingsViewModel.deleteAccount(settingsViewModel.userLocalData.email, it) } }
+    val onDenyLambda = remember { { settingsModel.hideActionApproveDialog() } }
+    val onApproveLambda = remember<(String) -> String> {
+        {
+            if (it == settingsModel.userLocalData.password) {
+                settingsModel.deleteAccount(settingsModel.userLocalData.email, it)
+                EmptyString.str
+            } else {
+                UserError.WRONG_PASSWORD.error
+            }
+        }
+    }
 
     val columnState = rememberScrollState()
 
@@ -93,20 +104,20 @@ fun Settings(
             modifier = Modifier
                 .padding(all = 0.dp)
         ) {
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsViewModel.userLocalData.fullName)
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsViewModel.userLocalData.jobRole)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsModel.userLocalData.fullName)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsModel.userLocalData.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Department",
-                body = settingsViewModel.userLocalData.department +
-                        if (settingsViewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsViewModel.userLocalData.subDepartment}"
+                body = settingsModel.userLocalData.department +
+                        if (settingsModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsModel.userLocalData.subDepartment}"
             )
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsViewModel.userLocalData.company)
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsViewModel.userLocalData.email)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsModel.userLocalData.company)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsModel.userLocalData.email)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Phone number",
-                body = if (settingsViewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsViewModel.userLocalData.phoneNumber.toString()
+                body = if (settingsModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsModel.userLocalData.phoneNumber.toString()
             )
         }
 
@@ -115,7 +126,7 @@ fun Settings(
             onClick = {
                 error = ""
                 msg = ""
-                settingsViewModel.getUserData()
+                settingsModel.getUserData()
             },
             content = {
                 Text(
@@ -135,7 +146,7 @@ fun Settings(
             onClick = {
                 error = ""
                 msg = ""
-                settingsViewModel.updateUserCompleteData()
+                settingsModel.updateUserCompleteData()
             },
             content = {
                 Text(
@@ -152,7 +163,7 @@ fun Settings(
         )
         TextButton(
             modifier = Modifier.width(150.dp),
-            onClick = { settingsViewModel.logout() },
+            onClick = { settingsModel.logout() },
             content = {
                 Text(
                     text = "Logout",
@@ -169,7 +180,7 @@ fun Settings(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                settingsViewModel.showActionApproveDialog()
+                settingsModel.showActionApproveDialog()
             },
             content = {
                 Text(
@@ -201,11 +212,9 @@ fun Settings(
 
     if (approveActionDialogVisibility) {
         ApproveAction(
-            registrationViewModel = settingsViewModel,
-            msg = "Are you sure you want to delete your account: ${settingsViewModel.userLocalData.email}?",
-            derivedPassword = settingsViewModel.userLocalData.password,
+            actionTitle = "Are you sure you want to delete your account: ${settingsModel.userLocalData.email}?",
             onCanselClick = { onDenyLambda() },
-            onOkClick = { p1 -> onApproveLambda(p1) }
+            onOkClick = { password -> onApproveLambda(password) }
         )
     }
 }
@@ -218,14 +227,14 @@ fun InfoLine(
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier
     )
     Text(
         text = body,
-        style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+        style = MaterialTheme.typography.bodyMedium,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier

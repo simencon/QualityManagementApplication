@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.user
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -26,15 +25,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FalseStr
-import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserErrorState
@@ -44,7 +39,7 @@ import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.mainActivityIntent
+import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LoginViewModel
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
@@ -52,7 +47,6 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
@@ -121,8 +115,7 @@ class UserActivity : ComponentActivity() {
                             }
 
                             is UserLoggedInState -> {
-                                startActivity(mainActivityIntent(this@UserActivity))
-                                this@UserActivity.finish()
+                                ContextCompat.startActivity(navController.context, createMainActivityIntent(navController.context), null)
                             }
 
                             is UserErrorState -> {}

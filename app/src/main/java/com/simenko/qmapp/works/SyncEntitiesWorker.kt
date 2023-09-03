@@ -16,7 +16,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.mainActivityIntent
+import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.StringUtils.concatThreeStrings
@@ -75,7 +75,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @SuppressLint("MissingPermission")
     fun makeNotification(notificationData: NotificationData) {
-        val intent = mainActivityIntent(context, Screen.Main.Inv.withArgs(FalseStr.str, notificationData.orderId.toString(), notificationData.subOrderId.toString()))
+        val intent = createMainActivityIntent(context, Screen.Main.Inv.withArgs(FalseStr.str, notificationData.orderId.toString(), notificationData.subOrderId.toString()))
 
         var title: String
         var msg: String

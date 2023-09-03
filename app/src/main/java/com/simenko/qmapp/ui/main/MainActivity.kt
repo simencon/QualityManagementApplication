@@ -67,6 +67,7 @@ import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
+import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
@@ -79,10 +80,10 @@ import javax.inject.Inject
 
 internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
 
-fun mainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
+fun createMainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
     val intent = Intent(context, MainActivity::class.java)
     intent.putExtra(INITIAL_ROUTE, route)
-    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
     return intent
 }
 
@@ -99,6 +100,7 @@ class MainActivity : ComponentActivity() {
     lateinit var userRepository: UserRepository
     val viewModel: MainActivityViewModel by viewModels()
 
+    private lateinit var settingsModel: SettingsViewModel
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
@@ -333,6 +335,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    fun initSettingsModel(model: SettingsViewModel) {
+        this.settingsModel = model
+        this.settingsModel.initMainActivityViewModel(this.viewModel)
     }
 
     fun initInvModel(model: InvestigationsViewModel) {
