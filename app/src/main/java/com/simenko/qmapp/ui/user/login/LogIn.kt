@@ -60,7 +60,7 @@ fun LogIn() {
         userState.let { state ->
             if (state is UserErrorState) {
                 msg = UserError.NO_ERROR.error
-                error = state.error ?: "Unknown error"
+                error = state.error ?: UserError.UNKNOWN_ERROR.error
             } else if (state is UserLoggedOutState) {
                 msg = state.msg
                 error = UserError.NO_ERROR.error
@@ -80,16 +80,14 @@ fun LogIn() {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(all = 0.dp)
+        modifier = Modifier.padding(all = 0.dp)
     ) {
         Text(
             text = "Welcome to Quality Management",
             style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .padding(all = 5.dp)
+            modifier = Modifier.padding(all = 5.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
@@ -123,8 +121,7 @@ fun LogIn() {
             Text(
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                modifier = Modifier
-                    .padding(all = 5.dp),
+                modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
         else if (msg != UserError.NO_ERROR.error)
@@ -133,15 +130,14 @@ fun LogIn() {
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp),
+                modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
         RecordActionTextBtn(
             text = "Login",
             onClick = { viewModel.login(principle.email, principle.password) },
-            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
         RecordActionTextBtn(
             text = "Reset password",
@@ -159,7 +155,7 @@ fun LogIn() {
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     MaterialTheme.colorScheme.primary
-                ),
+                )
             )
     }
 }

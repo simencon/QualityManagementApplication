@@ -54,21 +54,19 @@ fun WaitingForVerification(message: String? = null) {
         }
     }
 
-    LaunchedEffect(key1 = Unit, block = { message?.let { msg = message } })
+    LaunchedEffect(Unit) { message?.let { msg = message } }
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(all = 0.dp)
+            modifier = Modifier.padding(all = 0.dp)
         ) {
             Text(
                 text = "Verification",
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp)
+                modifier = Modifier.padding(all = 5.dp)
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -76,8 +74,7 @@ fun WaitingForVerification(message: String? = null) {
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp),
+                modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -93,8 +90,7 @@ fun WaitingForVerification(message: String? = null) {
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .padding(all = 0.dp),
+                        modifier = Modifier.padding(all = 0.dp),
                     )
                 },
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
@@ -105,8 +101,7 @@ fun WaitingForVerification(message: String? = null) {
                 Text(
                     text = error,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                    modifier = Modifier
-                        .padding(all = 5.dp),
+                    modifier = Modifier.padding(all = 5.dp),
                     textAlign = TextAlign.Center
                 )
         }
