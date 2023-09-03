@@ -49,6 +49,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     fun sendResetPasswordEmail(email: String) {
+        _userViewModel.updateLoadingState(Pair(true, null))
         userRepository.sendResetPasswordEmail(email)
     }
 }
