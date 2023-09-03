@@ -30,25 +30,26 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
+import com.simenko.qmapp.repository.UserError
 
 @Composable
 fun WaitingForVerification(message: String? = null) {
     val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
     val userState by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
 
-    var error by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
     var msg by rememberSaveable { mutableStateOf("Please check your email box") }
 
     LaunchedEffect(userState) {
         userState.let { state ->
             if (state is UserErrorState) {
-                error = state.error ?: "Unknown error"
+                error = state.error ?: UserError.UNKNOWN_ERROR.error
             } else if (state is UserNeedToVerifyEmailState) {
                 msg = state.msg
-                error = ""
+                error = UserError.NO_ERROR.error
             } else if (state is UserAuthoritiesNotVerifiedState) {
                 msg = state.msg
-                error = ""
+                error = UserError.NO_ERROR.error
             }
         }
     }
@@ -83,7 +84,7 @@ fun WaitingForVerification(message: String? = null) {
             TextButton(
                 modifier = Modifier.width(150.dp),
                 onClick = {
-                    msg = ""
+                    msg = UserError.NO_ERROR.error
                     waitingForVerificationViewModel.resendVerificationEmail()
                 },
                 content = {
@@ -100,7 +101,7 @@ fun WaitingForVerification(message: String? = null) {
                 shape = MaterialTheme.shapes.medium
             )
             Spacer(modifier = Modifier.height(10.dp))
-            if (error != "")
+            if (error != UserError.NO_ERROR.error)
                 Text(
                     text = error,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
