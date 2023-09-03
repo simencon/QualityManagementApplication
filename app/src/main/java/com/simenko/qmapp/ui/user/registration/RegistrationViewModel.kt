@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.user.UserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +36,9 @@ import javax.inject.Inject
  */
 
 @HiltViewModel
-class RegistrationViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+class RegistrationViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
     private lateinit var _userViewModel: UserViewModel
     fun initUserViewModel(model: UserViewModel) {
         _userViewModel = model
@@ -45,23 +48,18 @@ class RegistrationViewModel @Inject constructor(private val userRepository: User
         _userViewModel.updateLoadingState(state)
     }
 
-    val userState: StateFlow<UserState>
-        get() = _userViewModel.userState
+    val userState: StateFlow<UserState> get() = _userViewModel.userState
 
     private var acceptedTCs: Boolean? = null
     private var principle: Principle? = null
 
-    fun updateUserData(fullName: String, department: String, subDepartment: String, jobRole: String, email: String, password: String) {
-        val user = userRepository.user
-        user.fullName = fullName
-        user.department = department
-        user.subDepartment = subDepartment
-        user.jobRole = jobRole
-        user.email = email
-        user.password = password
-
-        principle = user
-        println("principle = $principle")
+    fun updateUserData(principle: Principle) {
+        userRepository.user.fullName = principle.fullName
+        userRepository.user.department = principle.department
+        userRepository.user.subDepartment = principle.subDepartment
+        userRepository.user.jobRole = principle.jobRole
+        userRepository.user.email = principle.email
+        userRepository.user.password = principle.password
     }
 
     fun acceptTCs() {
