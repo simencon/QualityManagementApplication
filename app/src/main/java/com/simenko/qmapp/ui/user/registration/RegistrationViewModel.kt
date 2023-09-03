@@ -33,13 +33,8 @@ class RegistrationViewModel @Inject constructor(
         _principleToRegister = principle
     }
 
-    fun acceptTCs() {
-        _acceptedTCs = true
-    }
-
     fun registerUser() {
         assert(_principleToRegister != null)
-        assert(_acceptedTCs == true)
         _userViewModel.updateLoadingState(Pair(true, null))
         userRepository.registerUser(_principleToRegister!!)
     }
