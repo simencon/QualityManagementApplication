@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,6 +40,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -192,45 +194,21 @@ fun EnterDetails(
                 textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                viewModel.validateInput(rawPrinciple)
-            },
-            content = {
-                Text(
-                    text = "Next",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(all = 0.dp)
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
+        RecordActionTextBtn(
+            text = "Next",
+            onClick = { viewModel.validateInput(rawPrinciple) },
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
         )
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                navController.navigate(Screen.LoggedOut.LogIn.route)
-            },
-            content = {
-                Text(
-                    text = "Log in",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(all = 0.dp)
-                )
-            },
-            colors = ButtonDefaults.textButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary
+        RecordActionTextBtn(
+            text = "Log in",
+            onClick = { navController.navigate(Screen.LoggedOut.LogIn.route) },
+            colors = Pair(
+                ButtonDefaults.textButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                MaterialTheme.colorScheme.primary
             ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
         )
     }
 }
@@ -266,6 +244,33 @@ fun RecordFieldItem(
         modifier = Modifier
             .focusRequester(keyboardNavigation.first)
             .width(320.dp)
+    )
+}
+
+@Composable
+fun RecordActionTextBtn(
+    text: String,
+    onClick: () -> Unit,
+    colors: Pair<ButtonColors, Color>,
+    enabled: Boolean = true
+) {
+    TextButton(
+        modifier = Modifier.width(150.dp),
+        onClick = onClick,
+        content = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(all = 0.dp)
+            )
+        },
+        colors = colors.first,
+        border = BorderStroke(1.dp, colors.second),
+        shape = MaterialTheme.shapes.medium,
+        enabled = enabled
     )
 }
 

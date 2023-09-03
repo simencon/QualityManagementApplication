@@ -1,22 +1,20 @@
 package com.simenko.qmapp.ui.user.login
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 import com.simenko.qmapp.ui.user.registration.enterdetails.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -61,11 +60,6 @@ fun LogIn() {
         userState.let { state ->
             if (state is UserErrorState) {
                 msg = ""
-                when(state.error) {
-                    UserError.USER_NOT_REGISTERED.error, UserError.ACCOUNT_DISABLED.error -> {
-//                        ToDo show register btn
-                    }
-                }
                 error = state.error ?: "Unknown error"
             } else if (state is UserLoggedOutState) {
                 msg = state.msg
@@ -106,7 +100,7 @@ fun LogIn() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
-            valueParam = Triple(principle.email, principleErrors.passwordError) {
+            valueParam = Triple(principle.password, principleErrors.passwordError) {
                 viewModel.setPassword(it)
                 error = ""
             },
@@ -144,41 +138,28 @@ fun LogIn() {
                 textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
-        TextButton(
-            modifier = Modifier.width(150.dp),
+        RecordActionTextBtn(
+            text = "Login",
             onClick = { viewModel.login(principle.email, principle.password) },
-            content = {
-                Text(
-                    text = "Login",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp)
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
         )
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                viewModel.sendResetPasswordEmail(principle.email)
-                viewModel.updateLoadingState(Pair(true, null))
-            },
-            content = {
-                Text(
-                    text = "Reset password",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                )
-            },
-            enabled = msg == "",
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
+        RecordActionTextBtn(
+            text = "Reset password",
+            onClick = { viewModel.sendResetPasswordEmail(principle.email) },
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
+            enabled = msg == UserError.NO_ERROR.error
         )
+        if (error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
+            RecordActionTextBtn(
+                text = "Register page",
+                onClick = { viewModel.sendResetPasswordEmail(principle.email) },
+                colors = Pair(
+                    ButtonDefaults.textButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    MaterialTheme.colorScheme.primary
+                ),
+            )
     }
 }
