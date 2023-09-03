@@ -30,14 +30,15 @@ class UserRepository @Inject constructor(
 ) {
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
     val userState: StateFlow<UserState> get() = _userState
-    val user: Principle get() = Principle(storage)
+    private val _user: Principle get() = Principle(storage)
+    val user: Principle get() = _user
 
     fun clearErrorMessage() {
         _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
 
     fun clearUserData() {
-        user.clearUserData()
+        _user.clearUserData()
         clearErrorMessage()
     }
 
@@ -45,30 +46,30 @@ class UserRepository @Inject constructor(
      *@link (https://app.diagrams.net/#G1vvhdmr_4ATIBjb91JfzASgCwj16VsOkY)
      * */
     fun getActualUserState() {
-        if (user.email.isEmpty()) {
-            user.clearUserData()
+        if (_user.email.isEmpty()) {
+            _user.clearUserData()
             _userState.value = UnregisteredState
-        } else if (user.email.isNotEmpty() && user.password.isEmpty()) {
+        } else if (_user.email.isNotEmpty() && _user.password.isEmpty()) {
             _userState.value = UserLoggedOutState()
-        } else if (user.email.isNotEmpty() && user.password.isNotEmpty()) {
-            auth.signInWithEmailAndPassword(user.email, user.password)
+        } else if (_user.email.isNotEmpty() && _user.password.isNotEmpty()) {
+            auth.signInWithEmailAndPassword(_user.email, _user.password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        if (user.isEmailVerified) {
+                        if (_user.isEmailVerified) {
 
-                            if (user.restApiUrl != EmptyString.str) {
-                                if (user.isUserLoggedIn) {
+                            if (_user.restApiUrl != EmptyString.str) {
+                                if (_user.isUserLoggedIn) {
                                     _userState.value = UserLoggedInState("Logged in, email is verified")
                                 } else {
                                     _userState.value = UserLoggedOutState()
                                 }
                             } else {
-                                callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
+                                callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task1 ->
                                     if (task1.isSuccessful) {
                                         val principle = task1.result
                                         if (principle.restApiUrl != EmptyString.str) {
-                                            user.setUserRestApiUrl(principle.restApiUrl)
-                                            if (user.isUserLoggedIn) {
+                                            _user.setUserRestApiUrl(principle.restApiUrl)
+                                            if (_user.isUserLoggedIn) {
                                                 _userState.value = UserLoggedInState("Logged in, email is verified")
                                             } else {
                                                 _userState.value = UserLoggedOutState()
@@ -84,17 +85,17 @@ class UserRepository @Inject constructor(
 
                         } else {
                             if (auth.currentUser?.isEmailVerified == true) {
-                                var principle = this.user
+                                var principle = this._user
                                 principle.isEmailVerified = true
                                 callFirebaseFunction(principle, "updateUserData").addOnCompleteListener { task1 ->
                                     if (task1.isSuccessful) {
-                                        user.setUserIsEmailVerified(true)
-                                        callFirebaseFunction(user, "getUserData").addOnCompleteListener { task2 ->
+                                        _user.setUserIsEmailVerified(true)
+                                        callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful) {
                                                 principle = task2.result
                                                 if (principle.restApiUrl != EmptyString.str) {
-                                                    user.setUserRestApiUrl(principle.restApiUrl)
-                                                    if (user.isUserLoggedIn) {
+                                                    _user.setUserRestApiUrl(principle.restApiUrl)
+                                                    if (_user.isUserLoggedIn) {
                                                         _userState.value = UserLoggedInState("Logged in, email is verified")
                                                     } else {
                                                         _userState.value = UserLoggedOutState()
@@ -117,9 +118,9 @@ class UserRepository @Inject constructor(
                     } else {
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-                                if (user.isEmailVerified) {
-                                    if (user.restApiUrl != EmptyString.str) {
-                                        if (user.isUserLoggedIn) {
+                                if (_user.isEmailVerified) {
+                                    if (_user.restApiUrl != EmptyString.str) {
+                                        if (_user.isUserLoggedIn) {
                                             _userState.value = UserLoggedInState("Logged in, email is verified")
                                         } else {
                                             _userState.value = UserLoggedOutState()
@@ -140,13 +141,13 @@ class UserRepository @Inject constructor(
                                 if (task.exception?.message?.contains("account has been disabled") == true) {
                                     _userState.value = UserLoggedOutState("Account has been disabled")
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
-                                    user.clearUserData()
+                                    _user.clearUserData()
                                     _userState.value = UnregisteredState
                                 }
                             }
 
                             else -> {
-                                user.clearUserData()
+                                _user.clearUserData()
                                 _userState.value = UnregisteredState
                             }
                         }
@@ -162,12 +163,12 @@ class UserRepository @Inject constructor(
         auth.createUserWithEmailAndPassword(principle.email, principle.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    user.storeUserData(principle)
+                    _user.storeUserData(principle)
                     sendVerificationEmail(auth.currentUser)
                 } else {
                     when (task.exception) {
                         is FirebaseAuthUserCollisionException -> {
-                            user.storeUserData(principle)
+                            _user.storeUserData(principle)
                             _userState.value = UserErrorState(UserError.USER_EXISTS.error)
                         }
 
@@ -187,7 +188,7 @@ class UserRepository @Inject constructor(
                 _userState.value = UserErrorState(task.exception?.message)
             }
         }
-            ?: auth.signInWithEmailAndPassword(this.user.email, this.user.password).addOnCompleteListener { task ->
+            ?: auth.signInWithEmailAndPassword(this._user.email, this._user.password).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     sendVerificationEmail(auth.currentUser)
                 } else {
@@ -200,7 +201,7 @@ class UserRepository @Inject constructor(
         if (email.isNotEmpty())
             auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    user.setUserEmail(email)
+                    _user.setUserEmail(email)
                     _userState.value = UserLoggedOutState("Check your email box and set new password")
                 } else {
                     _userState.value = UserErrorState(task.exception?.message)
@@ -211,21 +212,21 @@ class UserRepository @Inject constructor(
     }
 
     val getRestApiUrl: String
-        get() = user.restApiUrl
+        get() = _user.restApiUrl
 
     val authToken: String
-        get() = user.fbToken
+        get() = _user.fbToken
 
     suspend fun refreshTokenIfNecessary() = suspendCoroutine { continuation ->
-        if (Instant.now().epochSecond + user.epochFbDiff < user.fbTokenExp) {
-            continuation.resume(user.fbToken)
+        if (Instant.now().epochSecond + _user.epochFbDiff < _user.fbTokenExp) {
+            continuation.resume(_user.fbToken)
         } else {
-            auth.signInWithEmailAndPassword(user.email, user.password).addOnCompleteListener { task1 ->
+            auth.signInWithEmailAndPassword(_user.email, _user.password).addOnCompleteListener { task1 ->
                 if (task1.isSuccessful) {
                     auth.currentUser!!.getIdToken(true).addOnCompleteListener { task2 ->
                         if (task2.isSuccessful) {
-                            user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
-                            continuation.resume(user.fbToken)
+                            _user.updateToken(task2.result.token ?: EmptyString.str, task2.result.authTimestamp, task2.result.expirationTimestamp)
+                            continuation.resume(_user.fbToken)
                         } else {
                             throw IOException("Not possible to obtain token")
                         }
@@ -246,16 +247,16 @@ class UserRepository @Inject constructor(
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
 //                        Refresh locally user data
-                        callFirebaseFunction(user, "getUserData").addOnCompleteListener { task1 ->
+                        callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
                                 val principle = task1.result
-                                user.storeUserData(principle)
-                                user.setUserEmail(auth.currentUser?.email ?: "no mail")
-                                user.setUserPassword(password)
-                                user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
-                                user.setUserIsLoggedIn(true)
-                                if (user.isEmailVerified) {
-                                    if (user.restApiUrl != EmptyString.str) {
+                                _user.storeUserData(principle)
+                                _user.setUserEmail(auth.currentUser?.email ?: "no mail")
+                                _user.setUserPassword(password)
+                                _user.setUserIsEmailVerified(auth.currentUser?.isEmailVerified ?: false)
+                                _user.setUserIsLoggedIn(true)
+                                if (_user.isEmailVerified) {
+                                    if (_user.restApiUrl != EmptyString.str) {
                                         _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
                                     } else {
                                         _userState.value = UserAuthoritiesNotVerifiedState()
@@ -268,12 +269,13 @@ class UserRepository @Inject constructor(
                             }
                         }
                     } else {
+                        println("loginUser error is ${task.exception?.message}")
                         when (task.exception) {
                             is FirebaseNetworkException -> {
-                                if (user.email == email && user.password == password) {
-                                    user.setUserIsLoggedIn(true)
-                                    if (user.isEmailVerified) {
-                                        if (user.restApiUrl != EmptyString.str) {
+                                if (_user.email == email && _user.password == password) {
+                                    _user.setUserIsLoggedIn(true)
+                                    if (_user.isEmailVerified) {
+                                        if (_user.restApiUrl != EmptyString.str) {
                                             _userState.value = UserLoggedInState(auth.currentUser?.email ?: "no mail")
                                         } else {
                                             _userState.value = UserAuthoritiesNotVerifiedState()
@@ -281,9 +283,9 @@ class UserRepository @Inject constructor(
                                     } else {
                                         _userState.value = UserNeedToVerifyEmailState()
                                     }
-                                } else if (user.email != email) {
+                                } else if (_user.email != email) {
                                     _userState.value = UserErrorState(UserError.WRONG_EMAIL.error)
-                                } else if (user.password != password) {
+                                } else if (_user.password != password) {
                                     _userState.value = UserErrorState(UserError.WRONG_PASSWORD.error)
                                 }
                             }
@@ -296,13 +298,12 @@ class UserRepository @Inject constructor(
                                 if (task.exception?.message?.contains("account has been disabled") == true) {
                                     _userState.value = UserErrorState(UserError.ACCOUNT_DISABLED.error)
                                 } else if (task.exception?.message?.contains("user may have been deleted") == true) {
-                                    user.clearUserData()
-                                    _userState.value = UnregisteredState
+                                    _userState.value = UserErrorState(UserError.USER_NOT_REGISTERED.error)
                                 }
                             }
 
                             else -> {
-                                user.clearUserData()
+                                _user.clearUserData()
                                 _userState.value = UnregisteredState
                             }
                         }
@@ -317,11 +318,11 @@ class UserRepository @Inject constructor(
         if (auth.currentUser != null) {
             auth.signOut()
             if (auth.currentUser == null) {
-                user.setUserIsLoggedIn(false)
+                _user.setUserIsLoggedIn(false)
                 _userState.value = UserLoggedOutState()
             }
         } else {
-            user.setUserIsLoggedIn(false)
+            _user.setUserIsLoggedIn(false)
             _userState.value = UserLoggedOutState()
         }
     }
@@ -333,7 +334,7 @@ class UserRepository @Inject constructor(
                     if (task1.isSuccessful) {
                         auth.currentUser?.delete()?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
-                                user.clearUserData()
+                                _user.clearUserData()
                                 _userState.value = UnregisteredState
                             } else {
                                 _userState.value = UserErrorState(task2.exception?.message ?: UserError.UNKNOWN_ERROR.error)
@@ -341,7 +342,7 @@ class UserRepository @Inject constructor(
                         }
                     } else {
                         if (task1.exception?.message?.contains("User has been disabled") == true) {
-                            user.clearUserData()
+                            _user.clearUserData()
                             _userState.value = UnregisteredState
                         } else {
                             _userState.value = UserErrorState(task1.exception?.message ?: UserError.UNKNOWN_ERROR.error)
@@ -356,7 +357,7 @@ class UserRepository @Inject constructor(
     fun updateUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                user.storeUserData(result.result)
+                _user.storeUserData(result.result)
                 _userState.value = UserLoggedInState()
             } else {
                 val e = result.exception
@@ -371,7 +372,7 @@ class UserRepository @Inject constructor(
     fun editUserData() = this.callFirebaseFunction(fbFunction = "updateUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                user.storeUserData(result.result)
+                _user.storeUserData(result.result)
                 _userState.value = UserLoggedInState()
             } else {
                 val e = result.exception
@@ -383,7 +384,7 @@ class UserRepository @Inject constructor(
             }
         }
 
-    private fun callFirebaseFunction(user: Principle = this.user, fbFunction: String): Task<Principle> {
+    private fun callFirebaseFunction(user: Principle = this._user, fbFunction: String): Task<Principle> {
         return functions
             .getHttpsCallable(fbFunction)
             .call(user.dataToFirebase())
@@ -411,5 +412,6 @@ enum class UserError(val error: String) {
     EMPTY_CREDENTIALS("Email and Password fields should not be empty"),
     NO_USER_DATA("Cannot obtain user data"),
     ACCOUNT_DISABLED("Account has been disabled"),
-    USER_EXISTS("User already registered")
+    USER_EXISTS("User already registered"),
+    USER_NOT_REGISTERED("User with current email is not registered")
 }

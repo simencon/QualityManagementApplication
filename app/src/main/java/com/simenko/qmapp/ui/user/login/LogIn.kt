@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
@@ -19,7 +17,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,18 +40,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.ui.user.registration.enterdetails.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogIn() {
-    val logInViewModel: LoginViewModel = hiltViewModel()
-    val userState by logInViewModel.userState.collectAsStateWithLifecycle()
+    val viewModel: LoginViewModel = hiltViewModel()
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
 
-    var userEmail by rememberSaveable { mutableStateOf(logInViewModel.getUserEmail()) }
-    var emailError by rememberSaveable { mutableStateOf(false) }
+    val principle by viewModel.loggedOutPrinciple.collectAsStateWithLifecycle()
+    val principleErrors by viewModel.loggedOutPrincipleErrors.collectAsStateWithLifecycle()
 
-    var password by rememberSaveable { mutableStateOf("") }
-    var passwordError by rememberSaveable { mutableStateOf(false) }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     var error by rememberSaveable { mutableStateOf("") }
@@ -70,7 +65,7 @@ fun LogIn() {
                 msg = state.msg
                 error = ""
             }
-            logInViewModel.updateLoadingState(Pair(false, null))
+            viewModel.updateLoadingState(Pair(false, null))
         }
     }
 
@@ -79,7 +74,7 @@ fun LogIn() {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(key1 = Unit) {
-        if (userEmail.isNotEmpty()) focusRequesterPassword.requestFocus() else focusRequesterEmail.requestFocus()
+        if (principle.email.isNotEmpty()) focusRequesterPassword.requestFocus() else focusRequesterEmail.requestFocus()
     }
 
     Column(
@@ -97,61 +92,31 @@ fun LogIn() {
                 .padding(all = 5.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = userEmail,
-            onValueChange = {
-                userEmail = it
-                emailError = false
-            },
-            leadingIcon = {
-                val tint = if (emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = tint)
-            },
-            label = { Text("Email *") },
-            isError = emailError,
-            placeholder = { Text(text = "Enter your email") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterPassword.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterEmail)
-                .width(320.dp)
+        RecordFieldItem(
+            valueParam = Triple(principle.email, principleErrors.emailError) { viewModel.setEmail(it) },
+            keyboardNavigation = Pair(focusRequesterEmail) { focusRequesterPassword.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Mail, "Email", "Enter your email")
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = password,
-            onValueChange = {
-                password = it
-                passwordError = false
+        RecordFieldItem(
+            valueParam = Triple(principle.email, principleErrors.passwordError) {
+                viewModel.setPassword(it)
                 error = ""
             },
-            leadingIcon = {
-                val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Lock, contentDescription = "password", tint = tint)
-            },
-            label = { Text("Password *") },
-            placeholder = { Text(text = "Enter your password") },
+            keyboardNavigation = Pair(focusRequesterPassword) { keyboardController?.hide() },
+            keyBoardTypeAction = Pair(KeyboardType.Password, ImeAction.Done),
+            contentDescription = Triple(Icons.Default.Lock, "Password", "Enter your password"),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-
-                val description = if (passwordVisible) "Hide password" else "Show password"
-
-                val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description, tint = tint)
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        tint = if (principleErrors.emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                    )
                 }
-            },
-            isError = passwordError,
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterPassword)
-                .width(320.dp)
+            }
         )
         Spacer(modifier = Modifier.height(10.dp))
         if (error != "")
@@ -175,7 +140,7 @@ fun LogIn() {
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             modifier = Modifier.width(150.dp),
-            onClick = { logInViewModel.login(userEmail, password) },
+            onClick = { viewModel.login(principle.email, principle.password) },
             content = {
                 Text(
                     text = "Login",
@@ -192,8 +157,8 @@ fun LogIn() {
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                logInViewModel.sendResetPasswordEmail(userEmail)
-                logInViewModel.updateLoadingState(Pair(true, null))
+                viewModel.sendResetPasswordEmail(principle.email)
+                viewModel.updateLoadingState(Pair(true, null))
             },
             content = {
                 Text(

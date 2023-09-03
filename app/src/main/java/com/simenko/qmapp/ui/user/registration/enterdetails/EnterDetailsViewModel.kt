@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.storage.Storage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,14 +18,12 @@ private const val MIN_LENGTH = 6
  * obtain to validate user's input data.
  */
 @HiltViewModel
-class EnterDetailsViewModel @Inject constructor(
-    private val storage: Storage
-) : ViewModel() {
+class EnterDetailsViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
 
     private val _enterDetailsState = MutableStateFlow<Event<EnterDetailsViewState>>(Event(EnterDetailsInitialState))
     val enterDetailsState: StateFlow<Event<EnterDetailsViewState>> get() = _enterDetailsState
 
-    private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(Principle(storage))
+    private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
     private var _rawPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
     val rawPrinciple: StateFlow<Principle> get() = _rawPrinciple
     val rawPrincipleErrors: StateFlow<UserErrors> get() = _rawPrincipleErrors

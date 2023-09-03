@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
@@ -34,7 +33,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState
-    val userLocalData: Principle get() = userRepository.user
+    val userLocalData: Principle get() = userRepository._user
 
     fun clearLoadingState(error: String? = null) {
         _mainActivityViewModel.updateLoadingState(Pair(false, error))
