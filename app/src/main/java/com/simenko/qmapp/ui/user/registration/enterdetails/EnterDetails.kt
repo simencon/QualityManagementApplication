@@ -74,7 +74,7 @@ fun EnterDetails(
     val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
 
-    var error by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -100,9 +100,7 @@ fun EnterDetails(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(Unit) {
-        focusRequesterUserName.requestFocus()
-    }
+    LaunchedEffect(Unit) { focusRequesterUserName.requestFocus() }
 
     val columnState = rememberScrollState()
 
