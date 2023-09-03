@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +19,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,11 +33,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UnregisteredState
+import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
+import com.simenko.qmapp.repository.UserLoggedOutState
+import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.dialogs.ApproveAction
 
 @Composable
@@ -48,20 +52,19 @@ fun Settings(
     val settingsModel: SettingsViewModel = hiltViewModel()
     val userState by settingsModel.userState.collectAsStateWithLifecycle()
 
-    var error by rememberSaveable { mutableStateOf("") }
-    var msg by rememberSaveable { mutableStateOf("") }
-
     LaunchedEffect(userState) {
         userState.let {
-            if (it is UserErrorState) {
-                error = it.error ?: UserError.UNKNOWN_ERROR.error
-            } else if (it is UserLoggedInState) {
-                msg = it.msg
-            } else {
-                onClick()
+            when (it) {
+                is UserErrorState ->
+                    if (it.error != UserError.NO_ERROR.error)
+                        settingsModel.clearLoadingState(it.error ?: UserError.UNKNOWN_ERROR.error)
+                    else
+                        settingsModel.clearLoadingState()
+
+                is UserLoggedOutState, is UnregisteredState, is UserNeedToVerifyEmailState, is UserAuthoritiesNotVerifiedState -> onClick()
+                is UserLoggedInState, is NoState -> settingsModel.clearLoadingState()
             }
         }
-        settingsModel.clearLoadingState()
     }
 
     val approveActionDialogVisibility by settingsModel.isApproveActionVisible.collectAsStateWithLifecycle()
@@ -81,30 +84,36 @@ fun Settings(
     val columnState = rememberScrollState()
 
     Column(
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(all = 0.dp)
             .verticalScroll(columnState)
     ) {
-        if (msg != "")
-            Text(
-                text = msg,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                modifier = Modifier
-                    .padding(all = 5.dp),
-                textAlign = TextAlign.Center
-            )
         Spacer(modifier = Modifier.height(10.dp))
-
+        Image(
+            painter = painterResource(settingsModel.userLocalData.logo),
+            contentDescription = null,
+            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.height(112.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = settingsModel.userLocalData.fullName,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start,
             modifier = Modifier
                 .padding(all = 0.dp)
         ) {
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = settingsModel.userLocalData.fullName)
             InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsModel.userLocalData.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
@@ -120,47 +129,7 @@ fun Settings(
                 body = if (settingsModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsModel.userLocalData.phoneNumber.toString()
             )
         }
-
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                error = ""
-                msg = ""
-                settingsModel.getUserData()
-            },
-            content = {
-                Text(
-                    text = "Get user data",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
-        )
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                error = ""
-                msg = ""
-                settingsModel.updateUserCompleteData()
-            },
-            content = {
-                Text(
-                    text = "Update user data",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
-        )
+        Spacer(modifier = Modifier.height(20.dp))
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = { settingsModel.logout() },
@@ -172,6 +141,22 @@ fun Settings(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp),
+                )
+            },
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+            shape = MaterialTheme.shapes.medium
+        )
+        TextButton(
+            modifier = Modifier.width(150.dp),
+            onClick = { settingsModel.editUserData() },
+            content = {
+                Text(
+                    text = "Edit user data",
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
                 )
             },
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
@@ -199,15 +184,6 @@ fun Settings(
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.onErrorContainer),
             shape = MaterialTheme.shapes.medium
         )
-        Spacer(modifier = Modifier.height(10.dp))
-        if (error != "")
-            Text(
-                text = error,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                modifier = Modifier
-                    .padding(all = 5.dp),
-                textAlign = TextAlign.Center
-            )
     }
 
     if (approveActionDialogVisibility) {

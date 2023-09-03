@@ -1,5 +1,7 @@
 package com.simenko.qmapp.storage
 
+import androidx.annotation.DrawableRes
+import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import java.time.Instant
@@ -19,7 +21,8 @@ data class Principle(
     var fbToken: String,
     var epochFbDiff: Long,
     var fbTokenExp: Long,
-    val userStorage: Storage? = null
+    val userStorage: Storage? = null,
+    @DrawableRes val logo: Int = R.drawable.ic_launcher_round
 ) {
     companion object {
         private const val USER_FULL_NAME = "fullName"

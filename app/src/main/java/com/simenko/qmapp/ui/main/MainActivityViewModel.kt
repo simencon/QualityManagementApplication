@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,10 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
+    private val userRepository: UserRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
+    val userInfo get() = userRepository.user
+
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
