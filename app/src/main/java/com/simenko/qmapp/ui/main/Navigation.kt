@@ -1,10 +1,14 @@
 package com.simenko.qmapp.ui.main
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -20,6 +24,8 @@ import com.simenko.qmapp.domain.CurrentSubOrderIdKey
 import com.simenko.qmapp.domain.ToProcessControlScreen
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SubOrderAddEditModeKey
+import com.simenko.qmapp.domain.TrueStr
+import com.simenko.qmapp.domain.UserEditModeKey
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -32,6 +38,8 @@ import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
+import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
+import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.utils.StringUtils.getBoolean
 
 @Composable
@@ -145,10 +153,38 @@ fun Navigation(
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxWidth(),
-                    onClick = {
-                        startActivity(navController.context, createLoginActivityIntent(navController.context), null)
-                    }
+                    onClick = { startActivity(navController.context, createLoginActivityIntent(navController.context), null) },
+                    onEditUserData = {navController.navigate(Screen.LoggedOut.Registration.EnterDetails.withArgs(TrueStr.str))}
                 )
+            }
+        }
+
+        composable(
+            route = Screen.LoggedOut.Registration.EnterDetails.route +"/{${UserEditModeKey.str}}",
+            arguments = listOf(
+                navArgument(UserEditModeKey.str) {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) {
+            val regModel: RegistrationViewModel = hiltViewModel()
+            (LocalContext.current as MainActivity).initRegModel(regModel)
+            BackHandler {
+                navController.popBackStack()
+                regModel.setAddEditMode(AddEditMode.NO_MODE)
+            }
+            QMAppTheme {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    EnterDetails(
+                        navController = navController,
+                        editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false
+                    )
+                }
             }
         }
     }
