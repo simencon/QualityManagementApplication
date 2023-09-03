@@ -116,8 +116,7 @@ fun EnterDetails(
             style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .padding(all = 0.dp)
+            modifier = Modifier.padding(all = 0.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         RecordFieldItem(
@@ -188,8 +187,7 @@ fun EnterDetails(
             Text(
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                modifier = Modifier
-                    .padding(all = 5.dp),
+                modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
