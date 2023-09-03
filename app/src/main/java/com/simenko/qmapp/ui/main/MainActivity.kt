@@ -69,6 +69,7 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -104,6 +105,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
+    private lateinit var regModel: RegistrationViewModel
 
     private lateinit var navController: NavHostController
 
@@ -328,28 +330,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun initSettingsModel(model: SettingsViewModel) {
-        this.settingsModel = model
-        this.settingsModel.initMainActivityViewModel(this.viewModel)
-    }
-
-    fun initInvModel(model: InvestigationsViewModel) {
-        this.invModel = model
-        this.invModel.initMainActivityViewModel(this.viewModel)
-        this.invModel.initNavController(this.navController)
-    }
-
-    fun initTeamModel(model: TeamViewModel) {
-        this.teamModel = model
-        this.teamModel.initMainActivityViewModel(this.viewModel)
-    }
-
-    fun initNewOrderModel(newOrderModel: NewItemViewModel) {
-        this.newOrderModel = newOrderModel
-        this.newOrderModel.initMainActivityViewModel(this.viewModel)
-        this.newOrderModel.initNavController(this.navController)
-    }
-
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -388,6 +368,33 @@ class MainActivity : ComponentActivity() {
             )
             .setInitialDelay(Duration.ofSeconds(5))
             .build()
+    }
+
+    fun initSettingsModel(model: SettingsViewModel) {
+        this.settingsModel = model
+        this.settingsModel.initMainActivityViewModel(this.viewModel)
+    }
+
+    fun initInvModel(model: InvestigationsViewModel) {
+        this.invModel = model
+        this.invModel.initMainActivityViewModel(this.viewModel)
+        this.invModel.initNavController(this.navController)
+    }
+
+    fun initTeamModel(model: TeamViewModel) {
+        this.teamModel = model
+        this.teamModel.initMainActivityViewModel(this.viewModel)
+    }
+
+    fun initNewOrderModel(model: NewItemViewModel) {
+        this.newOrderModel = model
+        this.newOrderModel.initMainActivityViewModel(this.viewModel)
+        this.newOrderModel.initNavController(this.navController)
+    }
+
+    fun initRegModel(model: RegistrationViewModel) {
+        this.regModel = model
+        this.regModel.initMainViewModel(this.viewModel)
     }
 }
 

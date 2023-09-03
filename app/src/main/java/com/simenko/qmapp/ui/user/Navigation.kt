@@ -9,6 +9,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.simenko.qmapp.domain.CurrentOrderIdKey
+import com.simenko.qmapp.domain.FalseStr
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.TrueStr
+import com.simenko.qmapp.domain.UserEditModeKey
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
@@ -35,16 +40,27 @@ fun Navigation(
             }
         }
         navigation(
-            startDestination = Screen.LoggedOut.Registration.EnterDetails.route,
+            startDestination = Screen.LoggedOut.Registration.EnterDetails.route + "/${FalseStr.str}",
             route = Screen.LoggedOut.Registration.route
         ) {
-            composable(route = Screen.LoggedOut.Registration.EnterDetails.route) {
+            composable(
+                route = Screen.LoggedOut.Registration.EnterDetails.route +"/{${UserEditModeKey.str}}",
+                arguments = listOf(
+                    navArgument(UserEditModeKey.str) {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) {
                 val regModel: RegistrationViewModel = hiltViewModel()
                 (LocalContext.current as UserActivity).initRegModel(regModel)
                 val enterDetModel: EnterDetailsViewModel = hiltViewModel()
                 (LocalContext.current as UserActivity).initEnterDetModel(enterDetModel)
                 QMAppTheme {
-                    EnterDetails(navController = navController)
+                    EnterDetails(
+                        navController = navController,
+                        editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false
+                    )
                 }
             }
             composable(

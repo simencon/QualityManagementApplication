@@ -1,8 +1,10 @@
 package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,7 +44,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -58,6 +62,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
@@ -65,8 +70,9 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 @Composable
 fun EnterDetails(
     navController: NavHostController = rememberNavController(),
+    editMode: Boolean
 ) {
-    val registrationViewModel: RegistrationViewModel = hiltViewModel()
+    val regModel: RegistrationViewModel = hiltViewModel()
     val viewModel: EnterDetailsViewModel = hiltViewModel()
 
     val stateEvent by viewModel.enterDetailsState.collectAsStateWithLifecycle()
@@ -81,7 +87,7 @@ fun EnterDetails(
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
             is EnterDetailsSuccess -> {
-                registrationViewModel.initPrincipleToRegister(rawPrinciple)
+                regModel.initPrincipleToRegister(rawPrinciple)
                 navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
             }
 
@@ -100,7 +106,10 @@ fun EnterDetails(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(Unit) { focusRequesterUserName.requestFocus() }
+    LaunchedEffect(Unit) {
+        focusRequesterUserName.requestFocus()
+        if (editMode) regModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
+    }
 
     val columnState = rememberScrollState()
 
@@ -111,17 +120,25 @@ fun EnterDetails(
             .padding(all = 0.dp)
             .verticalScroll(columnState)
     ) {
-        Text(
-            text = "Register to Quality Management",
-            style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(all = 0.dp)
-        )
+        if (!editMode)
+            Text(
+                text = "Register to Quality Management",
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(all = 0.dp)
+            )
+        else
+            Image(
+                painter = painterResource(rawPrinciple.logo),
+                contentDescription = null,
+                contentScale = ContentScale.FillHeight,
+                modifier = Modifier.height(112.dp)
+            )
         Spacer(modifier = Modifier.height(20.dp))
         RecordFieldItem(
             valueParam = Triple(rawPrinciple.fullName, rawPrincipleErrors.fullNameError) { viewModel.setFullName(it) },
-            keyboardNavigation = Pair(focusRequesterUserName) { focusRequesterDepartment.requestFocus() },
+            keyboardNavigation = Pair(focusRequesterUserName) { if (!editMode) focusRequesterDepartment.requestFocus() else focusRequesterPhoneNumber.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
             contentDescription = Triple(Icons.Default.Person, "Full name", "Enter your name and surname")
         )
@@ -130,7 +147,9 @@ fun EnterDetails(
             valueParam = Triple(rawPrinciple.department, rawPrincipleErrors.departmentError) { viewModel.setDepartment(it) },
             keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterSubDepartment.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-            contentDescription = Triple(Icons.Default.AccountBalance, "Department", "Enter your department")
+            contentDescription = Triple(Icons.Default.AccountBalance, "Department", "Enter your department"),
+            enabled = !editMode,
+            isMandatoryField = !editMode
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
@@ -138,27 +157,32 @@ fun EnterDetails(
             keyboardNavigation = Pair(focusRequesterSubDepartment) { focusRequesterJobRole.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
             contentDescription = Triple(Icons.Default.AccountTree, "Sub department", "Enter only if applicable"),
-            isMandatoryField = false
+            isMandatoryField = false,
+            enabled = !editMode
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(rawPrinciple.jobRole, rawPrincipleErrors.jobRoleError) { viewModel.setJobRole(it) },
             keyboardNavigation = Pair(focusRequesterJobRole) { focusRequesterEmail.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter your job role / position")
+            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter your job role / position"),
+            enabled = !editMode,
+            isMandatoryField = !editMode
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(rawPrinciple.email, rawPrincipleErrors.emailError) { viewModel.setEmail(it) },
             keyboardNavigation = Pair(focusRequesterEmail) { focusRequesterPhoneNumber.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Next),
-            contentDescription = Triple(Icons.Default.Mail, "Email", "Enter your email")
+            contentDescription = Triple(Icons.Default.Mail, "Email", "Enter your email"),
+            enabled = !editMode,
+            isMandatoryField = !editMode
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(rawPrinciple.phoneNumber.phoneNumberToString(), false) { viewModel.setPhoneNumber(it.stringToPhoneNumber()) },
-            keyboardNavigation = Pair(focusRequesterPhoneNumber) { focusRequesterPassword.requestFocus() },
-            keyBoardTypeAction = Pair(KeyboardType.Phone, ImeAction.Next),
+            keyboardNavigation = Pair(focusRequesterPhoneNumber) { if (!editMode) focusRequesterPassword.requestFocus() else keyboardController?.hide() },
+            keyBoardTypeAction = Pair(KeyboardType.Phone, if (!editMode) ImeAction.Next else ImeAction.Done),
             contentDescription = Triple(Icons.Default.Phone, "Phone number", "Enter your phone number"),
             isMandatoryField = false,
         )
@@ -173,14 +197,16 @@ fun EnterDetails(
             contentDescription = Triple(Icons.Default.Lock, "Password", "Enter your password"),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                IconButton(onClick = { passwordVisible = !passwordVisible }, enabled = !editMode) {
                     Icon(
                         imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
                         tint = if (rawPrincipleErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                     )
                 }
-            }
+            },
+            enabled = !editMode,
+            isMandatoryField = !editMode
         )
         Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)
@@ -191,22 +217,44 @@ fun EnterDetails(
                 textAlign = TextAlign.Center
             )
         Spacer(modifier = Modifier.height(10.dp))
-        RecordActionTextBtn(
-            text = "Next",
-            onClick = { viewModel.validateInput(rawPrinciple) },
-            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
-        )
-        RecordActionTextBtn(
-            text = "Log in",
-            onClick = { navController.navigate(Screen.LoggedOut.LogIn.route) },
-            colors = Pair(
-                ButtonDefaults.textButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.primary
+        if (!editMode)
+            RecordActionTextBtn(
+                text = "Next",
+                onClick = { viewModel.validateInput(rawPrinciple) },
+                colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
+            )
+        else
+            Row {
+                RecordActionTextBtn(
+                    text = "CANSEL",
+                    onClick = { },
+                    colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
+                )
+                Spacer(modifier = Modifier.width(20.dp))
+                RecordActionTextBtn(
+                    text = "SAVE",
+                    onClick = { },
+                    colors = Pair(
+                        ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        ),
+                        MaterialTheme.colorScheme.primary
+                    ),
+                )
+            }
+        if (!editMode)
+            RecordActionTextBtn(
+                text = "Log in",
+                onClick = { navController.navigate(Screen.LoggedOut.LogIn.route) },
+                colors = Pair(
+                    ButtonDefaults.textButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ),
+                    MaterialTheme.colorScheme.primary
                 ),
-                MaterialTheme.colorScheme.primary
-            ),
-        )
+            )
     }
 }
 
@@ -275,6 +323,8 @@ fun RecordActionTextBtn(
 @Composable
 fun EnterDetailsPreview() {
     QMAppTheme {
-        EnterDetails()
+        EnterDetails(
+            editMode = false
+        )
     }
 }

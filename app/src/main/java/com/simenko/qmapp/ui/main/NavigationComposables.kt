@@ -497,7 +497,7 @@ private val navigationAndActionItems = listOf(
     ),
     MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
-    MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
+    MenuItem(Screen.Main.Settings.route, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
     MenuItem(MenuItem.Actions.UPLOAD_MD.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     MenuItem(MenuItem.Actions.SYNC_INV.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
@@ -524,5 +524,6 @@ enum class AddEditMode(val mode: String) {
     ADD_SUB_ORDER("Add new sub order"),
     EDIT_SUB_ORDER("Edit sub order"),
     ADD_SUB_ORDER_STAND_ALONE("New process control order"),
-    EDIT_SUB_ORDER_STAND_ALONE("Edit process control order")
+    EDIT_SUB_ORDER_STAND_ALONE("Edit process control order"),
+    ACCOUNT_EDIT("Edit account data")
 }

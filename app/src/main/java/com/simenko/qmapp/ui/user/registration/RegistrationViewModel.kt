@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.main.AddEditMode
+import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.UserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,19 @@ class RegistrationViewModel @Inject constructor(
 
     fun updateLoadingState(state: Pair<Boolean, String?>) {
         _userViewModel.updateLoadingState(state)
+    }
+
+    private lateinit var _mainViewModel: MainActivityViewModel
+    fun initMainViewModel(model: MainActivityViewModel) {
+        _mainViewModel = model
+    }
+
+    fun updateMeinLoadingState(state: Pair<Boolean, String?>) {
+        _mainViewModel.updateLoadingState(state)
+    }
+
+    fun setAddEditMode(value: AddEditMode) {
+        _mainViewModel.setAddEditMode(value)
     }
 
     val userState: StateFlow<UserState> get() = _userViewModel.userState

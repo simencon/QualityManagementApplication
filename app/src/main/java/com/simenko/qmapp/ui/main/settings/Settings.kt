@@ -44,7 +44,8 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 @Composable
 fun Settings(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onEditUserData: () -> Unit
 ) {
     val settingsModel: SettingsViewModel = hiltViewModel()
     val userState by settingsModel.userState.collectAsStateWithLifecycle()
@@ -134,7 +135,7 @@ fun Settings(
         )
         RecordActionTextBtn(
             text = "Edit user data",
-            onClick = { settingsModel.editUserData() },
+            onClick = onEditUserData,
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
         RecordActionTextBtn(
@@ -190,7 +191,8 @@ fun SettingsPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 0.dp),
-            onClick = {}
+            onClick = {},
+            onEditUserData = {}
         )
     }
 }
