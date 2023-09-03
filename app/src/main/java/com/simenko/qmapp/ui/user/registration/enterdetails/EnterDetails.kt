@@ -38,6 +38,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -62,42 +63,25 @@ fun EnterDetails(
     navController: NavHostController = rememberNavController(),
 ) {
     val registrationViewModel: RegistrationViewModel = hiltViewModel()
-    val enterDetailsViewModel: EnterDetailsViewModel = hiltViewModel()
+    val viewModel: EnterDetailsViewModel = hiltViewModel()
 
-    val stateEvent by enterDetailsViewModel.enterDetailsState.collectAsStateWithLifecycle()
+    val stateEvent by viewModel.enterDetailsState.collectAsStateWithLifecycle()
 
-    var userFullName by rememberSaveable { mutableStateOf("") }
-    var fullNameError by rememberSaveable { mutableStateOf(false) }
-    var userDepartment by rememberSaveable { mutableStateOf("") }
-    var departmentError by rememberSaveable { mutableStateOf(false) }
-    var userSubDepartment by rememberSaveable { mutableStateOf("") }
-    var userJobRole by rememberSaveable { mutableStateOf("") }
-    var jobRoleError by rememberSaveable { mutableStateOf(false) }
-    var userEmail by rememberSaveable { mutableStateOf("") }
-    var emailError by rememberSaveable { mutableStateOf(false) }
-
-    var password by rememberSaveable { mutableStateOf("") }
-    var passwordError by rememberSaveable { mutableStateOf(false) }
-    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
+    val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
+
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     stateEvent.getContentIfNotHandled()?.let { state ->
         when (state) {
             is EnterDetailsSuccess -> {
-                registrationViewModel.updateUserData(userFullName, userDepartment, userSubDepartment, userJobRole, userEmail, password)
-                navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(userEmail))
+                registrationViewModel.updateUserData(rawPrinciple)
+                navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
             }
 
-            is EnterDetailsError -> {
-                error = state.errorMsg
-                fullNameError = state.errorTarget.fullNameError
-                departmentError = state.errorTarget.departmentError
-                jobRoleError = state.errorTarget.jobRoleError
-                emailError = state.errorTarget.emailError
-                passwordError = state.errorTarget.passwordError
-            }
-
+            is EnterDetailsError -> error = state.errorMsg
             is EnterDetailsInitialState -> {}
         }
     }
@@ -134,17 +118,16 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(20.dp))
         TextField(
-            value = userFullName,
+            value = rawPrinciple.fullName,
             onValueChange = {
-                userFullName = it
-                fullNameError = false
+                viewModel.setFullName(it)
             },
             leadingIcon = {
-                val tint = if (fullNameError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                val tint = if (rawPrincipleErrors.fullNameError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.Person, contentDescription = "fullName", tint = tint)
             },
             label = { Text("Full name *") },
-            isError = fullNameError,
+            isError = rawPrincipleErrors.fullNameError,
             placeholder = { Text(text = "Enter your name and surname") },
             maxLines = 1,
             singleLine = true,
@@ -156,17 +139,16 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = userDepartment,
+            value = rawPrinciple.department,
             onValueChange = {
-                userDepartment = it
-                departmentError = false
+                viewModel.setDepartment(it)
             },
             leadingIcon = {
-                val tint = if (departmentError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                val tint = if (rawPrincipleErrors.departmentError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "department", tint = tint)
             },
             label = { Text("Department *") },
-            isError = departmentError,
+            isError = rawPrincipleErrors.departmentError,
             placeholder = { Text(text = "Enter your department") },
             maxLines = 1,
             singleLine = true,
@@ -178,8 +160,8 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = userSubDepartment,
-            onValueChange = { userSubDepartment = it },
+            value = rawPrinciple.subDepartment ?: "",
+            onValueChange = { viewModel.setSubDepartment(it) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.AccountTree,
@@ -199,17 +181,16 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = userJobRole,
+            value = rawPrinciple.jobRole,
             onValueChange = {
-                userJobRole = it
-                jobRoleError = false
+                viewModel.setJobRole(it)
             },
             leadingIcon = {
-                val tint = if (jobRoleError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                val tint = if (rawPrincipleErrors.jobRoleError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.Work, contentDescription = "jobRole", tint = tint)
             },
             label = { Text("Job role *") },
-            isError = jobRoleError,
+            isError = rawPrincipleErrors.jobRoleError,
             placeholder = { Text(text = "Enter your job role / position") },
             maxLines = 1,
             singleLine = true,
@@ -221,17 +202,14 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = userEmail,
-            onValueChange = {
-                userEmail = it
-                emailError = false
-            },
+            value = rawPrinciple.email,
+            onValueChange = { viewModel.setEmail(it) },
             leadingIcon = {
-                val tint = if (emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                val tint = if (rawPrincipleErrors.emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = tint)
             },
             label = { Text("Email *") },
-            isError = emailError,
+            isError = rawPrincipleErrors.emailError,
             placeholder = { Text(text = "Enter your email") },
             maxLines = 1,
             singleLine = true,
@@ -243,14 +221,13 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = password,
+            value = rawPrinciple.password,
             onValueChange = {
-                password = it
-                passwordError = false
+                viewModel.setPassword(it)
                 error = ""
             },
             leadingIcon = {
-                val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                val tint = if (rawPrincipleErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
                 Icon(imageVector = Icons.Default.Lock, contentDescription = "password", tint = tint)
             },
             label = { Text("Password *") },
@@ -261,13 +238,13 @@ fun EnterDetails(
 
                 val description = if (passwordVisible) "Hide password" else "Show password"
 
-                val tint = if (passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                val tint = if (rawPrincipleErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
 
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(imageVector = image, description, tint = tint)
                 }
             },
-            isError = passwordError,
+            isError = rawPrincipleErrors.passwordError,
             maxLines = 1,
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
@@ -289,7 +266,7 @@ fun EnterDetails(
         TextButton(
             modifier = Modifier.width(150.dp),
             onClick = {
-                enterDetailsViewModel.validateInput(userFullName, userDepartment, userJobRole, userEmail, password)
+                viewModel.validateInput(rawPrinciple)
             },
             content = {
                 Text(
@@ -327,6 +304,36 @@ fun EnterDetails(
             shape = MaterialTheme.shapes.medium
         )
     }
+}
+
+@Composable
+fun RecordFieldItem(
+    valueParam: Triple<String, Boolean, (String) -> Unit>,
+    keyboardNavigation: Pair<FocusRequester, () -> Unit>,
+    keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
+    contentDescription: Triple<ImageVector, String, String>,
+    isMandatoryField: Boolean = true,
+    enabled: Boolean = true
+) {
+    TextField(
+        value = valueParam.first,
+        onValueChange = valueParam.third,
+        leadingIcon = {
+            val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+            Icon(imageVector = contentDescription.first, contentDescription = contentDescription.second, tint = tint)
+        },
+        label = { Text("${contentDescription.second} + ${if (isMandatoryField) " *" else ""}") },
+        isError = valueParam.second,
+        placeholder = { Text(text = contentDescription.third) },
+        maxLines = 1,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyBoardTypeAction.first, imeAction = keyBoardTypeAction.second),
+        keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
+        enabled = enabled,
+        modifier = Modifier
+            .focusRequester(keyboardNavigation.first)
+            .width(320.dp)
+    )
 }
 
 @Preview(name = "Lite Mode Enter Details", showBackground = true, widthDp = 360)
