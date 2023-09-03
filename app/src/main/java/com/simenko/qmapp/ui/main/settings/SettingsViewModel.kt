@@ -1,7 +1,7 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.tasks.Task
+import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
@@ -36,8 +36,9 @@ class SettingsViewModel @Inject constructor(
     val userState: StateFlow<UserState> get() = userRepository.userState
     val userLocalData: Principle get() = userRepository.user
 
-    fun clearLoadingState() {
-        _mainActivityViewModel.updateLoadingState(Pair(false, null))
+    fun clearLoadingState(error: String? = null) {
+        _mainActivityViewModel.updateLoadingState(Pair(false, error))
+        userRepository.clearErrorMessage()
     }
 
     fun logout() {
@@ -50,13 +51,13 @@ class SettingsViewModel @Inject constructor(
         userRepository.deleteAccount(userEmail, password)
     }
 
-    fun getUserData() {
+    fun updateUserData() {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
-        userRepository.getUserData()
+        userRepository.updateUserData()
     }
 
-    fun updateUserCompleteData() {
+    fun editUserData() {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
-        userRepository.updateUserCompleteData()
+        userRepository.editUserData()
     }
 }

@@ -353,10 +353,11 @@ class UserRepository @Inject constructor(
         }
     }
 
-    fun getUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
+    fun updateUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                _userState.value = UserLoggedInState(result.result.toString())
+                user.storeUserData(result.result)
+                _userState.value = UserLoggedInState()
             } else {
                 val e = result.exception
                 if (e is FirebaseFunctionsException) {
@@ -367,10 +368,11 @@ class UserRepository @Inject constructor(
             }
         }
 
-    fun updateUserCompleteData() = this.callFirebaseFunction(fbFunction = "updateUserData")
+    fun editUserData() = this.callFirebaseFunction(fbFunction = "updateUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
-                _userState.value = UserLoggedInState(result.result.toString())
+                user.storeUserData(result.result)
+                _userState.value = UserLoggedInState()
             } else {
                 val e = result.exception
                 if (e is FirebaseFunctionsException) {
@@ -397,7 +399,7 @@ object UnregisteredState : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
 data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
 data class UserLoggedOutState(val msg: String = "") : UserState()
-data class UserLoggedInState(val msg: String) : UserState()
+data class UserLoggedInState(val msg: String = "State on (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
 data class UserErrorState(val error: String?) : UserState()
 
 enum class UserError(val error: String) {

@@ -199,10 +199,7 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxHeight()
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            DrawerHeader(
-                                logo = painterResource(id = R.drawable.ic_launcher_round),
-                                userInfo = userRepository.user
-                            )
+                            DrawerHeader(userInfo = viewModel.userInfo)
                             DrawerBody(
                                 selectedItemId = selectedDrawerMenuItemId,
                                 onDrawerItemClick = { onDrawerItemClick(it) }
@@ -292,13 +289,7 @@ class MainActivity : ComponentActivity() {
                                         Screen.Main.Employees.route -> teamModel.updateEmployeesData()
                                         Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
                                         Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
-
-                                        Screen.Main.Settings.route -> scope.launch {
-                                            viewModel.updateLoadingState(Pair(true, null))
-                                            delay(3000)
-                                            viewModel.updateLoadingState(Pair(false, "Some test error!"))
-                                        }
-
+                                        Screen.Main.Settings.route -> settingsModel.updateUserData()
                                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                     }
                                 }

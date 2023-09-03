@@ -71,6 +71,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -230,10 +231,7 @@ fun AppBar(
 }
 
 @Composable
-fun DrawerHeader(
-    logo: Painter,
-    userInfo: Principle,
-) {
+fun DrawerHeader(userInfo: Principle) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -247,10 +245,10 @@ fun DrawerHeader(
             modifier = Modifier.padding(all = 10.dp)
         ) {
             Image(
-                painter = logo,
+                painter = painterResource(id = userInfo.logo),
                 contentDescription = null,
                 contentScale = ContentScale.FillHeight,
-                modifier = Modifier.height(56.dp)
+                modifier = Modifier.height(79.dp)
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -454,7 +452,8 @@ data class MenuItem(
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) } ?: navigationAndActionItems[4]
+            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) }
+                ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
@@ -482,8 +481,20 @@ private val navigationAndActionItems = listOf(
     MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem(Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    MenuItem(
+        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str),
+        "All investigations",
+        "All investigations",
+        Icons.Filled.SquareFoot,
+        MenuItem.MenuGroup.QUALITY
+    ),
+    MenuItem(
+        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str),
+        "Process control",
+        "Process control",
+        Icons.Filled.Checklist,
+        MenuItem.MenuGroup.QUALITY
+    ),
     MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
     MenuItem(Screen.Main.Settings.route, "Settings", "Settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
