@@ -59,11 +59,11 @@ fun LogIn() {
     LaunchedEffect(userState) {
         userState.let { state ->
             if (state is UserErrorState) {
-                msg = ""
+                msg = UserError.NO_ERROR.error
                 error = state.error ?: "Unknown error"
             } else if (state is UserLoggedOutState) {
                 msg = state.msg
-                error = ""
+                error = UserError.NO_ERROR.error
             }
             viewModel.updateLoadingState(Pair(false, null))
         }
@@ -73,7 +73,7 @@ fun LogIn() {
     val (focusRequesterPassword) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(Unit) {
         if (principle.email.isNotEmpty()) focusRequesterPassword.requestFocus() else focusRequesterEmail.requestFocus()
     }
 
@@ -102,7 +102,7 @@ fun LogIn() {
         RecordFieldItem(
             valueParam = Triple(principle.password, principleErrors.passwordError) {
                 viewModel.setPassword(it)
-                error = ""
+                error = UserError.NO_ERROR.error
             },
             keyboardNavigation = Pair(focusRequesterPassword) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Password, ImeAction.Done),
@@ -119,7 +119,7 @@ fun LogIn() {
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
-        if (error != "")
+        if (error != UserError.NO_ERROR.error)
             Text(
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
@@ -127,7 +127,7 @@ fun LogIn() {
                     .padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
-        else if (msg != "")
+        else if (msg != UserError.NO_ERROR.error)
             Text(
                 text = msg,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
@@ -147,7 +147,7 @@ fun LogIn() {
             text = "Reset password",
             onClick = { viewModel.sendResetPasswordEmail(principle.email) },
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
-            enabled = msg == UserError.NO_ERROR.error
+            enabled = msg == UserError.NO_ERROR.error && !(error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
         )
         if (error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
             RecordActionTextBtn(

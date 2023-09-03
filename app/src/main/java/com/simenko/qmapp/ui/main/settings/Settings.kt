@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.settings
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,13 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
@@ -43,11 +39,12 @@ import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.dialogs.ApproveAction
+import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 
 @Composable
 fun Settings(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     val settingsModel: SettingsViewModel = hiltViewModel()
     val userState by settingsModel.userState.collectAsStateWithLifecycle()
@@ -130,59 +127,26 @@ fun Settings(
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
-        TextButton(
-            modifier = Modifier.width(150.dp),
+        RecordActionTextBtn(
+            text = "Logout",
             onClick = { settingsModel.logout() },
-            content = {
-                Text(
-                    text = "Logout",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp),
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
-        TextButton(
-            modifier = Modifier.width(150.dp),
+        RecordActionTextBtn(
+            text = "Edit user data",
             onClick = { settingsModel.editUserData() },
-            content = {
-                Text(
-                    text = "Edit user data",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                )
-            },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            shape = MaterialTheme.shapes.medium
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
-        TextButton(
-            modifier = Modifier.width(150.dp),
-            onClick = {
-                settingsModel.showActionApproveDialog()
-            },
-            content = {
-                Text(
-                    text = "Delete account",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(all = 0.dp)
-                )
-            },
-            colors = ButtonDefaults.textButtonColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-                contentColor = MaterialTheme.colorScheme.error
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onErrorContainer),
-            shape = MaterialTheme.shapes.medium
+        RecordActionTextBtn(
+            text = "Delete account",
+            onClick = { settingsModel.showActionApproveDialog() },
+            colors = Pair(
+                ButtonDefaults.textButtonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                MaterialTheme.colorScheme.onErrorContainer
+            )
         )
     }
 

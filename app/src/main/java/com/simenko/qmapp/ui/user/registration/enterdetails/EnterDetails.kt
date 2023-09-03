@@ -56,6 +56,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -168,7 +169,7 @@ fun EnterDetails(
         RecordFieldItem(
             valueParam = Triple(rawPrinciple.password, rawPrincipleErrors.passwordError) {
                 viewModel.setPassword(it)
-                error = ""
+                error = UserError.NO_ERROR.error
             },
             keyboardNavigation = Pair(focusRequesterPassword) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Password, ImeAction.Done),
@@ -185,7 +186,7 @@ fun EnterDetails(
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
-        if (error != "")
+        if (error != UserError.NO_ERROR.error)
             Text(
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),

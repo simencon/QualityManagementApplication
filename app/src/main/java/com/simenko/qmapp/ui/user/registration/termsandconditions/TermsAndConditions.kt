@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -31,12 +32,13 @@ import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
+import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 
 @Composable
 fun TermsAndConditions(
     regModel: RegistrationViewModel,
     user: String? = null,
-    onDismiss: ()-> Unit,
+    onDismiss: () -> Unit,
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
@@ -91,7 +93,7 @@ fun TermsAndConditions(
                     .padding(all = 5.dp)
             )
             Spacer(modifier = Modifier.height(20.dp))
-            if (error != "")
+            if (error != UserError.NO_ERROR.error)
                 Text(
                     text = error,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
@@ -100,24 +102,10 @@ fun TermsAndConditions(
                     textAlign = TextAlign.Center
                 )
             Spacer(modifier = Modifier.height(10.dp))
-            TextButton(
-                modifier = Modifier.width(150.dp),
-                onClick = {
-                    regModel.acceptTCs()
-                    regModel.registerUser()
-                },
-                content = {
-                    Text(
-                        text = "Register",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 20.dp, end = 20.dp, bottom = 0.dp),
-                    )
-                },
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-                shape = MaterialTheme.shapes.medium
+            RecordActionTextBtn(
+                text = "Register",
+                onClick = { regModel.registerUser() },
+                colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
         }
 
