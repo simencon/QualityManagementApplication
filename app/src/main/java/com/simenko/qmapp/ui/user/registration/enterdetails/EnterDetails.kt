@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Work
@@ -38,11 +39,16 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -91,6 +97,7 @@ fun EnterDetails(
     val (focusRequesterSubDepartment) = FocusRequester.createRefs()
     val (focusRequesterJobRole) = FocusRequester.createRefs()
     val (focusRequesterEmail) = FocusRequester.createRefs()
+    val (focusRequesterPhoneNumber) = FocusRequester.createRefs()
     val (focusRequesterPassword) = FocusRequester.createRefs()
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -117,141 +124,68 @@ fun EnterDetails(
                 .padding(all = 0.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
-        TextField(
-            value = rawPrinciple.fullName,
-            onValueChange = {
-                viewModel.setFullName(it)
-            },
-            leadingIcon = {
-                val tint = if (rawPrincipleErrors.fullNameError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Person, contentDescription = "fullName", tint = tint)
-            },
-            label = { Text("Full name *") },
-            isError = rawPrincipleErrors.fullNameError,
-            placeholder = { Text(text = "Enter your name and surname") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterDepartment.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterUserName)
-                .width(320.dp)
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.fullName, rawPrincipleErrors.fullNameError) { viewModel.setFullName(it) },
+            keyboardNavigation = Pair(focusRequesterUserName) { focusRequesterDepartment.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Person, "Full name", "Enter your name and surname")
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = rawPrinciple.department,
-            onValueChange = {
-                viewModel.setDepartment(it)
-            },
-            leadingIcon = {
-                val tint = if (rawPrincipleErrors.departmentError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.AccountBalance, contentDescription = "department", tint = tint)
-            },
-            label = { Text("Department *") },
-            isError = rawPrincipleErrors.departmentError,
-            placeholder = { Text(text = "Enter your department") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterSubDepartment.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterDepartment)
-                .width(320.dp)
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.department, rawPrincipleErrors.departmentError) { viewModel.setDepartment(it) },
+            keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterSubDepartment.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.AccountBalance, "Department", "Enter your department")
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = rawPrinciple.subDepartment ?: "",
-            onValueChange = { viewModel.setSubDepartment(it) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.AccountTree,
-                    contentDescription = "subDepartment",
-                    tint = MaterialTheme.colorScheme.surfaceTint
-                )
-            },
-            label = { Text("Sub department") },
-            placeholder = { Text(text = "Enter only if applicable", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterJobRole.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterSubDepartment)
-                .width(320.dp)
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.subDepartment ?: "", false) { viewModel.setSubDepartment(it) },
+            keyboardNavigation = Pair(focusRequesterSubDepartment) { focusRequesterJobRole.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.AccountTree, "Sub department", "Enter only if applicable"),
+            isMandatoryField = false
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = rawPrinciple.jobRole,
-            onValueChange = {
-                viewModel.setJobRole(it)
-            },
-            leadingIcon = {
-                val tint = if (rawPrincipleErrors.jobRoleError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Work, contentDescription = "jobRole", tint = tint)
-            },
-            label = { Text("Job role *") },
-            isError = rawPrincipleErrors.jobRoleError,
-            placeholder = { Text(text = "Enter your job role / position") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterEmail.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterJobRole)
-                .width(320.dp)
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.jobRole, rawPrincipleErrors.jobRoleError) { viewModel.setJobRole(it) },
+            keyboardNavigation = Pair(focusRequesterJobRole) { focusRequesterEmail.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter your job role / position")
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = rawPrinciple.email,
-            onValueChange = { viewModel.setEmail(it) },
-            leadingIcon = {
-                val tint = if (rawPrincipleErrors.emailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Mail, contentDescription = "email", tint = tint)
-            },
-            label = { Text("Email *") },
-            isError = rawPrincipleErrors.emailError,
-            placeholder = { Text(text = "Enter your email") },
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-            keyboardActions = KeyboardActions(onNext = { focusRequesterPassword.requestFocus() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterEmail)
-                .width(320.dp)
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.email, rawPrincipleErrors.emailError) { viewModel.setEmail(it) },
+            keyboardNavigation = Pair(focusRequesterEmail) { focusRequesterPhoneNumber.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Mail, "Email", "Enter your email")
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = rawPrinciple.password,
-            onValueChange = {
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.phoneNumber.phoneNumberToString(), false) { viewModel.setPhoneNumber(it.stringToPhoneNumber()) },
+            keyboardNavigation = Pair(focusRequesterPhoneNumber) { focusRequesterPassword.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Phone, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Phone, "Phone number", "Enter your phone number"),
+            isMandatoryField = false,
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        RecordFieldItem(
+            valueParam = Triple(rawPrinciple.password, rawPrincipleErrors.passwordError) {
                 viewModel.setPassword(it)
                 error = ""
             },
-            leadingIcon = {
-                val tint = if (rawPrincipleErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = Icons.Default.Lock, contentDescription = "password", tint = tint)
-            },
-            label = { Text("Password *") },
-            placeholder = { Text(text = "Enter your password") },
+            keyboardNavigation = Pair(focusRequesterPassword) { keyboardController?.hide() },
+            keyBoardTypeAction = Pair(KeyboardType.Password, ImeAction.Done),
+            contentDescription = Triple(Icons.Default.Lock, "Password", "Enter your password"),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-
-                val description = if (passwordVisible) "Hide password" else "Show password"
-
-                val tint = if (rawPrincipleErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = image, description, tint = tint)
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        tint = if (rawPrincipleErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                    )
                 }
-            },
-            isError = rawPrincipleErrors.passwordError,
-            maxLines = 1,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier
-                .focusRequester(focusRequesterPassword)
-                .width(320.dp)
+            }
         )
         Spacer(modifier = Modifier.height(10.dp))
         if (error != "")
@@ -313,7 +247,9 @@ fun RecordFieldItem(
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
     contentDescription: Triple<ImageVector, String, String>,
     isMandatoryField: Boolean = true,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     TextField(
         value = valueParam.first,
@@ -322,14 +258,16 @@ fun RecordFieldItem(
             val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
             Icon(imageVector = contentDescription.first, contentDescription = contentDescription.second, tint = tint)
         },
-        label = { Text("${contentDescription.second} + ${if (isMandatoryField) " *" else ""}") },
+        label = { Text(text = "${contentDescription.second}${if (isMandatoryField) " *" else ""}") },
         isError = valueParam.second,
-        placeholder = { Text(text = contentDescription.third) },
+        placeholder = { Text(text = "${contentDescription.third}${if (isMandatoryField) " *" else ""}") },
         maxLines = 1,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyBoardTypeAction.first, imeAction = keyBoardTypeAction.second),
         keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
         enabled = enabled,
+        trailingIcon = trailingIcon,
+        visualTransformation = visualTransformation,
         modifier = Modifier
             .focusRequester(keyboardNavigation.first)
             .width(320.dp)
