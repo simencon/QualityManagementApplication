@@ -1,6 +1,8 @@
 package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.storage.Storage
@@ -92,6 +94,22 @@ class EnterDetailsViewModel @Inject constructor(
         else _enterDetailsState.value = Event(EnterDetailsSuccess)
     }
 }
+
+fun Long.phoneNumberToString(): String = if (this == NoRecord.num.toLong()) "" else this.toString()
+
+
+fun String.stringToPhoneNumber(): Long {
+    var filtered = this.filter { it.isDigit() }
+    if (filtered.length > 18) {
+        filtered = filtered.dropLast(1)
+    }
+    return if (filtered == EmptyString.str) {
+        NoRecord.num.toLong()
+    } else {
+        filtered.toLong()
+    }
+}
+
 
 data class UserErrors(
     var fullNameError: Boolean = false,

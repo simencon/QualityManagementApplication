@@ -14,6 +14,7 @@ data class Principle(
     var jobRole: String,
     var email: String,
     var phoneNumber: Long,
+    var phoneNumberStr: String = "",
     var restApiUrl: String,
     var password: String,
     var isEmailVerified: Boolean,
