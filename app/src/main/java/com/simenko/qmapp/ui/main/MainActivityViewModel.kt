@@ -21,7 +21,7 @@ class MainActivityViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-    val userInfo get() = userRepository._user
+    val userInfo get() = userRepository.user
 
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress

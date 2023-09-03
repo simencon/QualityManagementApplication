@@ -33,7 +33,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState
-    val userLocalData: Principle get() = userRepository._user
+    val userLocalData: Principle get() = userRepository.user
 
     fun clearLoadingState(error: String? = null) {
         _mainActivityViewModel.updateLoadingState(Pair(false, error))

@@ -204,7 +204,16 @@ class UserRepository @Inject constructor(
                     _user.setUserEmail(email)
                     _userState.value = UserLoggedOutState("Check your email box and set new password")
                 } else {
-                    _userState.value = UserErrorState(task.exception?.message)
+                    when(task.exception) {
+                        is FirebaseAuthInvalidUserException -> {
+                            if (task.exception?.message?.contains("account has been disabled") == true) {
+                                _userState.value = UserErrorState(UserError.ACCOUNT_DISABLED.error)
+                            } else if (task.exception?.message?.contains("user may have been deleted") == true) {
+                                _userState.value = UserErrorState(UserError.USER_NOT_REGISTERED.error)
+                            }
+                        }
+                        else -> _userState.value = UserErrorState(task.exception?.message)
+                    }
                 }
             }
         else

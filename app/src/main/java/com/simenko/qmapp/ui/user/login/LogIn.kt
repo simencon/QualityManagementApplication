@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.user.registration.enterdetails.RecordFieldItem
@@ -60,6 +61,11 @@ fun LogIn() {
         userState.let { state ->
             if (state is UserErrorState) {
                 msg = ""
+                when(state.error) {
+                    UserError.USER_NOT_REGISTERED.error, UserError.ACCOUNT_DISABLED.error -> {
+//                        ToDo show register btn
+                    }
+                }
                 error = state.error ?: "Unknown error"
             } else if (state is UserLoggedOutState) {
                 msg = state.msg
