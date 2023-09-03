@@ -19,7 +19,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -34,18 +33,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.simenko.qmapp.ui.main.settings.SettingsViewModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.ui.theme.*
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ApproveAction(
     modifier: Modifier = Modifier,
-    registrationViewModel: SettingsViewModel,
-    msg: String,
-    derivedPassword: String,
+    actionTitle: String,
     onCanselClick: () -> Unit,
-    onOkClick: (String) -> Unit
+    onOkClick: (String) -> String
 ) {
     var error by rememberSaveable { mutableStateOf("") }
 
@@ -55,12 +52,20 @@ fun ApproveAction(
 
     var enableApprove by rememberSaveable { mutableStateOf(false) }
 
+    val onOkClickLambda = remember {
+        {
+            error = onOkClick(password)
+            if (error != EmptyString.str)
+                passwordError = true
+        }
+    }
+
     val (focusRequesterPassword) = FocusRequester.createRefs()
 
     LaunchedEffect(Unit) { focusRequesterPassword.requestFocus() }
 
     Dialog(
-        onDismissRequest = { registrationViewModel.hideActionApproveDialog() },
+        onDismissRequest = onCanselClick,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -85,7 +90,7 @@ fun ApproveAction(
                         .fillMaxWidth(),
                 )
                 Text(
-                    text = msg,
+                    text = actionTitle,
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp, color = MaterialTheme.colorScheme.primary),
                     textAlign = TextAlign.Center,
                     maxLines = 2,
@@ -142,13 +147,10 @@ fun ApproveAction(
                 ) {
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            registrationViewModel.hideActionApproveDialog()
-                            onCanselClick()
-                        },
+                        onClick = onCanselClick,
                         content = {
                             Text(
-                                "Cansel",
+                                "CANSEL",
                                 fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                                 textAlign = TextAlign.Center
@@ -166,17 +168,10 @@ fun ApproveAction(
                     )
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            if (derivedPassword == password)
-                                onOkClick(password)
-                            else {
-                                passwordError = true
-                                error = "Incorrect password"
-                            }
-                        },
+                        onClick = onOkClickLambda,
                         content = {
                             Text(
-                                "Ok",
+                                "OK",
                                 fontWeight = FontWeight.ExtraBold,
                                 modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                                 textAlign = TextAlign.Center

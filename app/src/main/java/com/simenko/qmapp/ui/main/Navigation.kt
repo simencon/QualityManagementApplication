@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +29,7 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
+import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.utils.StringUtils.getBoolean
@@ -138,16 +138,15 @@ fun Navigation(
         }
 
         composable(route = Screen.Main.Settings.route) {
+            val settingsModel: SettingsViewModel = hiltViewModel()
+            (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
             QMAppTheme {
-                val activity = (LocalContext.current as MainActivity)
                 Settings(
                     modifier = Modifier
                         .padding(all = 0.dp)
                         .fillMaxWidth(),
                     onClick = {
-                        val intent = createLoginActivityIntent(navController.context)
-                        startActivity(navController.context, intent, null)
-                        activity.finish()
+                        startActivity(navController.context, createLoginActivityIntent(navController.context), null)
                     }
                 )
             }

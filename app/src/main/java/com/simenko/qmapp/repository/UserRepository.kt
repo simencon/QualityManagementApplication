@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.IOException
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -393,8 +394,8 @@ class UserRepository @Inject constructor(
 sealed class UserState
 object NoState : UserState()
 object UnregisteredState : UserState()
-data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification") : UserState()
-data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization") : UserState()
+data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
+data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
 data class UserLoggedOutState(val msg: String = "") : UserState()
 data class UserLoggedInState(val msg: String) : UserState()
 data class UserErrorState(val error: String?) : UserState()
