@@ -39,15 +39,13 @@ import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.dialogs.ApproveAction
-import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 
 @Composable
 fun Settings(
     modifier: Modifier = Modifier,
     onLogOut: () -> Unit,
-    onEditUserData: () -> Unit,
-    finishEditUserData: () -> Unit
+    onEditUserData: () -> Unit
 ) {
     val viewModel: SettingsViewModel = hiltViewModel()
     val userState by viewModel.userState.collectAsStateWithLifecycle()
@@ -62,15 +60,9 @@ fun Settings(
                         viewModel.clearLoadingState()
 
                 is UserLoggedOutState, is UnregisteredState, is UserNeedToVerifyEmailState, is UserAuthoritiesNotVerifiedState -> onLogOut()
-                is UserLoggedInState ->
-                    if(viewModel.getAddEditMode() == AddEditMode.ACCOUNT_EDIT.ordinal) {
-                        viewModel.clearLoadingState()
-                        finishEditUserData()
-                    } else {
-                        viewModel.clearLoadingState()
-                    }
-                is NoState -> viewModel.clearLoadingState()
+                is UserLoggedInState, NoState -> viewModel.clearLoadingState()
             }
+            println("Settings $it")
         }
     }
 
@@ -201,8 +193,7 @@ fun SettingsPreview() {
                 .fillMaxWidth()
                 .padding(all = 0.dp),
             onLogOut = {},
-            onEditUserData = {},
-            finishEditUserData = {},
+            onEditUserData = {}
         )
     }
 }
