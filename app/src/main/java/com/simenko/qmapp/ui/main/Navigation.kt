@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -24,8 +27,6 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.CurrentSubOrderIdKey
-import com.simenko.qmapp.domain.EditUserDataKey
-import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.ToProcessControlScreen
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SubOrderAddEditModeKey
@@ -153,26 +154,14 @@ fun Navigation(
 
         navigation(
             route = Screen.Main.Settings.route,
-            startDestination = Screen.Main.Settings.UserDetails.route + "/${FalseStr.str}"
+            startDestination = Screen.Main.Settings.UserDetails.route
         ) {
-            composable(
-                route = Screen.Main.Settings.UserDetails.route + "/{${EditUserDataKey.str}}",
-                arguments = listOf(
-                    navArgument(EditUserDataKey.str) {
-                        type = NavType.BoolType
-                        defaultValue = false
-                    }
-                )
-            ) {
+            composable(route = Screen.Main.Settings.UserDetails.route) {
                 val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
                 val settingsModel: SettingsViewModel = hiltViewModel()
                 (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
                 settingsModel.initUserDetailsModel(userDetailsModel)
 
-                if (it.arguments?.getBoolean(EditUserDataKey.str) == true && settingsModel.getAddEditMode() != AddEditMode.NO_MODE.ordinal) {
-                    settingsModel.setAddEditMode(AddEditMode.NO_MODE)
-                    settingsModel.editUserData()
-                }
                 QMAppTheme {
                     Settings(
                         modifier = Modifier
@@ -211,7 +200,8 @@ fun Navigation(
                         EnterDetails(
                             navController = navController,
                             editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false,
-                            userDetailsModel = userDetailsModel
+                            userDetailsModel = userDetailsModel,
+                            settingsViewModel = settingsViewModel
                         )
                     }
                 }
