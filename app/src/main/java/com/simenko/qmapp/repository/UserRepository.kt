@@ -30,9 +30,9 @@ class UserRepository @Inject constructor(
 ) {
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
     val userState: StateFlow<UserState> get() = _userState
+    var rawUser: Principle? = null
     private val _user: Principle get() = Principle(storage)
     val user: Principle get() = _user
-
     fun clearErrorMessage() {
         _userState.value = UserErrorState(UserError.NO_ERROR.error)
     }
@@ -378,7 +378,7 @@ class UserRepository @Inject constructor(
             }
         }
 
-    fun editUserData() = this.callFirebaseFunction(fbFunction = "updateUserData")
+    fun editUserData(principle: Principle) = this.callFirebaseFunction(principle, "updateUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
                 _user.storeUserData(result.result)

@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -60,20 +59,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.AddEditMode
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
     navController: NavHostController = rememberNavController(),
-    editMode: Boolean
+    editMode: Boolean,
+    userDetailsModel: EnterDetailsViewModel? = null
 ) {
-    val regModel: RegistrationViewModel = hiltViewModel()
-    val viewModel: EnterDetailsViewModel = hiltViewModel()
+    val viewModel: EnterDetailsViewModel = userDetailsModel.let {
+        it ?: hiltViewModel()
+    }
 
     val stateEvent by viewModel.enterDetailsState.collectAsStateWithLifecycle()
 
@@ -84,12 +84,16 @@ fun EnterDetails(
 
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
+    stateEvent.let { state ->
         when (state) {
-            is EnterDetailsSuccess -> {
-                regModel.initPrincipleToRegister(rawPrinciple)
-                navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
-            }
+            is EnterDetailsSuccess ->
+                if (!editMode) {
+                    viewModel.initRawUser()
+                    navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
+                } else {
+                    viewModel.initRawUser()
+                    navController.navigate(Screen.Main.Settings.UserDetails.withArgs(TrueStr.str)) { popUpTo(Screen.Main.Settings.route) }
+                }
 
             is EnterDetailsError -> error = state.errorMsg
             is EnterDetailsInitialState -> {}
@@ -106,10 +110,7 @@ fun EnterDetails(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(Unit) {
-        focusRequesterUserName.requestFocus()
-        if (editMode) regModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
-    }
+    LaunchedEffect(Unit) { focusRequesterUserName.requestFocus() }
 
     val columnState = rememberScrollState()
 
@@ -223,26 +224,26 @@ fun EnterDetails(
                 onClick = { viewModel.validateInput(rawPrinciple) },
                 colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
-        else
-            Row {
-                RecordActionTextBtn(
-                    text = "CANSEL",
-                    onClick = { },
-                    colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                RecordActionTextBtn(
-                    text = "SAVE",
-                    onClick = { },
-                    colors = Pair(
-                        ButtonDefaults.textButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        ),
-                        MaterialTheme.colorScheme.primary
-                    ),
-                )
-            }
+//        else
+//            Row {
+//                RecordActionTextBtn(
+//                    text = "CANSEL",
+//                    onClick = { },
+//                    colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
+//                )
+//                Spacer(modifier = Modifier.width(20.dp))
+//                RecordActionTextBtn(
+//                    text = "SAVE",
+//                    onClick = { },
+//                    colors = Pair(
+//                        ButtonDefaults.textButtonColors(
+//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+//                            contentColor = MaterialTheme.colorScheme.primary
+//                        ),
+//                        MaterialTheme.colorScheme.primary
+//                    ),
+//                )
+//            }
         if (!editMode)
             RecordActionTextBtn(
                 text = "Log in",

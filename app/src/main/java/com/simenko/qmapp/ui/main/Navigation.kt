@@ -4,8 +4,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,8 +21,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.CurrentSubOrderIdKey
+import com.simenko.qmapp.domain.EditUserDataKey
+import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.ToProcessControlScreen
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SubOrderAddEditModeKey
@@ -36,10 +41,11 @@ import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
+import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
+import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import com.simenko.qmapp.utils.StringUtils.getBoolean
 
 @Composable
@@ -145,45 +151,69 @@ fun Navigation(
             }
         }
 
-        composable(route = Screen.Main.Settings.route) {
-            val settingsModel: SettingsViewModel = hiltViewModel()
-            (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
-            QMAppTheme {
-                Settings(
-                    modifier = Modifier
-                        .padding(all = 0.dp)
-                        .fillMaxWidth(),
-                    onClick = { startActivity(navController.context, createLoginActivityIntent(navController.context), null) },
-                    onEditUserData = {navController.navigate(Screen.LoggedOut.Registration.EnterDetails.withArgs(TrueStr.str))}
-                )
-            }
-        }
-
-        composable(
-            route = Screen.LoggedOut.Registration.EnterDetails.route +"/{${UserEditModeKey.str}}",
-            arguments = listOf(
-                navArgument(UserEditModeKey.str) {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
+        navigation(
+            route = Screen.Main.Settings.route,
+            startDestination = Screen.Main.Settings.UserDetails.route + "/${FalseStr.str}"
         ) {
-            val regModel: RegistrationViewModel = hiltViewModel()
-            (LocalContext.current as MainActivity).initRegModel(regModel)
-            BackHandler {
-                navController.popBackStack()
-                regModel.setAddEditMode(AddEditMode.NO_MODE)
-            }
-            QMAppTheme {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    EnterDetails(
-                        navController = navController,
-                        editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false
+            composable(
+                route = Screen.Main.Settings.UserDetails.route + "/{${EditUserDataKey.str}}",
+                arguments = listOf(
+                    navArgument(EditUserDataKey.str) {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) {
+                val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
+                val settingsModel: SettingsViewModel = hiltViewModel()
+                (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
+                settingsModel.initUserDetailsModel(userDetailsModel)
+
+                if(it.arguments?.getBoolean(EditUserDataKey.str) == true) {
+                    settingsModel.editUserData()
+                }
+                QMAppTheme {
+                    Settings(
+                        modifier = Modifier
+                            .padding(all = 0.dp)
+                            .fillMaxWidth(),
+                        onLogOut = { startActivity(navController.context, createLoginActivityIntent(navController.context), null) },
+                        onEditUserData = {
+                            settingsModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
+                            navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str))
+                        },
+                        finishEditUserData = { navController.popBackStack() }
                     )
+                }
+            }
+            composable(
+                route = Screen.Main.Settings.EditUserDetails.route + "/{${UserEditModeKey.str}}",
+                arguments = listOf(
+                    navArgument(UserEditModeKey.str) {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) {
+                val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
+                val userDetailsModel: EnterDetailsViewModel = it.sharedViewModel(navController = navController)
+                BackHandler {
+                    navController.popBackStack()
+                    settingsViewModel.setAddEditMode(AddEditMode.NO_MODE)
+                }
+                QMAppTheme {
+                    Column(
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        EnterDetails(
+                            navController = navController,
+                            editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false,
+                            userDetailsModel = userDetailsModel
+                        )
+                    }
                 }
             }
         }

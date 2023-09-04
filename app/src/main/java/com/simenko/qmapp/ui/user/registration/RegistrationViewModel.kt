@@ -25,33 +25,12 @@ class RegistrationViewModel @Inject constructor(
         _userViewModel.updateLoadingState(state)
     }
 
-    private lateinit var _mainViewModel: MainActivityViewModel
-    fun initMainViewModel(model: MainActivityViewModel) {
-        _mainViewModel = model
-    }
-
-    fun updateMeinLoadingState(state: Pair<Boolean, String?>) {
-        _mainViewModel.updateLoadingState(state)
-    }
-
-    fun setAddEditMode(value: AddEditMode) {
-        _mainViewModel.setAddEditMode(value)
-    }
-
     val userState: StateFlow<UserState> get() = _userViewModel.userState
 
-    private var _principleToRegister: Principle? = null
-
-    private var _acceptedTCs: Boolean? = null
-
-    fun initPrincipleToRegister(principle: Principle) {
-        _principleToRegister = principle
-    }
-
     fun registerUser() {
-        assert(_principleToRegister != null)
+        assert(userRepository.rawUser != null)
         _userViewModel.updateLoadingState(Pair(true, null))
-        userRepository.registerUser(_principleToRegister!!)
+        userRepository.registerUser(userRepository.rawUser!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)

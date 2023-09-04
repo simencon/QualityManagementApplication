@@ -40,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,7 +54,6 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
@@ -69,12 +67,10 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
@@ -105,7 +101,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
-    private lateinit var regModel: RegistrationViewModel
 
     private lateinit var navController: NavHostController
 
@@ -231,7 +226,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             floatingActionButton = {
-                                if (selectedDrawerMenuItemId != Screen.Main.Settings.route)
+                                if (selectedDrawerMenuItemId != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = {
@@ -261,6 +256,7 @@ class MainActivity : ComponentActivity() {
                                                     AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, false)
                                                     AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
                                                     AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
+                                                    AddEditMode.ACCOUNT_EDIT -> settingsModel.validateInput()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
@@ -390,11 +386,6 @@ class MainActivity : ComponentActivity() {
         this.newOrderModel = model
         this.newOrderModel.initMainActivityViewModel(this.viewModel)
         this.newOrderModel.initNavController(this.navController)
-    }
-
-    fun initRegModel(model: RegistrationViewModel) {
-        this.regModel = model
-        this.regModel.initMainViewModel(this.viewModel)
     }
 }
 
