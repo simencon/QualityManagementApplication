@@ -31,7 +31,10 @@ sealed class Screen(val route: String) {
         object OrderAddEdit : Screen("order_add_edit")
         object SubOrderAddEdit : Screen("sub_order_add_edit")
         object ScrapLevel : Screen("scrap_level")
-        object Settings : Screen("settings")
+        object Settings : Screen("settings") {
+            object UserDetails : Screen("user_details")
+            object EditUserDetails : Screen("edit_user_details")
+        }
     }
 
     fun withArgs(vararg args: String) = buildString {

@@ -39,39 +39,48 @@ import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.dialogs.ApproveAction
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 
 @Composable
 fun Settings(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    onEditUserData: () -> Unit
+    onLogOut: () -> Unit,
+    onEditUserData: () -> Unit,
+    finishEditUserData: () -> Unit
 ) {
-    val settingsModel: SettingsViewModel = hiltViewModel()
-    val userState by settingsModel.userState.collectAsStateWithLifecycle()
+    val viewModel: SettingsViewModel = hiltViewModel()
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     LaunchedEffect(userState) {
         userState.let {
             when (it) {
                 is UserErrorState ->
                     if (it.error != UserError.NO_ERROR.error)
-                        settingsModel.clearLoadingState(it.error ?: UserError.UNKNOWN_ERROR.error)
+                        viewModel.clearLoadingState(it.error ?: UserError.UNKNOWN_ERROR.error)
                     else
-                        settingsModel.clearLoadingState()
+                        viewModel.clearLoadingState()
 
-                is UserLoggedOutState, is UnregisteredState, is UserNeedToVerifyEmailState, is UserAuthoritiesNotVerifiedState -> onClick()
-                is UserLoggedInState, is NoState -> settingsModel.clearLoadingState()
+                is UserLoggedOutState, is UnregisteredState, is UserNeedToVerifyEmailState, is UserAuthoritiesNotVerifiedState -> onLogOut()
+                is UserLoggedInState ->
+                    if(viewModel.getAddEditMode() == AddEditMode.ACCOUNT_EDIT.ordinal) {
+                        viewModel.clearLoadingState()
+                        finishEditUserData()
+                    } else {
+                        viewModel.clearLoadingState()
+                    }
+                is NoState -> viewModel.clearLoadingState()
             }
         }
     }
 
-    val approveActionDialogVisibility by settingsModel.isApproveActionVisible.collectAsStateWithLifecycle()
+    val approveActionDialogVisibility by viewModel.isApproveActionVisible.collectAsStateWithLifecycle()
 
-    val onDenyLambda = remember { { settingsModel.hideActionApproveDialog() } }
+    val onDenyLambda = remember { { viewModel.hideActionApproveDialog() } }
     val onApproveLambda = remember<(String) -> String> {
         {
-            if (it == settingsModel.userLocalData.password) {
-                settingsModel.deleteAccount(settingsModel.userLocalData.email, it)
+            if (it == viewModel.userLocalData.password) {
+                viewModel.deleteAccount(viewModel.userLocalData.email, it)
                 EmptyString.str
             } else {
                 UserError.WRONG_PASSWORD.error
@@ -91,14 +100,14 @@ fun Settings(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         Image(
-            painter = painterResource(settingsModel.userLocalData.logo),
+            painter = painterResource(viewModel.userLocalData.logo),
             contentDescription = null,
             contentScale = ContentScale.FillHeight,
             modifier = Modifier.height(112.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = settingsModel.userLocalData.fullName,
+            text = viewModel.userLocalData.fullName,
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -112,25 +121,25 @@ fun Settings(
             modifier = Modifier
                 .padding(all = 0.dp)
         ) {
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = settingsModel.userLocalData.jobRole)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = viewModel.userLocalData.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Department",
-                body = settingsModel.userLocalData.department +
-                        if (settingsModel.userLocalData.subDepartment == EmptyString.str) "" else "/${settingsModel.userLocalData.subDepartment}"
+                body = viewModel.userLocalData.department +
+                        if (viewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${viewModel.userLocalData.subDepartment}"
             )
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = settingsModel.userLocalData.company)
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = settingsModel.userLocalData.email)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = viewModel.userLocalData.company)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = viewModel.userLocalData.email)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Phone number",
-                body = if (settingsModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else settingsModel.userLocalData.phoneNumber.toString()
+                body = if (viewModel.userLocalData.phoneNumber == NoRecord.num.toLong()) "-" else viewModel.userLocalData.phoneNumber.toString()
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
         RecordActionTextBtn(
             text = "Logout",
-            onClick = { settingsModel.logout() },
+            onClick = { viewModel.logout() },
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
         RecordActionTextBtn(
@@ -140,7 +149,7 @@ fun Settings(
         )
         RecordActionTextBtn(
             text = "Delete account",
-            onClick = { settingsModel.showActionApproveDialog() },
+            onClick = { viewModel.showActionApproveDialog() },
             colors = Pair(
                 ButtonDefaults.textButtonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -153,7 +162,7 @@ fun Settings(
 
     if (approveActionDialogVisibility) {
         ApproveAction(
-            actionTitle = "Are you sure you want to delete your account: ${settingsModel.userLocalData.email}?",
+            actionTitle = "Are you sure you want to delete your account: ${viewModel.userLocalData.email}?",
             onCanselClick = { onDenyLambda() },
             onOkClick = { password -> onApproveLambda(password) }
         )
@@ -191,8 +200,9 @@ fun SettingsPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 0.dp),
-            onClick = {},
-            onEditUserData = {}
+            onLogOut = {},
+            onEditUserData = {},
+            finishEditUserData = {},
         )
     }
 }

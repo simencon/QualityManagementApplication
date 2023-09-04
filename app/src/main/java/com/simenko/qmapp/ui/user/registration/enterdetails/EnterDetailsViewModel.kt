@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.user.registration.enterdetails
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +19,8 @@ private const val MIN_LENGTH = 6
 @HiltViewModel
 class EnterDetailsViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
 
-    private val _enterDetailsState = MutableStateFlow<Event<EnterDetailsViewState>>(Event(EnterDetailsInitialState))
-    val enterDetailsState: StateFlow<Event<EnterDetailsViewState>> get() = _enterDetailsState
+    private val _enterDetailsState = MutableStateFlow<EnterDetailsViewState>(EnterDetailsInitialState)
+    val enterDetailsState: StateFlow<EnterDetailsViewState> get() = _enterDetailsState
 
     private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
     private var _rawPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
@@ -61,7 +60,7 @@ class EnterDetailsViewModel @Inject constructor(private val userRepository: User
         _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(passwordError = false)
     }
 
-    fun validateInput(principle: Principle) {
+    fun validateInput(principle: Principle = _rawPrinciple.value) {
         val errorMsg = buildString {
             if (principle.fullName.isEmpty()) {
                 _rawPrincipleErrors.value = _rawPrincipleErrors.value.copy(fullNameError = true)
@@ -88,8 +87,12 @@ class EnterDetailsViewModel @Inject constructor(private val userRepository: User
             }
         }
 
-        if (errorMsg.isNotEmpty()) _enterDetailsState.value = Event(EnterDetailsError(errorMsg))
-        else _enterDetailsState.value = Event(EnterDetailsSuccess)
+        if (errorMsg.isNotEmpty()) _enterDetailsState.value = EnterDetailsError(errorMsg)
+        else _enterDetailsState.value = EnterDetailsSuccess
+    }
+
+    fun initRawUser() {
+        userRepository.rawUser = _rawPrinciple.value
     }
 }
 

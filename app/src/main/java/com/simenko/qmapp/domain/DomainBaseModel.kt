@@ -46,4 +46,6 @@ val CurrentSubOrderIdKey = SelectedString("currentSubOrderId")
 
 val SubOrderAddEditModeKey = SelectedString("subOrderAddEditModeKey")
 
+val EditUserDataKey = SelectedString("editUserData")
 val UserEditModeKey = SelectedString("editMode")
+
