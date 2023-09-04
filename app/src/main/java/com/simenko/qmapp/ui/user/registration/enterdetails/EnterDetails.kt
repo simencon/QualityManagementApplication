@@ -92,7 +92,7 @@ fun EnterDetails(
                     navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
                 } else {
                     viewModel.initRawUser()
-                    navController.navigate(Screen.Main.Settings.UserDetails.withArgs(TrueStr.str)) { popUpTo(Screen.Main.Settings.route) }
+                    navController.navigate(Screen.Main.Settings.UserDetails.withArgs(TrueStr.str)) { popUpTo(Screen.Main.Settings.route) {inclusive = true} }
                 }
 
             is EnterDetailsError -> error = state.errorMsg

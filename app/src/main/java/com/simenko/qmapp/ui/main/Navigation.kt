@@ -169,7 +169,8 @@ fun Navigation(
                 (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
                 settingsModel.initUserDetailsModel(userDetailsModel)
 
-                if(it.arguments?.getBoolean(EditUserDataKey.str) == true) {
+                if (it.arguments?.getBoolean(EditUserDataKey.str) == true && settingsModel.getAddEditMode() != AddEditMode.NO_MODE.ordinal) {
+                    settingsModel.setAddEditMode(AddEditMode.NO_MODE)
                     settingsModel.editUserData()
                 }
                 QMAppTheme {
@@ -181,8 +182,7 @@ fun Navigation(
                         onEditUserData = {
                             settingsModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
                             navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str))
-                        },
-                        finishEditUserData = { navController.popBackStack() }
+                        }
                     )
                 }
             }
