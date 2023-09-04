@@ -62,6 +62,7 @@ import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -69,7 +70,8 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 fun EnterDetails(
     navController: NavHostController = rememberNavController(),
     editMode: Boolean,
-    userDetailsModel: EnterDetailsViewModel? = null
+    userDetailsModel: EnterDetailsViewModel? = null,
+    settingsViewModel: SettingsViewModel? = null
 ) {
     val viewModel: EnterDetailsViewModel = userDetailsModel.let {
         it ?: hiltViewModel()
@@ -92,7 +94,8 @@ fun EnterDetails(
                     navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
                 } else {
                     viewModel.initRawUser()
-                    navController.navigate(Screen.Main.Settings.UserDetails.withArgs(TrueStr.str)) { popUpTo(Screen.Main.Settings.route) {inclusive = true} }
+                    settingsViewModel?.setPerformEditUserData(true)
+//                    navController.popBackStack()
                 }
 
             is EnterDetailsError -> error = state.errorMsg

@@ -69,6 +69,12 @@ class SettingsViewModel @Inject constructor(
         this._userDetailsModel = model
     }
 
+    private val _performEditUserData: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val performEditUserData: StateFlow<Boolean> get() = _performEditUserData
+    fun setPerformEditUserData(value: Boolean) {
+        this._performEditUserData.value = value
+    }
+
     fun validateInput() = _userDetailsModel.validateInput()
 
     fun editUserData() {
