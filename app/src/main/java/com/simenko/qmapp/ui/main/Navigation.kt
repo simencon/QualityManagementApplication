@@ -21,6 +21,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.CurrentOrderIdKey
@@ -157,15 +158,20 @@ fun Navigation(
             composable(route = Screen.Main.Settings.UserDetails.route) {
                 val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
                 val settingsModel: SettingsViewModel = hiltViewModel()
-                (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
+                val activity = (LocalContext.current as MainActivity)
+                activity.initSettingsModel(settingsModel)
                 settingsModel.initUserDetailsModel(userDetailsModel)
                 QMAppTheme {
                     Settings(
                         modifier = Modifier
                             .padding(all = 0.dp)
                             .fillMaxWidth(),
-                        onLogOut = { startActivity(navController.context, createLoginActivityIntent(navController.context), null) },
+                        onLogOut = {
+                            startActivity(navController.context, createLoginActivityIntent(navController.context), null)
+                            activity.finish()
+                        },
                         onEditUserData = {
+                            userDetailsModel.resetToInitialState()
                             settingsModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
                             navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str)) { launchSingleTop = true }
                         }

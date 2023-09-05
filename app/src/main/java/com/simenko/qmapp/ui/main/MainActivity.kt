@@ -149,10 +149,10 @@ class MainActivity : ComponentActivity() {
                     if (id != selectedDrawerMenuItemId) {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
-                            Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) {inclusive = true} }
-                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0){inclusive = true} }
-                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0){inclusive = true} }
-                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0){inclusive = true} }
+                            Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) /*{inclusive = true}*/ }
+                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
+                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true} */}
+                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }

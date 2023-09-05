@@ -28,8 +28,6 @@ class SettingsViewModel @Inject constructor(
         _mainViewModel.setAddEditMode(addEditMode)
     }
 
-    fun getAddEditMode() = _mainViewModel.addEditMode.value
-
     private val _isApproveActionVisible = MutableStateFlow(false)
     val isApproveActionVisible: StateFlow<Boolean> = _isApproveActionVisible
     fun hideActionApproveDialog() {

@@ -20,6 +20,9 @@ private const val MIN_LENGTH = 6
 class EnterDetailsViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
 
     private val _enterDetailsState = MutableStateFlow<EnterDetailsViewState>(EnterDetailsInitialState)
+    fun resetToInitialState() {
+        _enterDetailsState.value = EnterDetailsInitialState
+    }
     val enterDetailsState: StateFlow<EnterDetailsViewState> get() = _enterDetailsState
 
     private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
