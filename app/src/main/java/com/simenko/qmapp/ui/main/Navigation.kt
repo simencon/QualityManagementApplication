@@ -168,7 +168,6 @@ fun Navigation(
                             .fillMaxWidth(),
                         onLogOut = {
                             startActivity(navController.context, createLoginActivityIntent(navController.context), null)
-                            activity.finish()
                         },
                         onEditUserData = {
                             userDetailsModel.resetToInitialState()

@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main
 
 import android.Manifest
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -141,6 +142,10 @@ class MainActivity : ComponentActivity() {
 
                 val searchBarState = rememberSaveable { mutableStateOf(false) }
                 BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
+
+                BackHandler(enabled = !drawerState.isOpen && !searchBarState.value) {
+                    this@MainActivity.moveTaskToBack(true)
+                }
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
 
