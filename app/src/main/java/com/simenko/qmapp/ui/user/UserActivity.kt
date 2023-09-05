@@ -116,7 +116,6 @@ class UserActivity : ComponentActivity() {
 
                             is UserLoggedInState -> {
                                 ContextCompat.startActivity(navController.context, createMainActivityIntent(navController.context), null)
-                                this@UserActivity.finish()
                             }
 
                             is UserErrorState -> {}
