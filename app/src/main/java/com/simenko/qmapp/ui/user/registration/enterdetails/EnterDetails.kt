@@ -59,10 +59,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -71,7 +69,7 @@ fun EnterDetails(
     navController: NavHostController = rememberNavController(),
     editMode: Boolean,
     userDetailsModel: EnterDetailsViewModel? = null,
-    settingsViewModel: SettingsViewModel? = null
+    editUserData: () -> Unit = {}
 ) {
     val viewModel: EnterDetailsViewModel = userDetailsModel.let {
         it ?: hiltViewModel()
@@ -94,10 +92,8 @@ fun EnterDetails(
                     navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
                 } else {
                     viewModel.initRawUser()
-                    settingsViewModel?.setPerformEditUserData(true)
-//                    navController.popBackStack()
+                    editUserData()
                 }
-
             is EnterDetailsError -> error = state.errorMsg
             is EnterDetailsInitialState -> {}
         }
@@ -227,26 +223,6 @@ fun EnterDetails(
                 onClick = { viewModel.validateInput(rawPrinciple) },
                 colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
-//        else
-//            Row {
-//                RecordActionTextBtn(
-//                    text = "CANSEL",
-//                    onClick = { },
-//                    colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
-//                )
-//                Spacer(modifier = Modifier.width(20.dp))
-//                RecordActionTextBtn(
-//                    text = "SAVE",
-//                    onClick = { },
-//                    colors = Pair(
-//                        ButtonDefaults.textButtonColors(
-//                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-//                            contentColor = MaterialTheme.colorScheme.primary
-//                        ),
-//                        MaterialTheme.colorScheme.primary
-//                    ),
-//                )
-//            }
         if (!editMode)
             RecordActionTextBtn(
                 text = "Log in",

@@ -149,10 +149,10 @@ class MainActivity : ComponentActivity() {
                     if (id != selectedDrawerMenuItemId) {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
-                            Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) {inclusive = true} }
+                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0){inclusive = true} }
+                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0){inclusive = true} }
+                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0){inclusive = true} }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }
@@ -220,8 +220,11 @@ class MainActivity : ComponentActivity() {
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = {
+                                        when(addEditMode) {
+                                            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
+                                            else -> navController.popBackStack()
+                                        }
                                         viewModel.setAddEditMode(AddEditMode.NO_MODE)
-                                        navController.popBackStack()
                                     }
                                 )
                             },
@@ -240,8 +243,7 @@ class MainActivity : ComponentActivity() {
 
                                                     Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                                         navController.navigate(
-                                                            Screen.Main.SubOrderAddEdit
-                                                                .withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
+                                                            Screen.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
                                                         )
                                                         viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
                                                     }
@@ -256,7 +258,7 @@ class MainActivity : ComponentActivity() {
                                                     AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, false)
                                                     AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
                                                     AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
-                                                    AddEditMode.ACCOUNT_EDIT -> settingsModel.validateInput()
+                                                    AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
