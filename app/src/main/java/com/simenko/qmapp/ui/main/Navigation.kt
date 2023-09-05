@@ -10,15 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -139,8 +137,8 @@ fun Navigation(
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
             newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditModeKey.str) ?: false)
             BackHandler {
-                navController.popBackStack()
                 newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
+                navController.popBackStack()
             }
             QMAppTheme {
                 SubOrderForm(
@@ -161,7 +159,6 @@ fun Navigation(
                 val settingsModel: SettingsViewModel = hiltViewModel()
                 (LocalContext.current as MainActivity).initSettingsModel(settingsModel)
                 settingsModel.initUserDetailsModel(userDetailsModel)
-
                 QMAppTheme {
                     Settings(
                         modifier = Modifier
@@ -170,7 +167,7 @@ fun Navigation(
                         onLogOut = { startActivity(navController.context, createLoginActivityIntent(navController.context), null) },
                         onEditUserData = {
                             settingsModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
-                            navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str))
+                            navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str)) { launchSingleTop = true }
                         }
                     )
                 }
@@ -186,9 +183,17 @@ fun Navigation(
             ) {
                 val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
                 val userDetailsModel: EnterDetailsViewModel = it.sharedViewModel(navController = navController)
+                settingsViewModel.validateUserData = { userDetailsModel.validateInput() }
                 BackHandler {
-                    navController.popBackStack()
+                    navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
                     settingsViewModel.setAddEditMode(AddEditMode.NO_MODE)
+                }
+                val editUserLambda = remember {
+                    {
+                        navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
+                        settingsViewModel.setAddEditMode(AddEditMode.NO_MODE)
+                        settingsViewModel.editUserData()
+                    }
                 }
                 QMAppTheme {
                     Column(
@@ -201,7 +206,7 @@ fun Navigation(
                             navController = navController,
                             editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false,
                             userDetailsModel = userDetailsModel,
-                            settingsViewModel = settingsViewModel
+                            editUserData = editUserLambda
                         )
                     }
                 }
