@@ -30,7 +30,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserErrorState
@@ -117,6 +116,7 @@ class UserActivity : ComponentActivity() {
 
                             is UserLoggedInState -> {
                                 ContextCompat.startActivity(navController.context, createMainActivityIntent(navController.context), null)
+                                this@UserActivity.finish()
                             }
 
                             is UserErrorState -> {}
