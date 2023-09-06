@@ -46,8 +46,8 @@ fun EmployeeComposition(
     val context = LocalContext.current
     val items by appModel.employees.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda: (Int) -> Unit = { appModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { appModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDetailsLambda: (Int) -> Unit = { appModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { appModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { appModel.deleteRecord(it) } }
     val onClickEditLambda =
         remember<(Int, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }

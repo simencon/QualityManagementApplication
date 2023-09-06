@@ -89,37 +89,53 @@ class TeamViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentTeamMemberVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-    fun setCurrentOrderVisibility(
-        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
-    ) {
-        _currentTeamMemberVisibility.value = _currentTeamMemberVisibility.value.setVisibility(dId, aId)
+    private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    fun setCurrentEmployeeVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _currentEmployeeVisibility.value = _currentEmployeeVisibility.value.setVisibility(dId, aId)
     }
 
-    val employees: StateFlow<List<DomainTeamMemberComplete>> =
-        _employees.flatMapLatest { team ->
-            _currentTeamMemberVisibility.flatMapLatest { visibility ->
-                val cpy = mutableListOf<DomainTeamMemberComplete>()
-                team.forEach {
-                    cpy.add(
-                        it.copy(
-                            detailsVisibility = it.teamMember.id == visibility.first.num,
-                            isExpanded = it.teamMember.id == visibility.second.num
-                        )
+    val employees: StateFlow<List<DomainTeamMemberComplete>> = _employees.flatMapLatest { team ->
+        _currentEmployeeVisibility.flatMapLatest { visibility ->
+            val cpy = mutableListOf<DomainTeamMemberComplete>()
+            team.forEach {
+                cpy.add(
+                    it.copy(
+                        detailsVisibility = it.teamMember.id == visibility.first.num,
+                        isExpanded = it.teamMember.id == visibility.second.num
                     )
-                }
-                flow { emit(cpy) }
+                )
             }
+            flow { emit(cpy) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }
+        .flowOn(Dispatchers.IO)
+        .conflate()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
 
     private val _users: Flow<List<DomainUser>> = systemRepository.usersList()
 
-    val users: StateFlow<List<DomainUser>> = _users.flatMapLatest {
-        flow { emit(it) }
+    /**
+     * Visibility operations
+     * */
+    private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
+    fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
+        _currentUserVisibility.value = _currentUserVisibility.value.setVisibility(dId, aId)
+    }
+
+    val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
+        _currentUserVisibility.flatMapLatest { visibility ->
+            val cpy = mutableListOf<DomainUser>()
+            users.forEach {
+                cpy.add(
+                    it.copy(
+                        detailsVisibility = it.email == visibility.first.str,
+                        isExpanded = it.email == visibility.second.str
+                    )
+                )
+            }
+            flow { emit(cpy) }
+        }
     }.flowOn(Dispatchers.IO)
         .conflate()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -127,6 +143,9 @@ class TeamViewModel @Inject constructor(
     fun updateEmployeesData() = viewModelScope.launch {
         try {
             _mainActivityViewModel.updateLoadingState(Pair(true, null))
+
+            systemRepository.syncUserRoles()
+            systemRepository.syncUsers()
 
             manufacturingRepository.syncCompanies()
             manufacturingRepository.syncDepartments()

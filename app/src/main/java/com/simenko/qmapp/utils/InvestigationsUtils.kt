@@ -87,6 +87,21 @@ object InvestigationsUtils {
                 if (this.second != aId) aId else NoRecord
             )
 
+    fun Pair<SelectedString, SelectedString>.setVisibility(
+        dId: SelectedString,
+        aId: SelectedString
+    ): Pair<SelectedString, SelectedString> =
+        if (dId != NoRecordStr)
+            Pair(
+                if (this.first != dId) dId else NoRecordStr,
+                this.second
+            )
+        else
+            Pair(
+                this.first,
+                if (this.second != aId) aId else NoRecordStr
+            )
+
 
     fun getPeriodToSync(currentState: Pair<Long, Long>, latest: Long, exclude: Long):
             Pair<Long, Long> {
