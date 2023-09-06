@@ -29,7 +29,7 @@ import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
+import com.simenko.qmapp.ui.common.RecordActionTextBtn
 
 @Composable
 fun TermsAndConditions(

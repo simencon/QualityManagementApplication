@@ -517,6 +517,12 @@ enum class InvStatus(val statusId: SelectedNumber) {
     DONE(SelectedNumber(3))
 }
 
+enum class UsersTabs(val tab: SelectedNumber) {
+    UNAUTHORIZED_USERS(NoRecord),
+    AUTHORIZED_USERS(SelectedNumber(1)),
+    EMPLOYEES(SelectedNumber(2))
+}
+
 enum class AddEditMode(val mode: String) {
     NO_MODE("No mode"),
     ADD_ORDER("New investigation order"),
