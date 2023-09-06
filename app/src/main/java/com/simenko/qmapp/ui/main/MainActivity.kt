@@ -15,8 +15,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -30,18 +33,27 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -58,8 +70,10 @@ import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
@@ -68,6 +82,7 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -149,17 +164,44 @@ class MainActivity : ComponentActivity() {
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
 
+                var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
+                val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
+                    { status, tabIndex ->
+                        when(selectedDrawerMenuItemId) {
+                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                invModel.setCurrentOrdersFilter(status = status)
+                            }
+                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                invModel.setCurrentSubOrdersFilter(status = status)
+                            }
+                            Screen.Main.Employees.route -> {}
+                        }
+                        selectedTabIndex = tabIndex
+                    }
+                }
+
                 fun onDrawerItemClick(id: String) {
                     scope.launch { drawerState.close() }
                     if (id != selectedDrawerMenuItemId) {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
                             Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) /*{inclusive = true}*/ }
-                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
-                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true} */}
+                            Screen.Main.Inv.withArgs(
+                                FalseStr.str,
+                                NoRecordStr.str,
+                                NoRecordStr.str
+                            ) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
+
+                            Screen.Main.Inv.withArgs(
+                                TrueStr.str,
+                                NoRecordStr.str,
+                                NoRecordStr.str
+                            ) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true} */ }
+
                             Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
+                        selectedTabIndex = ZeroValue.num
                     }
                 }
 
@@ -225,8 +267,12 @@ class MainActivity : ComponentActivity() {
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = {
-                                        when(addEditMode) {
-                                            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
+                                        when (addEditMode) {
+                                            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(
+                                                Screen.Main.Settings.UserDetails.route,
+                                                inclusive = false
+                                            )
+
                                             else -> navController.popBackStack()
                                         }
                                         viewModel.setAddEditMode(AddEditMode.NO_MODE)
@@ -304,14 +350,17 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .padding(all = 0.dp)
                             ) {
-                                Navigation(
-                                    Modifier
-                                        .padding(it)
-                                        .pullRefresh(pullRefreshState),
-                                    it,
-                                    initialRoute,
-                                    navController
-                                )
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(it)
+                                ) {
+                                    TopTabs(selectedDrawerMenuItemId, selectedTabIndex, onTabSelectedLambda)
+                                    Navigation(
+                                        Modifier.pullRefresh(pullRefreshState),
+                                        initialRoute,
+                                        navController
+                                    )
+                                }
                                 PullRefreshIndicator(
                                     refreshing = observerLoadingProcess,
                                     state = pullRefreshState,

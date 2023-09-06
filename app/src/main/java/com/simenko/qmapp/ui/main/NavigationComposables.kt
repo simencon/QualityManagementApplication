@@ -46,9 +46,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TextFieldDefaults.colors
@@ -68,7 +71,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -443,6 +445,45 @@ fun ItemsGroup(
     Spacer(modifier = Modifier.height(5.dp))
 }
 
+@Composable
+fun TopTabs(
+    selectedDrawerMenuItemId: String,
+    selectedTabIndex: Int,
+    onTabSelectedLambda: (SelectedNumber, Int) -> Unit
+) {
+    val tabs: MutableList<Triple<String, Int, SelectedNumber>> = mutableListOf()
+    when(selectedDrawerMenuItemId) {
+        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str), Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+            InvStatus.values().forEach {
+                tabs.add(Triple(it.name, it.ordinal, it.statusId))
+            }
+        }
+        Screen.Main.Employees.route -> {
+            UsersTabs.values().forEach {
+                tabs.add(Triple(it.name, it.ordinal, it.tab))
+            }
+        }
+    }
+
+    TabRow(selectedTabIndex = selectedTabIndex) {
+        tabs.forEach {
+            println("UsersTabs - " + StringUtils.getWithSpaces(it.first))
+            val selected = selectedTabIndex == it.second
+            Tab(
+                modifier = Modifier.height(36.dp),
+                selected = selected,
+                onClick = { onTabSelectedLambda(it.third, it.second) }
+            ) {
+                Text(
+                    text = StringUtils.getWithSpaces(it.first),
+                    fontSize = 12.sp,
+                    style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
+                )
+            }
+        }
+    }
+}
+
 data class MenuItem(
     val id: String,
     val title: String,
@@ -518,8 +559,8 @@ enum class InvStatus(val statusId: SelectedNumber) {
 }
 
 enum class UsersTabs(val tab: SelectedNumber) {
-    UNAUTHORIZED_USERS(NoRecord),
-    AUTHORIZED_USERS(SelectedNumber(1)),
+    NEW_USERS(NoRecord),
+    USERS(SelectedNumber(1)),
     EMPLOYEES(SelectedNumber(2))
 }
 
