@@ -43,25 +43,17 @@ import kotlin.math.roundToInt
 
 @Composable
 fun UserComposition(
-    appModel: TeamViewModel = hiltViewModel()
+    viewModel: TeamViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val items by appModel.users.collectAsStateWithLifecycle(listOf())
+    val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda: (String) -> Unit = { appModel.setCurrentUserVisibility(dId = SelectedString(it)) }
-    val onClickActionsLambda = remember<(String) -> Unit> { { appModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
-    val onClickDeleteLambda = remember<(String) -> Unit> { { /*appModel.deleteRecord(it)*/ } }
+    val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
+    val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
+    val onClickAuthorizeLambda = remember<(String) -> Unit> { {  } }
     val onClickEditLambda =
         remember<(String, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
-
-    val lastItemIsVisible by remember {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
-        }
-    }
-
-    if (lastItemIsVisible) appModel.onListEnd(FabPosition.Center) else appModel.onListEnd(FabPosition.End)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -72,7 +64,7 @@ fun UserComposition(
                 item = teamMember,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onDoubleClick = { onClickActionsLambda(it) },
-                onClickDelete = { onClickDeleteLambda(it) },
+                onClickAuthorize = { onClickAuthorizeLambda(it) },
                 onClickEdit = { p1, p2 -> onClickEditLambda(p1, p2) }
             )
         }
@@ -85,7 +77,7 @@ fun UserCard(
     item: DomainUser,
     onClickDetails: (String) -> Unit,
     onDoubleClick: (String) -> Unit,
-    onClickDelete: (String) -> Unit,
+    onClickAuthorize: (String) -> Unit,
     onClickEdit: (String, String) -> Unit
 ) {
     val transitionState = remember {
@@ -118,7 +110,7 @@ fun UserCard(
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(item.email) },
+                onClick = { onClickAuthorize(item.email) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
 

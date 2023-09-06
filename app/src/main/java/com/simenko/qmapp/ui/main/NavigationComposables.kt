@@ -454,7 +454,7 @@ fun TopTabs(
     val tabs: MutableList<Triple<String, Int, SelectedNumber>> = mutableListOf()
     when(selectedDrawerMenuItemId) {
         Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str), Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
-            InvStatus.values().forEach {
+            ProgressTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.statusId))
             }
         }
@@ -551,7 +551,7 @@ private val navigationAndActionItems = listOf(
     MenuItem(MenuItem.Actions.CUSTOM_FILTER.action, "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
 )
 
-enum class InvStatus(val statusId: SelectedNumber) {
+enum class ProgressTabs(val statusId: SelectedNumber) {
     ALL(NoRecord),
     TO_DO(SelectedNumber(1)),
     IN_PROGRESS(SelectedNumber(2)),
@@ -561,7 +561,7 @@ enum class InvStatus(val statusId: SelectedNumber) {
 enum class UsersTabs(val tab: SelectedNumber) {
     EMPLOYEES(SelectedNumber(1)),
     USERS(SelectedNumber(2)),
-    NEW_USERS(SelectedNumber(3)),
+    ON_APPROVAL(SelectedNumber(3))
 }
 
 enum class AddEditMode(val mode: String) {
