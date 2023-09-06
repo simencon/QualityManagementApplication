@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
@@ -60,6 +62,9 @@ class MainActivityViewModel @Inject constructor(
     fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
             updateLoadingState(Pair(true, null))
+
+            systemRepository.syncUserRoles()
+            systemRepository.syncUsers()
 
             manufacturingRepository.syncTeamMembers()
             manufacturingRepository.syncCompanies()

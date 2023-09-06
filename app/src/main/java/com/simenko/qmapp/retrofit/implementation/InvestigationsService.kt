@@ -9,7 +9,7 @@ import com.simenko.qmapp.other.Constants.INVESTIGATION_TYPES
 import com.simenko.qmapp.other.Constants.LATEST_ORDER
 import com.simenko.qmapp.other.Constants.ORDERS
 import com.simenko.qmapp.other.Constants.RESULTS
-import com.simenko.qmapp.other.Constants.RESULT_DECRIPTIONS
+import com.simenko.qmapp.other.Constants.RESULT_DECRYPTIONS
 import com.simenko.qmapp.other.Constants.RECORDS
 import com.simenko.qmapp.other.Constants.RESULT_TASK
 import com.simenko.qmapp.other.Constants.SAMPLES
@@ -33,7 +33,7 @@ interface InvestigationsService {
     @GET(INVESTIGATION_STATUSES)
     suspend fun getOrdersStatuses(): Response<List<NetworkOrdersStatus>>
 
-    @GET(RESULT_DECRIPTIONS)
+    @GET(RESULT_DECRYPTIONS)
     suspend fun getResultsDecryptions(): Response<List<NetworkResultsDecryption>>
 
     @GET("$ORDERS/$LATEST_ORDER")

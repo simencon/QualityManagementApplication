@@ -13,9 +13,14 @@ import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationsFlowDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.SubDepartmentDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.TeamMemberDao
+import com.simenko.qmapp.room.implementation.dao.system.UserDao
+import com.simenko.qmapp.room.implementation.dao.system.UserRoleDao
 
 @Database(
     entities = [
+        DatabaseUserRole::class,
+        DatabaseUser::class,
+
         DatabaseTeamMember::class,
         DatabaseCompany::class,
         DatabaseDepartment::class,
@@ -85,6 +90,9 @@ import com.simenko.qmapp.room.implementation.dao.manufacturing.TeamMemberDao
 )
 @TypeConverters(Converters::class)
 abstract class QualityManagementDB : RoomDatabase() {
+    abstract val userRoleDao: UserRoleDao
+    abstract val userDao: UserDao
+
     abstract val teamMemberDao: TeamMemberDao
     abstract val companyDao: CompanyDao
     abstract val departmentDao: DepartmentDao
