@@ -36,6 +36,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -172,15 +173,15 @@ class MainActivity : ComponentActivity() {
                             Screen.Main.Team.route -> {
                                 if (status == SelectedNumber(1)) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.route)
-                                        navController.navigate(Screen.Main.Team.Employees.route) { popUpTo(Screen.Main.Team.Employees.route) {inclusive = false} }
+                                        navController.navigate(Screen.Main.Team.route) { popUpTo(0) }
                                 } else if (status == SelectedNumber(2)) {
-                                    teamModel.setUsersFilter(newUsers = true)
-                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
-                                } else if(status == SelectedNumber(3)) {
                                     teamModel.setUsersFilter(newUsers = false)
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(0) }
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
+                                } else if (status == SelectedNumber(3)) {
+                                    teamModel.setUsersFilter(newUsers = true)
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Users.route) }
                                 }
                             }
                         }
@@ -242,6 +243,12 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                LaunchedEffect(backStackEntry.value?.destination?.route) {
+                    if (backStackEntry.value?.destination?.route == Screen.Main.Team.Employees.route) {
+                        selectedTabIndex = ZeroValue.num
+                    }
+                }
+
                 ModalNavigationDrawer(
                     gesturesEnabled = addEditMode == AddEditMode.NO_MODE.ordinal,
                     drawerState = drawerState,
@@ -288,7 +295,11 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             floatingActionButton = {
-                                if (selectedDrawerMenuItemId != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
+                                if (
+                                    (selectedDrawerMenuItemId != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
+                                    &&
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
+                                )
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = {
