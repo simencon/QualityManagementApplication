@@ -34,6 +34,8 @@ import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
+import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -383,62 +385,8 @@ fun Order(
                         }
                     }
                 }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Type/reason:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.22f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.78f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Customer:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.22f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = customerDepAbbr,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.78f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
+                TopLevelSingleRecordHeader("Type/reason:", StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript))
+                TopLevelSingleRecordHeader("Customer:", customerDepAbbr)
             }
             IconButton(
                 onClick = { onClickDetails(orderId) },
@@ -481,82 +429,10 @@ fun OrderDetails(
 ) {
 
     if (detailsVisibility) {
-
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-
-        Row(
-            modifier = modifier.padding(start = 8.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Initiated by:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.35f)
-            )
-            Text(
-                text = placerFullName,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-        }
-        Row(
-            modifier = modifier.padding(start = 8.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Initiation date:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.35f)
-            )
-            Text(
-                text = getStringDate(createdDate) ?: NoString.str,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-        }
-        Row(
-            modifier = modifier.padding(start = 8.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Completion date:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.35f)
-            )
-            Text(
-                text = getStringDate(completedDate) ?: NoString.str,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-        }
-
-        SubOrdersFlowColumn(
-            modifier = Modifier,
-            parentId = orderId
-        )
+        TopLevelSingleRecordDetails("Initiated by:", placerFullName, modifier)
+        TopLevelSingleRecordDetails("Initiation date:", getStringDate(createdDate) ?: NoString.str, modifier)
+        TopLevelSingleRecordDetails("Completion date:", getStringDate(completedDate) ?: NoString.str, modifier)
+        SubOrdersFlowColumn(modifier = Modifier, parentId = orderId)
     }
 }

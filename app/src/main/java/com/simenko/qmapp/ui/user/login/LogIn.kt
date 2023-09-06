@@ -39,8 +39,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
-import com.simenko.qmapp.ui.user.registration.enterdetails.RecordFieldItem
+import com.simenko.qmapp.ui.common.RecordActionTextBtn
+import com.simenko.qmapp.ui.common.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

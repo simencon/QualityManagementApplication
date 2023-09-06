@@ -38,8 +38,8 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.dialogs.ApproveAction
-import com.simenko.qmapp.ui.user.registration.enterdetails.RecordActionTextBtn
 
 @Composable
 fun Settings(
