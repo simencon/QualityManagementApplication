@@ -100,7 +100,7 @@ fun <T> TopLevelSingleRecordMainHeader(
     modifier: Modifier,
     value: DomainBaseModel<T>,
     detailsVisibility: Boolean,
-    onClick: (Int) -> Unit,
+    onClick: (String) -> Unit,
     title: String? = null
 ) {
     Row(
@@ -118,7 +118,7 @@ fun <T> TopLevelSingleRecordMainHeader(
                 .padding(start = 16.dp)
         )
 
-        IconButton(onClick = { onClick(value.getRecordId().toString().toInt()) }) {
+        IconButton(onClick = { onClick(value.getRecordId().toString()) }) {
             Icon(
                 imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                 contentDescription = if (detailsVisibility) {

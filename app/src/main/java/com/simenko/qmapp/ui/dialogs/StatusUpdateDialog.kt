@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -29,7 +28,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.theme.*
 
 private const val TAG = "Dialogs"
 
@@ -52,7 +50,7 @@ fun StatusUpdateDialog(
     val currentSubOrderTask = dialogInput.currentSubOrderTask
 
     val statuses by invModel.invStatusListSF.collectAsStateWithLifecycle(listOf())
-    val team by teamModel.teamSF.collectAsStateWithLifecycle(listOf())
+    val team by teamModel.employees.collectAsStateWithLifecycle(listOf())
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }

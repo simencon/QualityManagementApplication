@@ -40,6 +40,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
+import com.simenko.qmapp.ui.main.team.UserComposition
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
@@ -59,7 +60,7 @@ fun Navigation(
             val invModel: TeamViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initTeamModel(invModel)
             QMAppTheme {
-                EmployeeComposition()
+                UserComposition()
             }
         }
         composable(

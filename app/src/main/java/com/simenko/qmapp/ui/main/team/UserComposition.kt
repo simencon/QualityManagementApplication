@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
+import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
@@ -40,17 +40,17 @@ import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
 @Composable
-fun EmployeeComposition(
+fun UserComposition(
     appModel: TeamViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val items by appModel.employees.collectAsStateWithLifecycle(listOf())
+    val items by appModel.users.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda: (Int) -> Unit = { appModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { appModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { appModel.deleteRecord(it) } }
+    val onClickDetailsLambda: (String) -> Unit = { /*appModel.setCurrentOrderVisibility(dId = SelectedNumber(it))*/ }
+    val onClickActionsLambda = remember<(String) -> Unit> { { /*appModel.setCurrentOrderVisibility(aId = SelectedNumber(it))*/ } }
+    val onClickDeleteLambda = remember<(String) -> Unit> { { /*appModel.deleteRecord(it)*/ } }
     val onClickEditLambda =
-        remember<(Int, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
+        remember<(String, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
 
     val lastItemIsVisible by remember {
@@ -65,9 +65,9 @@ fun EmployeeComposition(
         modifier = Modifier.fillMaxSize(),
         state = listState
     ) {
-        items(items = items, key = { it.teamMember.id }) { teamMember ->
-            EmployeeCard(
-                teamMember = teamMember,
+        items(items = items, key = { it.email }) { teamMember ->
+            UserCard(
+                item = teamMember,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onDoubleClick = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
@@ -79,16 +79,16 @@ fun EmployeeComposition(
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
-fun EmployeeCard(
-    teamMember: DomainTeamMemberComplete,
-    onClickDetails: (Int) -> Unit,
-    onDoubleClick: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int, String) -> Unit
+fun UserCard(
+    item: DomainUser,
+    onClickDetails: (String) -> Unit,
+    onDoubleClick: (String) -> Unit,
+    onClickDelete: (String) -> Unit,
+    onClickEdit: (String, String) -> Unit
 ) {
     val transitionState = remember {
-        MutableTransitionState(teamMember.isExpanded).apply {
-            targetState = !teamMember.isExpanded
+        MutableTransitionState(item.isExpanded).apply {
+            targetState = !item.isExpanded
         }
     }
 
@@ -97,16 +97,16 @@ fun EmployeeCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (teamMember.isExpanded) CARD_OFFSET.dp() else 0f },
+        targetValueByState = { if (item.isExpanded) CARD_OFFSET.dp() else 0f },
     )
-    val containerColor = when (teamMember.isExpanded) {
+    val containerColor = when (item.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
         false -> MaterialTheme.colorScheme.surfaceVariant
     }
 
-    val borderColor = when (teamMember.detailsVisibility) {
+    val borderColor = when (item.detailsVisibility) {
         true -> MaterialTheme.colorScheme.outline
-        false -> when (teamMember.isExpanded) {
+        false -> when (item.isExpanded) {
             true -> MaterialTheme.colorScheme.secondaryContainer
             false -> MaterialTheme.colorScheme.surfaceVariant
         }
@@ -116,13 +116,13 @@ fun EmployeeCard(
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(teamMember.teamMember.id) },
+                onClick = { onClickDelete(item.email) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
 
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(teamMember.teamMember.id, teamMember.teamMember.fullName) },
+                onClick = { onClickEdit(item.email, item.email) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }
@@ -133,12 +133,12 @@ fun EmployeeCard(
             modifier = Modifier
                 .padding(vertical = 4.dp, horizontal = 8.dp)
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(teamMember.teamMember.id) {
-                    detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) })
+                .pointerInput(item.email) {
+                    detectTapGestures(onDoubleTap = { onDoubleClick(item.email) })
                 },
         ) {
-            Employee(
-                item = teamMember,
+            User(
+                item = item,
                 onClickDetails = onClickDetails,
                 modifier = Modifier.padding(Constants.CARDS_PADDING)
             )
@@ -147,9 +147,9 @@ fun EmployeeCard(
 }
 
 @Composable
-fun Employee(
-    item: DomainTeamMemberComplete,
-    onClickDetails: (Int) -> Unit,
+fun User(
+    item: DomainUser,
+    onClickDetails: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -158,12 +158,12 @@ fun Employee(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, { onClickDetails(it.toInt()) })
+        TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, onClickDetails)
 
         if (item.detailsVisibility) {
-            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.teamMember.email), modifier, 0.2f)
-            TopLevelSingleRecordDetails("Department:", item.department?.depName ?: "-", modifier, 0.2f)
-            TopLevelSingleRecordDetails("Job role:", item.teamMember.jobRole, modifier, 0.2f)
+            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.email), modifier, 0.2f)
+            TopLevelSingleRecordDetails("Department:", item.department ?: "-", modifier, 0.2f)
+            TopLevelSingleRecordDetails("Job role:", item.jobRole ?: "-", modifier, 0.2f)
         }
     }
 }
