@@ -44,8 +44,12 @@ data class DomainUser(
 ) : DomainBaseModel<DatabaseUser>() {
     override fun getRecordId(): Any = this.email
     override fun getParentId(): Int = this.companyId.toInt()
+
+    override fun getName() = this.fullName ?: "Has no name"
+
     override fun setIsSelected(value: Boolean) {
         this.isSelected = value
     }
+
     override fun toDatabaseModel(): DatabaseUser = ObjectTransformer(DomainUser::class, DatabaseUser::class).transform(this)
 }

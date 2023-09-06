@@ -5,8 +5,10 @@ import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
+import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
-    private val repository: ManufacturingRepository,
+    private val systemRepository: SystemRepository,
+    private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
     private lateinit var _mainActivityViewModel: MainActivityViewModel
 
@@ -33,7 +36,7 @@ class TeamViewModel @Inject constructor(
     fun deleteRecord(teamMemberId: Int) = viewModelScope.launch {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run {
+            manufacturingRepository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
@@ -50,7 +53,7 @@ class TeamViewModel @Inject constructor(
     fun insertRecord(record: DomainTeamMember) = viewModelScope.launch {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run {
+            manufacturingRepository.run {
                 insertTeamMember(record).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
@@ -67,7 +70,7 @@ class TeamViewModel @Inject constructor(
     fun updateRecord(record: DomainTeamMember) = viewModelScope.launch {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run {
+            manufacturingRepository.run {
                 updateTeamMember(record).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
@@ -81,7 +84,8 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _teamSF: Flow<List<DomainTeamMemberComplete>> = repository.teamCompleteList()
+    private val _employees: Flow<List<DomainTeamMemberComplete>> = manufacturingRepository.teamCompleteList()
+
     /**
      * Visibility operations
      * */
@@ -92,9 +96,8 @@ class TeamViewModel @Inject constructor(
         _currentTeamMemberVisibility.value = _currentTeamMemberVisibility.value.setVisibility(dId, aId)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val teamSF: StateFlow<List<DomainTeamMemberComplete>> =
-        _teamSF.flatMapLatest { team ->
+    val employees: StateFlow<List<DomainTeamMemberComplete>> =
+        _employees.flatMapLatest { team ->
             _currentTeamMemberVisibility.flatMapLatest { visibility ->
                 val cpy = mutableListOf<DomainTeamMemberComplete>()
                 team.forEach {
@@ -112,13 +115,22 @@ class TeamViewModel @Inject constructor(
             .conflate()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
+
+    private val _users: Flow<List<DomainUser>> = systemRepository.usersList()
+
+    val users: StateFlow<List<DomainUser>> = _users.flatMapLatest {
+        flow { emit(it) }
+    }.flowOn(Dispatchers.IO)
+        .conflate()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
     fun updateEmployeesData() = viewModelScope.launch {
         try {
             _mainActivityViewModel.updateLoadingState(Pair(true, null))
 
-            repository.syncCompanies()
-            repository.syncDepartments()
-            repository.syncTeamMembers()
+            manufacturingRepository.syncCompanies()
+            manufacturingRepository.syncDepartments()
+            manufacturingRepository.syncTeamMembers()
 
             _mainActivityViewModel.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
