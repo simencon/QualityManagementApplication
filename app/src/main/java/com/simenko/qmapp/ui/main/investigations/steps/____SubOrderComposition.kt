@@ -33,6 +33,8 @@ import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.common.SecondLevelSingleRecordDetails
+import com.simenko.qmapp.ui.common.SecondLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -455,103 +457,31 @@ fun SubOrder(
                         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                     )
                 }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Process:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.20f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                SecondLevelSingleRecordHeader(
+                    "Process:",
+                    StringUtils.concatFourStrings(
+                        subOrder.department.depAbbr,
+                        subOrder.subDepartment.subDepAbbr,
+                        subOrder.channel.channelAbbr,
+                        subOrder.line.lineAbbr
                     )
-                    Text(
-                        text = StringUtils.concatFourStrings(
-                            subOrder.department.depAbbr,
-                            subOrder.subDepartment.subDepAbbr,
-                            subOrder.channel.channelAbbr,
-                            subOrder.line.lineAbbr
-                        ),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.80f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                )
+                SecondLevelSingleRecordHeader(
+                    "Product:",
+                    StringUtils.concatTwoStrings1(
+                        StringUtils.concatTwoStrings3(
+                            subOrder.itemVersionComplete.itemComplete.key.componentKey,
+                            subOrder.itemVersionComplete.itemComplete.item.itemDesignation
+                        ), subOrder.itemVersionComplete.itemVersion.versionDescription
                     )
-                }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Product:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.20f)
-                            .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                )
+                SecondLevelSingleRecordHeader(
+                    "Operation:",
+                    StringUtils.concatTwoStrings2(
+                        subOrder.operation.operationAbbr,
+                        subOrder.operation.operationDesignation
                     )
-                    Text(
-                        text = StringUtils.concatTwoStrings1(
-                            StringUtils.concatTwoStrings3(
-                                subOrder.itemVersionComplete.itemComplete.key.componentKey,
-                                subOrder.itemVersionComplete.itemComplete.item.itemDesignation
-                            ), subOrder.itemVersionComplete.itemVersion.versionDescription
-                        ),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.80f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Operation:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.20f)
-                            .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = StringUtils.concatTwoStrings2(
-                            subOrder.operation.operationAbbr,
-                            subOrder.operation.operationDesignation
-                        ),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.80f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
+                )
             }
             IconButton(
                 onClick = { onClickDetails(subOrder.subOrder.id) },
@@ -586,115 +516,10 @@ fun SubOrderDetails(
 ) {
     if (subOrder.detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Ordered by:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.22f)
-                    .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-            )
-            Text(
-                text = subOrder.orderedBy.fullName,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.78f)
-                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-            )
-        }
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Created:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.22f)
-                    .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-            )
-            Text(
-                text = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.78f)
-                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-            )
-        }
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Completed by:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.22f)
-                    .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-            )
-            Text(
-                text = subOrder.completedBy?.fullName ?: "-",
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.78f)
-                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-            )
-        }
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Completed:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.22f)
-                    .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-            )
-            Text(
-                text = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.78f)
-                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-            )
-        }
-
-        SubOrderTasksFlowColumn(
-            modifier = Modifier,
-            parentId = subOrder.subOrder.id
-        )
+        SecondLevelSingleRecordDetails("Ordered by:", subOrder.orderedBy.fullName)
+        SecondLevelSingleRecordDetails("Created:", getStringDate(subOrder.subOrder.createdDate) ?: NoString.str)
+        SecondLevelSingleRecordDetails("Completed by:", subOrder.completedBy?.fullName ?: "-")
+        SecondLevelSingleRecordDetails("Completed:", getStringDate(subOrder.subOrder.completedDate) ?: NoString.str)
+        SubOrderTasksFlowColumn(modifier = Modifier, parentId = subOrder.subOrder.id)
     }
 }
-
-/*@Preview(name = "Light Mode SubOrder", showBackground = true, widthDp = 409)
-@Composable
-fun MySubOrderPreview() {
-    QMAppTheme {
-        SubOrder(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 0.dp, horizontal = 0.dp),
-            onClickStatus = {}
-        )
-    }
-}*/

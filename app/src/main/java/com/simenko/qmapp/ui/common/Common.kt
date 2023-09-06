@@ -7,8 +7,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,16 +24,15 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
-import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.DomainBaseModel
 
 @Composable
 fun RecordFieldItem(
@@ -92,18 +95,44 @@ fun RecordActionTextBtn(
     )
 }
 
-@Preview(name = "Lite Mode Enter Details", showBackground = true, widthDp = 360)
 @Composable
-fun EnterDetailsPreview() {
-    QMAppTheme {
-        EnterDetails(
-            editMode = false
+fun <T> TopLevelSingleRecordMainHeader(
+    modifier: Modifier,
+    value: DomainBaseModel<T>,
+    detailsVisibility: Boolean,
+    onClick: (Int) -> Unit,
+    title: String? = null
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = value.getName(),
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp)
         )
+
+        IconButton(onClick = { onClick(value.getRecordId().toString().toInt()) }) {
+            Icon(
+                imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = if (detailsVisibility) {
+                    stringResource(R.string.show_less)
+                } else {
+                    stringResource(R.string.show_more)
+                }
+            )
+        }
     }
 }
 
 @Composable
-fun TopLevelSingleRecordHeader(title: String, value: String) {
+fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float = 0.22f) {
     Row(
         modifier = Modifier.padding(
             top = 0.dp,
@@ -119,7 +148,7 @@ fun TopLevelSingleRecordHeader(title: String, value: String) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 0.22f)
+                .weight(weight = titleWight)
                 .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
         )
         Text(
@@ -128,14 +157,14 @@ fun TopLevelSingleRecordHeader(title: String, value: String) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 0.78f)
+                .weight(weight = 1 - titleWight)
                 .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
         )
     }
 }
 
 @Composable
-fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier) {
+fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier, titleWight: Float = 0.35f) {
     Row(
         modifier = modifier.padding(start = 8.dp),
         horizontalArrangement = Arrangement.Start,
@@ -147,7 +176,7 @@ fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 0.35f)
+                .weight(weight = titleWight)
         )
         Text(
             text = value,
@@ -155,8 +184,67 @@ fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 0.65f)
+                .weight(weight = 1 - titleWight)
                 .padding(start = 3.dp)
+        )
+    }
+}
+
+@Composable
+fun SecondLevelSingleRecordHeader(title: String, value: String) {
+    Row(
+        modifier = Modifier.padding(
+            top = 0.dp,
+            start = 0.dp,
+            end = 0.dp,
+            bottom = 4.dp
+        ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = 0.20f)
+                .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = 0.80f)
+                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+        )
+    }
+}
+
+@Composable
+fun SecondLevelSingleRecordDetails(title: String, value: String) {
+    Row(
+        modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = 0.22f)
+                .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = 0.78f)
+                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
         )
     }
 }

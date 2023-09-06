@@ -185,6 +185,8 @@ data class DomainTeamMemberComplete(
 ) : DomainBaseModel<DatabaseTeamMemberComplete>() {
     override fun getRecordId() = teamMember.id
     override fun getParentId() = teamMember.departmentId
+    override fun getName() = this.teamMember.fullName
+
     override fun setIsSelected(value: Boolean) {
         isSelected = value
     }
