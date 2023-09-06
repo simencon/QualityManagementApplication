@@ -21,7 +21,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.CurrentOrderIdKey
@@ -35,7 +34,7 @@ import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.settings.Settings
-import com.simenko.qmapp.ui.main.team.TeamComposition
+import com.simenko.qmapp.ui.main.team.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
@@ -60,7 +59,7 @@ fun Navigation(
             val invModel: TeamViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initTeamModel(invModel)
             QMAppTheme {
-                TeamComposition()
+                EmployeeComposition()
             }
         }
         composable(
