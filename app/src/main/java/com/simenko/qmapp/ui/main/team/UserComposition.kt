@@ -29,7 +29,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -46,8 +48,8 @@ fun UserComposition(
     val context = LocalContext.current
     val items by appModel.users.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda: (String) -> Unit = { /*appModel.setCurrentOrderVisibility(dId = SelectedNumber(it))*/ }
-    val onClickActionsLambda = remember<(String) -> Unit> { { /*appModel.setCurrentOrderVisibility(aId = SelectedNumber(it))*/ } }
+    val onClickDetailsLambda: (String) -> Unit = { appModel.setCurrentUserVisibility(dId = SelectedString(it)) }
+    val onClickActionsLambda = remember<(String) -> Unit> { { appModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
     val onClickDeleteLambda = remember<(String) -> Unit> { { /*appModel.deleteRecord(it)*/ } }
     val onClickEditLambda =
         remember<(String, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
@@ -161,9 +163,19 @@ fun User(
         TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, onClickDetails)
 
         if (item.detailsVisibility) {
-            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.email), modifier, 0.2f)
-            TopLevelSingleRecordDetails("Department:", item.department ?: "-", modifier, 0.2f)
-            TopLevelSingleRecordDetails("Job role:", item.jobRole ?: "-", modifier, 0.2f)
+            val department = item.department + if (item.subDepartment == EmptyString.str) EmptyString.str else "/${item.subDepartment}"
+            TopLevelSingleRecordDetails("Job role: ", item.jobRole ?: NoString.str, modifier, 0.3f)
+            TopLevelSingleRecordDetails("Department: ", department, modifier, 0.3f)
+            TopLevelSingleRecordDetails("Email: ", StringUtils.getMail(item.email), modifier, 0.3f)
+            TopLevelSingleRecordDetails("Phone num.: ", StringUtils.getMail(item.phoneNumber.toString()), modifier, 0.3f)
+            item.roles?.forEach {
+                TopLevelSingleRecordDetails("System role: ", it, modifier, 0.3f)
+            }?:TopLevelSingleRecordDetails("System role: ", NoString.str, modifier, 0.3f)
+            TopLevelSingleRecordDetails("Email verified: ", item.isEmailVerified.toString(), modifier, 0.3f)
+            TopLevelSingleRecordDetails("Account expired: ", item.accountNonExpired.toString(), modifier, 0.3f)
+            TopLevelSingleRecordDetails("Account locked: ", item.accountNonLocked.toString(), modifier, 0.3f)
+            TopLevelSingleRecordDetails("Credentials expired: ", item.credentialsNonExpired.toString(), modifier, 0.3f)
+            TopLevelSingleRecordDetails("Enabled: ", item.enabled.toString(), modifier, 0.3f)
         }
     }
 }
