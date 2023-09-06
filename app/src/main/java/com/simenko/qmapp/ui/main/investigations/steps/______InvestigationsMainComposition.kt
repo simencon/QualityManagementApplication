@@ -3,45 +3,34 @@ package com.simenko.qmapp.ui.main.investigations.steps
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
-import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.InvStatus
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.delay
 
 @Composable
 fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
-    mainScreenPadding: PaddingValues,
     processControlOnly: Boolean = false,
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
@@ -49,8 +38,7 @@ fun InvestigationsMainComposition(
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val tabRowHeight = 36.dp
-    val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - tabRowHeight
+    val screenHeight = configuration.screenHeightDp.dp
 
     val currentTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
 
@@ -66,16 +54,6 @@ fun InvestigationsMainComposition(
      * */
     var screenSizes: Triple<Dp, Dp, Dp> by remember {
         mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
-    }
-
-    val onTabSelectedLambda = remember<(InvStatus, Int) -> Unit> {
-        { status, tabIndex ->
-            if (processControlOnly)
-                invModel.setCurrentSubOrdersFilter(status = status.statusId)
-            else
-                invModel.setCurrentOrdersFilter(status = status.statusId)
-            selectedTabIndex = tabIndex
-        }
     }
 
     LaunchedEffect(Unit) {
@@ -134,51 +112,30 @@ fun InvestigationsMainComposition(
         }
     }
 
-    QMAppTheme {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            Modifier
+                .verticalScroll(verticalScrollState)
+                .horizontalScroll(horizontalScrollState)
+                .width(screenSizes.first)
+                .height(screenHeight)
         ) {
-            TabRow(selectedTabIndex = selectedTabIndex) {
-                InvStatus.values().forEach {
-                    val selected = selectedTabIndex == it.ordinal
-                    Tab(
-                        modifier = Modifier.height(tabRowHeight),
-                        selected = selected,
-                        onClick = { onTabSelectedLambda(it, it.ordinal) }
-                    ) {
-                        Text(
-                            text = StringUtils.getWithSpaces(it.name),
-                            fontSize = 12.sp,
-                            style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
-                        )
-                    }
-                }
-            }
-            Row(
-                Modifier
-                    .verticalScroll(verticalScrollState)
-                    .horizontalScroll(horizontalScrollState)
-                    .width(screenSizes.first)
-                    .height(screenHeight)
-            ) {
-                if (processControlOnly)
-                    SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
-                else
-                    Orders(
-                        modifier = modifier.width(screenSizes.second)
-                    )
-
-                if (currentTask != NoRecord)
-                    SampleComposition(modifier = modifier.width(screenSizes.third))
-            }
-
-            if (showStatusChangeDialog.value == true)
-                StatusUpdateDialog(
-                    dialogInput = dialogInput ?: DialogInput(),
-                    teamModel = teamModel,
-                    invModel = invModel
+            if (processControlOnly)
+                SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
+            else
+                Orders(
+                    modifier = modifier.width(screenSizes.second)
                 )
+
+            if (currentTask != NoRecord)
+                SampleComposition(modifier = modifier.width(screenSizes.third))
         }
+
+        if (showStatusChangeDialog.value == true)
+            StatusUpdateDialog(
+                dialogInput = dialogInput ?: DialogInput(),
+                teamModel = teamModel,
+                invModel = invModel
+            )
     }
 }

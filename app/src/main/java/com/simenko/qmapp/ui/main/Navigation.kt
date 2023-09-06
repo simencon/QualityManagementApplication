@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +33,6 @@ import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.settings.Settings
-import com.simenko.qmapp.ui.main.team.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
@@ -51,7 +49,6 @@ import com.simenko.qmapp.utils.StringUtils.getBoolean
 @Composable
 fun Navigation(
     modifier: Modifier = Modifier,
-    mainScreenPadding: PaddingValues,
     initiatedRoute: String,
     navController: NavHostController
 ) {
@@ -89,7 +86,6 @@ fun Navigation(
             QMAppTheme {
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
-                    mainScreenPadding = mainScreenPadding,
                     processControlOnly = it.arguments?.getBoolean(ToProcessControlScreen.str) ?: false
                 )
             }
