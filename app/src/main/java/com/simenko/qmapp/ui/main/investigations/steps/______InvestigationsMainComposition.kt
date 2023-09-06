@@ -11,7 +11,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
@@ -19,11 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
-import com.simenko.qmapp.ui.main.InvStatus
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import kotlinx.coroutines.delay
@@ -47,20 +44,12 @@ fun InvestigationsMainComposition(
 
     val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
     val dialogInput by invModel.dialogInput.observeAsState()
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(InvStatus.ALL.ordinal) }
 
     /**
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
      * */
     var screenSizes: Triple<Dp, Dp, Dp> by remember {
         mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
-    }
-
-    LaunchedEffect(Unit) {
-        if (processControlOnly)
-            invModel.setCurrentSubOrdersFilter(status = InvStatus.values()[selectedTabIndex].statusId)
-        else
-            invModel.setCurrentOrdersFilter(status = InvStatus.values()[selectedTabIndex].statusId)
     }
 
     val limitToResize = 720

@@ -11,6 +11,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
+import com.simenko.qmapp.utils.UsersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
@@ -123,18 +124,32 @@ class TeamViewModel @Inject constructor(
         _currentUserVisibility.value = _currentUserVisibility.value.setVisibility(dId, aId)
     }
 
+    /**
+     * Filtering operations
+     * */
+    private val _currentUsersFilter = MutableStateFlow(UsersFilter())
+    fun setUsersFilter(newUsers: Boolean = false) {
+        _currentUsersFilter.value = UsersFilter(newUsers = newUsers)
+    }
+
+    /**
+     * The result flow
+     * */
     val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
         _currentUserVisibility.flatMapLatest { visibility ->
-            val cpy = mutableListOf<DomainUser>()
-            users.forEach {
-                cpy.add(
-                    it.copy(
-                        detailsVisibility = it.email == visibility.first.str,
-                        isExpanded = it.email == visibility.second.str
-                    )
-                )
+            _currentUsersFilter.flatMapLatest { filter ->
+                val cpy = mutableListOf<DomainUser>()
+                users.forEach {
+                    if (it.restApiUrl.isNullOrEmpty() == filter.newUsers)
+                        cpy.add(
+                            it.copy(
+                                detailsVisibility = it.email == visibility.first.str,
+                                isExpanded = it.email == visibility.second.str
+                            )
+                        )
+                }
+                flow { emit(cpy) }
             }
-            flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO)
         .conflate()

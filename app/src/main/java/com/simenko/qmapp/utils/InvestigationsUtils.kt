@@ -7,6 +7,10 @@ import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
 
+data class UsersFilter(
+    val newUsers: Boolean = false
+)
+
 data class OrdersFilter(
     val typeId: Int = NoRecord.num,
     val statusId: Int = NoRecord.num,
