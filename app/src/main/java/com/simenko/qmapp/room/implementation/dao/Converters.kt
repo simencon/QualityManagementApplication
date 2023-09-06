@@ -13,4 +13,14 @@ class Converters {
         val parts = value.split(":")
         return Pair(parts[0].toLong(), parts[1].toLong())
     }
+
+    @TypeConverter
+    fun fromSetOfStringToString(set: Set<String>?): String? {
+        return set?.joinToString(separator = ";") { it }
+    }
+
+    @TypeConverter
+    fun fromStringToSetOfString(string: String?): Set<String>? {
+        return string?.split(";")?.map { it }?.toSet()
+    }
 }

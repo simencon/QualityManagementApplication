@@ -39,7 +39,11 @@ object Constants {
 
     const val DEFAULT_REST_API_URL = "https://no.api.yet.com"
 
-    const val PRINCIPLE = "principles"
+    const val BASED_ON_ACCESS = "basedOnAccess"
+
+    const val PRINCIPLES = "principles"
+    const val COMPANY_DATA = "companyData"
+    const val ROLES = "roles"
 
     const val TEAM_MEMBERS = "teamMembers"
     const val COMPANIES = "companies"
@@ -76,7 +80,7 @@ object Constants {
     const val INVESTIGATION_TYPES = "investigationTypes"
     const val INVESTIGATION_REASONS = "investigationReasons"
     const val INVESTIGATION_STATUSES = "investigationStatuses"
-    const val RESULT_DECRIPTIONS = "resultsDecriptions"
+    const val RESULT_DECRYPTIONS = "resultsDecryptions"
 
     const val RECORDS = "records"
     const val HASH_CODE = "hashCode"

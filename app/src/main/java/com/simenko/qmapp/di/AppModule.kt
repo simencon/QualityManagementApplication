@@ -17,6 +17,7 @@ import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
+import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
@@ -87,6 +88,11 @@ object AppModule {
         .addConverterFactory(PairConverterFactory())
         .client(client)
         .build()
+
+    @Singleton
+    @Provides
+    fun provideSystemService(retrofit: Retrofit): SystemService =
+        retrofit.create(SystemService::class.java)
 
     @Singleton
     @Provides
