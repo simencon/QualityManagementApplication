@@ -38,6 +38,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
+import com.simenko.qmapp.ui.main.team.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.UserComposition
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -53,11 +54,19 @@ fun Navigation(
     navController: NavHostController
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
-        composable(route = Screen.Main.Employees.route) {
-            val invModel: TeamViewModel = hiltViewModel()
-            (LocalContext.current as MainActivity).initTeamModel(invModel)
-            QMAppTheme {
-                UserComposition()
+        navigation(startDestination = Screen.Main.Team.Employees.route, route = Screen.Main.Team.route) {
+            composable(route = Screen.Main.Team.Employees.route) {
+                val invModel: TeamViewModel = hiltViewModel()
+                (LocalContext.current as MainActivity).initTeamModel(invModel)
+                QMAppTheme {
+                    EmployeeComposition()
+                }
+            }
+            composable(route = Screen.Main.Team.Users.route) {
+                val teamViewModel: TeamViewModel = it.sharedViewModel(navController = navController)
+                QMAppTheme {
+                    UserComposition(teamViewModel)
+                }
             }
         }
         composable(

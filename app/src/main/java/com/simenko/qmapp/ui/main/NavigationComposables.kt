@@ -458,7 +458,7 @@ fun TopTabs(
                 tabs.add(Triple(it.name, it.ordinal, it.statusId))
             }
         }
-        Screen.Main.Employees.route -> {
+        Screen.Main.Team.route -> {
             UsersTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.tab))
             }
@@ -518,7 +518,7 @@ data class MenuItem(
 
 private val navigationAndActionItems = listOf(
     MenuItem(Screen.Main.CompanyProfile.route, "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Screen.Main.Employees.route, "Employees", "Employees", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Screen.Main.Team.route, "Team", "Team", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
@@ -559,9 +559,9 @@ enum class InvStatus(val statusId: SelectedNumber) {
 }
 
 enum class UsersTabs(val tab: SelectedNumber) {
-    NEW_USERS(NoRecord),
-    USERS(SelectedNumber(1)),
-    EMPLOYEES(SelectedNumber(2))
+    EMPLOYEES(SelectedNumber(1)),
+    USERS(SelectedNumber(2)),
+    NEW_USERS(SelectedNumber(3)),
 }
 
 enum class AddEditMode(val mode: String) {

@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main
 
 import android.Manifest
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -33,14 +31,10 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -51,12 +45,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.Data
@@ -82,7 +75,6 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -143,6 +135,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             QMAppTheme {
                 navController = rememberNavController()
+                val backStackEntry = navController.currentBackStackEntryAsState()
 
                 val scope = rememberCoroutineScope()
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -167,14 +160,29 @@ class MainActivity : ComponentActivity() {
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
                     { status, tabIndex ->
-                        when(selectedDrawerMenuItemId) {
+                        when (selectedDrawerMenuItemId) {
                             Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                 invModel.setCurrentOrdersFilter(status = status)
                             }
+
                             Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                 invModel.setCurrentSubOrdersFilter(status = status)
                             }
-                            Screen.Main.Employees.route -> {}
+
+                            Screen.Main.Team.route -> {
+                                if (status == SelectedNumber(1)) {
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.route)
+                                        navController.navigate(Screen.Main.Team.Employees.route) { popUpTo(Screen.Main.Team.Employees.route) {inclusive = false} }
+                                } else if (status == SelectedNumber(2)) {
+                                    teamModel.setUsersFilter(newUsers = true)
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
+                                } else if(status == SelectedNumber(3)) {
+                                    teamModel.setUsersFilter(newUsers = false)
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(0) }
+                                }
+                            }
                         }
                         selectedTabIndex = tabIndex
                     }
@@ -185,7 +193,7 @@ class MainActivity : ComponentActivity() {
                     if (id != selectedDrawerMenuItemId) {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
-                            Screen.Main.Employees.route -> navController.navigate(id) { popUpTo(0) /*{inclusive = true}*/ }
+                            Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) /*{inclusive = true}*/ }
                             Screen.Main.Inv.withArgs(
                                 FalseStr.str,
                                 NoRecordStr.str,
@@ -286,7 +294,7 @@ class MainActivity : ComponentActivity() {
                                         onClick = {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
                                                 when (selectedDrawerMenuItemId) {
-                                                    Screen.Main.Employees.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
+                                                    Screen.Main.Team.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
                                                     Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
@@ -337,7 +345,7 @@ class MainActivity : ComponentActivity() {
                                 refreshing = observerLoadingProcess,
                                 onRefresh = {
                                     when (selectedDrawerMenuItemId) {
-                                        Screen.Main.Employees.route -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.route -> teamModel.updateEmployeesData()
                                         Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
                                         Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
                                         Screen.Main.Settings.route -> settingsModel.updateUserData()
@@ -352,7 +360,9 @@ class MainActivity : ComponentActivity() {
                             ) {
 
                                 Column(
-                                    modifier = Modifier.fillMaxWidth().padding(it)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(it)
                                 ) {
                                     TopTabs(selectedDrawerMenuItemId, selectedTabIndex, onTabSelectedLambda)
                                     Navigation(
