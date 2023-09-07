@@ -59,6 +59,17 @@ class MainActivityViewModel @Inject constructor(
         this._addEditMode.value = mode.ordinal
     }
 
+    private val _topBadgeCounts: MutableStateFlow<MutableList<Int>> = MutableStateFlow(mutableListOf(0, 0, 0, 0))
+    val topBadgeCounts: StateFlow<List<Int>> get() = _topBadgeCounts
+    fun setTopBadgesCount(index: Int, badgeCount: Int) {
+        if (index < 4) _topBadgeCounts.value[index] = badgeCount
+    }
+
+    fun resetTopBadgesCount() {
+        _topBadgeCounts.value = mutableListOf(0, 0, 0, 0)
+    }
+
+
     fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
             updateLoadingState(Pair(true, null))

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.SquareFoot
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
@@ -448,22 +450,29 @@ fun ItemsGroup(
     Spacer(modifier = Modifier.height(5.dp))
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(
     selectedDrawerMenuItemId: String,
     selectedTabIndex: Int,
+    badgeCounts: List<Int> = listOf(),
     onTabSelectedLambda: (SelectedNumber, Int) -> Unit
 ) {
     val tabs: MutableList<Triple<String, Int, SelectedNumber>> = mutableListOf()
-    when(selectedDrawerMenuItemId) {
-        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str), Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+    when (selectedDrawerMenuItemId) {
+        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str), Screen.Main.Inv.withArgs(
+            TrueStr.str,
+            NoRecordStr.str,
+            NoRecordStr.str
+        ) -> {
             ProgressTabs.values().forEach {
-                tabs.add(Triple(it.name, it.ordinal, it.statusId))
+                tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }
         }
+
         Screen.Main.Team.route -> {
             UsersTabs.values().forEach {
-                tabs.add(Triple(it.name, it.ordinal, it.tab))
+                tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }
         }
     }
@@ -472,15 +481,29 @@ fun TopTabs(
         tabs.forEach {
             val selected = selectedTabIndex == it.second
             Tab(
-                modifier = Modifier.height(36.dp),
+                modifier = Modifier.height(40.dp),
                 selected = selected,
                 onClick = { onTabSelectedLambda(it.third, it.second) }
             ) {
-                Text(
-                    text = StringUtils.getWithSpaces(it.first),
-                    fontSize = 12.sp,
-                    style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
-                )
+                if (badgeCounts.size >= it.second && badgeCounts[it.second] > 0)
+                    BadgedBox(badge = {
+                        Box(modifier = Modifier.background(color = Color.Red, shape = RoundedCornerShape(size = 3.dp))) {
+                            Text(text = badgeCounts[it.second].toString(), color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    ) {
+                        Text(
+                            text = StringUtils.getWithSpaces(it.first),
+                            fontSize = 12.sp,
+                            style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
+                        )
+                    }
+                else
+                    Text(
+                        text = StringUtils.getWithSpaces(it.first),
+                        fontSize = 12.sp,
+                        style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
+                    )
             }
         }
     }
@@ -553,17 +576,17 @@ private val navigationAndActionItems = listOf(
     MenuItem(MenuItem.Actions.CUSTOM_FILTER.action, "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
 )
 
-enum class ProgressTabs(val statusId: SelectedNumber) {
+enum class ProgressTabs(val tabId: SelectedNumber) {
     ALL(FirstTabId),
     TO_DO(SecondTabId),
     IN_PROGRESS(ThirdTabId),
     DONE(FourthTabId)
 }
 
-enum class UsersTabs(val tab: SelectedNumber) {
+enum class UsersTabs(val tabId: SelectedNumber) {
     EMPLOYEES(FirstTabId),
     USERS(SecondTabId),
-    ON_APPROVAL(ThirdTabId)
+    REQUESTS(ThirdTabId);
 }
 
 enum class AddEditMode(val mode: String) {
