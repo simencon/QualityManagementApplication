@@ -79,7 +79,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
         var selectedDepartment = EmptyString.str
         employeeDepartments.forEach {
             departments.add(Pair(it.id, it.depAbbr ?: NoString.str))
-            if(employee.companyId == it.id) selectedDepartment = it.depAbbr?: NoString.str
+            if(employee.departmentId == it.id) selectedDepartment = it.depAbbr?: NoString.str
         }
         DropdownMenu(
             options = departments,
