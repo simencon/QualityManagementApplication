@@ -56,14 +56,15 @@ fun Navigation(
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         navigation(startDestination = Screen.Main.Team.Employees.route, route = Screen.Main.Team.route) {
             composable(route = Screen.Main.Team.Employees.route) {
-                val invModel: TeamViewModel = hiltViewModel()
-                (LocalContext.current as MainActivity).initTeamModel(invModel)
+                val teamModel: TeamViewModel = hiltViewModel()
+                (LocalContext.current as MainActivity).initTeamModel(teamModel)
                 QMAppTheme {
                     EmployeeComposition()
                 }
             }
             composable(route = Screen.Main.Team.Users.route) {
                 val teamViewModel: TeamViewModel = it.sharedViewModel(navController = navController)
+                (LocalContext.current as MainActivity).initTeamModel(teamViewModel)
                 QMAppTheme {
                     UserComposition(teamViewModel)
                 }

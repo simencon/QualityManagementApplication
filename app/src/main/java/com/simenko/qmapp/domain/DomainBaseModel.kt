@@ -30,6 +30,11 @@ val NoRecord = SelectedNumber(-1)
 val ZeroValue = SelectedNumber(0)
 val ProcessControlOrderTypeId = SelectedNumber(3)
 
+val FirstTab = ZeroValue
+val SecondTab = SelectedNumber(1)
+val ThirdTab = SelectedNumber(2)
+val FourthTab = SelectedNumber(3)
+
 @JvmInline
 value class SelectedString(val str: String)
 

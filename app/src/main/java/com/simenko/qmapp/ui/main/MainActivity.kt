@@ -62,11 +62,14 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.FalseStr
+import com.simenko.qmapp.domain.FirstTab
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.SecondTab
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.domain.ThirdTab
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
@@ -158,7 +161,7 @@ class MainActivity : ComponentActivity() {
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
 
-                var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
+                var selectedTabIndex by rememberSaveable { mutableIntStateOf(FirstTab.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
                     { status, tabIndex ->
                         when (selectedDrawerMenuItemId) {
@@ -171,17 +174,17 @@ class MainActivity : ComponentActivity() {
                             }
 
                             Screen.Main.Team.route -> {
-                                if (status == SelectedNumber(1)) {
+                                if (status == FirstTab) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.route)
                                         navController.navigate(Screen.Main.Team.route) { popUpTo(0) }
-                                } else if (status == SelectedNumber(2)) {
-                                    teamModel.setUsersFilter(newUsers = false)
+                                } else if (status == SecondTab) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
                                         navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
-                                } else if (status == SelectedNumber(3)) {
-                                    teamModel.setUsersFilter(newUsers = true)
+                                    teamModel.setUsersFilter(newUsers = false)
+                                } else if (status == ThirdTab) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
                                         navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Users.route) }
+                                    teamModel.setUsersFilter(newUsers = true)
                                 }
                             }
                         }
@@ -210,7 +213,7 @@ class MainActivity : ComponentActivity() {
                             Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
-                        selectedTabIndex = ZeroValue.num
+                        selectedTabIndex = FirstTab.num
                     }
                 }
 
