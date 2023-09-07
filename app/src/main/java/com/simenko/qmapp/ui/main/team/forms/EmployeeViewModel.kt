@@ -1,17 +1,35 @@
 package com.simenko.qmapp.ui.main.team.forms
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.DomainCompany
+import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.DomainOrdersType
+import com.simenko.qmapp.domain.entities.DomainReason
 import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class EmployeeViewModel @Inject constructor(private val repository: ManufacturingRepository) : ViewModel() {
+class EmployeeViewModel @Inject constructor(private val repository: ManufacturingRepository, private val userRepository: UserRepository) :
+    ViewModel() {
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
@@ -34,6 +52,35 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
         _employee.value = _employee.value.copy(fullName = it)
         _employeeErrors.value = _employeeErrors.value.copy(fullNameError = false)
     }
+
+    private val _employeeCompanies: Flow<List<DomainCompany>> = repository.getCompanies
+    val employeeCompanies: StateFlow<List<DomainCompany>> = _employeeCompanies.flatMapLatest { company ->
+        _employee.flatMapLatest { employee ->
+            val cpy = mutableListOf<DomainCompany>()
+            company.forEach { cpy.add(it.copy(isSelected = it.id == employee.companyId)) }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setEmployeeCompany(id: Int) {
+        if (_employee.value.companyId != id)
+            _employee.value = _employee.value.copy(companyId = id, departmentId = NoRecord.num)
+    }
+
+    private val _employeeDepartments: Flow<List<DomainDepartment>> = repository.getDepartments
+    val employeeDepartments: StateFlow<List<DomainDepartment>> = _employeeDepartments.flatMapLatest { departments ->
+        _employee.flatMapLatest { employee ->
+            val cpy = mutableListOf<DomainDepartment>()
+            departments.forEach { cpy.add(it.copy(isSelected = it.id == employee.companyId)) }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setEmployeeDepartment(id: Int) {
+        if (_employee.value.departmentId != id)
+            _employee.value = _employee.value.copy(departmentId = id)
+    }
+
 }
 
 data class EmployeeErrors(

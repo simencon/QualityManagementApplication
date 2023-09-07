@@ -44,11 +44,14 @@ data class DomainCompany(
     var companyRegion: String? = null,
     var companyOrder: Int = NoRecord.num,
     var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int = NoRecord.num
+    var companyManagerId: Int = NoRecord.num,
+    var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseCompany>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
-    override fun setIsSelected(value: Boolean) {}
+    override fun setIsSelected(value: Boolean) {
+        isSelected = value
+    }
     override fun toDatabaseModel(): DatabaseCompany {
         return ObjectTransformer(DomainCompany::class, DatabaseCompany::class).transform(this)
     }
