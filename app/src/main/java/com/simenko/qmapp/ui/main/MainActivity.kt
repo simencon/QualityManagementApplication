@@ -61,6 +61,7 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.NoRecord
@@ -78,6 +79,7 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
+import com.simenko.qmapp.ui.main.team.forms.EmployeeViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
@@ -113,6 +115,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
+
+    private lateinit var employeeModel: EmployeeViewModel
 
     private lateinit var navController: NavHostController
 
@@ -300,7 +304,15 @@ class MainActivity : ComponentActivity() {
                                         onClick = {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
                                                 when (selectedDrawerMenuItemId) {
-                                                    Screen.Main.Team.route -> teamModel.insertRecord(getAnyTeamMember[(getAnyTeamMember.indices).random()])
+                                                    Screen.Main.Team.route -> {
+                                                        when(backStackEntry.value?.destination?.route) {
+                                                            Screen.Main.Team.Employees.route -> {
+                                                                navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
+                                                                viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
+                                                            }
+                                                        }
+                                                    }
+
                                                     Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
@@ -370,7 +382,13 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxWidth()
                                         .padding(it)
                                 ) {
-                                    TopTabs(selectedDrawerMenuItemId, selectedTabIndex, topBadgeCounts, onTabSelectedLambda)
+                                    TopTabs(
+                                        selectedDrawerMenuItemId,
+                                        backStackEntry.value?.destination?.route ?: EmptyString.str,
+                                        selectedTabIndex,
+                                        topBadgeCounts,
+                                        onTabSelectedLambda
+                                    )
                                     Navigation(
                                         Modifier.pullRefresh(pullRefreshState),
                                         initialRoute,
@@ -398,9 +416,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
             Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
         } else {
@@ -458,6 +474,11 @@ class MainActivity : ComponentActivity() {
         this.newOrderModel = model
         this.newOrderModel.initMainActivityViewModel(this.viewModel)
         this.newOrderModel.initNavController(this.navController)
+    }
+
+    fun initEmployeeModel(employeeModel: EmployeeViewModel) {
+        this.employeeModel = employeeModel
+        this.employeeModel.initMainActivityViewModel(this.viewModel)
     }
 }
 

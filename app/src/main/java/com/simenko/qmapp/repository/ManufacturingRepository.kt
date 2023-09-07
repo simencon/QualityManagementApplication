@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 @Singleton
@@ -41,6 +42,10 @@ class ManufacturingRepository @Inject constructor(
         responseHandlerForSingleRecord(
             taskExecutor = { manufacturingService.editTeamMember(record.id, record.toDatabaseModel().toNetworkModel()) }
         ) { r -> database.teamMemberDao.updateRecord(r) }
+    }
+
+    fun getEmployeeById(id: Int) = database.teamMemberDao.getRecordById(id.toString()).let {
+        it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(

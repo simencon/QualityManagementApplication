@@ -22,6 +22,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.simenko.qmapp.domain.CurrentEmployeeIdKey
 import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.CurrentSubOrderIdKey
 import com.simenko.qmapp.domain.ToProcessControlScreen
@@ -40,6 +41,8 @@ import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.main.team.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.UserComposition
+import com.simenko.qmapp.ui.main.team.forms.EmployeeForm
+import com.simenko.qmapp.ui.main.team.forms.EmployeeViewModel
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
@@ -60,6 +63,25 @@ fun Navigation(
                 (LocalContext.current as MainActivity).initTeamModel(teamModel)
                 QMAppTheme {
                     EmployeeComposition()
+                }
+            }
+            composable(
+                route = Screen.Main.Team.EmployeeAddEdit.route + "/{${CurrentEmployeeIdKey.str}}",
+                arguments = listOf(
+                    navArgument(CurrentEmployeeIdKey.str) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                )
+            ) {
+                val employeeModel: EmployeeViewModel = hiltViewModel()
+                (LocalContext.current as MainActivity).initEmployeeModel(employeeModel)
+                BackHandler {
+                    employeeModel.setAddEditMode(AddEditMode.NO_MODE)
+                    navController.popBackStack()
+                }
+                QMAppTheme {
+                    EmployeeForm(employeeId = it.arguments?.getInt(CurrentEmployeeIdKey.str) ?: NoRecord.num)
                 }
             }
             composable(route = Screen.Main.Team.Users.route) {

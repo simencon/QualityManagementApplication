@@ -84,6 +84,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
@@ -454,23 +455,23 @@ fun ItemsGroup(
 @Composable
 fun TopTabs(
     selectedDrawerMenuItemId: String,
+    backStackTopRoute: String = EmptyString.str,
     selectedTabIndex: Int,
     badgeCounts: List<Int> = listOf(),
     onTabSelectedLambda: (SelectedNumber, Int) -> Unit
 ) {
+    println("TopTabs - $backStackTopRoute")
     val tabs: MutableList<Triple<String, Int, SelectedNumber>> = mutableListOf()
-    when (selectedDrawerMenuItemId) {
-        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str), Screen.Main.Inv.withArgs(
-            TrueStr.str,
-            NoRecordStr.str,
-            NoRecordStr.str
-        ) -> {
+    when (backStackTopRoute) {
+        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str),
+        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
             ProgressTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }
         }
 
-        Screen.Main.Team.route -> {
+        Screen.Main.Team.Employees.route,
+        Screen.Main.Team.Users.route -> {
             UsersTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }
@@ -590,6 +591,8 @@ enum class UsersTabs(val tabId: SelectedNumber) {
 }
 
 enum class AddEditMode(val mode: String) {
+    ADD_EMPLOYEE("Add new employee"),
+    EDIT_EMPLOYEE("Edit employee"),
     NO_MODE("No mode"),
     ADD_ORDER("New investigation order"),
     EDIT_ORDER("Edit investigation order"),
