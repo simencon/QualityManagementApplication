@@ -62,14 +62,14 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.FalseStr
-import com.simenko.qmapp.domain.FirstTab
+import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.SecondTab
+import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.domain.ThirdTab
+import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
@@ -161,29 +161,29 @@ class MainActivity : ComponentActivity() {
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
 
-                var selectedTabIndex by rememberSaveable { mutableIntStateOf(FirstTab.num) }
+                var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
-                    { status, tabIndex ->
+                    { tabId, tabIndex ->
                         when (selectedDrawerMenuItemId) {
                             Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
-                                invModel.setCurrentOrdersFilter(status = status)
+                                invModel.setCurrentOrdersFilter(status = tabId)
                             }
 
                             Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
-                                invModel.setCurrentSubOrdersFilter(status = status)
+                                invModel.setCurrentSubOrdersFilter(status = tabId)
                             }
 
                             Screen.Main.Team.route -> {
-                                if (status == FirstTab) {
+                                if (tabId == FirstTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.route)
-                                        navController.navigate(Screen.Main.Team.route) { popUpTo(0) }
-                                } else if (status == SecondTab) {
+                                        navController.popBackStack()
+                                } else if (tabId == SecondTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
                                         navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
                                     teamModel.setUsersFilter(newUsers = false)
-                                } else if (status == ThirdTab) {
+                                } else if (tabId == ThirdTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Users.route) }
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
                                     teamModel.setUsersFilter(newUsers = true)
                                 }
                             }
@@ -197,23 +197,13 @@ class MainActivity : ComponentActivity() {
                     if (id != selectedDrawerMenuItemId) {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
-                            Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) /*{inclusive = true}*/ }
-                            Screen.Main.Inv.withArgs(
-                                FalseStr.str,
-                                NoRecordStr.str,
-                                NoRecordStr.str
-                            ) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
-
-                            Screen.Main.Inv.withArgs(
-                                TrueStr.str,
-                                NoRecordStr.str,
-                                NoRecordStr.str
-                            ) -> navController.navigate(id) { popUpTo(0)/*{inclusive = true} */ }
-
-                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0)/*{inclusive = true}*/ }
+                            Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
-                        selectedTabIndex = FirstTab.num
+                        selectedTabIndex = ZeroValue.num
                     }
                 }
 
