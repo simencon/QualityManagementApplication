@@ -25,7 +25,6 @@ import androidx.navigation.navigation
 import com.simenko.qmapp.domain.CurrentEmployeeIdKey
 import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.CurrentSubOrderIdKey
-import com.simenko.qmapp.domain.ToProcessControlScreen
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SubOrderAddEditModeKey
 import com.simenko.qmapp.domain.TrueStr
@@ -48,7 +47,6 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
-import com.simenko.qmapp.utils.StringUtils.getBoolean
 
 @Composable
 fun Navigation(
@@ -66,7 +64,7 @@ fun Navigation(
                 }
             }
             composable(
-                route = Screen.Main.Team.EmployeeAddEdit.route + "/{${CurrentEmployeeIdKey.str}}",
+                route = Screen.Main.Team.EmployeeAddEdit.routeWithArgKeys(),
                 arguments = listOf(
                     navArgument(CurrentEmployeeIdKey.str) {
                         type = NavType.IntType
@@ -93,12 +91,8 @@ fun Navigation(
             }
         }
         composable(
-            route = Screen.Main.Inv.route + "/{${ToProcessControlScreen.str}}/{${CurrentOrderIdKey.str}}/{${CurrentSubOrderIdKey.str}}",
+            route = Screen.Main.Inv.routeWithArgKeys(),
             arguments = listOf(
-                navArgument(ToProcessControlScreen.str) {
-                    type = NavType.BoolType
-                    defaultValue = getBoolean(MenuItem.getStartingDrawerMenuItem().id)
-                },
                 navArgument(CurrentOrderIdKey.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
@@ -118,13 +112,39 @@ fun Navigation(
             QMAppTheme {
                 InvestigationsMainComposition(
                     modifier = Modifier.padding(all = 0.dp),
-                    processControlOnly = it.arguments?.getBoolean(ToProcessControlScreen.str) ?: false
+                    processControlOnly = false
+                )
+            }
+        }
+        composable(
+            route = Screen.Main.ProcessControl.routeWithArgKeys(),
+            arguments = listOf(
+                navArgument(CurrentOrderIdKey.str) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                },
+                navArgument(CurrentSubOrderIdKey.str) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                }
+            )
+        ) {
+            val invModel: InvestigationsViewModel = hiltViewModel()
+            (LocalContext.current as MainActivity).initInvModel(invModel)
+            invModel.setCreatedRecord(
+                it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num,
+                it.arguments?.getInt(CurrentSubOrderIdKey.str) ?: NoRecord.num
+            )
+            QMAppTheme {
+                InvestigationsMainComposition(
+                    modifier = Modifier.padding(all = 0.dp),
+                    processControlOnly = true
                 )
             }
         }
 
         composable(
-            route = Screen.Main.OrderAddEdit.route + "/{${CurrentOrderIdKey.str}}",
+            route = Screen.Main.OrderAddEdit.routeWithArgKeys(),
             arguments = listOf(
                 navArgument(CurrentOrderIdKey.str) {
                     type = NavType.IntType
@@ -146,7 +166,7 @@ fun Navigation(
         }
 
         composable(
-            route = Screen.Main.SubOrderAddEdit.route + "/{${CurrentOrderIdKey.str}}" + "/{${CurrentSubOrderIdKey.str}}" + "/{${SubOrderAddEditModeKey.str}}",
+            route = Screen.Main.SubOrderAddEdit.routeWithArgKeys(),
             arguments = listOf(
                 navArgument(CurrentOrderIdKey.str) {
                     type = NavType.IntType
@@ -206,7 +226,7 @@ fun Navigation(
                 }
             }
             composable(
-                route = Screen.Main.Settings.EditUserDetails.route + "/{${UserEditModeKey.str}}",
+                route = Screen.Main.Settings.EditUserDetails.routeWithArgKeys(),
                 arguments = listOf(
                     navArgument(UserEditModeKey.str) {
                         type = NavType.BoolType

@@ -84,6 +84,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavDestination
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
@@ -101,6 +102,7 @@ import com.simenko.qmapp.utils.StringUtils
 @Composable
 fun AppBar(
     screen: MenuItem,
+    destination: NavDestination?,
 
     onDrawerMenuClick: () -> Unit,
     drawerState: DrawerState,
@@ -174,10 +176,7 @@ fun AppBar(
                         }
                     } else {
                         Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
-                        if (
-                            screen.id == Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) ||
-                            screen.id == Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str)
-                        )
+                        if (destination?.route == Screen.Main.Inv.routeWithArgKeys() || destination?.route == Screen.Main.ProcessControl.routeWithArgKeys())
                             IconButton(onClick = { searchBarState.value = true }) {
                                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
                             }
@@ -454,30 +453,25 @@ fun ItemsGroup(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(
-    selectedDrawerMenuItemId: String,
-    backStackTopRoute: String = EmptyString.str,
+    destination: NavDestination?,
     selectedTabIndex: Int,
     badgeCounts: List<Int> = listOf(),
     onTabSelectedLambda: (SelectedNumber, Int) -> Unit
 ) {
-    println("TopTabs - $backStackTopRoute")
     val tabs: MutableList<Triple<String, Int, SelectedNumber>> = mutableListOf()
-    when (backStackTopRoute) {
-        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str),
-        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+    when (destination?.route ?: EmptyString.str) {
+        Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> {
             ProgressTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }
         }
 
-        Screen.Main.Team.Employees.route,
-        Screen.Main.Team.Users.route -> {
+        Screen.Main.Team.Employees.route, Screen.Main.Team.Users.route -> {
             UsersTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }
         }
     }
-
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabs.forEach {
             val selected = selectedTabIndex == it.second
@@ -519,8 +513,7 @@ data class MenuItem(
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) }
-                ?: navigationAndActionItems[4]
+            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) } ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
@@ -548,20 +541,8 @@ private val navigationAndActionItems = listOf(
     MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
     MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem(
-        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str),
-        "All investigations",
-        "All investigations",
-        Icons.Filled.SquareFoot,
-        MenuItem.MenuGroup.QUALITY
-    ),
-    MenuItem(
-        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str),
-        "Process control",
-        "Process control",
-        Icons.Filled.Checklist,
-        MenuItem.MenuGroup.QUALITY
-    ),
+    MenuItem(Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
     MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
     MenuItem(Screen.Main.Settings.route, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
