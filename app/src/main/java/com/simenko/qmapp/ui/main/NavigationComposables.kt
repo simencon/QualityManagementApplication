@@ -83,10 +83,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.FalseStr
-import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.FirstTab
+import com.simenko.qmapp.domain.FourthTab
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.SecondTab
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.ThirdTab
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.utils.StringUtils
@@ -467,7 +470,6 @@ fun TopTabs(
 
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabs.forEach {
-            println("UsersTabs - " + StringUtils.getWithSpaces(it.first))
             val selected = selectedTabIndex == it.second
             Tab(
                 modifier = Modifier.height(36.dp),
@@ -552,16 +554,16 @@ private val navigationAndActionItems = listOf(
 )
 
 enum class ProgressTabs(val statusId: SelectedNumber) {
-    ALL(NoRecord),
-    TO_DO(SelectedNumber(1)),
-    IN_PROGRESS(SelectedNumber(2)),
-    DONE(SelectedNumber(3))
+    ALL(FirstTab),
+    TO_DO(SecondTab),
+    IN_PROGRESS(ThirdTab),
+    DONE(FourthTab)
 }
 
 enum class UsersTabs(val tab: SelectedNumber) {
-    EMPLOYEES(SelectedNumber(1)),
-    USERS(SelectedNumber(2)),
-    ON_APPROVAL(SelectedNumber(3))
+    EMPLOYEES(FirstTab),
+    USERS(SecondTab),
+    ON_APPROVAL(ThirdTab)
 }
 
 enum class AddEditMode(val mode: String) {

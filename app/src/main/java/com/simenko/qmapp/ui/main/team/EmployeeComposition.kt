@@ -161,9 +161,9 @@ fun Employee(
         TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, { onClickDetails(it.toInt()) })
 
         if (item.detailsVisibility) {
-            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.teamMember.email), modifier, 0.2f)
-            TopLevelSingleRecordDetails("Department:", item.department?.depName ?: "-", modifier, 0.2f)
             TopLevelSingleRecordDetails("Job role:", item.teamMember.jobRole, modifier, 0.2f)
+            TopLevelSingleRecordDetails("Department:", item.department?.depName ?: "-", modifier, 0.2f)
+            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.teamMember.email), modifier, 0.2f)
         }
     }
 }
