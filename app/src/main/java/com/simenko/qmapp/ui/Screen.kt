@@ -26,7 +26,9 @@ sealed class Screen(val route: String) {
         object CompanyProfile : Screen("company_profile")
         object Team : Screen("team") {
             object Employees : Screen("employees")
+            object EmployeeAddEdit : Screen("employee_add_edit")
             object Users : Screen("users")
+            object UserEdit : Screen("user_edit")
         }
         object CompanyStructure : Screen("company_structure")
         object CompanyProducts : Screen("company_products")

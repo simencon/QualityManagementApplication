@@ -44,10 +44,12 @@ val FalseStr = SelectedString("false")
 val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
 
+val CurrentEmployeeIdKey = SelectedString("currentEmployeeIdKey")
+
 val ToProcessControlScreen = SelectedString("investigationsKey")
 
-val CurrentOrderIdKey = SelectedString("currentOrderId")
-val CurrentSubOrderIdKey = SelectedString("currentSubOrderId")
+val CurrentOrderIdKey = SelectedString("currentOrderIdKey")
+val CurrentSubOrderIdKey = SelectedString("currentSubOrderIdKey")
 
 val SubOrderAddEditModeKey = SelectedString("subOrderAddEditModeKey")
 
