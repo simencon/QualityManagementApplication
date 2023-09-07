@@ -169,15 +169,13 @@ class MainActivity : ComponentActivity() {
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
                     { tabId, tabIndex ->
-                        when (selectedDrawerMenuItemId) {
-                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
-                                invModel.setCurrentOrdersFilter(status = tabId)
+                        when (backStackEntry.value?.destination?.parent?.route) {
+                            null -> {
+                                when(backStackEntry.value?.destination?.route) {
+                                    Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(status = tabId)
+                                    Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(status = tabId)
+                                }
                             }
-
-                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
-                                invModel.setCurrentSubOrdersFilter(status = tabId)
-                            }
-
                             Screen.Main.Team.route -> {
                                 if (tabId == FirstTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.route)
@@ -203,8 +201,8 @@ class MainActivity : ComponentActivity() {
                         viewModel.setDrawerMenuItemId(id)
                         when (id) {
                             Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-                            Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
                             Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
@@ -225,19 +223,9 @@ class MainActivity : ComponentActivity() {
                 }
 
                 fun onSearchBarSearch(searchValues: String) {
-                    when (selectedDrawerMenuItemId) {
-                        Screen.Main.Inv.withArgs(
-                            FalseStr.str,
-                            NoRecordStr.str,
-                            NoRecordStr.str
-                        ) -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-
-                        Screen.Main.Inv.withArgs(
-                            TrueStr.str,
-                            NoRecordStr.str,
-                            NoRecordStr.str
-                        ) -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
-
+                    when (backStackEntry.value?.destination?.route) {
+                        Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                     }
                 }
@@ -269,6 +257,7 @@ class MainActivity : ComponentActivity() {
                             topBar = {
                                 AppBar(
                                     screen = MenuItem.getItemById(selectedDrawerMenuItemId) ?: MenuItem.getStartingDrawerMenuItem(),
+                                    destination = backStackEntry.value?.destination,
 
                                     onDrawerMenuClick = { scope.launch { drawerState.open() } },
                                     drawerState = drawerState,
@@ -295,7 +284,7 @@ class MainActivity : ComponentActivity() {
                             },
                             floatingActionButton = {
                                 if (
-                                    (selectedDrawerMenuItemId != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
                                     &&
                                     (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
                                 )
@@ -303,8 +292,8 @@ class MainActivity : ComponentActivity() {
                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
-                                                when (selectedDrawerMenuItemId) {
-                                                    Screen.Main.Team.route -> {
+                                                when (backStackEntry.value?.destination?.route) {
+                                                    Screen.Main.Team.Employees.route -> {
                                                         when(backStackEntry.value?.destination?.route) {
                                                             Screen.Main.Team.Employees.route -> {
                                                                 navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
@@ -313,12 +302,12 @@ class MainActivity : ComponentActivity() {
                                                         }
                                                     }
 
-                                                    Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                                    Screen.Main.Inv.routeWithArgKeys() -> {
                                                         navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
                                                         viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                                                     }
 
-                                                    Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> {
+                                                    Screen.Main.ProcessControl.routeWithArgKeys() -> {
                                                         navController.navigate(
                                                             Screen.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
                                                         )
@@ -362,11 +351,13 @@ class MainActivity : ComponentActivity() {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = {
-                                    when (selectedDrawerMenuItemId) {
-                                        Screen.Main.Team.route -> teamModel.updateEmployeesData()
-                                        Screen.Main.Inv.withArgs(FalseStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
-                                        Screen.Main.Inv.withArgs(TrueStr.str, NoRecordStr.str, NoRecordStr.str) -> invModel.uploadNewInvestigations()
-                                        Screen.Main.Settings.route -> settingsModel.updateUserData()
+                                    when (backStackEntry.value?.destination?.route) {
+                                        Screen.Main.Team.Employees.route -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.Users.route -> teamModel.updateEmployeesData()
+                                        Screen.Main.Inv.routeWithArgKeys() -> invModel.uploadNewInvestigations()
+                                        Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Settings.UserDetails.route -> settingsModel.updateUserData()
+                                        Screen.Main.Settings.EditUserDetails.routeWithArgKeys() -> settingsModel.updateUserData()
                                         else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                     }
                                 }
@@ -383,8 +374,7 @@ class MainActivity : ComponentActivity() {
                                         .padding(it)
                                 ) {
                                     TopTabs(
-                                        selectedDrawerMenuItemId,
-                                        backStackEntry.value?.destination?.route ?: EmptyString.str,
+                                        backStackEntry.value?.destination,
                                         selectedTabIndex,
                                         topBadgeCounts,
                                         onTabSelectedLambda

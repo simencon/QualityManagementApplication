@@ -75,10 +75,6 @@ fun SubOrdersFlowColumn(
         {
             invModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER)
             invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), FalseStr.str))
-
-            invModel.navController.currentBackStackEntry.let { bs ->
-                println("bsArguments/investigationsKey = ${bs?.arguments?.getBoolean(ToProcessControlScreen.str)}")
-            }
         }
     }
 
