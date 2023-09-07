@@ -91,22 +91,26 @@ class TeamViewModel @Inject constructor(
      * Visibility operations
      * */
     private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+
     fun setCurrentEmployeeVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _currentEmployeeVisibility.value = _currentEmployeeVisibility.value.setVisibility(dId, aId)
     }
 
     val employees: StateFlow<List<DomainTeamMemberComplete>> = _employees.flatMapLatest { team ->
         _currentEmployeeVisibility.flatMapLatest { visibility ->
-            val cpy = mutableListOf<DomainTeamMemberComplete>()
-            team.forEach {
-                cpy.add(
-                    it.copy(
-                        detailsVisibility = it.teamMember.id == visibility.first.num,
-                        isExpanded = it.teamMember.id == visibility.second.num
+            _users.flatMapLatest { users ->
+                _mainActivityViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size)
+                val cpy = mutableListOf<DomainTeamMemberComplete>()
+                team.forEach {
+                    cpy.add(
+                        it.copy(
+                            detailsVisibility = it.teamMember.id == visibility.first.num,
+                            isExpanded = it.teamMember.id == visibility.second.num
+                        )
                     )
-                )
+                }
+                flow { emit(cpy) }
             }
-            flow { emit(cpy) }
         }
     }
         .flowOn(Dispatchers.IO)

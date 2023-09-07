@@ -161,6 +161,7 @@ class MainActivity : ComponentActivity() {
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
 
+                val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
                     { tabId, tabIndex ->
@@ -204,6 +205,7 @@ class MainActivity : ComponentActivity() {
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                         selectedTabIndex = ZeroValue.num
+                        viewModel.resetTopBadgesCount()
                     }
                 }
 
@@ -368,7 +370,7 @@ class MainActivity : ComponentActivity() {
                                         .fillMaxWidth()
                                         .padding(it)
                                 ) {
-                                    TopTabs(selectedDrawerMenuItemId, selectedTabIndex, onTabSelectedLambda)
+                                    TopTabs(selectedDrawerMenuItemId, selectedTabIndex, topBadgeCounts, onTabSelectedLambda)
                                     Navigation(
                                         Modifier.pullRefresh(pullRefreshState),
                                         initialRoute,
