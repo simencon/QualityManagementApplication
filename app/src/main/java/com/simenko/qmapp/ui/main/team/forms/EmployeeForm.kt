@@ -22,7 +22,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.ui.common.DropdownMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -38,28 +41,51 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val employee by viewModel.employee.collectAsStateWithLifecycle()
     val employeeErrors by viewModel.employeeErrors.collectAsStateWithLifecycle()
 
+    val employeeCompanies by viewModel.employeeCompanies.collectAsStateWithLifecycle()
+    val employeeDepartments by viewModel.employeeDepartments.collectAsStateWithLifecycle()
+
     val (focusRequesterFullName) = FocusRequester.createRefs()
     val (focusRequesterDepartment) = FocusRequester.createRefs()
 
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .padding(all = 0.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .padding(all = 0.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            RecordFieldItem(
-                valueParam = Triple(employee.fullName, employeeErrors.fullNameError) { viewModel.setFullName(it) },
-                keyboardNavigation = Pair(focusRequesterFullName) { focusRequesterDepartment.requestFocus() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Default.Person, "Full name", "Enter name and surname")
-            )
+        RecordFieldItem(
+            valueParam = Triple(employee.fullName, employeeErrors.fullNameError) { viewModel.setFullName(it) },
+            keyboardNavigation = Pair(focusRequesterFullName) { focusRequesterDepartment.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Person, "Full name", "Enter name and surname")
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        val companies = mutableListOf<Pair<Int, String>>()
+        var selectedCompany = EmptyString.str
+        employeeCompanies.forEach {
+            companies.add(Pair(it.id, it.companyName ?: NoString.str))
+            if(employee.companyId == it.id) selectedCompany = it.companyName?: NoString.str
         }
+        DropdownMenu(
+            options = companies,
+            onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it) },
+            selectedName = selectedCompany
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        val departments = mutableListOf<Pair<Int, String>>()
+        var selectedDepartment = EmptyString.str
+        employeeDepartments.forEach {
+            departments.add(Pair(it.id, it.depAbbr ?: NoString.str))
+            if(employee.companyId == it.id) selectedDepartment = it.depAbbr?: NoString.str
+        }
+        DropdownMenu(
+            options = departments,
+            onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it) },
+            selectedName = selectedDepartment
+        )
+
     }
 }
