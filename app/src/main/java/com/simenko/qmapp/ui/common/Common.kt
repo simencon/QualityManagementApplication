@@ -43,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -110,7 +109,9 @@ fun RecordFieldItemWithMenu(
     var searchedOption: String by rememberSaveable { mutableStateOf(EmptyString.str) }
 
     LaunchedEffect(key1 = options) {
-        options.findLast { it.third }?.let { selectedOptionText = it.second }
+        options.findLast { it.third }.let {
+            selectedOptionText = it?.second ?: EmptyString.str
+        }
     }
 
     var filteredOptions = mutableListOf<Triple<Int, String, Boolean>>()

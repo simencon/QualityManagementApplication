@@ -2,6 +2,7 @@ package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
@@ -13,11 +14,12 @@ data class DomainTeamMember(
     var departmentId: Int = NoRecord.num,
     var department: String = NoString.str,
     var email: String? = null,
-    var fullName: String = NoString.str,
+    var fullName: String = EmptyString.str,
     var jobRole: String = NoString.str,
     var roleLevelId: Int = NoRecord.num,
     var passWord: String? = null,
     var companyId: Int = NoRecord.num,
+    var subDepartmentId: Int? = null,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseTeamMember>() {

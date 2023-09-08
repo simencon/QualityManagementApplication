@@ -48,7 +48,9 @@ data class DatabaseTeamMember constructor(
     var roleLevelId: Int,
     var passWord: String? = null,
     @ColumnInfo(index = true)
-    var companyId: Int
+    var companyId: Int,
+    @ColumnInfo(index = true)
+    var subDepartmentId: Int? = null
 ) : DatabaseBaseModel<NetworkTeamMember, DomainTeamMember> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseTeamMember::class, NetworkTeamMember::class).transform(this)
