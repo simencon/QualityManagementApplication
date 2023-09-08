@@ -123,7 +123,6 @@ fun InvestigationsMainComposition(
         if (showStatusChangeDialog.value == true)
             StatusUpdateDialog(
                 dialogInput = dialogInput ?: DialogInput(),
-                teamModel = teamModel,
                 invModel = invModel
             )
     }

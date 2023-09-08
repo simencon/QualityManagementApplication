@@ -85,7 +85,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _employees: Flow<List<DomainTeamMemberComplete>> = manufacturingRepository.teamCompleteList()
+    private val _employees: Flow<List<DomainTeamMemberComplete>> = manufacturingRepository.employees
 
     /**
      * Visibility operations
