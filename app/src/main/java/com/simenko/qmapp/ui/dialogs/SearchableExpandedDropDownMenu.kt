@@ -65,13 +65,8 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
     val density = LocalDensity.current
 
     val maxHeight = remember(itemHeights.toMap()) {
-        if (itemHeights.keys.toSet() != listOfItems.indices.toSet()) {
-            // if we don't have all heights calculated yet, return default value
-            return@remember baseHeight
-        }
+        if (itemHeights.keys.toSet() != listOfItems.indices.toSet()) { return@remember baseHeight }
         val baseHeightInt = with(density) { baseHeight.toPx().toInt() }
-
-        // top+bottom system padding
         var sum = with(density) { DropdownMenuVerticalPadding.toPx().toInt() } * 2
         for ((_, itemSize) in itemHeights.toSortedMap()) {
             sum += itemSize
@@ -79,7 +74,6 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
                 return@remember with(density) { (sum - itemSize / 2).toDp() }
             }
         }
-        // all items fit into base height
         baseHeight
     }
 
@@ -136,11 +130,8 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
                         placeholder = { Text(text = "Search") }
                     )
 
-                    val items = if (searchedOption == EmptyString.str) {
-                        listOfItems
-                    } else {
-                        filteredItems
-                    }
+                    val items = if (searchedOption == EmptyString.str) listOfItems else filteredItems
+
 
                     items.forEach { selectedItem ->
                         DropdownMenuItem(
