@@ -15,7 +15,8 @@ data class NetworkTeamMember(
     var jobRole: String,
     var roleLevelId: Int,
     var passWord: String? = null,
-    var companyId: Int
+    var companyId: Int,
+    var subDepartmentId: Int? = null
 ) : NetworkBaseModel<DatabaseTeamMember> {
     override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseTeamMember {

@@ -64,7 +64,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
 
     fun setEmployeeCompany(id: Int) {
         if (_employee.value.companyId != id)
-            _employee.value = _employee.value.copy(companyId = id, departmentId = NoRecord.num)
+            _employee.value = _employee.value.copy(companyId = id, departmentId = NoRecord.num, subDepartmentId = null)
     }
 
     private val _employeeDepartments: Flow<List<DomainDepartment>> = repository.departments
@@ -80,7 +80,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
 
     fun setEmployeeDepartment(id: Int) {
         if (_employee.value.departmentId != id)
-            _employee.value = _employee.value.copy(departmentId = id)
+            _employee.value = _employee.value.copy(departmentId = id, subDepartmentId = null)
     }
 
     private val _employeeSubDepartments: Flow<List<DomainSubDepartment>> = repository.subDepartments
@@ -96,7 +96,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
 
     fun setEmployeeSubDepartment(id: Int) {
         if (_employee.value.roleLevelId != id)
-            _employee.value = _employee.value.copy(roleLevelId = id)
+            _employee.value = _employee.value.copy(subDepartmentId = id)
     }
 
 }

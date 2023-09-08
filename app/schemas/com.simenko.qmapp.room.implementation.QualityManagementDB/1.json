@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "274201201a5a60525078e443372b9711",
+    "identityHash": "86fd9b3aa10b594b5b40d3f0fdae923f",
     "entities": [
       {
         "tableName": "user_roles",
@@ -205,7 +205,7 @@
       },
       {
         "tableName": "8_team_members",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `departmentId` INTEGER NOT NULL, `department` TEXT NOT NULL, `email` TEXT, `fullName` TEXT NOT NULL, `jobRole` TEXT NOT NULL, `roleLevelId` INTEGER NOT NULL, `passWord` TEXT, `companyId` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `departmentId` INTEGER NOT NULL, `department` TEXT NOT NULL, `email` TEXT, `fullName` TEXT NOT NULL, `jobRole` TEXT NOT NULL, `roleLevelId` INTEGER NOT NULL, `passWord` TEXT, `companyId` INTEGER NOT NULL, `subDepartmentId` INTEGER)",
         "fields": [
           {
             "fieldPath": "id",
@@ -260,6 +260,12 @@
             "columnName": "companyId",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "subDepartmentId",
+            "columnName": "subDepartmentId",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -295,6 +301,15 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_companyId` ON `${TABLE_NAME}` (`companyId`)"
+          },
+          {
+            "name": "index_8_team_members_subDepartmentId",
+            "unique": false,
+            "columnNames": [
+              "subDepartmentId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_subDepartmentId` ON `${TABLE_NAME}` (`subDepartmentId`)"
           }
         ],
         "foreignKeys": []
@@ -3587,7 +3602,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '274201201a5a60525078e443372b9711')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '86fd9b3aa10b594b5b40d3f0fdae923f')"
     ]
   }
 }
