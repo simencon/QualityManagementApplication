@@ -3,10 +3,10 @@ package com.simenko.qmapp.ui.main.team.forms
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
-import com.simenko.qmapp.domain.entities.DomainOrdersType
-import com.simenko.qmapp.domain.entities.DomainReason
+import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.UserRepository
@@ -53,11 +53,11 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
         _employeeErrors.value = _employeeErrors.value.copy(fullNameError = false)
     }
 
-    private val _employeeCompanies: Flow<List<DomainCompany>> = repository.getCompanies
-    val employeeCompanies: StateFlow<List<DomainCompany>> = _employeeCompanies.flatMapLatest { company ->
+    private val _employeeCompanies: Flow<List<DomainCompany>> = repository.companies
+    val employeeCompanies: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeCompanies.flatMapLatest { company ->
         _employee.flatMapLatest { employee ->
-            val cpy = mutableListOf<DomainCompany>()
-            company.forEach { cpy.add(it.copy(isSelected = it.id == employee.companyId)) }
+            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            company.forEach { cpy.add(Triple(it.id, it.companyName?: NoString.str, it.id == employee.companyId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -67,11 +67,13 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             _employee.value = _employee.value.copy(companyId = id, departmentId = NoRecord.num)
     }
 
-    private val _employeeDepartments: Flow<List<DomainDepartment>> = repository.getDepartments
-    val employeeDepartments: StateFlow<List<DomainDepartment>> = _employeeDepartments.flatMapLatest { departments ->
+    private val _employeeDepartments: Flow<List<DomainDepartment>> = repository.departments
+    val employeeDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeDepartments.flatMapLatest { departments ->
         _employee.flatMapLatest { employee ->
-            val cpy = mutableListOf<DomainDepartment>()
-            departments.forEach { cpy.add(it.copy(isSelected = it.id == employee.companyId)) }
+            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            departments
+                .filter { it.companyId == employee.companyId }
+                .forEach { cpy.add(Triple(it.id, it.depAbbr?: NoString.str, it.id == employee.departmentId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -79,6 +81,22 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     fun setEmployeeDepartment(id: Int) {
         if (_employee.value.departmentId != id)
             _employee.value = _employee.value.copy(departmentId = id)
+    }
+
+    private val _employeeSubDepartments: Flow<List<DomainSubDepartment>> = repository.subDepartments
+    val employeeSubDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeSubDepartments.flatMapLatest { subDepartments ->
+        _employee.flatMapLatest { employee ->
+            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            subDepartments
+                .filter { it.depId == employee.departmentId }
+                .forEach { cpy.add(Triple(it.id, it.subDepAbbr?: NoString.str, it.id == employee.roleLevelId)) }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setEmployeeSubDepartment(id: Int) {
+        if (_employee.value.roleLevelId != id)
+            _employee.value = _employee.value.copy(roleLevelId = id)
     }
 
 }

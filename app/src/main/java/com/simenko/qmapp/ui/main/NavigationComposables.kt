@@ -513,7 +513,7 @@ data class MenuItem(
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) } ?: navigationAndActionItems[4]
+            navigationAndActionItems.find { it.id == Screen.Main.Team.route } ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 

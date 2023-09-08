@@ -1,10 +1,17 @@
 package com.simenko.qmapp.ui.common
 
+import android.graphics.Rect
+import android.view.ViewTreeObserver
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -22,16 +29,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,6 +53,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.PopupProperties
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
@@ -78,14 +93,22 @@ fun RecordFieldItem(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun DropdownMenu(
-    options: List<Pair<Int, String>>,
-    selectedName: String,
-    onDropdownMenuItemClick: (Int) -> Unit
+fun RecordFieldItemWithMenu(
+    options: List<Triple<Int, String, Boolean>>,
+    onDropdownMenuItemClick: (Int) -> Unit,
+    keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
+    keyboardNavigation: Pair<FocusRequester, () -> Unit>,
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var selectedName: String by rememberSaveable { mutableStateOf(EmptyString.str) }
+
+    LaunchedEffect(key1 = options) {
+        options.findLast { it.third }?.let { selectedName = it.second }
+    }
+
+    val isKeyboardOpen by keyboardAsState()
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -94,35 +117,82 @@ fun DropdownMenu(
         }
     ) {
         TextField(
-            modifier = Modifier.menuAnchor(),
-            readOnly = true,
+            modifier = Modifier
+                .menuAnchor()
+                .focusRequester(keyboardNavigation.first)
+                .width(320.dp),
+            readOnly = false,
             value = selectedName,
-            onValueChange = { },
-            label = { Text("Label") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = expanded
-                )
+            onValueChange = { value ->
+                selectedName = value
+                options.find { it.second == value }.let {
+                    if(it == null) onDropdownMenuItemClick(NoRecord.num) else onDropdownMenuItemClick(it.first)
+                }
+                if (!expanded) expanded = true
             },
+            label = { Text("Label") },
+            keyboardOptions = KeyboardOptions(keyboardType = keyBoardTypeAction.first, imeAction = keyBoardTypeAction.second),
+            keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors()
         )
         ExposedDropdownMenu(
+            modifier = Modifier.padding(horizontal = 4.dp),
             expanded = expanded,
             onDismissRequest = {
+                println("RecordFieldItemWithMenu - $isKeyboardOpen")
                 expanded = false
             }
         ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(text = option.second) },
-                    onClick = {
-                        onDropdownMenuItemClick(option.first)
-                        expanded = false
-                    }
-                )
+            val filteredOptions = options.filter { it.second.contains(selectedName, ignoreCase = true) }
+            val items = if (selectedName == EmptyString.str) options else filteredOptions
+
+            if (items.isNotEmpty()) {
+                items.forEach { option ->
+                    DropdownMenuItem(
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(size = 12.dp)),
+                        text = { Text(text = option.second) },
+                        onClick = {
+                            onDropdownMenuItemClick(option.first)
+                            expanded = false
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
             }
         }
     }
+}
+
+enum class Keyboard {
+    Opened, Closed
+}
+
+@Composable
+fun keyboardAsState(): State<Keyboard> {
+    val keyboardState = remember { mutableStateOf(Keyboard.Closed) }
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val onGlobalListener = ViewTreeObserver.OnGlobalLayoutListener {
+            val rect = Rect()
+            view.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = view.rootView.height
+            val keypadHeight = screenHeight - rect.bottom
+            keyboardState.value = if (keypadHeight > screenHeight * 0.15) {
+                Keyboard.Opened
+            } else {
+                Keyboard.Closed
+            }
+        }
+        view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalListener)
+
+        onDispose {
+            view.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalListener)
+        }
+    }
+
+    return keyboardState
 }
 
 @Composable

@@ -42,15 +42,14 @@ data class DialogInput(
 fun StatusUpdateDialog(
     modifier: Modifier = Modifier,
     dialogInput: DialogInput,
-    teamModel: TeamViewModel,
     invModel: InvestigationsViewModel
 ) {
     val currentOrder = dialogInput.currentOrder
     val currentSubOrder = dialogInput.currentSubOrder
     val currentSubOrderTask = dialogInput.currentSubOrderTask
 
-    val statuses by invModel.invStatusListSF.collectAsStateWithLifecycle(listOf())
-    val team by teamModel.employees.collectAsStateWithLifecycle(listOf())
+    val statuses by invModel.invStatuses.collectAsStateWithLifecycle(listOf())
+    val team by invModel.employees.collectAsStateWithLifecycle(listOf())
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }

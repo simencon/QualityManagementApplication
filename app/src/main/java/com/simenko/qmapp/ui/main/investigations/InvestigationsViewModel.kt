@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.AddEditMode
@@ -34,6 +35,7 @@ private const val TAG = "InvestigationsViewModel"
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
+    private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
@@ -60,6 +62,7 @@ class InvestigationsViewModel @Inject constructor(
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this.mainActivityViewModel = viewModel
     }
+
     fun setAddEditMode(mode: AddEditMode) {
         mainActivityViewModel.setAddEditMode(mode)
     }
@@ -89,7 +92,7 @@ class InvestigationsViewModel @Inject constructor(
         _isStatusUpdateDialogVisible.value = true
     }
 
-    private val _invStatusListSF = repository.investigationStatuses()
+    private val _invStatuses = repository.investigationStatuses()
 
     private val _selectedStatus = MutableStateFlow(NoRecord)
 
@@ -97,8 +100,8 @@ class InvestigationsViewModel @Inject constructor(
         _selectedStatus.value = statusId
     }
 
-    val invStatusListSF: StateFlow<List<DomainOrdersStatus>> =
-        _invStatusListSF.flatMapLatest { statuses ->
+    val invStatuses: StateFlow<List<DomainOrdersStatus>> =
+        _invStatuses.flatMapLatest { statuses ->
             _selectedStatus.flatMapLatest { selectedStatus ->
                 val cpy = mutableListOf<DomainOrdersStatus>()
                 statuses.forEach {
@@ -110,6 +113,14 @@ class InvestigationsViewModel @Inject constructor(
             .flowOn(Dispatchers.IO)
             .conflate()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    private val _employees: Flow<List<DomainTeamMemberComplete>> = manufacturingRepository.employees
+    val employees: StateFlow<List<DomainTeamMemberComplete>> = _employees.flatMapLatest { team ->
+        flow { emit(team) }
+    }
+        .flowOn(Dispatchers.IO)
+        .conflate()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * Handling scrolling to just created record-------------------------------------------------

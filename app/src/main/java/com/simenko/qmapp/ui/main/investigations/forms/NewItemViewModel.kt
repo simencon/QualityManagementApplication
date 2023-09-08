@@ -107,7 +107,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Order Customer --------------------------------------------------------------------------------------------------------------------------------
-    private val _orderCustomers: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
+    private val _orderCustomers: Flow<List<DomainDepartment>> = manufacturingRepository.departments
     val orderCustomers: StateFlow<List<DomainDepartment>> = _orderCustomers.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
             if (currentOrder.reasonId != NoRecord.num) {
@@ -168,7 +168,7 @@ class NewItemViewModel @Inject constructor(
     private val _inputForOrder: Flow<List<DomainInputForOrder>> = repository.inputForOrder
 
     // Sub Order Department --------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderDepartments: Flow<List<DomainDepartment>> = manufacturingRepository.getDepartments
+    private val _subOrderDepartments: Flow<List<DomainDepartment>> = manufacturingRepository.departments
     val subOrderDepartments: StateFlow<List<DomainDepartment>> = _subOrderDepartments.flatMapLatest { departments ->
         _subOrder.flatMapLatest { so ->
             _order.flatMapLatest { o ->

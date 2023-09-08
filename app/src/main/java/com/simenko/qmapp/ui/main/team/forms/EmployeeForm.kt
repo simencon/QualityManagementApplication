@@ -17,15 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.ui.common.DropdownMenu
+import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -41,11 +40,16 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val employee by viewModel.employee.collectAsStateWithLifecycle()
     val employeeErrors by viewModel.employeeErrors.collectAsStateWithLifecycle()
 
-    val employeeCompanies by viewModel.employeeCompanies.collectAsStateWithLifecycle()
-    val employeeDepartments by viewModel.employeeDepartments.collectAsStateWithLifecycle()
+    val companies by viewModel.employeeCompanies.collectAsStateWithLifecycle()
+    val departments by viewModel.employeeDepartments.collectAsStateWithLifecycle()
+    val subDepartments by viewModel.employeeSubDepartments.collectAsStateWithLifecycle()
 
     val (focusRequesterFullName) = FocusRequester.createRefs()
+    val (focusRequesterCompany) = FocusRequester.createRefs()
     val (focusRequesterDepartment) = FocusRequester.createRefs()
+    val (focusRequesterSubDepartment) = FocusRequester.createRefs()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -58,34 +62,30 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(employee.fullName, employeeErrors.fullNameError) { viewModel.setFullName(it) },
-            keyboardNavigation = Pair(focusRequesterFullName) { focusRequesterDepartment.requestFocus() },
+            keyboardNavigation = Pair(focusRequesterFullName) { focusRequesterCompany.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
             contentDescription = Triple(Icons.Default.Person, "Full name", "Enter name and surname")
         )
         Spacer(modifier = Modifier.height(10.dp))
-        val companies = mutableListOf<Pair<Int, String>>()
-        var selectedCompany = EmptyString.str
-        employeeCompanies.forEach {
-            companies.add(Pair(it.id, it.companyName ?: NoString.str))
-            if(employee.companyId == it.id) selectedCompany = it.companyName?: NoString.str
-        }
-        DropdownMenu(
+        RecordFieldItemWithMenu(
             options = companies,
             onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it) },
-            selectedName = selectedCompany
+            keyboardNavigation = Pair(focusRequesterCompany) { focusRequesterDepartment.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
         )
         Spacer(modifier = Modifier.height(10.dp))
-        val departments = mutableListOf<Pair<Int, String>>()
-        var selectedDepartment = EmptyString.str
-        employeeDepartments.forEach {
-            departments.add(Pair(it.id, it.depAbbr ?: NoString.str))
-            if(employee.departmentId == it.id) selectedDepartment = it.depAbbr?: NoString.str
-        }
-        DropdownMenu(
+        RecordFieldItemWithMenu(
             options = departments,
             onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it) },
-            selectedName = selectedDepartment
+            keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterSubDepartment.requestFocus()},
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
         )
-
+        Spacer(modifier = Modifier.height(10.dp))
+        RecordFieldItemWithMenu(
+            options = subDepartments,
+            onDropdownMenuItemClick = { viewModel.setEmployeeSubDepartment(it) },
+            keyboardNavigation = Pair(focusRequesterSubDepartment) { keyboardController?.hide() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+        )
     }
 }
