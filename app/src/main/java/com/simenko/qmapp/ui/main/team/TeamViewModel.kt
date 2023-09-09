@@ -167,6 +167,7 @@ class TeamViewModel @Inject constructor(
             systemRepository.syncUsers()
 
             manufacturingRepository.syncCompanies()
+            manufacturingRepository.syncJobRoles()
             manufacturingRepository.syncDepartments()
             manufacturingRepository.syncTeamMembers()
 

@@ -45,15 +45,15 @@ object Constants {
     const val COMPANY_DATA = "companyData"
     const val ROLES = "roles"
 
-    const val TEAM_MEMBERS = "teamMembers"
+    const val EMPLOYEES = "employees"
     const val COMPANIES = "companies"
+    const val JOB_ROLES = "positionLevels"
     const val DEPARTMENTS = "departments"
     const val SUB_DEPARTMENTS = "subDepartments"
     const val MANUFACTURING_CHANNELS = "manufacturingChannels"
     const val MANUFACTURING_LINES = "manufacturingLines"
     const val MANUFACTURING_OPERATIONS = "manufacturingOperations"
     const val MANUFACTURING_OPERATIONS_FLOWS = "manufacturingOperationsFlows"
-    const val POSITIONS_LEVELS = "positionLevels"
 
     const val MANUFACTURING_PROJECTS = "manufacturingProjects"
     const val PRODUCTS_KEYS = "productsKeys"

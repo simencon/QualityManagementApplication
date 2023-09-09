@@ -8,15 +8,15 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class NetworkTeamMember(
     var id: Int,
-    var departmentId: Int,
-    var department: String,
-    var email: String? = null,
     var fullName: String,
-    var jobRole: String,
-    var roleLevelId: Int,
-    var passWord: String? = null,
     var companyId: Int,
-    var subDepartmentId: Int? = null
+    var departmentId: Int,
+    var subDepartmentId: Int? = null,
+    var department: String,
+    var jobRoleId: Int,
+    var jobRole: String,
+    var email: String? = null,
+    var passWord: String? = null
 ) : NetworkBaseModel<DatabaseTeamMember> {
     override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseTeamMember {
@@ -39,9 +39,17 @@ data class NetworkCompany constructor(
     var companyManagerId: Int
 ) : NetworkBaseModel<DatabaseCompany> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseCompany {
-        return ObjectTransformer(NetworkCompany::class, DatabaseCompany::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkCompany::class, DatabaseCompany::class).transform(this)
+}
+
+@JsonClass(generateAdapter = true)
+data class NetworkJobRole(
+    val id: Int,
+    val companyId: Int,
+    val jobRoleDescription: String
+) : NetworkBaseModel<DatabaseJobRole> {
+    override fun getRecordId() = this.id
+    override fun toDatabaseModel() = ObjectTransformer(NetworkJobRole::class, DatabaseJobRole::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -55,9 +63,7 @@ data class NetworkDepartment(
     val companyId: Int?
 ) : NetworkBaseModel<DatabaseDepartment> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseDepartment {
-        return ObjectTransformer(NetworkDepartment::class, DatabaseDepartment::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkDepartment::class, DatabaseDepartment::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -69,9 +75,7 @@ data class NetworkSubDepartment(
     var subDepOrder: Int? = null
 ) : NetworkBaseModel<DatabaseSubDepartment> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseSubDepartment {
-        return ObjectTransformer(NetworkSubDepartment::class, DatabaseSubDepartment::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkSubDepartment::class, DatabaseSubDepartment::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -83,9 +87,7 @@ data class NetworkManufacturingChannel(
     var channelOrder: Int? = null
 ) : NetworkBaseModel<DatabaseManufacturingChannel> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseManufacturingChannel {
-        return ObjectTransformer(NetworkManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -97,9 +99,7 @@ data class NetworkManufacturingLine(
     var lineOrder: Int
 ) : NetworkBaseModel<DatabaseManufacturingLine> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseManufacturingLine {
-        return ObjectTransformer(NetworkManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -112,9 +112,7 @@ data class NetworkManufacturingOperation(
     var equipment: String?
 ) : NetworkBaseModel<DatabaseManufacturingOperation> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseManufacturingOperation {
-        return ObjectTransformer(NetworkManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -124,7 +122,5 @@ data class NetworkOperationsFlow(
     var previousOperationId: Int
 ) : NetworkBaseModel<DatabaseOperationsFlow> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseOperationsFlow {
-        return ObjectTransformer(NetworkOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
 }

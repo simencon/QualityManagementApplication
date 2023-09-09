@@ -8,6 +8,7 @@ import com.simenko.qmapp.room.implementation.dao.investigaions.*
 import com.simenko.qmapp.room.implementation.dao.manufacturing.ChannelDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.CompanyDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.DepartmentDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.JobRoleDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.LineDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationsFlowDao
@@ -23,6 +24,7 @@ import com.simenko.qmapp.room.implementation.dao.system.UserRoleDao
 
         DatabaseTeamMember::class,
         DatabaseCompany::class,
+        DatabaseJobRole::class,
         DatabaseDepartment::class,
         DatabaseSubDepartment::class,
         DatabaseManufacturingChannel::class,
@@ -95,6 +97,7 @@ abstract class QualityManagementDB : RoomDatabase() {
 
     abstract val teamMemberDao: TeamMemberDao
     abstract val companyDao: CompanyDao
+    abstract val jobRoleDao: JobRoleDao
     abstract val departmentDao: DepartmentDao
     abstract val subDepartmentDao: SubDepartmentDao
     abstract val channelDao: ChannelDao
