@@ -103,7 +103,9 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
 
 data class EmployeeErrors(
     var fullNameError: Boolean = false,
+    var companyError: Boolean = false,
     var departmentError: Boolean = false,
+    var subDepartmentError: Boolean = false,
     var jobRoleError: Boolean = false,
     var emailError: Boolean = false,
     var passwordError: Boolean = false,
