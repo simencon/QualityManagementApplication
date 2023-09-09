@@ -12,10 +12,10 @@ import com.simenko.qmapp.utils.ObjectTransformer
 data class DomainTeamMember(
     var id: Int = NoRecord.num,
     var departmentId: Int = NoRecord.num,
-    var department: String = NoString.str,
+    var department: String = EmptyString.str,
     var email: String? = null,
     var fullName: String = EmptyString.str,
-    var jobRole: String = NoString.str,
+    var jobRole: String = EmptyString.str,
     var roleLevelId: Int = NoRecord.num,
     var passWord: String? = null,
     var companyId: Int = NoRecord.num,

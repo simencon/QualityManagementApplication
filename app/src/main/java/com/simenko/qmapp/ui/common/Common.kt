@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 
 @Composable
 fun RecordFieldItem(
@@ -183,6 +184,16 @@ fun RecordFieldItemWithMenu(
                             colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.primary),
                         )
                     }
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedOptionText = EmptyString.str
+                            onDropdownMenuItemClick(NoRecord.num)
+                            searchedOption = EmptyString.str
+                            expanded = false
+                        },
+                        text = { Text(text = "None") },
+                        colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.secondary),
+                    )
                 }
             }
         }

@@ -19,11 +19,11 @@ private const val MIN_LENGTH = 6
 @HiltViewModel
 class EnterDetailsViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
 
-    private val _enterDetailsState = MutableStateFlow<EnterDetailsViewState>(EnterDetailsInitialState)
+    private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     fun resetToInitialState() {
-        _enterDetailsState.value = EnterDetailsInitialState
+        _fillInState.value = FillInInitialState
     }
-    val enterDetailsState: StateFlow<EnterDetailsViewState> get() = _enterDetailsState
+    val fillInState: StateFlow<FillInState> get() = _fillInState
 
     private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
     private var _rawPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
@@ -90,8 +90,8 @@ class EnterDetailsViewModel @Inject constructor(private val userRepository: User
             }
         }
 
-        if (errorMsg.isNotEmpty()) _enterDetailsState.value = EnterDetailsError(errorMsg)
-        else _enterDetailsState.value = EnterDetailsSuccess
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
+        else _fillInState.value = FillInSuccess
     }
 
     fun initRawUser() {
@@ -123,7 +123,7 @@ data class UserErrors(
     var passwordError: Boolean = false,
 )
 
-sealed class EnterDetailsViewState
-object EnterDetailsInitialState : EnterDetailsViewState()
-object EnterDetailsSuccess : EnterDetailsViewState()
-data class EnterDetailsError(val errorMsg: String) : EnterDetailsViewState()
+sealed class FillInState
+object FillInInitialState : FillInState()
+object FillInSuccess : FillInState()
+data class FillInError(val errorMsg: String) : FillInState()

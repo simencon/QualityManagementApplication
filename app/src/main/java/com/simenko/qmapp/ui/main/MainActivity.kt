@@ -325,6 +325,7 @@ class MainActivity : ComponentActivity() {
                                                     AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
                                                     AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
                                                     AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
+                                                    AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
