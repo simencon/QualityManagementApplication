@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,30 +65,37 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(employee.fullName, employeeErrors.fullNameError) { viewModel.setFullName(it) },
-            keyboardNavigation = Pair(focusRequesterFullName) { focusRequesterCompany.requestFocus() },
+            keyboardNavigation = Pair(focusRequesterFullName) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
             contentDescription = Triple(Icons.Default.Person, "Full name", "Enter name and surname")
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
             options = companies,
+            isError = employeeErrors.companyError,
             onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it) },
-            keyboardNavigation = Pair(focusRequesterCompany) { focusRequesterDepartment.requestFocus() },
+            keyboardNavigation = Pair(focusRequesterCompany) { focusRequesterCompany.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.Apartment, "Company", "Select company"),
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
             options = departments,
+            isError = employeeErrors.departmentError,
             onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it) },
-            keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterSubDepartment.requestFocus()},
+            keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterDepartment.requestFocus()},
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.AccountBalance, "Department", "Select department"),
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
             options = subDepartments,
+            isError = employeeErrors.subDepartmentError,
             onDropdownMenuItemClick = { viewModel.setEmployeeSubDepartment(it) },
-            keyboardNavigation = Pair(focusRequesterSubDepartment) { keyboardController?.hide() },
+            keyboardNavigation = Pair(focusRequesterSubDepartment) { focusRequesterSubDepartment.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+            contentDescription = Triple(Icons.Default.AccountTree, "Sub department", "Select only if applicable"),
+            isMandatoryField = false
         )
     }
 }

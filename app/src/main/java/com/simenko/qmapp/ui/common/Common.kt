@@ -6,11 +6,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,7 +37,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -48,7 +47,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -69,8 +67,10 @@ fun RecordFieldItem(
     contentDescription: Triple<ImageVector, String, String>,
     isMandatoryField: Boolean = true,
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     TextField(
         value = valueParam.first,
@@ -87,8 +87,10 @@ fun RecordFieldItem(
         keyboardOptions = KeyboardOptions(keyboardType = keyBoardTypeAction.first, imeAction = keyBoardTypeAction.second),
         keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
         enabled = enabled,
+        readOnly = readOnly,
         trailingIcon = trailingIcon,
         visualTransformation = visualTransformation,
+        interactionSource = interactionSource,
         modifier = Modifier
             .focusRequester(keyboardNavigation.first)
             .width(320.dp)
@@ -99,9 +101,12 @@ fun RecordFieldItem(
 @Composable
 fun RecordFieldItemWithMenu(
     options: List<Triple<Int, String, Boolean>>,
+    isError: Boolean,
     onDropdownMenuItemClick: (Int) -> Unit,
-    keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
+    keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
+    contentDescription: Triple<ImageVector, String, String>,
+    isMandatoryField: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -116,85 +121,68 @@ fun RecordFieldItemWithMenu(
 
     var filteredOptions = mutableListOf<Triple<Int, String, Boolean>>()
 
-    val itemHeights = remember { mutableStateMapOf<Int, Int>() }
-    val baseHeight = 530.dp
-    val density = LocalDensity.current
-
-    val maxHeight = remember(itemHeights.toMap()) {
-        if (itemHeights.keys.toSet() != options.indices.toSet()) {
-            return@remember baseHeight
-        }
-        val baseHeightInt = with(density) { baseHeight.toPx().toInt() }
-        var sum = with(density) { 8.dp.toPx().toInt() } * 2
-        for ((_, itemSize) in itemHeights.toSortedMap()) {
-            sum += itemSize
-            if (sum >= baseHeightInt) {
-                return@remember with(density) { (sum - itemSize / 2).toDp() }
-            }
-        }
-        baseHeight
-    }
-
-    TextField(
-        modifier = Modifier.width(320.dp),
-        readOnly = true,
-        value = selectedOptionText,
-        onValueChange = { selectedOptionText = it },
-        label = { Text("Label") },
-        keyboardOptions = KeyboardOptions(keyboardType = keyBoardTypeAction.first, imeAction = keyBoardTypeAction.second),
-        keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
-        trailingIcon = {
-            IconToggleButton(
-                checked = expanded,
-                onCheckedChange = { expanded = it }) { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
-        },
-        interactionSource = remember { MutableInteractionSource() }
-            .also { interactionSource ->
-                LaunchedEffect(interactionSource) {
-                    interactionSource.interactions.collect {
-                        if (it is PressInteraction.Release) expanded = !expanded
+    Box {
+        RecordFieldItem(
+            valueParam = Triple(selectedOptionText, isError) {},
+            keyboardNavigation = keyboardNavigation,
+            keyBoardTypeAction = keyBoardTypeAction,
+            contentDescription = contentDescription,
+            isMandatoryField = isMandatoryField,
+            readOnly = true,
+            trailingIcon = {
+                IconToggleButton(
+                    checked = expanded,
+                    onCheckedChange = {
+                        expanded = it
+                        keyboardNavigation.second()
+                    }) { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+            },
+            interactionSource = remember { MutableInteractionSource() }
+                .also { interactionSource ->
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) expanded = !expanded
+                        }
                     }
                 }
-            }
-    )
+        )
 
-    if (expanded) {
-        DropdownMenu(
-            modifier = Modifier
-                .fillMaxWidth(0.75f)
-                .requiredSizeIn(maxHeight = maxHeight),
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+        if (expanded) {
+            DropdownMenu(
+                modifier = Modifier.fillMaxWidth(0.75f),
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    value = searchedOption,
-                    onValueChange = { selectedSport ->
-                        searchedOption = selectedSport
-                        filteredOptions = options.filter { it.second.contains(searchedOption, ignoreCase = true) }.toMutableList()
-                    },
-                    leadingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = null) },
-                    placeholder = { Text(text = "Search") }
-                )
-
-                val items = if (searchedOption == EmptyString.str) options else filteredOptions
-
-                items.forEach { selectedItem ->
-                    DropdownMenuItem(
-                        onClick = {
-                            selectedOptionText = selectedItem.second
-                            onDropdownMenuItemClick(selectedItem.first)
-                            searchedOption = EmptyString.str
-                            expanded = false
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        value = searchedOption,
+                        onValueChange = { selectedSport ->
+                            searchedOption = selectedSport
+                            filteredOptions = options.filter { it.second.contains(searchedOption, ignoreCase = true) }.toMutableList()
                         },
-                        text = { Text(text = selectedItem.second) },
-                        colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.primary),
+                        leadingIcon = { Icon(imageVector = Icons.Outlined.Search, contentDescription = null) },
+                        placeholder = { Text(text = "Search") }
                     )
+
+                    val items = if (searchedOption == EmptyString.str) options else filteredOptions
+
+                    items.forEach { selectedItem ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedOptionText = selectedItem.second
+                                onDropdownMenuItemClick(selectedItem.first)
+                                searchedOption = EmptyString.str
+                                expanded = false
+                            },
+                            text = { Text(text = selectedItem.second) },
+                            colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.primary),
+                        )
+                    }
                 }
             }
         }
