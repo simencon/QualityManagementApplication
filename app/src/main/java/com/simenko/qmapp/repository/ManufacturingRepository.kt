@@ -52,6 +52,10 @@ class ManufacturingRepository @Inject constructor(
         database.companyDao
     ) { manufacturingService.getCompanies() }
 
+    suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(
+        database.jobRoleDao
+    ) { manufacturingService.getJobRoles() }
+
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(
         database.departmentDao
     ) { manufacturingService.getDepartments() }
@@ -91,6 +95,11 @@ class ManufacturingRepository @Inject constructor(
 
     val companies: Flow<List<DomainCompany>> =
         database.companyDao.getRecordsFlowForUI().map {list ->
+            list.map { it.toDomainModel() }
+        }
+
+    val jobRoles: Flow<List<DomainJobRole>> =
+        database.jobRoleDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 

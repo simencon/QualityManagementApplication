@@ -79,6 +79,7 @@ class MainActivityViewModel @Inject constructor(
 
             manufacturingRepository.syncTeamMembers()
             manufacturingRepository.syncCompanies()
+            manufacturingRepository.syncJobRoles()
             manufacturingRepository.syncDepartments()
             manufacturingRepository.syncSubDepartments()
             manufacturingRepository.syncChannels()

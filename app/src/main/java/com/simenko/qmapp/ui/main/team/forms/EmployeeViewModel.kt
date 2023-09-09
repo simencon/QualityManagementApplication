@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.DomainJobRole
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainTeamMember
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -102,15 +103,34 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             val cpy = mutableListOf<Triple<Int, String, Boolean>>()
             subDepartments
                 .filter { it.depId == employee.departmentId }
-                .forEach { cpy.add(Triple(it.id, it.subDepAbbr?: NoString.str, it.id == employee.roleLevelId)) }
+                .forEach { cpy.add(Triple(it.id, it.subDepAbbr?: NoString.str, it.id == employee.subDepartmentId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun setEmployeeSubDepartment(id: Int) {
-        if (_employee.value.roleLevelId != id) {
+        if (_employee.value.subDepartmentId != id) {
             _employee.value = _employee.value.copy(subDepartmentId = id)
             _employeeErrors.value = _employeeErrors.value.copy(subDepartmentError = false)
+            _fillInState.value = FillInInitialState
+        }
+    }
+
+    private val _employeeJobRole: Flow<List<DomainJobRole>> = repository.jobRoles
+    val employeeJobRole: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeJobRole.flatMapLatest { subDepartments ->
+        _employee.flatMapLatest { employee ->
+            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            subDepartments
+                .filter { it.companyId == employee.companyId }
+                .forEach { cpy.add(Triple(it.id, it.jobRoleDescription, it.id == employee.jobRoleId)) }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setEmployeeJobRole(id: Int) {
+        if (_employee.value.subDepartmentId != id) {
+            _employee.value = _employee.value.copy(jobRoleId = id)
+            _employeeErrors.value = _employeeErrors.value.copy(jobRoleIdError = false)
             _fillInState.value = FillInInitialState
         }
     }
@@ -147,8 +167,12 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
                 append("Department field is mandatory\n")
             }
             if (principle.jobRole.isEmpty()) {
-                _employeeErrors.value = _employeeErrors.value.copy(jobRoleError = true)
+                _employeeErrors.value = _employeeErrors.value.copy(jobRoleIdError = true)
                 append("Job role field is mandatory\n")
+            }
+            if (principle.jobRole.isEmpty()) {
+                _employeeErrors.value = _employeeErrors.value.copy(jobRoleError = true)
+                append("Job role description field is mandatory\n")
             }
             if (principle.email.isNullOrEmpty()) {
                 _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
@@ -170,6 +194,7 @@ data class EmployeeErrors(
     var companyError: Boolean = false,
     var departmentError: Boolean = false,
     var subDepartmentError: Boolean = false,
+    var jobRoleIdError: Boolean = false,
     var jobRoleError: Boolean = false,
     var emailError: Boolean = false,
     var passwordError: Boolean = false,

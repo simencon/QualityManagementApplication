@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Work
@@ -38,7 +39,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
-import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
@@ -61,6 +61,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val companies by viewModel.employeeCompanies.collectAsStateWithLifecycle()
     val departments by viewModel.employeeDepartments.collectAsStateWithLifecycle()
     val subDepartments by viewModel.employeeSubDepartments.collectAsStateWithLifecycle()
+    val jobRoles by viewModel.employeeSubDepartments.collectAsStateWithLifecycle()
 
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
@@ -84,6 +85,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val (focusRequesterCompany) = FocusRequester.createRefs()
     val (focusRequesterDepartment) = FocusRequester.createRefs()
     val (focusRequesterSubDepartment) = FocusRequester.createRefs()
+    val (focusRequesterJobRole) = FocusRequester.createRefs()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -131,11 +133,21 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
             isMandatoryField = false
         )
         Spacer(modifier = Modifier.height(10.dp))
+        RecordFieldItemWithMenu(
+            options = jobRoles,
+            isError = employeeErrors.jobRoleIdError,
+            onDropdownMenuItemClick = { viewModel.setEmployeeJobRole(it) },
+            keyboardNavigation = Pair(focusRequesterJobRole) { focusRequesterJobRole.requestFocus() },
+            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter job role / position"),
+            isMandatoryField = false
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(employee.jobRole, employeeErrors.jobRoleError) { viewModel.setJobRole(it) },
             keyboardNavigation = Pair(focusRequesterFullName) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter job role / position")
+            contentDescription = Triple(Icons.Default.Info, "Job role details", "Enter job role details")
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(

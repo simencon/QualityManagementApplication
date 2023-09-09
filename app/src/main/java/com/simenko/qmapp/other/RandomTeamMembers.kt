@@ -12,7 +12,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Роман Семенишин",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -23,7 +23,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Вікторія Семенишин",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -34,7 +34,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Юлія Семенишин",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -45,7 +45,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Данило Семенишин",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -56,7 +56,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Іван Семенишин",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -67,7 +67,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Олександра Семенишин",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -78,7 +78,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Паленка Юрій",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -89,7 +89,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Паленка Наталя",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         ),
@@ -100,7 +100,7 @@ object RandomTeamMembers {
             email = null,
             fullName = "Беренюк Віктор",
             jobRole = "Заступник начальника УЯк",
-            roleLevelId = 1,
+            jobRoleId = 1,
             passWord = "13050513",
             companyId = 1
         )
