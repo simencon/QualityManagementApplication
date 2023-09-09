@@ -65,18 +65,17 @@ fun EnterDetails(
         it ?: hiltViewModel()
     }
 
-    val stateEvent by viewModel.enterDetailsState.collectAsStateWithLifecycle()
-
     val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
 
-    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
-
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
-    stateEvent.let { state ->
+    val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
+    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
+
+    fillInState.let { state ->
         when (state) {
-            is EnterDetailsSuccess ->
+            is FillInSuccess ->
                 if (!editMode) {
                     viewModel.initRawUser()
                     navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
@@ -84,8 +83,8 @@ fun EnterDetails(
                     viewModel.initRawUser()
                     editUserData()
                 }
-            is EnterDetailsError -> error = state.errorMsg
-            is EnterDetailsInitialState -> {}
+            is FillInError -> error = state.errorMsg
+            is FillInInitialState -> {}
         }
     }
 

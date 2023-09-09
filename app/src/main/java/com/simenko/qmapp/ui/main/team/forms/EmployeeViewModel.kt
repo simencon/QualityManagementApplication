@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.team.forms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
@@ -12,6 +13,10 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -51,6 +57,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     fun setFullName(it: String) {
         _employee.value = _employee.value.copy(fullName = it)
         _employeeErrors.value = _employeeErrors.value.copy(fullNameError = false)
+        _fillInState.value = FillInInitialState
     }
 
     private val _employeeCompanies: Flow<List<DomainCompany>> = repository.companies
@@ -63,8 +70,11 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun setEmployeeCompany(id: Int) {
-        if (_employee.value.companyId != id)
+        if (_employee.value.companyId != id) {
             _employee.value = _employee.value.copy(companyId = id, departmentId = NoRecord.num, subDepartmentId = null)
+            _employeeErrors.value = _employeeErrors.value.copy(companyError = false)
+            _fillInState.value = FillInInitialState
+        }
     }
 
     private val _employeeDepartments: Flow<List<DomainDepartment>> = repository.departments
@@ -79,8 +89,11 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun setEmployeeDepartment(id: Int) {
-        if (_employee.value.departmentId != id)
+        if (_employee.value.departmentId != id) {
             _employee.value = _employee.value.copy(departmentId = id, subDepartmentId = null)
+            _employeeErrors.value = _employeeErrors.value.copy(departmentError = false)
+            _fillInState.value = FillInInitialState
+        }
     }
 
     private val _employeeSubDepartments: Flow<List<DomainSubDepartment>> = repository.subDepartments
@@ -95,8 +108,59 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun setEmployeeSubDepartment(id: Int) {
-        if (_employee.value.roleLevelId != id)
+        if (_employee.value.roleLevelId != id) {
             _employee.value = _employee.value.copy(subDepartmentId = id)
+            _employeeErrors.value = _employeeErrors.value.copy(subDepartmentError = false)
+            _fillInState.value = FillInInitialState
+        }
+    }
+    fun setJobRole(it: String) {
+        _employee.value = _employee.value.copy(jobRole = it)
+        _employeeErrors.value = _employeeErrors.value.copy(jobRoleError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    fun setEmail(it: String) {
+        _employee.value = _employee.value.copy(email = it)
+        _employeeErrors.value = _employeeErrors.value.copy(emailError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
+    fun resetToInitialState() {
+        _fillInState.value = FillInInitialState
+    }
+    val fillInState get() = _fillInState.asStateFlow()
+
+    fun validateInput(principle: DomainTeamMember = _employee.value) {
+        val errorMsg = buildString {
+            if (principle.fullName.isEmpty()) {
+                _employeeErrors.value = _employeeErrors.value.copy(fullNameError = true)
+                append("Full name field is mandatory\n")
+            }
+            if (principle.companyId == NoRecord.num) {
+                _employeeErrors.value = _employeeErrors.value.copy(companyError = true)
+                append("Company field is mandatory\n")
+            }
+            if (principle.departmentId == NoRecord.num) {
+                _employeeErrors.value = _employeeErrors.value.copy(departmentError = true)
+                append("Department field is mandatory\n")
+            }
+            if (principle.jobRole.isEmpty()) {
+                _employeeErrors.value = _employeeErrors.value.copy(jobRoleError = true)
+                append("Job role field is mandatory\n")
+            }
+            if (principle.email.isNullOrEmpty()) {
+                _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
+                append("Email field is mandatory\n")
+            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(principle.email?: EmptyString.str).matches()) {
+                _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
+                append("Wrong email format\n")
+            }
+        }
+
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
+        else _fillInState.value = FillInSuccess
     }
 
 }
