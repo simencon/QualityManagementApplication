@@ -61,7 +61,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val companies by viewModel.employeeCompanies.collectAsStateWithLifecycle()
     val departments by viewModel.employeeDepartments.collectAsStateWithLifecycle()
     val subDepartments by viewModel.employeeSubDepartments.collectAsStateWithLifecycle()
-    val jobRoles by viewModel.employeeSubDepartments.collectAsStateWithLifecycle()
+    val jobRoles by viewModel.employeeJobRoles.collectAsStateWithLifecycle()
 
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }

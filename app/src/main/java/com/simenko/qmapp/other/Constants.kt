@@ -47,7 +47,7 @@ object Constants {
 
     const val EMPLOYEES = "employees"
     const val COMPANIES = "companies"
-    const val JOB_ROLES = "positionLevels"
+    const val JOB_ROLES = "jobRoles"
     const val DEPARTMENTS = "departments"
     const val SUB_DEPARTMENTS = "subDepartments"
     const val MANUFACTURING_CHANNELS = "manufacturingChannels"
