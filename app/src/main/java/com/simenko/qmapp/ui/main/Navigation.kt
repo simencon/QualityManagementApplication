@@ -22,13 +22,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.simenko.qmapp.domain.CurrentEmployeeIdKey
-import com.simenko.qmapp.domain.CurrentOrderIdKey
-import com.simenko.qmapp.domain.CurrentSubOrderIdKey
+import com.simenko.qmapp.domain.EmployeeId
+import com.simenko.qmapp.domain.OrderId
+import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.SubOrderAddEditModeKey
+import com.simenko.qmapp.domain.SubOrderAddEditMode
 import com.simenko.qmapp.domain.TrueStr
-import com.simenko.qmapp.domain.UserEditModeKey
+import com.simenko.qmapp.domain.UserEditMode
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -56,9 +56,21 @@ fun Navigation(
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         navigation(startDestination = Screen.Main.Team.Employees.routeWithArgKeys(), route = Screen.Main.Team.route) {
-            composable(route = Screen.Main.Team.Employees.routeWithArgKeys()) {
+            composable(
+                route = Screen.Main.Team.Employees.routeWithArgKeys(),
+                arguments = listOf(
+                    navArgument(EmployeeId.str) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                )
+            ) {
                 val teamModel: TeamViewModel = hiltViewModel()
                 (LocalContext.current as MainActivity).initTeamModel(teamModel)
+                it.arguments?.getInt(EmployeeId.str)?.let { id ->
+                    println("Employees.routeWithArgKeys() - $id")
+                    teamModel.setSelectedRecord(id)
+                }
                 QMAppTheme {
                     EmployeeComposition()
                 }
@@ -66,7 +78,7 @@ fun Navigation(
             composable(
                 route = Screen.Main.Team.EmployeeAddEdit.routeWithArgKeys(),
                 arguments = listOf(
-                    navArgument(CurrentEmployeeIdKey.str) {
+                    navArgument(EmployeeId.str) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }
@@ -79,7 +91,7 @@ fun Navigation(
                     navController.popBackStack()
                 }
                 QMAppTheme {
-                    EmployeeForm(employeeId = it.arguments?.getInt(CurrentEmployeeIdKey.str) ?: NoRecord.num)
+                    EmployeeForm(employeeId = it.arguments?.getInt(EmployeeId.str) ?: NoRecord.num)
                 }
             }
             composable(route = Screen.Main.Team.Users.route) {
@@ -93,11 +105,11 @@ fun Navigation(
         composable(
             route = Screen.Main.Inv.routeWithArgKeys(),
             arguments = listOf(
-                navArgument(CurrentOrderIdKey.str) {
+                navArgument(OrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 },
-                navArgument(CurrentSubOrderIdKey.str) {
+                navArgument(SubOrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 }
@@ -106,8 +118,8 @@ fun Navigation(
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
-                it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num,
-                it.arguments?.getInt(CurrentSubOrderIdKey.str) ?: NoRecord.num
+                it.arguments?.getInt(OrderId.str) ?: NoRecord.num,
+                it.arguments?.getInt(SubOrderId.str) ?: NoRecord.num
             )
             QMAppTheme {
                 InvestigationsMainComposition(
@@ -119,11 +131,11 @@ fun Navigation(
         composable(
             route = Screen.Main.ProcessControl.routeWithArgKeys(),
             arguments = listOf(
-                navArgument(CurrentOrderIdKey.str) {
+                navArgument(OrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 },
-                navArgument(CurrentSubOrderIdKey.str) {
+                navArgument(SubOrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 }
@@ -132,8 +144,8 @@ fun Navigation(
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
-                it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num,
-                it.arguments?.getInt(CurrentSubOrderIdKey.str) ?: NoRecord.num
+                it.arguments?.getInt(OrderId.str) ?: NoRecord.num,
+                it.arguments?.getInt(SubOrderId.str) ?: NoRecord.num
             )
             QMAppTheme {
                 InvestigationsMainComposition(
@@ -146,7 +158,7 @@ fun Navigation(
         composable(
             route = Screen.Main.OrderAddEdit.routeWithArgKeys(),
             arguments = listOf(
-                navArgument(CurrentOrderIdKey.str) {
+                navArgument(OrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 }
@@ -160,7 +172,7 @@ fun Navigation(
             }
             QMAppTheme {
                 OrderForm(
-                    orderId = it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num
+                    orderId = it.arguments?.getInt(OrderId.str) ?: NoRecord.num
                 )
             }
         }
@@ -168,15 +180,15 @@ fun Navigation(
         composable(
             route = Screen.Main.SubOrderAddEdit.routeWithArgKeys(),
             arguments = listOf(
-                navArgument(CurrentOrderIdKey.str) {
+                navArgument(OrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 },
-                navArgument(CurrentSubOrderIdKey.str) {
+                navArgument(SubOrderId.str) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 },
-                navArgument(SubOrderAddEditModeKey.str) {
+                navArgument(SubOrderAddEditMode.str) {
                     type = NavType.BoolType
                     defaultValue = false
                 }
@@ -184,7 +196,7 @@ fun Navigation(
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
-            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditModeKey.str) ?: false)
+            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditMode.str) ?: false)
             BackHandler {
                 newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
                 navController.popBackStack()
@@ -192,8 +204,8 @@ fun Navigation(
             QMAppTheme {
                 SubOrderForm(
                     record = Pair(
-                        it.arguments?.getInt(CurrentOrderIdKey.str) ?: NoRecord.num,
-                        it.arguments?.getInt(CurrentSubOrderIdKey.str) ?: NoRecord.num
+                        it.arguments?.getInt(OrderId.str) ?: NoRecord.num,
+                        it.arguments?.getInt(SubOrderId.str) ?: NoRecord.num
                     )
                 )
             }
@@ -228,7 +240,7 @@ fun Navigation(
             composable(
                 route = Screen.Main.Settings.EditUserDetails.routeWithArgKeys(),
                 arguments = listOf(
-                    navArgument(UserEditModeKey.str) {
+                    navArgument(UserEditMode.str) {
                         type = NavType.BoolType
                         defaultValue = false
                     }
@@ -257,7 +269,7 @@ fun Navigation(
                         Spacer(modifier = Modifier.height(10.dp))
                         EnterDetails(
                             navController = navController,
-                            editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false,
+                            editMode = it.arguments?.getBoolean(UserEditMode.str) ?: false,
                             userDetailsModel = userDetailsModel,
                             editUserData = editUserLambda
                         )

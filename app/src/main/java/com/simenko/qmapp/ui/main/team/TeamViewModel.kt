@@ -5,9 +5,11 @@ import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
+import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter
@@ -27,6 +29,13 @@ class TeamViewModel @Inject constructor(
 
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
+    }
+
+    private val _selectedRecord = MutableStateFlow(Event(NoRecord.num))
+    val selectedRecord = _selectedRecord.asStateFlow()
+    fun setSelectedRecord(id: Int) {
+        if (_selectedRecord.value.peekContent() != id)
+            this._selectedRecord.value = Event(id)
     }
 
     fun onListEnd(position: FabPosition) {

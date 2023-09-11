@@ -9,11 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.simenko.qmapp.domain.CurrentOrderIdKey
 import com.simenko.qmapp.domain.FalseStr
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.TrueStr
-import com.simenko.qmapp.domain.UserEditModeKey
+import com.simenko.qmapp.domain.UserEditMode
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
@@ -44,9 +41,9 @@ fun Navigation(
             route = Screen.LoggedOut.Registration.route
         ) {
             composable(
-                route = Screen.LoggedOut.Registration.EnterDetails.route +"/{${UserEditModeKey.str}}",
+                route = Screen.LoggedOut.Registration.EnterDetails.route +"/{${UserEditMode.str}}",
                 arguments = listOf(
-                    navArgument(UserEditModeKey.str) {
+                    navArgument(UserEditMode.str) {
                         type = NavType.BoolType
                         defaultValue = false
                     }
@@ -59,7 +56,7 @@ fun Navigation(
                 QMAppTheme {
                     EnterDetails(
                         navController = navController,
-                        editMode = it.arguments?.getBoolean(UserEditModeKey.str) ?: false
+                        editMode = it.arguments?.getBoolean(UserEditMode.str) ?: false
                     )
                 }
             }

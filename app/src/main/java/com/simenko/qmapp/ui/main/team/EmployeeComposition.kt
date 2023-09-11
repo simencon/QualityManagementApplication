@@ -29,29 +29,62 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun EmployeeComposition(
-    appModel: TeamViewModel = hiltViewModel()
+    viewModel: TeamViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val items by appModel.employees.collectAsStateWithLifecycle(listOf())
+    val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
+    val selectedRecord by viewModel.selectedRecord.collectAsStateWithLifecycle()
 
-    val onClickDetailsLambda: (Int) -> Unit = { appModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { appModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { appModel.deleteRecord(it) } }
+    val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteRecord(it) } }
     val onClickEditLambda =
         remember<(Int, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
+
+    val needScrollToItem by remember {
+        derivedStateOf {
+            selectedRecord.peekContent() != NoRecord.num
+        }
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+    if (needScrollToItem) {
+        selectedRecord.getContentIfNotHandled()?.let { recordId ->
+            SideEffect {
+                coroutineScope.launch {
+
+                    listState.scrollToSelectedItem(
+                        list = items.map { it.teamMember.id }.toList(),
+                        selectedId = recordId
+                    )
+
+                    delay(25)
+
+                    items.find { it.teamMember.id == recordId }?.let {
+                        if (!it.detailsVisibility)
+                            onClickDetailsLambda(it.teamMember.id)
+                    }
+                }
+            }
+        }
+    }
 
     val lastItemIsVisible by remember {
         derivedStateOf {
@@ -59,7 +92,7 @@ fun EmployeeComposition(
         }
     }
 
-    if (lastItemIsVisible) appModel.onListEnd(FabPosition.Center) else appModel.onListEnd(FabPosition.End)
+    if (lastItemIsVisible) viewModel.onListEnd(FabPosition.Center) else viewModel.onListEnd(FabPosition.End)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
