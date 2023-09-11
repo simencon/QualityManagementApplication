@@ -26,7 +26,6 @@ class TeamViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
     private lateinit var _mainViewModel: MainActivityViewModel
-
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
     }

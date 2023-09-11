@@ -45,17 +45,17 @@ import kotlin.math.roundToInt
 
 @Composable
 fun EmployeeComposition(
-    viewModel: TeamViewModel = hiltViewModel()
+    viewModel: TeamViewModel = hiltViewModel(),
+    onClickEdit: (Int) -> Unit
 ) {
-    val context = LocalContext.current
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
     val selectedRecord by viewModel.selectedRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteRecord(it) } }
-    val onClickEditLambda =
-        remember<(Int, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
+    val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
+
     val listState = rememberLazyListState()
 
     val needScrollToItem by remember {
@@ -104,7 +104,7 @@ fun EmployeeComposition(
                 onClickDetails = { onClickDetailsLambda(it) },
                 onDoubleClick = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
-                onClickEdit = { p1, p2 -> onClickEditLambda(p1, p2) }
+                onClickEdit = { onClickEditLambda(it) }
             )
         }
     }
@@ -117,7 +117,7 @@ fun EmployeeCard(
     onClickDetails: (Int) -> Unit,
     onDoubleClick: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int, String) -> Unit
+    onClickEdit: (Int) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(teamMember.isExpanded).apply {
@@ -155,7 +155,7 @@ fun EmployeeCard(
 
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(teamMember.teamMember.id, teamMember.teamMember.fullName) },
+                onClick = { onClickEdit(teamMember.teamMember.id) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }
