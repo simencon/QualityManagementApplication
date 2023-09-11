@@ -22,7 +22,6 @@ import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.main.team.TeamViewModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -31,7 +30,6 @@ fun InvestigationsMainComposition(
     processControlOnly: Boolean = false,
 ) {
     val invModel: InvestigationsViewModel = hiltViewModel()
-    val teamModel: TeamViewModel = hiltViewModel()
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
