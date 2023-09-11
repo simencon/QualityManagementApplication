@@ -44,6 +44,8 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -51,8 +53,10 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val viewModel: EmployeeViewModel = hiltViewModel()
 
     LaunchedEffect(key1 = employeeId) {
-        if (employeeId != NoRecord.num)
-            viewModel.loadEmployee(employeeId)
+        withContext(Dispatchers.Default) {
+            if (employeeId != NoRecord.num)
+                viewModel.loadEmployee(employeeId)
+        }
     }
 
     val employee by viewModel.employee.collectAsStateWithLifecycle()
