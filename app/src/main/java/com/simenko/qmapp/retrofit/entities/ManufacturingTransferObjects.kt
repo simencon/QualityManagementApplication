@@ -6,7 +6,7 @@ import com.simenko.qmapp.utils.ObjectTransformer
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkTeamMember(
+data class NetworkEmployee(
     var id: Int,
     var fullName: String,
     var companyId: Int,
@@ -17,10 +17,10 @@ data class NetworkTeamMember(
     var jobRole: String,
     var email: String? = null,
     var passWord: String? = null
-) : NetworkBaseModel<DatabaseTeamMember> {
+) : NetworkBaseModel<DatabaseEmployee> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseTeamMember {
-        return ObjectTransformer(NetworkTeamMember::class, DatabaseTeamMember::class).transform(this)
+    override fun toDatabaseModel(): DatabaseEmployee {
+        return ObjectTransformer(NetworkEmployee::class, DatabaseEmployee::class).transform(this)
     }
 }
 

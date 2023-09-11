@@ -3,8 +3,8 @@ package com.simenko.qmapp.ui.main.team
 import androidx.compose.material3.FabPosition
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.domain.entities.DomainTeamMember
-import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
+import com.simenko.qmapp.domain.entities.DomainEmployee
+import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -51,7 +51,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    fun insertRecord(record: DomainTeamMember) = viewModelScope.launch {
+    fun insertRecord(record: DomainEmployee) = viewModelScope.launch {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             manufacturingRepository.run {
@@ -68,7 +68,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    fun updateRecord(record: DomainTeamMember) = viewModelScope.launch {
+    fun updateRecord(record: DomainEmployee) = viewModelScope.launch {
         _mainActivityViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             manufacturingRepository.run {
@@ -85,7 +85,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _employees: Flow<List<DomainTeamMemberComplete>> = manufacturingRepository.employees
+    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employees
 
     /**
      * Visibility operations
@@ -96,11 +96,11 @@ class TeamViewModel @Inject constructor(
         _currentEmployeeVisibility.value = _currentEmployeeVisibility.value.setVisibility(dId, aId)
     }
 
-    val employees: StateFlow<List<DomainTeamMemberComplete>> = _employees.flatMapLatest { team ->
+    val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         _currentEmployeeVisibility.flatMapLatest { visibility ->
             _users.flatMapLatest { users ->
                 _mainActivityViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size)
-                val cpy = mutableListOf<DomainTeamMemberComplete>()
+                val cpy = mutableListOf<DomainEmployeeComplete>()
                 team.forEach {
                     cpy.add(
                         it.copy(

@@ -119,7 +119,7 @@ data class DatabaseOrdersType constructor(
             onUpdate = ForeignKey.NO_ACTION
         ),
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("orderedById"),
             onDelete = ForeignKey.NO_ACTION,
@@ -218,14 +218,14 @@ data class DatabaseOrderResult constructor(
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("orderedById"),
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
         ),
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("completedById"),
             onDelete = ForeignKey.NO_ACTION,
@@ -410,14 +410,14 @@ data class DatabaseSubOrderResult constructor(
             onUpdate = ForeignKey.NO_ACTION
         ),
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("orderedById"),
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
         ),
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("completedById"),
             onDelete = ForeignKey.NO_ACTION,
@@ -720,11 +720,11 @@ data class DatabaseOrderComplete constructor(
     val customer: DatabaseDepartment,
 
     @Relation(
-        entity = DatabaseTeamMember::class,
+        entity = DatabaseEmployee::class,
         parentColumn = "orderedById",
         entityColumn = "id"
     )
-    val orderPlacer: DatabaseTeamMember,
+    val orderPlacer: DatabaseEmployee,
 
     @Relation(
         entity = DatabaseOrdersStatus::class,
@@ -766,17 +766,17 @@ data class DatabaseSubOrderComplete constructor(
     val orderShort: DatabaseOrderShort,
 
     @Relation(
-        entity = DatabaseTeamMember::class,
+        entity = DatabaseEmployee::class,
         parentColumn = "orderedById",
         entityColumn = "id"
     )
-    val orderedBy: DatabaseTeamMember,
+    val orderedBy: DatabaseEmployee,
     @Relation(
-        entity = DatabaseTeamMember::class,
+        entity = DatabaseEmployee::class,
         parentColumn = "completedById",
         entityColumn = "id"
     )
-    val completedBy: DatabaseTeamMember?,
+    val completedBy: DatabaseEmployee?,
     @Relation(
         entity = DatabaseOrdersStatus::class,
         parentColumn = "statusId",

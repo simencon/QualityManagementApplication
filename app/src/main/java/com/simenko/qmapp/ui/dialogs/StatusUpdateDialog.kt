@@ -27,7 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.main.team.TeamViewModel
 
 private const val TAG = "Dialogs"
 
@@ -295,7 +294,7 @@ fun StatusCard(
 }
 
 @Composable
-fun DropDownAssignee(test: DomainTeamMember) {
+fun DropDownAssignee(test: DomainEmployee) {
     Row(
         modifier = Modifier
             .padding(8.dp)

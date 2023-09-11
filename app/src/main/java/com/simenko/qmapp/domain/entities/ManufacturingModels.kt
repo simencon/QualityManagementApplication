@@ -9,7 +9,7 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable
-data class DomainTeamMember(
+data class DomainEmployee(
     var id: Int = NoRecord.num,
     var fullName: String = EmptyString.str,
     var companyId: Int = NoRecord.num,
@@ -22,7 +22,7 @@ data class DomainTeamMember(
     var passWord: String? = null,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
-) : DomainBaseModel<DatabaseTeamMember>() {
+) : DomainBaseModel<DatabaseEmployee>() {
     override fun getRecordId() = id
     override fun getParentId() = departmentId
     override fun setIsSelected(value: Boolean) {
@@ -30,8 +30,8 @@ data class DomainTeamMember(
     }
 
     override fun getName() = fullName
-    override fun toDatabaseModel(): DatabaseTeamMember {
-        return ObjectTransformer(DomainTeamMember::class, DatabaseTeamMember::class).transform(this)
+    override fun toDatabaseModel(): DatabaseEmployee {
+        return ObjectTransformer(DomainEmployee::class, DatabaseEmployee::class).transform(this)
     }
 }
 
@@ -182,8 +182,8 @@ data class DomainOperationsFlow(
 }
 
 @Stable
-data class DomainTeamMemberComplete(
-    val teamMember: DomainTeamMember = DomainTeamMember(),
+data class DomainEmployeeComplete(
+    val teamMember: DomainEmployee = DomainEmployee(),
     val company: DomainCompany? = DomainCompany(),
     val department: DomainDepartment? = DomainDepartment(),
     val subDepartment: DomainSubDepartment? = DomainSubDepartment(),
@@ -191,7 +191,7 @@ data class DomainTeamMemberComplete(
     var isSelected: Boolean = false,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
-) : DomainBaseModel<DatabaseTeamMemberComplete>() {
+) : DomainBaseModel<DatabaseEmployeeComplete>() {
     override fun getRecordId() = teamMember.id
     override fun getParentId() = teamMember.departmentId
     override fun getName() = this.teamMember.fullName
@@ -200,8 +200,8 @@ data class DomainTeamMemberComplete(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseTeamMemberComplete {
-        return DatabaseTeamMemberComplete(
+    override fun toDatabaseModel(): DatabaseEmployeeComplete {
+        return DatabaseEmployeeComplete(
             teamMember = teamMember.toDatabaseModel(),
             company = company?.toDatabaseModel(),
             department = department?.toDatabaseModel(),
@@ -213,7 +213,7 @@ data class DomainTeamMemberComplete(
 
 data class DomainDepartmentComplete(
     val department: DomainDepartment,
-    val depManager: DomainTeamMember,
+    val depManager: DomainEmployee,
     val company: DomainCompany,
     var departmentDetailsVisibility: Boolean = false
 ) : DomainBaseModel<DatabaseDepartmentsComplete>() {

@@ -25,26 +25,26 @@ class ManufacturingRepository @Inject constructor(
      * Update Manufacturing from the network
      */
     suspend fun syncTeamMembers() = crudeOperations.syncRecordsAll(
-        database.teamMemberDao
-    ) { manufacturingService.getTeamMembers() }
+        database.employeeDao
+    ) { manufacturingService.getEmployees() }
 
-    fun CoroutineScope.deleteTeamMember(orderId: Int): ReceiveChannel<Event<Resource<DomainTeamMember>>> = crudeOperations.run {
+    fun CoroutineScope.deleteTeamMember(orderId: Int): ReceiveChannel<Event<Resource<DomainEmployee>>> = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { manufacturingService.deleteTeamMember(orderId) }
-        ) { r -> database.teamMemberDao.deleteRecord(r) }
+            taskExecutor = { manufacturingService.deleteEmployee(orderId) }
+        ) { r -> database.employeeDao.deleteRecord(r) }
     }
-    fun CoroutineScope.insertTeamMember(record: DomainTeamMember) = crudeOperations.run {
+    fun CoroutineScope.insertTeamMember(record: DomainEmployee) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { manufacturingService.insertTeamMember(record.toDatabaseModel().toNetworkModel()) }
-        ) { r -> database.teamMemberDao.insertRecord(r) }
+            taskExecutor = { manufacturingService.insertEmployee(record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.employeeDao.insertRecord(r) }
     }
-    fun CoroutineScope.updateTeamMember(record: DomainTeamMember) = crudeOperations.run {
+    fun CoroutineScope.updateTeamMember(record: DomainEmployee) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { manufacturingService.editTeamMember(record.id, record.toDatabaseModel().toNetworkModel()) }
-        ) { r -> database.teamMemberDao.updateRecord(r) }
+            taskExecutor = { manufacturingService.editEmployee(record.id, record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.employeeDao.updateRecord(r) }
     }
 
-    fun getEmployeeById(id: Int) = database.teamMemberDao.getRecordById(id.toString()).let {
+    fun getEmployeeById(id: Int) = database.employeeDao.getRecordById(id.toString()).let {
         it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
@@ -83,13 +83,13 @@ class ManufacturingRepository @Inject constructor(
     /**
      * Connecting with LiveData for ViewModel
      */
-    val getTeamMembers: Flow<List<DomainTeamMember>> =
-        database.teamMemberDao.getRecordsFlowForUI().map { list ->
+    val getTeamMembers: Flow<List<DomainEmployee>> =
+        database.employeeDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
-    val employees: Flow<List<DomainTeamMemberComplete>> =
-        database.teamMemberDao.getRecordsCompleteFlowForUI().map { list ->
+    val employees: Flow<List<DomainEmployeeComplete>> =
+        database.employeeDao.getRecordsCompleteFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
