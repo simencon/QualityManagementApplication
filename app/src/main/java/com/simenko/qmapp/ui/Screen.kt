@@ -31,7 +31,7 @@ sealed class Screen(val route: String, private val argsKeys: String = EmptyStrin
     object Main : Screen("main") {
         object CompanyProfile : Screen("company_profile")
         object Team : Screen("team") {
-            object Employees : Screen("employees")
+            object Employees : Screen("employees", "/{${CurrentEmployeeIdKey.str}}")
             object EmployeeAddEdit : Screen("employee_add_edit", "/{${CurrentEmployeeIdKey.str}}")
             object Users : Screen("users")
             object UserEdit : Screen("user_edit")

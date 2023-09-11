@@ -466,7 +466,7 @@ fun TopTabs(
             }
         }
 
-        Screen.Main.Team.Employees.route, Screen.Main.Team.Users.route -> {
+        Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.route -> {
             UsersTabs.values().forEach {
                 tabs.add(Triple(it.name, it.ordinal, it.tabId))
             }

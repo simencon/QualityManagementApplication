@@ -178,15 +178,15 @@ class MainActivity : ComponentActivity() {
                             }
                             Screen.Main.Team.route -> {
                                 if (tabId == FirstTabId) {
-                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.route)
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.routeWithArgKeys())
                                         navController.popBackStack()
                                 } else if (tabId == SecondTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = false)
                                 } else if (tabId == ThirdTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.route) }
+                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = true)
                                 }
                             }
@@ -231,7 +231,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
-                    if (backStackEntry.value?.destination?.route == Screen.Main.Team.Employees.route) {
+                    if (backStackEntry.value?.destination?.route == Screen.Main.Team.Employees.routeWithArgKeys()) {
                         selectedTabIndex = ZeroValue.num
                     }
                 }
@@ -293,13 +293,9 @@ class MainActivity : ComponentActivity() {
                                         onClick = {
                                             if (addEditMode == AddEditMode.NO_MODE.ordinal)
                                                 when (backStackEntry.value?.destination?.route) {
-                                                    Screen.Main.Team.Employees.route -> {
-                                                        when(backStackEntry.value?.destination?.route) {
-                                                            Screen.Main.Team.Employees.route -> {
-                                                                navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
-                                                                viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
-                                                            }
-                                                        }
+                                                    Screen.Main.Team.Employees.routeWithArgKeys() -> {
+                                                        navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
+                                                        viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
                                                     }
 
                                                     Screen.Main.Inv.routeWithArgKeys() -> {
@@ -353,7 +349,7 @@ class MainActivity : ComponentActivity() {
                                 refreshing = observerLoadingProcess,
                                 onRefresh = {
                                     when (backStackEntry.value?.destination?.route) {
-                                        Screen.Main.Team.Employees.route -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.Employees.routeWithArgKeys() -> teamModel.updateEmployeesData()
                                         Screen.Main.Team.Users.route -> teamModel.updateEmployeesData()
                                         Screen.Main.Inv.routeWithArgKeys() -> invModel.uploadNewInvestigations()
                                         Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.uploadNewInvestigations()
