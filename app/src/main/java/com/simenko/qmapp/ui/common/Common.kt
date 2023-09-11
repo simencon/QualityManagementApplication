@@ -192,7 +192,7 @@ fun RecordFieldItemWithMenu(
                             expanded = false
                         },
                         text = { Text(text = "None") },
-                        colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.secondary),
+                        colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.onSurfaceVariant),
                     )
                 }
             }

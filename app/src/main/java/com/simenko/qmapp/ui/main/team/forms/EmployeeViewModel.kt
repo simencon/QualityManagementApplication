@@ -116,8 +116,8 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
         }
     }
 
-    private val _employeeJobRole: Flow<List<DomainJobRole>> = repository.jobRoles
-    val employeeJobRole: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeJobRole.flatMapLatest { subDepartments ->
+    private val _employeeJobRoles: Flow<List<DomainJobRole>> = repository.jobRoles
+    val employeeJobRoles: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeJobRoles.flatMapLatest { subDepartments ->
         _employee.flatMapLatest { employee ->
             val cpy = mutableListOf<Triple<Int, String, Boolean>>()
             subDepartments
