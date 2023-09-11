@@ -1,11 +1,11 @@
 package com.simenko.qmapp.other
 
-import com.simenko.qmapp.domain.entities.DomainTeamMember
+import com.simenko.qmapp.domain.entities.DomainEmployee
 
 
 object RandomTeamMembers {
-    val getAnyTeamMember: List<DomainTeamMember> = listOf(
-        DomainTeamMember(
+    val getAnyTeamMember: List<DomainEmployee> = listOf(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -16,7 +16,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -27,7 +27,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -38,7 +38,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -49,7 +49,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -60,7 +60,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -71,7 +71,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -82,7 +82,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",
@@ -93,7 +93,7 @@ object RandomTeamMembers {
             passWord = "13050513",
             companyId = 1
         ),
-        DomainTeamMember(
+        DomainEmployee(
             id = 0,
             departmentId = 42,
             department = "Quality",

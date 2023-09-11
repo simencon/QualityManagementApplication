@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainTeamMember
+import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
@@ -50,7 +50,7 @@ fun SubOrderPlacersSelection(
 
 @Composable
 fun SubOrderPlacerCard(
-    input: DomainTeamMember,
+    input: DomainEmployee,
     onClick: (Int) -> Unit
 ) {
     ItemToSelect(Triple(input.id, input.fullName, input.isSelected), onClick)

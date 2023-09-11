@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "64696f0085d8c6dc56e95a88a31875df",
+    "identityHash": "26c2d783350250d0054cc8a02d93b7b4",
     "entities": [
       {
         "tableName": "user_roles",
@@ -204,7 +204,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "8_team_members",
+        "tableName": "8_employees",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fullName` TEXT NOT NULL, `companyId` INTEGER NOT NULL, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER, `department` TEXT NOT NULL, `jobRoleId` INTEGER NOT NULL, `jobRole` TEXT NOT NULL, `email` TEXT, `passWord` TEXT)",
         "fields": [
           {
@@ -276,47 +276,47 @@
         },
         "indices": [
           {
-            "name": "index_8_team_members_companyId",
+            "name": "index_8_employees_companyId",
             "unique": false,
             "columnNames": [
               "companyId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_companyId` ON `${TABLE_NAME}` (`companyId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_employees_companyId` ON `${TABLE_NAME}` (`companyId`)"
           },
           {
-            "name": "index_8_team_members_departmentId",
+            "name": "index_8_employees_departmentId",
             "unique": false,
             "columnNames": [
               "departmentId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_departmentId` ON `${TABLE_NAME}` (`departmentId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_employees_departmentId` ON `${TABLE_NAME}` (`departmentId`)"
           },
           {
-            "name": "index_8_team_members_subDepartmentId",
+            "name": "index_8_employees_subDepartmentId",
             "unique": false,
             "columnNames": [
               "subDepartmentId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_subDepartmentId` ON `${TABLE_NAME}` (`subDepartmentId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_employees_subDepartmentId` ON `${TABLE_NAME}` (`subDepartmentId`)"
           },
           {
-            "name": "index_8_team_members_jobRoleId",
+            "name": "index_8_employees_jobRoleId",
             "unique": false,
             "columnNames": [
               "jobRoleId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_team_members_jobRoleId` ON `${TABLE_NAME}` (`jobRoleId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_8_employees_jobRoleId` ON `${TABLE_NAME}` (`jobRoleId`)"
           }
         ],
         "foreignKeys": []
       },
       {
         "tableName": "0_companies",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `companyName` TEXT, `companyCountry` TEXT, `companyCity` TEXT, `companyAddress` TEXT, `companyPhoneNo` TEXT, `companyPostCode` TEXT, `companyRegion` TEXT, `companyOrder` INTEGER NOT NULL, `companyIndustrialClassification` TEXT, `companyManagerId` INTEGER NOT NULL, FOREIGN KEY(`companyManagerId`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `companyName` TEXT, `companyCountry` TEXT, `companyCity` TEXT, `companyAddress` TEXT, `companyPhoneNo` TEXT, `companyPostCode` TEXT, `companyRegion` TEXT, `companyOrder` INTEGER NOT NULL, `companyIndustrialClassification` TEXT, `companyManagerId` INTEGER NOT NULL, FOREIGN KEY(`companyManagerId`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -404,7 +404,7 @@
         ],
         "foreignKeys": [
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -472,7 +472,7 @@
       },
       {
         "tableName": "10_departments",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `depAbbr` TEXT, `depName` TEXT, `depManager` INTEGER, `depOrganization` TEXT, `depOrder` INTEGER, `companyId` INTEGER, FOREIGN KEY(`depManager`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`companyId`) REFERENCES `0_companies`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `depAbbr` TEXT, `depName` TEXT, `depManager` INTEGER, `depOrganization` TEXT, `depOrder` INTEGER, `companyId` INTEGER, FOREIGN KEY(`depManager`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`companyId`) REFERENCES `0_companies`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -545,7 +545,7 @@
         ],
         "foreignKeys": [
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -2709,7 +2709,7 @@
       },
       {
         "tableName": "12_orders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderTypeId` INTEGER NOT NULL, `reasonId` INTEGER NOT NULL, `orderNumber` INTEGER, `customerId` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` INTEGER, FOREIGN KEY(`orderTypeId`) REFERENCES `0_orders_types`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`reasonId`) REFERENCES `0_measurement_reasons`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`customerId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderTypeId` INTEGER NOT NULL, `reasonId` INTEGER NOT NULL, `orderNumber` INTEGER, `customerId` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` INTEGER, FOREIGN KEY(`orderTypeId`) REFERENCES `0_orders_types`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`reasonId`) REFERENCES `0_measurement_reasons`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`customerId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2863,7 +2863,7 @@
             ]
           },
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -2888,7 +2888,7 @@
       },
       {
         "tableName": "13_sub_orders",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `subOrderNumber` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `completedById` INTEGER, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` INTEGER, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER NOT NULL, `channelId` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, `itemPreffix` TEXT NOT NULL, `itemTypeId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `samplesCount` INTEGER, `remarkId` INTEGER NOT NULL, FOREIGN KEY(`orderId`) REFERENCES `12_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`departmentId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subDepartmentId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`channelId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderId` INTEGER NOT NULL, `subOrderNumber` INTEGER NOT NULL, `orderedById` INTEGER NOT NULL, `completedById` INTEGER, `statusId` INTEGER NOT NULL, `createdDate` INTEGER NOT NULL, `completedDate` INTEGER, `departmentId` INTEGER NOT NULL, `subDepartmentId` INTEGER NOT NULL, `channelId` INTEGER NOT NULL, `lineId` INTEGER NOT NULL, `operationId` INTEGER NOT NULL, `itemPreffix` TEXT NOT NULL, `itemTypeId` INTEGER NOT NULL, `itemVersionId` INTEGER NOT NULL, `samplesCount` INTEGER, `remarkId` INTEGER NOT NULL, FOREIGN KEY(`orderId`) REFERENCES `12_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`orderedById`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`departmentId`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subDepartmentId`) REFERENCES `11_sub_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`channelId`) REFERENCES `12_manufacturing_channels`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`lineId`) REFERENCES `13_manufacturing_lines`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`operationId`) REFERENCES `14_manufacturing_operations`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3110,7 +3110,7 @@
             ]
           },
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -3121,7 +3121,7 @@
             ]
           },
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -3201,7 +3201,7 @@
       },
       {
         "tableName": "13_7_sub_order_tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subOrderId` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER, `completedDate` INTEGER, `orderedById` INTEGER, `completedById` INTEGER, FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subOrderId`) REFERENCES `13_sub_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_team_members`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `subOrderId` INTEGER NOT NULL, `charId` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `createdDate` INTEGER, `completedDate` INTEGER, `orderedById` INTEGER, `completedById` INTEGER, FOREIGN KEY(`statusId`) REFERENCES `0_orders_statuses`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subOrderId`) REFERENCES `13_sub_orders`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`charId`) REFERENCES `7_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`orderedById`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`completedById`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3350,7 +3350,7 @@
             ]
           },
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -3361,7 +3361,7 @@
             ]
           },
           {
-            "table": "8_team_members",
+            "table": "8_employees",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
@@ -3656,7 +3656,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '64696f0085d8c6dc56e95a88a31875df')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '26c2d783350250d0054cc8a02d93b7b4')"
     ]
   }
 }

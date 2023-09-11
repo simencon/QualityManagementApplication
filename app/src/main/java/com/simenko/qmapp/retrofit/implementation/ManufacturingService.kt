@@ -15,17 +15,17 @@ import retrofit2.http.*
 
 interface ManufacturingService {
     @GET(EMPLOYEES)
-    suspend fun getTeamMembers(): Response<List<NetworkTeamMember>>
+    suspend fun getEmployees(): Response<List<NetworkEmployee>>
 
     @POST(EMPLOYEES)
-    suspend fun insertTeamMember(@Body teamMember: NetworkTeamMember): Response<NetworkTeamMember>
+    suspend fun insertEmployee(@Body teamMember: NetworkEmployee): Response<NetworkEmployee>
 
     @DELETE("$EMPLOYEES/{id}")
-    suspend fun deleteTeamMember(@Path("id") id: Int): Response<NetworkTeamMember>
+    suspend fun deleteEmployee(@Path("id") id: Int): Response<NetworkEmployee>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$EMPLOYEES/{id}")
-    suspend fun editTeamMember(@Path("id") id: Int, @Body body: NetworkTeamMember): Response<NetworkTeamMember>
+    suspend fun editEmployee(@Path("id") id: Int, @Body body: NetworkEmployee): Response<NetworkEmployee>
 
     @GET(COMPANIES)
     suspend fun getCompanies(): Response<List<NetworkCompany>>

@@ -126,15 +126,15 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Order Initiator -------------------------------------------------------------------------------------------------------------------------------
-    private val _orderInitiators: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
-    val orderInitiators: StateFlow<List<DomainTeamMember>> = _orderInitiators.flatMapLatest { reasons ->
+    private val _orderInitiators: Flow<List<DomainEmployee>> = manufacturingRepository.getTeamMembers
+    val orderInitiators: StateFlow<List<DomainEmployee>> = _orderInitiators.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
             if (currentOrder.customerId != NoRecord.num) {
-                val cpy = mutableListOf<DomainTeamMember>()
+                val cpy = mutableListOf<DomainEmployee>()
                 reasons.forEach { cpy.add(it.copy(isSelected = it.id == currentOrder.orderedById)) }
                 flow { emit(cpy) }
             } else {
-                flow { emit(emptyList<DomainTeamMember>()) }
+                flow { emit(emptyList<DomainEmployee>()) }
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -251,16 +251,16 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Placer ------------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderPlacers: Flow<List<DomainTeamMember>> = manufacturingRepository.getTeamMembers
-    val subOrderPlacers: StateFlow<List<DomainTeamMember>> = _subOrderPlacers.flatMapLatest { placers ->
+    private val _subOrderPlacers: Flow<List<DomainEmployee>> = manufacturingRepository.getTeamMembers
+    val subOrderPlacers: StateFlow<List<DomainEmployee>> = _subOrderPlacers.flatMapLatest { placers ->
         _subOrder.flatMapLatest { so ->
             if (so.subOrder.subDepartmentId != NoRecord.num) {
-                val cpy = mutableListOf<DomainTeamMember>()
+                val cpy = mutableListOf<DomainEmployee>()
                 placers.filter { it.departmentId == so.subOrder.departmentId }
                     .forEach { cpy.add(it.copy(isSelected = it.id == so.subOrder.orderedById)) }
                 flow { emit(cpy) }
             } else {
-                flow { emit(emptyList<DomainTeamMember>()) }
+                flow { emit(emptyList<DomainEmployee>()) }
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())

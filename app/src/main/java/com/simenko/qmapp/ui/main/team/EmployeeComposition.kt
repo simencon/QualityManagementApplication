@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainTeamMemberComplete
+import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
@@ -80,7 +80,7 @@ fun EmployeeComposition(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun EmployeeCard(
-    teamMember: DomainTeamMemberComplete,
+    teamMember: DomainEmployeeComplete,
     onClickDetails: (Int) -> Unit,
     onDoubleClick: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
@@ -148,7 +148,7 @@ fun EmployeeCard(
 
 @Composable
 fun Employee(
-    item: DomainTeamMemberComplete,
+    item: DomainEmployeeComplete,
     onClickDetails: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {

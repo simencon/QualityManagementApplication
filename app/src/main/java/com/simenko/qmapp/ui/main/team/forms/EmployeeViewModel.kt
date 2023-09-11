@@ -9,7 +9,7 @@ import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.domain.entities.DomainJobRole
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
-import com.simenko.qmapp.domain.entities.DomainTeamMember
+import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.AddEditMode
@@ -46,13 +46,13 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
         _mainViewModel.setAddEditMode(mode)
     }
 
-    private val _employee: MutableStateFlow<DomainTeamMember> = MutableStateFlow(DomainTeamMember())
+    private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private var _employeeErrors: MutableStateFlow<EmployeeErrors> = MutableStateFlow(EmployeeErrors())
     fun loadEmployee(id: Int) {
         _employee.value = repository.getEmployeeById(id)
     }
 
-    val employee: StateFlow<DomainTeamMember> get() = _employee
+    val employee: StateFlow<DomainEmployee> get() = _employee
     val employeeErrors: StateFlow<EmployeeErrors> get() = _employeeErrors
 
     fun setFullName(it: String) {
@@ -152,7 +152,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     }
     val fillInState get() = _fillInState.asStateFlow()
 
-    fun validateInput(principle: DomainTeamMember = _employee.value) {
+    fun validateInput(principle: DomainEmployee = _employee.value) {
         val errorMsg = buildString {
             if (principle.fullName.isEmpty()) {
                 _employeeErrors.value = _employeeErrors.value.copy(fullNameError = true)
