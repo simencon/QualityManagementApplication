@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.team.forms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
@@ -10,8 +11,10 @@ import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.domain.entities.DomainJobRole
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainEmployee
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
@@ -21,6 +24,7 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.FillInState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,12 +35,19 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(private val repository: ManufacturingRepository, private val userRepository: UserRepository) :
     ViewModel() {
+    private lateinit var navController: NavHostController
+    fun initNavController(controller: NavHostController) {
+        this.navController = controller
+    }
+
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
@@ -65,7 +76,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     val employeeCompanies: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeCompanies.flatMapLatest { company ->
         _employee.flatMapLatest { employee ->
             val cpy = mutableListOf<Triple<Int, String, Boolean>>()
-            company.forEach { cpy.add(Triple(it.id, it.companyName?: NoString.str, it.id == employee.companyId)) }
+            company.forEach { cpy.add(Triple(it.id, it.companyName ?: NoString.str, it.id == employee.companyId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -84,7 +95,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             val cpy = mutableListOf<Triple<Int, String, Boolean>>()
             departments
                 .filter { it.companyId == employee.companyId }
-                .forEach { cpy.add(Triple(it.id, it.depAbbr?: NoString.str, it.id == employee.departmentId)) }
+                .forEach { cpy.add(Triple(it.id, it.depAbbr ?: NoString.str, it.id == employee.departmentId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -103,7 +114,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             val cpy = mutableListOf<Triple<Int, String, Boolean>>()
             subDepartments
                 .filter { it.depId == employee.departmentId }
-                .forEach { cpy.add(Triple(it.id, it.subDepAbbr?: NoString.str, it.id == employee.subDepartmentId)) }
+                .forEach { cpy.add(Triple(it.id, it.subDepAbbr ?: NoString.str, it.id == employee.subDepartmentId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -134,6 +145,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             _fillInState.value = FillInInitialState
         }
     }
+
     fun setJobRole(it: String) {
         _employee.value = _employee.value.copy(jobRole = it)
         _employeeErrors.value = _employeeErrors.value.copy(jobRoleError = false)
@@ -150,6 +162,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     fun resetToInitialState() {
         _fillInState.value = FillInInitialState
     }
+
     val fillInState get() = _fillInState.asStateFlow()
 
     fun validateInput(principle: DomainEmployee = _employee.value) {
@@ -166,7 +179,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
                 _employeeErrors.value = _employeeErrors.value.copy(departmentError = true)
                 append("Department field is mandatory\n")
             }
-            if (principle.jobRole.isEmpty()) {
+            if (principle.jobRoleId == NoRecord.num) {
                 _employeeErrors.value = _employeeErrors.value.copy(jobRoleIdError = true)
                 append("Job role field is mandatory\n")
             }
@@ -177,7 +190,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             if (principle.email.isNullOrEmpty()) {
                 _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
                 append("Email field is mandatory\n")
-            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(principle.email?: EmptyString.str).matches()) {
+            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(principle.email ?: EmptyString.str).matches()) {
                 _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
                 append("Wrong email format\n")
             }
@@ -185,6 +198,52 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
 
         if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
         else _fillInState.value = FillInSuccess
+    }
+
+    /**
+     * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun insertRecord(record: DomainEmployee) = viewModelScope.launch {
+        _mainViewModel.updateLoadingState(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            repository.run {
+                insertTeamMember(record).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> {
+                                _mainViewModel.updateLoadingState(Pair(false, null))
+                                setAddEditMode(AddEditMode.NO_MODE)
+                                withContext(Dispatchers.Main) {
+                                    navController.navigate(Screen.Main.Team.Employees.route) {
+                                        popUpTo(Screen.Main.Team.Employees.route) { inclusive = true }
+                                    }
+                                }
+                            }
+
+                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateRecord(record: DomainEmployee) = viewModelScope.launch {
+        _mainViewModel.updateLoadingState(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            repository.run {
+                updateTeamMember(record).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> _mainViewModel.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

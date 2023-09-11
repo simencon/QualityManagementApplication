@@ -254,7 +254,6 @@ class InvestigationsViewModel @Inject constructor(
                         _currentOrdersRange.value = cyp.getDetailedOrdersRange()
                         if (!isLoading)
                             uploadOlderInvestigations(_currentOrdersRange.value.first)
-                        Log.d(TAG, "_currentOrdersRange = ${_currentOrdersRange.value}")
                         flow {
                             emit(
                                 cyp
