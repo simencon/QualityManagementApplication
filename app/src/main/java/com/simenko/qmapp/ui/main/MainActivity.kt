@@ -115,7 +115,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
-
     private lateinit var employeeModel: EmployeeViewModel
 
     private lateinit var navController: NavHostController
@@ -322,6 +321,7 @@ class MainActivity : ComponentActivity() {
                                                     AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
                                                     AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
                                                     AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
+                                                    AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
