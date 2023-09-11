@@ -203,46 +203,33 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun insertRecord(record: DomainEmployee) = viewModelScope.launch {
+    fun makeEmployee(record: DomainEmployee) = viewModelScope.launch {
         _mainViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run {
-                insertTeamMember(record).consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> {
-                                _mainViewModel.updateLoadingState(Pair(false, null))
-                                setAddEditMode(AddEditMode.NO_MODE)
-                                withContext(Dispatchers.Main) {
-                                    resource.data?.id?.let {
-                                        navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
-                                            popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = true }
-                                        }
-                                    }
-                                }
-                            }
-
-                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
-                        }
+                if (_mainViewModel.addEditMode.value == AddEditMode.ADD_EMPLOYEE.ordinal)
+                    insertTeamMember(record)
+                else
+                    updateTeamMember(record)
+            }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                        Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                        Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
                     }
                 }
             }
         }
     }
-
-    fun updateRecord(record: DomainEmployee) = viewModelScope.launch {
-        _mainViewModel.updateLoadingState(Pair(true, null))
-        withContext(Dispatchers.IO) {
-            repository.run {
-                updateTeamMember(record).consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> _mainViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
-                        }
-                    }
+    private suspend fun navBackToRecord(id: Int?) {
+        _mainViewModel.updateLoadingState(Pair(false, null))
+        setAddEditMode(AddEditMode.NO_MODE)
+        withContext(Dispatchers.Main) {
+            id?.let {
+                navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
+                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = false }
+                    launchSingleTop = true
                 }
             }
         }

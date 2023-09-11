@@ -41,6 +41,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
@@ -72,7 +73,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
 
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> viewModel.insertRecord(employee)
+            is FillInSuccess -> viewModel.makeEmployee(employee)
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }

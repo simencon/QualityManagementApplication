@@ -72,7 +72,10 @@ fun Navigation(
                     teamModel.setSelectedRecord(id)
                 }
                 QMAppTheme {
-                    EmployeeComposition(onClickEdit = { id -> navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(id.toString())) })
+                    EmployeeComposition(onClickEdit = { id ->
+                        teamModel.setAddEditMode(AddEditMode.EDIT_EMPLOYEE)
+                        navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(id.toString()))
+                    })
                 }
             }
             composable(
