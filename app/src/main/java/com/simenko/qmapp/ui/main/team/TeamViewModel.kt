@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.team
 import androidx.compose.material3.FabPosition
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Status
@@ -24,60 +23,26 @@ class TeamViewModel @Inject constructor(
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
-    private lateinit var _mainActivityViewModel: MainActivityViewModel
+    private lateinit var _mainViewModel: MainActivityViewModel
 
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this._mainActivityViewModel = viewModel
+        this._mainViewModel = viewModel
     }
 
     fun onListEnd(position: FabPosition) {
-        _mainActivityViewModel.onListEnd(position)
+        _mainViewModel.onListEnd(position)
     }
 
     fun deleteRecord(teamMemberId: Int) = viewModelScope.launch {
-        _mainActivityViewModel.updateLoadingState(Pair(true, null))
+        _mainViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             manufacturingRepository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> _mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> _mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> _mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun insertRecord(record: DomainEmployee) = viewModelScope.launch {
-        _mainActivityViewModel.updateLoadingState(Pair(true, null))
-        withContext(Dispatchers.IO) {
-            manufacturingRepository.run {
-                insertTeamMember(record).consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> _mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> _mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> _mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    fun updateRecord(record: DomainEmployee) = viewModelScope.launch {
-        _mainActivityViewModel.updateLoadingState(Pair(true, null))
-        withContext(Dispatchers.IO) {
-            manufacturingRepository.run {
-                updateTeamMember(record).consumeEach { event ->
-                    event.getContentIfNotHandled()?.let { resource ->
-                        when (resource.status) {
-                            Status.LOADING -> _mainActivityViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> _mainActivityViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> _mainActivityViewModel.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> _mainViewModel.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -99,7 +64,7 @@ class TeamViewModel @Inject constructor(
     val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         _currentEmployeeVisibility.flatMapLatest { visibility ->
             _users.flatMapLatest { users ->
-                _mainActivityViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size)
+                _mainViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size)
                 val cpy = mutableListOf<DomainEmployeeComplete>()
                 team.forEach {
                     cpy.add(
@@ -161,7 +126,7 @@ class TeamViewModel @Inject constructor(
 
     fun updateEmployeesData() = viewModelScope.launch {
         try {
-            _mainActivityViewModel.updateLoadingState(Pair(true, null))
+            _mainViewModel.updateLoadingState(Pair(true, null))
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
@@ -171,9 +136,9 @@ class TeamViewModel @Inject constructor(
             manufacturingRepository.syncDepartments()
             manufacturingRepository.syncTeamMembers()
 
-            _mainActivityViewModel.updateLoadingState(Pair(false, null))
+            _mainViewModel.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            _mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+            _mainViewModel.updateLoadingState(Pair(false, e.message))
         }
     }
 }

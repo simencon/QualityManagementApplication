@@ -470,6 +470,7 @@ class MainActivity : ComponentActivity() {
     fun initEmployeeModel(employeeModel: EmployeeViewModel) {
         this.employeeModel = employeeModel
         this.employeeModel.initMainActivityViewModel(this.viewModel)
+        this.employeeModel.initNavController(this.navController)
     }
 }
 

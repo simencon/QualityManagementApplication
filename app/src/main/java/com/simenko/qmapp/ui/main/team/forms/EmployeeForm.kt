@@ -68,14 +68,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
 
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> {}
-//                if (!editMode) {
-//                    viewModel.initRawUser()
-//                    navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
-//                } else {
-//                    viewModel.initRawUser()
-//                    editUserData()
-//                }
+            is FillInSuccess -> viewModel.insertRecord(employee)
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
