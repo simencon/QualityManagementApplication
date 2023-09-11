@@ -215,8 +215,10 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
                                 _mainViewModel.updateLoadingState(Pair(false, null))
                                 setAddEditMode(AddEditMode.NO_MODE)
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.Main.Team.Employees.route) {
-                                        popUpTo(Screen.Main.Team.Employees.route) { inclusive = true }
+                                    resource.data?.id?.let {
+                                        navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
+                                            popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = true }
+                                        }
                                     }
                                 }
                             }

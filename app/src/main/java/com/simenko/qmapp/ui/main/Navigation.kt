@@ -55,8 +55,8 @@ fun Navigation(
     navController: NavHostController
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
-        navigation(startDestination = Screen.Main.Team.Employees.route, route = Screen.Main.Team.route) {
-            composable(route = Screen.Main.Team.Employees.route) {
+        navigation(startDestination = Screen.Main.Team.Employees.routeWithArgKeys(), route = Screen.Main.Team.route) {
+            composable(route = Screen.Main.Team.Employees.routeWithArgKeys()) {
                 val teamModel: TeamViewModel = hiltViewModel()
                 (LocalContext.current as MainActivity).initTeamModel(teamModel)
                 QMAppTheme {
