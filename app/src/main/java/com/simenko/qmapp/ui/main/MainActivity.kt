@@ -61,7 +61,6 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.NoRecord
@@ -72,7 +71,6 @@ import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.other.RandomTeamMembers.getAnyTeamMember
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -345,6 +343,7 @@ class MainActivity : ComponentActivity() {
                             },
                             floatingActionButtonPosition = fabPosition
                         ) {
+                            println("Scaffold has been rebuild")
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = {

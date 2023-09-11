@@ -69,7 +69,6 @@ fun EmployeeComposition(
         selectedRecord.getContentIfNotHandled()?.let { recordId ->
             SideEffect {
                 coroutineScope.launch {
-
                     listState.scrollToSelectedItem(
                         list = items.map { it.teamMember.id }.toList(),
                         selectedId = recordId
