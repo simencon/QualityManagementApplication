@@ -44,14 +44,14 @@ val FalseStr = SelectedString("false")
 val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
 
-val CurrentEmployeeIdKey = SelectedString("currentEmployeeIdKey")
+val EmployeeId = SelectedString("employeeId")
 
 val ToProcessControlScreen = SelectedString("investigationsKey")
 
-val CurrentOrderIdKey = SelectedString("currentOrderIdKey")
-val CurrentSubOrderIdKey = SelectedString("currentSubOrderIdKey")
+val OrderId = SelectedString("orderId")
+val SubOrderId = SelectedString("subOrderId")
 
-val SubOrderAddEditModeKey = SelectedString("subOrderAddEditModeKey")
+val SubOrderAddEditMode = SelectedString("subOrderAddEditMode")
 
-val UserEditModeKey = SelectedString("editMode")
+val UserEditMode = SelectedString("userEditMode")
 
