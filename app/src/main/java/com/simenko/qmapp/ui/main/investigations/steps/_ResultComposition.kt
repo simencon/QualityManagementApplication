@@ -30,10 +30,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainResultComplete
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -41,6 +39,7 @@ import com.simenko.qmapp.utils.StringUtils
 
 private const val TAG = "ResultComposition"
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ResultsComposition(
     modifier: Modifier = Modifier,

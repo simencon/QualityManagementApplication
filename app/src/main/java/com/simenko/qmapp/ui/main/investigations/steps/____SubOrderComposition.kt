@@ -27,7 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
-import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
@@ -47,6 +46,7 @@ import kotlin.math.roundToInt
 
 private const val TAG = "SubOrderComposition"
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
