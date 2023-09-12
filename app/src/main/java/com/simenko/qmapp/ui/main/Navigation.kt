@@ -65,12 +65,10 @@ fun Navigation(
                     }
                 )
             ) {
+                println("Main Navigation - Employees has been build")
                 val teamModel: TeamViewModel = hiltViewModel()
                 (LocalContext.current as MainActivity).initTeamModel(teamModel)
-                it.arguments?.getInt(EmployeeId.str)?.let { id ->
-                    println("Employees.routeWithArgKeys() - $id")
-                    teamModel.setSelectedRecord(id)
-                }
+                it.arguments?.getInt(EmployeeId.str)?.let { id -> teamModel.setSelectedRecord(id) }
                 QMAppTheme {
                     EmployeeComposition(onClickEdit = { id ->
                         teamModel.setAddEditMode(AddEditMode.EDIT_EMPLOYEE)
@@ -118,6 +116,7 @@ fun Navigation(
                 }
             )
         ) {
+            println("Main Navigation - Investigations has been build")
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
@@ -144,6 +143,7 @@ fun Navigation(
                 }
             )
         ) {
+            println("Main Navigation - ProcessControl has been build")
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
@@ -219,6 +219,7 @@ fun Navigation(
             startDestination = Screen.Main.Settings.UserDetails.route
         ) {
             composable(route = Screen.Main.Settings.UserDetails.route) {
+                println("Main Navigation - Settings has been build")
                 val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
                 val settingsModel: SettingsViewModel = hiltViewModel()
                 val activity = (LocalContext.current as MainActivity)
