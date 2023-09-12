@@ -453,25 +453,11 @@ fun ItemsGroup(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(
-    destination: NavDestination?,
+    tabs: List<Triple<String, Int, SelectedNumber>>,
     selectedTabIndex: Int,
-    badgeCounts: List<Int> = listOf(),
+    badgeCounts: List<Triple<Int, Color, Color>> = listOf(),
     onTabSelectedLambda: (SelectedNumber, Int) -> Unit
 ) {
-    val tabs: MutableList<Triple<String, Int, SelectedNumber>> = mutableListOf()
-    when (destination?.route ?: EmptyString.str) {
-        Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> {
-            ProgressTabs.values().forEach {
-                tabs.add(Triple(it.name, it.ordinal, it.tabId))
-            }
-        }
-
-        Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.route -> {
-            UsersTabs.values().forEach {
-                tabs.add(Triple(it.name, it.ordinal, it.tabId))
-            }
-        }
-    }
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabs.forEach {
             val selected = selectedTabIndex == it.second
@@ -480,10 +466,15 @@ fun TopTabs(
                 selected = selected,
                 onClick = { onTabSelectedLambda(it.third, it.second) }
             ) {
-                if (badgeCounts.size >= it.second && badgeCounts[it.second] > 0)
+                if (badgeCounts.size >= it.second && badgeCounts[it.second].first > 0)
                     BadgedBox(badge = {
-                        Box(modifier = Modifier.background(color = Color.Red, shape = RoundedCornerShape(size = 3.dp))) {
-                            Text(text = badgeCounts[it.second].toString(), color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                        Box(modifier = Modifier.background(color = badgeCounts[it.second].second, shape = RoundedCornerShape(size = 3.dp))) {
+                            Text(
+                                text = badgeCounts[it.second].first.toString(),
+                                color = badgeCounts[it.second].third,
+                                fontSize = 8.sp,
+                                fontWeight = if (selected) FontWeight.Black else FontWeight.SemiBold
+                            )
                         }
                     }
                     ) {
@@ -517,7 +508,7 @@ data class MenuItem(
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
-        fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id }
+        fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id } ?: getStartingDrawerMenuItem()
     }
 
     enum class MenuGroup(val group: String) {
@@ -562,13 +553,21 @@ enum class ProgressTabs(val tabId: SelectedNumber) {
     ALL(FirstTabId),
     TO_DO(SecondTabId),
     IN_PROGRESS(ThirdTabId),
-    DONE(FourthTabId)
+    DONE(FourthTabId);
+
+    companion object {
+        fun toListOfTriples() = ProgressTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
+    }
 }
 
 enum class UsersTabs(val tabId: SelectedNumber) {
     EMPLOYEES(FirstTabId),
     USERS(SecondTabId),
     REQUESTS(ThirdTabId);
+
+    companion object {
+        fun toListOfTriples() = UsersTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
+    }
 }
 
 enum class AddEditMode(val mode: String) {

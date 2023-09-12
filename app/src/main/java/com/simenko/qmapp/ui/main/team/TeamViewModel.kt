@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.team
 
 import androidx.compose.material3.FabPosition
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
@@ -77,7 +78,9 @@ class TeamViewModel @Inject constructor(
     val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         _currentEmployeeVisibility.flatMapLatest { visibility ->
             _users.flatMapLatest { users ->
-                _mainViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size)
+                _mainViewModel.setTopBadgesCount(0, team.size, Color.Green, Color.Black)
+                _mainViewModel.setTopBadgesCount(1, users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black)
+                _mainViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
                 val cpy = mutableListOf<DomainEmployeeComplete>()
                 team.forEach {
                     cpy.add(

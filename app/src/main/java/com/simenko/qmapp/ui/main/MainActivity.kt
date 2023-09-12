@@ -168,11 +168,12 @@ class MainActivity : ComponentActivity() {
                     { tabId, tabIndex ->
                         when (backStackEntry.value?.destination?.parent?.route) {
                             null -> {
-                                when(backStackEntry.value?.destination?.route) {
+                                when (backStackEntry.value?.destination?.route) {
                                     Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(status = tabId)
                                     Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(status = tabId)
                                 }
                             }
+
                             Screen.Main.Team.route -> {
                                 if (tabId == FirstTabId) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.routeWithArgKeys())
@@ -370,7 +371,11 @@ class MainActivity : ComponentActivity() {
                                         .padding(it)
                                 ) {
                                     TopTabs(
-                                        backStackEntry.value?.destination,
+                                        when (backStackEntry.value?.destination?.route) {
+                                            Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> ProgressTabs.toListOfTriples()
+                                            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys() -> UsersTabs.toListOfTriples()
+                                            else -> emptyList()
+                                        },
                                         selectedTabIndex,
                                         topBadgeCounts,
                                         onTabSelectedLambda
