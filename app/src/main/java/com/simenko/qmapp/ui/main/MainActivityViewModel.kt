@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main
 
 import androidx.compose.material3.FabPosition
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.repository.InvestigationsRepository
@@ -59,14 +60,18 @@ class MainActivityViewModel @Inject constructor(
         this._addEditMode.value = mode.ordinal
     }
 
-    private val _topBadgeCounts: MutableStateFlow<MutableList<Int>> = MutableStateFlow(mutableListOf(0, 0, 0, 0))
-    val topBadgeCounts: StateFlow<List<Int>> get() = _topBadgeCounts
-    fun setTopBadgesCount(index: Int, badgeCount: Int) {
-        if (index < 4) _topBadgeCounts.value[index] = badgeCount
+    private val _badgeItem = Triple(0, Color.Red, Color.White)
+    private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> = MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
+    val topBadgeCounts: StateFlow<List<Triple<Int, Color, Color>>> get() = _topBadgeCounts
+    fun setTopBadgesCount(index: Int, badgeCount: Int, bg: Color, cnt: Color) {
+        if (index < 4) {
+            var i = 0
+            _topBadgeCounts.value = _topBadgeCounts.value.map { if (index == i++) Triple(badgeCount, bg, cnt) else it }.toList()
+        }
     }
 
     fun resetTopBadgesCount() {
-        _topBadgeCounts.value = mutableListOf(0, 0, 0, 0)
+        _topBadgeCounts.value = listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem)
     }
 
 
