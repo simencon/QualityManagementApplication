@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -40,6 +39,7 @@ import kotlin.math.roundToInt
 
 private const val TAG = "SubOrderTaskComposition"
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
