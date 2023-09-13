@@ -80,15 +80,21 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = user.fullName?: NoString.str)
-        Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = user.jobRole?: NoString.str)
-        Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(
-            modifier = modifier.padding(start = 15.dp),
-            title = "Department",
-            body = user.department + if (user.subDepartment.isNullOrEmpty()) EmptyString.str else "/${user.subDepartment}"
-        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 0.dp)
+        ) {
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = user.fullName ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = user.jobRole ?: NoString.str)
+            InfoLine(
+                modifier = modifier.padding(start = 15.dp),
+                title = "Department",
+                body = user.department + if (user.subDepartment.isNullOrEmpty()) EmptyString.str else "/${user.subDepartment}"
+            )
+        }
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
             options = userEmployees,

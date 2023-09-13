@@ -177,6 +177,12 @@ fun RecordFieldItemWithMenu(
 
                     val items = if (searchedOption == EmptyString.str) options else filteredOptions
 
+                    DropdownMenuItem(
+                        onClick = {},
+                        text = { Text(text = "Add item") },
+                        colors = MenuDefaults.itemColors(textColor = MaterialTheme.colorScheme.onSurfaceVariant),
+                    )
+
                     items.forEach { selectedItem ->
                         DropdownMenuItem(
                             onClick = {
