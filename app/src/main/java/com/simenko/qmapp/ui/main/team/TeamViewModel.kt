@@ -62,7 +62,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employees
+    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
 
     /**
      * Visibility operations
@@ -97,7 +97,7 @@ class TeamViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
 
-    private val _users: Flow<List<DomainUser>> = systemRepository.usersList()
+    private val _users: Flow<List<DomainUser>> = systemRepository.users
 
     /**
      * Visibility operations

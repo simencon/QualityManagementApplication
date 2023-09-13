@@ -83,12 +83,12 @@ class ManufacturingRepository @Inject constructor(
     /**
      * Connecting with LiveData for ViewModel
      */
-    val getTeamMembers: Flow<List<DomainEmployee>> =
+    val employees: Flow<List<DomainEmployee>> =
         database.employeeDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
-    val employees: Flow<List<DomainEmployeeComplete>> =
+    val employeesComplete: Flow<List<DomainEmployeeComplete>> =
         database.employeeDao.getRecordsCompleteFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }

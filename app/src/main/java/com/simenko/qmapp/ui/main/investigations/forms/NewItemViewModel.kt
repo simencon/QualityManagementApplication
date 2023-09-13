@@ -126,7 +126,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Order Initiator -------------------------------------------------------------------------------------------------------------------------------
-    private val _orderInitiators: Flow<List<DomainEmployee>> = manufacturingRepository.getTeamMembers
+    private val _orderInitiators: Flow<List<DomainEmployee>> = manufacturingRepository.employees
     val orderInitiators: StateFlow<List<DomainEmployee>> = _orderInitiators.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
             if (currentOrder.customerId != NoRecord.num) {
@@ -251,7 +251,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Placer ------------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderPlacers: Flow<List<DomainEmployee>> = manufacturingRepository.getTeamMembers
+    private val _subOrderPlacers: Flow<List<DomainEmployee>> = manufacturingRepository.employees
     val subOrderPlacers: StateFlow<List<DomainEmployee>> = _subOrderPlacers.flatMapLatest { placers ->
         _subOrder.flatMapLatest { so ->
             if (so.subOrder.subDepartmentId != NoRecord.num) {

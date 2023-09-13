@@ -6,6 +6,7 @@ import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +24,11 @@ class SystemRepository @Inject constructor(
         database.userDao
     ) { service.getUsers() }
 
-    fun usersList(): Flow<List<DomainUser>> =
+    fun getUserById(id: String) = database.userDao.getRecordById(id.toString()).let {
+        it?.toDomainModel() ?: throw IOException("no such employee in local DB")
+    }
+
+    val users: Flow<List<DomainUser>> =
         database.userDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }

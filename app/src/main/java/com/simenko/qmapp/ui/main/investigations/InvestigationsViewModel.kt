@@ -114,7 +114,7 @@ class InvestigationsViewModel @Inject constructor(
             .conflate()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employees
+    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         flow { emit(team) }
     }

@@ -65,8 +65,8 @@ class EmployeeViewModel @Inject constructor(
         _employee.value = repository.getEmployeeById(id)
     }
 
-    val employee: StateFlow<DomainEmployee> get() = _employee
-    val employeeErrors: StateFlow<EmployeeErrors> get() = _employeeErrors
+    val employee get() = _employee.asStateFlow()
+    val employeeErrors get() = _employeeErrors.asStateFlow()
 
     fun setFullName(it: String) {
         _employee.value = _employee.value.copy(fullName = it)
@@ -167,10 +167,6 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
-    fun resetToInitialState() {
-        _fillInState.value = FillInInitialState
-    }
-
     val fillInState get() = _fillInState.asStateFlow()
 
     fun validateInput(principle: DomainEmployee = _employee.value) {
