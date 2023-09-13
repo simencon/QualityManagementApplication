@@ -1,8 +1,9 @@
-package com.simenko.qmapp.ui.main.team.forms
+package com.simenko.qmapp.ui.main.team.forms.user
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainUser

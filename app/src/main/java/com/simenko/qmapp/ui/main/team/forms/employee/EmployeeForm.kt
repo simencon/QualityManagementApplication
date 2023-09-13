@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team.forms
+package com.simenko.qmapp.ui.main.team.forms.employee
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +47,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team.forms
+package com.simenko.qmapp.ui.main.team.forms.employee
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

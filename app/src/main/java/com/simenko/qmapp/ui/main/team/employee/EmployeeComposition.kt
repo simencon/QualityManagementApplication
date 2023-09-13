@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team
+package com.simenko.qmapp.ui.main.team.employee
 
 import android.annotation.SuppressLint
 
@@ -36,6 +36,7 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
