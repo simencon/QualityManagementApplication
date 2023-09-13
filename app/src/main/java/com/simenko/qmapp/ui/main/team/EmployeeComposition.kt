@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
@@ -55,17 +56,17 @@ fun EmployeeComposition(
 
     val listState = rememberLazyListState()
 
-    LaunchedEffect(key1 = selectedRecord) {
+    LaunchedEffect(selectedRecord) {
         selectedRecord.getContentIfNotHandled()?.let { recordId ->
-            listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = recordId)
-            delay(25)
-            items.find { it.teamMember.id == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
+            if (recordId != NoRecord.num) {
+                listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = recordId)
+                delay(25)
+                items.find { it.teamMember.id == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
+            }
         }
     }
 
-    val lastItemIsVisible by remember {
-        derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 }
-    }
+    val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
 
     if (lastItemIsVisible) viewModel.onListEnd(FabPosition.Center) else viewModel.onListEnd(FabPosition.End)
 

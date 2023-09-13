@@ -25,7 +25,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,8 +41,10 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class EmployeeViewModel @Inject constructor(private val repository: ManufacturingRepository, private val userRepository: UserRepository) :
-    ViewModel() {
+class EmployeeViewModel @Inject constructor(
+    private val repository: ManufacturingRepository,
+    private val userRepository: UserRepository
+) : ViewModel() {
     private lateinit var navController: NavHostController
     fun initNavController(controller: NavHostController) {
         this.navController = controller
@@ -237,8 +238,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
-                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = false }
-                    launchSingleTop = true
+                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = true }
                 }
             }
         }
