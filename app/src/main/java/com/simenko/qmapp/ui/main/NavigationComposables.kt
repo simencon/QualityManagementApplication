@@ -570,6 +570,7 @@ enum class UsersTabs(val tabId: SelectedNumber) {
 enum class AddEditMode(val mode: String) {
     ADD_EMPLOYEE("Add new employee"),
     EDIT_EMPLOYEE("Edit employee"),
+    EDIT_USER("Edit employee"),
     NO_MODE("No mode"),
     ADD_ORDER("New investigation order"),
     EDIT_ORDER("Edit investigation order"),

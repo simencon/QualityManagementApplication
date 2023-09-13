@@ -29,9 +29,11 @@ import com.simenko.qmapp.domain.EmployeeId
 import com.simenko.qmapp.domain.OrderId
 import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SubOrderAddEditMode
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.UserEditMode
+import com.simenko.qmapp.domain.UserId
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -45,6 +47,8 @@ import com.simenko.qmapp.ui.main.team.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.UserComposition
 import com.simenko.qmapp.ui.main.team.forms.EmployeeForm
 import com.simenko.qmapp.ui.main.team.forms.EmployeeViewModel
+import com.simenko.qmapp.ui.main.team.forms.UserForm
+import com.simenko.qmapp.ui.main.team.forms.UserViewModel
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
@@ -73,12 +77,12 @@ fun Navigation(
                 (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
                 if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                    it.arguments?.getInt(EmployeeId.str)?.let { id -> teamModel.setSelectedRecord(id) }
+                    it.arguments?.getInt(EmployeeId.str)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
                 }
 
                 QMAppTheme {
                     EmployeeComposition(onClickEdit = { id ->
-                        teamModel.setSelectedRecord(NoRecord.num)
+                        teamModel.setSelectedEmployeeRecord(NoRecord.num)
                         teamModel.setAddEditMode(AddEditMode.EDIT_EMPLOYEE)
                         navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(id.toString()))
                     })
@@ -104,10 +108,37 @@ fun Navigation(
                 }
             }
             composable(route = Screen.Main.Team.Users.route) {
-                val teamViewModel: TeamViewModel = it.sharedViewModel(navController = navController)
-                (LocalContext.current as MainActivity).initTeamModel(teamViewModel)
+                val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
+                (LocalContext.current as MainActivity).initTeamModel(teamModel)
                 QMAppTheme {
-                    UserComposition(teamViewModel)
+                    UserComposition(
+                        viewModel = teamModel,
+                        onClickAuthorize = { id ->
+                            teamModel.setSelectedEmployeeRecord(NoRecord.num)
+                            teamModel.setAddEditMode(AddEditMode.EDIT_USER)
+                            navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        }
+                    )
+                }
+            }
+
+            composable(
+                route = Screen.Main.Team.UserEdit.routeWithArgKeys(),
+                arguments = listOf(
+                    navArgument(UserId.str) {
+                        type = NavType.StringType
+                        defaultValue = NoString.str
+                    }
+                )
+            ) {
+                val userModel: UserViewModel = hiltViewModel()
+                (LocalContext.current as MainActivity).initUserModel(userModel)
+                BackHandler {
+                    userModel.setAddEditMode(AddEditMode.NO_MODE)
+                    navController.popBackStack()
+                }
+                QMAppTheme {
+                    UserForm(userId = it.arguments?.getString(UserId.str) ?: NoString.str)
                 }
             }
         }

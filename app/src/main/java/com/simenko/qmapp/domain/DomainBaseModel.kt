@@ -45,6 +45,7 @@ val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
 
 val EmployeeId = SelectedString("employeeId")
+val UserId = SelectedString("userId")
 
 val ToProcessControlScreen = SelectedString("investigationsKey")
 

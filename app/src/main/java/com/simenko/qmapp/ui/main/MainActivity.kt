@@ -78,6 +78,7 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
 import com.simenko.qmapp.ui.main.team.forms.EmployeeViewModel
+import com.simenko.qmapp.ui.main.team.forms.UserViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
@@ -114,6 +115,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
     private lateinit var employeeModel: EmployeeViewModel
+    private lateinit var userModel: UserViewModel
 
     private lateinit var navController: NavHostController
 
@@ -471,6 +473,12 @@ class MainActivity : ComponentActivity() {
         this.employeeModel = employeeModel
         this.employeeModel.initMainActivityViewModel(this.viewModel)
         this.employeeModel.initNavController(this.navController)
+    }
+
+    fun initUserModel(model: UserViewModel) {
+        this.userModel = model
+        this.userModel.initMainActivityViewModel(this.viewModel)
+        this.userModel.initNavController(this.navController)
     }
 }
 

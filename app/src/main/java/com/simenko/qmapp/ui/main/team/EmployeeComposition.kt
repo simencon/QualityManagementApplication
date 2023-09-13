@@ -47,7 +47,7 @@ fun EmployeeComposition(
     onClickEdit: (Int) -> Unit
 ) {
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
-    val selectedRecord by viewModel.selectedRecord.collectAsStateWithLifecycle()
+    val selectedRecord by viewModel.selectedEmployeeRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
