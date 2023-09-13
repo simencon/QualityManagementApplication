@@ -18,7 +18,7 @@ object StringUtils {
 
     @JvmStatic
     fun getMail(original: String?): String {
-        return if (original != null) {
+        return if (!original.isNullOrEmpty()) {
             original.split("#mailto:").toTypedArray()[0]
         } else {
             "has no mail"
@@ -27,7 +27,7 @@ object StringUtils {
 
     @JvmStatic
     fun getDateTime(original: String?): String {
-        var result = if (original != null) {
+        var result = if (!original.isNullOrEmpty()) {
             original.split("T").toTypedArray()[0] + " " + original.split("T").toTypedArray()[1]
         } else {
             "-"

@@ -39,7 +39,7 @@ class TeamViewModel @Inject constructor(
     private val _selectedRecord = MutableStateFlow(Event(NoRecord.num))
     val selectedRecord = _selectedRecord.asStateFlow()
     fun setSelectedRecord(id: Int) {
-        if (_selectedRecord.value.peekContent() != id)
+        if (_selectedRecord.value.peekContent() != id && id != NoRecord.num)
             this._selectedRecord.value = Event(id)
     }
 

@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.team
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
@@ -24,13 +23,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
@@ -41,7 +38,6 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -59,37 +55,16 @@ fun EmployeeComposition(
 
     val listState = rememberLazyListState()
 
-    val needScrollToItem by remember {
-        derivedStateOf {
-            selectedRecord.peekContent() != NoRecord.num
-        }
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-    if (needScrollToItem) {
+    LaunchedEffect(key1 = selectedRecord) {
         selectedRecord.getContentIfNotHandled()?.let { recordId ->
-            SideEffect {
-                coroutineScope.launch {
-                    listState.scrollToSelectedItem(
-                        list = items.map { it.teamMember.id }.toList(),
-                        selectedId = recordId
-                    )
-
-                    delay(25)
-
-                    items.find { it.teamMember.id == recordId }?.let {
-                        if (!it.detailsVisibility)
-                            onClickDetailsLambda(it.teamMember.id)
-                    }
-                }
-            }
+            listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = recordId)
+            delay(25)
+            items.find { it.teamMember.id == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
         }
     }
 
     val lastItemIsVisible by remember {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
-        }
+        derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 }
     }
 
     if (lastItemIsVisible) viewModel.onListEnd(FabPosition.Center) else viewModel.onListEnd(FabPosition.End)
