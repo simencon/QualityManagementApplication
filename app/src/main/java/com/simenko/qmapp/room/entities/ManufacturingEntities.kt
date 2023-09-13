@@ -312,8 +312,10 @@ data class DatabaseEmployeeComplete(
     override fun toNetworkModel() = false
     override fun toDomainModel() = DomainEmployeeComplete(
         teamMember = teamMember.toDomainModel(),
+        company = company?.toDomainModel(),
         department = department?.toDomainModel(),
-        company = company?.toDomainModel()
+        subDepartment = subDepartment?.toDomainModel(),
+        jobRole = jobRole?.toDomainModel()
     )
 }
 
