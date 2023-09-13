@@ -35,6 +35,7 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.utils.StringUtils
@@ -50,7 +51,7 @@ fun UserComposition(
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
-    val onClickAuthorizeLambda = remember<(String) -> Unit> { {  } }
+    val onClickAuthorizeLambda = remember<(String) -> Unit> { { } }
     val onClickEditLambda =
         remember<(String, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
@@ -91,7 +92,7 @@ fun UserCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (item.isExpanded) CARD_OFFSET.dp() else 0f },
+        targetValueByState = { if (item.isExpanded) (CARD_OFFSET / 2).dp() else 0f },
     )
     val containerColor = when (item.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -108,12 +109,6 @@ fun UserCard(
 
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
-            IconButton(
-                modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickAuthorize(item.email) },
-                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
-            )
-
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickEdit(item.email, item.email) },
@@ -163,12 +158,45 @@ fun User(
             TopLevelSingleRecordDetails("Phone num.: ", StringUtils.getMail(item.phoneNumber.toString()), modifier, 0.3f)
             item.roles?.forEach {
                 TopLevelSingleRecordDetails("System role: ", it, modifier, 0.3f)
-            }?:TopLevelSingleRecordDetails("System role: ", NoString.str, modifier, 0.3f)
+            } ?: TopLevelSingleRecordDetails("System role: ", NoString.str, modifier, 0.3f)
             TopLevelSingleRecordDetails("Email verified: ", item.isEmailVerified.toString(), modifier, 0.3f)
             TopLevelSingleRecordDetails("Account expired: ", item.accountNonExpired.toString(), modifier, 0.3f)
             TopLevelSingleRecordDetails("Account locked: ", item.accountNonLocked.toString(), modifier, 0.3f)
             TopLevelSingleRecordDetails("Credentials expired: ", item.credentialsNonExpired.toString(), modifier, 0.3f)
             TopLevelSingleRecordDetails("Enabled: ", item.enabled.toString(), modifier, 0.3f)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (!item.restApiUrl.isNullOrEmpty()) {
+                    val containerColor =
+                        if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                    RecordActionTextBtn(
+                        text = "Deauthorize",
+                        onClick = {},
+                        colors = Pair(
+                            ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
+                            null
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    )
+                } else {
+                    val containerColor =
+                        if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
+                    RecordActionTextBtn(
+                        text = "Authorize",
+                        onClick = {},
+                        colors = Pair(
+                            ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
+                            null
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    )
+                }
+            }
         }
     }
 }

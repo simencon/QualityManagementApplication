@@ -19,6 +19,8 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -237,8 +239,9 @@ fun keyboardAsState(): State<Keyboard> {
 fun RecordActionTextBtn(
     text: String,
     onClick: () -> Unit,
-    colors: Pair<ButtonColors, Color>,
-    enabled: Boolean = true
+    colors: Pair<ButtonColors, Color?>,
+    enabled: Boolean = true,
+    elevation: ButtonElevation? = null
 ) {
     TextButton(
         modifier = Modifier.width(150.dp),
@@ -254,7 +257,8 @@ fun RecordActionTextBtn(
             )
         },
         colors = colors.first,
-        border = BorderStroke(1.dp, colors.second),
+        elevation = elevation,
+        border = colors.second?.let { BorderStroke(1.dp, it) },
         shape = MaterialTheme.shapes.medium,
         enabled = enabled
     )
