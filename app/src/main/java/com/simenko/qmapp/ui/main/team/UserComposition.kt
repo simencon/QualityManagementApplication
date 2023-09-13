@@ -155,7 +155,8 @@ fun User(
         TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, onClickDetails)
 
         if (item.detailsVisibility) {
-            val department = item.department + if (item.subDepartment == EmptyString.str) EmptyString.str else "/${item.subDepartment}"
+            val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
+            Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             TopLevelSingleRecordDetails("Job role: ", item.jobRole ?: NoString.str, modifier, 0.3f)
             TopLevelSingleRecordDetails("Department: ", department, modifier, 0.3f)
             TopLevelSingleRecordDetails("Email: ", StringUtils.getMail(item.email), modifier, 0.3f)

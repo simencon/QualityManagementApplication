@@ -76,12 +76,12 @@ class BaseApplication : Application(), Configuration.Provider {
     }
 
     private fun setupRecurringWork() {
-        createSyncWork(SyncPeriods.LAST_HOUR, Duration.ofMinutes(15))
-        createSyncWork(SyncPeriods.LAST_DAY, Duration.ofMinutes(30))
-        createSyncWork(SyncPeriods.LAST_WEEK, Duration.ofHours(1))
-        createSyncWork(SyncPeriods.LAST_MONTH, Duration.ofDays(1))
+        createSyncWork(SyncPeriods.LAST_HOUR, Duration.ofMinutes(60))
+        createSyncWork(SyncPeriods.LAST_DAY, Duration.ofHours(24))
+        createSyncWork(SyncPeriods.LAST_WEEK, Duration.ofDays(7))
+        createSyncWork(SyncPeriods.LAST_MONTH, Duration.ofDays(7))
         createSyncWork(SyncPeriods.LAST_QUARTER, Duration.ofDays(7))
-        createSyncWork(SyncPeriods.LAST_YEAR, Duration.ofDays(14))
-        createSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofDays(28))
+        createSyncWork(SyncPeriods.LAST_YEAR, Duration.ofDays(7))
+        createSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofDays(7))
     }
 }

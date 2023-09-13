@@ -118,7 +118,7 @@ fun Settings(
                 modifier = modifier.padding(start = 15.dp),
                 title = "Department",
                 body = viewModel.userLocalData.department +
-                        if (viewModel.userLocalData.subDepartment == EmptyString.str) "" else "/${viewModel.userLocalData.subDepartment}"
+                        if (viewModel.userLocalData.subDepartment.isNullOrEmpty()) EmptyString.str else "/${viewModel.userLocalData.subDepartment}"
             )
             InfoLine(modifier = modifier.padding(start = 15.dp), title = "Company", body = viewModel.userLocalData.company)
             InfoLine(modifier = modifier.padding(start = 15.dp), title = "Email", body = viewModel.userLocalData.email)

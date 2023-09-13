@@ -15,7 +15,11 @@ import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +35,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,11 +85,14 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
         }
     }
 
-    val (focusRequesterFullName) = FocusRequester.createRefs()
-    val (focusRequesterCompany) = FocusRequester.createRefs()
-    val (focusRequesterDepartment) = FocusRequester.createRefs()
-    val (focusRequesterSubDepartment) = FocusRequester.createRefs()
-    val (focusRequesterJobRole) = FocusRequester.createRefs()
+    val (fullNameFR) = FocusRequester.createRefs()
+    val (companyFR) = FocusRequester.createRefs()
+    val (departmentFR) = FocusRequester.createRefs()
+    val (subDepartmentFR) = FocusRequester.createRefs()
+    val (jobRoleFR) = FocusRequester.createRefs()
+    val (jobRoleDetailsFR) = FocusRequester.createRefs()
+    val (emailFR) = FocusRequester.createRefs()
+    val (passwordFR) = FocusRequester.createRefs()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -98,7 +107,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(employee.fullName, employeeErrors.fullNameError) { viewModel.setFullName(it) },
-            keyboardNavigation = Pair(focusRequesterFullName) { keyboardController?.hide() },
+            keyboardNavigation = Pair(fullNameFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Person, "Full name", "Enter name and surname")
         )
@@ -107,7 +116,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
             options = companies,
             isError = employeeErrors.companyError,
             onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it) },
-            keyboardNavigation = Pair(focusRequesterCompany) { focusRequesterCompany.requestFocus() },
+            keyboardNavigation = Pair(companyFR) { companyFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Apartment, "Company", "Select company"),
         )
@@ -116,7 +125,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
             options = departments,
             isError = employeeErrors.departmentError,
             onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it) },
-            keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterDepartment.requestFocus() },
+            keyboardNavigation = Pair(departmentFR) { departmentFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.AccountBalance, "Department", "Select department"),
         )
@@ -125,7 +134,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
             options = subDepartments,
             isError = employeeErrors.subDepartmentError,
             onDropdownMenuItemClick = { viewModel.setEmployeeSubDepartment(it) },
-            keyboardNavigation = Pair(focusRequesterSubDepartment) { focusRequesterSubDepartment.requestFocus() },
+            keyboardNavigation = Pair(subDepartmentFR) { subDepartmentFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.AccountTree, "Sub department", "Select only if applicable"),
             isMandatoryField = false
@@ -135,24 +144,43 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
             options = jobRoles,
             isError = employeeErrors.jobRoleIdError,
             onDropdownMenuItemClick = { viewModel.setEmployeeJobRole(it) },
-            keyboardNavigation = Pair(focusRequesterJobRole) { focusRequesterJobRole.requestFocus() },
+            keyboardNavigation = Pair(jobRoleFR) { jobRoleFR.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter job role / position"),
-            isMandatoryField = false
+            contentDescription = Triple(Icons.Default.Work, "Job role", "Enter job role / position")
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(employee.jobRole, employeeErrors.jobRoleError) { viewModel.setJobRole(it) },
-            keyboardNavigation = Pair(focusRequesterFullName) { keyboardController?.hide() },
+            keyboardNavigation = Pair(jobRoleDetailsFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Info, "Job role details", "Enter job role details")
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
             valueParam = Triple(employee.email ?: EmptyString.str, employeeErrors.emailError) { viewModel.setEmail(it) },
-            keyboardNavigation = Pair(focusRequesterFullName) { keyboardController?.hide() },
+            keyboardNavigation = Pair(emailFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Mail, "Email", "Enter email"),
+            isMandatoryField = false
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        var passwordVisible by rememberSaveable { mutableStateOf(false) }
+        RecordFieldItem(
+            valueParam = Triple(employee.passWord ?: EmptyString.str, employeeErrors.passwordError) { viewModel.setPassword(it) },
+            keyboardNavigation = Pair(passwordFR) { keyboardController?.hide() },
+            keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Done),
+            contentDescription = Triple(Icons.Default.Mail, "Password", "Enter password"),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }, enabled = true) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        tint = if (employeeErrors.passwordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                    )
+                }
+            },
+            isMandatoryField = false
         )
         Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)

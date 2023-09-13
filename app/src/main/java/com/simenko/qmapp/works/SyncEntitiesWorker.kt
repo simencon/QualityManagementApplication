@@ -29,8 +29,6 @@ import dagger.assisted.AssistedInject
 import java.util.Objects
 import javax.inject.Named
 
-private const val TAG = "SyncEntitiesWorker"
-
 @HiltWorker
 class SyncEntitiesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
