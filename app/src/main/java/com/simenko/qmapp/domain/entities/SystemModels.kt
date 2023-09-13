@@ -1,6 +1,7 @@
 package com.simenko.qmapp.domain.entities
 
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.room.entities.DatabaseUser
 import com.simenko.qmapp.room.entities.DatabaseUserRole
@@ -18,25 +19,25 @@ data class DomainUserRole(
 }
 
 data class DomainUser(
-    var email: String,
-    var teamMemberId: Long,
-    var phoneNumber: Long?,
-    var fullName: String?,
-    var company: String?,
-    var companyId: Long,
-    var department: String?,
-    var departmentId: Long,
-    var subDepartment: String?,
-    var subDepartmentId: Long,
-    var jobRole: String?,
-    var restApiUrl: String?,
-    var userUid: String?,
-    var isEmailVerified: Boolean,
-    var roles: Set<String>?,
-    var accountNonExpired: Boolean,
-    var accountNonLocked: Boolean,
-    var credentialsNonExpired: Boolean,
-    var enabled: Boolean,
+    var email: String = EmptyString.str,
+    var teamMemberId: Long = NoRecord.num.toLong(),
+    var phoneNumber: Long? = null,
+    var fullName: String? = null,
+    var company: String? = null,
+    var companyId: Long = NoRecord.num.toLong(),
+    var department: String? = null,
+    var departmentId: Long = NoRecord.num.toLong(),
+    var subDepartment: String? = null,
+    var subDepartmentId: Long = NoRecord.num.toLong(),
+    var jobRole: String? = null,
+    var restApiUrl: String? = null,
+    var userUid: String? = null,
+    var isEmailVerified: Boolean = false,
+    var roles: Set<String>? = null,
+    var accountNonExpired: Boolean = false,
+    var accountNonLocked: Boolean = false,
+    var credentialsNonExpired: Boolean = false,
+    var enabled: Boolean = false,
 
     var isSelected: Boolean = false,
     var detailsVisibility: Boolean = false,
