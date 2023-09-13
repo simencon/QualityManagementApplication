@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team.forms
+package com.simenko.qmapp.ui.main.team.forms.user
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Apartment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -104,6 +103,8 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
             contentDescription = Triple(Icons.Default.Person, "Company employee", "Select company employee"),
         )
+        Spacer(modifier = Modifier.height(10.dp))
+        RolesCard()
         Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)
             Text(

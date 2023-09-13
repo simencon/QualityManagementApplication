@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team
+package com.simenko.qmapp.ui.main.team.user
 
 import android.annotation.SuppressLint
 import android.widget.Toast
@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,6 +37,7 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
+import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt

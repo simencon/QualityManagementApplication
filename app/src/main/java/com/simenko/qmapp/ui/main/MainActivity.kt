@@ -77,8 +77,8 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.settings.SettingsViewModel
-import com.simenko.qmapp.ui.main.team.forms.EmployeeViewModel
-import com.simenko.qmapp.ui.main.team.forms.UserViewModel
+import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
+import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods

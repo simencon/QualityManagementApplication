@@ -3,14 +3,17 @@ package com.simenko.qmapp.domain.entities
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.DatabaseUser
 import com.simenko.qmapp.room.entities.DatabaseUserRole
 import com.simenko.qmapp.utils.ObjectTransformer
 
 data class DomainUserRole(
-    val function: String,
-    val roleLevel: String,
-    val accessLevel: String
+    val function: String = NoString.str,
+    val roleLevel: String = NoString.str,
+    val accessLevel: String = NoString.str,
+
+    var detailsVisibility: Boolean = false
 ) : DomainBaseModel<DatabaseUserRole>() {
     override fun getRecordId(): Any = "${this.function}:${this.roleLevel}:${this.accessLevel}"
     override fun getParentId(): Int = NoRecord.num
