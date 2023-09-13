@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
@@ -191,10 +192,12 @@ fun Employee(
         horizontalAlignment = Alignment.Start
     ) {
         TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, { onClickDetails(it.toInt()) })
-
         if (item.detailsVisibility) {
+            val dep =
+                item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
+            Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             TopLevelSingleRecordDetails("Job role:", item.teamMember.jobRole, modifier, 0.2f)
-            TopLevelSingleRecordDetails("Department:", item.department?.depName ?: "-", modifier, 0.2f)
+            TopLevelSingleRecordDetails("Department:", dep, modifier, 0.2f)
             TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.teamMember.email), modifier, 0.2f)
         }
     }

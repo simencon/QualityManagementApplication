@@ -122,7 +122,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
 
     fun setEmployeeSubDepartment(id: Int) {
         if (_employee.value.subDepartmentId != id) {
-            _employee.value = _employee.value.copy(subDepartmentId = id)
+            _employee.value = _employee.value.copy(subDepartmentId = if (id == NoRecord.num) null else id)
             _employeeErrors.value = _employeeErrors.value.copy(subDepartmentError = false)
             _fillInState.value = FillInInitialState
         }
@@ -159,6 +159,12 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
         _fillInState.value = FillInInitialState
     }
 
+    fun setPassword(it: String) {
+        _employee.value = _employee.value.copy(passWord = it)
+        _employeeErrors.value = _employeeErrors.value.copy(passwordError = false)
+        _fillInState.value = FillInInitialState
+    }
+
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     fun resetToInitialState() {
         _fillInState.value = FillInInitialState
@@ -188,12 +194,13 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
                 _employeeErrors.value = _employeeErrors.value.copy(jobRoleError = true)
                 append("Job role description field is mandatory\n")
             }
-            if (principle.email.isNullOrEmpty()) {
-                _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
-                append("Email field is mandatory\n")
-            } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(principle.email ?: EmptyString.str).matches()) {
+            if (!principle.email.isNullOrEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(principle.email ?: EmptyString.str).matches()) {
                 _employeeErrors.value = _employeeErrors.value.copy(emailError = true)
                 append("Wrong email format\n")
+            }
+            if (!principle.passWord.isNullOrEmpty() && principle.passWord!!.length < 6) {
+                _employeeErrors.value = _employeeErrors.value.copy(passwordError = true)
+                append("Password should be at least 6 characters long\n")
             }
         }
 
@@ -223,6 +230,7 @@ class EmployeeViewModel @Inject constructor(private val repository: Manufacturin
             }
         }
     }
+
     private suspend fun navBackToRecord(id: Int?) {
         _mainViewModel.updateLoadingState(Pair(false, null))
         setAddEditMode(AddEditMode.NO_MODE)

@@ -26,6 +26,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -89,6 +91,7 @@ fun RecordFieldItem(
         keyboardActions = KeyboardActions(onNext = { keyboardNavigation.second() }),
         enabled = enabled,
         readOnly = readOnly,
+        textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.Medium),
         trailingIcon = trailingIcon,
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,
