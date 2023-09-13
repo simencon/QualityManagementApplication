@@ -35,14 +35,20 @@ class TeamViewModel @Inject constructor(
         _mainViewModel.setAddEditMode(mode)
     }
 
-    private val _selectedRecord = MutableStateFlow(Event(NoRecord.num))
-    val selectedRecord = _selectedRecord.asStateFlow()
-    fun setSelectedRecord(id: Int) {
-        if (selectedRecord.value.peekContent() != id) this._selectedRecord.value = Event(id)
+    private val _selectedEmployeeRecord = MutableStateFlow(Event(NoRecord.num))
+    val selectedEmployeeRecord = _selectedEmployeeRecord.asStateFlow()
+    fun setSelectedEmployeeRecord(id: Int) {
+        if (selectedEmployeeRecord.value.peekContent() != id) this._selectedEmployeeRecord.value = Event(id)
     }
 
     fun onListEnd(position: FabPosition) {
         _mainViewModel.onListEnd(position)
+    }
+
+    private val _selectedUserRecord = MutableStateFlow(Event(NoString.str))
+    val selectedUserRecord = _selectedUserRecord.asStateFlow()
+    fun setSelectedUserRecord(id: String) {
+        if (selectedUserRecord.value.peekContent() != id) this._selectedUserRecord.value = Event(id)
     }
 
     fun deleteRecord(teamMemberId: Int) = viewModelScope.launch {

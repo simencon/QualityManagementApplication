@@ -2,21 +2,21 @@ package com.simenko.qmapp.ui.main.team.forms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainUser
-import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
-import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
+import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,14 +28,28 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
 class UserViewModel @Inject constructor(
     private val repository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository
 ) : ViewModel() {
+    private lateinit var navController: NavHostController
+    fun initNavController(controller: NavHostController) {
+        this.navController = controller
+    }
+
+    private lateinit var _mainViewModel: MainActivityViewModel
+    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
+        this._mainViewModel = viewModel
+    }
+
+    fun setAddEditMode(mode: AddEditMode) {
+        _mainViewModel.setAddEditMode(mode)
+    }
+
     private val _user = MutableStateFlow(DomainUser())
     private val _userErrors = MutableStateFlow(UserErrors())
     fun loadUser(id: String) {

@@ -13,6 +13,7 @@ import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.SubOrderAddEditMode
 import com.simenko.qmapp.domain.UserEditMode
+import com.simenko.qmapp.domain.UserId
 
 sealed class Screen(val route: String, private val argsKeys: String = EmptyString.str) {
 
@@ -34,7 +35,7 @@ sealed class Screen(val route: String, private val argsKeys: String = EmptyStrin
             object Employees : Screen("employees", "/{${EmployeeId.str}}")
             object EmployeeAddEdit : Screen("employee_add_edit", "/{${EmployeeId.str}}")
             object Users : Screen("users")
-            object UserEdit : Screen("user_edit")
+            object UserEdit : Screen("user_edit", "/{${UserId.str}}")
         }
         object CompanyStructure : Screen("company_structure")
         object CompanyProducts : Screen("company_products")

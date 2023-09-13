@@ -44,14 +44,15 @@ import kotlin.math.roundToInt
 
 @Composable
 fun UserComposition(
-    viewModel: TeamViewModel = hiltViewModel()
+    viewModel: TeamViewModel = hiltViewModel(),
+    onClickAuthorize: (String) -> Unit
 ) {
     val context = LocalContext.current
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
-    val onClickAuthorizeLambda = remember<(String) -> Unit> { { } }
+    val onClickAuthorizeLambda = remember<(String) -> Unit> { { onClickAuthorize(it) } }
     val onClickEditLambda =
         remember<(String, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
@@ -129,6 +130,7 @@ fun UserCard(
             User(
                 item = item,
                 onClickDetails = onClickDetails,
+                onClickAuthorize = onClickAuthorize,
                 modifier = Modifier.padding(Constants.CARDS_PADDING)
             )
         }
@@ -139,6 +141,7 @@ fun UserCard(
 fun User(
     item: DomainUser,
     onClickDetails: (String) -> Unit,
+    onClickAuthorize: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -176,7 +179,7 @@ fun User(
                         if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
                     RecordActionTextBtn(
                         text = "Deauthorize",
-                        onClick = {},
+                        onClick = { onClickAuthorize(item.email) },
                         colors = Pair(
                             ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
                             null
@@ -188,7 +191,7 @@ fun User(
                         if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
                     RecordActionTextBtn(
                         text = "Authorize",
-                        onClick = {},
+                        onClick = { onClickAuthorize(item.email) },
                         colors = Pair(
                             ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
                             null
