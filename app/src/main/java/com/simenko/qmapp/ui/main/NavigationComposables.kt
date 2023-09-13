@@ -85,13 +85,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
-import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SecondTabId
-import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.storage.Principle
