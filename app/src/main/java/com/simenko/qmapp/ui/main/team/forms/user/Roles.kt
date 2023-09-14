@@ -27,9 +27,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -38,6 +35,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,13 +47,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -74,33 +71,33 @@ fun RolesHeader(
     onClickDelete: (String) -> Unit = {}
 ) {
     val tint = if (userRolesError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-
     var detailsVisibility: Boolean by rememberSaveable { mutableStateOf(true) }
-
-    val borderColor = when (detailsVisibility) {
-        true -> MaterialTheme.colorScheme.outline
-        false -> MaterialTheme.colorScheme.surfaceVariant
-    }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(width = 1.dp, borderColor),
         elevation = CardDefaults.cardElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
         modifier = Modifier
             .width(320.dp)
             .clickable { detailsVisibility = !detailsVisibility }
     ) {
-        Column(modifier = Modifier.animateContentSize(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
+        Column(
+            modifier = Modifier.animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                )
             )
-        )) {
+        ) {
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(modifier = Modifier.padding(all = 12.dp), imageVector = Icons.Default.AdminPanelSettings, contentDescription = "Authorities", tint = tint)
+                Icon(
+                    modifier = Modifier.padding(all = 12.dp),
+                    imageVector = Icons.Default.AdminPanelSettings,
+                    contentDescription = "Authorities",
+                    tint = tint
+                )
                 Text(
                     color = tint,
                     text = "User roles",
@@ -112,11 +109,18 @@ fun RolesHeader(
                         .padding(start = 3.dp)
                 )
 
-                IconToggleButton(checked = detailsVisibility, onCheckedChange = { detailsVisibility = it }) {
+                val tClr = if (userRolesError)
+                    IconButtonDefaults.iconToggleButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                        checkedContentColor = MaterialTheme.colorScheme.error
+                    )
+                else
+                    IconButtonDefaults.iconToggleButtonColors()
+
+                IconToggleButton(checked = detailsVisibility, onCheckedChange = { detailsVisibility = it }, colors = tClr) {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = detailsVisibility)
                 }
             }
-
             if (detailsVisibility) {
                 Column(modifier = modifier) {
                     Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -150,6 +154,7 @@ fun RolesFlow(
                 )
             }
         }
+        Divider(thickness = 0.dp, color = Color.Transparent)
         FloatingActionButton(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             onClick = { onClickAddLambda() },
@@ -196,7 +201,8 @@ fun RoleCard(
     Box(
         Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp)) {
+            .padding(vertical = 2.dp)
+    ) {
 
         Row {
             IconButton(
