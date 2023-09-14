@@ -52,9 +52,7 @@ fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0
 ) {
-    val context = LocalContext.current
     val invModel: InvestigationsViewModel = hiltViewModel()
-    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 

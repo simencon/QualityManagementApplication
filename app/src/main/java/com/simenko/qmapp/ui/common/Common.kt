@@ -141,7 +141,8 @@ fun RecordFieldItemWithMenu(
                     onCheckedChange = {
                         expanded = it
                         keyboardNavigation.second()
-                    }) { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
+                    }
+                ) { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
             },
             interactionSource = remember { MutableInteractionSource() }
                 .also { interactionSource ->
