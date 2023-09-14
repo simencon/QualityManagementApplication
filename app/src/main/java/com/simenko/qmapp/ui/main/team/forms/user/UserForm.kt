@@ -47,14 +47,15 @@ import kotlinx.coroutines.withContext
 fun UserForm(modifier: Modifier = Modifier, userId: String) {
     val viewModel: UserViewModel = hiltViewModel()
 
+    val user by viewModel.user.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = userId) {
-        withContext(Dispatchers.Default) {
-            if (userId != NoString.str)
-                viewModel.loadUser(userId)
-        }
+        if (user.email == EmptyString.str)
+            withContext(Dispatchers.Default) {
+                if (userId != NoString.str)
+                    viewModel.loadUser(userId)
+            }
     }
 
-    val user by viewModel.user.collectAsStateWithLifecycle()
     val userRoles by viewModel.userRoles.collectAsStateWithLifecycle()
     val userErrors by viewModel.userErrors.collectAsStateWithLifecycle()
 
@@ -89,11 +90,13 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
                 onDismiss = {
                     isAddRoleDialogVisible = false
                     viewModel.clearUserRoleToAdd()
+                    viewModel.clearUserRoleToAddErrors()
                 },
                 onAddClick = {
                     viewModel.addUserRole()
                     isAddRoleDialogVisible = false
                     viewModel.clearUserRoleToAdd()
+                    viewModel.clearUserRoleToAddErrors()
                 }
             )
         Spacer(modifier = Modifier.height(10.dp))
@@ -104,11 +107,11 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
                 .fillMaxSize()
                 .padding(all = 0.dp)
         ) {
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Full name", body = user.fullName ?: NoString.str)
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = user.jobRole ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "User full name", body = user.fullName ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 15.dp), title = "User job role", body = user.jobRole ?: NoString.str)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
-                title = "Department",
+                title = "User department",
                 body = user.department + if (user.subDepartment.isNullOrEmpty()) EmptyString.str else "/${user.subDepartment}"
             )
         }

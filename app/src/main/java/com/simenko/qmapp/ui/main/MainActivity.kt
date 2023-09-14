@@ -286,7 +286,7 @@ class MainActivity : ComponentActivity() {
                                 if (
                                     (backStackEntry.value?.destination?.route != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
                                     &&
-                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route || addEditMode == AddEditMode.EDIT_USER.ordinal)
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
                                 )
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
@@ -323,7 +323,7 @@ class MainActivity : ComponentActivity() {
                                                     AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
                                                     AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
                                                     AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
-                                                    AddEditMode.EDIT_USER -> userModel.validateInput()
+                                                    AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }

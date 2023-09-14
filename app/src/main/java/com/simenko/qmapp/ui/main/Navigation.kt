@@ -115,7 +115,7 @@ fun Navigation(
                         viewModel = teamModel,
                         onClickAuthorize = { id ->
                             teamModel.setSelectedEmployeeRecord(NoRecord.num)
-                            teamModel.setAddEditMode(AddEditMode.EDIT_USER)
+                            teamModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
                             navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
                         }
                     )

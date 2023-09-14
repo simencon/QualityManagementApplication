@@ -40,7 +40,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
+import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
 import java.util.Locale
 
 @Composable
@@ -53,6 +57,18 @@ fun AddRole(
     val functions by viewModel.roleFunctions.collectAsStateWithLifecycle()
     val levels by viewModel.roleLevels.collectAsStateWithLifecycle()
     val accesses by viewModel.roleAccesses.collectAsStateWithLifecycle()
+
+    val userRoleToAddErrors by viewModel.userRoleToAddErrors.collectAsStateWithLifecycle()
+    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
+
+    val fillInState by viewModel.roleFillInState.collectAsStateWithLifecycle()
+    fillInState.let { state ->
+        when (state) {
+            is FillInSuccess -> onAddClick()
+            is FillInError -> error = state.errorMsg
+            is FillInInitialState -> error = UserError.NO_ERROR.error
+        }
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -67,15 +83,23 @@ fun AddRole(
                 modifier.background(MaterialTheme.colorScheme.onPrimary),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Section(title = "Select role function") {
+                Section(title = "Select role function", isError = userRoleToAddErrors.first) {
                     SelectionGrid(modifier = Modifier.padding(top = 0.dp), functions) { viewModel.setRoleFunction(it) }
                 }
-                Section(title = "Select role level") {
+                Section(title = "Select role level", isError = userRoleToAddErrors.second) {
                     SelectionGrid(modifier = Modifier.padding(top = 0.dp), levels) { viewModel.setRoleLevel(it) }
                 }
-                Section(title = "Select access level", withDivider = false) {
+                Section(title = "Select access level", isError = userRoleToAddErrors.third, withDivider = false) {
                     SelectionGrid(modifier = Modifier.padding(top = 0.dp), accesses) { viewModel.setRoleAccess(it) }
                 }
+                if (error != UserError.NO_ERROR.error)
+                    Text(
+                        text = error,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.padding(all = 5.dp),
+                        textAlign = TextAlign.Center
+                    )
+                Spacer(modifier = Modifier.height(10.dp))
 
                 //.......................................................................
                 Row(
@@ -107,7 +131,7 @@ fun AddRole(
                     )
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onAddClick,
+                        onClick = { viewModel.validateUserRoleInput() },
                         colors = ButtonDefaults.textButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -129,6 +153,7 @@ fun AddRole(
 @Composable
 fun Section(
     title: String,
+    isError: Boolean,
     modifier: Modifier = Modifier,
     withDivider: Boolean = true,
     content: @Composable () -> Unit
@@ -137,6 +162,7 @@ fun Section(
         Text(
             text = title.uppercase(Locale.getDefault()),
             style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
+            color = if(isError) MaterialTheme.colorScheme.error else Color.Unspecified,
             modifier = Modifier
                 .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
                 .padding(horizontal = 16.dp)
