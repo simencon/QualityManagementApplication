@@ -13,9 +13,10 @@ data class DomainUserRole(
     val roleLevel: String = NoString.str,
     val accessLevel: String = NoString.str,
 
-    var detailsVisibility: Boolean = false
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseUserRole>() {
-    override fun getRecordId(): Any = "${this.function}:${this.roleLevel}:${this.accessLevel}"
+    override fun getRecordId(): String = "${this.function}:${this.roleLevel}:${this.accessLevel}"
     override fun getParentId(): Int = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel(): DatabaseUserRole = ObjectTransformer(DomainUserRole::class, DatabaseUserRole::class).transform(this)
@@ -46,6 +47,19 @@ data class DomainUser(
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseUser>() {
+    fun rolesAsUserRoles(): List<DomainUserRole> {
+        val list = mutableListOf<DomainUserRole>()
+        roles?.let { set ->
+            set.forEach { roleStr ->
+                println("DomainUser - $roleStr")
+                println("DomainUser - ${roleStr.split(":")}")
+                println("DomainUser - ${roleStr.split(":").size}")
+                roleStr.split(":").let { if (it.size == 3) list.add(DomainUserRole(it[0], it[1], it[2])) }
+            }
+        }
+        return list.toList()
+    }
+
     override fun getRecordId(): Any = this.email
     override fun getParentId(): Int = this.companyId.toInt()
 

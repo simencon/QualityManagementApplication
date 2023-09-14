@@ -3,10 +3,15 @@ package com.simenko.qmapp.ui.main.team.forms.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainUser
+import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.ui.main.AddEditMode
@@ -15,6 +20,7 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
+import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,8 +62,24 @@ class UserViewModel @Inject constructor(
     fun loadUser(id: String) {
         _user.value = repository.getUserById(id)
     }
+
     val user get() = _user.asStateFlow()
+    private val _currentUserRoleVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
     val userErrors get() = _userErrors.asStateFlow()
+
+    val userRoles: StateFlow<List<DomainUserRole>> = user.flatMapLatest { user ->
+        _currentUserRoleVisibility.flatMapLatest { visibility ->
+            val cpy = mutableListOf<DomainUserRole>()
+            user.rolesAsUserRoles().forEach {
+                cpy.add(it.copy(detailsVisibility = it.getRecordId() == visibility.first.str, isExpanded = it.getRecordId() == visibility.second.str))
+            }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setCurrentUserRoleVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
+        _currentUserRoleVisibility.value = _currentUserRoleVisibility.value.setVisibility(dId, aId)
+    }
 
     private val _userEmployees: Flow<List<DomainEmployee>> = manufacturingRepository.employees
 

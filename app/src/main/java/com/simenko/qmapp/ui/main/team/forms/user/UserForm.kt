@@ -31,6 +31,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.main.settings.InfoLine
@@ -53,6 +55,7 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
     }
 
     val user by viewModel.user.collectAsStateWithLifecycle()
+    val userRoles by viewModel.userRoles.collectAsStateWithLifecycle()
     val userErrors by viewModel.userErrors.collectAsStateWithLifecycle()
 
     val userEmployees by viewModel.userEmployees.collectAsStateWithLifecycle()
@@ -104,7 +107,11 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             contentDescription = Triple(Icons.Default.Person, "Company employee", "Select company employee"),
         )
         Spacer(modifier = Modifier.height(10.dp))
-        RolesCard()
+        RolesHeader(
+            modifier = Modifier.padding(Constants.CARDS_PADDING),
+            userRoles = userRoles,
+            userRolesError = userErrors.rolesError,
+            onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) })
         Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)
             Text(
