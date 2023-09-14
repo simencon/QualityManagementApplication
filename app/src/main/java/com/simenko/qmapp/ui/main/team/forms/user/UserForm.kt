@@ -99,55 +99,54 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
                     viewModel.clearUserRoleToAddErrors()
                 }
             )
-        Spacer(modifier = Modifier.height(10.dp))
+
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(all = 0.dp)
+            modifier = Modifier.padding(all = 0.dp)
         ) {
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "User full name", body = user.fullName ?: NoString.str)
-            InfoLine(modifier = modifier.padding(start = 15.dp), title = "User job role", body = user.jobRole ?: NoString.str)
+            Spacer(modifier = Modifier.height(10.dp))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "User full name", body = user.fullName ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "User job role", body = user.jobRole ?: NoString.str)
             InfoLine(
-                modifier = modifier.padding(start = 15.dp),
+                modifier = modifier.padding(start = 0.dp),
                 title = "User department",
                 body = user.department + if (user.subDepartment.isNullOrEmpty()) EmptyString.str else "/${user.subDepartment}"
             )
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        RecordFieldItemWithMenu(
-            options = userEmployees,
-            isError = userErrors.teamMemberError,
-            onDropdownMenuItemClick = { viewModel.setUserEmployee(it) },
-            keyboardNavigation = Pair(userEmployeeFR) { userEmployeeFR.requestFocus() },
-            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-            contentDescription = Triple(Icons.Default.Person, "Company employee", "Select company employee"),
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        RolesHeader(
-            modifier = Modifier.padding(Constants.CARDS_PADDING),
-            userRoles = userRoles,
-            userRolesError = userErrors.rolesError,
-            onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
-            onClickDelete = { viewModel.deleteUserRole(it) },
-            onClickAdd = { isAddRoleDialogVisible = true }
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        TrueFalseField(
-            modifier = Modifier.padding(Constants.CARDS_PADDING),
-            user = user,
-            onSwitch = { viewModel.setUserIsEnabled(it) },
-            isError = userErrors.enabledError
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        if (error != UserError.NO_ERROR.error)
-            Text(
-                text = error,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                modifier = Modifier.padding(all = 5.dp),
-                textAlign = TextAlign.Center
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItemWithMenu(
+                options = userEmployees,
+                isError = userErrors.teamMemberError,
+                onDropdownMenuItemClick = { viewModel.setUserEmployee(it) },
+                keyboardNavigation = Pair(userEmployeeFR) { userEmployeeFR.requestFocus() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                contentDescription = Triple(Icons.Default.Person, "Company employee", "Select company employee"),
             )
-        Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            RolesHeader(
+                modifier = Modifier.padding(Constants.CARDS_PADDING),
+                userRoles = userRoles,
+                userRolesError = userErrors.rolesError,
+                onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
+                onClickDelete = { viewModel.deleteUserRole(it) },
+                onClickAdd = { isAddRoleDialogVisible = true }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            TrueFalseField(
+                modifier = Modifier.padding(Constants.CARDS_PADDING),
+                user = user,
+                onSwitch = { viewModel.setUserIsEnabled(it) },
+                isError = userErrors.enabledError
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            if (error != UserError.NO_ERROR.error)
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
+                    modifier = Modifier.padding(all = 5.dp),
+                    textAlign = TextAlign.Center
+                )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
     }
 }
