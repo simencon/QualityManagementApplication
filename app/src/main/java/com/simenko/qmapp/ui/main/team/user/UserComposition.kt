@@ -178,7 +178,7 @@ fun User(
                     val containerColor =
                         if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
                     RecordActionTextBtn(
-                        text = "Deauthorize",
+                        text = "Remove user",
                         onClick = { onClickAuthorize(item.email) },
                         colors = Pair(
                             ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
@@ -188,9 +188,9 @@ fun User(
                     )
                 } else {
                     val containerColor =
-                        if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
+                        if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
                     RecordActionTextBtn(
-                        text = "Authorize",
+                        text = "Authorize user",
                         onClick = { onClickAuthorize(item.email) },
                         colors = Pair(
                             ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),

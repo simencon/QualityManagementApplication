@@ -72,7 +72,7 @@ fun RolesHeader(
     onClickAdd: () -> Unit
 ) {
     val tint = if (userRolesError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-    var detailsVisibility: Boolean by rememberSaveable { mutableStateOf(true) }
+    var detailsVisibility: Boolean by rememberSaveable { mutableStateOf(false) }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
