@@ -99,6 +99,14 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    fun setUserIsEnabled(value: Boolean) {
+        if (_user.value.enabled != value) {
+            _user.value = _user.value.copy(enabled = value)
+            _userErrors.value = _userErrors.value.copy(enabledError = false)
+            _fillInState.value = FillInInitialState
+        }
+    }
+
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
 

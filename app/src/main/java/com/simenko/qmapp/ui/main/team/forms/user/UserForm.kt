@@ -113,6 +113,13 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             userRolesError = userErrors.rolesError,
             onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) })
         Spacer(modifier = Modifier.height(10.dp))
+        TrueFalseField(
+            modifier = Modifier.padding(Constants.CARDS_PADDING),
+            user = user,
+            onSwitch = { viewModel.setUserIsEnabled(it) },
+            isError = userErrors.enabledError
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)
             Text(
                 text = error,
