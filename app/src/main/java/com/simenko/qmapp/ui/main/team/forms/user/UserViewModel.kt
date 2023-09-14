@@ -3,11 +3,8 @@ package com.simenko.qmapp.ui.main.team.forms.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -81,6 +78,12 @@ class UserViewModel @Inject constructor(
         _currentUserRoleVisibility.value = _currentUserRoleVisibility.value.setVisibility(dId, aId)
     }
 
+    fun deleteUserRole(id: String) {
+        val roles = _user.value.roles?.toHashSet()
+        roles?.remove(id)
+        _user.value = _user.value.copy(roles = roles)
+    }
+
     private val _userEmployees: Flow<List<DomainEmployee>> = manufacturingRepository.employees
 
     val userEmployees: StateFlow<List<Triple<Int, String, Boolean>>> = _userEmployees.flatMapLatest { employees ->
@@ -105,6 +108,69 @@ class UserViewModel @Inject constructor(
             _userErrors.value = _userErrors.value.copy(enabledError = false)
             _fillInState.value = FillInInitialState
         }
+    }
+
+    private val _availableUserRoles = repository.userRoles.flatMapLatest { roles ->
+        _user.flatMapLatest { user ->
+            val cpy = roles.toMutableList()
+            cpy.removeAll(user.rolesAsUserRoles().toSet())
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    private val _userRoleToAdd = MutableStateFlow(Triple(NoRecordStr.str, NoRecordStr.str, NoRecordStr.str))
+    private val _userRoleToAddErrors = MutableStateFlow(Triple(false, false, false))
+    fun clearUserRoleToAdd() {
+        _userRoleToAdd.value = Triple(NoRecordStr.str, NoRecordStr.str, NoRecordStr.str)
+    }
+
+    val roleFunctions = _availableUserRoles.flatMapLatest { roles ->
+        _userRoleToAdd.flatMapLatest { roleToAdd ->
+            val cpy = mutableListOf<Pair<String, Boolean>>()
+            roles.map { it.function }.toSet().forEach {
+                cpy.add(Pair(it, it == roleToAdd.first))
+            }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setRoleFunction(value: String) {
+        _userRoleToAdd.value = _userRoleToAdd.value.copy(first = value, second = NoRecordStr.str, third = NoRecordStr.str)
+    }
+
+    val roleLevels = _availableUserRoles.flatMapLatest { roles ->
+        _userRoleToAdd.flatMapLatest { roleToAdd ->
+            val cpy = mutableListOf<Pair<String, Boolean>>()
+            roles.filter { it.function == roleToAdd.first }.map { it.roleLevel }.toSet().forEach {
+                cpy.add(Pair(it, it == roleToAdd.second))
+            }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setRoleLevel(value: String) {
+        _userRoleToAdd.value = _userRoleToAdd.value.copy(second = value, third = NoRecordStr.str)
+    }
+
+    val roleAccesses = _availableUserRoles.flatMapLatest { roles ->
+        _userRoleToAdd.flatMapLatest { roleToAdd ->
+            val cpy = mutableListOf<Pair<String, Boolean>>()
+            roles.filter { it.function == roleToAdd.first && it.roleLevel == roleToAdd.second }.map { it.accessLevel }.toSet().forEach {
+                cpy.add(Pair(it, it == roleToAdd.third))
+            }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setRoleAccess(value: String) {
+        _userRoleToAdd.value = _userRoleToAdd.value.copy(third = value)
+    }
+
+    fun addUserRole() {
+        val roleToAdd = "${_userRoleToAdd.value.first}:${_userRoleToAdd.value.second}:${_userRoleToAdd.value.third}"
+        val roles = _user.value.roles.let { it?.toHashSet() ?: mutableSetOf() }
+        roles.add(roleToAdd)
+        _user.value = _user.value.copy(roles = roles)
     }
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)

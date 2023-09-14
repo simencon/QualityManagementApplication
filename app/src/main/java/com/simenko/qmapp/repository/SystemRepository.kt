@@ -1,6 +1,7 @@
 package com.simenko.qmapp.repository
 
 import com.simenko.qmapp.domain.entities.DomainUser
+import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
@@ -30,6 +31,11 @@ class SystemRepository @Inject constructor(
 
     val users: Flow<List<DomainUser>> =
         database.userDao.getRecordsFlowForUI().map { list ->
+            list.map { it.toDomainModel() }
+        }
+
+    val userRoles: Flow<List<DomainUserRole>> =
+        database.userRoleDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 }
