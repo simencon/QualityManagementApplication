@@ -68,7 +68,8 @@ fun RolesHeader(
     userRoles: List<DomainUserRole>,
     userRolesError: Boolean,
     onClickActions: (String) -> Unit,
-    onClickDelete: (String) -> Unit = {}
+    onClickDelete: (String) -> Unit,
+    onClickAdd: () -> Unit
 ) {
     val tint = if (userRolesError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
     var detailsVisibility: Boolean by rememberSaveable { mutableStateOf(true) }
@@ -127,7 +128,8 @@ fun RolesHeader(
                     RolesFlow(
                         userRoles = userRoles,
                         onClickActions = onClickActions,
-                        onClickDelete = onClickDelete
+                        onClickDelete = onClickDelete,
+                        onClickAdd = onClickAdd
                     )
                 }
             }
@@ -140,9 +142,9 @@ fun RolesHeader(
 fun RolesFlow(
     userRoles: List<DomainUserRole>,
     onClickActions: (String) -> Unit,
-    onClickDelete: (String) -> Unit
+    onClickDelete: (String) -> Unit,
+    onClickAdd: () -> Unit
 ) {
-    val onClickAddLambda = remember<() -> Unit> { {} }
     Column(modifier = Modifier.padding(all = 2.dp), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow(modifier = Modifier.padding(vertical = 2.dp)) {
             userRoles.forEach { role ->
@@ -157,7 +159,7 @@ fun RolesFlow(
         Divider(thickness = 0.dp, color = Color.Transparent)
         FloatingActionButton(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            onClick = { onClickAddLambda() },
+            onClick = onClickAdd,
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }

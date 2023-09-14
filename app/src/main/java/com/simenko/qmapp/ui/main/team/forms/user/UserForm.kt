@@ -73,6 +73,8 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
 
     val (userEmployeeFR) = FocusRequester.createRefs()
 
+    var isAddRoleDialogVisible by rememberSaveable { mutableStateOf(false) }
+
     Column(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -81,6 +83,19 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             .padding(all = 0.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        if (isAddRoleDialogVisible)
+            AddRole(
+                viewModel = viewModel,
+                onDismiss = {
+                    isAddRoleDialogVisible = false
+                    viewModel.clearUserRoleToAdd()
+                },
+                onAddClick = {
+                    viewModel.addUserRole()
+                    isAddRoleDialogVisible = false
+                    viewModel.clearUserRoleToAdd()
+                }
+            )
         Spacer(modifier = Modifier.height(10.dp))
         Column(
             verticalArrangement = Arrangement.Center,
@@ -111,7 +126,10 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             modifier = Modifier.padding(Constants.CARDS_PADDING),
             userRoles = userRoles,
             userRolesError = userErrors.rolesError,
-            onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) })
+            onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
+            onClickDelete = { viewModel.deleteUserRole(it) },
+            onClickAdd = { isAddRoleDialogVisible = true }
+        )
         Spacer(modifier = Modifier.height(10.dp))
         TrueFalseField(
             modifier = Modifier.padding(Constants.CARDS_PADDING),
@@ -127,5 +145,6 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
                 modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
+        Spacer(modifier = Modifier.height(10.dp))
     }
 }
