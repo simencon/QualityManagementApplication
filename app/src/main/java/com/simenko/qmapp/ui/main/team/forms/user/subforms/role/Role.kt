@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team.forms.user
+package com.simenko.qmapp.ui.main.team.forms.user.subforms.role
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
+import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
@@ -92,20 +93,20 @@ fun AddRole(
                 Section(title = "Select access level", isError = userRoleToAddErrors.third, withDivider = false) {
                     SelectionGrid(modifier = Modifier.padding(top = 0.dp), accesses) { viewModel.setRoleAccess(it) }
                 }
-                if (error != UserError.NO_ERROR.error)
+                if (error != UserError.NO_ERROR.error) {
                     Text(
                         text = error,
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                         modifier = Modifier.padding(all = 5.dp),
                         textAlign = TextAlign.Center
                     )
-                Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
 
                 //.......................................................................
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .padding(top = 10.dp)
                         .background(MaterialTheme.colorScheme.primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
