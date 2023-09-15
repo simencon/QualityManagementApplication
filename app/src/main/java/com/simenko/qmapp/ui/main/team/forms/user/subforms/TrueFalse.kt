@@ -1,6 +1,5 @@
-package com.simenko.qmapp.ui.main.team.forms.user
+package com.simenko.qmapp.ui.main.team.forms.user.subforms
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding

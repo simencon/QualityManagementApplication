@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team.forms.user
+package com.simenko.qmapp.ui.main.team.forms.user.subforms
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
