@@ -132,6 +132,7 @@ class UserViewModel @Inject constructor(
 
     fun validateInput(user: DomainUser = _user.value) {
         val errorMsg = buildString {
+            println("validateInput - ${user.teamMemberId}")
             if (user.teamMemberId == NoRecord.num.toLong()) {
                 _userErrors.value = _userErrors.value.copy(teamMemberError = true)
                 append("Employee field is mandatory\n")

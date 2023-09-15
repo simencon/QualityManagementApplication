@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.Constants
@@ -52,9 +53,9 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
 
     val user by viewModel.user.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = userId) {
-        if (user.email == EmptyString.str)
+        if (user.email == NoRecordStr.str)
             withContext(Dispatchers.Default) {
-                if (userId != NoString.str)
+                if (userId != NoRecordStr.str)
                     viewModel.loadUser(userId)
             }
     }

@@ -45,7 +45,7 @@ class SystemRepository @Inject constructor(
         database.userDao
     ) { service.getUsers() }
 
-    fun getUserById(id: String) = database.userDao.getRecordById(id.toString()).let {
+    fun getUserById(id: String) = database.userDao.getRecordById(id).let {
         it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
