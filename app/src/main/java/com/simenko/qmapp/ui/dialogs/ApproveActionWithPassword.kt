@@ -40,7 +40,7 @@ import com.simenko.qmapp.ui.theme.*
 @Composable
 fun ApproveAction(
     modifier: Modifier = Modifier,
-    actionTitle: String,
+    msg: String,
     onCanselClick: () -> Unit,
     onOkClick: (String) -> String
 ) {
@@ -90,7 +90,7 @@ fun ApproveAction(
                         .fillMaxWidth(),
                 )
                 Text(
-                    text = actionTitle,
+                    text = msg,
                     style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp, color = MaterialTheme.colorScheme.primary),
                     textAlign = TextAlign.Center,
                     maxLines = 2,

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -37,6 +38,7 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
+import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
@@ -50,11 +52,17 @@ fun UserComposition(
     val context = LocalContext.current
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
+    var isRemoveUserDialogVisible by rememberSaveable { mutableStateOf(false) }
+    val selectedUserRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
+
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
     val onClickAuthorizeLambda = remember<(String) -> Unit> { { onClickAuthorize(it) } }
-    val onClickEditLambda =
-        remember<(String, String) -> Unit> { { p1, p2 -> Toast.makeText(context, "id = $p1, name = $p2", Toast.LENGTH_LONG).show() } }
+    val onClickRemoveLambda = remember<(String) -> Unit> { {
+        viewModel.setSelectedUserRecord(it)
+        isRemoveUserDialogVisible = true
+    } }
+    val onClickEditLambda = remember<(String) -> Unit> { { Toast.makeText(context, "email = $it", Toast.LENGTH_LONG).show() } }
     val listState = rememberLazyListState()
 
     LazyColumn(
@@ -67,10 +75,20 @@ fun UserComposition(
                 onClickDetails = { onClickDetailsLambda(it) },
                 onDoubleClick = { onClickActionsLambda(it) },
                 onClickAuthorize = { onClickAuthorizeLambda(it) },
-                onClickEdit = { p1, p2 -> onClickEditLambda(p1, p2) }
+                onClickRemove = { onClickRemoveLambda(it) },
+                onClickEdit = { onClickEditLambda(it) }
             )
         }
     }
+
+    if (isRemoveUserDialogVisible)
+        UserExistDialog(
+            msg = "Remove user ${selectedUserRecord.peekContent()} from authorized users?",
+            btn = Pair("Cancel", "Remove"),
+            onCancel = { isRemoveUserDialogVisible = false },
+            onOk = {},
+            onDismiss = { isRemoveUserDialogVisible = false }
+        )
 }
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
@@ -80,7 +98,8 @@ fun UserCard(
     onClickDetails: (String) -> Unit,
     onDoubleClick: (String) -> Unit,
     onClickAuthorize: (String) -> Unit,
-    onClickEdit: (String, String) -> Unit
+    onClickRemove: (String) -> Unit,
+    onClickEdit: (String) -> Unit
 ) {
     val transitionState = remember {
         MutableTransitionState(item.isExpanded).apply {
@@ -112,7 +131,7 @@ fun UserCard(
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(item.email, item.email) },
+                onClick = { onClickEdit(item.email) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }
@@ -131,6 +150,7 @@ fun UserCard(
                 item = item,
                 onClickDetails = onClickDetails,
                 onClickAuthorize = onClickAuthorize,
+                onClickRemove = onClickRemove,
                 modifier = Modifier.padding(Constants.CARDS_PADDING)
             )
         }
@@ -142,6 +162,7 @@ fun User(
     item: DomainUser,
     onClickDetails: (String) -> Unit,
     onClickAuthorize: (String) -> Unit,
+    onClickRemove: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -179,7 +200,7 @@ fun User(
                         if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
                     RecordActionTextBtn(
                         text = "Remove user",
-                        onClick = { onClickAuthorize(item.email) },
+                        onClick = { onClickRemove(item.email) },
                         colors = Pair(
                             ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
                             null

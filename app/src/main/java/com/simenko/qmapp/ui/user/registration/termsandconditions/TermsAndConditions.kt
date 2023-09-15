@@ -102,7 +102,7 @@ fun TermsAndConditions(
         }
 
         if (userExistDialogVisibility) {
-            UserExistDialog(msg = error, onChangeEmail = onChangeEmail, onLoginClick = onLogin, onDismiss = onDismiss)
+            UserExistDialog(msg = error, btn = Pair("Change email", "Login"), onCancel = onChangeEmail, onOk = onLogin, onDismiss = onDismiss)
         }
     }
 

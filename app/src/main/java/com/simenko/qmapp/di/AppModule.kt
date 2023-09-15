@@ -79,7 +79,7 @@ object AppModule {
     @Provides
     fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, @Named("rest_api_url") url: String): Retrofit = Retrofit
         .Builder()
-        .baseUrl(if (url != EmptyString.str) url else DEFAULT_REST_API_URL)
+        .baseUrl(if (url != EmptyString.str) url  else DEFAULT_REST_API_URL)
         .addConverterFactory(
             MoshiConverterFactory.create(
                 moshi

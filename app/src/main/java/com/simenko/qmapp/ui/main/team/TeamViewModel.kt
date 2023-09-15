@@ -140,7 +140,8 @@ class TeamViewModel @Inject constructor(
                 flow { emit(cpy) }
             }
         }
-    }.flowOn(Dispatchers.IO)
+    }
+        .flowOn(Dispatchers.IO)
         .conflate()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
