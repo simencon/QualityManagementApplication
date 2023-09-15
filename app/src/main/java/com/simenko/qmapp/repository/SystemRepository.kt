@@ -35,9 +35,9 @@ class SystemRepository @Inject constructor(
         ) { r -> database.userDao.updateRecord(r) }
     }
 
-    fun CoroutineScope.removeUser(record: DomainUser) = crudeOperations.run {
+    fun CoroutineScope.removeUser(recordId: String) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { service.removeUser(record.email) }
+            taskExecutor = { service.removeUser(recordId) }
         ) { r -> database.userDao.updateRecord(r) }
     }
 

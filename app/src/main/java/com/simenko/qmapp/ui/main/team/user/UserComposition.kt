@@ -51,7 +51,7 @@ fun UserComposition(
 ) {
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
-    var isRemoveUserDialogVisible by rememberSaveable { mutableStateOf(false) }
+    val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
     val selectedUserRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
@@ -60,7 +60,7 @@ fun UserComposition(
     val onClickRemoveLambda = remember<(String) -> Unit> {
         {
             viewModel.setSelectedUserRecord(it)
-            isRemoveUserDialogVisible = true
+            viewModel.setRemoveUserDialogVisibility(true)
         }
     }
     val onClickEditLambda = remember<(String) -> Unit> { { onClickEdit(it) } }
@@ -86,9 +86,9 @@ fun UserComposition(
         UserExistDialog(
             msg = "Remove user ${selectedUserRecord.peekContent()} from authorized users?",
             btn = Pair("Cancel", "Remove"),
-            onCancel = { isRemoveUserDialogVisible = false },
-            onOk = {},
-            onDismiss = { isRemoveUserDialogVisible = false }
+            onCancel = { viewModel.setRemoveUserDialogVisibility(false) },
+            onOk = { viewModel.removeUser(selectedUserRecord.peekContent()) },
+            onDismiss = { viewModel.setRemoveUserDialogVisibility(false) }
         )
 }
 
