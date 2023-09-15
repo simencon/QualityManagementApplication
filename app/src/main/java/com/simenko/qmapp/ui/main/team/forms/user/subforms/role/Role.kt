@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.repository.UserError
@@ -50,29 +52,51 @@ import java.util.Locale
 
 @Composable
 fun AddRole(
-    viewModel: UserViewModel,
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    onAddClick: () -> Unit
+    userModel: UserViewModel,
+    modifier: Modifier = Modifier
 ) {
+    val viewModel: RoleViewModel = hiltViewModel()
+
+    val user by userModel.user.collectAsStateWithLifecycle()
+
+    LaunchedEffect(user) {
+        viewModel.setUser(user)
+    }
+
     val functions by viewModel.roleFunctions.collectAsStateWithLifecycle()
     val levels by viewModel.roleLevels.collectAsStateWithLifecycle()
     val accesses by viewModel.roleAccesses.collectAsStateWithLifecycle()
 
+    val userRoleToAdd by viewModel.userRoleToAdd.collectAsStateWithLifecycle()
     val userRoleToAddErrors by viewModel.userRoleToAddErrors.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
+
+    val onDismissLambda = remember {
+        {
+            userModel.setAddRoleDialogVisibility(false)
+            viewModel.clearUserRoleToAdd()
+            viewModel.clearUserRoleToAddErrors()
+        }
+    }
+
+    val onAddClickLambda = remember {{
+        userModel.addUserRole(userRoleToAdd)
+        userModel.setAddRoleDialogVisibility(false)
+        viewModel.clearUserRoleToAdd()
+        viewModel.clearUserRoleToAddErrors()
+    }}
 
     val fillInState by viewModel.roleFillInState.collectAsStateWithLifecycle()
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> onAddClick()
+            is FillInSuccess -> onAddClickLambda()
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
     }
 
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismissLambda,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
@@ -112,7 +136,7 @@ fun AddRole(
                 ) {
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onDismiss,
+                        onClick = onDismissLambda,
                         colors = ButtonDefaults.textButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -163,7 +187,7 @@ fun Section(
         Text(
             text = title.uppercase(Locale.getDefault()),
             style = MaterialTheme.typography.displayMedium.copy(fontSize = 18.sp),
-            color = if(isError) MaterialTheme.colorScheme.error else Color.Unspecified,
+            color = if (isError) MaterialTheme.colorScheme.error else Color.Unspecified,
             modifier = Modifier
                 .paddingFromBaseline(top = 40.dp, bottom = 8.dp)
                 .padding(horizontal = 16.dp)

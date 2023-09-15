@@ -77,7 +77,7 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
 
     val (userEmployeeFR) = FocusRequester.createRefs()
 
-    var isAddRoleDialogVisible by rememberSaveable { mutableStateOf(false) }
+    val isAddRoleDialogVisible by viewModel.isAddRoleDialogVisible.collectAsStateWithLifecycle()
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -88,20 +88,7 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             .verticalScroll(rememberScrollState())
     ) {
         if (isAddRoleDialogVisible)
-            AddRole(
-                viewModel = viewModel,
-                onDismiss = {
-                    isAddRoleDialogVisible = false
-                    viewModel.clearUserRoleToAdd()
-                    viewModel.clearUserRoleToAddErrors()
-                },
-                onAddClick = {
-                    viewModel.addUserRole()
-                    isAddRoleDialogVisible = false
-                    viewModel.clearUserRoleToAdd()
-                    viewModel.clearUserRoleToAddErrors()
-                }
-            )
+            AddRole(userModel = viewModel)
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -132,7 +119,7 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
                 userRolesError = userErrors.rolesError,
                 onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
                 onClickDelete = { viewModel.deleteUserRole(it) },
-                onClickAdd = { isAddRoleDialogVisible = true }
+                onClickAdd = { viewModel.setAddRoleDialogVisibility(true) }
             )
             Spacer(modifier = Modifier.height(10.dp))
             TrueFalseField(
