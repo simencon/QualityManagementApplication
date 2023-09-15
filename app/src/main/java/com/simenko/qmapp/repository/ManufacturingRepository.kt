@@ -18,7 +18,7 @@ import javax.inject.Singleton
 @Singleton
 class ManufacturingRepository @Inject constructor(
     private val database: QualityManagementDB,
-    private val manufacturingService: ManufacturingService,
+    private val service: ManufacturingService,
     private val crudeOperations: CrudeOperations
 ) {
     /**
@@ -26,21 +26,21 @@ class ManufacturingRepository @Inject constructor(
      */
     suspend fun syncTeamMembers() = crudeOperations.syncRecordsAll(
         database.employeeDao
-    ) { manufacturingService.getEmployees() }
+    ) { service.getEmployees() }
 
     fun CoroutineScope.deleteTeamMember(orderId: Int): ReceiveChannel<Event<Resource<DomainEmployee>>> = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { manufacturingService.deleteEmployee(orderId) }
+            taskExecutor = { service.deleteEmployee(orderId) }
         ) { r -> database.employeeDao.deleteRecord(r) }
     }
     fun CoroutineScope.insertTeamMember(record: DomainEmployee) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { manufacturingService.insertEmployee(record.toDatabaseModel().toNetworkModel()) }
+            taskExecutor = { service.insertEmployee(record.toDatabaseModel().toNetworkModel()) }
         ) { r -> database.employeeDao.insertRecord(r) }
     }
     fun CoroutineScope.updateTeamMember(record: DomainEmployee) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { manufacturingService.editEmployee(record.id, record.toDatabaseModel().toNetworkModel()) }
+            taskExecutor = { service.editEmployee(record.id, record.toDatabaseModel().toNetworkModel()) }
         ) { r -> database.employeeDao.updateRecord(r) }
     }
 
@@ -50,35 +50,35 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(
         database.companyDao
-    ) { manufacturingService.getCompanies() }
+    ) { service.getCompanies() }
 
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(
         database.jobRoleDao
-    ) { manufacturingService.getJobRoles() }
+    ) { service.getJobRoles() }
 
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(
         database.departmentDao
-    ) { manufacturingService.getDepartments() }
+    ) { service.getDepartments() }
 
     suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(
         database.subDepartmentDao
-    ) { manufacturingService.getSubDepartments() }
+    ) { service.getSubDepartments() }
 
     suspend fun syncChannels() = crudeOperations.syncRecordsAll(
         database.channelDao
-    ) { manufacturingService.getManufacturingChannels() }
+    ) { service.getManufacturingChannels() }
 
     suspend fun syncLines() = crudeOperations.syncRecordsAll(
         database.lineDao
-    ) { manufacturingService.getManufacturingLines() }
+    ) { service.getManufacturingLines() }
 
     suspend fun syncOperations() = crudeOperations.syncRecordsAll(
         database.operationDao
-    ) { manufacturingService.getManufacturingOperations() }
+    ) { service.getManufacturingOperations() }
 
     suspend fun syncOperationsFlows() = crudeOperations.syncRecordsAll(
         database.operationsFlowDao
-    ) { manufacturingService.getOperationsFlows() }
+    ) { service.getOperationsFlows() }
 
     /**
      * Connecting with LiveData for ViewModel

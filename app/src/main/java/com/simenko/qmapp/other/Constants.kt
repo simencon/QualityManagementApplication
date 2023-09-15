@@ -43,6 +43,8 @@ object Constants {
 
     const val PRINCIPLES = "principles"
     const val COMPANY_DATA = "companyData"
+    const val AUTHORIZE_USER = "authorizeUser"
+    const val REMOVE_USER = "removeUser"
     const val ROLES = "roles"
 
     const val EMPLOYEES = "employees"

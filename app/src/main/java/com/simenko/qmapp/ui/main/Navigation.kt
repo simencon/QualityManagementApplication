@@ -26,9 +26,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.EmployeeId
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.OrderId
 import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SubOrderAddEditMode
 import com.simenko.qmapp.domain.TrueStr
@@ -107,15 +109,36 @@ fun Navigation(
                     EmployeeForm(employeeId = it.arguments?.getInt(EmployeeId.str) ?: NoRecord.num)
                 }
             }
-            composable(route = Screen.Main.Team.Users.route) {
+            composable(
+                route = Screen.Main.Team.Users.routeWithArgKeys(),
+                arguments = listOf(
+                    navArgument(UserId.str) {
+                        type = NavType.StringType
+                        defaultValue = NoRecordStr.str
+                    }
+                )
+            ) {
                 val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
                 (LocalContext.current as MainActivity).initTeamModel(teamModel)
+
+                if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
+                    it.arguments?.getString(UserId.str)?.let { id ->
+                        println("Users - Authorized user is $id.")
+                        teamModel.setSelectedUserRecord(id)
+                    }
+                }
+
                 QMAppTheme {
                     UserComposition(
                         viewModel = teamModel,
                         onClickAuthorize = { id ->
-                            teamModel.setSelectedEmployeeRecord(NoRecord.num)
+                            teamModel.setSelectedUserRecord(NoRecordStr.str)
                             teamModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
+                            navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        },
+                        onClickEdit = { id ->
+                            teamModel.setSelectedUserRecord(NoRecordStr.str)
+                            teamModel.setAddEditMode(AddEditMode.EDIT_USER)
                             navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
                         }
                     )

@@ -61,6 +61,7 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.NoRecord
@@ -181,12 +182,12 @@ class MainActivity : ComponentActivity() {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.routeWithArgKeys())
                                         navController.popBackStack()
                                 } else if (tabId == SecondTabId) {
-                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys())
+                                        navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = false)
                                 } else if (tabId == ThirdTabId) {
-                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route)
-                                        navController.navigate(Screen.Main.Team.Users.route) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys())
+                                        navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = true)
                                 }
                             }
@@ -284,9 +285,9 @@ class MainActivity : ComponentActivity() {
                             },
                             floatingActionButton = {
                                 if (
-                                    (backStackEntry.value?.destination?.route != Screen.Main.Settings.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Settings.UserDetails.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
                                     &&
-                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.route || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
                                 )
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
@@ -353,7 +354,7 @@ class MainActivity : ComponentActivity() {
                                 onRefresh = {
                                     when (backStackEntry.value?.destination?.route) {
                                         Screen.Main.Team.Employees.routeWithArgKeys() -> teamModel.updateEmployeesData()
-                                        Screen.Main.Team.Users.route -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.Users.routeWithArgKeys() -> teamModel.updateEmployeesData()
                                         Screen.Main.Inv.routeWithArgKeys() -> invModel.uploadNewInvestigations()
                                         Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.uploadNewInvestigations()
                                         Screen.Main.Settings.UserDetails.route -> settingsModel.updateUserData()

@@ -9,8 +9,10 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.domain.entities.DomainUserRole
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
@@ -21,6 +23,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,6 +35,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -150,35 +154,35 @@ class UserViewModel @Inject constructor(
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
     fun makeUser(record: DomainUser) = viewModelScope.launch {
-        /*_mainViewModel.updateLoadingState(Pair(true, null))
+        _mainViewModel.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run {
-                if (_mainViewModel.addEditMode.value == AddEditMode.ADD_EMPLOYEE.ordinal)
-                    insertTeamMember(record)
+                if (_mainViewModel.addEditMode.value == AddEditMode.AUTHORIZE_USER.ordinal)
+                    authorizeUser(record)
                 else
-                    updateTeamMember(record)
+                    updateUserCompanyData(record)
             }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
                         Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
-                        Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                        Status.SUCCESS -> navBackToRecord(resource.data?.email)
                         Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
                     }
                 }
             }
-        }*/
+        }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
-        /*_mainViewModel.updateLoadingState(Pair(false, null))
+    private suspend fun navBackToRecord(id: String?) {
+        _mainViewModel.updateLoadingState(Pair(false, null))
         setAddEditMode(AddEditMode.NO_MODE)
         withContext(Dispatchers.Main) {
             id?.let {
-                navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
-                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = true }
+                navController.navigate(Screen.Main.Team.Users.withArgs(it)) {
+                    popUpTo(Screen.Main.Team.Users.routeWithArgKeys()) { inclusive = true }
                 }
             }
-        }*/
+        }
     }
 }
 

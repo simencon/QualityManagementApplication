@@ -1,10 +1,12 @@
 package com.simenko.qmapp.repository
 
+import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
@@ -20,6 +22,24 @@ class SystemRepository @Inject constructor(
     suspend fun syncUserRoles() = crudeOperations.syncRecordsAll(
         database.userRoleDao
     ) { service.getUserRoles() }
+
+    fun CoroutineScope.updateUserCompanyData(record: DomainUser) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { service.editUserCompanyData(record.email, record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.userDao.updateRecord(r) }
+    }
+
+    fun CoroutineScope.authorizeUser(record: DomainUser) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { service.authorizeUser(record.email, record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.userDao.updateRecord(r) }
+    }
+
+    fun CoroutineScope.removeUser(record: DomainUser) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { service.removeUser(record.email) }
+        ) { r -> database.userDao.updateRecord(r) }
+    }
 
     suspend fun syncUsers() = crudeOperations.syncRecordsAll(
         database.userDao
