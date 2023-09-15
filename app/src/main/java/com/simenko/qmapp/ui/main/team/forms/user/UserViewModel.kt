@@ -167,7 +167,10 @@ class UserViewModel @Inject constructor(
                     when (resource.status) {
                         Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.email)
-                        Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                        Status.ERROR -> {
+                            _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                            _fillInState.value = FillInInitialState
+                        }
                     }
                 }
             }
