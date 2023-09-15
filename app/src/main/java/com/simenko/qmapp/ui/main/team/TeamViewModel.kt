@@ -1,6 +1,10 @@
 package com.simenko.qmapp.ui.main.team
 
 import androidx.compose.material3.FabPosition
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
@@ -45,7 +49,7 @@ class TeamViewModel @Inject constructor(
         _mainViewModel.onListEnd(position)
     }
 
-    private val _selectedUserRecord = MutableStateFlow(Event(NoString.str))
+    private val _selectedUserRecord = MutableStateFlow(Event(NoRecordStr.str))
     val selectedUserRecord = _selectedUserRecord.asStateFlow()
     fun setSelectedUserRecord(id: String) {
         if (selectedUserRecord.value.peekContent() != id) this._selectedUserRecord.value = Event(id)
@@ -60,6 +64,34 @@ class TeamViewModel @Inject constructor(
                         when (resource.status) {
                             Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> _mainViewModel.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private val _isRemoveUserDialogVisible = MutableStateFlow(false)
+    val isRemoveUserDialogVisible get() = _isRemoveUserDialogVisible.asStateFlow()
+
+    fun setRemoveUserDialogVisibility(value: Boolean) {
+        _isRemoveUserDialogVisible.value = value
+    }
+
+    fun removeUser(userId: String) = viewModelScope.launch {
+        _mainViewModel.updateLoadingState(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            systemRepository.run {
+                removeUser(userId).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> {
+                                _mainViewModel.updateLoadingState(Pair(false, null))
+                                _selectedUserRecord.value = Event(NoRecordStr.str)
+                                setRemoveUserDialogVisibility(false)
+                            }
                             Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
                         }
                     }
