@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.team.user
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
@@ -47,9 +46,9 @@ import kotlin.math.roundToInt
 @Composable
 fun UserComposition(
     viewModel: TeamViewModel = hiltViewModel(),
-    onClickAuthorize: (String) -> Unit
+    onClickAuthorize: (String) -> Unit,
+    onClickEdit: (String) -> Unit
 ) {
-    val context = LocalContext.current
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
     var isRemoveUserDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -58,11 +57,13 @@ fun UserComposition(
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
     val onClickAuthorizeLambda = remember<(String) -> Unit> { { onClickAuthorize(it) } }
-    val onClickRemoveLambda = remember<(String) -> Unit> { {
-        viewModel.setSelectedUserRecord(it)
-        isRemoveUserDialogVisible = true
-    } }
-    val onClickEditLambda = remember<(String) -> Unit> { { Toast.makeText(context, "email = $it", Toast.LENGTH_LONG).show() } }
+    val onClickRemoveLambda = remember<(String) -> Unit> {
+        {
+            viewModel.setSelectedUserRecord(it)
+            isRemoveUserDialogVisible = true
+        }
+    }
+    val onClickEditLambda = remember<(String) -> Unit> { { onClickEdit(it) } }
     val listState = rememberLazyListState()
 
     LazyColumn(
