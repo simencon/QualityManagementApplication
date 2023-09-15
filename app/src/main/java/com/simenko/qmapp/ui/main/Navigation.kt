@@ -150,7 +150,7 @@ fun Navigation(
                 arguments = listOf(
                     navArgument(UserId.str) {
                         type = NavType.StringType
-                        defaultValue = NoString.str
+                        defaultValue = NoRecordStr.str
                     }
                 )
             ) {
@@ -161,7 +161,7 @@ fun Navigation(
                     navController.popBackStack()
                 }
                 QMAppTheme {
-                    UserForm(userId = it.arguments?.getString(UserId.str) ?: NoString.str)
+                    UserForm(userId = it.arguments?.getString(UserId.str) ?: NoRecordStr.str)
                 }
             }
         }

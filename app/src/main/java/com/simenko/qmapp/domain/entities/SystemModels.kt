@@ -3,6 +3,7 @@ package com.simenko.qmapp.domain.entities
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.DatabaseUser
 import com.simenko.qmapp.room.entities.DatabaseUserRole
@@ -23,7 +24,7 @@ data class DomainUserRole(
 }
 
 data class DomainUser(
-    var email: String = EmptyString.str,
+    var email: String = NoRecordStr.str,
     var teamMemberId: Long = NoRecord.num.toLong(),
     var phoneNumber: Long? = null,
     var fullName: String? = null,

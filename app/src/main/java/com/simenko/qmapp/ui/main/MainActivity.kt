@@ -325,6 +325,7 @@ class MainActivity : ComponentActivity() {
                                                     AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
                                                     AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
                                                     AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
+                                                    AddEditMode.EDIT_USER -> userModel.validateInput()
                                                     else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                                                 }
                                             }
