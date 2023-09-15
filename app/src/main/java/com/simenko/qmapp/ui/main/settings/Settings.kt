@@ -155,7 +155,7 @@ fun Settings(
 
     if (approveActionDialogVisibility) {
         ApproveAction(
-            actionTitle = "Are you sure you want to delete your account: ${viewModel.userLocalData.email}?",
+            msg = "Are you sure you want to delete your account: ${viewModel.userLocalData.email}?",
             onCanselClick = { onDenyLambda() },
             onOkClick = { password -> onApproveLambda(password) }
         )

@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -23,9 +24,10 @@ import androidx.compose.ui.window.DialogProperties
 fun UserExistDialog(
     modifier: Modifier = Modifier,
     msg: String,
+    btn: Pair<String, String>,
     onDismiss: ()-> Unit,
-    onChangeEmail: () -> Unit,
-    onLoginClick: () -> Unit
+    onCancel: () -> Unit,
+    onOk: () -> Unit
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -54,9 +56,12 @@ fun UserExistDialog(
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = msg,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                    modifier = Modifier.padding(all = 5.dp),
-                    textAlign = TextAlign.Center
+                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp, color = MaterialTheme.colorScheme.primary),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(all = 5.dp)
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 //.......................................................................
@@ -69,14 +74,14 @@ fun UserExistDialog(
                 ) {
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onChangeEmail,
+                        onClick = onCancel,
                         colors = ButtonDefaults.textButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                     ) {
                         Text(
-                            "Change email",
+                            btn.first,
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center
@@ -85,14 +90,14 @@ fun UserExistDialog(
                     Divider(modifier = modifier.width(1.dp).height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = onLoginClick,
+                        onClick = onOk,
                         colors = ButtonDefaults.textButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                     ) {
                         Text(
-                            "Login",
+                            btn.second,
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
                             textAlign = TextAlign.Center

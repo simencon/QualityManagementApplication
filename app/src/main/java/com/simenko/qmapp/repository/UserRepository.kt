@@ -221,7 +221,7 @@ class UserRepository @Inject constructor(
     }
 
     val getRestApiUrl: String
-        get() = _user.restApiUrl
+        get() = _user.restApiUrl + "/"
 
     val authToken: String
         get() = _user.fbToken
