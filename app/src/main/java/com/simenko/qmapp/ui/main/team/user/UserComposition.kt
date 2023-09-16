@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -36,9 +37,13 @@ import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 @Composable
@@ -50,7 +55,7 @@ fun UserComposition(
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
-    val selectedUserRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
+    val selectedRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
@@ -62,7 +67,25 @@ fun UserComposition(
         }
     }
     val onClickEditLambda = remember<(String) -> Unit> { { onClickEdit(it) } }
+
     val listState = rememberLazyListState()
+
+    LaunchedEffect(selectedRecord) {
+        selectedRecord.getContentIfNotHandled()?.let { recordId ->
+            if (recordId != NoRecordStr.str) {
+
+//                withContext(Dispatchers.IO) {
+//                    viewModel.getSelectedUser(recordId).let {
+//                        viewModel.setUsersFilter(it.restApiUrl.isNullOrEmpty())
+//                    }
+//                }
+
+                listState.scrollToSelectedStringItem(list = items.map { it.email }.toList(), selectedId = recordId)
+                delay(25)
+                items.find { it.email == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.email) }
+            }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -82,10 +105,10 @@ fun UserComposition(
 
     if (isRemoveUserDialogVisible)
         UserExistDialog(
-            msg = "Remove user ${selectedUserRecord.peekContent()} from authorized users?",
+            msg = "Remove user ${selectedRecord.peekContent()} from authorized users?",
             btn = Pair("Cancel", "Remove"),
             onCancel = { viewModel.setRemoveUserDialogVisibility(false) },
-            onOk = { viewModel.removeUser(selectedUserRecord.peekContent()) },
+            onOk = { viewModel.removeUser(selectedRecord.peekContent()) },
             onDismiss = { viewModel.setRemoveUserDialogVisibility(false) }
         )
 }
