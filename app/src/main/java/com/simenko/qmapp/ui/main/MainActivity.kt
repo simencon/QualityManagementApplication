@@ -62,7 +62,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.FalseStr
-import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SecondTabId
@@ -177,14 +176,14 @@ class MainActivity : ComponentActivity() {
                             }
 
                             Screen.Main.Team.route -> {
-                                if (tabId == FirstTabId) {
+                                if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.routeWithArgKeys())
                                         navController.popBackStack()
-                                } else if (tabId == SecondTabId) {
+                                } else if (tabIndex == TeamTabs.USERS.ordinal) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys())
                                         navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = false)
-                                } else if (tabId == ThirdTabId) {
+                                } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
                                     if (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys())
                                         navController.navigate(Screen.Main.Team.Requests.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = true)
@@ -231,8 +230,10 @@ class MainActivity : ComponentActivity() {
                 }
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
-                    if (backStackEntry.value?.destination?.route == Screen.Main.Team.Employees.routeWithArgKeys()) {
-                        selectedTabIndex = ZeroValue.num
+                    when(backStackEntry.value?.destination?.route) {
+                        Screen.Main.Team.Employees.routeWithArgKeys() -> selectedTabIndex = TeamTabs.EMPLOYEES.ordinal
+                        Screen.Main.Team.Users.routeWithArgKeys() -> selectedTabIndex = TeamTabs.USERS.ordinal
+                        Screen.Main.Team.Requests.routeWithArgKeys() -> selectedTabIndex = TeamTabs.REQUESTS.ordinal
                     }
                 }
 
@@ -380,7 +381,7 @@ class MainActivity : ComponentActivity() {
                                     TopTabs(
                                         when (backStackEntry.value?.destination?.route) {
                                             Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> ProgressTabs.toListOfTriples()
-                                            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys(), Screen.Main.Team.Requests.routeWithArgKeys() -> UsersTabs.toListOfTriples()
+                                            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys(), Screen.Main.Team.Requests.routeWithArgKeys() -> TeamTabs.toListOfTriples()
                                             else -> emptyList()
                                         },
                                         selectedTabIndex,

@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.team.user
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
@@ -22,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +53,7 @@ fun UserComposition(
     onClickAuthorize: (String) -> Unit,
     onClickEdit: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(isUsersPage) {
@@ -60,16 +63,26 @@ fun UserComposition(
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
     val selectedRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
 
+    fun checkIfCanEdit(id: String): Boolean {
+        return if (viewModel.isOwnAccount(id)) {
+            Toast.makeText(context, "You cannot edit your own account!", Toast.LENGTH_LONG).show()
+            false
+        } else
+            true
+    }
+
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
-    val onClickAuthorizeLambda = remember<(String) -> Unit> { { onClickAuthorize(it) } }
+    val onClickAuthorizeLambda = remember<(String) -> Unit> { { if (checkIfCanEdit(it)) onClickAuthorize(it) } }
     val onClickRemoveLambda = remember<(String) -> Unit> {
         {
-            viewModel.setSelectedUserRecord(it)
-            viewModel.setRemoveUserDialogVisibility(true)
+            if (checkIfCanEdit(it)) {
+                viewModel.setSelectedUserRecord(it)
+                viewModel.setRemoveUserDialogVisibility(true)
+            }
         }
     }
-    val onClickEditLambda = remember<(String) -> Unit> { { onClickEdit(it) } }
+    val onClickEditLambda = remember<(String) -> Unit> { { if (checkIfCanEdit(it)) onClickEdit(it) } }
 
     val listState = rememberLazyListState()
 

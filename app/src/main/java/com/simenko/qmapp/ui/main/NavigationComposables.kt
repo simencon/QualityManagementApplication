@@ -557,13 +557,13 @@ enum class ProgressTabs(val tabId: SelectedNumber) {
     }
 }
 
-enum class UsersTabs(val tabId: SelectedNumber) {
+enum class TeamTabs(val tabId: SelectedNumber) {
     EMPLOYEES(FirstTabId),
     USERS(SecondTabId),
     REQUESTS(ThirdTabId);
 
     companion object {
-        fun toListOfTriples() = UsersTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
+        fun toListOfTriples() = TeamTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
     }
 }
 
