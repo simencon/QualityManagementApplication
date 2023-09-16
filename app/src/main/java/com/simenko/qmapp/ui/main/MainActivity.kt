@@ -61,7 +61,6 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.NoRecord
@@ -257,7 +256,7 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             topBar = {
                                 AppBar(
-                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId) ?: MenuItem.getStartingDrawerMenuItem(),
+                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId),
                                     destination = backStackEntry.value?.destination,
 
                                     onDrawerMenuClick = { scope.launch { drawerState.open() } },
@@ -464,6 +463,7 @@ class MainActivity : ComponentActivity() {
     fun initTeamModel(model: TeamViewModel) {
         this.teamModel = model
         this.teamModel.initMainActivityViewModel(this.viewModel)
+        this.teamModel.initNavController(this.navController)
     }
 
     fun initNewOrderModel(model: NewItemViewModel) {

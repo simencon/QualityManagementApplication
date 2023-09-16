@@ -26,12 +26,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.EmployeeId
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.OrderId
 import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SubOrderAddEditMode
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.UserEditMode
@@ -123,7 +121,7 @@ fun Navigation(
 
                 if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                     it.arguments?.getString(UserId.str)?.let { id ->
-                        println("Users - Authorized user is $id.")
+                        println("Users - Interacted record is $id.")
                         teamModel.setSelectedUserRecord(id)
                     }
                 }
