@@ -11,6 +11,7 @@ import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
+import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
+    private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
@@ -50,6 +52,8 @@ class TeamViewModel @Inject constructor(
         _mainViewModel.setTopBadgesCount(1, users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black)
         _mainViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
     }
+
+    val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }
 
     /**
      * Employee logic and operations -----------------------------------------------------------------------------------------------------------------
