@@ -105,11 +105,13 @@ class UserViewModel @Inject constructor(
     fun setAddRoleDialogVisibility(value: Boolean) {
         _isAddRoleDialogVisible.value = value
     }
+
     fun deleteUserRole(id: String) {
         val roles = _user.value.roles?.toHashSet()
         roles?.remove(id)
         _user.value = _user.value.copy(roles = roles)
     }
+
     fun addUserRole(role: Triple<String, String, String>) {
         val roleToAdd = "${role.first}:${role.second}:${role.third}"
         val roles = _user.value.roles.let { it?.toHashSet() ?: mutableSetOf() }
@@ -183,7 +185,10 @@ class UserViewModel @Inject constructor(
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Users.withArgs(it)) {
-                    popUpTo(Screen.Main.Team.Users.routeWithArgKeys()) { inclusive = true }
+                    if (_mainViewModel.addEditMode.value == AddEditMode.AUTHORIZE_USER.ordinal)
+                        popUpTo(Screen.Main.Team.Users.routeWithArgKeys()) { inclusive = true }
+                    else
+                        popUpTo(Screen.Main.Team.Requests.routeWithArgKeys()) { inclusive = true }
                 }
             }
         }
