@@ -118,6 +118,8 @@ class TeamViewModel @Inject constructor(
         if (selectedUserRecord.value.peekContent() != id) this._selectedUserRecord.value = Event(id)
     }
 
+    fun getSelectedUser(id: String): DomainUser = systemRepository.getUserById(id)
+
     private val _users: Flow<List<DomainUser>> = systemRepository.users
     private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
     fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
@@ -172,7 +174,11 @@ class TeamViewModel @Inject constructor(
                                 _mainViewModel.updateLoadingState(Pair(false, null))
                                 _selectedUserRecord.value = Event(NoRecordStr.str)
                                 setRemoveUserDialogVisibility(false)
-                                navToRemovedRecord(resource.data?.email)
+
+                                resource.data?.let {
+                                    setUsersFilter(it.restApiUrl.isNullOrEmpty())
+                                    navToRemovedRecord(it.email)
+                                }
                             }
 
                             Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
