@@ -1,7 +1,6 @@
 package com.simenko.qmapp.domain.entities
 
 import com.simenko.qmapp.domain.DomainBaseModel
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
