@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.team
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -10,6 +11,7 @@ import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
@@ -26,6 +28,11 @@ class TeamViewModel @Inject constructor(
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
+    private lateinit var navController: NavHostController
+    fun initNavController(controller: NavHostController) {
+        this.navController = controller
+    }
+
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
@@ -165,11 +172,24 @@ class TeamViewModel @Inject constructor(
                                 _mainViewModel.updateLoadingState(Pair(false, null))
                                 _selectedUserRecord.value = Event(NoRecordStr.str)
                                 setRemoveUserDialogVisibility(false)
+                                navToRemovedRecord(resource.data?.email)
                             }
 
                             Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private suspend fun navToRemovedRecord(id: String?) {
+        _mainViewModel.updateLoadingState(Pair(false, null))
+        setAddEditMode(AddEditMode.NO_MODE)
+        withContext(Dispatchers.Main) {
+            id?.let {
+                navController.navigate(Screen.Main.Team.Users.withArgs(it)) {
+                    popUpTo(Screen.Main.Team.Users.routeWithArgKeys()) { inclusive = true }
                 }
             }
         }
