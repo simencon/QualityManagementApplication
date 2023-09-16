@@ -52,7 +52,7 @@ fun EmployeeComposition(
 
     val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteRecord(it) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteEmployee(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
 
     val listState = rememberLazyListState()
