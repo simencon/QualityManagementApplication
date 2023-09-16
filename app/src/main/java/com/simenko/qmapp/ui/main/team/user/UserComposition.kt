@@ -41,24 +41,27 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 @Composable
 fun UserComposition(
     viewModel: TeamViewModel = hiltViewModel(),
+    isUsersPage: Boolean,
     onClickAuthorize: (String) -> Unit,
     onClickEdit: (String) -> Unit
 ) {
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
+    LaunchedEffect(isUsersPage) {
+        viewModel.setUsersFilter(!isUsersPage)
+    }
+
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
     val selectedRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
-    val onClickActionsLambda = remember<(String) -> Unit> { { viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
+    val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
     val onClickAuthorizeLambda = remember<(String) -> Unit> { { onClickAuthorize(it) } }
     val onClickRemoveLambda = remember<(String) -> Unit> {
         {
@@ -73,13 +76,6 @@ fun UserComposition(
     LaunchedEffect(selectedRecord) {
         selectedRecord.getContentIfNotHandled()?.let { recordId ->
             if (recordId != NoRecordStr.str) {
-
-//                withContext(Dispatchers.IO) {
-//                    viewModel.getSelectedUser(recordId).let {
-//                        viewModel.setUsersFilter(it.restApiUrl.isNullOrEmpty())
-//                    }
-//                }
-
                 listState.scrollToSelectedStringItem(list = items.map { it.email }.toList(), selectedId = recordId)
                 delay(25)
                 items.find { it.email == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.email) }

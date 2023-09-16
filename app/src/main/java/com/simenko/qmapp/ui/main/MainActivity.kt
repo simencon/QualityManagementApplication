@@ -185,8 +185,8 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = false)
                                 } else if (tabId == ThirdTabId) {
-                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys())
-                                        navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys())
+                                        navController.navigate(Screen.Main.Team.Requests.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
                                     teamModel.setUsersFilter(newUsers = true)
                                 }
                             }
@@ -287,6 +287,8 @@ class MainActivity : ComponentActivity() {
                                     (backStackEntry.value?.destination?.route != Screen.Main.Settings.UserDetails.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
                                     &&
                                     (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
+                                    &&
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
                                 )
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
@@ -355,6 +357,7 @@ class MainActivity : ComponentActivity() {
                                     when (backStackEntry.value?.destination?.route) {
                                         Screen.Main.Team.Employees.routeWithArgKeys() -> teamModel.updateEmployeesData()
                                         Screen.Main.Team.Users.routeWithArgKeys() -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.Requests.routeWithArgKeys() -> teamModel.updateEmployeesData()
                                         Screen.Main.Inv.routeWithArgKeys() -> invModel.uploadNewInvestigations()
                                         Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.uploadNewInvestigations()
                                         Screen.Main.Settings.UserDetails.route -> settingsModel.updateUserData()
@@ -377,7 +380,7 @@ class MainActivity : ComponentActivity() {
                                     TopTabs(
                                         when (backStackEntry.value?.destination?.route) {
                                             Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> ProgressTabs.toListOfTriples()
-                                            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys() -> UsersTabs.toListOfTriples()
+                                            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys(), Screen.Main.Team.Requests.routeWithArgKeys() -> UsersTabs.toListOfTriples()
                                             else -> emptyList()
                                         },
                                         selectedTabIndex,

@@ -129,6 +129,44 @@ fun Navigation(
                 QMAppTheme {
                     UserComposition(
                         viewModel = teamModel,
+                        isUsersPage = true,
+                        onClickAuthorize = { id ->
+                            teamModel.setSelectedUserRecord(NoRecordStr.str)
+                            teamModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
+                            navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        },
+                        onClickEdit = { id ->
+                            teamModel.setSelectedUserRecord(NoRecordStr.str)
+                            teamModel.setAddEditMode(AddEditMode.EDIT_USER)
+                            navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        }
+                    )
+                }
+            }
+
+            composable(
+                route = Screen.Main.Team.Requests.routeWithArgKeys(),
+                arguments = listOf(
+                    navArgument(UserId.str) {
+                        type = NavType.StringType
+                        defaultValue = NoRecordStr.str
+                    }
+                )
+            ) {
+                val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
+                (LocalContext.current as MainActivity).initTeamModel(teamModel)
+
+                if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
+                    it.arguments?.getString(UserId.str)?.let { id ->
+                        println("Users - Interacted record is $id.")
+                        teamModel.setSelectedUserRecord(id)
+                    }
+                }
+
+                QMAppTheme {
+                    UserComposition(
+                        viewModel = teamModel,
+                        isUsersPage = false,
                         onClickAuthorize = { id ->
                             teamModel.setSelectedUserRecord(NoRecordStr.str)
                             teamModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
