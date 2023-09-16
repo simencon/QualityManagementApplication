@@ -35,6 +35,7 @@ sealed class Screen(val route: String, private val argsKeys: String = EmptyStrin
             object Employees : Screen("employees", "/{${EmployeeId.str}}")
             object EmployeeAddEdit : Screen("employee_add_edit", "/{${EmployeeId.str}}")
             object Users : Screen("users", "/{${UserId.str}}")
+            object Requests : Screen("requests", "/{${UserId.str}}")
             object UserEdit : Screen("user_edit", "/{${UserId.str}}")
         }
         object CompanyStructure : Screen("company_structure")
