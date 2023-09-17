@@ -193,7 +193,7 @@ class TeamViewModel @Inject constructor(
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Requests.withArgs(it)) {
-                    popUpTo(Screen.Main.Team.Users.routeWithArgKeys()) { inclusive = true }
+                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = false }
                 }
             }
         }

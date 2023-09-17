@@ -185,10 +185,7 @@ class UserViewModel @Inject constructor(
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Users.withArgs(it)) {
-                    if (_mainViewModel.addEditMode.value == AddEditMode.AUTHORIZE_USER.ordinal)
-                        popUpTo(Screen.Main.Team.Users.routeWithArgKeys()) { inclusive = true }
-                    else
-                        popUpTo(Screen.Main.Team.Requests.routeWithArgKeys()) { inclusive = true }
+                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = false }
                 }
             }
         }
