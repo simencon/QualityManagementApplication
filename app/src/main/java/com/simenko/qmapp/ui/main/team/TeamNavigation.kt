@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.team
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -11,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.EmployeeId
 import com.simenko.qmapp.domain.NoRecord
@@ -151,6 +153,12 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
 
         composable(
             route = Screen.Main.Team.UserEdit.routeWithArgKeys(),
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.Users.routeWithArgKeys()}"
+                    action = Intent.ACTION_VIEW
+                }
+            ),
             arguments = listOf(
                 navArgument(UserId.str) {
                     type = NavType.StringType
