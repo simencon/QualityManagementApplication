@@ -29,6 +29,7 @@ sealed class Screen(val route: String, private val argsKeys: String = EmptyStrin
         object LogIn : Screen("log_in")
     }
 
+    object Domain : Screen("https://qm.simple.com")
     object Main : Screen("main") {
         object CompanyProfile : Screen("company_profile")
         object Team : Screen("team") {
