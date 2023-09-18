@@ -50,4 +50,10 @@ data class FcmToken(
     fun setToken(value: String) {
         userStorage?.setString(TOKEN, value)
     }
+
+    fun setValues(timeStamp: Long, email: String, token: String) {
+        setTokenTimeStamp(timeStamp)
+        setTokenEmail(email)
+        setToken(token)
+    }
 }
