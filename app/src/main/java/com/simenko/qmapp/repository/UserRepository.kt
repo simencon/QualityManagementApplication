@@ -262,7 +262,6 @@ class UserRepository @Inject constructor(
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         auth.currentUser?.email?.let { this.updateFcmToken(it) }
-//                        Refresh locally user data
                         callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
                                 val principle = task1.result
@@ -411,52 +410,64 @@ class UserRepository @Inject constructor(
     }
 
     private val _deviceFcmToken: FcmToken get() = FcmToken(storage)
+
+    /**
+     * @link (https://app.diagrams.net/#G1BMga3T4D0UNVDUc4v1pVe5eZw5lomqJj)
+     * */
     fun updateFcmToken(userEmail: String) {
-        println("updateFcmToken - requested email $userEmail")
-        println("updateFcmToken - current token state $_deviceFcmToken")
-        if (_deviceFcmToken.fcmEmail != userEmail && _deviceFcmToken.fcmEmail.isNotEmpty()) {
+        if (userEmail.isNotEmpty() && _deviceFcmToken.fcmEmail != userEmail && _deviceFcmToken.fcmEmail.isNotEmpty()) {
             this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
                 if (deleteTask.isSuccessful) {
-                    println("updateFcmToken - deleted ${deleteTask.result}")
+                    println("updateFcmToken - changed email deleted ${deleteTask.result}")
                     messaging.token.addOnCompleteListener { result ->
-                        _deviceFcmToken.setTokenTimeStamp(Instant.now().epochSecond)
-                        _deviceFcmToken.setToken(result.result)
-                        _deviceFcmToken.setTokenEmail(userEmail)
+                        _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, result.result)
                         this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
                             if (createTask.isSuccessful) {
-                                println("updateFcmToken - deleted/created ${createTask.result}")
+                                println("updateFcmToken - changed email created ${createTask.result}")
                             } else {
-                                println("updateFcmToken - deleted/exception ${createTask.exception}")
+                                println("updateFcmToken - changed email created/exception ${createTask.exception}")
                             }
                         }
                     }
                 } else {
-                    println("updateFcmToken - deleted ${deleteTask.exception}")
+                    println("updateFcmToken - changed email deleted ${deleteTask.exception}")
                 }
             }
-        } else if(userEmail.isEmpty()) {
+        } else if (userEmail.isEmpty()) {
             this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
                 if (deleteTask.isSuccessful) {
-                    println("updateFcmToken - deleted ${deleteTask.result}")
-                    _deviceFcmToken.setTokenTimeStamp(NoRecord.num.toLong())
-                    _deviceFcmToken.setToken(EmptyString.str)
-                    _deviceFcmToken.setTokenEmail(EmptyString.str)
+                    println("updateFcmToken - email is empty deleted ${deleteTask.result}")
+                    _deviceFcmToken.setValues(NoRecord.num.toLong(), EmptyString.str, EmptyString.str)
                 } else {
-                    println("updateFcmToken - deleted ${deleteTask.exception}")
+                    println("updateFcmToken - email is empty deleted/exception ${deleteTask.exception}")
                 }
             }
         } else {
-            messaging.token.addOnCompleteListener { result ->
-                if (result.isSuccessful) {
-                    if (_deviceFcmToken.fcmToken != result.result) {
-                        _deviceFcmToken.setTokenTimeStamp(Instant.now().epochSecond)
-                        _deviceFcmToken.setTokenEmail(userEmail)
-                        _deviceFcmToken.setToken(result.result)
+            messaging.token.addOnCompleteListener { currentTokenTask ->
+                if (currentTokenTask.isSuccessful) {
+                    if (_deviceFcmToken.fcmToken.isNotEmpty() && _deviceFcmToken.fcmToken != currentTokenTask.result) {
+                        this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
+                            if(deleteTask.isSuccessful) {
+                                println("updateFcmToken - changed token deleted ${deleteTask.result}")
+                                _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, currentTokenTask.result)
+                                this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
+                                    if (createTask.isSuccessful) {
+                                        println("updateFcmToken - changed token created ${createTask.result}")
+                                    } else {
+                                        println("updateFcmToken - changed token created/exception ${createTask.exception}")
+                                    }
+                                }
+                            } else {
+                                println("updateFcmToken - changed token deleted/exception ${deleteTask.exception}")
+                            }
+                        }
+                    } else if (_deviceFcmToken.fcmToken.isEmpty()) {
+                        _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, currentTokenTask.result)
                         this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
                             if (createTask.isSuccessful) {
-                                println("updateFcmToken - created ${createTask.result}")
+                                println("updateFcmToken - new token created ${createTask.result}")
                             } else {
-                                println("updateFcmToken - created/exception ${createTask.exception}")
+                                println("updateFcmToken - new token created/exception ${createTask.exception}")
                             }
                         }
                     }
