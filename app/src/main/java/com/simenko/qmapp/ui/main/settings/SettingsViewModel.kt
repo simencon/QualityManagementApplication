@@ -75,4 +75,8 @@ class SettingsViewModel @Inject constructor(
             userRepository.editUserData(it)
         }
     }
+
+    fun updateFcmToken() {
+        userRepository.updateFcmToken(userRepository.user.email)
+    }
 }
