@@ -9,6 +9,7 @@ import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
@@ -131,6 +132,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideFirebaseFunctions() = Firebase.functions
+
+    @Singleton
+    @Provides
+    fun provideFirebaseMessaging() = Firebase.messaging
 
     @Singleton
     @Provides

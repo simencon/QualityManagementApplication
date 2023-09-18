@@ -31,7 +31,7 @@ data class Principle(
         private const val USER_DEPARTMENT = "department"
         private const val USER_SUB_DEPARTMENT = "subDepartment"
         private const val USER_JOB_ROLE = "jobRole"
-        private const val USER_EMAIL = "email"
+        const val USER_EMAIL = "email"
         private const val USER_PHONE_NUMBER = "phoneNumber"
         private const val REST_API_URL = "restApiUrl"
         private const val PASSWORD_SUFFIX = "password_suffix"

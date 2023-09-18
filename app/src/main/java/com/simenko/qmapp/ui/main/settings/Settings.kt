@@ -113,7 +113,9 @@ fun Settings(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier.padding(all = 0.dp)
         ) {
-            Spacer(modifier = Modifier.width(320.dp).height(0.dp))
+            Spacer(modifier = Modifier
+                .width(320.dp)
+                .height(0.dp))
             InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = viewModel.userLocalData.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
@@ -150,6 +152,11 @@ fun Settings(
                 ),
                 MaterialTheme.colorScheme.onErrorContainer
             )
+        )
+        RecordActionTextBtn(
+            text = "Play with fcm token",
+            onClick = { viewModel.updateFcmToken() },
+            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
     }
 

@@ -9,7 +9,10 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.FirebaseFunctionsException
+import com.google.firebase.messaging.FirebaseMessaging
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.storage.FcmToken
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.storage.Storage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +29,8 @@ import kotlin.coroutines.suspendCoroutine
 class UserRepository @Inject constructor(
     private val storage: Storage,
     private val auth: FirebaseAuth,
-    private val functions: FirebaseFunctions
+    private val functions: FirebaseFunctions,
+    private val messaging: FirebaseMessaging
 ) {
     private val _userState: MutableStateFlow<UserState> = MutableStateFlow(NoState)
     val userState: StateFlow<UserState> get() = _userState
@@ -90,6 +94,7 @@ class UserRepository @Inject constructor(
                                 callFirebaseFunction(principle, "updateUserData").addOnCompleteListener { task1 ->
                                     if (task1.isSuccessful) {
                                         _user.setUserIsEmailVerified(true)
+                                        this.updateFcmToken(_user.email)
                                         callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task2 ->
                                             if (task2.isSuccessful) {
                                                 principle = task2.result
@@ -204,7 +209,7 @@ class UserRepository @Inject constructor(
                     _user.setUserEmail(email)
                     _userState.value = UserLoggedOutState("Check your email box and set new password")
                 } else {
-                    when(task.exception) {
+                    when (task.exception) {
                         is FirebaseAuthInvalidUserException -> {
                             if (task.exception?.message?.contains("account has been disabled") == true) {
                                 _userState.value = UserErrorState(UserError.ACCOUNT_DISABLED.error)
@@ -212,6 +217,7 @@ class UserRepository @Inject constructor(
                                 _userState.value = UserErrorState(UserError.USER_NOT_REGISTERED.error)
                             }
                         }
+
                         else -> _userState.value = UserErrorState(task.exception?.message)
                     }
                 }
@@ -255,6 +261,7 @@ class UserRepository @Inject constructor(
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        auth.currentUser?.email?.let { this.updateFcmToken(it) }
 //                        Refresh locally user data
                         callFirebaseFunction(_user, "getUserData").addOnCompleteListener { task1 ->
                             if (task1.isSuccessful) {
@@ -340,6 +347,7 @@ class UserRepository @Inject constructor(
         if (username.isNotEmpty() && password.isNotEmpty())
             auth.signInWithEmailAndPassword(username, password)
                 .addOnCompleteListener { task1 ->
+                    this.updateFcmToken(EmptyString.str)
                     if (task1.isSuccessful) {
                         auth.currentUser?.delete()?.addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
@@ -401,13 +409,86 @@ class UserRepository @Inject constructor(
                 Principle(storage, task.result?.data as Map<String, Any>)
             }
     }
+
+    private val _deviceFcmToken: FcmToken get() = FcmToken(storage)
+    fun updateFcmToken(userEmail: String) {
+        println("updateFcmToken - requested email $userEmail")
+        println("updateFcmToken - current token state $_deviceFcmToken")
+        if (_deviceFcmToken.fcmEmail != userEmail && _deviceFcmToken.fcmEmail.isNotEmpty()) {
+            this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
+                if (deleteTask.isSuccessful) {
+                    println("updateFcmToken - deleted ${deleteTask.result}")
+                    messaging.token.addOnCompleteListener { result ->
+                        _deviceFcmToken.setTokenTimeStamp(Instant.now().epochSecond)
+                        _deviceFcmToken.setToken(result.result)
+                        _deviceFcmToken.setTokenEmail(userEmail)
+                        this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
+                            if (createTask.isSuccessful) {
+                                println("updateFcmToken - deleted/created ${createTask.result}")
+                            } else {
+                                println("updateFcmToken - deleted/exception ${createTask.exception}")
+                            }
+                        }
+                    }
+                } else {
+                    println("updateFcmToken - deleted ${deleteTask.exception}")
+                }
+            }
+        } else if(userEmail.isEmpty()) {
+            this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
+                if (deleteTask.isSuccessful) {
+                    println("updateFcmToken - deleted ${deleteTask.result}")
+                    _deviceFcmToken.setTokenTimeStamp(NoRecord.num.toLong())
+                    _deviceFcmToken.setToken(EmptyString.str)
+                    _deviceFcmToken.setTokenEmail(EmptyString.str)
+                } else {
+                    println("updateFcmToken - deleted ${deleteTask.exception}")
+                }
+            }
+        } else {
+            messaging.token.addOnCompleteListener { result ->
+                if (result.isSuccessful) {
+                    if (_deviceFcmToken.fcmToken != result.result) {
+                        _deviceFcmToken.setTokenTimeStamp(Instant.now().epochSecond)
+                        _deviceFcmToken.setTokenEmail(userEmail)
+                        _deviceFcmToken.setToken(result.result)
+                        this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
+                            if (createTask.isSuccessful) {
+                                println("updateFcmToken - created ${createTask.result}")
+                            } else {
+                                println("updateFcmToken - created/exception ${createTask.exception}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun callFirebaseFunction(fcmToken: FcmToken, fbFunction: String): Task<FcmToken> {
+        return functions
+            .getHttpsCallable(fbFunction)
+            .call(fcmToken.dataToFirebase())
+            .continueWith { task ->
+                FcmToken(storage, task.result?.data as Map<String, Any>)
+            }
+    }
 }
 
 sealed class UserState
 object NoState : UserState()
 object UnregisteredState : UserState()
-data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
-data class UserAuthoritiesNotVerifiedState(val msg: String = "You are not yet verified by your organization (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
+data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") :
+    UserState()
+
+data class UserAuthoritiesNotVerifiedState(
+    val msg: String = "You are not yet verified by your organization (${
+        DateTimeFormatter.ISO_INSTANT.format(
+            Instant.now()
+        )
+    })"
+) : UserState()
+
 data class UserLoggedOutState(val msg: String = "") : UserState()
 data class UserLoggedInState(val msg: String = "State on (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") : UserState()
 data class UserErrorState(val error: String?) : UserState()
