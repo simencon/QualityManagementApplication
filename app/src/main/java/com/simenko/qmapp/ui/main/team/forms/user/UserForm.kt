@@ -55,8 +55,10 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
     LaunchedEffect(key1 = userId) {
         if (user.email == NoRecordStr.str)
             withContext(Dispatchers.Default) {
-                if (userId != NoRecordStr.str)
+                if (userId != NoRecordStr.str) {
+                    viewModel.clearNotificationIfExists(userId)
                     viewModel.loadUser(userId)
+                }
             }
     }
 
