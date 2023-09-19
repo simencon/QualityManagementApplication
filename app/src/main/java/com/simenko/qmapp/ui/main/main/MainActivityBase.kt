@@ -64,11 +64,10 @@ abstract class MainActivityBase : ComponentActivity() {
         }
     }
 
-
     /**
      * Action bar ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun selectProperAddEditMode(backStackEntry: State<NavBackStackEntry?>) {
+    fun setProperAddEditMode(backStackEntry: State<NavBackStackEntry?>) {
         when (backStackEntry.value?.destination?.route) {
             Screen.Main.Team.EmployeeAddEdit.routeWithArgKeys() -> {
                 if (backStackEntry.value?.arguments?.getInt(EmployeeId.str) == NoRecord.num) {
@@ -106,8 +105,16 @@ abstract class MainActivityBase : ComponentActivity() {
                 }
             }
 
-            Screen.Main.Settings.UserDetails.route -> {
+            Screen.Main.Settings.EditUserDetails.routeWithArgKeys() -> {
                 viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
+            }
+
+            Screen.Main.Team.AuthorizeUser.routeWithArgKeys() -> {
+                viewModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
+            }
+
+            Screen.Main.Team.EditUser.routeWithArgKeys() -> {
+                viewModel.setAddEditMode(AddEditMode.EDIT_USER)
             }
 
             else -> viewModel.setAddEditMode(AddEditMode.NO_MODE)
@@ -123,7 +130,6 @@ abstract class MainActivityBase : ComponentActivity() {
 
             else -> navController.popBackStack()
         }
-        viewModel.setAddEditMode(AddEditMode.NO_MODE)
     }
 
     /**

@@ -13,7 +13,6 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter
@@ -38,10 +37,6 @@ class TeamViewModel @Inject constructor(
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
-    }
-
-    fun setAddEditMode(mode: AddEditMode) {
-        _mainViewModel.setAddEditMode(mode)
     }
 
     /**
