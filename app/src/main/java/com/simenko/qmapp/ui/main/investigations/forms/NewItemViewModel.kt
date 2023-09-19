@@ -43,10 +43,6 @@ class NewItemViewModel @Inject constructor(
         this.mainActivityViewModel = viewModel
     }
 
-    fun setAddEditMode(mode: AddEditMode) {
-        mainActivityViewModel.setAddEditMode(mode)
-    }
-
     /**
      * Order logic -----------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -525,7 +521,6 @@ class NewItemViewModel @Inject constructor(
                             Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                setAddEditMode(AddEditMode.NO_MODE)
                                 withContext(Dispatchers.Main) {
                                     navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
                                         popUpTo(0)
@@ -582,7 +577,6 @@ class NewItemViewModel @Inject constructor(
                                         postDeleteSamples(it.id)
                                     }
                                     mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    setAddEditMode(AddEditMode.NO_MODE)
                                     withContext(Dispatchers.Main) {
                                         navController.navigate(
                                             Screen.Main.Inv.withArgs(pcOnly, resource.data?.orderId.toString(), resource.data?.id.toString())

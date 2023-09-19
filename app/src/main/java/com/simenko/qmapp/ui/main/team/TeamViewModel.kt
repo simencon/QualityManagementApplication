@@ -189,7 +189,6 @@ class TeamViewModel @Inject constructor(
 
     private suspend fun navToRemovedRecord(id: String?) {
         _mainViewModel.updateLoadingState(Pair(false, null))
-        setAddEditMode(AddEditMode.NO_MODE)
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Requests.withArgs(it)) {

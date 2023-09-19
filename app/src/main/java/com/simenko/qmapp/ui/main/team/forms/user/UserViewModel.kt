@@ -57,10 +57,6 @@ class UserViewModel @Inject constructor(
         this._mainViewModel = viewModel
     }
 
-    fun setAddEditMode(mode: AddEditMode) {
-        _mainViewModel.setAddEditMode(mode)
-    }
-
     fun clearNotificationIfExists(email: String) {
         notificationManager.activeNotifications.find { it.id == Objects.hash(email) }?.let { notificationManager.cancel(it.id) }
     }
@@ -188,7 +184,6 @@ class UserViewModel @Inject constructor(
 
     private suspend fun navBackToRecord(id: String?) {
         _mainViewModel.updateLoadingState(Pair(false, null))
-        setAddEditMode(AddEditMode.NO_MODE)
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Users.withArgs(it)) {

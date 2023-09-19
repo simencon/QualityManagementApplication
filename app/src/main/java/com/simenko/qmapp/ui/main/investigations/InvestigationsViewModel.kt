@@ -63,10 +63,6 @@ class InvestigationsViewModel @Inject constructor(
         this.mainActivityViewModel = viewModel
     }
 
-    fun setAddEditMode(mode: AddEditMode) {
-        mainActivityViewModel.setAddEditMode(mode)
-    }
-
     private val _isLoadingInProgress: StateFlow<Boolean>
         get() = if (this::mainActivityViewModel.isInitialized) mainActivityViewModel.isLoadingInProgress else MutableStateFlow(false)
 

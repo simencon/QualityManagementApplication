@@ -55,10 +55,6 @@ class EmployeeViewModel @Inject constructor(
         this._mainViewModel = viewModel
     }
 
-    fun setAddEditMode(mode: AddEditMode) {
-        _mainViewModel.setAddEditMode(mode)
-    }
-
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private var _employeeErrors: MutableStateFlow<EmployeeErrors> = MutableStateFlow(EmployeeErrors())
     fun loadEmployee(id: Int) {
@@ -233,7 +229,6 @@ class EmployeeViewModel @Inject constructor(
 
     private suspend fun navBackToRecord(id: Int?) {
         _mainViewModel.updateLoadingState(Pair(false, null))
-        setAddEditMode(AddEditMode.NO_MODE)
         withContext(Dispatchers.Main) {
             id?.let {
                 navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
