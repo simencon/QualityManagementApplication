@@ -6,19 +6,8 @@ import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.utils.ObjectTransformer
 
-@Entity(tableName = "0_position_levels")
-data class DatabasePositionLevel(
-    @PrimaryKey(autoGenerate = true)
-    var id: Int,
-    var levelDescription: String
-) : DatabaseBaseModel<NetworkPositionLevel, DomainPositionLevel> {
-    override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabasePositionLevel::class, NetworkPositionLevel::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabasePositionLevel::class, DomainPositionLevel::class).transform(this)
-}
-
 @Entity(
-    tableName = "8_team_members",
+    tableName = "8_employees",
     foreignKeys = [
 //        ToDo Cannot be used as foreign key because appears before Departments
 //        ForeignKey(
@@ -28,13 +17,14 @@ data class DatabasePositionLevel(
 //            onDelete = ForeignKey.NO_ACTION,
 //            onUpdate = ForeignKey.NO_ACTION
 //        ),
-        ForeignKey(
-            entity = DatabasePositionLevel::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("roleLevelId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
-        )
+//        ToDo Useless field, access are managed vie REST Service
+//        ForeignKey(
+//            entity = DatabasePositionLevel::class,
+//            parentColumns = arrayOf("id"),
+//            childColumns = arrayOf("roleLevelId"),
+//            onDelete = ForeignKey.NO_ACTION,
+//            onUpdate = ForeignKey.NO_ACTION
+//        )
 //        ToDo Cannot be used as foreign key because appears before Companies
 //        ForeignKey(
 //            entity = DatabaseCompany::class,
@@ -45,31 +35,33 @@ data class DatabasePositionLevel(
 //        )
     ]
 )
-data class DatabaseTeamMember constructor(
+data class DatabaseEmployee constructor(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
+    var fullName: String,
+    @ColumnInfo(index = true)
+    var companyId: Int,
     @ColumnInfo(index = true)
     var departmentId: Int,
+    @ColumnInfo(index = true)
+    var subDepartmentId: Int? = null,
     var department: String,
-    var email: String? = null,
-    var fullName: String,
+    @ColumnInfo(index = true)
+    var jobRoleId: Int,
     var jobRole: String,
-    @ColumnInfo(index = true)
-    var roleLevelId: Int,
-    var passWord: String? = null,
-    @ColumnInfo(index = true)
-    var companyId: Int
-) : DatabaseBaseModel<NetworkTeamMember, DomainTeamMember> {
+    var email: String? = null,
+    var passWord: String? = null
+) : DatabaseBaseModel<NetworkEmployee, DomainEmployee> {
     override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabaseTeamMember::class, NetworkTeamMember::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabaseTeamMember::class, DomainTeamMember::class).transform(this)
+    override fun toNetworkModel() = ObjectTransformer(DatabaseEmployee::class, NetworkEmployee::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseEmployee::class, DomainEmployee::class).transform(this)
 }
 
 @Entity(
     tableName = "0_companies",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("companyManagerId"),
             onDelete = ForeignKey.NO_ACTION,
@@ -77,7 +69,7 @@ data class DatabaseTeamMember constructor(
         )]
 )
 data class DatabaseCompany constructor(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     var id: Int,
     var companyName: String? = null,
     var companyCountry: String? = null,
@@ -97,10 +89,33 @@ data class DatabaseCompany constructor(
 }
 
 @Entity(
+    tableName = "0_job_roles",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseCompany::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("companyId"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )]
+)
+data class DatabaseJobRole(
+    @PrimaryKey(autoGenerate = true)
+    var id: Int,
+    @ColumnInfo(index = true)
+    var companyId: Int,
+    var jobRoleDescription: String
+) : DatabaseBaseModel<NetworkJobRole, DomainJobRole> {
+    override fun getRecordId() = this.id
+    override fun toNetworkModel() = ObjectTransformer(DatabaseJobRole::class, NetworkJobRole::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseJobRole::class, DomainJobRole::class).transform(this)
+}
+
+@Entity(
     tableName = "10_departments",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseTeamMember::class,
+            entity = DatabaseEmployee::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("depManager"),
             onDelete = ForeignKey.NO_ACTION,
@@ -265,9 +280,15 @@ data class DatabaseOperationsFlow(
     override fun toDomainModel() = ObjectTransformer(DatabaseOperationsFlow::class, DomainOperationsFlow::class).transform(this)
 }
 
-data class DatabaseTeamMemberComplete(
+data class DatabaseEmployeeComplete(
     @Embedded
-    val teamMember: DatabaseTeamMember,
+    val teamMember: DatabaseEmployee,
+    @Relation(
+        entity = DatabaseCompany::class,
+        parentColumn = "companyId",
+        entityColumn = "id"
+    )
+    val company: DatabaseCompany?,
     @Relation(
         entity = DatabaseDepartment::class,
         parentColumn = "departmentId",
@@ -275,18 +296,26 @@ data class DatabaseTeamMemberComplete(
     )
     val department: DatabaseDepartment?,
     @Relation(
-        entity = DatabaseCompany::class,
-        parentColumn = "companyId",
+        entity = DatabaseSubDepartment::class,
+        parentColumn = "subDepartmentId",
         entityColumn = "id"
     )
-    val company: DatabaseCompany?
-) : DatabaseBaseModel<Boolean, DomainTeamMemberComplete> {
+    val subDepartment: DatabaseSubDepartment?,
+    @Relation(
+        entity = DatabaseJobRole::class,
+        parentColumn = "jobRoleId",
+        entityColumn = "id"
+    )
+    val jobRole: DatabaseJobRole?
+) : DatabaseBaseModel<Boolean, DomainEmployeeComplete> {
     override fun getRecordId() = teamMember.id
     override fun toNetworkModel() = false
-    override fun toDomainModel() = DomainTeamMemberComplete(
+    override fun toDomainModel() = DomainEmployeeComplete(
         teamMember = teamMember.toDomainModel(),
+        company = company?.toDomainModel(),
         department = department?.toDomainModel(),
-        company = company?.toDomainModel()
+        subDepartment = subDepartment?.toDomainModel(),
+        jobRole = jobRole?.toDomainModel()
     )
 }
 
@@ -294,11 +323,11 @@ data class DatabaseDepartmentsComplete(
     @Embedded
     val department: DatabaseDepartment,
     @Relation(
-        entity = DatabaseTeamMember::class,
+        entity = DatabaseEmployee::class,
         parentColumn = "depManager",
         entityColumn = "id"
     )
-    val depManager: DatabaseTeamMember,
+    val depManager: DatabaseEmployee,
     @Relation(
         entity = DatabaseCompany::class,
         parentColumn = "companyId",

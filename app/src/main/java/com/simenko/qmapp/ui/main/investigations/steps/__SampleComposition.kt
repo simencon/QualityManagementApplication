@@ -1,8 +1,10 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,47 +16,46 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.entities.DomainSample
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
-import com.simenko.qmapp.domain.entities.DomainSampleResult
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import kotlin.math.roundToInt
+
+private const val TAG = "SampleComposition"
 
 @Composable
 fun SampleComposition(
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val observeCurrentSubOrderTask by appModel.currentTaskDetails.observeAsState()
+    val observeCurrentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
 
-    val items by appModel.samplesSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.samplesSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {
-            appModel.setCurrentSampleVisibility(dId = SelectedNumber(it.sample.id))
+            invModel.setCurrentSampleVisibility(dId = SelectedNumber(it.sample.id))
         }
     }
 
     LazyColumn(
-        modifier = modifier.animateContentSize(
+        modifier = Modifier.animateContentSize(
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
                 stiffness = Spring.StiffnessLow
@@ -66,17 +67,13 @@ fun SampleComposition(
             key = {
                 it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString()
             }) { sample ->
-            if (sample.sampleResult.taskId == observeCurrentSubOrderTask?.num) {
+            if (sample.sampleResult.taskId == observeCurrentSubOrderTask.num) {
                 SampleCard(
-                    modifier = modifier,
-                    appModel = appModel,
+                    modifier = modifier.padding(CARDS_PADDING),
+                    appModel = invModel,
                     sample = sample,
-                    onClickDetails = { it ->
-                        onClickDetailsLambda(it)
-                    },
-                    onChangeExpandState = {
-                        onClickDetailsLambda(it)
-                    }
+                    onClickDetails = { onClickDetailsLambda(it) },
+                    onChangeExpandState = { onClickDetailsLambda(it) }
                 )
             }
         }
@@ -93,16 +90,17 @@ fun SampleCard(
     onClickDetails: (DomainSampleComplete) -> Unit,
     onChangeExpandState: (DomainSampleComplete) -> Unit,
 ) {
-    val cardBgColor =
-        when (sample.detailsVisibility) {
-            true -> _level_1_record_color_details
-            else -> _level_1_record_color
-        }
+    val containerColor = MaterialTheme.colorScheme.surfaceVariant
+
+    val borderColor = when (sample.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = cardBgColor,
-        ),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(width = 1.dp, borderColor),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = modifier
             .fillMaxWidth()
             .clickable { onChangeExpandState(sample) }
@@ -125,7 +123,7 @@ fun Sample(
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
+            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
     ) {
         Row(
             modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
@@ -168,12 +166,7 @@ fun Sample(
             ) {
 
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -218,7 +211,7 @@ fun Sample(
 
         if (appModel != null && sample.detailsVisibility)
             ResultsComposition(
-                modifier
+                modifier = modifier
             )
     }
 }

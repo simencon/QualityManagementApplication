@@ -4,9 +4,16 @@ import com.simenko.qmapp.domain.NoRecord
 import java.util.concurrent.TimeUnit
 
 object WorkerKeys {
+    //    SyncJobKeys
     const val ERROR_MSG = "errorMsg"
     const val LATEST_MILLIS = "latestMillis"
     const val EXCLUDE_MILLIS = "excludedMillis"
+
+    //    NewUserRegisteredKeys
+    const val ACTION = "action"
+    const val TITLE = "title"
+    const val BODY = "body"
+    const val EMAIL = "email"
 }
 
 enum class SyncPeriods(val latestMillis: Long, val excludeMillis: Long) {

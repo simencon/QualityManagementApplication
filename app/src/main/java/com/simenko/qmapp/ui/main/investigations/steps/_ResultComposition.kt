@@ -1,8 +1,10 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,44 +24,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.accompanist.flowlayout.FlowRow
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.entities.DomainResultComplete
-import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 
+private const val TAG = "ResultComposition"
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ResultsComposition(
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val currentSubOrderTask by appModel.currentTaskDetails.observeAsState()
-    val currentSample by appModel.currentSampleDetails.observeAsState()
+    val currentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
+    val currentSample by invModel.currentSampleDetails.observeAsState()
 
-    val items by appModel.resultsSF.collectAsState(initial = listOf())
+    val items by invModel.resultsSF.collectAsState(initial = listOf())
 
-    val onClickDetailsLambda = remember<(DomainResultComplete) -> Unit> {
-        {
-            appModel.setCurrentResultVisibility(dId = SelectedNumber(it.result.id))
-        }
-    }
-    val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> {
-        {
-            appModel.editResult(it.result)
-        }
-    }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentResultVisibility(dId = SelectedNumber(it)) } }
+    val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> { { invModel.editResult(it.result) } }
 
     FlowRow(
-        modifier = modifier.animateContentSize(
+        modifier = Modifier
+            .padding(CARDS_PADDING)
+            .animateContentSize(
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
                 stiffness = Spring.StiffnessLow
@@ -67,19 +66,15 @@ fun ResultsComposition(
         )
     ) {
         items.forEach { result ->
-            if (result.result.taskId == currentSubOrderTask?.num &&
+            if (result.result.taskId == currentSubOrderTask.num &&
                 result.result.sampleId == currentSample?.num
             ) {
                 ResultCard(
                     modifier = modifier,
-                    appModel = appModel,
+                    appModel = invModel,
                     result = result,
-                    onSelect = {
-                        onClickDetailsLambda(it)
-                    },
-                    onChangeValue = {
-                        onChangeValueLambda(it)
-                    }
+                    onSelect = { onClickDetailsLambda(it) },
+                    onChangeValue = { onChangeValueLambda(it) }
                 )
             }
         }
@@ -92,19 +87,20 @@ fun ResultCard(
     modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel,
     result: DomainResultComplete,
-    onSelect: (DomainResultComplete) -> Unit,
+    onSelect: (Int) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
 ) {
-    val cardBgColor =
-        when (result.detailsVisibility) {
-            true -> _level_2_record_color_details
-            else -> _level_2_record_color
-        }
+    val containerColor = MaterialTheme.colorScheme.primaryContainer
+
+    val borderColor = when (result.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> MaterialTheme.colorScheme.primaryContainer
+    }
 
     Card(
-        colors = CardDefaults.cardColors(
-            containerColor = cardBgColor,
-        ),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(width = 1.dp, borderColor),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = modifier
             .fillMaxWidth()
     ) {
@@ -123,7 +119,7 @@ fun Result(
     modifier: Modifier = Modifier,
     result: DomainResultComplete = DomainResultComplete(),
     onChangeValue: (DomainResultComplete) -> Unit = {},
-    onSelect: (DomainResultComplete) -> Unit,
+    onSelect: (Int) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var text: String by rememberSaveable {
@@ -176,21 +172,18 @@ fun Result(
                         .onFocusChanged {
                             if (it.isFocused) {
                                 if (text == "-") text = ""
-                                onSelect(result)
+                                onSelect(result.result.id)
                             } else
                                 if (text == "") text = "-"
                         },
                     value = text,
                     maxLines = 1,
                     singleLine = true,
-
                     textStyle = MaterialTheme.typography.titleSmall.copy(fontSize = 20.sp),
                     onValueChange = {
                         text = it
                     },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number
-                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     keyboardActions = KeyboardActions(onDone = {
                         when {
                             (result.resultTolerance.usl != null && result.resultTolerance.lsl != null) -> {
@@ -200,11 +193,13 @@ fun Result(
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 2
                                     }
+
                                     (text.toDouble() < result.resultTolerance.lsl!!) -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 3
                                     }
+
                                     else -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = true
@@ -212,6 +207,7 @@ fun Result(
                                     }
                                 }
                             }
+
                             (result.resultTolerance.usl == null && result.resultTolerance.lsl != null) -> {
                                 when {
                                     (text.toDouble() < result.resultTolerance.lsl!!) -> {
@@ -219,6 +215,7 @@ fun Result(
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 3
                                     }
+
                                     else -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = true
@@ -226,6 +223,7 @@ fun Result(
                                     }
                                 }
                             }
+
                             (result.resultTolerance.usl != null && result.resultTolerance.lsl == null) -> {
                                 when {
                                     (text.toDouble() > result.resultTolerance.usl!!) -> {
@@ -233,6 +231,7 @@ fun Result(
                                         result.result.isOk = false
                                         result.result.resultDecryptionId = 2
                                     }
+
                                     else -> {
                                         result.result.result = text.toFloat()
                                         result.result.isOk = true
@@ -243,7 +242,13 @@ fun Result(
                         }
                         onChangeValue(result)
                         keyboardController?.hide()
-                    })
+                    }),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                    )
                 )
             }
             Column(
@@ -252,12 +257,7 @@ fun Result(
                     .weight(0.6f),
             ) {
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -280,12 +280,7 @@ fun Result(
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -308,12 +303,7 @@ fun Result(
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -336,12 +326,7 @@ fun Result(
                     )
                 }
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(

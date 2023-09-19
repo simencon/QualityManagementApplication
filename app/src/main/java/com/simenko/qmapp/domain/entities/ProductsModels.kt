@@ -92,11 +92,6 @@ data class DomainCharacteristic constructor(
         isSelected = value
     }
 
-    override fun changeCheckedState(): Boolean {
-        isSelected = !isSelected
-        return isSelected
-    }
-
     override fun toDatabaseModel(): DatabaseCharacteristic {
         return ObjectTransformer(DomainCharacteristic::class, DatabaseCharacteristic::class).transform(this)
     }

@@ -2,37 +2,27 @@ package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
-data class DomainPositionLevel(
-    var id: Int,
-    var levelDescription: String
-) : DomainBaseModel<DatabasePositionLevel>() {
-    override fun getRecordId() = id
-    override fun getParentId() = NoRecord.num
-    override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabasePositionLevel {
-        return ObjectTransformer(DomainPositionLevel::class, DatabasePositionLevel::class).transform(this)
-    }
-}
-
 @Stable
-data class DomainTeamMember(
+data class DomainEmployee(
     var id: Int = NoRecord.num,
-    var departmentId: Int = NoRecord.num,
-    var department: String = NoString.str,
-    var email: String? = null,
-    var fullName: String = NoString.str,
-    var jobRole: String = NoString.str,
-    var roleLevelId: Int = NoRecord.num,
-    var passWord: String? = null,
+    var fullName: String = EmptyString.str,
     var companyId: Int = NoRecord.num,
+    var departmentId: Int = NoRecord.num,
+    var subDepartmentId: Int? = null,
+    var department: String = EmptyString.str,
+    var jobRoleId: Int = NoRecord.num,
+    var jobRole: String = EmptyString.str,
+    var email: String? = null,
+    var passWord: String? = null,
     var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
-) : DomainBaseModel<DatabaseTeamMember>() {
+) : DomainBaseModel<DatabaseEmployee>() {
     override fun getRecordId() = id
     override fun getParentId() = departmentId
     override fun setIsSelected(value: Boolean) {
@@ -40,8 +30,8 @@ data class DomainTeamMember(
     }
 
     override fun getName() = fullName
-    override fun toDatabaseModel(): DatabaseTeamMember {
-        return ObjectTransformer(DomainTeamMember::class, DatabaseTeamMember::class).transform(this)
+    override fun toDatabaseModel(): DatabaseEmployee {
+        return ObjectTransformer(DomainEmployee::class, DatabaseEmployee::class).transform(this)
     }
 }
 
@@ -56,14 +46,31 @@ data class DomainCompany(
     var companyRegion: String? = null,
     var companyOrder: Int = NoRecord.num,
     var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int = NoRecord.num
+    var companyManagerId: Int = NoRecord.num,
+    var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseCompany>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
-    override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabaseCompany {
-        return ObjectTransformer(DomainCompany::class, DatabaseCompany::class).transform(this)
+    override fun setIsSelected(value: Boolean) {
+        isSelected = value
     }
+
+    override fun toDatabaseModel() = ObjectTransformer(DomainCompany::class, DatabaseCompany::class).transform(this)
+}
+
+data class DomainJobRole(
+    var id: Int = NoRecord.num,
+    var companyId: Int = NoRecord.num,
+    var jobRoleDescription: String = EmptyString.str,
+    var isSelected: Boolean = false
+) : DomainBaseModel<DatabaseJobRole>() {
+    override fun getRecordId() = this.id
+    override fun getParentId() = this.companyId
+    override fun setIsSelected(value: Boolean) {
+        this.isSelected = value
+    }
+
+    override fun toDatabaseModel() = ObjectTransformer(DomainJobRole::class, DatabaseJobRole::class).transform(this)
 }
 
 @Stable
@@ -83,9 +90,7 @@ data class DomainDepartment(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseDepartment {
-        return ObjectTransformer(DomainDepartment::class, DatabaseDepartment::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainDepartment::class, DatabaseDepartment::class).transform(this)
 }
 
 @Stable
@@ -104,9 +109,7 @@ data class DomainSubDepartment(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseSubDepartment {
-        return ObjectTransformer(DomainSubDepartment::class, DatabaseSubDepartment::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainSubDepartment::class, DatabaseSubDepartment::class).transform(this)
 }
 
 @Stable
@@ -125,9 +128,7 @@ data class DomainManufacturingChannel(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseManufacturingChannel {
-        return ObjectTransformer(DomainManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
 }
 
 @Stable
@@ -146,9 +147,7 @@ data class DomainManufacturingLine(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseManufacturingLine {
-        return ObjectTransformer(DomainManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
 }
 
 @Stable
@@ -168,9 +167,7 @@ data class DomainManufacturingOperation(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseManufacturingOperation {
-        return ObjectTransformer(DomainManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
 }
 
 data class DomainOperationsFlow(
@@ -181,37 +178,42 @@ data class DomainOperationsFlow(
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabaseOperationsFlow {
-        return ObjectTransformer(DomainOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
 }
 
 @Stable
-data class DomainTeamMemberComplete(
-    val teamMember: DomainTeamMember = DomainTeamMember(),
-    val department: DomainDepartment? = DomainDepartment(),
+data class DomainEmployeeComplete(
+    val teamMember: DomainEmployee = DomainEmployee(),
     val company: DomainCompany? = DomainCompany(),
+    val department: DomainDepartment? = DomainDepartment(),
+    val subDepartment: DomainSubDepartment? = DomainSubDepartment(),
+    val jobRole: DomainJobRole? = DomainJobRole(),
+    var isSelected: Boolean = false,
     var detailsVisibility: Boolean = false,
-    var isSelected: Boolean = false
-) : DomainBaseModel<DatabaseTeamMemberComplete>() {
+    var isExpanded: Boolean = false
+) : DomainBaseModel<DatabaseEmployeeComplete>() {
     override fun getRecordId() = teamMember.id
     override fun getParentId() = teamMember.departmentId
+    override fun getName() = this.teamMember.fullName
+
     override fun setIsSelected(value: Boolean) {
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseTeamMemberComplete {
-        return DatabaseTeamMemberComplete(
+    override fun toDatabaseModel(): DatabaseEmployeeComplete {
+        return DatabaseEmployeeComplete(
             teamMember = teamMember.toDatabaseModel(),
+            company = company?.toDatabaseModel(),
             department = department?.toDatabaseModel(),
-            company = company?.toDatabaseModel()
+            subDepartment = subDepartment?.toDatabaseModel(),
+            jobRole = jobRole?.toDatabaseModel()
         )
     }
 }
 
 data class DomainDepartmentComplete(
     val department: DomainDepartment,
-    val depManager: DomainTeamMember,
+    val depManager: DomainEmployee,
     val company: DomainCompany,
     var departmentDetailsVisibility: Boolean = false
 ) : DomainBaseModel<DatabaseDepartmentsComplete>() {

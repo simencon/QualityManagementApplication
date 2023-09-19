@@ -34,4 +34,7 @@
     <string name="bottom_navigation_home">HOME</string>
     <string name="bottom_navigation_profile">SAVE</string>
 
+    <string name="authorize">Authorize</string>
+    <string name="remind_later">Remind later</string>
+
 </resources>

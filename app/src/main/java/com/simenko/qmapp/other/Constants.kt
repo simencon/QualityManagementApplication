@@ -1,9 +1,11 @@
 package com.simenko.qmapp.other
 
-import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer.ValueParametersHandler.DEFAULT
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.unit.dp
 
 object Constants {
 
+    val CARDS_PADDING: PaddingValues = PaddingValues(all = 2.dp)
     const val ACTION_ITEM_SIZE = 45
     const val CARD_HEIGHT = 45
     const val CARD_OFFSET = 90f//135f
@@ -37,17 +39,23 @@ object Constants {
 
     const val DEFAULT_REST_API_URL = "https://no.api.yet.com"
 
-    const val PRINCIPLE = "principles"
+    const val BASED_ON_ACCESS = "basedOnAccess"
 
-    const val TEAM_MEMBERS = "teamMembers"
+    const val PRINCIPLES = "principles"
+    const val COMPANY_DATA = "companyData"
+    const val AUTHORIZE_USER = "authorizeUser"
+    const val REMOVE_USER = "removeUser"
+    const val ROLES = "roles"
+
+    const val EMPLOYEES = "employees"
     const val COMPANIES = "companies"
+    const val JOB_ROLES = "jobRoles"
     const val DEPARTMENTS = "departments"
     const val SUB_DEPARTMENTS = "subDepartments"
     const val MANUFACTURING_CHANNELS = "manufacturingChannels"
     const val MANUFACTURING_LINES = "manufacturingLines"
     const val MANUFACTURING_OPERATIONS = "manufacturingOperations"
     const val MANUFACTURING_OPERATIONS_FLOWS = "manufacturingOperationsFlows"
-    const val POSITIONS_LEVELS = "positionLevels"
 
     const val MANUFACTURING_PROJECTS = "manufacturingProjects"
     const val PRODUCTS_KEYS = "productsKeys"
@@ -74,8 +82,9 @@ object Constants {
     const val INVESTIGATION_TYPES = "investigationTypes"
     const val INVESTIGATION_REASONS = "investigationReasons"
     const val INVESTIGATION_STATUSES = "investigationStatuses"
-    const val RESULT_DECRIPTIONS = "resultsDecriptions"
+    const val RESULT_DECRYPTIONS = "resultsDecryptions"
 
+    const val RECORDS = "records"
     const val HASH_CODE = "hashCode"
 
     const val ORDERS = "orders"
@@ -87,7 +96,6 @@ object Constants {
     const val SAMPLES = "samples"
 
     const val RESULTS = "results"
-    const val RESULT_RECORDS = "records"
     const val RESULT_TASK = "task"
 
     const val MEASUREMENTS_REGISTER = "measurementsRegister"

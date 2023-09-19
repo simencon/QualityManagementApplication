@@ -34,9 +34,8 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
 
     @Transaction
     @Query(
-        "select s.* from `13_sub_orders` so " +
-                "join `samples_results` s on so.id = s.subOrderId " +
-                "where so.id = :parentId;"
+        "select s.* from `samples_results` s " +
+                "where s.subOrderId = :parentId;"
     )
     abstract fun getRecordsByParentIdForUI(parentId: Int): Flow<List<DatabaseSampleComplete>>
 }

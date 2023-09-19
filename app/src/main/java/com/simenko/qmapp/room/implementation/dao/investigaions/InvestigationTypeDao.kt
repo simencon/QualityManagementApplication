@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseOrdersType
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class InvestigationTypeDao : DaoBaseModel<DatabaseOrdersType> {
@@ -21,4 +22,7 @@ abstract class InvestigationTypeDao : DaoBaseModel<DatabaseOrdersType> {
 
     @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseOrdersType>>
+
+    @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
+    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseOrdersType>>
 }

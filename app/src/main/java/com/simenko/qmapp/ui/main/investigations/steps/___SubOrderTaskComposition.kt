@@ -1,8 +1,10 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -13,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -21,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.flowlayout.FlowRow
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -36,41 +37,30 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
+private const val TAG = "SubOrderTaskComposition"
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
     parentId: Int = 0,
 ) {
-    val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val items by appModel.tasksSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.tasksSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
+    val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentTaskVisibility(dId = SelectedNumber(it.subOrderTask.id))
+            invModel.setCurrentTaskVisibility(dId = SelectedNumber(it))
+            println("selected task is: $it")
         }
     }
 
-    val onClickActionsLambda = remember<(DomainSubOrderTaskComplete) -> Unit> {
-        {
-            appModel.setCurrentTaskVisibility(aId = SelectedNumber(it.subOrderTask.id))
-        }
-    }
-
-    val onClickDeleteLambda = remember<(Int) -> Unit> {
-        {
-            appModel.deleteSubOrderTask(it)
-        }
-    }
-
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentTaskVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrderTask(it) } }
     val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, Int?) -> Unit> {
-        { subOrderComplete, completedById ->
-            appModel.showStatusUpdateDialog(
-                currentSubOrderTask = subOrderComplete,
-                performerId = completedById
-            )
-        }
+        { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrderTask = subOrderComplete, performerId = completedById) }
     }
 
     FlowRow(modifier = modifier) {
@@ -80,20 +70,13 @@ fun SubOrderTasksFlowColumn(
                 Box(Modifier.fillMaxWidth()) {
                     SubOrderTaskCard(
                         modifier = modifier,
-                        appModel = appModel,
+                        appModel = invModel,
                         task = task,
-                        onClickDetails = { it ->
-                            onClickDetailsLambda(it)
-                        },
+                        onClickDetails = { onClickDetailsLambda(it) },
                         cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = { it -> onClickActionsLambda(it) },
-                        onClickDelete = { it -> onClickDeleteLambda(it) },
-                        onClickStatus = { taskComplete, completedById ->
-                            onClickStatusLambda(
-                                taskComplete,
-                                completedById
-                            )
-                        }
+                        onClickActions = { onClickActionsLambda(it) },
+                        onClickDelete = { onClickDeleteLambda(it) },
+                        onClickStatus = { taskComplete, completedById -> onClickStatusLambda(taskComplete, completedById) }
                     )
                 }
                 Divider(thickness = 4.dp, color = Color.Transparent)
@@ -108,9 +91,9 @@ fun SubOrderTaskCard(
     modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel? = null,
     task: DomainSubOrderTaskComplete,
-    onClickDetails: (DomainSubOrderTaskComplete) -> Unit,
+    onClickDetails: (Int) -> Unit,
     cardOffset: Float,
-    onClickActions: (DomainSubOrderTaskComplete) -> Unit,
+    onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
@@ -128,75 +111,51 @@ fun SubOrderTaskCard(
         targetValueByState = { if (task.isExpanded) cardOffset else 0f },
     )
 
-    val cardBgColor =
-        when (task.isExpanded) {
-            true -> Accent200
-            false -> {
-                when (task.detailsVisibility) {
-                    true -> _level_3_record_color_details
-                    else -> _level_3_record_color
-                }
-            }
+    val containerColor = when (task.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.tertiaryContainer
+    }
+
+    val borderColor = when (task.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> when (task.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.tertiaryContainer
         }
+    }
 
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickDelete(task.subOrderTask.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        tint = PrimaryVariant900,
-                        contentDescription = "delete action",
-                    )
-                }
+                onClick = { onClickDelete(task.subOrderTask.id) },
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
-
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = {},
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.AttachFile,
-                        tint = PrimaryVariant900,
-                        contentDescription = "edit action",
-                    )
-                },
+                content = { Icon(imageVector = Icons.Filled.AttachFile, contentDescription = "edit action") }
             )
         }
 
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = cardBgColor,
-            ),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(Unit) {
+                .pointerInput(task.subOrderTask.id) {
                     detectTapGestures(
-                        onDoubleTap = { onClickActions(task) }
+                        onDoubleTap = { onClickActions(task.subOrderTask.id) }
                     )
                 },
-            elevation = CardDefaults.cardElevation(
-                when (task.isExpanded) {
-                    true -> 40.dp
-                    false -> 0.dp
-                }
-            ),
         ) {
             SubOrderTask(
                 modifier = modifier,
                 subOrderTask = task,
-                onClickDetails = { onClickDetails(task) },
-                onClickStatus = { taskComplete, performedById ->
-                    onClickStatus(
-                        taskComplete,
-                        performedById
-                    )
-                }
+                onClickDetails = onClickDetails,
+                onClickStatus = onClickStatus
             )
         }
     }
@@ -205,10 +164,15 @@ fun SubOrderTaskCard(
 @Composable
 fun SubOrderTask(
     modifier: Modifier = Modifier,
-    onClickDetails: () -> Unit = {},
+    onClickDetails: (Int) -> Unit = {},
     subOrderTask: DomainSubOrderTaskComplete = DomainSubOrderTaskComplete(),
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
+    val containerColor = when (subOrderTask.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.tertiaryContainer
+    }
+
     Column(
         modifier = Modifier
             .animateContentSize(
@@ -302,12 +266,7 @@ fun SubOrderTask(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = {
-                            onClickStatus(
-                                subOrderTask,
-                                subOrderTask.subOrderTask.completedById
-                            )
-                        },
+                        onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
                         content = {
                             Text(
                                 text = subOrderTask.status.statusDescription ?: "-",
@@ -361,6 +320,7 @@ fun SubOrderTask(
                                         !conformity.isNaN() -> {
                                             conformity.roundToInt().toString() + "%"
                                         }
+
                                         else -> {
                                             ""
                                         }
@@ -397,10 +357,7 @@ fun SubOrderTask(
                         shape = MaterialTheme.shapes.medium,
                         elevation = ButtonDefaults.buttonElevation(4.dp),
                         border = null,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = _level_3_record_color,
-                            contentColor = Primary900
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                     )
                 }
 
@@ -434,7 +391,8 @@ fun SubOrderTask(
                 }
             }
             IconButton(
-                onClick = onClickDetails, modifier = Modifier
+                onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
+                modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     .fillMaxWidth()

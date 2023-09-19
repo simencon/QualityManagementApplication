@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -28,8 +27,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.theme.*
 
 private const val TAG = "Dialogs"
 
@@ -44,15 +41,14 @@ data class DialogInput(
 fun StatusUpdateDialog(
     modifier: Modifier = Modifier,
     dialogInput: DialogInput,
-    teamModel: TeamViewModel,
     invModel: InvestigationsViewModel
 ) {
     val currentOrder = dialogInput.currentOrder
     val currentSubOrder = dialogInput.currentSubOrder
     val currentSubOrderTask = dialogInput.currentSubOrderTask
 
-    val statuses by invModel.invStatusListSF.collectAsStateWithLifecycle(listOf())
-    val team by teamModel.teamSF.collectAsStateWithLifecycle(listOf())
+    val statuses by invModel.invStatuses.collectAsStateWithLifecycle(listOf())
+    val team by invModel.employees.collectAsStateWithLifecycle(listOf())
 
     var enableToEdit by rememberSaveable { mutableStateOf(false) }
     var placeHolder by rememberSaveable { mutableStateOf("") }
@@ -109,26 +105,22 @@ fun StatusUpdateDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
-            //shape = MaterialTheme.shapes.medium,
             shape = RoundedCornerShape(10.dp),
-            // modifier = modifier.size(280.dp, 240.dp)
             modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(
                 modifier
-                    .background(Color.White),
+                    .background(MaterialTheme.colorScheme.onPrimary),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 //.......................................................................
                 Image(
                     imageVector = Icons.Filled.TaskAlt,
-                    contentDescription = null, // decorative
+                    contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(
-                        color = Primary900
-                    ),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.primary),
                     modifier = Modifier
                         .padding(vertical = 20.dp)
                         .height(50.dp)
@@ -172,22 +164,30 @@ fun StatusUpdateDialog(
                     Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp)
-                        .background(Primary900),
+                        .background(MaterialTheme.colorScheme.primary),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-
-                    TextButton(onClick = {
-                        invModel.hideStatusUpdateDialog()
-                    }) {
-
+                    TextButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = { invModel.hideStatusUpdateDialog() },
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
                         Text(
-                            "Cansel",
+                            text = "Cansel",
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
+                    Divider(
+                        modifier = modifier
+                            .width(1.dp)
+                            .height(48.dp), color = MaterialTheme.colorScheme.onPrimary
+                    )
                     TextButton(
+                        modifier = Modifier.weight(1f),
                         enabled = enableToEdit,
                         onClick = {
                             when {
@@ -206,14 +206,15 @@ fun StatusUpdateDialog(
                                     invModel.editSubOrderTask(currentSubOrderTask.subOrderTask)
                                 }
                             }
-                        }) {
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
                         Text(
-                            "Save",
+                            text = "Save",
                             fontWeight = FontWeight.ExtraBold,
-                            color = when (enableToEdit) {
-                                true -> Color.White
-                                false -> Color.Gray
-                            },
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
@@ -245,7 +246,6 @@ fun StatusSelection(
             if (statuses[item].id != 2) //To remove In Progress
                 StatusCard(
                     input = statuses[item],
-                    modifier = modifier.padding(top = 0.dp),
                     onClick = {
                         onSelectStatus(statuses[item].id)
                     }
@@ -254,19 +254,14 @@ fun StatusSelection(
     }
 }
 
-
 @Composable
 fun StatusCard(
     input: DomainOrdersStatus,
-    modifier: Modifier = Modifier,
     onClick: (DomainOrdersStatus) -> Unit
 ) {
-
-    val btnBackgroundColor = if (input.isSelected) Primary900 else StatusBar400
-    val btnContentColor = if (input.isSelected) Color.White else Color.Black
     val btnColors = ButtonDefaults.buttonColors(
-        contentColor = btnContentColor,
-        containerColor = btnBackgroundColor
+        contentColor = if (input.isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        containerColor = if (input.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     )
 
     Row(
@@ -299,7 +294,7 @@ fun StatusCard(
 }
 
 @Composable
-fun DropDownAssignee(test: DomainTeamMember) {
+fun DropDownAssignee(test: DomainEmployee) {
     Row(
         modifier = Modifier
             .padding(8.dp)

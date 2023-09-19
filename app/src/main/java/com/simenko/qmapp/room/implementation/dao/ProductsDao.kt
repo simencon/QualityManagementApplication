@@ -30,7 +30,7 @@ interface ProductsDao {
     fun insertCharacteristicsAll(list: List<DatabaseCharacteristic>)
 
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
-    fun getCharacteristics(): LiveData<List<DatabaseCharacteristic>>
+    fun getCharacteristics(): Flow<List<DatabaseCharacteristic>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMetrixesAll(list: List<DatabaseMetrix>)
@@ -156,7 +156,7 @@ interface ProductsDao {
 
     @Transaction
     @Query("SELECT * FROM item_versions_complete")
-    fun getItemVersionsComplete(): LiveData<List<DatabaseItemVersionComplete>>
+    fun getItemVersionsComplete(): Flow<List<DatabaseItemVersionComplete>>
 
     @Transaction
     @Query("SELECT * FROM characteristic_complete")

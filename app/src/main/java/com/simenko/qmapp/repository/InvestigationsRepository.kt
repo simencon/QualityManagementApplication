@@ -1,6 +1,5 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.*
@@ -214,10 +213,16 @@ class InvestigationsRepository @Inject constructor(
         ) { r -> database.taskDao.deleteRecord(r) }
     }
 
-    fun CoroutineScope.deleteSample(sampleId: Int): ReceiveChannel<Event<Resource<DomainSample>>> = crudeOperations.run {
-        responseHandlerForSingleRecord(
-            taskExecutor = { invService.deleteSample(sampleId) }
-        ) { r -> database.sampleDao.deleteRecord(r) }
+    fun CoroutineScope.deleteTasks(records: List<DomainSubOrderTask>): ReceiveChannel<Event<Resource<List<DomainSubOrderTask>>>> = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.deleteSubOrderTasks(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.taskDao.deleteRecords(r) }
+    }
+
+    fun CoroutineScope.deleteSamples(records: List<DomainSample>): ReceiveChannel<Event<Resource<List<DomainSample>>>> = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.deleteSamples(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.sampleDao.deleteRecords(r) }
     }
 
     fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
@@ -241,16 +246,16 @@ class InvestigationsRepository @Inject constructor(
         ) { r -> database.subOrderDao.insertRecord(r) }
     }
 
-    fun CoroutineScope.insertTask(record: DomainSubOrderTask) = crudeOperations.run {
-        responseHandlerForSingleRecord(
-            taskExecutor = { invService.createSubOrderTask(record.toDatabaseModel().toNetworkModel()) }
-        ) { r -> database.taskDao.insertRecord(r) }
+    fun CoroutineScope.insertTasks(records: List<DomainSubOrderTask>) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.createTasks(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.taskDao.insertRecords(r) }
     }
 
-    fun CoroutineScope.insertSample(record: DomainSample) = crudeOperations.run {
-        responseHandlerForSingleRecord(
-            taskExecutor = { invService.createSample(record.toDatabaseModel().toNetworkModel()) }
-        ) { r -> database.sampleDao.insertRecord(r) }
+    fun CoroutineScope.insertSamples(records: List<DomainSample>) = crudeOperations.run {
+        responseHandlerForListOfRecords(
+            taskExecutor = { invService.createSamples(records.map { it.toDatabaseModel().toNetworkModel() }) }
+        ) { r -> database.sampleDao.insertRecords(r) }
     }
 
     fun CoroutineScope.insertResults(records: List<DomainResult>) = crudeOperations.run {
@@ -349,7 +354,7 @@ class InvestigationsRepository @Inject constructor(
     suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
         val dbOrder = database.orderDao.getRecordById(lastVisibleId.toString())
         return if (dbOrder != null)
-            database.orderDao.ordersListByLastVisibleId(dbOrder.createdDate).map { list ->
+            database.orderDao.ordersListByLastVisibleIdForUI(dbOrder.createdDate).map { list ->
                 list.map { it.toDomainModel() }
             }
         else flow { emit(listOf()) }
@@ -360,8 +365,8 @@ class InvestigationsRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
-    fun tasksRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderTaskComplete>> =
-        database.taskDao.getRecordsByTimeRangeForUI(pair).map { list ->
+    fun tasksRangeList(subOrderId: Int): Flow<List<DomainSubOrderTaskComplete>> =
+        database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list ->
             list.map { it.toDomainModel() }
         }
 
@@ -370,26 +375,26 @@ class InvestigationsRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
-    fun resultsRangeList(subOrderId: Int): Flow<List<DomainResultComplete>> =
-        database.resultDao.getRecordsByParentIdForUI(subOrderId).map { list ->
+    fun resultsRangeList(taskId: Int, sampleId: Int): Flow<List<DomainResultComplete>> =
+        database.resultDao.getRecordsByParentIdForUI(taskId, sampleId).map { list ->
             list.map { it.toDomainModel() }
         }
 
     /**
      * New order related data
      * */
-    val inputForOrder: LiveData<List<DomainInputForOrder>> =
-        database.inputForOrderDao.getRecordsForUI().map { list ->
+    val inputForOrder: Flow<List<DomainInputForOrder>> =
+        database.inputForOrderDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
         }
 
-    val investigationTypes: LiveData<List<DomainOrdersType>> =
-        database.investigationTypeDao.getRecordsForUI().map { list ->
+    val getOrderTypes: Flow<List<DomainOrdersType>> =
+        database.investigationTypeDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
-    val investigationReasons: LiveData<List<DomainReason>> =
-        database.measurementReasonDao.getRecordsForUI().map { list ->
+    val getOrderReasons: Flow<List<DomainReason>> =
+        database.measurementReasonDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
