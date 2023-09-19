@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main
+package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

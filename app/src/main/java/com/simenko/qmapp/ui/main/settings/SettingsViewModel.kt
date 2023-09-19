@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
