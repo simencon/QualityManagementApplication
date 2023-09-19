@@ -91,10 +91,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
             )
         }
 
-        val builder = NotificationCompat.Builder(
-            context,
-            SYNC_NOTIFICATION_CHANNEL_ID
-        )
+        val builder = NotificationCompat.Builder(context, SYNC_NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_investigations)
             .setContentTitle(title)
             .setContentText(msg)

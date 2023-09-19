@@ -155,7 +155,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             route = Screen.Main.Team.UserEdit.routeWithArgKeys(),
             deepLinks = listOf(
                 navDeepLink {
-                    uriPattern = "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.Users.routeWithArgKeys()}"
+                    uriPattern = "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.UserEdit.routeWithArgKeys()}"
                     action = Intent.ACTION_VIEW
                 }
             ),
