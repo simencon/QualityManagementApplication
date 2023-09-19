@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.team.forms.user
 
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
@@ -36,13 +37,15 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Objects
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val repository: SystemRepository,
-    private val manufacturingRepository: ManufacturingRepository
+    private val manufacturingRepository: ManufacturingRepository,
+    private val notificationManager: NotificationManagerCompat
 ) : ViewModel() {
     private lateinit var navController: NavHostController
     fun initNavController(controller: NavHostController) {
@@ -56,6 +59,10 @@ class UserViewModel @Inject constructor(
 
     fun setAddEditMode(mode: AddEditMode) {
         _mainViewModel.setAddEditMode(mode)
+    }
+
+    fun clearNotificationIfExists(email: String) {
+        notificationManager.activeNotifications.find { it.id == Objects.hash(email) }?.let { notificationManager.cancel(it.id) }
     }
 
     private val _user = MutableStateFlow(DomainUser())
