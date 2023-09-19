@@ -19,7 +19,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.UserId
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.team.employee.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm

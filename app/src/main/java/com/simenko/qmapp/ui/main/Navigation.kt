@@ -22,6 +22,7 @@ import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposit
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.settings.settingsNavigation
 import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme

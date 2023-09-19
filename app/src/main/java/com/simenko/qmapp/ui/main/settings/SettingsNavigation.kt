@@ -24,7 +24,7 @@ import androidx.navigation.navigation
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.UserEditMode
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme

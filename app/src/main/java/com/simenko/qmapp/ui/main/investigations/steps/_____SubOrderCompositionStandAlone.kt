@@ -19,6 +19,7 @@ import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
