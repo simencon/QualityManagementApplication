@@ -39,29 +39,11 @@ fun SubOrdersStandAlone(
         invModel.setCurrentSubOrdersFilter(type = ProcessControlOrderTypeId)
     }
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
-        }
-    }
-
-    val onClickActionsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
-        }
-    }
-
-    val onClickDeleteLambda = remember<(Int) -> Unit> {
-        {
-            invModel.deleteSubOrder(it)
-        }
-    }
-
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
-        {
-            invModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
-            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), TrueStr.str))
-        }
+        { invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), TrueStr.str)) }
     }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
@@ -125,7 +107,7 @@ fun SubOrdersStandAlone(
                 onClickDetails = { onClickDetailsLambda(it) },
                 cardOffset = CARD_OFFSET.dp(),
                 onClickActions = { onClickActionsLambda(it) },
-                onClickDelete = {onClickDeleteLambda(it) },
+                onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) },
                 onClickStatus = { subOrderComplete, completedById ->
                     onClickStatusLambda(

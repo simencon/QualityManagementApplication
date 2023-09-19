@@ -53,7 +53,6 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             QMAppTheme {
                 EmployeeComposition(onClickEdit = { id ->
                     teamModel.setSelectedEmployeeRecord(NoRecord.num)
-                    teamModel.setAddEditMode(AddEditMode.EDIT_EMPLOYEE)
                     navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(id.toString()))
                 })
             }
@@ -69,10 +68,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         ) {
             val employeeModel: EmployeeViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initEmployeeModel(employeeModel)
-            BackHandler {
-                employeeModel.setAddEditMode(AddEditMode.NO_MODE)
-                navController.popBackStack()
-            }
+            BackHandler { navController.popBackStack() }
             QMAppTheme {
                 EmployeeForm(employeeId = it.arguments?.getInt(EmployeeId.str) ?: NoRecord.num)
             }
@@ -168,10 +164,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         ) {
             val userModel: UserViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initUserModel(userModel)
-            BackHandler {
-                userModel.setAddEditMode(AddEditMode.NO_MODE)
-                navController.popBackStack()
-            }
+            BackHandler { navController.popBackStack() }
             QMAppTheme {
                 UserForm(userId = it.arguments?.getString(UserId.str) ?: NoRecordStr.str)
             }

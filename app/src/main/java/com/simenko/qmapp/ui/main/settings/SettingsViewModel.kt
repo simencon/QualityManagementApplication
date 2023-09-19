@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,9 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-/**
- * SettingsViewModel is the ViewModel that [SettingsFragment] uses to handle complex logic.
- */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userRepository: UserRepository
@@ -22,10 +18,6 @@ class SettingsViewModel @Inject constructor(
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
-    }
-
-    fun setAddEditMode(addEditMode: AddEditMode) {
-        _mainViewModel.setAddEditMode(addEditMode)
     }
 
     private val _isApproveActionVisible = MutableStateFlow(false)

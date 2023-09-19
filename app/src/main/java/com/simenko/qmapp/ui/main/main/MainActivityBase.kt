@@ -3,14 +3,26 @@ package com.simenko.qmapp.ui.main.main
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import com.simenko.qmapp.domain.EmployeeId
 import com.simenko.qmapp.domain.FalseStr
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.OrderId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
+import com.simenko.qmapp.domain.SubOrderAddEditMode
+import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.TrueStr
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -35,20 +47,89 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Drawer menu -----------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDrawerItemClick(id: String) {
-        when (id) {
-            Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) }
-            Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-            Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
-            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+    fun onDrawerItemClick(currentId: String, id: String): Int? {
+        return if (id != currentId) {
+            viewModel.setDrawerMenuItemId(id)
+            when (id) {
+                Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) }
+                Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
+                else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+            }
+            viewModel.resetTopBadgesCount()
+            ZeroValue.num
+        } else {
+            null
         }
+    }
+
+
+    /**
+     * Action bar ------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun selectProperAddEditMode(backStackEntry: State<NavBackStackEntry?>) {
+        when (backStackEntry.value?.destination?.route) {
+            Screen.Main.Team.EmployeeAddEdit.routeWithArgKeys() -> {
+                if (backStackEntry.value?.arguments?.getInt(EmployeeId.str) == NoRecord.num) {
+                    viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
+                } else {
+                    viewModel.setAddEditMode(AddEditMode.EDIT_EMPLOYEE)
+                }
+            }
+
+            Screen.Main.OrderAddEdit.routeWithArgKeys() -> {
+                if (backStackEntry.value?.arguments?.getInt(OrderId.str) == NoRecord.num) {
+                    viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
+                } else {
+                    viewModel.setAddEditMode(AddEditMode.EDIT_ORDER)
+                }
+            }
+
+            Screen.Main.SubOrderAddEdit.routeWithArgKeys() -> {
+                if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) == NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == false
+                ) {
+                    viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER)
+                } else if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) == NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == true
+                ) {
+                    viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
+                } else if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) != NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == false
+                ) {
+                    viewModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER)
+                } else if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) != NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == true
+                ) {
+                    viewModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
+                }
+            }
+
+            Screen.Main.Settings.UserDetails.route -> {
+                viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
+            }
+
+            else -> viewModel.setAddEditMode(AddEditMode.NO_MODE)
+        }
+    }
+
+    fun onBackFromAddEditMode(addEditMode: Int) {
+        when (addEditMode) {
+            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(
+                Screen.Main.Settings.UserDetails.route,
+                inclusive = false
+            )
+
+            else -> navController.popBackStack()
+        }
+        viewModel.setAddEditMode(AddEditMode.NO_MODE)
     }
 
     /**
      * Action menu -----------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onActionsMenuItemClick(filterOnly: String, action: String) {
+    fun onActionsMenuItemClick(filterOnly: String, action: String): String {
         if (filterOnly != action) {
             when (action) {
                 MenuItem.Actions.UPLOAD_MD.action -> viewModel.refreshMasterDataFromRepository()
@@ -56,6 +137,7 @@ abstract class MainActivityBase : ComponentActivity() {
                 MenuItem.Actions.CUSTOM_FILTER.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
         }
+        return filterOnly
     }
 
     /**
@@ -106,6 +188,7 @@ abstract class MainActivityBase : ComponentActivity() {
         }
         tabIndex
     }
+
     fun selectProperTab(backStackEntry: State<NavBackStackEntry?>): Int? {
         return when (backStackEntry.value?.destination?.route) {
             Screen.Main.Team.Employees.routeWithArgKeys() -> TeamTabs.EMPLOYEES.ordinal
@@ -123,25 +206,15 @@ abstract class MainActivityBase : ComponentActivity() {
                 (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal) &&
                 (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal))
     }
+
     fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int) {
         if (addEditMode == AddEditMode.NO_MODE.ordinal)
             when (backStackEntry.value?.destination?.route) {
-                Screen.Main.Team.Employees.routeWithArgKeys() -> {
-                    navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
-                    viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
-                }
-
-                Screen.Main.Inv.routeWithArgKeys() -> {
-                    navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
-                    viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
-                }
-
-                Screen.Main.ProcessControl.routeWithArgKeys() -> {
-                    navController.navigate(
-                        Screen.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
-                    )
-                    viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
-                }
+                Screen.Main.Team.Employees.routeWithArgKeys() -> navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
+                Screen.Main.Inv.routeWithArgKeys() -> navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
+                Screen.Main.ProcessControl.routeWithArgKeys() -> navController.navigate(
+                    Screen.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
+                )
 
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
@@ -160,6 +233,23 @@ abstract class MainActivityBase : ComponentActivity() {
                 AddEditMode.EDIT_USER -> userModel.validateInput()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    @Composable
+    fun FabContent(addEditMode: Int) {
+        if (addEditMode == AddEditMode.NO_MODE.ordinal) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add button",
+                tint = MaterialTheme.colorScheme.onTertiary
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = "Save button",
+                tint = MaterialTheme.colorScheme.onTertiary
+            )
         }
     }
 

@@ -151,27 +151,9 @@ class MainActivity : MainActivityBase() {
                     { tabId, tabIndex -> selectedTabIndex = onTabSelectedLambda(backStackEntry, tabId, tabIndex) }
                 }
 
-                fun onDrawerItemClick(id: String) {
-                    scope.launch { drawerState.close() }
-                    if (id != selectedDrawerMenuItemId) {
-                        viewModel.setDrawerMenuItemId(id)
-                        super.onDrawerItemClick(id)
-                        selectedTabIndex = ZeroValue.num
-                        viewModel.resetTopBadgesCount()
-                    }
-                }
-
-                fun onActionsMenuItemClick(filterOnly: String, action: String) {
-                    selectedContextMenuItemId.value = filterOnly
-                    super.onActionsMenuItemClick(filterOnly, action)
-                }
-
-                fun onSearchBarSearch(searchValues: String) {
-                    super.onSearchBarSearch(backStackEntry, searchValues)
-                }
-
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
                     super.selectProperTab(backStackEntry)?.let { selectedTabIndex = it }
+                    super.selectProperAddEditMode(backStackEntry)
                 }
 
                 ModalNavigationDrawer(
@@ -186,7 +168,10 @@ class MainActivity : MainActivityBase() {
                             DrawerHeader(userInfo = viewModel.userInfo)
                             DrawerBody(
                                 selectedItemId = selectedDrawerMenuItemId,
-                                onDrawerItemClick = { onDrawerItemClick(it) }
+                                onDrawerItemClick = { id ->
+                                    scope.launch { drawerState.close() }
+                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id)?.let { selectedTabIndex = it }
+                                }
                             )
                         }
                     },
@@ -201,23 +186,13 @@ class MainActivity : MainActivityBase() {
                                     drawerState = drawerState,
 
                                     selectedActionsMenuItemId = selectedContextMenuItemId,
-                                    onActionsMenuItemClick = { filterOnly, action -> onActionsMenuItemClick(filterOnly, action) },
+                                    onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
                                     searchBarState = searchBarState,
-                                    onSearchBarSearch = { onSearchBarSearch(it) },
+                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry, it) },
 
                                     addEditMode = addEditMode,
-                                    onBackFromAddEditModeClick = {
-                                        when (addEditMode) {
-                                            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(
-                                                Screen.Main.Settings.UserDetails.route,
-                                                inclusive = false
-                                            )
-
-                                            else -> navController.popBackStack()
-                                        }
-                                        viewModel.setAddEditMode(AddEditMode.NO_MODE)
-                                    }
+                                    onBackFromAddEditModeClick = { super.onBackFromAddEditMode(addEditMode) }
                                 )
                             },
                             floatingActionButton = {
@@ -225,21 +200,7 @@ class MainActivity : MainActivityBase() {
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = { super.onFabClick(backStackEntry, addEditMode) },
-                                        content = {
-                                            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Add,
-                                                    contentDescription = "Add button",
-                                                    tint = MaterialTheme.colorScheme.onTertiary
-                                                )
-                                            } else {
-                                                Icon(
-                                                    imageVector = Icons.Default.Save,
-                                                    contentDescription = "Save button",
-                                                    tint = MaterialTheme.colorScheme.onTertiary
-                                                )
-                                            }
-                                        }
+                                        content = { super.FabContent(addEditMode = addEditMode) }
                                     )
                             },
                             floatingActionButtonPosition = fabPosition

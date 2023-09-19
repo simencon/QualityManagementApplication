@@ -24,7 +24,6 @@ import androidx.navigation.navigation
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.UserEditMode
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -54,7 +53,6 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                     },
                     onEditUserData = {
                         userDetailsModel.resetToInitialState()
-                        settingsModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
                         navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str)) { launchSingleTop = true }
                     }
                 )
@@ -72,14 +70,10 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
             val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
             val userDetailsModel: EnterDetailsViewModel = it.sharedViewModel(navController = navController)
             settingsViewModel.validateUserData = { userDetailsModel.validateInput() }
-            BackHandler {
-                navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
-                settingsViewModel.setAddEditMode(AddEditMode.NO_MODE)
-            }
+            BackHandler { navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false) }
             val editUserLambda = remember {
                 {
                     navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
-                    settingsViewModel.setAddEditMode(AddEditMode.NO_MODE)
                     settingsViewModel.editUserData()
                 }
             }

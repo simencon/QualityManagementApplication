@@ -65,12 +65,7 @@ fun Orders(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setAddEditMode(AddEditMode.EDIT_ORDER)
-            invModel.navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString()))
-        }
-    }
+    val onClickEditLambda = remember<(Int) -> Unit> { { invModel.navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString())) } }
 
     val listState = rememberLazyListState()
 

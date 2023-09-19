@@ -22,7 +22,6 @@ import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposit
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.settings.settingsNavigation
 import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -101,10 +100,7 @@ fun Navigation(
         ) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
-            BackHandler {
-                navController.popBackStack()
-                newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
-            }
+            BackHandler { navController.popBackStack() }
             QMAppTheme {
                 OrderForm(
                     orderId = it.arguments?.getInt(OrderId.str) ?: NoRecord.num
@@ -132,10 +128,7 @@ fun Navigation(
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
             newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditMode.str) ?: false)
-            BackHandler {
-                newOrderModel.setAddEditMode(AddEditMode.NO_MODE)
-                navController.popBackStack()
-            }
+            BackHandler { navController.popBackStack() }
             QMAppTheme {
                 SubOrderForm(
                     record = Pair(
