@@ -37,4 +37,6 @@
     <string name="authorize">Authorize</string>
     <string name="remind_later">Remind later</string>
 
+    <string name="REMIND_LATER_ACTION">REMIND_LATER_ACTION</string>
+
 </resources>
