@@ -20,10 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -62,7 +58,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.AppBar
 import com.simenko.qmapp.ui.main.main.DrawerBody
@@ -153,7 +148,7 @@ class MainActivity : MainActivityBase() {
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
                     super.selectProperTab(backStackEntry)?.let { selectedTabIndex = it }
-                    super.selectProperAddEditMode(backStackEntry)
+                    super.setProperAddEditMode(backStackEntry)
                 }
 
                 ModalNavigationDrawer(

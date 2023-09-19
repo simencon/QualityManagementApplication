@@ -19,7 +19,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.UserId
 import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.team.employee.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
@@ -29,7 +28,6 @@ import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.main.team.user.UserComposition
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
-
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
@@ -86,10 +84,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getString(UserId.str)?.let { id ->
-                    println("Users - Interacted record is $id.")
-                    teamModel.setSelectedUserRecord(id)
-                }
+                it.arguments?.getString(UserId.str)?.let { id -> teamModel.setSelectedUserRecord(id) }
             }
 
             QMAppTheme {
@@ -98,13 +93,11 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
                     isUsersPage = true,
                     onClickAuthorize = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        teamModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
-                        navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        navController.navigate(Screen.Main.Team.EditUser.withArgs(id))
                     },
                     onClickEdit = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        teamModel.setAddEditMode(AddEditMode.EDIT_USER)
-                        navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        navController.navigate(Screen.Main.Team.EditUser.withArgs(id))
                     }
                 )
             }
@@ -123,10 +116,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getString(UserId.str)?.let { id ->
-                    println("Users - Interacted record is $id.")
-                    teamModel.setSelectedUserRecord(id)
-                }
+                it.arguments?.getString(UserId.str)?.let { id -> teamModel.setSelectedUserRecord(id) }
             }
 
             QMAppTheme {
@@ -135,39 +125,41 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
                     isUsersPage = false,
                     onClickAuthorize = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        teamModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
-                        navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        navController.navigate(Screen.Main.Team.AuthorizeUser.withArgs(id))
                     },
                     onClickEdit = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        teamModel.setAddEditMode(AddEditMode.EDIT_USER)
-                        navController.navigate(Screen.Main.Team.UserEdit.withArgs(id))
+                        navController.navigate(Screen.Main.Team.EditUser.withArgs(id))
                     }
                 )
             }
         }
+        editUser(navController, Screen.Main.Team.AuthorizeUser.routeWithArgKeys())
+        editUser(navController, Screen.Main.Team.EditUser.routeWithArgKeys())
+    }
+}
 
-        composable(
-            route = Screen.Main.Team.UserEdit.routeWithArgKeys(),
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.UserEdit.routeWithArgKeys()}"
-                    action = Intent.ACTION_VIEW
-                }
-            ),
-            arguments = listOf(
-                navArgument(UserId.str) {
-                    type = NavType.StringType
-                    defaultValue = NoRecordStr.str
-                }
-            )
-        ) {
-            val userModel: UserViewModel = hiltViewModel()
-            (LocalContext.current as MainActivity).initUserModel(userModel)
-            BackHandler { navController.popBackStack() }
-            QMAppTheme {
-                UserForm(userId = it.arguments?.getString(UserId.str) ?: NoRecordStr.str)
+private fun NavGraphBuilder.editUser(navController: NavHostController,route: String) {
+    composable(
+        route = route,
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "${Screen.Domain.route}/${Screen.Main.Team.route}/$route"
+                action = Intent.ACTION_VIEW
             }
+        ),
+        arguments = listOf(
+            navArgument(UserId.str) {
+                type = NavType.StringType
+                defaultValue = NoRecordStr.str
+            }
+        )
+    ) {
+        val userModel: UserViewModel = hiltViewModel()
+        (LocalContext.current as MainActivity).initUserModel(userModel)
+        BackHandler { navController.popBackStack() }
+        QMAppTheme {
+            UserForm(userId = it.arguments?.getString(UserId.str) ?: NoRecordStr.str)
         }
     }
 }

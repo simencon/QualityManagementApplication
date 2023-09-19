@@ -73,7 +73,7 @@ class NewNotificationWorker @AssistedInject constructor(
                 message.getString(EMAIL)?.let {
                     val intent = Intent(
                         Intent.ACTION_VIEW,
-                        "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.UserEdit.route}/$it".toUri(),
+                        "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.AuthorizeUser.route}/$it".toUri(),
                         context,
                         MainActivity::class.java
                     )
