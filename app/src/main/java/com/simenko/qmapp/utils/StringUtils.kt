@@ -18,7 +18,7 @@ object StringUtils {
 
     @JvmStatic
     fun getMail(original: String?): String {
-        return if (original != null) {
+        return if (!original.isNullOrEmpty()) {
             original.split("#mailto:").toTypedArray()[0]
         } else {
             "has no mail"
@@ -27,13 +27,12 @@ object StringUtils {
 
     @JvmStatic
     fun getDateTime(original: String?): String {
-        var result = if (original != null) {
+        var result = if (!original.isNullOrEmpty()) {
             original.split("T").toTypedArray()[0] + " " + original.split("T").toTypedArray()[1]
         } else {
             "-"
         }
-        if (result != "-")
-        {
+        if (result != "-") {
             result = result.split(".").toTypedArray()[0]
         }
 
@@ -47,7 +46,7 @@ object StringUtils {
 
     @JvmStatic
     fun concatTwoStrings1(str1: String?, str2: String?): String {
-        return "${str1?:"_"} (${str2?:"_"})"
+        return "${str1 ?: "_"} (${str2 ?: "_"})"
     }
 
     @JvmStatic
@@ -61,13 +60,15 @@ object StringUtils {
     }
 
     @JvmStatic
-    fun concatTwoStrings4(str1: String?, str2: String?): String {
-        return "${str1 ?: "_"}|${str2 ?: "_"}"
+    fun concatThreeStrings(str1: String?, str2: String?, str3: String?): String {
+        return "${str1 ?: "-"} / ${str2 ?: "-"} / ${str3 ?: "-"}"
     }
 
     @JvmStatic
-    fun concatThreeStrings(str1: String?, str2: String?, str3: String?): String {
-        return "${str1 ?: "-"} / ${str2 ?: "-"} / ${str3 ?: "-"}"
+    fun concatThreeStrings1(str1: String?, str2: String?, str3: String?) = buildString {
+        if (!str1.isNullOrEmpty()) append(str1)
+        if (!str2.isNullOrEmpty()) append(", $str2")
+        if (!str3.isNullOrEmpty()) append(", $str3")
     }
 
     @JvmStatic
@@ -97,10 +98,23 @@ object StringUtils {
         }
         return NoRecord.num.toLong()
     }
+
     val FormatForRestService = SelectedNumber(0)
+
     @JvmStatic
     fun getStringDate(myDateTimeLong: Long?, formatType: Int = 5): String? {
-        if(myDateTimeLong == null) return null
+        if (myDateTimeLong == null) return null
         return mySimpleFormatters[formatType].format(Date(myDateTimeLong))
+    }
+
+    @JvmStatic
+    fun getBoolean(original: String): Boolean {
+        val arr = original.split("/").toTypedArray()
+        val last = arr[arr.lastIndex]
+
+        return if(last == "true" || last == "false")
+            last.toBoolean()
+        else
+            false
     }
 }

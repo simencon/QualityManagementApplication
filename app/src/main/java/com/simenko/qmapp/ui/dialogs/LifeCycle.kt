@@ -42,7 +42,35 @@ suspend fun < T : ScrollableState> T.scrollToSelectedItem(
         var index = 0
         list.forEach {
             if (it == selectedId) {
-                delay(200)
+                delay(100)
+                when {
+                    (state::class.java == LazyListState::class.java) -> {
+                        (state as LazyListState).animateScrollToItem(index = index)
+                        result = true
+                    }
+                    (state::class.java == LazyGridState::class.java) -> {
+                        (state as LazyGridState).animateScrollToItem(index = index)
+                        result = true
+                    }
+                }
+            }
+            index++
+        }
+    }
+    return result
+}
+
+suspend fun < T : ScrollableState> T.scrollToSelectedStringItem(
+    list: List<String>,
+    selectedId: String,
+): Boolean {
+    val state = this
+    var result = false
+    withContext(Dispatchers.Main) {
+        var index = 0
+        list.forEach {
+            if (it == selectedId) {
+                delay(100)
                 when {
                     (state::class.java == LazyListState::class.java) -> {
                         (state as LazyListState).animateScrollToItem(index = index)

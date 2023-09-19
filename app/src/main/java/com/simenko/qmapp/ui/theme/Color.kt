@@ -1,54 +1,72 @@
 package com.simenko.qmapp.ui.theme
 
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val md_theme_light_primary = Color(0xFF00658C)
+val md_theme_light_onPrimary = Color(0xFFFFFFFF)
+val md_theme_light_primaryContainer = Color(0xFFC5E7FF)
+val md_theme_light_onPrimaryContainer = Color(0xFF001E2D)
+val md_theme_light_secondary = Color(0xFF9A4520)
+val md_theme_light_onSecondary = Color(0xFFFFFFFF)
+val md_theme_light_secondaryContainer = Color(0xFFFFDBCE)
+val md_theme_light_onSecondaryContainer = Color(0xFF370E00)
+val md_theme_light_tertiary = Color(0xFF0056D0)
+val md_theme_light_onTertiary = Color(0xFFFFFFFF)
+val md_theme_light_tertiaryContainer = Color(0xFFDAE2FF)
+val md_theme_light_onTertiaryContainer = Color(0xFF001847)
+val md_theme_light_error = Color(0xFFB4271F)
+val md_theme_light_errorContainer = Color(0xFFFFDAD5)
+val md_theme_light_onError = Color(0xFFFFFFFF)
+val md_theme_light_onErrorContainer = Color(0xFF410001)
+val md_theme_light_background = Color(0xFFFAFDFD)
+val md_theme_light_onBackground = Color(0xFF191C1D)
+val md_theme_light_outline = Color(0xFF71787E)
+val md_theme_light_inverseOnSurface = Color(0xFFEFF1F1)
+val md_theme_light_inverseSurface = Color(0xFF2E3132)
+val md_theme_light_inversePrimary = Color(0xFF80D0FF)
+val md_theme_light_surfaceTint = Color(0xFF00658C)
+val md_theme_light_outlineVariant = Color(0xFFC1C7CE)
+val md_theme_light_scrim = Color(0xFF000000)
+val md_theme_light_surface = Color(0xFFF8FAFA)
+val md_theme_light_onSurface = Color(0xFF191C1D)
+val md_theme_light_surfaceVariant = Color(0xFFDDE3EA)
+val md_theme_light_onSurfaceVariant = Color(0xFF41484D)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val md_theme_dark_primary = Color(0xFF80D0FF)
+val md_theme_dark_onPrimary = Color(0xFF00344A)
+val md_theme_dark_primaryContainer = Color(0xFF004C6A)
+val md_theme_dark_onPrimaryContainer = Color(0xFFC5E7FF)
+val md_theme_dark_secondary = Color(0xFFFFB599)
+val md_theme_dark_onSecondary = Color(0xFF5A1C00)
+val md_theme_dark_secondaryContainer = Color(0xFF7B2F0A)
+val md_theme_dark_onSecondaryContainer = Color(0xFFFFDBCE)
+val md_theme_dark_tertiary = Color(0xFFB1C5FF)
+val md_theme_dark_onTertiary = Color(0xFF002C72)
+val md_theme_dark_tertiaryContainer = Color(0xFF0040A0)
+val md_theme_dark_onTertiaryContainer = Color(0xFFDAE2FF)
+val md_theme_dark_error = Color(0xFFFFB4AA)
+val md_theme_dark_errorContainer = Color(0xFF910809)
+val md_theme_dark_onError = Color(0xFF690003)
+val md_theme_dark_onErrorContainer = Color(0xFFFFDAD5)
+val md_theme_dark_background = Color(0xFF191C1D)
+val md_theme_dark_onBackground = Color(0xFFE1E3E3)
+val md_theme_dark_outline = Color(0xFF8B9297)
+val md_theme_dark_inverseOnSurface = Color(0xFF191C1D)
+val md_theme_dark_inverseSurface = Color(0xFFE1E3E3)
+val md_theme_dark_inversePrimary = Color(0xFF00658C)
+val md_theme_dark_surfaceTint = Color(0xFF80D0FF)
+val md_theme_dark_outlineVariant = Color(0xFF41484D)
+val md_theme_dark_scrim = Color(0xFF000000)
+val md_theme_dark_surface = Color(0xFF101415)
+val md_theme_dark_onSurface = Color(0xFFC4C7C7)
+val md_theme_dark_surfaceVariant = Color(0xFF41484D)
+val md_theme_dark_onSurfaceVariant = Color(0xFFC1C7CE)
 
-val Transparent = Color(0x00FFFFFF)
-
-val PrimaryVariant900 = Color(0xFF0A043C)
-val Primary900 = Color(0xFF03506F)
-val StatusBar400 = Color(0xFFBBBBBB)
-
-val NumberSurface50 = Color(0xFFFFE3D8)
-val Accent200 = Color(0xFFffa480)
-val HintTextColor600 = Color(0xFF757570)
-
-val reference1 = Color(0xFFBFCDD3)
-val reference2 = Color(0xFFAEC9D5)
-val reference3 = Color(0XFF8AB7CC)
-
-val level_1_record_color = reference1.copy(alpha = 0.32f)
-val level_2_record_color = reference1.copy(alpha = 0.66f)
-val level_3_record_color = reference1.copy(alpha = 0.99f)
-val level_4_record_color = reference2.copy(alpha = 0.99f)
-val level_5_record_color = reference3.copy(alpha = 0.99f)
-
-val TestColor = Color(0xFFFF0000)
+val seed = Color(0xFF03506F)
 
 
-val _level_5_record_color = Color(0xFF487386)
-val _level_5_record_color_details = Color(0xFF5B4886)
+val Primary = Color(0xFF03506F)
 
-val _level_4_record_color = Color(0xFF548297)
-val _level_4_record_color_details = Color(0xFF685497)
+val Secondary = Color(0xFFffa480)
 
-val _level_3_record_color = Color(0xFF9CBFCF)
-val _level_3_record_color_details = Color(0xFFAE9CCF)
-
-val _level_2_record_color = Color(0xFFB4C8D1)
-val _level_2_record_color_details = Color(0xFFBDB4D1)
-
-@Stable
-val _level_1_record_color = Color(0xFFDCE1E4)
-@Stable
-val _level_1_record_color_details = Color(0xFFE0DCE4)
+val TertiaryContainer = Color(0xFFBBBBBB)

@@ -2,11 +2,14 @@ package com.simenko.qmapp.di
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.ComposeNavigator
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
@@ -15,6 +18,7 @@ import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
 import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
+import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
@@ -34,7 +38,6 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -47,10 +50,6 @@ object AppModule {
         QualityManagementDB::class.java,
         DATABASE_NAME
     ).build()
-
-    @Singleton
-    @Provides
-    fun provideManufacturingDao(database: QualityManagementDB) = database.manufacturingDao
 
     @Singleton
     @Provides
@@ -81,7 +80,7 @@ object AppModule {
     @Provides
     fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, @Named("rest_api_url") url: String): Retrofit = Retrofit
         .Builder()
-        .baseUrl(if (url != EmptyString.str) url else DEFAULT_REST_API_URL)
+        .baseUrl(if (url != EmptyString.str) url  else DEFAULT_REST_API_URL)
         .addConverterFactory(
             MoshiConverterFactory.create(
                 moshi
@@ -90,6 +89,11 @@ object AppModule {
         .addConverterFactory(PairConverterFactory())
         .client(client)
         .build()
+
+    @Singleton
+    @Provides
+    fun provideSystemService(retrofit: Retrofit): SystemService =
+        retrofit.create(SystemService::class.java)
 
     @Singleton
     @Provides
@@ -128,6 +132,10 @@ object AppModule {
     @Singleton
     @Provides
     fun provideFirebaseFunctions() = Firebase.functions
+
+    @Singleton
+    @Provides
+    fun provideFirebaseMessaging() = Firebase.messaging
 
     @Singleton
     @Provides

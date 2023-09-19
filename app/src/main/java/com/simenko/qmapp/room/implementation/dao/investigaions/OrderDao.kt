@@ -53,7 +53,7 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
                 "order by o.createdDate desc limit :safetyGap) " +
                 "order by createdDate desc"
     )
-    abstract fun ordersListByLastVisibleId(
+    abstract fun ordersListByLastVisibleIdForUI(
         lastVisibleCreateDate: Long,
         safetyGap: Int = UI_SAFETY_GAP,
         totalVisible: Int = UI_TOTAL_VISIBLE

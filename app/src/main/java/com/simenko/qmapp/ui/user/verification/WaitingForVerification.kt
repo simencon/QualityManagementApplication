@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -27,75 +26,47 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.Screen
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserInitialState
-import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
-import com.simenko.qmapp.repository.UserRegisteredState
+import com.simenko.qmapp.repository.UserError
 
 @Composable
-fun WaitingForVerification(
-    modifier: Modifier,
-    navController: NavController = rememberNavController(),
-    logInSuccess: () -> Unit,
-    message: String? = null
-) {
+fun WaitingForVerification(message: String? = null) {
     val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
-    val stateEvent by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
+    val userState by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
 
-    var error by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
     var msg by rememberSaveable { mutableStateOf("Please check your email box") }
 
-    stateEvent.getContentIfNotHandled()?.let { state ->
-        when (state) {
-            is UserInitialState -> {}
-            is UserRegisteredState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForValidation.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserNeedToVerifyEmailState -> {
+    LaunchedEffect(userState) {
+        userState.let { state ->
+            if (state is UserErrorState) {
+                error = state.error ?: UserError.UNKNOWN_ERROR.error
+            } else if (state is UserNeedToVerifyEmailState) {
                 msg = state.msg
-                error = ""
-            }
-
-            is UserAuthoritiesNotVerifiedState -> {
+                error = UserError.NO_ERROR.error
+            } else if (state is UserAuthoritiesNotVerifiedState) {
                 msg = state.msg
-                error = ""
+                error = UserError.NO_ERROR.error
             }
-
-            is UserLoggedInState -> logInSuccess()
-            is UserLoggedOutState -> navController.navigate(Screen.LogIn.route) {
-                popUpTo(Screen.WaitingForValidation.route) {
-                    inclusive = true
-                }
-            }
-
-            is UserErrorState -> error = state.error ?: "Unknown error"
         }
     }
-    LaunchedEffect(key1 = Unit, block = { message?.let { msg = message } })
+
+    LaunchedEffect(Unit) { message?.let { msg = message } }
     Box {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(all = 0.dp)
+            modifier = Modifier.padding(all = 0.dp)
         ) {
             Text(
                 text = "Verification",
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 18.sp, color = MaterialTheme.colorScheme.primary),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp)
+                modifier = Modifier.padding(all = 5.dp)
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -103,15 +74,14 @@ fun WaitingForVerification(
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 5.dp),
+                modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(10.dp))
             TextButton(
                 modifier = Modifier.width(150.dp),
                 onClick = {
-                    msg = ""
+                    msg = UserError.NO_ERROR.error
                     waitingForVerificationViewModel.resendVerificationEmail()
                 },
                 content = {
@@ -120,20 +90,18 @@ fun WaitingForVerification(
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .padding(all = 0.dp),
+                        modifier = Modifier.padding(all = 0.dp),
                     )
                 },
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                 shape = MaterialTheme.shapes.medium
             )
             Spacer(modifier = Modifier.height(10.dp))
-            if (error != "")
+            if (error != UserError.NO_ERROR.error)
                 Text(
                     text = error,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                    modifier = Modifier
-                        .padding(all = 5.dp),
+                    modifier = Modifier.padding(all = 5.dp),
                     textAlign = TextAlign.Center
                 )
         }
@@ -144,11 +112,6 @@ fun WaitingForVerification(
 @Composable
 fun WaitingForVerificationPreview() {
     QMAppTheme {
-        WaitingForVerification(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = 0.dp),
-            logInSuccess = {}
-        )
+        WaitingForVerification()
     }
 }

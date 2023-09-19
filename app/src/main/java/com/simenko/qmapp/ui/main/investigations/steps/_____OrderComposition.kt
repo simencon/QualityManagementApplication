@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,26 +18,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
+import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
@@ -50,41 +52,22 @@ private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
-    modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel,
-    onListEnd: (FabPosition) -> Unit
+    modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val invModel: InvestigationsViewModel = hiltViewModel()
+    Log.d(TAG, "InvestigationsViewModel: $invModel")
 
-    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
+    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
-    val items by appModel.ordersSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> {
-        {
-            appModel.setCurrentOrderVisibility(dId = SelectedNumber(it))
-        }
-    }
-
-    val onClickActionsLambda = remember<(Int) -> Unit> {
-        {
-            appModel.setCurrentOrderVisibility(aId = SelectedNumber(it))
-        }
-    }
-
-    val onClickDeleteLambda = remember<(Int) -> Unit> {
-        {
-            appModel.deleteOrder(it)
-        }
-    }
-
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> {
         {
-            launchNewItemActivityForResult(
-                context as MainActivity,
-                ActionType.EDIT_ORDER.ordinal,
-                it
-            )
+            invModel.setAddEditMode(AddEditMode.EDIT_ORDER)
+            invModel.navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString()))
         }
     }
 
@@ -115,7 +98,7 @@ fun Orders(
                 if (order != null) {
                     if (!order.detailsVisibility)
                         onClickDetailsLambda(order.order.id)
-                    appModel.resetCreatedOrderId()
+                    invModel.resetCreatedOrderId()
                 }
             }
         }
@@ -127,7 +110,7 @@ fun Orders(
         }
     }
 
-    if (!listState.isScrollInProgress) lastVisibleItemKey?.let { appModel.setLastVisibleItemKey(it) }
+    if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
 
     val lastItemIsVisible by remember {
         derivedStateOf {
@@ -135,7 +118,7 @@ fun Orders(
         }
     }
 
-    if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
+    if (lastItemIsVisible) invModel.onListEnd(FabPosition.Center) else invModel.onListEnd(FabPosition.End)
 
     LazyColumn(
         modifier = modifier,
@@ -145,20 +128,11 @@ fun Orders(
             Log.d(TAG, "OrdersLog: ${order.order.orderNumber}")
             OrderCard(
                 order = order,
-                onClickDetails = {
-                    onClickDetailsLambda(it)
-                },
-                modifier = modifier,
-                cardOffset = CARD_OFFSET.dp(),
-                onClickActions = {
-                    onClickActionsLambda(it)
-                },
-                onClickDelete = {
-                    onClickDeleteLambda(it)
-                },
-                onClickEdit = {
-                    onClickEditLambda(it)
-                }
+                onClickDetails = { onClickDetailsLambda(it) },
+                modifier = modifier.padding(CARDS_PADDING),
+                onClickActions = { onClickActionsLambda(it) },
+                onClickDelete = { onClickDeleteLambda(it) },
+                onClickEdit = { onClickEditLambda(it) }
             )
         }
     }
@@ -170,7 +144,6 @@ fun OrderCard(
     modifier: Modifier = Modifier,
     order: DomainOrderComplete = DomainOrderComplete(),
     onClickDetails: (Int) -> Unit,
-    cardOffset: Float,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
@@ -187,70 +160,48 @@ fun OrderCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (order.isExpanded) cardOffset else 0f },
+        targetValueByState = { if (order.isExpanded) CARD_OFFSET.dp() else 0f },
     )
+    val containerColor = when (order.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
 
-    val cardBgColor =
-        when (order.isExpanded) {
-            true -> Accent200
-            false -> {
-                when (order.detailsVisibility) {
-                    true -> _level_1_record_color_details
-                    else -> _level_1_record_color
-                }
-            }
+    val borderColor = when (order.detailsVisibility) {
+        true -> MaterialTheme.colorScheme.outline
+        false -> when (order.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.surfaceVariant
         }
-
+    }
 
     Box(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickDelete(order.order.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        tint = PrimaryVariant900,
-                        contentDescription = "delete action",
-                    )
-                }
+                onClick = { onClickDelete(order.order.id) },
+                content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
 
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                onClick = {
-                    onClickEdit(order.order.id)
-                },
-                content = {
-                    Icon(
-                        imageVector = Icons.Filled.Edit,
-                        tint = PrimaryVariant900,
-                        contentDescription = "edit action",
-                    )
-                },
+                onClick = { onClickEdit(order.order.id) },
+                content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }
 
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = cardBgColor,
-            ),
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(Unit) {
+                .pointerInput(order.order.id) {
                     detectTapGestures(
                         onDoubleTap = { onClickActions(order.order.id) }
                     )
-                },
-            elevation = CardDefaults.cardElevation(
-                when (order.isExpanded) {
-                    true -> 40.dp
-                    false -> 0.dp
                 }
-            ),
         ) {
             Order(
                 modifier = modifier,
@@ -330,9 +281,7 @@ fun Order(
                 ) {
                     Text(
                         text = "Num.:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
@@ -412,6 +361,7 @@ fun Order(
                                     !conformity.isNaN() -> {
                                         (round(conformity * 10) / 10).toString() + "%"
                                     }
+
                                     else -> {
                                         ""
                                     }
@@ -435,62 +385,8 @@ fun Order(
                         }
                     }
                 }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Type/reason:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.22f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript),
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.78f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Customer:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.22f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = customerDepAbbr,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.78f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
+                TopLevelSingleRecordHeader("Type/reason:", StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript))
+                TopLevelSingleRecordHeader("Customer:", customerDepAbbr)
             }
             IconButton(
                 onClick = { onClickDetails(orderId) },
@@ -533,94 +429,10 @@ fun OrderDetails(
 ) {
 
     if (detailsVisibility) {
-
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-
-        Row(
-            modifier = modifier.padding(start = 8.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Initiated by:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.35f)
-            )
-            Text(
-                text = placerFullName,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-        }
-        Row(
-            modifier = modifier.padding(start = 8.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Initiation date:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.35f)
-            )
-            Text(
-                text = getStringDate(createdDate)?: NoString.str,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-        }
-        Row(
-            modifier = modifier.padding(start = 8.dp),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Completion date:",
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.35f)
-            )
-            Text(
-                text = getStringDate(completedDate)?: NoString.str,
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 0.65f)
-                    .padding(start = 3.dp)
-            )
-        }
-
-        SubOrdersFlowColumn(
-            modifier = Modifier,
-            parentId = orderId
-        )
-    }
-}
-
-@Preview(name = "Light Mode Order", showBackground = true, widthDp = 409)
-@Composable
-fun MyOrderPreview() {
-    QMAppTheme {
-//        Order(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(vertical = 1.5.dp)
-//        )
+        TopLevelSingleRecordDetails("Initiated by:", placerFullName, modifier)
+        TopLevelSingleRecordDetails("Initiation date:", getStringDate(createdDate) ?: NoString.str, modifier)
+        TopLevelSingleRecordDetails("Completion date:", getStringDate(completedDate) ?: NoString.str, modifier)
+        SubOrdersFlowColumn(modifier = Modifier, parentId = orderId)
     }
 }

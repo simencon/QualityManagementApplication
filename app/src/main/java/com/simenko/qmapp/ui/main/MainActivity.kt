@@ -5,104 +5,99 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.InputType
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.widget.SearchView
-import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.lifecycleScope
-import androidx.work.*
-import com.google.android.material.navigation.NavigationView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.R
-import com.simenko.qmapp.databinding.ActivityMainBinding
+import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.OrderTypeProcessOnly
+import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.SecondTabId
+import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.ui.main.settings.SettingsFragment
+import com.simenko.qmapp.domain.ThirdTabId
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.manufacturing.ManufacturingFragment
-import com.simenko.qmapp.ui.main.investigations.InvestigationsFragment
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.main.manufacturing.ManufacturingViewModel
-import com.simenko.qmapp.ui.main.team.TeamFragment
 import com.simenko.qmapp.ui.main.team.TeamViewModel
-import com.simenko.qmapp.ui.neworder.*
-import com.simenko.qmapp.ui.user.Screen
-import com.simenko.qmapp.ui.user.createLoginActivityIntent
-import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UserInitialState
-import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
-import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.repository.UserRegisteredState
+import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
+import com.simenko.qmapp.ui.main.settings.SettingsViewModel
+import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
+import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
+import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
-import com.simenko.qmapp.works.WorkerKeys.EXCLUDE_MILLIS
-import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
+import com.simenko.qmapp.works.WorkerKeys
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
 
-internal const val MAIN_KEY_ARG_ORDER_ID = "MAIN_KEY_ARG_ORDER_ID"
-internal const val MAIN_KEY_ARG_SUB_ORDER_ID = "MAIN_KEY_ARG_SUB_ORDER_ID"
-internal const val REQUEST_PUSH_NOTIFICATIONS_PERMISSION = 1
+internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
 
-data class CreatedRecord(
-    val orderId: Int = NoRecord.num,
-    val subOrderId: Int = NoRecord.num
-)
-
-fun setMainActivityResult(
-    activity: NewItemActivity,
-    actionType: ActionType,
-    orderId: Int = NoRecord.num,
-    subOrderId: Int = NoRecord.num
-) {
-    activity.setResult(actionType.ordinal, createMainActivityIntent(activity, orderId, subOrderId))
-}
-
-fun createMainActivityIntent(
-    context: Context,
-    orderId: Int,
-    subOrderId: Int
-): Intent {
+fun createMainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
     val intent = Intent(context, MainActivity::class.java)
-    intent.putExtra(MAIN_KEY_ARG_ORDER_ID, orderId)
-    intent.putExtra(MAIN_KEY_ARG_SUB_ORDER_ID, subOrderId)
+    intent.putExtra(INITIAL_ROUTE, route)
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
     return intent
 }
 
-private const val TAG = "MainActivity"
-
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
-    val appModel: ManufacturingViewModel by viewModels()
-    val teamModel: TeamViewModel by viewModels()
-    val investigationsModel: InvestigationsViewModel by viewModels()
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var drawer: DrawerLayout
-    private lateinit var navigationView: NavigationView
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var workManager: WorkManager
@@ -110,93 +105,321 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
     private lateinit var analytics: FirebaseAnalytics
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_PUSH_NOTIFICATIONS_PERMISSION -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
+    @Inject
+    lateinit var userRepository: UserRepository
+    val viewModel: MainActivityViewModel by viewModels()
 
+    private lateinit var settingsModel: SettingsViewModel
+    private lateinit var teamModel: TeamViewModel
+    private lateinit var invModel: InvestigationsViewModel
+    private lateinit var newOrderModel: NewItemViewModel
+    private lateinit var employeeModel: EmployeeViewModel
+    private lateinit var userModel: UserViewModel
+
+    private lateinit var navController: NavHostController
+
+    private lateinit var initialRoute: String
+
+    @OptIn(ExperimentalMaterialApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        lifecycleScope.launch(Dispatchers.Main) {
+        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: MenuItem.getStartingDrawerMenuItem().id
 
-            userRepository.getActualUserState().let { state ->
-                when (state) {
-                    is UserInitialState -> {
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.Registration.route))
-                        finish()
-                    }
+        if (
+            ActivityCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
-                    is UserNeedToVerifyEmailState -> {
-                        Log.d(TAG, "onCreate: ${state.msg}")
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
-                        finish()
-                    }
+        analytics = Firebase.analytics
 
-                    is UserAuthoritiesNotVerifiedState -> {
-                        Log.d(TAG, "onCreate: ${state.msg}")
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.WaitingForValidation.withArgs(state.msg)))
-                        finish()
-                    }
+        setContent {
+            QMAppTheme {
+                navController = rememberNavController()
+                val backStackEntry = navController.currentBackStackEntryAsState()
 
-                    is UserLoggedOutState -> {
-                        startActivity(createLoginActivityIntent(this@MainActivity, Screen.LogIn.route))
-                        finish()
-                    }
+                val scope = rememberCoroutineScope()
+                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
+                BackHandler(enabled = drawerState.isOpen, onBack = { scope.launch { drawerState.close() } })
 
-                    is UserLoggedInState -> {
-                        if (ActivityCompat.checkSelfPermission(
-                                this@MainActivity,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), REQUEST_PUSH_NOTIFICATIONS_PERMISSION)
-                        }
+                val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
-                        analytics = Firebase.analytics
+                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
+                val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
+                val fabPosition by viewModel.fabPosition.collectAsStateWithLifecycle()
 
-                        appModel.currentTitle.observe(this@MainActivity) {}
+                val searchBarState = rememberSaveable { mutableStateOf(false) }
+                BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
 
-                        binding = ActivityMainBinding.inflate(layoutInflater)
-                        setContentView(binding.root)
-
-                        val toolbar: Toolbar = binding.toolBar
-                        setSupportActionBar(toolbar)
-
-                        this@MainActivity.drawer = binding.drawerLayout
-
-                        val toggle = ActionBarDrawerToggle(
-                            this@MainActivity, drawer, toolbar,
-                            R.string.navigation_drawer_open, R.string.navigation_drawer_close
-                        )
-                        drawer.addDrawerListener(toggle)
-
-                        toggle.syncState()
-
-                        navigationView = binding.navView
-                        navigationView.setNavigationItemSelectedListener(this@MainActivity)
-
-                        prepareOneTimeWorks()
-
-                        if (savedInstanceState == null && intent.extras == null) {
-                            this@MainActivity.onNavigationItemSelected(navigationView.menu.getItem(0).subMenu!!.getItem(1))
-                        } else if (intent.extras != null) {
-                            navigateToProperRecord(bundle = intent.extras)
-                        }
-                    }
-
-                    is UserErrorState, is UserRegisteredState -> {}
+                BackHandler(enabled = !drawerState.isOpen && !searchBarState.value) {
+                    this@MainActivity.moveTaskToBack(true)
                 }
+
+                val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
+
+                val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
+                var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
+                val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
+                    { tabId, tabIndex ->
+                        when (backStackEntry.value?.destination?.parent?.route) {
+                            null -> {
+                                when (backStackEntry.value?.destination?.route) {
+                                    Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(status = tabId)
+                                    Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(status = tabId)
+                                }
+                            }
+
+                            Screen.Main.Team.route -> {
+                                if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.routeWithArgKeys())
+                                        navController.popBackStack()
+                                } else if (tabIndex == TeamTabs.USERS.ordinal) {
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys())
+                                        navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                                    teamModel.setUsersFilter(newUsers = false)
+                                } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
+                                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys())
+                                        navController.navigate(Screen.Main.Team.Requests.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                                    teamModel.setUsersFilter(newUsers = true)
+                                }
+                            }
+                        }
+                        selectedTabIndex = tabIndex
+                    }
+                }
+
+                fun onDrawerItemClick(id: String) {
+                    scope.launch { drawerState.close() }
+                    if (id != selectedDrawerMenuItemId) {
+                        viewModel.setDrawerMenuItemId(id)
+                        when (id) {
+                            Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
+                            Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
+                            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                        }
+                        selectedTabIndex = ZeroValue.num
+                        viewModel.resetTopBadgesCount()
+                    }
+                }
+
+                fun onActionsMenuItemClick(filterOnly: String, action: String) {
+                    selectedContextMenuItemId.value = filterOnly
+                    if (filterOnly != action) {
+                        when (action) {
+                            MenuItem.Actions.UPLOAD_MD.action -> viewModel.refreshMasterDataFromRepository()
+                            MenuItem.Actions.SYNC_INV.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                            MenuItem.Actions.CUSTOM_FILTER.action -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
+                fun onSearchBarSearch(searchValues: String) {
+                    when (backStackEntry.value?.destination?.route) {
+                        Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+                        Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+                        else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                    }
+                }
+
+                LaunchedEffect(backStackEntry.value?.destination?.route) {
+                    when(backStackEntry.value?.destination?.route) {
+                        Screen.Main.Team.Employees.routeWithArgKeys() -> selectedTabIndex = TeamTabs.EMPLOYEES.ordinal
+                        Screen.Main.Team.Users.routeWithArgKeys() -> selectedTabIndex = TeamTabs.USERS.ordinal
+                        Screen.Main.Team.Requests.routeWithArgKeys() -> selectedTabIndex = TeamTabs.REQUESTS.ordinal
+                    }
+                }
+
+                ModalNavigationDrawer(
+                    gesturesEnabled = addEditMode == AddEditMode.NO_MODE.ordinal,
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            DrawerHeader(userInfo = viewModel.userInfo)
+                            DrawerBody(
+                                selectedItemId = selectedDrawerMenuItemId,
+                                onDrawerItemClick = { onDrawerItemClick(it) }
+                            )
+                        }
+                    },
+                    content = {
+                        Scaffold(
+                            topBar = {
+                                AppBar(
+                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId),
+                                    destination = backStackEntry.value?.destination,
+
+                                    onDrawerMenuClick = { scope.launch { drawerState.open() } },
+                                    drawerState = drawerState,
+
+                                    selectedActionsMenuItemId = selectedContextMenuItemId,
+                                    onActionsMenuItemClick = { filterOnly, action -> onActionsMenuItemClick(filterOnly, action) },
+
+                                    searchBarState = searchBarState,
+                                    onSearchBarSearch = { onSearchBarSearch(it) },
+
+                                    addEditMode = addEditMode,
+                                    onBackFromAddEditModeClick = {
+                                        when (addEditMode) {
+                                            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(
+                                                Screen.Main.Settings.UserDetails.route,
+                                                inclusive = false
+                                            )
+
+                                            else -> navController.popBackStack()
+                                        }
+                                        viewModel.setAddEditMode(AddEditMode.NO_MODE)
+                                    }
+                                )
+                            },
+                            floatingActionButton = {
+                                if (
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Settings.UserDetails.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal)
+                                    &&
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
+                                    &&
+                                    (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal)
+                                )
+                                    FloatingActionButton(
+                                        containerColor = MaterialTheme.colorScheme.tertiary,
+                                        onClick = {
+                                            if (addEditMode == AddEditMode.NO_MODE.ordinal)
+                                                when (backStackEntry.value?.destination?.route) {
+                                                    Screen.Main.Team.Employees.routeWithArgKeys() -> {
+                                                        navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
+                                                        viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
+                                                    }
+
+                                                    Screen.Main.Inv.routeWithArgKeys() -> {
+                                                        navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
+                                                        viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
+                                                    }
+
+                                                    Screen.Main.ProcessControl.routeWithArgKeys() -> {
+                                                        navController.navigate(
+                                                            Screen.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
+                                                        )
+                                                        viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
+                                                    }
+
+                                                    else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                                }
+                                            else {
+                                                when (AddEditMode.values()[addEditMode]) {
+                                                    AddEditMode.ADD_ORDER -> newOrderModel.makeOrder(newRecord = true)
+                                                    AddEditMode.EDIT_ORDER -> newOrderModel.makeOrder(newRecord = false)
+                                                    AddEditMode.ADD_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, true)
+                                                    AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, false)
+                                                    AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
+                                                    AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
+                                                    AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
+                                                    AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
+                                                    AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
+                                                    AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
+                                                    AddEditMode.EDIT_USER -> userModel.validateInput()
+                                                    else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                                }
+                                            }
+                                        },
+                                        content = {
+                                            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Add,
+                                                    contentDescription = "Add button",
+                                                    tint = MaterialTheme.colorScheme.onTertiary
+                                                )
+                                            } else {
+                                                Icon(
+                                                    imageVector = Icons.Default.Save,
+                                                    contentDescription = "Save button",
+                                                    tint = MaterialTheme.colorScheme.onTertiary
+                                                )
+                                            }
+                                        }
+                                    )
+                            },
+                            floatingActionButtonPosition = fabPosition
+                        ) {
+                            println("Scaffold has been rebuild")
+                            val pullRefreshState = rememberPullRefreshState(
+                                refreshing = observerLoadingProcess,
+                                onRefresh = {
+                                    when (backStackEntry.value?.destination?.route) {
+                                        Screen.Main.Team.Employees.routeWithArgKeys() -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.Users.routeWithArgKeys() -> teamModel.updateEmployeesData()
+                                        Screen.Main.Team.Requests.routeWithArgKeys() -> teamModel.updateEmployeesData()
+                                        Screen.Main.Inv.routeWithArgKeys() -> invModel.uploadNewInvestigations()
+                                        Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.uploadNewInvestigations()
+                                        Screen.Main.Settings.UserDetails.route -> settingsModel.updateUserData()
+                                        Screen.Main.Settings.EditUserDetails.routeWithArgKeys() -> settingsModel.updateUserData()
+                                        else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                                    }
+                                }
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(all = 0.dp)
+                            ) {
+
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(it)
+                                ) {
+                                    TopTabs(
+                                        when (backStackEntry.value?.destination?.route) {
+                                            Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> ProgressTabs.toListOfTriples()
+                                            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys(), Screen.Main.Team.Requests.routeWithArgKeys() -> TeamTabs.toListOfTriples()
+                                            else -> emptyList()
+                                        },
+                                        selectedTabIndex,
+                                        topBadgeCounts,
+                                        onTabSelectedLambda
+                                    )
+                                    Navigation(
+                                        Modifier.pullRefresh(pullRefreshState),
+                                        initialRoute,
+                                        navController
+                                    )
+                                }
+                                PullRefreshIndicator(
+                                    refreshing = observerLoadingProcess,
+                                    state = pullRefreshState,
+                                    modifier = Modifier
+                                        .padding(it)
+                                        .align(Alignment.TopCenter),
+                                    backgroundColor = MaterialTheme.colorScheme.onSecondary,
+                                    contentColor = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            if (observerIsNetworkError != null) {
+                                Toast.makeText(this, observerIsNetworkError, Toast.LENGTH_SHORT).show()
+                                viewModel.onNetworkErrorShown()
+                            }
+                        }
+                    }
+                )
             }
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "Permission Granted!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -211,8 +434,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
             .setInputData(
                 Data.Builder()
-                    .putLong(LATEST_MILLIS, SyncPeriods.LAST_HOUR.latestMillis)
-                    .putLong(EXCLUDE_MILLIS, SyncPeriods.LAST_HOUR.excludeMillis)
+                    .putLong(WorkerKeys.LATEST_MILLIS, SyncPeriods.LAST_HOUR.latestMillis)
+                    .putLong(WorkerKeys.EXCLUDE_MILLIS, SyncPeriods.LAST_HOUR.excludeMillis)
                     .build()
             )
             .setInitialDelay(Duration.ofSeconds(5))
@@ -230,216 +453,43 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .build()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, intent)
-        navigateToProperRecord(requestCode = requestCode, bundle = intent?.extras)
+    fun initSettingsModel(model: SettingsViewModel) {
+        this.settingsModel = model
+        this.settingsModel.initMainActivityViewModel(this.viewModel)
     }
 
-    private fun navigateToProperRecord(
-        requestCode: Int = ActionType.DEFAULT.ordinal,
-        bundle: Bundle?
-    ) {
-        investigationsModel.setCreatedRecord(
-            bundle?.getInt(MAIN_KEY_ARG_ORDER_ID) ?: NoRecord.num,
-            bundle?.getInt(MAIN_KEY_ARG_SUB_ORDER_ID) ?: NoRecord.num
-        )
-
-        when (requestCode) {
-            ActionType.ADD_SUB_ORDER_STAND_ALONE.ordinal, ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal -> {
-                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(1))
-            }
-
-            ActionType.ADD_ORDER.ordinal, ActionType.EDIT_ORDER.ordinal, ActionType.ADD_SUB_ORDER.ordinal, ActionType.EDIT_SUB_ORDER.ordinal -> {
-                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
-            }
-
-            ActionType.DEFAULT.ordinal -> {
-                this.onNavigationItemSelected(navigationView.menu.getItem(1).subMenu!!.getItem(0))
-            }
-        }
+    fun initInvModel(model: InvestigationsViewModel) {
+        this.invModel = model
+        this.invModel.initMainActivityViewModel(this.viewModel)
+        this.invModel.initNavController(this.navController)
     }
 
-    override fun onBackPressed() {
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
+    fun initTeamModel(model: TeamViewModel) {
+        this.teamModel = model
+        this.teamModel.initMainActivityViewModel(this.viewModel)
+        this.teamModel.initNavController(this.navController)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu____filter_top, menu)
-        val searchItem = menu?.findItem(R.id.search)
-
-        val searchView = searchItem?.actionView as SearchView
-        searchView.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                // Handle search query submission
-                investigationsModel.uploadNewInvestigations()
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                // Handle search query text change
-                if (investigationsModel.showSubOrderWithOrderType.value == OrderTypeProcessOnly)
-                    investigationsModel.setCurrentSubOrdersFilter(
-                        number = SelectedString(
-                            newText ?: NoString.str
-                        )
-                    )
-                else
-                    investigationsModel.setCurrentOrdersFilter(
-                        number = SelectedString(
-                            newText ?: NoString.str
-                        )
-                    )
-                Log.d(TAG, "onQueryTextChange: $newText")
-                return true
-            }
-
-        })
-        return true
+    fun initNewOrderModel(model: NewItemViewModel) {
+        this.newOrderModel = model
+        this.newOrderModel.initMainActivityViewModel(this.viewModel)
+        this.newOrderModel.initNavController(this.navController)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        try {
-            when (item.itemId) {
-                R.id.search -> {
-//                    is implemented within on search listener
-                }
-
-                R.id.upload_master_data -> {
-                    investigationsModel.refreshMasterDataFromRepository()
-                }
-
-                R.id.sync_investigations -> {
-                    workManager.beginUniqueWork(
-                        "testWork",
-                        ExistingWorkPolicy.KEEP,
-                        syncLastHourOneTimeWork
-                    )
-                        .then(syncLastDayOneTimeWork)
-                        .enqueue()
-                }
-
-                R.id.ppap -> {
-                    TODO("Will filter accordingly")
-                }
-
-                R.id.incoming_inspection -> {
-                    TODO("Will filter accordingly")
-                }
-
-                R.id.process_control -> {
-                    TODO("Will filter accordingly")
-                }
-
-                R.id.product_audit -> {
-                    TODO("Will filter accordingly")
-                }
-
-                R.id.custom_filter -> {
-                    TODO("Will filter accordingly")
-                }
-
-                else -> {
-                }
-            }
-        } catch (e: Error) {
-            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-        }
-
-        return true
+    fun initEmployeeModel(employeeModel: EmployeeViewModel) {
+        this.employeeModel = employeeModel
+        this.employeeModel.initMainActivityViewModel(this.viewModel)
+        this.employeeModel.initNavController(this.navController)
     }
 
-    var mPreviousMenuItem: MenuItem? = null
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
-        val bundle = Bundle()
-        bundle.putString("key1", "Roman")
-        bundle.putString("key2", "Semenyshyn")
-
-        item.isCheckable = true
-        item.isChecked = true
-        if (mPreviousMenuItem != null && mPreviousMenuItem != item) {
-            mPreviousMenuItem?.isChecked = false
-        }
-        mPreviousMenuItem = item
-
-        try {
-            val selectedFragment =
-                when (item.itemId) {
-                    R.id.nav_company_profile -> {
-                        analytics.logEvent("nav_company_profile_click", bundle)
-                        TODO("Will be fragment to display company profile")
-                    }
-
-                    R.id.nav_team -> {
-                        analytics.logEvent("nav_team_click", bundle)
-                        TeamFragment()
-                    }
-
-                    R.id.nav_structure -> {
-                        analytics.logEvent("nav_structure_click", bundle)
-                        ManufacturingFragment()
-                    }
-
-                    R.id.nav_products -> {
-                        analytics.logEvent("nav_products_click", bundle)
-                        TODO("Will be pager fragment for products")
-                    }
-
-                    R.id.nav_inv_orders_general -> {
-                        analytics.logEvent("nav_inv_orders_general_click", bundle)
-                        investigationsModel.setCurrentSubOrdersFilter(type = NoRecord)
-                        InvestigationsFragment()
-                    }
-
-                    R.id.nav_inv_orders_process_control -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
-                        investigationsModel.setCurrentSubOrdersFilter(type = OrderTypeProcessOnly)
-                        InvestigationsFragment()
-                    }
-
-                    R.id.nav_scrap_level -> {
-                        analytics.logEvent("nav_scrap_level_click", bundle)
-                        TODO("Will be monitoring page")
-                    }
-
-                    R.id.nav_settings -> {
-                        analytics.logEvent("nav_settings_click", bundle)
-                        SettingsFragment()
-                    }
-
-                    else -> {
-                        analytics.logEvent("nav_inv_orders_process_control_click", bundle)
-                        TODO("Will be monitoring page")
-                    }
-                }
-            appModel.currentTitle.value = item.title.toString()
-            this.title = item.title.toString()
-
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, selectedFragment).commit()
-        } catch (e: Error) {
-            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
-        }
-
-        drawer.closeDrawer(GravityCompat.START)
-        return true
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        this.title = appModel.currentTitle.value
-    }
-
-    override fun onDestroy() {
-        investigationsModel.hideStatusUpdateDialog()
-        super.onDestroy()
+    fun initUserModel(model: UserViewModel) {
+        this.userModel = model
+        this.userModel.initMainActivityViewModel(this.viewModel)
+        this.userModel.initNavController(this.navController)
     }
 }
 
+data class CreatedRecord(
+    val orderId: Int = NoRecord.num,
+    val subOrderId: Int = NoRecord.num
+)

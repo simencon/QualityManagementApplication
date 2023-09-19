@@ -36,11 +36,8 @@ abstract class ResultDao : DaoBaseModel<DatabaseResult>, DaoTimeDependentModel<D
 
     @Transaction
     @Query(
-        "select r.* from `13_sub_orders` so " +
-                "join `13_7_sub_order_tasks` t on so.id = t.subOrderId " +
-                "join `14_samples` s on so.id = s.subOrderId " +
-                "join `result_complete` r on t.id = r.taskId and s.id = r.sampleId " +
-                "where so.ID = :parentId;"
+        "select r.* from `result_complete` r " +
+                "where r.taskId = :taskId and r.sampleId = :sampleId;"
     )
-    abstract fun getRecordsByParentIdForUI(parentId: Int): Flow<List<DatabaseResultComplete>>
+    abstract fun getRecordsByParentIdForUI(taskId: Int, sampleId: Int): Flow<List<DatabaseResultComplete>>
 }

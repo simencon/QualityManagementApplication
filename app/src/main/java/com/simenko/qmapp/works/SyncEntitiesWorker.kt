@@ -11,9 +11,11 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
@@ -26,8 +28,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Objects
 import javax.inject.Named
-
-private const val TAG = "SyncEntitiesWorker"
 
 @HiltWorker
 class SyncEntitiesWorker @AssistedInject constructor(
@@ -73,11 +73,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @SuppressLint("MissingPermission")
     fun makeNotification(notificationData: NotificationData) {
-        val intent = createMainActivityIntent(
-            context,
-            notificationData.orderId,
-            notificationData.subOrderId
-        )
+        val intent = createMainActivityIntent(context, Screen.Main.Inv.withArgs(FalseStr.str, notificationData.orderId.toString(), notificationData.subOrderId.toString()))
 
         var title: String
         var msg: String
@@ -95,10 +91,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
             )
         }
 
-        val builder = NotificationCompat.Builder(
-            context,
-            SYNC_NOTIFICATION_CHANNEL_ID
-        )
+        val builder = NotificationCompat.Builder(context, SYNC_NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_investigations)
             .setContentTitle(title)
             .setContentText(msg)

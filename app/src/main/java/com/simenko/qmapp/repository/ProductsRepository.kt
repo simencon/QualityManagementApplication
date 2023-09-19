@@ -247,7 +247,7 @@ class ProductsRepository @Inject constructor(
         }
     }
 
-    val characteristics: LiveData<List<DomainCharacteristic>> =
+    val characteristics: Flow<List<DomainCharacteristic>> =
         productsDao.getCharacteristics().map { list ->
             list.map { it.toDomainModel() }
         }
@@ -352,7 +352,7 @@ class ProductsRepository @Inject constructor(
         productsDao.getComponentInStagesToLines().map { list ->
             list.map { it.toDomainModel() }
         }
-    val itemVersionsComplete: LiveData<List<DomainItemVersionComplete>> =
+    val itemVersionsComplete: Flow<List<DomainItemVersionComplete>> =
         productsDao.getItemVersionsComplete().map { list ->
             list.map { it.toDomainModel() }
         }

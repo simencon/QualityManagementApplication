@@ -1,5 +1,7 @@
 package com.simenko.qmapp.storage
 
+import androidx.annotation.DrawableRes
+import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import java.time.Instant
@@ -12,6 +14,7 @@ data class Principle(
     var jobRole: String,
     var email: String,
     var phoneNumber: Long,
+    var phoneNumberStr: String = "",
     var restApiUrl: String,
     var password: String,
     var isEmailVerified: Boolean,
@@ -19,7 +22,8 @@ data class Principle(
     var fbToken: String,
     var epochFbDiff: Long,
     var fbTokenExp: Long,
-    val userStorage: Storage? = null
+    val userStorage: Storage? = null,
+    @DrawableRes val logo: Int = R.drawable.ic_launcher_round
 ) {
     companion object {
         private const val USER_FULL_NAME = "fullName"
@@ -27,7 +31,7 @@ data class Principle(
         private const val USER_DEPARTMENT = "department"
         private const val USER_SUB_DEPARTMENT = "subDepartment"
         private const val USER_JOB_ROLE = "jobRole"
-        private const val USER_EMAIL = "email"
+        const val USER_EMAIL = "email"
         private const val USER_PHONE_NUMBER = "phoneNumber"
         private const val REST_API_URL = "restApiUrl"
         private const val PASSWORD_SUFFIX = "password_suffix"

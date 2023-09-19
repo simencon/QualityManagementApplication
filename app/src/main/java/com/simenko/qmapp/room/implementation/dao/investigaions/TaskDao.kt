@@ -34,11 +34,8 @@ abstract class TaskDao : DaoBaseModel<DatabaseSubOrderTask>, DaoTimeDependentMod
 
     @Transaction
     @Query(
-        "select t.* from `12_orders` o " +
-                "join `13_sub_orders` so on o.id = so.orderId " +
-                "join `sub_order_task_complete` t on so.id = t.subOrderId " +
-                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
-                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) ;"
+        "select t.* from `sub_order_task_complete` t " +
+                "where t.subOrderId = :subOrderId;"
     )
-    abstract fun getRecordsByTimeRangeForUI(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderTaskComplete>>
+    abstract fun getRecordsByParentIdForUI(subOrderId: Int): Flow<List<DatabaseSubOrderTaskComplete>>
 }

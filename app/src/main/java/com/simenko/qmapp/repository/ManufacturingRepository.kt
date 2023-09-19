@@ -1,220 +1,140 @@
 package com.simenko.qmapp.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
-import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.other.Resource
+import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
-import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.room.implementation.dao.ManufacturingDao
+import com.simenko.qmapp.room.implementation.QualityManagementDB
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.format.DateTimeFormatter
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private const val TAG = "ManufacturingRepository"
-
-@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ManufacturingRepository @Inject constructor(
-    private val manufacturingDao: ManufacturingDao,
-    private val manufacturingService: ManufacturingService,
-    private val userRepository: UserRepository
+    private val database: QualityManagementDB,
+    private val service: ManufacturingService,
+    private val crudeOperations: CrudeOperations
 ) {
     /**
      * Update Manufacturing from the network
      */
-    suspend fun refreshPositionLevels() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getPositionLevels()
-            manufacturingDao.insertPositionLevelsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshPositionLevels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
+    suspend fun syncTeamMembers() = crudeOperations.syncRecordsAll(
+        database.employeeDao
+    ) { service.getEmployees() }
+
+    fun CoroutineScope.deleteTeamMember(orderId: Int): ReceiveChannel<Event<Resource<DomainEmployee>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { service.deleteEmployee(orderId) }
+        ) { r -> database.employeeDao.deleteRecord(r) }
+    }
+    fun CoroutineScope.insertTeamMember(record: DomainEmployee) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { service.insertEmployee(record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.employeeDao.insertRecord(r) }
+    }
+    fun CoroutineScope.updateTeamMember(record: DomainEmployee) = crudeOperations.run {
+        responseHandlerForSingleRecord(
+            taskExecutor = { service.editEmployee(record.id, record.toDatabaseModel().toNetworkModel()) }
+        ) { r -> database.employeeDao.updateRecord(r) }
     }
 
-    suspend fun refreshTeamMembers() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getTeamMembers()
-            manufacturingDao.insertTeamMembersAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshTeamMembers: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
+    fun getEmployeeById(id: Int) = database.employeeDao.getRecordById(id.toString()).let {
+        it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
-    suspend fun insertRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
-        coroutineScope.produce {
-            userRepository.refreshTokenIfNecessary()
-            val response = manufacturingService.insertTeamMember(
-                record.toDatabaseModel().toNetworkModel()
-            )
+    suspend fun syncCompanies() = crudeOperations.syncRecordsAll(
+        database.companyDao
+    ) { service.getCompanies() }
 
-            if (response.isSuccessful) {
-                response.body()?.let { manufacturingDao.insertTeamMember(it.toDatabaseModel()) }
-                response.body()?.toDatabaseModel()?.let { send(it.toDomainModel()) }
-            } else {
-                Log.d(TAG, "insertRecord: ${response.errorBody()}")
-            }
-        }
+    suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(
+        database.jobRoleDao
+    ) { service.getJobRoles() }
 
+    suspend fun syncDepartments() = crudeOperations.syncRecordsAll(
+        database.departmentDao
+    ) { service.getDepartments() }
 
-    suspend fun deleteRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
-        coroutineScope.produce {
-            userRepository.refreshTokenIfNecessary()
-            val response = manufacturingService.deleteTeamMember(record.id)
-            if (response.isSuccessful) {
-                manufacturingDao.deleteTeamMember(record.toDatabaseModel())
-            }
-            send(response)
-        }
+    suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(
+        database.subDepartmentDao
+    ) { service.getSubDepartments() }
 
-    fun updateRecord(coroutineScope: CoroutineScope, record: DomainTeamMember) =
-        coroutineScope.produce {
-            userRepository.refreshTokenIfNecessary()
-            val response = manufacturingService
-                .updateTeamMember(record.id, record.toDatabaseModel().toNetworkModel()).body()
-                ?.toDatabaseModel()
+    suspend fun syncChannels() = crudeOperations.syncRecordsAll(
+        database.channelDao
+    ) { service.getManufacturingChannels() }
 
-            response?.let { manufacturingDao.updateTeamMember(it) }
-            response?.let { send(it.toDomainModel()) }
-        }
+    suspend fun syncLines() = crudeOperations.syncRecordsAll(
+        database.lineDao
+    ) { service.getManufacturingLines() }
 
-    suspend fun refreshCompanies() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getCompanies()
-            manufacturingDao.insertCompaniesAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshCompanies: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
+    suspend fun syncOperations() = crudeOperations.syncRecordsAll(
+        database.operationDao
+    ) { service.getManufacturingOperations() }
 
-    suspend fun refreshDepartments() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getDepartments()
-            manufacturingDao.insertDepartmentsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
-
-    suspend fun refreshSubDepartments() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getSubDepartments()
-            manufacturingDao.insertSubDepartmentsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshSubDepartments: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
-
-    suspend fun refreshManufacturingChannels() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getManufacturingChannels()
-            manufacturingDao.insertManufacturingChannelsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshManufacturingChannels: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
-
-    suspend fun refreshManufacturingLines() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getManufacturingLines()
-            manufacturingDao.insertManufacturingLinesAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshManufacturingLines: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
-
-    suspend fun refreshManufacturingOperations() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getManufacturingOperations()
-            manufacturingDao.insertManufacturingOperationsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshManufacturingOperations: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
-
-    suspend fun refreshOperationsFlows() {
-        withContext(Dispatchers.IO) {
-            userRepository.refreshTokenIfNecessary()
-            val list = manufacturingService.getOperationsFlows()
-            manufacturingDao.insertOperationsFlowsAll(
-                list.map { it.toDatabaseModel() }
-            )
-            Log.d(TAG, "refreshOperationsFlows: ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
-        }
-    }
+    suspend fun syncOperationsFlows() = crudeOperations.syncRecordsAll(
+        database.operationsFlowDao
+    ) { service.getOperationsFlows() }
 
     /**
      * Connecting with LiveData for ViewModel
      */
-    val teamMembers: LiveData<List<DomainTeamMember>> =
-        manufacturingDao.getTeamMembers().map { list ->
+    val employees: Flow<List<DomainEmployee>> =
+        database.employeeDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
-    fun teamCompleteList(): Flow<List<DomainTeamMemberComplete>> =
-        manufacturingDao.getTeamDetailedList().map { list ->
+    val employeesComplete: Flow<List<DomainEmployeeComplete>> =
+        database.employeeDao.getRecordsCompleteFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
-
-    val departments: LiveData<List<DomainDepartment>> =
-        manufacturingDao.getDepartments().map {list ->
+    val companies: Flow<List<DomainCompany>> =
+        database.companyDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
-    val subDepartments: LiveData<List<DomainSubDepartment>> =
-        manufacturingDao.getSubDepartments().map {list ->
+    val jobRoles: Flow<List<DomainJobRole>> =
+        database.jobRoleDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
-    val channels: LiveData<List<DomainManufacturingChannel>> =
-        manufacturingDao.getManufacturingChannels().map {list ->
+    val departments: Flow<List<DomainDepartment>> =
+        database.departmentDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
-    val lines: LiveData<List<DomainManufacturingLine>> =
-        manufacturingDao.getManufacturingLines().map {list ->
+    val subDepartments: Flow<List<DomainSubDepartment>> =
+        database.subDepartmentDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
-    val operations: LiveData<List<DomainManufacturingOperation>> =
-        manufacturingDao.getManufacturingOperations().map {list ->
+    val channels: Flow<List<DomainManufacturingChannel>> =
+        database.channelDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
-    val operationsFlows: LiveData<List<DomainOperationsFlow>> =
-        manufacturingDao.getOperationsFlows().map {list ->
+    val lines: Flow<List<DomainManufacturingLine>> =
+        database.lineDao.getRecordsFlowForUI().map {list ->
+            list.map { it.toDomainModel() }
+        }
+
+    val operations: Flow<List<DomainManufacturingOperation>> =
+        database.operationDao.getRecordsFlowForUI().map {list ->
+            list.map { it.toDomainModel() }
+        }
+
+    val operationsFlows: Flow<List<DomainOperationsFlow>> =
+        database.operationsFlowDao.getRecordsFlowForUI().map {list ->
             list.map { it.toDomainModel() }
         }
 
     val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> =
-        manufacturingDao.getDepartmentsDetailed().map { list ->
+        database.departmentDao.getRecordsDetailedFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 }

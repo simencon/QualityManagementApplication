@@ -36,6 +36,7 @@ data class DomainInputForOrder constructor(
     var charDesignation: String? = null,
     var charOrder: Int
 ) : DomainBaseModel<DatabaseInputForOrder>() {
+    fun getItemVersionPid(): String = itemPrefix + itemVersionId
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
@@ -100,7 +101,7 @@ data class DomainReason constructor(
 
 @Stable
 data class DomainOrder constructor(
-    var id: Int  = NoRecord.num,
+    var id: Int = NoRecord.num,
     var orderTypeId: Int = NoRecord.num,
     var reasonId: Int = NoRecord.num,
     var orderNumber: Int? = null,
@@ -151,9 +152,17 @@ data class DomainSubOrder constructor(
     var itemPreffix: String = NoString.str,
     var itemTypeId: Int = NoRecord.num,
     var itemVersionId: Int = NoRecord.num,
-    var samplesCount: Int? = null,
+    var samplesCount: Int? = ZeroValue.num,
     var remarkId: Int = 1 //means no remark
 ) : DomainBaseModel<DatabaseSubOrder>() {
+    fun getItemIds(): Triple<String, Int, Int> = Triple(itemPreffix[0].toString(), itemTypeId, itemVersionId)
+    fun setItemIds(id: Triple<String, Int, Int>) {
+        itemPreffix = id.first
+        itemTypeId = id.second
+        itemVersionId = id.third
+    }
+
+    fun getItemVersionPid(): String = itemPreffix[0].toString() + itemVersionId
     override fun getRecordId() = id
     override fun getParentId() = orderId
     override fun setIsSelected(value: Boolean) {}
@@ -298,7 +307,8 @@ data class DomainSubOrderShort constructor(
     var subOrder: DomainSubOrder,
     var order: DomainOrder,
     var samples: MutableList<DomainSample> = mutableListOf(),
-    var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf()
+    var subOrderTasks: MutableList<DomainSubOrderTask> = mutableListOf(),
+    var extraTrigger: Boolean = false
 ) : DomainBaseModel<Any?>() {
     override fun getRecordId() = subOrder.getRecordId()
     override fun getParentId() = subOrder.getParentId()
@@ -312,7 +322,7 @@ data class DomainOrderComplete constructor(
     var orderType: DomainOrdersType = DomainOrdersType(),
     var orderReason: DomainReason = DomainReason(),
     var customer: DomainDepartment = DomainDepartment(),
-    var orderPlacer: DomainTeamMember = DomainTeamMember(),
+    var orderPlacer: DomainEmployee = DomainEmployee(),
     var orderStatus: DomainOrdersStatus = DomainOrdersStatus(),
     var orderResult: DomainOrderResult = DomainOrderResult(),
     var detailsVisibility: Boolean = false,
@@ -338,8 +348,8 @@ data class DomainOrderComplete constructor(
 data class DomainSubOrderComplete constructor(
     var subOrder: DomainSubOrder = DomainSubOrder(),
     var orderShort: DomainOrderShort = DomainOrderShort(),
-    var orderedBy: DomainTeamMember = DomainTeamMember(),
-    var completedBy: DomainTeamMember? = null,
+    var orderedBy: DomainEmployee = DomainEmployee(),
+    var completedBy: DomainEmployee? = null,
     var status: DomainOrdersStatus = DomainOrdersStatus(),
     var department: DomainDepartment = DomainDepartment(),
     var subDepartment: DomainSubDepartment = DomainSubDepartment(),

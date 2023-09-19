@@ -9,8 +9,8 @@ import com.simenko.qmapp.other.Constants.INVESTIGATION_TYPES
 import com.simenko.qmapp.other.Constants.LATEST_ORDER
 import com.simenko.qmapp.other.Constants.ORDERS
 import com.simenko.qmapp.other.Constants.RESULTS
-import com.simenko.qmapp.other.Constants.RESULT_DECRIPTIONS
-import com.simenko.qmapp.other.Constants.RESULT_RECORDS
+import com.simenko.qmapp.other.Constants.RESULT_DECRYPTIONS
+import com.simenko.qmapp.other.Constants.RECORDS
 import com.simenko.qmapp.other.Constants.RESULT_TASK
 import com.simenko.qmapp.other.Constants.SAMPLES
 import com.simenko.qmapp.other.Constants.SUB_ORDERS
@@ -33,7 +33,7 @@ interface InvestigationsService {
     @GET(INVESTIGATION_STATUSES)
     suspend fun getOrdersStatuses(): Response<List<NetworkOrdersStatus>>
 
-    @GET(RESULT_DECRIPTIONS)
+    @GET(RESULT_DECRYPTIONS)
     suspend fun getResultsDecryptions(): Response<List<NetworkResultsDecryption>>
 
     @GET("$ORDERS/$LATEST_ORDER")
@@ -101,10 +101,16 @@ interface InvestigationsService {
     ): Response<List<NetworkSubOrderTask>>
 
     @POST(SUB_ORDER_TASKS)
-    suspend fun createSubOrderTask(@Body networkSubOrderTask: NetworkSubOrderTask): Response<NetworkSubOrderTask>
+    suspend fun createTask(@Body networkSubOrderTask: NetworkSubOrderTask): Response<NetworkSubOrderTask>
+
+    @POST("$SUB_ORDER_TASKS/$RECORDS")
+    suspend fun createTasks(@Body records: List<NetworkSubOrderTask>): Response<List<NetworkSubOrderTask>>
 
     @DELETE("$SUB_ORDER_TASKS/{id}")
     suspend fun deleteSubOrderTask(@Path("id") id: Int): Response<NetworkSubOrderTask>
+
+    @HTTP(method = "DELETE", path = "$SUB_ORDER_TASKS/$RECORDS", hasBody = true)
+    suspend fun deleteSubOrderTasks(@Body records: List<NetworkSubOrderTask>): Response<List<NetworkSubOrderTask>>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$SUB_ORDER_TASKS/{id}")
@@ -129,8 +135,14 @@ interface InvestigationsService {
     @POST(SAMPLES)
     suspend fun createSample(@Body networkSample: NetworkSample): Response<NetworkSample>
 
+    @POST("$SAMPLES/$RECORDS")
+    suspend fun createSamples(@Body records: List<NetworkSample>): Response<List<NetworkSample>>
+
     @DELETE("$SAMPLES/{id}")
     suspend fun deleteSample(@Path("id") id: Int): Response<NetworkSample>
+
+    @HTTP(method = "DELETE", path = "$SAMPLES/$RECORDS", hasBody = true)
+    suspend fun deleteSamples(@Body records: List<NetworkSample>): Response<List<NetworkSample>>
 
     @GET("$RESULTS/$HASH_CODE/{timeRange}")
     suspend fun getResultsHashCodeForDatePeriod(
@@ -142,7 +154,7 @@ interface InvestigationsService {
         @Path("timeRange") @PairParam timeRange: Pair<Long, Long>
     ): Response<List<NetworkResult>>
 
-    @POST("$RESULTS/$RESULT_RECORDS")
+    @POST("$RESULTS/$RECORDS")
     suspend fun createResults(@Body records: List<NetworkResult>): Response<List<NetworkResult>>
 
     @DELETE("$RESULTS/$RESULT_TASK/{taskId}")

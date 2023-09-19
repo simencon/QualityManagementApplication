@@ -1,22 +1,24 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.util.Log
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
+import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
-import com.simenko.qmapp.ui.neworder.ActionType
-import com.simenko.qmapp.ui.neworder.launchNewItemActivityForResult
+import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
@@ -24,48 +26,46 @@ private const val TAG = "SubOrdersStandAlone"
 
 @Composable
 fun SubOrdersStandAlone(
-    modifier: Modifier = Modifier,
-    onListEnd: (FabPosition) -> Unit
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val appModel = (context as MainActivity).investigationsModel
+    val invModel: InvestigationsViewModel = hiltViewModel()
 
-    val parentOrderTypeId by appModel.showSubOrderWithOrderType.observeAsState()
-    val createdRecord by appModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
-    val items by appModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
+    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
+    val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
+
+    LaunchedEffect(Unit) {
+        invModel.setCurrentSubOrdersFilter(type = ProcessControlOrderTypeId)
+    }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
+            invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it))
         }
     }
 
     val onClickActionsLambda = remember<(Int) -> Unit> {
         {
-            appModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
+            invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it))
         }
     }
 
     val onClickDeleteLambda = remember<(Int) -> Unit> {
         {
-            appModel.deleteSubOrder(it)
+            invModel.deleteSubOrder(it)
         }
     }
 
-    val onClickEditLambda = remember<(Int, Int) -> Unit> {
-        { orderId, subOrderId ->
-            launchNewItemActivityForResult(
-                context as MainActivity,
-                ActionType.EDIT_SUB_ORDER_STAND_ALONE.ordinal,
-                orderId,
-                subOrderId
-            )
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
+        {
+            invModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
+            invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), TrueStr.str))
         }
     }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
         { subOrderComplete, completedById ->
-            appModel.showStatusUpdateDialog(
+            invModel.showStatusUpdateDialog(
                 currentSubOrder = subOrderComplete,
                 performerId = completedById
             )
@@ -97,7 +97,7 @@ fun SubOrdersStandAlone(
 
                 if (subOrder != null && !subOrder.detailsVisibility) {
                     onClickDetailsLambda(subOrder.subOrder.id)
-                    appModel.resetCreatedSubOrderId()
+                    invModel.resetCreatedSubOrderId()
                 }
             }
         }
@@ -109,7 +109,7 @@ fun SubOrdersStandAlone(
         }
     }
 
-    if (lastItemIsVisible) onListEnd(FabPosition.Center) else onListEnd(FabPosition.End)
+    if (lastItemIsVisible) invModel.onListEnd(FabPosition.Center) else invModel.onListEnd(FabPosition.End)
 
     LazyColumn(
         modifier = modifier,
@@ -118,18 +118,14 @@ fun SubOrdersStandAlone(
         items(items = items, key = { it.subOrder.id }) { subOrder ->
             Log.d(TAG, "SubOrdersStandAlone: ${subOrder.orderShort.order.orderNumber}")
             SubOrderCard(
-                modifier = modifier,
-                parentOrderTypeId = parentOrderTypeId ?: NoRecord,
+                modifier = modifier.padding(CARDS_PADDING),
+                processControlOnly = true,
                 subOrder = subOrder,
-                onClickDetails = { it ->
-                    onClickDetailsLambda(it)
-                },
+                onClickDetails = { onClickDetailsLambda(it) },
                 cardOffset = CARD_OFFSET.dp(),
-                onClickActions = {
-                    onClickActionsLambda(it)
-                },
-                onClickDelete = { it -> onClickDeleteLambda(it) },
-                onClickEdit = { orderId, subOrderId -> onClickEditLambda(orderId, subOrderId) },
+                onClickActions = { onClickActionsLambda(it) },
+                onClickDelete = {onClickDeleteLambda(it) },
+                onClickEdit = { onClickEditLambda(it) },
                 onClickStatus = { subOrderComplete, completedById ->
                     onClickStatusLambda(
                         subOrderComplete,
