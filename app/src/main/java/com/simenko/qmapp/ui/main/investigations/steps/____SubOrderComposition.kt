@@ -30,13 +30,12 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
@@ -64,10 +63,10 @@ fun SubOrdersFlowColumn(
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
     val onClickAddLambda = remember<(Int) -> Unit> {
-        { invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.toString(), NoRecordStr.str, FalseStr.str)) }
+        { invModel.navController.navigate(Route.Main.SubOrderAddEdit.withArgs(it.toString(), NoRecordStr.str, FalseStr.str)) }
     }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
-        { invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), FalseStr.str)) }
+        { invModel.navController.navigate(Route.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), FalseStr.str)) }
     }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {

@@ -87,12 +87,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.utils.StringUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -173,7 +172,7 @@ fun AppBar(
                         }
                     } else {
                         Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
-                        if (destination?.route == Screen.Main.Inv.routeWithArgKeys() || destination?.route == Screen.Main.ProcessControl.routeWithArgKeys())
+                        if (destination?.route == Route.Main.Inv.link || destination?.route == Route.Main.ProcessControl.link)
                             IconButton(onClick = { searchBarState.value = true }) {
                                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
                             }
@@ -501,7 +500,7 @@ data class MenuItem(
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Screen.Main.Team.route } ?: navigationAndActionItems[4]
+            navigationAndActionItems.find { it.id == Route.Main.Team.withArgs() } ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
 
@@ -524,16 +523,16 @@ data class MenuItem(
 }
 
 private val navigationAndActionItems = listOf(
-    MenuItem(Screen.Main.CompanyProfile.route, "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Screen.Main.Team.route, "Team", "Team", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Screen.Main.CompanyStructure.route, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Screen.Main.CompanyProducts.route, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Route.Main.CompanyProfile.link, "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Route.Main.Team.link, "Team", "Team", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Route.Main.CompanyStructure.link, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
+    MenuItem(Route.Main.CompanyProducts.link, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
-    MenuItem(Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str), "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str), "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Screen.Main.ScrapLevel.route, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Route.Main.Inv.link, "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Route.Main.ProcessControl.link, "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    MenuItem(Route.Main.ScrapLevel.link, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
-    MenuItem(Screen.Main.Settings.route, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
+    MenuItem(Route.Main.Settings.link, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
 
     MenuItem(MenuItem.Actions.UPLOAD_MD.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     MenuItem(MenuItem.Actions.SYNC_INV.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),

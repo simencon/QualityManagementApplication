@@ -8,18 +8,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
@@ -29,7 +27,6 @@ private const val TAG = "SubOrdersStandAlone"
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val invModel: InvestigationsViewModel = hiltViewModel()
 
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
@@ -43,7 +40,7 @@ fun SubOrdersStandAlone(
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
-        { invModel.navController.navigate(Screen.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), TrueStr.str)) }
+        { invModel.navController.navigate(Route.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), TrueStr.str)) }
     }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {

@@ -12,18 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.EmployeeId
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.OrderId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.domain.SubOrderAddEditMode
-import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.NavArguments
+import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.Route.Companion.withArgs
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
@@ -51,10 +49,10 @@ abstract class MainActivityBase : ComponentActivity() {
         return if (id != currentId) {
             viewModel.setDrawerMenuItemId(id)
             when (id) {
-                Screen.Main.Team.route -> navController.navigate(id) { popUpTo(0) }
-                Screen.Main.Inv.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-                Screen.Main.ProcessControl.withArgs(NoRecordStr.str, NoRecordStr.str) -> navController.navigate(id) { popUpTo(0) }
-                Screen.Main.Settings.route -> navController.navigate(id) { popUpTo(0) }
+                Route.Main.Team.link -> navController.navigate(id) { popUpTo(0) }
+                Route.Main.Inv.link -> navController.navigate(id.withArgs(NoRecordStr.str, NoRecordStr.str)) { popUpTo(0) }
+                Route.Main.ProcessControl.link -> navController.navigate(id.withArgs(NoRecordStr.str, NoRecordStr.str)) { popUpTo(0) }
+                Route.Main.Settings.link -> navController.navigate(id) { popUpTo(0) }
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
             viewModel.resetTopBadgesCount()
@@ -69,51 +67,51 @@ abstract class MainActivityBase : ComponentActivity() {
      * */
     fun setProperAddEditMode(backStackEntry: State<NavBackStackEntry?>) {
         when (backStackEntry.value?.destination?.route) {
-            Screen.Main.Team.EmployeeAddEdit.routeWithArgKeys() -> {
-                if (backStackEntry.value?.arguments?.getInt(EmployeeId.str) == NoRecord.num) {
+            Route.Main.Team.EmployeeAddEdit.link -> {
+                if (backStackEntry.value?.arguments?.getInt(NavArguments.employeeId) == NoRecord.num) {
                     viewModel.setAddEditMode(AddEditMode.ADD_EMPLOYEE)
                 } else {
                     viewModel.setAddEditMode(AddEditMode.EDIT_EMPLOYEE)
                 }
             }
 
-            Screen.Main.OrderAddEdit.routeWithArgKeys() -> {
-                if (backStackEntry.value?.arguments?.getInt(OrderId.str) == NoRecord.num) {
+            Route.Main.OrderAddEdit.link -> {
+                if (backStackEntry.value?.arguments?.getInt(NavArguments.orderId) == NoRecord.num) {
                     viewModel.setAddEditMode(AddEditMode.ADD_ORDER)
                 } else {
                     viewModel.setAddEditMode(AddEditMode.EDIT_ORDER)
                 }
             }
 
-            Screen.Main.SubOrderAddEdit.routeWithArgKeys() -> {
-                if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) == NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == false
+            Route.Main.SubOrderAddEdit.link -> {
+                if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) == NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == false
                 ) {
                     viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER)
-                } else if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) == NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == true
+                } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) == NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == true
                 ) {
                     viewModel.setAddEditMode(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
-                } else if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) != NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == false
+                } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) != NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == false
                 ) {
                     viewModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER)
-                } else if (backStackEntry.value?.arguments?.getInt(SubOrderId.str) != NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(SubOrderAddEditMode.str) == true
+                } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) != NoRecord.num &&
+                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == true
                 ) {
                     viewModel.setAddEditMode(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
                 }
             }
 
-            Screen.Main.Settings.EditUserDetails.routeWithArgKeys() -> {
+            Route.Main.Settings.EditUserDetails.link -> {
                 viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
             }
 
-            Screen.Main.Team.AuthorizeUser.routeWithArgKeys() -> {
+            Route.Main.Team.AuthorizeUser.link -> {
                 viewModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
             }
 
-            Screen.Main.Team.EditUser.routeWithArgKeys() -> {
+            Route.Main.Team.EditUser.link -> {
                 viewModel.setAddEditMode(AddEditMode.EDIT_USER)
             }
 
@@ -124,7 +122,7 @@ abstract class MainActivityBase : ComponentActivity() {
     fun onBackFromAddEditMode(addEditMode: Int) {
         when (addEditMode) {
             AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(
-                Screen.Main.Settings.UserDetails.route,
+                Route.Main.Settings.UserDetails.link,
                 inclusive = false
             )
 
@@ -151,8 +149,8 @@ abstract class MainActivityBase : ComponentActivity() {
      * */
     fun onSearchBarSearch(backStackEntry: State<NavBackStackEntry?>, searchValues: String) {
         when (backStackEntry.value?.destination?.route) {
-            Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
-            Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
+            Route.Main.Inv.link -> invModel.setCurrentOrdersFilter(number = SelectedString(searchValues))
+            Route.Main.ProcessControl.link -> invModel.setCurrentSubOrdersFilter(number = SelectedString(searchValues))
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
         }
     }
@@ -162,8 +160,8 @@ abstract class MainActivityBase : ComponentActivity() {
      * */
     fun getTopTabsContent(backStackEntry: State<NavBackStackEntry?>): List<Triple<String, Int, SelectedNumber>> {
         return when (backStackEntry.value?.destination?.route) {
-            Screen.Main.Inv.routeWithArgKeys(), Screen.Main.ProcessControl.routeWithArgKeys() -> ProgressTabs.toListOfTriples()
-            Screen.Main.Team.Employees.routeWithArgKeys(), Screen.Main.Team.Users.routeWithArgKeys(), Screen.Main.Team.Requests.routeWithArgKeys() -> TeamTabs.toListOfTriples()
+            Route.Main.Inv.link, Route.Main.ProcessControl.link -> ProgressTabs.toListOfTriples()
+            Route.Main.Team.Employees.link, Route.Main.Team.Users.link, Route.Main.Team.Requests.link -> TeamTabs.toListOfTriples()
             else -> emptyList()
         }
     }
@@ -172,22 +170,22 @@ abstract class MainActivityBase : ComponentActivity() {
         when (backStackEntry.value?.destination?.parent?.route) {
             null -> {
                 when (backStackEntry.value?.destination?.route) {
-                    Screen.Main.Inv.routeWithArgKeys() -> invModel.setCurrentOrdersFilter(status = tabId)
-                    Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.setCurrentSubOrdersFilter(status = tabId)
+                    Route.Main.Inv.link -> invModel.setCurrentOrdersFilter(status = tabId)
+                    Route.Main.ProcessControl.link -> invModel.setCurrentSubOrdersFilter(status = tabId)
                 }
             }
 
-            Screen.Main.Team.route -> {
+            Route.Main.Team.link -> {
                 if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
-                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Employees.routeWithArgKeys())
+                    if (backStackEntry.value?.destination?.route != Route.Main.Team.Employees.link)
                         navController.popBackStack()
                 } else if (tabIndex == TeamTabs.USERS.ordinal) {
-                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys())
-                        navController.navigate(Screen.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                    if (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link)
+                        navController.navigate(Route.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Route.Main.Team.Employees.link) }
                     teamModel.setUsersFilter(newUsers = false)
                 } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
-                    if (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys())
-                        navController.navigate(Screen.Main.Team.Requests.withArgs(NoRecordStr.str)) { popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) }
+                    if (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link)
+                        navController.navigate(Route.Main.Team.Requests.withArgs(NoRecordStr.str)) { popUpTo(Route.Main.Team.Employees.link) }
                     teamModel.setUsersFilter(newUsers = true)
                 }
             }
@@ -197,9 +195,9 @@ abstract class MainActivityBase : ComponentActivity() {
 
     fun selectProperTab(backStackEntry: State<NavBackStackEntry?>): Int? {
         return when (backStackEntry.value?.destination?.route) {
-            Screen.Main.Team.Employees.routeWithArgKeys() -> TeamTabs.EMPLOYEES.ordinal
-            Screen.Main.Team.Users.routeWithArgKeys() -> TeamTabs.USERS.ordinal
-            Screen.Main.Team.Requests.routeWithArgKeys() -> TeamTabs.REQUESTS.ordinal
+            Route.Main.Team.Employees.link -> TeamTabs.EMPLOYEES.ordinal
+            Route.Main.Team.Users.link -> TeamTabs.USERS.ordinal
+            Route.Main.Team.Requests.link -> TeamTabs.REQUESTS.ordinal
             else -> null
         }
     }
@@ -208,18 +206,18 @@ abstract class MainActivityBase : ComponentActivity() {
      * Main floating action button -------------------------------------------------------------------------------------------------------------------
      * */
     fun showFab(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int): Boolean {
-        return ((backStackEntry.value?.destination?.route != Screen.Main.Settings.UserDetails.route || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal) &&
-                (backStackEntry.value?.destination?.route != Screen.Main.Team.Users.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal) &&
-                (backStackEntry.value?.destination?.route != Screen.Main.Team.Requests.routeWithArgKeys() || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal))
+        return ((backStackEntry.value?.destination?.route != Route.Main.Settings.UserDetails.link || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal) &&
+                (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal) &&
+                (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal))
     }
 
     fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int) {
         if (addEditMode == AddEditMode.NO_MODE.ordinal)
             when (backStackEntry.value?.destination?.route) {
-                Screen.Main.Team.Employees.routeWithArgKeys() -> navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
-                Screen.Main.Inv.routeWithArgKeys() -> navController.navigate(Screen.Main.OrderAddEdit.withArgs(NoRecordStr.str))
-                Screen.Main.ProcessControl.routeWithArgKeys() -> navController.navigate(
-                    Screen.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
+                Route.Main.Team.Employees.link -> navController.navigate(Route.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
+                Route.Main.Inv.link -> navController.navigate(Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
+                Route.Main.ProcessControl.link -> navController.navigate(
+                    Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
                 )
 
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
@@ -264,13 +262,13 @@ abstract class MainActivityBase : ComponentActivity() {
      * */
     fun onPullRefresh(backStackEntry: State<NavBackStackEntry?>) {
         when (backStackEntry.value?.destination?.route) {
-            Screen.Main.Team.Employees.routeWithArgKeys() -> teamModel.updateEmployeesData()
-            Screen.Main.Team.Users.routeWithArgKeys() -> teamModel.updateEmployeesData()
-            Screen.Main.Team.Requests.routeWithArgKeys() -> teamModel.updateEmployeesData()
-            Screen.Main.Inv.routeWithArgKeys() -> invModel.uploadNewInvestigations()
-            Screen.Main.ProcessControl.routeWithArgKeys() -> invModel.uploadNewInvestigations()
-            Screen.Main.Settings.UserDetails.route -> settingsModel.updateUserData()
-            Screen.Main.Settings.EditUserDetails.routeWithArgKeys() -> settingsModel.updateUserData()
+            Route.Main.Team.Employees.link -> teamModel.updateEmployeesData()
+            Route.Main.Team.Users.link -> teamModel.updateEmployeesData()
+            Route.Main.Team.Requests.link -> teamModel.updateEmployeesData()
+            Route.Main.Inv.link -> invModel.uploadNewInvestigations()
+            Route.Main.ProcessControl.link -> invModel.uploadNewInvestigations()
+            Route.Main.Settings.UserDetails.link -> settingsModel.updateUserData()
+            Route.Main.Settings.EditUserDetails.link -> settingsModel.updateUserData()
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
         }
     }

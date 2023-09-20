@@ -38,7 +38,7 @@ import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LoginViewModel
@@ -86,32 +86,32 @@ class UserActivity : ComponentActivity() {
                     userState.let { state ->
                         when (state) {
                             is NoState -> {
-                                navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
+                                navController.navigate(Route.LoggedOut.InitialScreen.link) { popUpTo(0) { inclusive = true } }
                                 viewModel.updateCurrentUserState()
                             }
 
                             is UnregisteredState -> {
                                 viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) { inclusive = true } }
+                                navController.navigate(Route.LoggedOut.Registration.link) { popUpTo(0) { inclusive = true } }
                             }
 
                             is UserNeedToVerifyEmailState -> {
                                 viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
+                                navController.navigate(Route.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
                                 delay(5000)
                                 viewModel.updateCurrentUserState()
                             }
 
                             is UserAuthoritiesNotVerifiedState -> {
                                 viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
+                                navController.navigate(Route.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
                                 delay(5000)
                                 viewModel.updateCurrentUserState()
                             }
 
                             is UserLoggedOutState -> {
                                 viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.LogIn.route) { popUpTo(0) { inclusive = true } }
+                                navController.navigate(Route.LoggedOut.LogIn.link) { popUpTo(0) { inclusive = true } }
                             }
 
                             is UserLoggedInState -> {
@@ -154,7 +154,7 @@ class UserActivity : ComponentActivity() {
                         ) {
                             Navigation(
                                 navController,
-                                Screen.LoggedOut.InitialScreen.route
+                                Route.LoggedOut.InitialScreen.link
                             )
                         }
                         PullRefreshIndicator(

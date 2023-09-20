@@ -9,9 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.simenko.qmapp.domain.FalseStr
-import com.simenko.qmapp.domain.UserEditMode
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.NavArguments
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
@@ -29,26 +28,16 @@ fun Navigation(
     initiatedRoute: String
 ) {
     NavHost(navController = navController, startDestination = initiatedRoute) {
-        composable(
-            route = Screen.LoggedOut.InitialScreen.route
-        ) {
+        composable(route = Route.LoggedOut.InitialScreen.link) {
             QMAppTheme {
                 InitialScreen()
             }
         }
         navigation(
-            startDestination = Screen.LoggedOut.Registration.EnterDetails.route + "/${FalseStr.str}",
-            route = Screen.LoggedOut.Registration.route
+            startDestination = Route.LoggedOut.Registration.EnterDetails.link,
+            route = Route.LoggedOut.Registration.link
         ) {
-            composable(
-                route = Screen.LoggedOut.Registration.EnterDetails.route +"/{${UserEditMode.str}}",
-                arguments = listOf(
-                    navArgument(UserEditMode.str) {
-                        type = NavType.BoolType
-                        defaultValue = false
-                    }
-                )
-            ) {
+            composable(route = Route.LoggedOut.Registration.EnterDetails.link, arguments = Route.LoggedOut.Registration.EnterDetails.arguments) {
                 val regModel: RegistrationViewModel = hiltViewModel()
                 (LocalContext.current as UserActivity).initRegModel(regModel)
                 val enterDetModel: EnterDetailsViewModel = hiltViewModel()
@@ -56,25 +45,16 @@ fun Navigation(
                 QMAppTheme {
                     EnterDetails(
                         navController = navController,
-                        editMode = it.arguments?.getBoolean(UserEditMode.str) ?: false
+                        editMode = it.arguments?.getBoolean(NavArguments.userEditMode) ?: false
                     )
                 }
             }
-            composable(
-                route = Screen.LoggedOut.Registration.TermsAndConditions.route + "/{name}",
-                arguments = listOf(
-                    navArgument("user") {
-                        type = NavType.StringType
-                        defaultValue = "Roman"
-                        nullable = true
-                    }
-                )
-            ) {
+            composable(route = Route.LoggedOut.Registration.TermsAndConditions.link, arguments = Route.LoggedOut.Registration.TermsAndConditions.arguments) {
                 val regModel: RegistrationViewModel = it.sharedViewModel(navController = navController)
                 QMAppTheme {
                     TermsAndConditions(
                         regModel = regModel,
-                        user = it.arguments?.getString("name"),
+                        user = it.arguments?.getString(NavArguments.name),
                         onDismiss = {
                             regModel.hideUserExistDialog()
                         },
@@ -84,29 +64,20 @@ fun Navigation(
                         },
                         onLogin = {
                             regModel.hideUserExistDialog()
-                            navController.navigate(Screen.LoggedOut.LogIn.route)
+                            navController.navigate(Route.LoggedOut.LogIn.link)
                         }
                     )
                 }
             }
         }
-        composable(
-            route = Screen.LoggedOut.WaitingForValidation.route + "/{message}",
-            arguments = listOf(
-                navArgument("message") {
-                    type = NavType.StringType
-                    defaultValue = "Verification link was sent to your email"
-                    nullable = true
-                }
-            )
-        ) {
+        composable(route = Route.LoggedOut.WaitingForValidation.link, arguments = Route.LoggedOut.WaitingForValidation.arguments) {
             val verificationModel: WaitingForVerificationViewModel = hiltViewModel()
             (LocalContext.current as UserActivity).initVerificationModel(verificationModel)
             QMAppTheme {
-                WaitingForVerification(message = it.arguments?.getString("message"))
+                WaitingForVerification(message = it.arguments?.getString(NavArguments.message))
             }
         }
-        composable(route = Screen.LoggedOut.LogIn.route) {
+        composable(route = Route.LoggedOut.LogIn.link) {
             val loginModel: LoginViewModel = hiltViewModel()
             (LocalContext.current as UserActivity).initLoginModel(loginModel)
             QMAppTheme {

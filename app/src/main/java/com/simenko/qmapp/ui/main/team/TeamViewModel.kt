@@ -12,7 +12,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter
@@ -186,8 +186,8 @@ class TeamViewModel @Inject constructor(
         _mainViewModel.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                navController.navigate(Screen.Main.Team.Requests.withArgs(it)) {
-                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = false }
+                navController.navigate(Route.Main.Team.Requests.withArgs(it)) {
+                    popUpTo(Route.Main.Team.Employees.link) { inclusive = false }
                 }
             }
         }

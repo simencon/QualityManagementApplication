@@ -8,8 +8,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
-import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.main.AddEditMode
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -522,7 +521,7 @@ class NewItemViewModel @Inject constructor(
                             Status.SUCCESS -> {
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
+                                    navController.navigate(Route.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
                                         popUpTo(0)
                                     }
                                 }
@@ -579,7 +578,7 @@ class NewItemViewModel @Inject constructor(
                                     mainActivityViewModel.updateLoadingState(Pair(false, null))
                                     withContext(Dispatchers.Main) {
                                         navController.navigate(
-                                            Screen.Main.Inv.withArgs(pcOnly, resource.data?.orderId.toString(), resource.data?.id.toString())
+                                            Route.Main.Inv.withArgs(pcOnly, resource.data?.orderId.toString(), resource.data?.id.toString())
                                         ) { popUpTo(0) }
                                     }
                                 }

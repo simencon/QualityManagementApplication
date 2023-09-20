@@ -44,15 +44,5 @@ val FalseStr = SelectedString("false")
 val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
 
-val EmployeeId = SelectedString("employeeId")
-val UserId = SelectedString("userId")
 
-val ToProcessControlScreen = SelectedString("investigationsKey")
-
-val OrderId = SelectedString("orderId")
-val SubOrderId = SelectedString("subOrderId")
-
-val SubOrderAddEditMode = SelectedString("subOrderAddEditMode")
-
-val UserEditMode = SelectedString("userEditMode")
 
