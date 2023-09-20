@@ -13,7 +13,7 @@ import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
@@ -186,8 +186,8 @@ class UserViewModel @Inject constructor(
         _mainViewModel.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                navController.navigate(Screen.Main.Team.Users.withArgs(it)) {
-                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = false }
+                navController.navigate(Route.Main.Team.Users.withArgs(it)) {
+                    popUpTo(Route.Main.Team.Employees.link) { inclusive = false }
                 }
             }
         }

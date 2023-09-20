@@ -17,13 +17,11 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.TrueStr
-import com.simenko.qmapp.domain.UserEditMode
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.NavArguments
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -32,12 +30,8 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 
 fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
-    navigation(
-        route = Screen.Main.Settings.route,
-        startDestination = Screen.Main.Settings.UserDetails.route
-    ) {
-        composable(route = Screen.Main.Settings.UserDetails.route) {
-            println("Main Navigation - Settings has been build")
+    navigation(route = Route.Main.Settings.link, startDestination = Route.Main.Settings.UserDetails.link) {
+        composable(route = Route.Main.Settings.UserDetails.link) {
             val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
             val settingsModel: SettingsViewModel = hiltViewModel()
             val activity = (LocalContext.current as MainActivity)
@@ -53,27 +47,19 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                     },
                     onEditUserData = {
                         userDetailsModel.resetToInitialState()
-                        navController.navigate(Screen.Main.Settings.EditUserDetails.withArgs(TrueStr.str)) { launchSingleTop = true }
+                        navController.navigate(Route.Main.Settings.EditUserDetails.withArgs(TrueStr.str)) { launchSingleTop = true }
                     }
                 )
             }
         }
-        composable(
-            route = Screen.Main.Settings.EditUserDetails.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(UserEditMode.str) {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
-        ) {
+        composable(route = Route.Main.Settings.EditUserDetails.link, arguments = Route.Main.Settings.EditUserDetails.arguments) {
             val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
             val userDetailsModel: EnterDetailsViewModel = it.sharedViewModel(navController = navController)
             settingsViewModel.validateUserData = { userDetailsModel.validateInput() }
-            BackHandler { navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false) }
+            BackHandler { navController.popBackStack(Route.Main.Settings.UserDetails.link, inclusive = false) }
             val editUserLambda = remember {
                 {
-                    navController.popBackStack(Screen.Main.Settings.UserDetails.route, inclusive = false)
+                    navController.popBackStack(Route.Main.Settings.UserDetails.link, inclusive = false)
                     settingsViewModel.editUserData()
                 }
             }
@@ -86,7 +72,7 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(10.dp))
                     EnterDetails(
                         navController = navController,
-                        editMode = it.arguments?.getBoolean(UserEditMode.str) ?: false,
+                        editMode = it.arguments?.getBoolean(NavArguments.userEditMode) ?: false,
                         userDetailsModel = userDetailsModel,
                         editUserData = editUserLambda
                     )

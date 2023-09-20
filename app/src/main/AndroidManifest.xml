@@ -64,7 +64,7 @@
             android:name=".receivers.NotificationActionsReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="REMIND_LATER_ACTION" />
+                <action android:name="@string/REMIND_LATER_ACTION" />
             </intent-filter>
         </receiver>
 

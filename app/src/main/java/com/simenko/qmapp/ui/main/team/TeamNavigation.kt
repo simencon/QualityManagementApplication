@@ -9,16 +9,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
-import com.simenko.qmapp.domain.EmployeeId
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.UserId
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.NavArguments
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.team.employee.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
@@ -31,60 +28,36 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
-    navigation(startDestination = Screen.Main.Team.Employees.routeWithArgKeys(), route = Screen.Main.Team.route) {
-        composable(
-            route = Screen.Main.Team.Employees.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(EmployeeId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                }
-            )
-        ) {
+    navigation(startDestination = Route.Main.Team.Employees.link, route = Route.Main.Team.link) {
+        composable(route = Route.Main.Team.Employees.link, arguments = Route.Main.Team.Employees.arguments) {
             val teamModel: TeamViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getInt(EmployeeId.str)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
+                it.arguments?.getInt(NavArguments.employeeId)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
             }
 
             QMAppTheme {
                 EmployeeComposition(onClickEdit = { id ->
                     teamModel.setSelectedEmployeeRecord(NoRecord.num)
-                    navController.navigate(Screen.Main.Team.EmployeeAddEdit.withArgs(id.toString()))
+                    navController.navigate(Route.Main.Team.EmployeeAddEdit.withArgs(id.toString()))
                 })
             }
         }
-        composable(
-            route = Screen.Main.Team.EmployeeAddEdit.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(EmployeeId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                }
-            )
-        ) {
+        composable(route = Route.Main.Team.EmployeeAddEdit.link, arguments = Route.Main.Team.EmployeeAddEdit.arguments) {
             val employeeModel: EmployeeViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initEmployeeModel(employeeModel)
             BackHandler { navController.popBackStack() }
             QMAppTheme {
-                EmployeeForm(employeeId = it.arguments?.getInt(EmployeeId.str) ?: NoRecord.num)
+                EmployeeForm(employeeId = it.arguments?.getInt(NavArguments.employeeId) ?: NoRecord.num)
             }
         }
-        composable(
-            route = Screen.Main.Team.Users.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(UserId.str) {
-                    type = NavType.StringType
-                    defaultValue = NoRecordStr.str
-                }
-            )
-        ) {
+        composable(route = Route.Main.Team.Users.link, arguments = Route.Main.Team.Users.arguments) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
             (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getString(UserId.str)?.let { id -> teamModel.setSelectedUserRecord(id) }
+                it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
             }
 
             QMAppTheme {
@@ -93,30 +66,21 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
                     isUsersPage = true,
                     onClickAuthorize = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        navController.navigate(Screen.Main.Team.EditUser.withArgs(id))
+                        navController.navigate(Route.Main.Team.EditUser.withArgs(id))
                     },
                     onClickEdit = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        navController.navigate(Screen.Main.Team.EditUser.withArgs(id))
+                        navController.navigate(Route.Main.Team.EditUser.withArgs(id))
                     }
                 )
             }
         }
-
-        composable(
-            route = Screen.Main.Team.Requests.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(UserId.str) {
-                    type = NavType.StringType
-                    defaultValue = NoRecordStr.str
-                }
-            )
-        ) {
+        composable(route = Route.Main.Team.Requests.link, arguments = Route.Main.Team.Requests.arguments) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
             (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getString(UserId.str)?.let { id -> teamModel.setSelectedUserRecord(id) }
+                it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
             }
 
             QMAppTheme {
@@ -125,41 +89,36 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
                     isUsersPage = false,
                     onClickAuthorize = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        navController.navigate(Screen.Main.Team.AuthorizeUser.withArgs(id))
+                        navController.navigate(Route.Main.Team.AuthorizeUser.withArgs(id))
                     },
                     onClickEdit = { id ->
                         teamModel.setSelectedUserRecord(NoRecordStr.str)
-                        navController.navigate(Screen.Main.Team.EditUser.withArgs(id))
+                        navController.navigate(Route.Main.Team.EditUser.withArgs(id))
                     }
                 )
             }
         }
-        editUser(navController, Screen.Main.Team.AuthorizeUser.routeWithArgKeys())
-        editUser(navController, Screen.Main.Team.EditUser.routeWithArgKeys())
+        editUser(navController, Route.Main.Team.AuthorizeUser)
+        editUser(navController, Route.Main.Team.EditUser)
     }
 }
 
-private fun NavGraphBuilder.editUser(navController: NavHostController,route: String) {
+private fun NavGraphBuilder.editUser(navController: NavHostController, route: Route) {
     composable(
-        route = route,
+        route = route.link,
         deepLinks = listOf(
             navDeepLink {
-                uriPattern = "${Screen.Domain.route}/${Screen.Main.Team.route}/$route"
+                uriPattern = "${NavArguments.domain}/${Route.Main.Team.link}/${route.link}"
                 action = Intent.ACTION_VIEW
             }
         ),
-        arguments = listOf(
-            navArgument(UserId.str) {
-                type = NavType.StringType
-                defaultValue = NoRecordStr.str
-            }
-        )
+        arguments = route.arguments
     ) {
         val userModel: UserViewModel = hiltViewModel()
         (LocalContext.current as MainActivity).initUserModel(userModel)
         BackHandler { navController.popBackStack() }
         QMAppTheme {
-            UserForm(userId = it.arguments?.getString(UserId.str) ?: NoRecordStr.str)
+            UserForm(userId = it.arguments?.getString(NavArguments.userId) ?: NoRecordStr.str)
         }
     }
 }

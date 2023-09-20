@@ -14,7 +14,7 @@ import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
@@ -231,8 +231,8 @@ class EmployeeViewModel @Inject constructor(
         _mainViewModel.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                navController.navigate(Screen.Main.Team.Employees.withArgs(it.toString())) {
-                    popUpTo(Screen.Main.Team.Employees.routeWithArgKeys()) { inclusive = true }
+                navController.navigate(Route.Main.Team.Employees.withArgs(it.toString())) {
+                    popUpTo(Route.Main.Team.Employees.link) { inclusive = true }
                 }
             }
         }

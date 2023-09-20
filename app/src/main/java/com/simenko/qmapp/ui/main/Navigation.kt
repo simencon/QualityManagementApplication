@@ -8,15 +8,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
-import com.simenko.qmapp.domain.OrderId
-import com.simenko.qmapp.domain.SubOrderId
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.SubOrderAddEditMode
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.NavArguments
+import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
@@ -34,25 +30,12 @@ fun Navigation(
 ) {
     NavHost(modifier = modifier, navController = navController, startDestination = initiatedRoute) {
         teamNavigation(navController)
-        composable(
-            route = Screen.Main.Inv.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(OrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(SubOrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                }
-            )
-        ) {
-            println("Main Navigation - Investigations has been build")
+        composable(route = Route.Main.Inv.link, arguments = Route.Main.Inv.arguments) {
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
-                it.arguments?.getInt(OrderId.str) ?: NoRecord.num,
-                it.arguments?.getInt(SubOrderId.str) ?: NoRecord.num
+                it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
+                it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
             )
             QMAppTheme {
                 InvestigationsMainComposition(
@@ -61,25 +44,12 @@ fun Navigation(
                 )
             }
         }
-        composable(
-            route = Screen.Main.ProcessControl.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(OrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(SubOrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                }
-            )
-        ) {
-            println("Main Navigation - ProcessControl has been build")
+        composable(route = Route.Main.ProcessControl.link, arguments = Route.Main.ProcessControl.arguments) {
             val invModel: InvestigationsViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initInvModel(invModel)
             invModel.setCreatedRecord(
-                it.arguments?.getInt(OrderId.str) ?: NoRecord.num,
-                it.arguments?.getInt(SubOrderId.str) ?: NoRecord.num
+                it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
+                it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
             )
             QMAppTheme {
                 InvestigationsMainComposition(
@@ -89,51 +59,27 @@ fun Navigation(
             }
         }
 
-        composable(
-            route = Screen.Main.OrderAddEdit.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(OrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                }
-            )
-        ) {
+        composable(route = Route.Main.OrderAddEdit.link, arguments = Route.Main.OrderAddEdit.arguments) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
             BackHandler { navController.popBackStack() }
             QMAppTheme {
                 OrderForm(
-                    orderId = it.arguments?.getInt(OrderId.str) ?: NoRecord.num
+                    orderId = it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num
                 )
             }
         }
 
-        composable(
-            route = Screen.Main.SubOrderAddEdit.routeWithArgKeys(),
-            arguments = listOf(
-                navArgument(OrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(SubOrderId.str) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(SubOrderAddEditMode.str) {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
-        ) {
+        composable(route = Route.Main.SubOrderAddEdit.link, arguments = Route.Main.SubOrderAddEdit.arguments) {
             val newOrderModel: NewItemViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
-            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(SubOrderAddEditMode.str) ?: false)
+            newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(NavArguments.subOrderAddEditMode) ?: false)
             BackHandler { navController.popBackStack() }
             QMAppTheme {
                 SubOrderForm(
                     record = Pair(
-                        it.arguments?.getInt(OrderId.str) ?: NoRecord.num,
-                        it.arguments?.getInt(SubOrderId.str) ?: NoRecord.num
+                        it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
+                        it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
                     )
                 )
             }
