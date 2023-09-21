@@ -47,12 +47,12 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                     },
                     onEditUserData = {
                         userDetailsModel.resetToInitialState()
-                        navController.navigate(Route.Main.Settings.EditUserDetails.withArgs(TrueStr.str)) { launchSingleTop = true }
+                        navController.navigate(Route.Main.Settings.EditUserDetails.link) { launchSingleTop = true }
                     }
                 )
             }
         }
-        composable(route = Route.Main.Settings.EditUserDetails.link, arguments = Route.Main.Settings.EditUserDetails.arguments) {
+        composable(route = Route.Main.Settings.EditUserDetails.link) {
             val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
             val userDetailsModel: EnterDetailsViewModel = it.sharedViewModel(navController = navController)
             settingsViewModel.validateUserData = { userDetailsModel.validateInput() }
@@ -72,7 +72,7 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                     Spacer(modifier = Modifier.height(10.dp))
                     EnterDetails(
                         navController = navController,
-                        editMode = it.arguments?.getBoolean(NavArguments.userEditMode) ?: false,
+                        editMode = true,
                         userDetailsModel = userDetailsModel,
                         editUserData = editUserLambda
                     )

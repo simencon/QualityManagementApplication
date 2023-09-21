@@ -67,7 +67,7 @@ object NavArguments {
     const val domain = "https://qm.simple.com"
 
     const val userEditMode = "userEditMode"
-    const val name = "name"
+    const val fullName = "name"
     const val message = "message"
 
     const val employeeId = "employeeId"
@@ -82,20 +82,11 @@ sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emp
     object LoggedOut : Route(NavRouteName.logged_out) {
         object InitialScreen : Route(NavRouteName.initial_screen)
         object Registration : Route(NavRouteName.registration) {
-            object EnterDetails : Route(
-                link = "${NavRouteName.enter_details}/{${NavArguments.userEditMode}}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.userEditMode) {
-                        type = NavType.BoolType
-                        defaultValue = false
-                    }
-                )
-            )
-
+            object EnterDetails : Route(NavRouteName.enter_details)
             object TermsAndConditions : Route(
-                link = "${NavRouteName.terms_and_conditions}/{${NavArguments.name}}",
+                link = "${NavRouteName.terms_and_conditions}/{${NavArguments.fullName}}",
                 arguments = listOf(
-                    navArgument(name = NavArguments.name) {
+                    navArgument(name = NavArguments.fullName) {
                         type = NavType.StringType
                         defaultValue = "Roman"
                         nullable = true
@@ -185,7 +176,7 @@ sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emp
         object CompanyStructure : Route(NavRouteName.company_structure)
         object CompanyProducts : Route(NavRouteName.company_products)
         object Inv : Route(
-            link = "${NavRouteName.all_investigations}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}",
+            link = "${NavRouteName.all_investigations}?${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
                     type = NavType.IntType
@@ -199,7 +190,7 @@ sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emp
         )
 
         object ProcessControl : Route(
-            link = "${NavRouteName.process_control}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}",
+            link = "${NavRouteName.process_control}?${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
                     type = NavType.IntType
@@ -244,65 +235,53 @@ sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emp
 
         object Settings : Route(NavRouteName.settings) {
             object UserDetails : Route(NavRouteName.user_details)
-            object EditUserDetails : Route(
-                link = "${NavRouteName.edit_user_details}${arg(NavArguments.userEditMode)}",
-                arguments = listOf(
-                    navArgument(NavArguments.userEditMode) {
-                        type = NavType.BoolType
-                        defaultValue = false
-                    }
-                )
-            )
+            object EditUserDetails : Route(NavRouteName.edit_user_details)
         }
     }
 
-    fun withArgs(vararg args: String) = buildString {
+    fun withArgs(vararg args: String) = link.withArgs(*args)
 
-        when {
-            link.find { it == '/' } != null -> {
+    fun withOpts(vararg args: String) = link.withOpts(*args)
+
+    companion object {
+        fun opt(p: String) = "$p={$p}"
+        fun arg(p: String) = "/{$p}"
+
+        fun String.withArgs(vararg args: String): String {
+            val link = this
+            return buildString {
                 append(link.split("/")[0])
                 args.forEach { arg ->
                     append("/$arg")
                 }
             }
-
-            link.find { it == '?' } != null -> {
-// ToDo: make logic to generate pattern for optional parameters
-// navController.navigate("profile?userId=user123&userType=user")
-// navController.navigate("profile?userType=user")
-// navController.navigate("profile")
-            }
-
-            else -> {
-                append(link)
-            }
         }
-    }
 
-    companion object {
-        private fun opt(p: String) = "?$p={$p}"
-        private fun arg(p: String) = "/{$p}"
+        private fun String.getParamsNames(): List<String> {
+            val list = mutableListOf<String>()
+            val rawList = this.split('?')[1].split('&')
+            rawList.forEach { item ->
+                if (item.find { it == '{' } != null) {
+                    list.add(item.substringAfter('{').substringBefore('}'))
+                }
+            }
+            return list.toList()
+        }
 
-        fun String.withArgs(vararg args: String): String {
+        fun String.withOpts(vararg args: String): String {
             val link = this
+            val list = link.getParamsNames()
+            var index = 0
+
             return buildString {
-                when {
-                    link.find { it == '/' } != null -> {
-                        append(this.split("/")[0])
-                        args.forEach { arg ->
-                            append("/$arg")
-                        }
-                    }
-
-                    link.find { it == '?' } != null -> {
-                        // ToDo: make logic to generate pattern for optional parameters
-                        // navController.navigate("profile?userId=user123&userType=user")
-                        // navController.navigate("profile?userType=user")
-                        // navController.navigate("profile")
-                    }
-
-                    else -> {
-                        append(link)
+                append(link.split("?")[0])
+                args.forEach { arg ->
+                    if (index == 0) {
+                        append("?${list[index]}=$arg")
+                        index++
+                    } else {
+                        append("&${list[index]}=$arg")
+                        index++
                     }
                 }
             }

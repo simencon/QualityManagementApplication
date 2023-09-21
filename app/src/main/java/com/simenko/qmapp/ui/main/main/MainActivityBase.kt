@@ -22,6 +22,7 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.NavArguments
 import com.simenko.qmapp.ui.Route
 import com.simenko.qmapp.ui.Route.Companion.withArgs
+import com.simenko.qmapp.ui.Route.Companion.withOpts
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
@@ -50,8 +51,8 @@ abstract class MainActivityBase : ComponentActivity() {
             viewModel.setDrawerMenuItemId(id)
             when (id) {
                 Route.Main.Team.link -> navController.navigate(id) { popUpTo(0) }
-                Route.Main.Inv.link -> navController.navigate(id.withArgs(NoRecordStr.str, NoRecordStr.str)) { popUpTo(0) }
-                Route.Main.ProcessControl.link -> navController.navigate(id.withArgs(NoRecordStr.str, NoRecordStr.str)) { popUpTo(0) }
+                Route.Main.Inv.link -> navController.navigate(id.withOpts()) { popUpTo(0) }
+                Route.Main.ProcessControl.link -> navController.navigate(id.withOpts()) { popUpTo(0) }
                 Route.Main.Settings.link -> navController.navigate(id) { popUpTo(0) }
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }

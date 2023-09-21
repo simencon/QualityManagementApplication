@@ -57,7 +57,7 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 @Composable
 fun EnterDetails(
     navController: NavHostController = rememberNavController(),
-    editMode: Boolean,
+    editMode: Boolean = false,
     userDetailsModel: EnterDetailsViewModel? = null,
     editUserData: () -> Unit = {}
 ) {

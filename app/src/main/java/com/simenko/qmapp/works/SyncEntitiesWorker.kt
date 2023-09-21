@@ -73,7 +73,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @SuppressLint("MissingPermission")
     fun makeNotification(notificationData: NotificationData) {
-        val intent = createMainActivityIntent(context, Route.Main.Inv.withArgs(FalseStr.str, notificationData.orderId.toString(), notificationData.subOrderId.toString()))
+        val intent = createMainActivityIntent(context, Route.Main.Inv.withOpts(notificationData.orderId.toString(), notificationData.subOrderId.toString()))
 
         var title: String
         var msg: String

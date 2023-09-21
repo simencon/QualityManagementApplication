@@ -521,7 +521,7 @@ class NewItemViewModel @Inject constructor(
                             Status.SUCCESS -> {
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Route.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
+                                    navController.navigate(Route.Main.Inv.withOpts(resource.data?.id.toString(), NoRecordStr.str)) {
                                         popUpTo(0)
                                     }
                                 }
@@ -577,8 +577,7 @@ class NewItemViewModel @Inject constructor(
                                     }
                                     mainActivityViewModel.updateLoadingState(Pair(false, null))
                                     withContext(Dispatchers.Main) {
-                                        navController.navigate(
-                                            Route.Main.Inv.withArgs(pcOnly, resource.data?.orderId.toString(), resource.data?.id.toString())
+                                        navController.navigate(Route.Main.Inv.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString())
                                         ) { popUpTo(0) }
                                     }
                                 }
