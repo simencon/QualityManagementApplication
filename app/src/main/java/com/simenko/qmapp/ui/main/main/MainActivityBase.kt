@@ -227,8 +227,8 @@ abstract class MainActivityBase : ComponentActivity() {
             when (AddEditMode.values()[addEditMode]) {
                 AddEditMode.ADD_ORDER -> newOrderModel.makeOrder(newRecord = true)
                 AddEditMode.EDIT_ORDER -> newOrderModel.makeOrder(newRecord = false)
-                AddEditMode.ADD_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, true)
-                AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(FalseStr.str, false)
+                AddEditMode.ADD_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = true)
+                AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = false)
                 AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
                 AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
                 AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()

@@ -549,7 +549,7 @@ class NewItemViewModel @Inject constructor(
                                     _order.value = it
                                     _subOrder.value.order = it
                                     _subOrder.value.subOrder.orderId = it.id
-                                    makeSubOrder(TrueStr.str, newRecord)
+                                    makeSubOrder(newRecord, true)
                                 }
                             }
 
@@ -562,7 +562,7 @@ class NewItemViewModel @Inject constructor(
             mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun makeSubOrder(pcOnly: String, newRecord: Boolean = true) {
+    fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }
@@ -577,8 +577,14 @@ class NewItemViewModel @Inject constructor(
                                     }
                                     mainActivityViewModel.updateLoadingState(Pair(false, null))
                                     withContext(Dispatchers.Main) {
-                                        navController.navigate(Route.Main.Inv.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString())
-                                        ) { popUpTo(0) }
+                                        if (pcOnly)
+                                            navController.navigate(
+                                                Route.Main.ProcessControl.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString())
+                                            ) { popUpTo(0) }
+                                        else
+                                            navController.navigate(
+                                                Route.Main.Inv.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString())
+                                            ) { popUpTo(0) }
                                     }
                                 }
 
