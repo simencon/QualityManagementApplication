@@ -4,10 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.simenko.qmapp.ui.NavArguments
 import com.simenko.qmapp.ui.Route
@@ -37,16 +35,13 @@ fun Navigation(
             startDestination = Route.LoggedOut.Registration.EnterDetails.link,
             route = Route.LoggedOut.Registration.link
         ) {
-            composable(route = Route.LoggedOut.Registration.EnterDetails.link, arguments = Route.LoggedOut.Registration.EnterDetails.arguments) {
+            composable(route = Route.LoggedOut.Registration.EnterDetails.link) {
                 val regModel: RegistrationViewModel = hiltViewModel()
                 (LocalContext.current as UserActivity).initRegModel(regModel)
                 val enterDetModel: EnterDetailsViewModel = hiltViewModel()
                 (LocalContext.current as UserActivity).initEnterDetModel(enterDetModel)
                 QMAppTheme {
-                    EnterDetails(
-                        navController = navController,
-                        editMode = it.arguments?.getBoolean(NavArguments.userEditMode) ?: false
-                    )
+                    EnterDetails(navController = navController)
                 }
             }
             composable(route = Route.LoggedOut.Registration.TermsAndConditions.link, arguments = Route.LoggedOut.Registration.TermsAndConditions.arguments) {
@@ -54,7 +49,7 @@ fun Navigation(
                 QMAppTheme {
                     TermsAndConditions(
                         regModel = regModel,
-                        user = it.arguments?.getString(NavArguments.name),
+                        user = it.arguments?.getString(NavArguments.fullName),
                         onDismiss = {
                             regModel.hideUserExistDialog()
                         },
