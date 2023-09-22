@@ -16,7 +16,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @Composable
-fun InitialScreen(logo: Painter = painterResource(id = R.drawable.ic_launcher_round)) {
+fun LoadingScreen(logo: Painter = painterResource(id = R.drawable.ic_launcher_round)) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -34,6 +34,6 @@ fun InitialScreen(logo: Painter = painterResource(id = R.drawable.ic_launcher_ro
 @Composable
 fun InitialScreenPreview() {
     QMAppTheme {
-        InitialScreen()
+        LoadingScreen()
     }
 }

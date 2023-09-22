@@ -21,6 +21,8 @@ import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.AppNavigatorImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -149,5 +151,11 @@ object AppModule {
     @Named("firebase_token")
     fun provideFirebaseToken(userRepository: UserRepository): String {
         return userRepository.authToken
+    }
+
+    @Singleton
+    @Provides
+    fun provideAppNavigator(): AppNavigator {
+        return AppNavigatorImpl()
     }
 }

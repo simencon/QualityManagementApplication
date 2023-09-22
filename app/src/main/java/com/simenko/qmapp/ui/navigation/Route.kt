@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui
+package com.simenko.qmapp.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -8,10 +8,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLink
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
+
+const val LOGGED_OUT_ROOT = "logged_out"
+const val REGISTRATION_ROOT = "registration"
+const val MAIN_ROUTE = "main"
+const val TEAM_ROUTE = "team"
+const val SETTINGS_ROUTE = "settings"
 
 object NavRouteName {
     //--------------------------------------------------------------------
@@ -66,7 +74,6 @@ object NavRouteName {
 object NavArguments {
     const val domain = "https://qm.simple.com"
 
-    const val userEditMode = "userEditMode"
     const val fullName = "name"
     const val message = "message"
 
@@ -78,11 +85,16 @@ object NavArguments {
     const val subOrderAddEditMode = "subOrderAddEditMode"
 }
 
-sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emptyList()) {
+sealed class Route(
+    val link: String,
+    val arguments: List<NamedNavArgument> = emptyList(),
+    val deepLinks: List<NavDeepLink> = emptyList(),
+    val route: String = EmptyString.str
+) {
     object LoggedOut : Route(NavRouteName.logged_out) {
-        object InitialScreen : Route(NavRouteName.initial_screen)
+        object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROOT)
         object Registration : Route(NavRouteName.registration) {
-            object EnterDetails : Route(NavRouteName.enter_details)
+            object EnterDetails : Route(link = NavRouteName.enter_details, route = REGISTRATION_ROOT)
             object TermsAndConditions : Route(
                 link = "${NavRouteName.terms_and_conditions}/{${NavArguments.fullName}}",
                 arguments = listOf(
@@ -91,7 +103,8 @@ sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emp
                         defaultValue = "Roman"
                         nullable = true
                     }
-                )
+                ),
+                route = REGISTRATION_ROOT
             )
         }
 
@@ -103,10 +116,11 @@ sealed class Route(val link: String, val arguments: List<NamedNavArgument> = emp
                     defaultValue = "Verification link was sent to your email"
                     nullable = true
                 }
-            )
+            ),
+            route = LOGGED_OUT_ROOT
         )
 
-        object LogIn : Route(NavRouteName.log_in)
+        object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROOT)
     }
 
     object Main : Route(NavRouteName.main) {

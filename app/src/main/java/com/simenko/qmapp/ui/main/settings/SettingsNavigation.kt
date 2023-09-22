@@ -19,11 +19,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.simenko.qmapp.domain.TrueStr
-import com.simenko.qmapp.ui.NavArguments
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.sharedViewModel
+import com.simenko.qmapp.ui.navigation.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.createLoginActivityIntent
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
@@ -71,7 +69,6 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                 ) {
                     Spacer(modifier = Modifier.height(10.dp))
                     EnterDetails(
-                        navController = navController,
                         editMode = true,
                         userDetailsModel = userDetailsModel,
                         editUserData = editUserLambda

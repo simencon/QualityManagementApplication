@@ -46,17 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.repository.UserError
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
-    navController: NavHostController = rememberNavController(),
     editMode: Boolean = false,
     userDetailsModel: EnterDetailsViewModel? = null,
     editUserData: () -> Unit = {}
@@ -78,7 +75,7 @@ fun EnterDetails(
             is FillInSuccess ->
                 if (!editMode) {
                     viewModel.initRawUser()
-                    navController.navigate(Route.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
+                    viewModel.appNavigator.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
                 } else {
                     viewModel.initRawUser()
                     editUserData()
@@ -215,7 +212,7 @@ fun EnterDetails(
         if (!editMode)
             RecordActionTextBtn(
                 text = "Log in",
-                onClick = { navController.navigate(Route.LoggedOut.LogIn.link) },
+                onClick = { viewModel.appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link) },
                 colors = Pair(
                     ButtonDefaults.textButtonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
