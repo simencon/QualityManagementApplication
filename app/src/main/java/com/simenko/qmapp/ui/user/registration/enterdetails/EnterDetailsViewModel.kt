@@ -5,6 +5,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.navigation.AppNavigator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +18,10 @@ private const val MIN_LENGTH = 6
  * obtain to validate user's input data.
  */
 @HiltViewModel
-class EnterDetailsViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+class EnterDetailsViewModel @Inject constructor(
+    val appNavigator: AppNavigator,
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     fun resetToInitialState() {

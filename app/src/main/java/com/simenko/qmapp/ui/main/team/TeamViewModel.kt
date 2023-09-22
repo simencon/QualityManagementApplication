@@ -12,7 +12,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter

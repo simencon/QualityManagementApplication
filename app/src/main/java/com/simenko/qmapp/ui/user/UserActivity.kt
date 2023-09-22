@@ -38,8 +38,9 @@ import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.createMainActivityIntent
+import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LoginViewModel
 import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
@@ -69,8 +70,6 @@ class UserActivity : ComponentActivity() {
     private lateinit var verificationModel: WaitingForVerificationViewModel
     private lateinit var loginModel: LoginViewModel
 
-    private lateinit var navController: NavHostController
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,45 +78,17 @@ class UserActivity : ComponentActivity() {
             QMAppTheme {
                 val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
 
-                navController = rememberNavController()
                 val userState by viewModel.userState.collectAsStateWithLifecycle()
 
                 LaunchedEffect(userState) {
                     userState.let { state ->
                         when (state) {
-                            is NoState -> {
-                                navController.navigate(Route.LoggedOut.InitialScreen.link) { popUpTo(0) { inclusive = true } }
-                                viewModel.updateCurrentUserState()
-                            }
-
-                            is UnregisteredState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Route.LoggedOut.Registration.link) { popUpTo(0) { inclusive = true } }
-                            }
-
-                            is UserNeedToVerifyEmailState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Route.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
-                                delay(5000)
-                                viewModel.updateCurrentUserState()
-                            }
-
-                            is UserAuthoritiesNotVerifiedState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Route.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
-                                delay(5000)
-                                viewModel.updateCurrentUserState()
-                            }
-
-                            is UserLoggedOutState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Route.LoggedOut.LogIn.link) { popUpTo(0) { inclusive = true } }
-                            }
-
-                            is UserLoggedInState -> {
-                                ContextCompat.startActivity(navController.context, createMainActivityIntent(navController.context), null)
-                            }
-
+                            is NoState -> viewModel.onStateIsNoState()
+                            is UnregisteredState -> viewModel.onStateIsUnregisteredState()
+                            is UserNeedToVerifyEmailState -> viewModel.onStateIsUserNeedToVerifyEmailState(state.msg)
+                            is UserAuthoritiesNotVerifiedState -> viewModel.onStateIsUserAuthoritiesNotVerifiedState(state.msg)
+                            is UserLoggedOutState -> viewModel.onStateIsUserLoggedOutState()
+                            is UserLoggedInState -> viewModel.onStateIsUserLoggedInState(applicationContext)
                             is UserErrorState -> {}
                         }
                     }
@@ -152,10 +123,7 @@ class UserActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-                            Navigation(
-                                navController,
-                                Route.LoggedOut.InitialScreen.link
-                            )
+                            InitialScreen()
                         }
                         PullRefreshIndicator(
                             refreshing = observerLoadingProcess,

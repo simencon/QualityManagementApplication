@@ -19,8 +19,8 @@ import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.receivers.NotificationActionsReceiver
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.services.MessagingService
-import com.simenko.qmapp.ui.NavArguments
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.NavArguments
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.works.WorkerKeys.ACTION
 import com.simenko.qmapp.works.WorkerKeys.BODY

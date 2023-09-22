@@ -11,8 +11,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.NavArguments
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.NavArguments
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel

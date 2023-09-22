@@ -91,7 +91,7 @@ import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)

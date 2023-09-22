@@ -14,8 +14,8 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.ui.NavArguments
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.NavArguments
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.team.employee.EmployeeComposition
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
@@ -23,7 +23,7 @@ import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserForm
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.main.team.user.UserComposition
-import com.simenko.qmapp.ui.sharedViewModel
+import com.simenko.qmapp.ui.navigation.sharedViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @OptIn(ExperimentalAnimationApi::class)

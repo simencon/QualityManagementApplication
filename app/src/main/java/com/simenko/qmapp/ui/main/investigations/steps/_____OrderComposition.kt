@@ -33,7 +33,7 @@ import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.Route
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
