@@ -73,11 +73,14 @@ fun NavigationEffects(
                         navHostController.popBackStack()
                     }
                 }
+
                 is NavigationIntent.NavigateTo -> {
                     navHostController.navigate(intent.route) {
                         launchSingleTop = intent.isSingleTop
-                        intent.popUpToRoute?.let { popUpToRoute ->
-                            popUpTo(popUpToRoute) { inclusive = intent.inclusive }
+                        if (intent.popUpToRoute != null) {
+                            popUpTo(intent.popUpToRoute) { inclusive = intent.inclusive }
+                        } else if (intent.popUpToId != null) {
+                            popUpTo(intent.popUpToId) { inclusive = intent.inclusive }
                         }
                     }
                 }

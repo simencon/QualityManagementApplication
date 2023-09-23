@@ -69,8 +69,8 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                 ) {
                     Spacer(modifier = Modifier.height(10.dp))
                     EnterDetails(
+                        viewModel = userDetailsModel,
                         editMode = true,
-                        userDetailsModel = userDetailsModel,
                         editUserData = editUserLambda
                     )
                 }

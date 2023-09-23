@@ -1,9 +1,9 @@
 package com.simenko.qmapp.ui.user
 
 import android.content.Context
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
@@ -15,9 +15,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
+private const val TAG = "UserViewModel"
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val userRepository: UserRepository
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
@@ -40,42 +41,55 @@ class UserViewModel @Inject constructor(
     val userState: StateFlow<UserState>
         get() = userRepository.userState
 
-    fun updateCurrentUserState() {
-//        userRepository.clearErrorMessage()
+    private fun updateCurrentUserState() {
         updateLoadingState(Pair(true, null))
         userRepository.getActualUserState()
     }
 
     fun onStateIsNoState() {
-        appNavigator.tryNavigateTo(Route.LoggedOut.InitialScreen.link)
+        Log.d(TAG, "onStateIsNoState")
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen.link, popUpToId = 0, inclusive = true)
         updateCurrentUserState()
     }
 
     fun onStateIsUnregisteredState() {
+        Log.d(TAG, "onStateIsUnregisteredState")
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(Route.LoggedOut.Registration.link)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.Registration.link, popUpToId = 0, inclusive = true)
     }
 
     suspend fun onStateIsUserNeedToVerifyEmailState(msg: String) {
+        Log.d(TAG, "onStateIsUserNeedToVerifyEmailState")
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(Route.LoggedOut.WaitingForValidation.withArgs(msg))
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation.withArgs(msg), popUpToId = 0, inclusive = true)
         delay(5000)
         updateCurrentUserState()
     }
 
     suspend fun onStateIsUserAuthoritiesNotVerifiedState(msg: String) {
+        Log.d(TAG, "onStateIsUserAuthoritiesNotVerifiedState")
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(Route.LoggedOut.WaitingForValidation.withArgs(msg))
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation.withArgs(msg), popUpToId = 0, inclusive = true)
         delay(5000)
         updateCurrentUserState()
     }
 
     fun onStateIsUserLoggedOutState() {
+        Log.d(TAG, "onStateIsUserLoggedOutState")
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToId = 0, inclusive = true)
     }
 
     fun onStateIsUserLoggedInState(context: Context) {
+        Log.d(TAG, "onStateIsUserLoggedInState")
         ContextCompat.startActivity(context, createMainActivityIntent(context), null)
+    }
+
+    fun onChangeRegistrationEmailClick() {
+        appNavigator.tryNavigateBack()
+    }
+
+    fun onProceedToLoginClick() {
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToId = 0, inclusive = true)
     }
 }

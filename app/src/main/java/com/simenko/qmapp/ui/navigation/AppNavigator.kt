@@ -18,6 +18,7 @@ interface AppNavigator {
     suspend fun navigateTo(
         route: String,
         popUpToRoute: String? = null,
+        popUpToId: Int? = null,
         inclusive: Boolean = false,
         isSingleTop: Boolean = false,
     )
@@ -25,6 +26,7 @@ interface AppNavigator {
     fun tryNavigateTo(
         route: String,
         popUpToRoute: String? = null,
+        popUpToId: Int? = null,
         inclusive: Boolean = false,
         isSingleTop: Boolean = false,
     )
@@ -39,6 +41,7 @@ sealed class NavigationIntent {
     data class NavigateTo(
         val route: String,
         val popUpToRoute: String? = null,
+        val popUpToId: Int? = null,
         val inclusive: Boolean = false,
         val isSingleTop: Boolean = false,
     ) : NavigationIntent()
