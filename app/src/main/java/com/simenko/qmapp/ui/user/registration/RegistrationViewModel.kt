@@ -4,12 +4,11 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.user.UserViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,27 +16,25 @@ class RegistrationViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private lateinit var _userViewModel: UserViewModel
-    fun initUserViewModel(model: UserViewModel) {
-        _userViewModel = model
-    }
+    private val _loadingState: MutableStateFlow<Pair<Boolean, String?>> = MutableStateFlow(Pair(false, null))
+    val loadingState get() = _loadingState.asStateFlow()
 
     fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _userViewModel.updateLoadingState(state)
+        _loadingState.value = state
     }
 
-    val userState: StateFlow<UserState> get() = _userViewModel.userState
+    val userState: StateFlow<UserState> get() = userRepository.userState
 
     fun registerUser() {
         assert(userRepository.rawUser != null)
-        _userViewModel.updateLoadingState(Pair(true, null))
+        _loadingState.value = Pair(true, null)
         userRepository.registerUser(userRepository.rawUser!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)
     val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
     fun hideUserExistDialog() {
-        _userViewModel.updateLoadingState(Pair(false, null))
+        _loadingState.value = Pair(false, null)
         userRepository.clearUserData()
         _isUserExistDialogVisible.value = false
     }

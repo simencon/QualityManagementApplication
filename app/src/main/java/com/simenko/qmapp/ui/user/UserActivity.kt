@@ -26,16 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.login.LoginViewModel
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
-import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
-import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
-import javax.inject.Inject
 
 fun createLoginActivityIntent(
     context: Context
@@ -48,13 +42,7 @@ fun createLoginActivityIntent(
 @OptIn(ExperimentalMaterialApi::class)
 @AndroidEntryPoint
 class UserActivity : ComponentActivity() {
-    @Inject
-    lateinit var userRepository: UserRepository
     private val userViewModel: UserViewModel by viewModels()
-    private lateinit var regModel: RegistrationViewModel
-    private lateinit var enterDetModel: EnterDetailsViewModel
-    private lateinit var verificationModel: WaitingForVerificationViewModel
-    private lateinit var loginModel: LoginViewModel
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,24 +96,5 @@ class UserActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    fun initRegModel(regModel: RegistrationViewModel) {
-        this.regModel = regModel
-        this.regModel.initUserViewModel(userViewModel)
-    }
-
-    fun initEnterDetModel(enterDetModel: EnterDetailsViewModel) {
-        this.enterDetModel = enterDetModel
-    }
-
-    fun initVerificationModel(verificationModel: WaitingForVerificationViewModel) {
-        this.verificationModel = verificationModel
-        this.verificationModel.initUserViewModel(userViewModel)
-    }
-
-    fun initLoginModel(loginModel: LoginViewModel) {
-        this.loginModel = loginModel
-        this.loginModel.initUserViewModel(userViewModel)
     }
 }

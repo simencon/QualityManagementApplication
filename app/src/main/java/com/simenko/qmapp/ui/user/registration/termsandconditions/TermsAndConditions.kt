@@ -36,10 +36,14 @@ import com.simenko.qmapp.ui.common.RecordActionTextBtn
 fun TermsAndConditions(
     viewModel: RegistrationViewModel,
     user: String? = null,
+    onLoadingStateChanged: (Pair<Boolean, String?>) -> Unit,
     onDismiss: () -> Unit,
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
+    val loadingState by viewModel.loadingState.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = loadingState, block = { onLoadingStateChanged(loadingState) })
+
     val userState by viewModel.userState.collectAsStateWithLifecycle()
     val userExistDialogVisibility by viewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
@@ -119,6 +123,7 @@ fun TermsAndConditionsPreview() {
     QMAppTheme {
         TermsAndConditions(
             viewModel = hiltViewModel(),
+            onLoadingStateChanged = {},
             onDismiss = {},
             onChangeEmail = {},
             onLogin = {}
