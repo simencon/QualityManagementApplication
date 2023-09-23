@@ -8,6 +8,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -48,14 +49,14 @@ class UserViewModel @Inject constructor(
 
     fun onStateIsNoState() {
         Log.d(TAG, "onStateIsNoState")
-        appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen.link, popUpToId = 0, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen.link, popUpToRoute = Route.LoggedOut.InitialScreen.route, inclusive = true)
         updateCurrentUserState()
     }
 
     fun onStateIsUnregisteredState() {
         Log.d(TAG, "onStateIsUnregisteredState")
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = Route.LoggedOut.Registration.link, popUpToId = 0, inclusive = true)
+        appNavigator.tryNavigateTo(route = REGISTRATION_ROOT, popUpToId = 0, inclusive = true)
     }
 
     suspend fun onStateIsUserNeedToVerifyEmailState(msg: String) {
@@ -77,19 +78,11 @@ class UserViewModel @Inject constructor(
     fun onStateIsUserLoggedOutState() {
         Log.d(TAG, "onStateIsUserLoggedOutState")
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToId = 0, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToRoute = Route.LoggedOut.LogIn.route, inclusive = true)
     }
 
     fun onStateIsUserLoggedInState(context: Context) {
         Log.d(TAG, "onStateIsUserLoggedInState")
         ContextCompat.startActivity(context, createMainActivityIntent(context), null)
-    }
-
-    fun onChangeRegistrationEmailClick() {
-        appNavigator.tryNavigateBack()
-    }
-
-    fun onProceedToLoginClick() {
-        appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToId = 0, inclusive = true)
     }
 }
