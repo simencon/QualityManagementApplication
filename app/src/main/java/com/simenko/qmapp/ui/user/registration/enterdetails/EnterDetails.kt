@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserError
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
@@ -69,8 +68,7 @@ fun EnterDetails(
         when (state) {
             is FillInSuccess ->
                 if (!editMode) {
-                    viewModel.initRawUser()
-                    viewModel.appNavigator.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
+                    viewModel.onFillInSuccess(rawPrinciple.email)
                 } else {
                     viewModel.initRawUser()
                     editUserData()
@@ -207,7 +205,7 @@ fun EnterDetails(
         if (!editMode)
             RecordActionTextBtn(
                 text = "Log in",
-                onClick = { viewModel.appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link) },
+                onClick = { viewModel.onLogInClick() },
                 colors = Pair(
                     ButtonDefaults.textButtonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
