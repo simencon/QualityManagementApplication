@@ -21,7 +21,6 @@ import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.LoadingScreen
-import com.simenko.qmapp.ui.user.UserActivity
 import com.simenko.qmapp.ui.user.UserViewModel
 import com.simenko.qmapp.ui.user.login.LogIn
 import com.simenko.qmapp.ui.user.login.LoginViewModel
@@ -73,20 +72,17 @@ fun InitialScreen(
 
                 navigation(startDestination = Route.LoggedOut.Registration.EnterDetails) {
                     composable(destination = Route.LoggedOut.Registration.EnterDetails) {
-                        val regModel: RegistrationViewModel = hiltViewModel()
-                        (LocalContext.current as UserActivity).initRegModel(regModel)
                         val enterDetModel: EnterDetailsViewModel = hiltViewModel()
-                        (LocalContext.current as UserActivity).initEnterDetModel(enterDetModel)
-
                         EnterDetails(viewModel = enterDetModel)
                     }
 
                     composable(destination = Route.LoggedOut.Registration.TermsAndConditions) {
-                        val regModel: RegistrationViewModel = it.sharedViewModel(navController = navController)
+                        val regModel: RegistrationViewModel = hiltViewModel()
 
                         TermsAndConditions(
                             viewModel = regModel,
                             user = it.arguments?.getString(NavArguments.fullName),
+                            onLoadingStateChanged = { state -> userViewModel.updateLoadingState(state) },
                             onDismiss = { regModel.hideUserExistDialog() },
                             onChangeEmail = { regModel.onChangeRegistrationEmailClick() },
                             onLogin = { regModel.onProceedToLoginClick() }
@@ -96,16 +92,13 @@ fun InitialScreen(
 
                 composable(destination = Route.LoggedOut.WaitingForValidation) {
                     val verificationModel: WaitingForVerificationViewModel = hiltViewModel()
-                    (LocalContext.current as UserActivity).initVerificationModel(verificationModel)
-
                     WaitingForVerification(viewModel = verificationModel, message = it.arguments?.getString(NavArguments.message))
                 }
 
                 composable(destination = Route.LoggedOut.LogIn) {
                     val loginModel: LoginViewModel = hiltViewModel()
-                    (LocalContext.current as UserActivity).initLoginModel(loginModel)
 
-                    LogIn(loginModel)
+                    LogIn(loginModel) { state -> userViewModel.updateLoadingState(state) }
                 }
             }
         }

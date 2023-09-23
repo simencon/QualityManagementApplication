@@ -39,8 +39,7 @@ class UserViewModel @Inject constructor(
         _isErrorMessage.value = null
     }
 
-    val userState: StateFlow<UserState>
-        get() = userRepository.userState
+    val userState: StateFlow<UserState> get() = userRepository.userState
 
     private fun updateCurrentUserState() {
         updateLoadingState(Pair(true, null))

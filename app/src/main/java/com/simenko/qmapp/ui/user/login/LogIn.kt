@@ -43,7 +43,13 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LogIn(viewModel: LoginViewModel) {
+fun LogIn(
+    viewModel: LoginViewModel,
+    onLoadingStateChanged: (Pair<Boolean, String?>) -> Unit
+) {
+    val loadingState by viewModel.loadingState.collectAsStateWithLifecycle()
+    LaunchedEffect(key1 = loadingState, block = { onLoadingStateChanged(loadingState) })
+
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     val principle by viewModel.loggedOutPrinciple.collectAsStateWithLifecycle()
