@@ -2,8 +2,6 @@ package com.simenko.qmapp.di
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.ComposeNavigator
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.google.firebase.auth.ktx.auth
@@ -81,16 +79,16 @@ object AppModule {
     @Singleton
     @Provides
     fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, @Named("rest_api_url") url: String): Retrofit = Retrofit
-        .Builder()
-        .baseUrl(if (url != EmptyString.str) url  else DEFAULT_REST_API_URL)
-        .addConverterFactory(
-            MoshiConverterFactory.create(
-                moshi
+            .Builder()
+            .baseUrl(if (url != EmptyString.str) "$url/" else DEFAULT_REST_API_URL)
+            .addConverterFactory(
+                MoshiConverterFactory.create(
+                    moshi
+                )
             )
-        )
-        .addConverterFactory(PairConverterFactory())
-        .client(client)
-        .build()
+            .addConverterFactory(PairConverterFactory())
+            .client(client)
+            .build()
 
     @Singleton
     @Provides

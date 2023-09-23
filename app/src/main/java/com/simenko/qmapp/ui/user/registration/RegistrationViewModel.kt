@@ -41,4 +41,14 @@ class RegistrationViewModel @Inject constructor(
     fun showUserExistDialog() {
         _isUserExistDialogVisible.value = true
     }
+    
+    fun onChangeRegistrationEmailClick(){
+        hideUserExistDialog()
+        _userViewModel.onChangeRegistrationEmailClick()
+    }
+
+    fun onProceedToLoginClick() {
+        hideUserExistDialog()
+        _userViewModel.onProceedToLoginClick()
+    }
 }

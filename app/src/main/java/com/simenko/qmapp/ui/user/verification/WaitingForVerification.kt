@@ -33,9 +33,11 @@ import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserError
 
 @Composable
-fun WaitingForVerification(message: String? = null) {
-    val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
-    val userState by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
+fun WaitingForVerification(
+    viewModel: WaitingForVerificationViewModel,
+    message: String? = null
+) {
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
     var msg by rememberSaveable { mutableStateOf("Please check your email box") }
@@ -82,7 +84,7 @@ fun WaitingForVerification(message: String? = null) {
                 modifier = Modifier.width(150.dp),
                 onClick = {
                     msg = UserError.NO_ERROR.error
-                    waitingForVerificationViewModel.resendVerificationEmail()
+                    viewModel.resendVerificationEmail()
                 },
                 content = {
                     Text(
@@ -112,6 +114,6 @@ fun WaitingForVerification(message: String? = null) {
 @Composable
 fun WaitingForVerificationPreview() {
     QMAppTheme {
-        WaitingForVerification()
+        WaitingForVerification(viewModel = hiltViewModel())
     }
 }

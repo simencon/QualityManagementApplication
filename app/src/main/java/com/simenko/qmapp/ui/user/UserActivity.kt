@@ -20,26 +20,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.repository.NoState
-import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
-import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UnregisteredState
-import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.ui.user.login.LoginViewModel
@@ -47,7 +34,6 @@ import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import java.util.Locale
 import javax.inject.Inject
 
@@ -64,7 +50,7 @@ fun createLoginActivityIntent(
 class UserActivity : ComponentActivity() {
     @Inject
     lateinit var userRepository: UserRepository
-    val viewModel: UserViewModel by viewModels()
+    private val userViewModel: UserViewModel by viewModels()
     private lateinit var regModel: RegistrationViewModel
     private lateinit var enterDetModel: EnterDetailsViewModel
     private lateinit var verificationModel: WaitingForVerificationViewModel
@@ -76,23 +62,7 @@ class UserActivity : ComponentActivity() {
 
         setContent {
             QMAppTheme {
-                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
-
-                val userState by viewModel.userState.collectAsStateWithLifecycle()
-
-                LaunchedEffect(userState) {
-                    userState.let { state ->
-                        when (state) {
-                            is NoState -> viewModel.onStateIsNoState()
-                            is UnregisteredState -> viewModel.onStateIsUnregisteredState()
-                            is UserNeedToVerifyEmailState -> viewModel.onStateIsUserNeedToVerifyEmailState(state.msg)
-                            is UserAuthoritiesNotVerifiedState -> viewModel.onStateIsUserAuthoritiesNotVerifiedState(state.msg)
-                            is UserLoggedOutState -> viewModel.onStateIsUserLoggedOutState()
-                            is UserLoggedInState -> viewModel.onStateIsUserLoggedInState(applicationContext)
-                            is UserErrorState -> {}
-                        }
-                    }
-                }
+                val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()
 
                 Scaffold(
                     topBar = {
@@ -123,7 +93,7 @@ class UserActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-                            InitialScreen()
+                            InitialScreen(userViewModel = userViewModel)
                         }
                         PullRefreshIndicator(
                             refreshing = observerLoadingProcess,
@@ -142,7 +112,7 @@ class UserActivity : ComponentActivity() {
 
     fun initRegModel(regModel: RegistrationViewModel) {
         this.regModel = regModel
-        this.regModel.initUserViewModel(viewModel)
+        this.regModel.initUserViewModel(userViewModel)
     }
 
     fun initEnterDetModel(enterDetModel: EnterDetailsViewModel) {
@@ -151,11 +121,11 @@ class UserActivity : ComponentActivity() {
 
     fun initVerificationModel(verificationModel: WaitingForVerificationViewModel) {
         this.verificationModel = verificationModel
-        this.verificationModel.initUserViewModel(viewModel)
+        this.verificationModel.initUserViewModel(userViewModel)
     }
 
     fun initLoginModel(loginModel: LoginViewModel) {
         this.loginModel = loginModel
-        this.loginModel.initUserViewModel(viewModel)
+        this.loginModel.initUserViewModel(userViewModel)
     }
 }

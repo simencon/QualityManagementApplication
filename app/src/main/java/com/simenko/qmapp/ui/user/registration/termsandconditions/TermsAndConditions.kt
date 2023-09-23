@@ -33,14 +33,14 @@ import com.simenko.qmapp.ui.common.RecordActionTextBtn
 
 @Composable
 fun TermsAndConditions(
-    regModel: RegistrationViewModel,
+    viewModel: RegistrationViewModel,
     user: String? = null,
     onDismiss: () -> Unit,
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
-    val userState by regModel.userState.collectAsStateWithLifecycle()
-    val userExistDialogVisibility by regModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
+    val userExistDialogVisibility by viewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
 
@@ -49,11 +49,11 @@ fun TermsAndConditions(
             if (state is UserErrorState) {
                 error = state.error ?: UserError.UNKNOWN_ERROR.error
                 if (state.error == UserError.USER_EXISTS.error) {
-                    regModel.showUserExistDialog()
+                    viewModel.showUserExistDialog()
                 }
             }
         }
-        regModel.updateLoadingState(Pair(false, null))
+        viewModel.updateLoadingState(Pair(false, null))
     }
 
     Box {
@@ -96,7 +96,7 @@ fun TermsAndConditions(
             Spacer(modifier = Modifier.height(10.dp))
             RecordActionTextBtn(
                 text = "Register",
-                onClick = { regModel.registerUser() },
+                onClick = { viewModel.registerUser() },
                 colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
         }
@@ -114,7 +114,7 @@ fun TermsAndConditions(
 fun TermsAndConditionsPreview() {
     QMAppTheme {
         TermsAndConditions(
-            regModel = hiltViewModel(),
+            viewModel = hiltViewModel(),
             onDismiss = {},
             onChangeEmail = {},
             onLogin = {}

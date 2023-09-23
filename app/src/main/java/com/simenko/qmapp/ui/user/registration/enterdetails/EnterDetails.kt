@@ -44,7 +44,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.navigation.Route
@@ -54,14 +53,10 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
+    viewModel: EnterDetailsViewModel,
     editMode: Boolean = false,
-    userDetailsModel: EnterDetailsViewModel? = null,
     editUserData: () -> Unit = {}
 ) {
-    val viewModel: EnterDetailsViewModel = userDetailsModel.let {
-        it ?: hiltViewModel()
-    }
-
     val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
 
