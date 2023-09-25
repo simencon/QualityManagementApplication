@@ -35,15 +35,15 @@ fun SubOrderForm(
 
     LaunchedEffect(record) {
         if (!subOrderStandAlone) {
-            if (record.first == NoRecord.num && record.second == NoRecord.num) {
+            if (record.second == NoRecord.num) {
                 viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER, record)
-            } else if (record.first != NoRecord.num && record.second != NoRecord.num) {
+            } else {
                 viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER, record)
             }
         } else {
-            if (record.first == NoRecord.num && record.second == NoRecord.num) {
+            if (record.second == NoRecord.num) {
                 viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER_STAND_ALONE, record)
-            } else if (record.first != NoRecord.num && record.second != NoRecord.num) {
+            } else {
                 viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE, record)
             }
         }

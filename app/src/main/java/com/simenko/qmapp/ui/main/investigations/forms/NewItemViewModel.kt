@@ -559,7 +559,7 @@ class NewItemViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeOrder(newRecord: Boolean = true) {
+    private fun makeOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(_order.value))
             viewModelScope.launch(Dispatchers.IO) {
                 with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
@@ -586,7 +586,7 @@ class NewItemViewModel @Inject constructor(
             updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun makeNewOrderWithSubOrder(newRecord: Boolean = true) {
+    private fun makeNewOrderWithSubOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
@@ -612,7 +612,7 @@ class NewItemViewModel @Inject constructor(
             updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
-    fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
+    private fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }

@@ -1,8 +1,9 @@
 package com.simenko.qmapp.ui.main.team.forms.employee
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
@@ -14,6 +15,7 @@ import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
@@ -44,12 +46,26 @@ import javax.inject.Inject
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
+    private val topScreenState: TopScreenState,
     private val repository: ManufacturingRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private lateinit var _mainViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this._mainViewModel = viewModel
+    private fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.trySendLoadingState(state)
+    }
+
+    private val _isNewEmployeeRecord = mutableStateOf(false)
+    suspend fun setupTopScreen(addEditMode: AddEditMode, employeeId: Int) {
+        topScreenState.trySendTopScreenSetup(
+            addEditMode = Pair(addEditMode) {
+                _isNewEmployeeRecord.value = addEditMode == AddEditMode.ADD_EMPLOYEE
+                validateInput()
+            },
+            refreshAction = {},
+            filterAction = {}
+        )
+        if (addEditMode == AddEditMode.EDIT_EMPLOYEE)
+            withContext(Dispatchers.Default) { loadEmployee(employeeId) }
     }
 
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
@@ -201,21 +217,16 @@ class EmployeeViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeEmployee(record: DomainEmployee) = viewModelScope.launch {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+    fun makeEmployee(newRecord: Boolean = _isNewEmployeeRecord.value) = viewModelScope.launch {
+        updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run {
-                if (_mainViewModel.addEditMode.value == AddEditMode.ADD_EMPLOYEE.ordinal)
-                    insertTeamMember(record)
-                else
-                    updateTeamMember(record)
-            }.consumeEach { event ->
+            repository.run { if (newRecord) insertTeamMember(_employee.value) else updateTeamMember(_employee.value) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> updateLoadingState(Pair(true, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.id)
                         Status.ERROR -> {
-                            _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                            updateLoadingState(Pair(true, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -225,7 +236,7 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: Int?) {
-        _mainViewModel.updateLoadingState(Pair(false, null))
+        updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
                 appNavigator.tryNavigateTo(
