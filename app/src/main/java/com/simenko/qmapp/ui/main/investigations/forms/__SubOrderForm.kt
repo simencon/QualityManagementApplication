@@ -40,6 +40,7 @@ fun SubOrderForm(
                 viewModel.loadOrder(record.first)
                 if (record.second != NoRecord.num) {
                     viewModel.loadSubOrder(record.second)
+                    if(subOrderStandAlone) viewModel.setupTopScreen()
                 }
             }
         } else {

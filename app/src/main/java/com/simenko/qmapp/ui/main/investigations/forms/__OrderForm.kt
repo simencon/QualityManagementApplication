@@ -28,6 +28,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.steps.CustomersSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.InitiatorsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.TypesSelection
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -35,14 +36,17 @@ import java.util.Locale
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
+    viewModel: NewItemViewModel = hiltViewModel(),
     orderId: Int
 ) {
-    val viewModel: NewItemViewModel = hiltViewModel()
     LaunchedEffect(orderId) {
         if (orderId != NoRecord.num) {
+            viewModel.setupTopScreen(AddEditMode.ADD_ORDER)
             withContext(Dispatchers.Default) {
                 viewModel.loadOrder(orderId)
             }
+        } else {
+            viewModel.setupTopScreen(AddEditMode.EDIT_ORDER)
         }
     }
 

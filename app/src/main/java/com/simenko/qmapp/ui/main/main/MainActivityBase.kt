@@ -19,7 +19,6 @@ import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
-import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.navigation.MAIN_ROUTE
@@ -28,7 +27,6 @@ import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
 
-    private lateinit var teamModel: TeamViewModel
     private lateinit var newOrderModel: NewItemViewModel
     private lateinit var employeeModel: EmployeeViewModel
     private lateinit var userModel: UserViewModel
@@ -201,8 +199,8 @@ abstract class MainActivityBase : ComponentActivity() {
             }
         else {
             when (AddEditMode.values()[addEditMode]) {
-                AddEditMode.ADD_ORDER -> newOrderModel.makeOrder(newRecord = true)
-                AddEditMode.EDIT_ORDER -> newOrderModel.makeOrder(newRecord = false)
+                AddEditMode.ADD_ORDER -> addEditAction()
+                AddEditMode.EDIT_ORDER -> addEditAction()
                 AddEditMode.ADD_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = true)
                 AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = false)
                 AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
@@ -239,9 +237,9 @@ abstract class MainActivityBase : ComponentActivity() {
      * */
     fun onPullRefresh(backStackEntry: State<NavBackStackEntry?>, refreshAction: () -> Unit) {
         when (backStackEntry.value?.destination?.route) {
-            Route.Main.Team.Employees.link -> teamModel.updateEmployeesData()
-            Route.Main.Team.Users.link -> teamModel.updateEmployeesData()
-            Route.Main.Team.Requests.link -> teamModel.updateEmployeesData()
+            Route.Main.Team.Employees.link -> refreshAction()
+            Route.Main.Team.Users.link -> refreshAction()
+            Route.Main.Team.Requests.link -> refreshAction()
             Route.Main.Inv.link -> refreshAction()
             Route.Main.ProcessControl.link -> refreshAction()
             Route.Main.Settings.UserDetails.link -> refreshAction()
@@ -253,15 +251,8 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * View models consistency -----------------------------------------------------------------------------------------------------------------------
      * */
-
-    fun initTeamModel(model: TeamViewModel) {
-        this.teamModel = model
-        this.teamModel.initMainActivityViewModel(this.viewModel)
-    }
-
     fun initNewOrderModel(model: NewItemViewModel) {
         this.newOrderModel = model
-        this.newOrderModel.initMainActivityViewModel(this.viewModel)
     }
 
     fun initEmployeeModel(employeeModel: EmployeeViewModel) {

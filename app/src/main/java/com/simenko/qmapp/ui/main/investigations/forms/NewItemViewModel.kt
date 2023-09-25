@@ -1,15 +1,15 @@
 package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,13 +30,29 @@ import javax.inject.Inject
 @HiltViewModel
 class NewItemViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
+    private val topScreenState: TopScreenState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-    private lateinit var mainActivityViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this.mainActivityViewModel = viewModel
+    fun setupTopScreen(addEditMode: AddEditMode) {
+        when (addEditMode) {
+            AddEditMode.ADD_ORDER, AddEditMode.EDIT_ORDER -> {
+                topScreenState.trySendTopScreenSetup(
+                    addEditMode = Pair(addEditMode) { makeOrder(addEditMode == AddEditMode.ADD_ORDER) },
+                    refreshAction = {},
+                    filterAction = {}
+                )
+            }
+
+            AddEditMode.ADD_SUB_ORDER, AddEditMode.EDIT_SUB_ORDER -> {}
+            AddEditMode.ADD_SUB_ORDER_STAND_ALONE, AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> {}
+            else -> {}
+        }
+    }
+
+    private fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.trySendLoadingState(state)
     }
 
     /**
@@ -514,9 +530,9 @@ class NewItemViewModel @Inject constructor(
                 with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.LOADING -> updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
-                                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                updateLoadingState(Pair(false, null))
                                 withContext(Dispatchers.Main) {
                                     appNavigator.tryNavigateTo(
                                         route = Route.Main.Inv.withOpts(resource.data?.id.toString(), NoRecordStr.str),
@@ -526,13 +542,13 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                         }
                     }
                 }
             }
         else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+            updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
     fun makeNewOrderWithSubOrder(newRecord: Boolean = true) {
@@ -541,7 +557,7 @@ class NewItemViewModel @Inject constructor(
                 repository.run { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.LOADING -> updateLoadingState(Pair(true, null))
 
                             Status.SUCCESS -> {
                                 resource.data?.let {
@@ -552,13 +568,13 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                         }
                     }
                 }
             }
         else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+            updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
     fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
@@ -568,13 +584,13 @@ class NewItemViewModel @Inject constructor(
                     .consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                Status.LOADING -> updateLoadingState(Pair(true, null))
                                 Status.SUCCESS -> {
                                     resource.data?.let {
                                         postDeleteSubOrderTasks(it.id)
                                         postDeleteSamples(it.id)
                                     }
-                                    mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                    updateLoadingState(Pair(false, null))
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
                                             appNavigator.tryNavigateTo(
@@ -594,13 +610,13 @@ class NewItemViewModel @Inject constructor(
                                     }
                                 }
 
-                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                             }
                         }
                     }
             }
         else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+            updateLoadingState(Pair(false, "Fill in all field before save!"))
     }
 
     private suspend fun postDeleteSamples(subOrderId: Int) {
@@ -614,9 +630,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -625,9 +641,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -648,9 +664,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -659,9 +675,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> updateLoadingState(Pair(true, null))
+                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
+                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
                                 }
                             }
                         }
