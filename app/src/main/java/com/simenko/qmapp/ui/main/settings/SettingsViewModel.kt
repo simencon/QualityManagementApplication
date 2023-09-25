@@ -65,6 +65,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setUpTopScreen() {
-        topScreenState.trySendAddEditMode(Pair(AddEditMode.NO_MODE) { }) { updateUserData() }
+        topScreenState.trySendAddEditMode(Pair(AddEditMode.NO_MODE) { }, { updateUserData() }, { })
     }
 }

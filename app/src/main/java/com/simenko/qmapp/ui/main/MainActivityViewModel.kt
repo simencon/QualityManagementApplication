@@ -57,8 +57,9 @@ class MainActivityViewModel @Inject constructor(
     private val _fabPosition: MutableStateFlow<FabPosition> = MutableStateFlow(FabPosition.End)
     val fabPosition: StateFlow<FabPosition> get() = _fabPosition
 
-    fun onListEnd(position: FabPosition) {
-        _fabPosition.value = position
+
+    fun onEndOfList(position: Boolean) {
+        _fabPosition.value = if (position) FabPosition.Center else FabPosition.End
     }
 
     private val _selectedDrawerMenuItemId: MutableStateFlow<String> = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
@@ -72,11 +73,14 @@ class MainActivityViewModel @Inject constructor(
     private val _addEditAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
     val addEditAction get() = _addEditAction.asStateFlow()
     private val _refreshAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
-    val refreshAction get() = _addEditAction.asStateFlow()
-    fun setAddEditMode(mode: AddEditMode, addEditAction: () -> Unit = {}, refreshAction: () -> Unit = {}) {
+    val refreshAction get() = _refreshAction.asStateFlow()
+    private val _searchAction: MutableStateFlow<(String) -> Unit> = MutableStateFlow {}
+    val searchAction get() = _searchAction.asStateFlow()
+    fun setUpToScreenState(mode: AddEditMode, addEditAction: () -> Unit = {}, refreshAction: () -> Unit = {}, searchAction: (String) -> Unit = {}) {
         this._addEditMode.value = mode.ordinal
         this._addEditAction.value = addEditAction
         this._refreshAction.value = refreshAction
+        this._searchAction.value = searchAction
     }
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)
