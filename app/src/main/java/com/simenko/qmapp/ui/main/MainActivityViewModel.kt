@@ -5,8 +5,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -18,7 +16,7 @@ import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.utils.BaseOrderFilter
+import com.simenko.qmapp.utils.BaseFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -77,18 +75,18 @@ class MainActivityViewModel @Inject constructor(
     val addEditAction get() = _addEditAction.asStateFlow()
     private val _refreshAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
     val refreshAction get() = _refreshAction.asStateFlow()
-    private val _searchAction: MutableStateFlow<(BaseOrderFilter) -> Unit> = MutableStateFlow {}
-    val searchAction get() = _searchAction.asStateFlow()
-    fun setUpToScreenState(
+    private val _filterAction: MutableStateFlow<(BaseFilter) -> Unit> = MutableStateFlow {}
+    val filterAction get() = _filterAction.asStateFlow()
+    fun setupTopScreen(
         mode: AddEditMode,
         addEditAction: () -> Unit = {},
         refreshAction: () -> Unit = {},
-        searchAction: (BaseOrderFilter) -> Unit = {}
+        searchAction: (BaseFilter) -> Unit = {}
     ) {
         this._addEditMode.value = mode.ordinal
         this._addEditAction.value = addEditAction
         this._refreshAction.value = refreshAction
-        this._searchAction.value = searchAction
+        this._filterAction.value = searchAction
     }
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)

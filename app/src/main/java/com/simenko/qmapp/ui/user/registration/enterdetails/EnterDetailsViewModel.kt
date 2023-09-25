@@ -140,8 +140,8 @@ class EnterDetailsViewModel @Inject constructor(
         userRepository.updateUserData()
     }
 
-    fun setUpTopScreen() {
-        topScreenState.trySendAddEditMode(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() }, { updateUserData() }, {})
+    fun setupTopScreen() {
+        topScreenState.trySendTopScreenSetup(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() }, { updateUserData() }, {})
     }
 }
 

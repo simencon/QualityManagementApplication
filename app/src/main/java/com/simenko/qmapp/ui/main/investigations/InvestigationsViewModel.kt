@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -14,7 +13,7 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.utils.BaseOrderFilter
+import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
@@ -29,8 +28,6 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
-
-private const val TAG = "InvestigationsViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -68,13 +65,11 @@ class InvestigationsViewModel @Inject constructor(
         topScreenState.trySendEndOfListState(state)
     }
 
-    fun setUpTopScreenState(pcOnly: Boolean) {
-        topScreenState.trySendAddEditMode(
+    fun setupTopScreen(pcOnly: Boolean) {
+        topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(AddEditMode.NO_MODE) {},
             refreshAction = { uploadNewInvestigations() },
-            filterAction = {
-                if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it)
-            }
+            filterAction = { if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it) }
         )
     }
 
@@ -189,7 +184,6 @@ class InvestigationsViewModel @Inject constructor(
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
 
     fun setLastVisibleItemKey(key: Any) {
-        Log.d(TAG, "setLastVisibleItemKey: $key")
         _lastVisibleItemKey.value = key
     }
 
@@ -217,7 +211,7 @@ class InvestigationsViewModel @Inject constructor(
      * Filtering operations
      * */
     private val _currentOrdersFilter = MutableStateFlow(OrdersFilter())
-    private fun setCurrentOrdersFilter(filter: BaseOrderFilter) {
+    private fun setCurrentOrdersFilter(filter: BaseFilter) {
         val current = _currentOrdersFilter.value
         _currentOrdersFilter.value = _currentOrdersFilter.value.copy(
             typeId = if (filter.typeId != NoRecord.num) filter.typeId else current.typeId,
@@ -234,7 +228,6 @@ class InvestigationsViewModel @Inject constructor(
             _ordersSF.flatMapLatest { orders ->
                 _currentOrderVisibility.flatMapLatest { visibility ->
                     _currentOrdersFilter.flatMapLatest { filter ->
-
                         if (visibility.first == NoRecord) {
                             setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
                             setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
@@ -317,7 +310,7 @@ class InvestigationsViewModel @Inject constructor(
      * Filtering operations
      * */
     private val _currentSubOrdersFilter = MutableStateFlow(SubOrdersFilter())
-    fun setCurrentSubOrdersFilter(filter: BaseOrderFilter) {
+    fun setCurrentSubOrdersFilter(filter: BaseFilter) {
         val current = _currentSubOrdersFilter.value
         _currentSubOrdersFilter.value = _currentSubOrdersFilter.value.copy(
             typeId = if (filter.typeId != NoRecord.num) filter.typeId else current.typeId,
@@ -756,7 +749,7 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    fun uploadNewInvestigations() {
+    private fun uploadNewInvestigations() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
