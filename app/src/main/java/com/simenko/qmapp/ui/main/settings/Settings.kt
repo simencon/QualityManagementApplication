@@ -44,11 +44,11 @@ import com.simenko.qmapp.ui.dialogs.ApproveAction
 
 @Composable
 fun Settings(
+    viewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
     onLogOut: () -> Unit,
     onEditUserData: () -> Unit
 ) {
-    val viewModel: SettingsViewModel = hiltViewModel()
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     LaunchedEffect(userState) {
@@ -197,6 +197,7 @@ fun InfoLine(
 fun SettingsPreview() {
     QMAppTheme {
         Settings(
+            viewModel = hiltViewModel(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 0.dp),

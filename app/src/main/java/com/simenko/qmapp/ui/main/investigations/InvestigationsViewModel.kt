@@ -11,10 +11,11 @@ import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.dialogs.DialogInput
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
@@ -35,27 +36,25 @@ private const val TAG = "InvestigationsViewModel"
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-
-    companion object {
-        fun getStatus(status: String): SelectedNumber {
-            return when (status) {
-                ProgressTabs.ALL.name -> NoRecord
-                ProgressTabs.TO_DO.name -> SelectedNumber(1)
-                ProgressTabs.IN_PROGRESS.name -> SelectedNumber(2)
-                ProgressTabs.DONE.name -> SelectedNumber(3)
-                else -> NoRecord
-            }
-        }
+    fun onEditInvClick(orderId: Int) {
+        appNavigator.tryNavigateTo(Route.Main.OrderAddEdit.withArgs(orderId.toString()))
     }
 
-    private lateinit var _navController: NavHostController
-    val navController get() = _navController
-    fun initNavController(controller: NavHostController) {
-        this._navController = controller
+    fun onEditProcessControlClick(record: Pair<Int, Int>) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), TrueStr.str))
+    }
+
+    fun onAddSubOrderClick(orderId: Int) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(orderId.toString(), NoRecordStr.str, FalseStr.str))
+    }
+
+    fun onEditSubOrderClick(record: Pair<Int, Int>) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), FalseStr.str))
     }
 
     private lateinit var mainActivityViewModel: MainActivityViewModel

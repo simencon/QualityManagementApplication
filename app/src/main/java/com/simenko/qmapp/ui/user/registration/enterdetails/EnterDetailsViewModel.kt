@@ -25,9 +25,10 @@ class EnterDetailsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
-    fun resetToInitialState() {
+    private fun resetToInitialState() {
         _fillInState.value = FillInInitialState
     }
+
     val fillInState: StateFlow<FillInState> get() = _fillInState
 
     private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
@@ -111,6 +112,23 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onLogInClick() {
         appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link)
+    }
+    fun onSaveUserDataClick() {
+        userRepository.rawUser?.let {
+            Pair(true, null)
+            userRepository.editUserData(it).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Pair(false, null)
+                    appNavigator.tryNavigateTo(
+                        Route.Main.Settings.UserDetails.link,
+                        popUpToRoute = Route.Main.Settings.UserDetails.route,
+                        inclusive = true
+                    )
+                } else {
+                    Pair(false, task.exception?.message)
+                }
+            }
+        }
     }
 }
 

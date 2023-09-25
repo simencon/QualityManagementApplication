@@ -5,6 +5,8 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
     private val userRepository: UserRepository
 ) : ViewModel() {
     private lateinit var _mainViewModel: MainActivityViewModel
@@ -53,22 +56,13 @@ class SettingsViewModel @Inject constructor(
         userRepository.updateUserData()
     }
 
-    private lateinit var _userDetailsModel: EnterDetailsViewModel
-
-    fun initUserDetailsModel(model: EnterDetailsViewModel) {
-        this._userDetailsModel = model
-    }
-
     var validateUserData: () -> Unit = {}
-
-    fun editUserData() {
-        _mainViewModel.updateLoadingState(Pair(true, null))
-        userRepository.rawUser?.let {
-            userRepository.editUserData(it)
-        }
-    }
 
     fun updateFcmToken() {
         userRepository.updateFcmToken(userRepository.user.email)
+    }
+
+    fun onUserDataEditClick() {
+        appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.link)
     }
 }

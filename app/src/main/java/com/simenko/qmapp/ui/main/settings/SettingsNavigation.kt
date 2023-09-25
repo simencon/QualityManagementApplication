@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.settings
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,36 +28,25 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
     navigation(startDestination = Route.Main.Settings.UserDetails) {
         composable(destination = Route.Main.Settings.UserDetails) {
-            val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
             val settingsModel: SettingsViewModel = hiltViewModel()
-            val activity = (LocalContext.current as MainActivity)
-            activity.initSettingsModel(settingsModel)
-            settingsModel.initUserDetailsModel(userDetailsModel)
+            val context = LocalContext.current
+            (context as MainActivity).initSettingsModel(settingsModel)
 
             Settings(
+                viewModel = settingsModel,
                 modifier = Modifier
                     .padding(all = 0.dp)
                     .fillMaxWidth(),
-                onLogOut = {
-                    ContextCompat.startActivity(navController.context, createLoginActivityIntent(navController.context), null)
-                },
-                onEditUserData = {
-                    userDetailsModel.resetToInitialState()
-                    navController.navigate(Route.Main.Settings.EditUserDetails.link) { launchSingleTop = true }
-                }
+                onLogOut = { ContextCompat.startActivity(context, createLoginActivityIntent(context), null) },
+                onEditUserData = { settingsModel.onUserDataEditClick() }
             )
         }
         composable(destination = Route.Main.Settings.EditUserDetails) {
+            val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
             val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
-            val userDetailsModel: EnterDetailsViewModel = it.sharedViewModel(navController = navController)
+
             settingsViewModel.validateUserData = { userDetailsModel.validateInput() }
-            BackHandler { navController.popBackStack(Route.Main.Settings.UserDetails.link, inclusive = false) }
-            val editUserLambda = remember {
-                {
-                    navController.popBackStack(Route.Main.Settings.UserDetails.link, inclusive = false)
-                    settingsViewModel.editUserData()
-                }
-            }
+            val editUserLambda = remember { { userDetailsModel.onSaveUserDataClick() } }
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -211,11 +211,11 @@ abstract class MainActivityBase : ComponentActivity() {
                 AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = false)
                 AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
                 AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
-                AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
                 AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
                 AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
                 AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
                 AddEditMode.EDIT_USER -> userModel.validateInput()
+                AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
         }
@@ -265,30 +265,25 @@ abstract class MainActivityBase : ComponentActivity() {
     fun initInvModel(model: InvestigationsViewModel) {
         this.invModel = model
         this.invModel.initMainActivityViewModel(this.viewModel)
-        this.invModel.initNavController(this.navController)
     }
 
     fun initTeamModel(model: TeamViewModel) {
         this.teamModel = model
         this.teamModel.initMainActivityViewModel(this.viewModel)
-        this.teamModel.initNavController(this.navController)
     }
 
     fun initNewOrderModel(model: NewItemViewModel) {
         this.newOrderModel = model
         this.newOrderModel.initMainActivityViewModel(this.viewModel)
-        this.newOrderModel.initNavController(this.navController)
     }
 
     fun initEmployeeModel(employeeModel: EmployeeViewModel) {
         this.employeeModel = employeeModel
         this.employeeModel.initMainActivityViewModel(this.viewModel)
-        this.employeeModel.initNavController(this.navController)
     }
 
     fun initUserModel(model: UserViewModel) {
         this.userModel = model
         this.userModel.initMainActivityViewModel(this.viewModel)
-        this.userModel.initNavController(this.navController)
     }
 }

@@ -1,15 +1,17 @@
 package com.simenko.qmapp.ui.main.team
 
-import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.navDeepLink
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.NavArguments
@@ -24,7 +26,6 @@ import com.simenko.qmapp.ui.main.team.user.UserComposition
 import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
 import com.simenko.qmapp.ui.navigation.sharedViewModel
-import com.simenko.qmapp.ui.theme.QMAppTheme
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
@@ -36,15 +37,11 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 it.arguments?.getInt(NavArguments.employeeId)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
             }
-            EmployeeComposition(onClickEdit = { id ->
-                teamModel.setSelectedEmployeeRecord(NoRecord.num)
-                navController.navigate(Route.Main.Team.EmployeeAddEdit.withArgs(id.toString()))
-            })
+            EmployeeComposition(onClickEdit = { id -> teamModel.onEmployeeEdictClick(id) })
         }
         composable(destination = Route.Main.Team.EmployeeAddEdit) {
             val employeeModel: EmployeeViewModel = hiltViewModel()
             (LocalContext.current as MainActivity).initEmployeeModel(employeeModel)
-            BackHandler { navController.popBackStack() }
 
             EmployeeForm(employeeId = it.arguments?.getInt(NavArguments.employeeId) ?: NoRecord.num)
         }
@@ -59,14 +56,8 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             UserComposition(
                 viewModel = teamModel,
                 isUsersPage = true,
-                onClickAuthorize = { id ->
-                    teamModel.setSelectedUserRecord(NoRecordStr.str)
-                    navController.navigate(Route.Main.Team.EditUser.withArgs(id))
-                },
-                onClickEdit = { id ->
-                    teamModel.setSelectedUserRecord(NoRecordStr.str)
-                    navController.navigate(Route.Main.Team.EditUser.withArgs(id))
-                }
+                onClickAuthorize = {},
+                onClickEdit = { id -> teamModel.onUserEditClick(id) }
             )
         }
         composable(destination = Route.Main.Team.Requests) {
@@ -80,26 +71,19 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             UserComposition(
                 viewModel = teamModel,
                 isUsersPage = false,
-                onClickAuthorize = { id ->
-                    teamModel.setSelectedUserRecord(NoRecordStr.str)
-                    navController.navigate(Route.Main.Team.AuthorizeUser.withArgs(id))
-                },
-                onClickEdit = { id ->
-                    teamModel.setSelectedUserRecord(NoRecordStr.str)
-                    navController.navigate(Route.Main.Team.EditUser.withArgs(id))
-                }
+                onClickAuthorize = { id -> teamModel.onUserAuthorizeClick(id) },
+                onClickEdit = {}
             )
         }
-        editUser(navController, Route.Main.Team.AuthorizeUser)
-        editUser(navController, Route.Main.Team.EditUser)
+        editUser(Route.Main.Team.AuthorizeUser)
+        editUser(Route.Main.Team.EditUser)
     }
 }
 
-private fun NavGraphBuilder.editUser(navController: NavHostController, route: Route) {
+private fun NavGraphBuilder.editUser(route: Route) {
     composable(destination = route) {
         val userModel: UserViewModel = hiltViewModel()
         (LocalContext.current as MainActivity).initUserModel(userModel)
-        BackHandler { navController.popBackStack() }
 
         UserForm(userId = it.arguments?.getString(NavArguments.userId) ?: NoRecordStr.str)
     }

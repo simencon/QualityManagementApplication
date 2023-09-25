@@ -10,6 +10,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -28,15 +29,11 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NewItemViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-    private lateinit var navController: NavHostController
-    fun initNavController(controller: NavHostController) {
-        this.navController = controller
-    }
-
     private lateinit var mainActivityViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this.mainActivityViewModel = viewModel
@@ -521,9 +518,11 @@ class NewItemViewModel @Inject constructor(
                             Status.SUCCESS -> {
                                 mainActivityViewModel.updateLoadingState(Pair(false, null))
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Route.Main.Inv.withOpts(resource.data?.id.toString(), NoRecordStr.str)) {
-                                        popUpTo(0)
-                                    }
+                                    appNavigator.tryNavigateTo(
+                                        route = Route.Main.Inv.withOpts(resource.data?.id.toString(), NoRecordStr.str),
+                                        popUpToRoute = Route.Main.Inv.route,
+                                        inclusive = true
+                                    )
                                 }
                             }
 
@@ -578,13 +577,20 @@ class NewItemViewModel @Inject constructor(
                                     mainActivityViewModel.updateLoadingState(Pair(false, null))
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
-                                            navController.navigate(
-                                                Route.Main.ProcessControl.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString())
-                                            ) { popUpTo(0) }
+                                            appNavigator.tryNavigateTo(
+                                                route = Route.Main.ProcessControl.withOpts(
+                                                    resource.data?.orderId.toString(),
+                                                    resource.data?.id.toString()
+                                                ),
+                                                popUpToRoute = Route.Main.ProcessControl.route,
+                                                inclusive = true
+                                            )
                                         else
-                                            navController.navigate(
-                                                Route.Main.Inv.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString())
-                                            ) { popUpTo(0) }
+                                            appNavigator.tryNavigateTo(
+                                                route = Route.Main.Inv.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString()),
+                                                popUpToRoute = Route.Main.Inv.route,
+                                                inclusive = true
+                                            )
                                     }
                                 }
 

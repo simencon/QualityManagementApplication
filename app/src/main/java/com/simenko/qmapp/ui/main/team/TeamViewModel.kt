@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.team
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -14,6 +13,7 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,15 +25,11 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
-    private lateinit var navController: NavHostController
-    fun initNavController(controller: NavHostController) {
-        this.navController = controller
-    }
-
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
@@ -182,14 +178,25 @@ class TeamViewModel @Inject constructor(
         }
     }
 
+    fun onEmployeeEdictClick(employeeId: Int) {
+        setSelectedEmployeeRecord(NoRecord.num)
+        appNavigator.tryNavigateTo(Route.Main.Team.EmployeeAddEdit.withArgs(employeeId.toString()))
+    }
+
+    fun onUserEditClick(userId: String) {
+        setSelectedUserRecord(NoRecordStr.str)
+        appNavigator.tryNavigateTo(Route.Main.Team.EditUser.withArgs(userId))
+    }
+
+    fun onUserAuthorizeClick(userId: String) {
+        setSelectedUserRecord(NoRecordStr.str)
+        appNavigator.tryNavigateTo(Route.Main.Team.AuthorizeUser.withArgs(userId))
+    }
+
     private suspend fun navToRemovedRecord(id: String?) {
         _mainViewModel.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let {
-                navController.navigate(Route.Main.Team.Requests.withArgs(it)) {
-                    popUpTo(Route.Main.Team.Employees.link) { inclusive = false }
-                }
-            }
+            id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests.withArgs(it), Route.Main.Team.Employees.link) }
         }
     }
 
