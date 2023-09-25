@@ -35,20 +35,55 @@ class NewItemViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-    fun setupTopScreen(addEditMode: AddEditMode) {
+    suspend fun setupTopScreen(addEditMode: AddEditMode, record: Pair<Int, Int>) {
+        var makeAction: () -> Unit = {}
+        var recordSetUpAction: () -> Unit = {}
+
         when (addEditMode) {
-            AddEditMode.ADD_ORDER, AddEditMode.EDIT_ORDER -> {
-                topScreenState.trySendTopScreenSetup(
-                    addEditMode = Pair(addEditMode) { makeOrder(addEditMode == AddEditMode.ADD_ORDER) },
-                    refreshAction = {},
-                    filterAction = {}
-                )
+            AddEditMode.ADD_ORDER -> {
+                makeAction = { makeOrder(true) }
             }
 
-            AddEditMode.ADD_SUB_ORDER, AddEditMode.EDIT_SUB_ORDER -> {}
-            AddEditMode.ADD_SUB_ORDER_STAND_ALONE, AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> {}
+            AddEditMode.EDIT_ORDER -> {
+                makeAction = { makeOrder(false) }
+                recordSetUpAction = { loadOrder(record.first) }
+            }
+
+            AddEditMode.ADD_SUB_ORDER -> {
+                makeAction = { makeSubOrder(true) }
+                recordSetUpAction = { loadOrder(record.first) }
+            }
+
+            AddEditMode.EDIT_SUB_ORDER -> {
+                makeAction = { makeSubOrder(true) }
+                recordSetUpAction = {
+                    loadOrder(record.first)
+                    loadSubOrder(record.second)
+                }
+            }
+
+            AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> {
+                makeAction = { makeNewOrderWithSubOrder(true) }
+                recordSetUpAction = { setNewOrderForProcessControl() }
+            }
+
+            AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> {
+                makeAction = { makeNewOrderWithSubOrder(false) }
+                recordSetUpAction = {
+                    loadOrder(record.first)
+                    loadSubOrder(record.second)
+                }
+            }
+
             else -> {}
         }
+
+        topScreenState.trySendTopScreenSetup(
+            addEditMode = Pair(addEditMode) { makeAction() },
+            refreshAction = {},
+            filterAction = {}
+        )
+        withContext(Dispatchers.Default) { recordSetUpAction() }
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {

@@ -40,13 +40,10 @@ fun OrderForm(
     orderId: Int
 ) {
     LaunchedEffect(orderId) {
-        if (orderId != NoRecord.num) {
-            viewModel.setupTopScreen(AddEditMode.ADD_ORDER)
-            withContext(Dispatchers.Default) {
-                viewModel.loadOrder(orderId)
-            }
+        if (orderId == NoRecord.num) {
+            viewModel.setupTopScreen(AddEditMode.ADD_ORDER, Pair(orderId, NoRecord.num))
         } else {
-            viewModel.setupTopScreen(AddEditMode.EDIT_ORDER)
+            viewModel.setupTopScreen(AddEditMode.EDIT_ORDER, Pair(orderId, NoRecord.num))
         }
     }
 
