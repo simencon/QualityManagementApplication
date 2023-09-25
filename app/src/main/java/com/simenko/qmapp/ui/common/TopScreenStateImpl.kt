@@ -26,9 +26,15 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit) {
+    override fun trySendEndOfListState(state: Boolean) {
         topScreenChannel.trySend(
-            TopScreenIntent.AddEditMode(addEditMode.first, addEditMode.second, refreshAction)
+            TopScreenIntent.EndOfListState(state)
+        )
+    }
+
+    override fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit, searchAction: (String) -> Unit) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TopScreenState(addEditMode.first, addEditMode.second, refreshAction, searchAction)
         )
     }
 }
@@ -37,7 +43,8 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
     onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit,
-    onAddEditModeIntent: (AddEditMode, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> }
+    onAddEditModeIntent: (AddEditMode, () -> Unit, () -> Unit, (String) -> Unit) -> Unit = { _, _, _, _ -> },
+    onEndOfListIntent: (Boolean) -> Unit = {}
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->
@@ -46,8 +53,12 @@ fun StateChangedEffect(
                     onLoadingStateIntent(intent.loadingState)
                 }
 
-                is TopScreenIntent.AddEditMode -> {
-                    onAddEditModeIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction)
+                is TopScreenIntent.EndOfListState -> {
+                    onEndOfListIntent(intent.state)
+                }
+
+                is TopScreenIntent.TopScreenState -> {
+                    onAddEditModeIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction, intent.searchAction)
                 }
             }
         }

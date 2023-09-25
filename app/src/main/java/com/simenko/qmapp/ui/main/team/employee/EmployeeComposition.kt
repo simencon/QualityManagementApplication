@@ -69,7 +69,7 @@ fun EmployeeComposition(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
 
-    if (lastItemIsVisible) viewModel.onListEnd(FabPosition.Center) else viewModel.onListEnd(FabPosition.End)
+    if (lastItemIsVisible) viewModel.onListEnd(true) else viewModel.onListEnd(false)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

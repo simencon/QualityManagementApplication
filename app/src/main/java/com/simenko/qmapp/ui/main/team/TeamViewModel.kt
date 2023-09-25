@@ -11,6 +11,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -26,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TeamViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
+    private val topScreenState: TopScreenState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
@@ -55,8 +57,8 @@ class TeamViewModel @Inject constructor(
         if (selectedEmployeeRecord.value.peekContent() != id) this._selectedEmployeeRecord.value = Event(id)
     }
 
-    fun onListEnd(position: FabPosition) {
-        _mainViewModel.onListEnd(position)
+    fun onListEnd(state: Boolean) {
+        topScreenState.trySendEndOfListState(state)
     }
 
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete

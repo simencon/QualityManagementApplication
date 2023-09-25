@@ -120,7 +120,8 @@ class MainActivity : MainActivityBase() {
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
-                onAddEditModeIntent = { p1, p2, p3 -> viewModel.setAddEditMode(p1, p2, p3) }
+                onAddEditModeIntent = { p1, p2, p3, p4 -> viewModel.setUpToScreenState(p1, p2, p3, p4) },
+                onEndOfListIntent = { viewModel.onEndOfList(it) }
             )
 
             QMAppTheme {
@@ -148,6 +149,7 @@ class MainActivity : MainActivityBase() {
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
                 val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
+                val searchAction by viewModel.searchAction.collectAsStateWithLifecycle()
 
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
@@ -193,7 +195,7 @@ class MainActivity : MainActivityBase() {
                                     onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
                                     searchBarState = searchBarState,
-                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry, it) },
+                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry) { searchAction(it) } },
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = { viewModel.onBackFromAddEditMode() }
@@ -215,7 +217,6 @@ class MainActivity : MainActivityBase() {
                             )
                             Box(
                                 modifier = Modifier
-                                    .verticalScroll(rememberScrollState())
                                     .fillMaxSize()
                                     .padding(all = 0.dp)
                             ) {

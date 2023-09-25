@@ -112,7 +112,7 @@ fun Orders(
         }
     }
 
-    if (lastItemIsVisible) invModel.onListEnd(FabPosition.Center) else invModel.onListEnd(FabPosition.End)
+    if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
 
     LazyColumn(
         modifier = modifier,
