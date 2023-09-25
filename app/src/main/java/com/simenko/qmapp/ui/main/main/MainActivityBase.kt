@@ -18,7 +18,6 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.navigation.MAIN_ROUTE
@@ -27,7 +26,6 @@ import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
 
-    private lateinit var newOrderModel: NewItemViewModel
     private lateinit var employeeModel: EmployeeViewModel
     private lateinit var userModel: UserViewModel
 
@@ -194,17 +192,16 @@ abstract class MainActivityBase : ComponentActivity() {
                 Route.Main.Team.Employees.link -> viewModel.onAddEmployeeClick()
                 Route.Main.Inv.link -> viewModel.onAddInvClick()
                 Route.Main.ProcessControl.link -> viewModel.onAddProcessControlClick()
-
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
         else {
             when (AddEditMode.values()[addEditMode]) {
                 AddEditMode.ADD_ORDER -> addEditAction()
                 AddEditMode.EDIT_ORDER -> addEditAction()
-                AddEditMode.ADD_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = true)
-                AddEditMode.EDIT_SUB_ORDER -> newOrderModel.makeSubOrder(newRecord = false)
-                AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = true)
-                AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> newOrderModel.makeNewOrderWithSubOrder(newRecord = false)
+                AddEditMode.ADD_SUB_ORDER -> addEditAction()
+                AddEditMode.EDIT_SUB_ORDER -> addEditAction()
+                AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> addEditAction()
+                AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> addEditAction()
                 AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
                 AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
                 AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
@@ -251,9 +248,6 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * View models consistency -----------------------------------------------------------------------------------------------------------------------
      * */
-    fun initNewOrderModel(model: NewItemViewModel) {
-        this.newOrderModel = model
-    }
 
     fun initEmployeeModel(employeeModel: EmployeeViewModel) {
         this.employeeModel = employeeModel

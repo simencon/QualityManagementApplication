@@ -70,7 +70,6 @@ fun MainScreen(
 
                 composable(destination = Route.Main.OrderAddEdit) {
                     val newOrderModel: NewItemViewModel = hiltViewModel()
-                    (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
                     BackHandler { navController.popBackStack() }
 
                     OrderForm(
@@ -81,7 +80,6 @@ fun MainScreen(
 
                 composable(destination = Route.Main.SubOrderAddEdit) {
                     val newOrderModel: NewItemViewModel = hiltViewModel()
-                    (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
                     newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(NavArguments.subOrderAddEditMode) ?: false)
                     BackHandler { navController.popBackStack() }
 

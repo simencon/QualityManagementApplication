@@ -23,8 +23,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.SubDepartmentsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.SubOrderPlacersSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.VersionsSelection
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.simenko.qmapp.ui.main.main.AddEditMode
 
 @Composable
 fun SubOrderForm(
@@ -35,17 +34,17 @@ fun SubOrderForm(
     val subOrderStandAlone by viewModel.subOrderStandAlone.collectAsStateWithLifecycle()
 
     LaunchedEffect(record) {
-        if (record.first != NoRecord.num) {
-            withContext(Dispatchers.Default) {
-                viewModel.loadOrder(record.first)
-                if (record.second != NoRecord.num) {
-                    viewModel.loadSubOrder(record.second)
-                    if(subOrderStandAlone) viewModel.setupTopScreen()
-                }
+        if (!subOrderStandAlone) {
+            if (record.first == NoRecord.num && record.second == NoRecord.num) {
+                viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER, record)
+            } else if (record.first != NoRecord.num && record.second != NoRecord.num) {
+                viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER, record)
             }
         } else {
-            withContext(Dispatchers.Default) {
-                viewModel.setNewOrderForProcessControl()
+            if (record.first == NoRecord.num && record.second == NoRecord.num) {
+                viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER_STAND_ALONE, record)
+            } else if (record.first != NoRecord.num && record.second != NoRecord.num) {
+                viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE, record)
             }
         }
     }
