@@ -4,6 +4,8 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -11,6 +13,8 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,12 +24,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
+    val navigationChannel = appNavigator.navigationChannel
     val userInfo get() = userRepository.user
 
     private val _isLoadingInProgress = MutableStateFlow(false)
@@ -63,7 +69,8 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)
-    private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> = MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
+    private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> =
+        MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
     val topBadgeCounts: StateFlow<List<Triple<Int, Color, Color>>> get() = _topBadgeCounts
     fun setTopBadgesCount(index: Int, badgeCount: Int, bg: Color, cnt: Color) {
         if (index < 4) {
@@ -74,6 +81,50 @@ class MainActivityViewModel @Inject constructor(
 
     fun resetTopBadgesCount() {
         _topBadgeCounts.value = listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem)
+    }
+
+    fun onBackFromAddEditMode() {
+        appNavigator.tryNavigateBack()
+    }
+
+    fun onDrawerMenuTeamSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.Team.link, popUpToRoute = Route.Main.Team.route, inclusive = true)
+    }
+
+    fun onDrawerMenuInvSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.Inv.withOpts(), popUpToRoute = Route.Main.Inv.route, inclusive = true)
+    }
+
+    fun onDrawerMenuProcessControlSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.ProcessControl.withOpts(), popUpToRoute = Route.Main.ProcessControl.route, inclusive = true)
+    }
+
+    fun onDrawerMenuSettingsSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
+    }
+
+    fun onTopTabsEmployeesClick() {
+        appNavigator.tryNavigateBack()
+    }
+
+    fun onTopTabsUsersClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+    }
+
+    fun onTopTabsRequestsClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+    }
+
+    fun onAddEmployeeClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
+    }
+
+    fun onAddInvClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
+    }
+
+    fun onAddProcessControlClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
     }
 
 

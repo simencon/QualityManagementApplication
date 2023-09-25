@@ -13,14 +13,11 @@ import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.navigation.Route.Companion.withOpts
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
@@ -48,10 +45,10 @@ abstract class MainActivityBase : ComponentActivity() {
         return if (id != currentId) {
             viewModel.setDrawerMenuItemId(id)
             when (id) {
-                Route.Main.Team.link -> navController.navigate(id) { popUpTo(0) }
-                Route.Main.Inv.link -> navController.navigate(id.withOpts()) { popUpTo(0) }
-                Route.Main.ProcessControl.link -> navController.navigate(id.withOpts()) { popUpTo(0) }
-                Route.Main.Settings.link -> navController.navigate(id) { popUpTo(0) }
+                Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
+                Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
+                Route.Main.ProcessControl.link -> viewModel.onDrawerMenuProcessControlSelected()
+                Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
             viewModel.resetTopBadgesCount()
@@ -118,17 +115,6 @@ abstract class MainActivityBase : ComponentActivity() {
         }
     }
 
-    fun onBackFromAddEditMode(addEditMode: Int) {
-        when (addEditMode) {
-            AddEditMode.ACCOUNT_EDIT.ordinal -> navController.popBackStack(
-                Route.Main.Settings.UserDetails.link,
-                inclusive = false
-            )
-
-            else -> navController.popBackStack()
-        }
-    }
-
     /**
      * Action menu -----------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -177,15 +163,13 @@ abstract class MainActivityBase : ComponentActivity() {
             Route.Main.Team.link -> {
                 if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
                     if (backStackEntry.value?.destination?.route != Route.Main.Team.Employees.link)
-                        navController.popBackStack()
+                        viewModel.onTopTabsEmployeesClick()
                 } else if (tabIndex == TeamTabs.USERS.ordinal) {
                     if (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link)
-                        navController.navigate(Route.Main.Team.Users.withArgs(NoRecordStr.str)) { popUpTo(Route.Main.Team.Employees.link) }
-                    teamModel.setUsersFilter(newUsers = false)
+                        viewModel.onTopTabsUsersClick()
                 } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
                     if (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link)
-                        navController.navigate(Route.Main.Team.Requests.withArgs(NoRecordStr.str)) { popUpTo(Route.Main.Team.Employees.link) }
-                    teamModel.setUsersFilter(newUsers = true)
+                        viewModel.onTopTabsRequestsClick()
                 }
             }
         }
@@ -213,11 +197,9 @@ abstract class MainActivityBase : ComponentActivity() {
     fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int) {
         if (addEditMode == AddEditMode.NO_MODE.ordinal)
             when (backStackEntry.value?.destination?.route) {
-                Route.Main.Team.Employees.link -> navController.navigate(Route.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
-                Route.Main.Inv.link -> navController.navigate(Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
-                Route.Main.ProcessControl.link -> navController.navigate(
-                    Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str)
-                )
+                Route.Main.Team.Employees.link -> viewModel.onAddEmployeeClick()
+                Route.Main.Inv.link -> viewModel.onAddInvClick()
+                Route.Main.ProcessControl.link -> viewModel.onAddProcessControlClick()
 
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }

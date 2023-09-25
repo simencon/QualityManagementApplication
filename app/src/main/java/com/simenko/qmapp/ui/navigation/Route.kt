@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.navigation
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -11,6 +12,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDeepLink
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
@@ -24,11 +26,11 @@ const val SETTINGS_ROUTE = "settings"
 object NavRouteName {
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
-    const val logged_out = "logged_out"
+//    const val logged_out = "logged_out"
 
     const val initial_screen = "initial_screen"
 
-    const val registration = "registration"
+//    const val registration = "registration"
     const val enter_details = "enter_details"
     const val terms_and_conditions = "terms_and_conditions"
 
@@ -38,11 +40,11 @@ object NavRouteName {
 
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
-    const val main = "main"
+//    const val main = "main"
 
     const val company_profile = "company_profile"
 
-    const val team = "team"
+//    const val team = "team"
     const val employees = "employees"
     const val employee_add_edit = "employee_add_edit"
     const val users = "users"
@@ -64,7 +66,7 @@ object NavRouteName {
 
     const val scrap_level = "scrap_level"
 
-    const val settings = "settings"
+//    const val settings = "settings"
     const val user_details = "user_details"
     const val edit_user_details = "edit_user_details"
     //--------------------------------------------------------------------
@@ -91,9 +93,9 @@ sealed class Route(
     val deepLinks: List<NavDeepLink> = emptyList(),
     val route: String = EmptyString.str
 ) {
-    object LoggedOut : Route(NavRouteName.logged_out) {
+    object LoggedOut : Route( link = LOGGED_OUT_ROOT) {
         object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROOT)
-        object Registration : Route(NavRouteName.registration) {
+        object Registration : Route(link = REGISTRATION_ROOT, route = LOGGED_OUT_ROOT) {
             object EnterDetails : Route(link = NavRouteName.enter_details, route = REGISTRATION_ROOT)
             object TermsAndConditions : Route(
                 link = "${NavRouteName.terms_and_conditions}/{${NavArguments.fullName}}",
@@ -123,9 +125,9 @@ sealed class Route(
         object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROOT)
     }
 
-    object Main : Route(NavRouteName.main) {
-        object CompanyProfile : Route(NavRouteName.company_profile)
-        object Team : Route(NavRouteName.team) {
+    object Main : Route(link = MAIN_ROUTE) {
+        object CompanyProfile : Route(link = NavRouteName.company_profile, route = MAIN_ROUTE)
+        object Team : Route(link = TEAM_ROUTE, route = MAIN_ROUTE) {
             object Employees : Route(
                 link = "${NavRouteName.employees}${arg(NavArguments.employeeId)}",
                 arguments = listOf(
@@ -133,7 +135,8 @@ sealed class Route(
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }
-                )
+                ),
+                route = TEAM_ROUTE
             )
 
             object EmployeeAddEdit : Route(
@@ -143,7 +146,8 @@ sealed class Route(
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }
-                )
+                ),
+                route = TEAM_ROUTE
             )
 
             object Users : Route(
@@ -153,7 +157,8 @@ sealed class Route(
                         type = NavType.StringType
                         defaultValue = NoRecordStr.str
                     }
-                )
+                ),
+                route = TEAM_ROUTE
             )
 
             object EditUser : Route(
@@ -163,7 +168,14 @@ sealed class Route(
                         type = NavType.StringType
                         defaultValue = NoRecordStr.str
                     }
-                )
+                ),
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.users}/$link"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                route = TEAM_ROUTE
             )
 
             object Requests : Route(
@@ -173,7 +185,8 @@ sealed class Route(
                         type = NavType.StringType
                         defaultValue = NoRecordStr.str
                     }
-                )
+                ),
+                route = TEAM_ROUTE
             )
 
             object AuthorizeUser : Route(
@@ -183,12 +196,19 @@ sealed class Route(
                         type = NavType.StringType
                         defaultValue = NoRecordStr.str
                     }
-                )
+                ),
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.users}/$link"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                route = TEAM_ROUTE
             )
         }
 
-        object CompanyStructure : Route(NavRouteName.company_structure)
-        object CompanyProducts : Route(NavRouteName.company_products)
+        object CompanyStructure : Route(link = NavRouteName.company_structure, route = MAIN_ROUTE)
+        object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
         object Inv : Route(
             link = "${NavRouteName.all_investigations}?${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
@@ -200,7 +220,8 @@ sealed class Route(
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 }
-            )
+            ),
+            route = MAIN_ROUTE
         )
 
         object ProcessControl : Route(
@@ -214,7 +235,8 @@ sealed class Route(
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 }
-            )
+            ),
+            route = MAIN_ROUTE
         )
 
         object OrderAddEdit : Route(
@@ -224,7 +246,8 @@ sealed class Route(
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 }
-            )
+            ),
+            route = MAIN_ROUTE
         )
 
         object SubOrderAddEdit : Route(
@@ -242,14 +265,15 @@ sealed class Route(
                     type = NavType.BoolType
                     defaultValue = false
                 }
-            )
+            ),
+            route = MAIN_ROUTE
         )
 
-        object ScrapLevel : Route(NavRouteName.scrap_level)
+        object ScrapLevel : Route(link = NavRouteName.scrap_level, route = MAIN_ROUTE)
 
-        object Settings : Route(NavRouteName.settings) {
-            object UserDetails : Route(NavRouteName.user_details)
-            object EditUserDetails : Route(NavRouteName.edit_user_details)
+        object Settings : Route(link = SETTINGS_ROUTE, route = MAIN_ROUTE) {
+            object UserDetails : Route(link = NavRouteName.user_details, route = SETTINGS_ROUTE)
+            object EditUserDetails : Route(link = NavRouteName.edit_user_details, route = SETTINGS_ROUTE)
         }
     }
 
