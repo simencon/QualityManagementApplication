@@ -14,6 +14,7 @@ import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.BaseOrderFilter
 import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
@@ -71,7 +72,9 @@ class InvestigationsViewModel @Inject constructor(
         topScreenState.trySendAddEditMode(
             addEditMode = Pair(AddEditMode.NO_MODE) {},
             refreshAction = { uploadNewInvestigations() },
-            searchAction = { if (pcOnly) setCurrentSubOrdersFilter(number = SelectedString(it)) else setCurrentOrdersFilter(number = SelectedString(it)) }
+            filterAction = {
+                if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it)
+            }
         )
     }
 
@@ -214,15 +217,12 @@ class InvestigationsViewModel @Inject constructor(
      * Filtering operations
      * */
     private val _currentOrdersFilter = MutableStateFlow(OrdersFilter())
-    fun setCurrentOrdersFilter(
-        type: SelectedNumber = NoRecord,
-        status: SelectedNumber = NoRecord,
-        number: SelectedString = NoString
-    ) {
-        _currentOrdersFilter.value = OrdersFilter(
-            type.num,
-            status.num,
-            if (number != NoString) number.str else _currentOrdersFilter.value.orderNumber
+    private fun setCurrentOrdersFilter(filter: BaseOrderFilter) {
+        val current = _currentOrdersFilter.value
+        _currentOrdersFilter.value = _currentOrdersFilter.value.copy(
+            typeId = if (filter.typeId != NoRecord.num) filter.typeId else current.typeId,
+            statusId = if (filter.statusId != NoRecord.num) filter.statusId else current.statusId,
+            orderNumber = if (filter.orderNumber != NoString.str) filter.orderNumber else current.orderNumber,
         )
     }
 
@@ -317,15 +317,12 @@ class InvestigationsViewModel @Inject constructor(
      * Filtering operations
      * */
     private val _currentSubOrdersFilter = MutableStateFlow(SubOrdersFilter())
-    fun setCurrentSubOrdersFilter(
-        type: SelectedNumber = NoRecord,
-        status: SelectedNumber = NoRecord,
-        number: SelectedString = NoString
-    ) {
-        _currentSubOrdersFilter.value = SubOrdersFilter(
-            type.num,
-            status.num,
-            if (number != NoString) number.str else _currentSubOrdersFilter.value.orderNumber
+    fun setCurrentSubOrdersFilter(filter: BaseOrderFilter) {
+        val current = _currentSubOrdersFilter.value
+        _currentSubOrdersFilter.value = _currentSubOrdersFilter.value.copy(
+            typeId = if (filter.typeId != NoRecord.num) filter.typeId else current.typeId,
+            statusId = if (filter.statusId != NoRecord.num) filter.statusId else current.statusId,
+            orderNumber = if (filter.orderNumber != NoString.str) filter.orderNumber else current.orderNumber,
         )
     }
 

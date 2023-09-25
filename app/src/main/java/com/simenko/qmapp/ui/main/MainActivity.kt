@@ -55,6 +55,7 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.StateChangedEffect
@@ -154,7 +155,7 @@ class MainActivity : MainActivityBase() {
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
-                    { tabId, tabIndex -> selectedTabIndex = onTabSelectedLambda(backStackEntry, tabId, tabIndex) }
+                    { tabId, tabIndex -> selectedTabIndex = onTabSelectedLambda(backStackEntry, tabId, tabIndex, searchAction) }
                 }
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
@@ -195,7 +196,7 @@ class MainActivity : MainActivityBase() {
                                     onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
                                     searchBarState = searchBarState,
-                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry) { searchAction(it) } },
+                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry, it, searchAction) },
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = { viewModel.onBackFromAddEditMode() }

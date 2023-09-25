@@ -11,17 +11,23 @@ data class UsersFilter(
     val newUsers: Boolean = false
 )
 
+interface BaseOrderFilter {
+    val typeId: Int
+    val statusId: Int
+    val orderNumber: String
+}
+
 data class OrdersFilter(
-    val typeId: Int = NoRecord.num,
-    val statusId: Int = NoRecord.num,
-    val orderNumber: String = NoString.str
-)
+    override val typeId: Int = NoRecord.num,
+    override val statusId: Int = NoRecord.num,
+    override val orderNumber: String = NoString.str
+) : BaseOrderFilter
 
 data class SubOrdersFilter(
-    val typeId: Int = NoRecord.num,
-    val statusId: Int = NoRecord.num,
-    val orderNumber: String = NoString.str
-)
+    override val typeId: Int = NoRecord.num,
+    override val statusId: Int = NoRecord.num,
+    override val orderNumber: String = NoString.str
+) : BaseOrderFilter
 
 data class NotificationData(
     val orderId: Int = NoRecord.num,
