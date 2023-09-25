@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -16,6 +18,7 @@ import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.BaseOrderFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -74,9 +77,14 @@ class MainActivityViewModel @Inject constructor(
     val addEditAction get() = _addEditAction.asStateFlow()
     private val _refreshAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
     val refreshAction get() = _refreshAction.asStateFlow()
-    private val _searchAction: MutableStateFlow<(String) -> Unit> = MutableStateFlow {}
+    private val _searchAction: MutableStateFlow<(BaseOrderFilter) -> Unit> = MutableStateFlow {}
     val searchAction get() = _searchAction.asStateFlow()
-    fun setUpToScreenState(mode: AddEditMode, addEditAction: () -> Unit = {}, refreshAction: () -> Unit = {}, searchAction: (String) -> Unit = {}) {
+    fun setUpToScreenState(
+        mode: AddEditMode,
+        addEditAction: () -> Unit = {},
+        refreshAction: () -> Unit = {},
+        searchAction: (BaseOrderFilter) -> Unit = {}
+    ) {
         this._addEditMode.value = mode.ordinal
         this._addEditAction.value = addEditAction
         this._refreshAction.value = refreshAction

@@ -13,6 +13,7 @@ import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ProcessControlOrderTypeId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
@@ -24,6 +25,9 @@ import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
+import com.simenko.qmapp.utils.BaseOrderFilter
+import com.simenko.qmapp.utils.OrdersFilter
+import com.simenko.qmapp.utils.SubOrdersFilter
 
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
@@ -128,10 +132,10 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Search bar ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onSearchBarSearch(backStackEntry: State<NavBackStackEntry?>, searchAction: () -> Unit) {
+    fun onSearchBarSearch(backStackEntry: State<NavBackStackEntry?>, searchNum: String, searchAction: (BaseOrderFilter) -> Unit) {
         when (backStackEntry.value?.destination?.route) {
-            Route.Main.Inv.link -> searchAction()
-            Route.Main.ProcessControl.link -> searchAction()
+            Route.Main.Inv.link -> searchAction(OrdersFilter(orderNumber = searchNum))
+            Route.Main.ProcessControl.link -> searchAction(SubOrdersFilter(orderNumber = searchNum))
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
         }
     }
@@ -147,30 +151,31 @@ abstract class MainActivityBase : ComponentActivity() {
         }
     }
 
-    val onTabSelectedLambda: (State<NavBackStackEntry?>, SelectedNumber, Int) -> Int = { backStackEntry, tabId, tabIndex ->
-        when (backStackEntry.value?.destination?.parent?.route) {
-            null -> {
-                when (backStackEntry.value?.destination?.route) {
-                    Route.Main.Inv.link -> invModel.setCurrentOrdersFilter(status = tabId)
-                    Route.Main.ProcessControl.link -> invModel.setCurrentSubOrdersFilter(status = tabId)
+    val onTabSelectedLambda: (State<NavBackStackEntry?>, SelectedNumber, Int, (BaseOrderFilter) -> Unit) -> Int =
+        { backStackEntry, tabId, tabIndex, searchAction ->
+            when (backStackEntry.value?.destination?.parent?.route) {
+                null -> {
+                    when (backStackEntry.value?.destination?.route) {
+                        Route.Main.Inv.link -> searchAction(OrdersFilter(statusId = tabId.num))
+                        Route.Main.ProcessControl.link -> searchAction(SubOrdersFilter(statusId = tabId.num))
+                    }
                 }
-            }
 
-            Route.Main.Team.link -> {
-                if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
-                    if (backStackEntry.value?.destination?.route != Route.Main.Team.Employees.link)
-                        viewModel.onTopTabsEmployeesClick()
-                } else if (tabIndex == TeamTabs.USERS.ordinal) {
-                    if (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link)
-                        viewModel.onTopTabsUsersClick()
-                } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
-                    if (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link)
-                        viewModel.onTopTabsRequestsClick()
+                Route.Main.Team.link -> {
+                    if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
+                        if (backStackEntry.value?.destination?.route != Route.Main.Team.Employees.link)
+                            viewModel.onTopTabsEmployeesClick()
+                    } else if (tabIndex == TeamTabs.USERS.ordinal) {
+                        if (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link)
+                            viewModel.onTopTabsUsersClick()
+                    } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
+                        if (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link)
+                            viewModel.onTopTabsRequestsClick()
+                    }
                 }
             }
+            tabIndex
         }
-        tabIndex
-    }
 
     fun selectProperTab(backStackEntry: State<NavBackStackEntry?>): Int? {
         return when (backStackEntry.value?.destination?.route) {
@@ -242,8 +247,8 @@ abstract class MainActivityBase : ComponentActivity() {
             Route.Main.Team.Employees.link -> teamModel.updateEmployeesData()
             Route.Main.Team.Users.link -> teamModel.updateEmployeesData()
             Route.Main.Team.Requests.link -> teamModel.updateEmployeesData()
-            Route.Main.Inv.link -> invModel.uploadNewInvestigations()
-            Route.Main.ProcessControl.link -> invModel.uploadNewInvestigations()
+            Route.Main.Inv.link -> refreshAction()
+            Route.Main.ProcessControl.link -> refreshAction()
             Route.Main.Settings.UserDetails.link -> refreshAction()
             Route.Main.Settings.EditUserDetails.link -> refreshAction()
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()

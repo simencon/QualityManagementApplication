@@ -18,6 +18,7 @@ import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
@@ -33,7 +34,7 @@ fun SubOrdersStandAlone(
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {
-        invModel.setCurrentSubOrdersFilter(type = ProcessControlOrderTypeId)
+        invModel.setCurrentSubOrdersFilter(OrdersFilter(typeId = ProcessControlOrderTypeId.num))
     }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
