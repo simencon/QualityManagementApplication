@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
@@ -19,10 +20,12 @@ import javax.inject.Inject
 private const val TAG = "UserViewModel"
 @HiltViewModel
 class UserViewModel @Inject constructor(
+    private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
-    private val userRepository: UserRepository
+    private val topScreenState: TopScreenState
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
+    val topScreenChannel = topScreenState.topScreenChannel
 
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
