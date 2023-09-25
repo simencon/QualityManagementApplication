@@ -135,8 +135,13 @@ class EnterDetailsViewModel @Inject constructor(
         }
     }
 
-    fun setUpAddEditMode() {
-        topScreenState.trySendAddEditMode(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() })
+    private fun updateUserData() {
+        topScreenState.trySendLoadingState(Pair(true, null))
+        userRepository.updateUserData()
+    }
+
+    fun setUpTopScreen() {
+        topScreenState.trySendAddEditMode(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() }) { updateUserData() }
     }
 }
 

@@ -8,7 +8,7 @@ interface TopScreenState {
     suspend fun sendLoadingState(loadingState: Pair<Boolean, String?>)
     fun trySendLoadingState(loadingState: Pair<Boolean, String?>)
 
-    fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>)
+    fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit)
 }
 
 sealed class TopScreenIntent {
@@ -18,6 +18,7 @@ sealed class TopScreenIntent {
 
     data class AddEditMode(
         val addEditMode: com.simenko.qmapp.ui.main.main.AddEditMode,
-        val addEditAction: () -> Unit
+        val addEditAction: () -> Unit,
+        val refreshAction: () -> Unit
     ) : TopScreenIntent()
 }
