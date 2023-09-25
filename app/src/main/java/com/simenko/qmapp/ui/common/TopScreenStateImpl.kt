@@ -26,9 +26,9 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>) {
+    override fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit) {
         topScreenChannel.trySend(
-            TopScreenIntent.AddEditMode(addEditMode.first, addEditMode.second)
+            TopScreenIntent.AddEditMode(addEditMode.first, addEditMode.second, refreshAction)
         )
     }
 }
@@ -37,7 +37,7 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
     onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit,
-    onAddEditModeIntent: (AddEditMode, () -> Unit) -> Unit = { _, _ -> }
+    onAddEditModeIntent: (AddEditMode, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> }
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->
@@ -47,7 +47,7 @@ fun StateChangedEffect(
                 }
 
                 is TopScreenIntent.AddEditMode -> {
-                    onAddEditModeIntent(intent.addEditMode, intent.addEditAction)
+                    onAddEditModeIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction)
                 }
             }
         }

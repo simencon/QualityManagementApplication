@@ -52,6 +52,8 @@ fun Settings(
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     LaunchedEffect(userState) {
+        viewModel.setUpTopScreen()
+
         userState.let {
             when (it) {
                 is UserErrorState ->

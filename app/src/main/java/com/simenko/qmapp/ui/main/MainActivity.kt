@@ -120,7 +120,7 @@ class MainActivity : MainActivityBase() {
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
-                onAddEditModeIntent = { p1, p2 -> viewModel.setAddEditMode(p1, p2) }
+                onAddEditModeIntent = { p1, p2, p3 -> viewModel.setAddEditMode(p1, p2, p3) }
             )
 
             QMAppTheme {
@@ -147,6 +147,7 @@ class MainActivity : MainActivityBase() {
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
+                val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
 
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
@@ -210,10 +211,11 @@ class MainActivity : MainActivityBase() {
                         ) {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
-                                onRefresh = { super.onPullRefresh(backStackEntry) }
+                                onRefresh = { super.onPullRefresh(backStackEntry, refreshAction) }
                             )
                             Box(
                                 modifier = Modifier
+                                    .verticalScroll(rememberScrollState())
                                     .fillMaxSize()
                                     .padding(all = 0.dp)
                             ) {

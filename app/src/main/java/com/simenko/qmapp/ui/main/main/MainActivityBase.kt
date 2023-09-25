@@ -29,7 +29,6 @@ import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
 
-    private lateinit var settingsModel: SettingsViewModel
     private lateinit var teamModel: TeamViewModel
     private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
@@ -101,7 +100,9 @@ abstract class MainActivityBase : ComponentActivity() {
 
 //            Route.Main.Settings.EditUserDetails.link -> { viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT) }
 
-            Route.Main.Team.AuthorizeUser.link -> { viewModel.setAddEditMode(AddEditMode.AUTHORIZE_USER) }
+            Route.Main.Team.AuthorizeUser.link -> {
+                viewModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
+            }
 
             Route.Main.Team.EditUser.link -> {
                 viewModel.setAddEditMode(AddEditMode.EDIT_USER)
@@ -190,7 +191,7 @@ abstract class MainActivityBase : ComponentActivity() {
                 (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal))
     }
 
-    fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int, addEditAction: ()-> Unit) {
+    fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int, addEditAction: () -> Unit) {
         if (addEditMode == AddEditMode.NO_MODE.ordinal)
             when (backStackEntry.value?.destination?.route) {
                 Route.Main.Team.Employees.link -> viewModel.onAddEmployeeClick()
@@ -237,15 +238,15 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Pull refresh ----------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onPullRefresh(backStackEntry: State<NavBackStackEntry?>) {
+    fun onPullRefresh(backStackEntry: State<NavBackStackEntry?>, refreshAction: () -> Unit) {
         when (backStackEntry.value?.destination?.route) {
             Route.Main.Team.Employees.link -> teamModel.updateEmployeesData()
             Route.Main.Team.Users.link -> teamModel.updateEmployeesData()
             Route.Main.Team.Requests.link -> teamModel.updateEmployeesData()
             Route.Main.Inv.link -> invModel.uploadNewInvestigations()
             Route.Main.ProcessControl.link -> invModel.uploadNewInvestigations()
-            Route.Main.Settings.UserDetails.link -> settingsModel.updateUserData()
-            Route.Main.Settings.EditUserDetails.link -> settingsModel.updateUserData()
+            Route.Main.Settings.UserDetails.link -> refreshAction()
+            Route.Main.Settings.EditUserDetails.link -> refreshAction()
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
         }
     }
@@ -253,10 +254,6 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * View models consistency -----------------------------------------------------------------------------------------------------------------------
      * */
-    fun initSettingsModel(model: SettingsViewModel) {
-        this.settingsModel = model
-    }
-
     fun initInvModel(model: InvestigationsViewModel) {
         this.invModel = model
         this.invModel.initMainActivityViewModel(this.viewModel)

@@ -71,9 +71,12 @@ class MainActivityViewModel @Inject constructor(
     val addEditMode get() = _addEditMode.asStateFlow()
     private val _addEditAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
     val addEditAction get() = _addEditAction.asStateFlow()
-    fun setAddEditMode(mode: AddEditMode, addEditAction: () -> Unit = {}) {
+    private val _refreshAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
+    val refreshAction get() = _addEditAction.asStateFlow()
+    fun setAddEditMode(mode: AddEditMode, addEditAction: () -> Unit = {}, refreshAction: () -> Unit = {}) {
         this._addEditMode.value = mode.ordinal
         this._addEditAction.value = addEditAction
+        this._refreshAction.value = refreshAction
     }
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)

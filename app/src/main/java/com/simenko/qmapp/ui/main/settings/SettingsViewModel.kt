@@ -5,6 +5,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,7 +51,7 @@ class SettingsViewModel @Inject constructor(
         userRepository.deleteAccount(userEmail, password)
     }
 
-    fun updateUserData() {
+    private fun updateUserData() {
         updateLoadingState(Pair(true, null))
         userRepository.updateUserData()
     }
@@ -61,5 +62,9 @@ class SettingsViewModel @Inject constructor(
 
     fun onUserDataEditClick() {
         appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.link)
+    }
+
+    fun setUpTopScreen() {
+        topScreenState.trySendAddEditMode(Pair(AddEditMode.NO_MODE) { }) { updateUserData() }
     }
 }
