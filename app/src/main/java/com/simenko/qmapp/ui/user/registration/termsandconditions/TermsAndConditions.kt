@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,18 +32,17 @@ import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
+import kotlinx.coroutines.launch
 
 @Composable
 fun TermsAndConditions(
     viewModel: RegistrationViewModel,
     user: String? = null,
-    onLoadingStateChanged: (Pair<Boolean, String?>) -> Unit,
     onDismiss: () -> Unit,
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
-    val loadingState by viewModel.loadingState.collectAsStateWithLifecycle()
-    LaunchedEffect(key1 = loadingState, block = { onLoadingStateChanged(loadingState) })
+    val scope = rememberCoroutineScope()
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
     val userExistDialogVisibility by viewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
@@ -104,7 +104,7 @@ fun TermsAndConditions(
             Spacer(modifier = Modifier.height(10.dp))
             RecordActionTextBtn(
                 text = "Register",
-                onClick = { viewModel.registerUser() },
+                onClick = { scope.launch { viewModel.registerUser() } },
                 colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
         }
@@ -123,7 +123,6 @@ fun TermsAndConditionsPreview() {
     QMAppTheme {
         TermsAndConditions(
             viewModel = hiltViewModel(),
-            onLoadingStateChanged = {},
             onDismiss = {},
             onChangeEmail = {},
             onLogin = {}

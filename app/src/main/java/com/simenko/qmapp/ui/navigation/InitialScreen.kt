@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +31,7 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
 import com.simenko.qmapp.ui.user.verification.WaitingForVerification
 import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun InitialScreen(
@@ -43,6 +45,8 @@ fun InitialScreen(
 
     QMAppTheme {
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
+
         val userState by userViewModel.userState.collectAsStateWithLifecycle()
 
         LaunchedEffect(userState) {
@@ -58,6 +62,7 @@ fun InitialScreen(
                 }
             }
         }
+
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -82,10 +87,9 @@ fun InitialScreen(
                         TermsAndConditions(
                             viewModel = regModel,
                             user = it.arguments?.getString(NavArguments.fullName),
-                            onLoadingStateChanged = { state -> userViewModel.updateLoadingState(state) },
-                            onDismiss = { regModel.hideUserExistDialog() },
-                            onChangeEmail = { regModel.onChangeRegistrationEmailClick() },
-                            onLogin = { regModel.onProceedToLoginClick() }
+                            onDismiss = { scope.launch { regModel.hideUserExistDialog() } },
+                            onChangeEmail = { scope.launch { regModel.onChangeRegistrationEmailClick() } },
+                            onLogin = { scope.launch { regModel.onProceedToLoginClick() } }
                         )
                     }
                 }
@@ -98,7 +102,7 @@ fun InitialScreen(
                 composable(destination = Route.LoggedOut.LogIn) {
                     val loginModel: LoginViewModel = hiltViewModel()
 
-                    LogIn(loginModel) { state -> userViewModel.updateLoadingState(state) }
+                    LogIn(loginModel)
                 }
             }
         }

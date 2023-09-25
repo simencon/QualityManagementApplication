@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,15 +41,14 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LogIn(
-    viewModel: LoginViewModel,
-    onLoadingStateChanged: (Pair<Boolean, String?>) -> Unit
+    viewModel: LoginViewModel
 ) {
-    val loadingState by viewModel.loadingState.collectAsStateWithLifecycle()
-    LaunchedEffect(key1 = loadingState, block = { onLoadingStateChanged(loadingState) })
+    val scope = rememberCoroutineScope()
 
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
@@ -140,19 +140,19 @@ fun LogIn(
         Spacer(modifier = Modifier.height(10.dp))
         RecordActionTextBtn(
             text = "Login",
-            onClick = { viewModel.login(principle.email, principle.password) },
+            onClick = { scope.launch { viewModel.login(principle.email, principle.password) } },
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
         RecordActionTextBtn(
             text = "Reset password",
-            onClick = { viewModel.sendResetPasswordEmail(principle.email) },
+            onClick = { scope.launch { viewModel.sendResetPasswordEmail(principle.email) } },
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             enabled = msg == UserError.NO_ERROR.error && !(error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
         )
         if (error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
             RecordActionTextBtn(
                 text = "Register page",
-                onClick = { viewModel.sendResetPasswordEmail(principle.email) },
+                onClick = { scope.launch { viewModel.sendResetPasswordEmail(principle.email) } },
                 colors = Pair(
                     ButtonDefaults.textButtonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,

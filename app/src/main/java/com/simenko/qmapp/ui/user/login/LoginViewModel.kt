@@ -5,6 +5,8 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.common.TopScreenIntent
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.user.registration.enterdetails.UserErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,12 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
-    private val _loadingState: MutableStateFlow<Pair<Boolean, String?>> = MutableStateFlow(Pair(false, null))
-    val loadingState get() = _loadingState.asStateFlow()
-
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _loadingState.value = state
+class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    private val topScreenState: TopScreenState
+) : ViewModel() {
+    suspend fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.topScreenChannel.send(TopScreenIntent.LoadingState(state))
     }
 
     private var _loggedOutPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))
@@ -37,13 +39,13 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
         _loggedOutPrincipleErrors.value = _loggedOutPrincipleErrors.value.copy(passwordError = false)
     }
 
-    fun login(username: String, password: String) {
-        _loadingState.value = Pair(true, null)
+    suspend fun login(username: String, password: String) {
+        updateLoadingState(Pair(true, null))
         userRepository.loginUser(username, password)
     }
 
-    fun sendResetPasswordEmail(email: String) {
-        _loadingState.value = Pair(true, null)
+    suspend fun sendResetPasswordEmail(email: String) {
+        updateLoadingState(Pair(true, null))
         userRepository.sendResetPasswordEmail(email)
     }
 }

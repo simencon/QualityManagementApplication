@@ -3,6 +3,8 @@ package com.simenko.qmapp.ui.user.registration
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
+import com.simenko.qmapp.ui.common.TopScreenIntent
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,28 +15,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
+    private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
-    private val userRepository: UserRepository
+    private val topScreenState: TopScreenState
 ) : ViewModel() {
-    private val _loadingState: MutableStateFlow<Pair<Boolean, String?>> = MutableStateFlow(Pair(false, null))
-    val loadingState get() = _loadingState.asStateFlow()
-
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _loadingState.value = state
+    suspend fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.topScreenChannel.send(TopScreenIntent.LoadingState(state))
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState
 
-    fun registerUser() {
+    suspend fun registerUser() {
         assert(userRepository.rawUser != null)
-        _loadingState.value = Pair(true, null)
+        updateLoadingState(Pair(true, null))
         userRepository.registerUser(userRepository.rawUser!!)
     }
 
     private val _isUserExistDialogVisible = MutableStateFlow(false)
     val isUserExistDialogVisible: StateFlow<Boolean> = _isUserExistDialogVisible
-    fun hideUserExistDialog() {
-        _loadingState.value = Pair(false, null)
+    suspend fun hideUserExistDialog() {
+        updateLoadingState(Pair(false, null))
         userRepository.clearUserData()
         _isUserExistDialogVisible.value = false
     }
@@ -43,12 +43,12 @@ class RegistrationViewModel @Inject constructor(
         _isUserExistDialogVisible.value = true
     }
 
-    fun onChangeRegistrationEmailClick() {
+    suspend fun onChangeRegistrationEmailClick() {
         hideUserExistDialog()
         appNavigator.tryNavigateBack()
     }
 
-    fun onProceedToLoginClick() {
+    suspend fun onProceedToLoginClick() {
         hideUserExistDialog()
         appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link)
     }
