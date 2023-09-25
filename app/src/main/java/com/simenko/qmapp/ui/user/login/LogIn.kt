@@ -48,8 +48,6 @@ import kotlinx.coroutines.launch
 fun LogIn(
     viewModel: LoginViewModel
 ) {
-    val scope = rememberCoroutineScope()
-
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     val principle by viewModel.loggedOutPrinciple.collectAsStateWithLifecycle()
@@ -140,19 +138,19 @@ fun LogIn(
         Spacer(modifier = Modifier.height(10.dp))
         RecordActionTextBtn(
             text = "Login",
-            onClick = { scope.launch { viewModel.login(principle.email, principle.password) } },
+            onClick = { viewModel.login(principle.email, principle.password) },
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
         )
         RecordActionTextBtn(
             text = "Reset password",
-            onClick = { scope.launch { viewModel.sendResetPasswordEmail(principle.email) } },
+            onClick = { viewModel.sendResetPasswordEmail(principle.email) },
             colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             enabled = msg == UserError.NO_ERROR.error && !(error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
         )
         if (error == UserError.ACCOUNT_DISABLED.error || error == UserError.USER_NOT_REGISTERED.error)
             RecordActionTextBtn(
                 text = "Register page",
-                onClick = { scope.launch { viewModel.sendResetPasswordEmail(principle.email) } },
+                onClick = { viewModel.sendResetPasswordEmail(principle.email) },
                 colors = Pair(
                     ButtonDefaults.textButtonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,

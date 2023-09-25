@@ -6,7 +6,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,7 +44,6 @@ fun InitialScreen(
 
     QMAppTheme {
         val context = LocalContext.current
-        val scope = rememberCoroutineScope()
 
         val userState by userViewModel.userState.collectAsStateWithLifecycle()
 
@@ -87,9 +85,9 @@ fun InitialScreen(
                         TermsAndConditions(
                             viewModel = regModel,
                             user = it.arguments?.getString(NavArguments.fullName),
-                            onDismiss = { scope.launch { regModel.hideUserExistDialog() } },
-                            onChangeEmail = { scope.launch { regModel.onChangeRegistrationEmailClick() } },
-                            onLogin = { scope.launch { regModel.onProceedToLoginClick() } }
+                            onDismiss = { regModel.hideUserExistDialog() },
+                            onChangeEmail = { regModel.onChangeRegistrationEmailClick() },
+                            onLogin = { regModel.onProceedToLoginClick() }
                         )
                     }
                 }

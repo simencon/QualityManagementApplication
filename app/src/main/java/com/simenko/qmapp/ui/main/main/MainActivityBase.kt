@@ -99,13 +99,9 @@ abstract class MainActivityBase : ComponentActivity() {
                 }
             }
 
-            Route.Main.Settings.EditUserDetails.link -> {
-                viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT)
-            }
+//            Route.Main.Settings.EditUserDetails.link -> { viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT) }
 
-            Route.Main.Team.AuthorizeUser.link -> {
-                viewModel.setAddEditMode(AddEditMode.AUTHORIZE_USER)
-            }
+            Route.Main.Team.AuthorizeUser.link -> { viewModel.setAddEditMode(AddEditMode.AUTHORIZE_USER) }
 
             Route.Main.Team.EditUser.link -> {
                 viewModel.setAddEditMode(AddEditMode.EDIT_USER)
@@ -194,7 +190,7 @@ abstract class MainActivityBase : ComponentActivity() {
                 (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal))
     }
 
-    fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int) {
+    fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int, addEditAction: ()-> Unit) {
         if (addEditMode == AddEditMode.NO_MODE.ordinal)
             when (backStackEntry.value?.destination?.route) {
                 Route.Main.Team.Employees.link -> viewModel.onAddEmployeeClick()
@@ -215,7 +211,7 @@ abstract class MainActivityBase : ComponentActivity() {
                 AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
                 AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
                 AddEditMode.EDIT_USER -> userModel.validateInput()
-                AddEditMode.ACCOUNT_EDIT -> settingsModel.validateUserData()
+                AddEditMode.ACCOUNT_EDIT -> addEditAction()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
         }
@@ -259,7 +255,6 @@ abstract class MainActivityBase : ComponentActivity() {
      * */
     fun initSettingsModel(model: SettingsViewModel) {
         this.settingsModel = model
-        this.settingsModel.initMainActivityViewModel(this.viewModel)
     }
 
     fun initInvModel(model: InvestigationsViewModel) {

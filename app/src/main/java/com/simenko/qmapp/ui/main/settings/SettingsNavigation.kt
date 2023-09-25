@@ -43,10 +43,6 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
         }
         composable(destination = Route.Main.Settings.EditUserDetails) {
             val userDetailsModel: EnterDetailsViewModel = hiltViewModel()
-            val settingsViewModel: SettingsViewModel = it.sharedViewModel(navController = navController)
-
-            settingsViewModel.validateUserData = { userDetailsModel.validateInput() }
-            val editUserLambda = remember { { userDetailsModel.onSaveUserDataClick() } }
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,8 +51,7 @@ fun NavGraphBuilder.settingsNavigation(navController: NavHostController) {
                 Spacer(modifier = Modifier.height(10.dp))
                 EnterDetails(
                     viewModel = userDetailsModel,
-                    editMode = true,
-                    editUserData = editUserLambda
+                    editMode = true
                 )
             }
         }

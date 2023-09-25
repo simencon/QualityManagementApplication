@@ -32,7 +32,6 @@ import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
-import kotlinx.coroutines.launch
 
 @Composable
 fun TermsAndConditions(
@@ -42,8 +41,6 @@ fun TermsAndConditions(
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
-
     val userState by viewModel.userState.collectAsStateWithLifecycle()
     val userExistDialogVisibility by viewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
@@ -104,7 +101,7 @@ fun TermsAndConditions(
             Spacer(modifier = Modifier.height(10.dp))
             RecordActionTextBtn(
                 text = "Register",
-                onClick = { scope.launch { viewModel.registerUser() } },
+                onClick = { viewModel.registerUser() },
                 colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
         }

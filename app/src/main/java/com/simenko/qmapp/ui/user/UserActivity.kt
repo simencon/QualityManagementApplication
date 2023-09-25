@@ -50,12 +50,13 @@ class UserActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
+            StateChangedEffect(
+                topScreenChannel = userViewModel.topScreenChannel,
+                onLoadingStateIntent = { userViewModel.updateLoadingState(it) }
+            )
+
             QMAppTheme {
                 val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()
-                StateChangedEffect(
-                    topScreenChannel = userViewModel.topScreenChannel,
-                    onLoadingStateChanged = { userViewModel.updateLoadingState(it) }
-                )
 
                 Scaffold(
                     topBar = {

@@ -5,13 +5,11 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.common.TopScreenIntent
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.user.registration.enterdetails.UserErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,8 +17,8 @@ class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val topScreenState: TopScreenState
 ) : ViewModel() {
-    suspend fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topScreenState.topScreenChannel.send(TopScreenIntent.LoadingState(state))
+    fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.trySendLoadingState(state)
     }
 
     private var _loggedOutPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))
@@ -39,12 +37,12 @@ class LoginViewModel @Inject constructor(
         _loggedOutPrincipleErrors.value = _loggedOutPrincipleErrors.value.copy(passwordError = false)
     }
 
-    suspend fun login(username: String, password: String) {
+    fun login(username: String, password: String) {
         updateLoadingState(Pair(true, null))
         userRepository.loginUser(username, password)
     }
 
-    suspend fun sendResetPasswordEmail(email: String) {
+    fun sendResetPasswordEmail(email: String) {
         updateLoadingState(Pair(true, null))
         userRepository.sendResetPasswordEmail(email)
     }

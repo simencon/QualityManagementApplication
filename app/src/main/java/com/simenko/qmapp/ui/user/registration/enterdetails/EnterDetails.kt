@@ -53,8 +53,7 @@ import com.simenko.qmapp.ui.common.RecordFieldItem
 @Composable
 fun EnterDetails(
     viewModel: EnterDetailsViewModel,
-    editMode: Boolean = false,
-    editUserData: () -> Unit = {}
+    editMode: Boolean = false
 ) {
     val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
@@ -71,8 +70,9 @@ fun EnterDetails(
                     viewModel.onFillInSuccess(rawPrinciple.email)
                 } else {
                     viewModel.initRawUser()
-                    editUserData()
+                    viewModel.onSaveUserDataClick()
                 }
+
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> {}
         }
@@ -88,7 +88,10 @@ fun EnterDetails(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(Unit) { focusRequesterUserName.requestFocus() }
+    LaunchedEffect(Unit) {
+        if (editMode) viewModel.setUpAddEditMode()
+        focusRequesterUserName.requestFocus()
+    }
 
     val columnState = rememberScrollState()
 
