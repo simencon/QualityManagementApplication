@@ -53,38 +53,3 @@ fun NavGraphBuilder.composable(
         content = content
     )
 }
-
-@Composable
-fun NavigationEffects(
-    navigationChannel: Channel<NavigationIntent>,
-    navHostController: NavHostController
-) {
-    val activity = (LocalContext.current as? Activity)
-    LaunchedEffect(activity, navHostController, navigationChannel) {
-        navigationChannel.receiveAsFlow().collect { intent ->
-            if (activity?.isFinishing == true) {
-                return@collect
-            }
-            when (intent) {
-                is NavigationIntent.NavigateBack -> {
-                    if (intent.route != null) {
-                        navHostController.popBackStack(intent.route, intent.inclusive)
-                    } else {
-                        navHostController.popBackStack()
-                    }
-                }
-
-                is NavigationIntent.NavigateTo -> {
-                    navHostController.navigate(intent.route) {
-                        launchSingleTop = intent.isSingleTop
-                        if (intent.popUpToRoute != null) {
-                            popUpTo(intent.popUpToRoute) { inclusive = intent.inclusive }
-                        } else if (intent.popUpToId != null) {
-                            popUpTo(intent.popUpToId) { inclusive = intent.inclusive }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}

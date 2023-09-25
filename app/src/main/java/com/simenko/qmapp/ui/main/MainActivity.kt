@@ -65,6 +65,7 @@ import com.simenko.qmapp.ui.main.main.DrawerHeader
 import com.simenko.qmapp.ui.main.main.MainActivityBase
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.TopTabs
+import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
@@ -187,7 +188,7 @@ class MainActivity : MainActivityBase() {
                                     onSearchBarSearch = { super.onSearchBarSearch(backStackEntry, it) },
 
                                     addEditMode = addEditMode,
-                                    onBackFromAddEditModeClick = { super.onBackFromAddEditMode(addEditMode) }
+                                    onBackFromAddEditModeClick = { viewModel.onBackFromAddEditMode() }
                                 )
                             },
                             floatingActionButton = {
@@ -221,9 +222,8 @@ class MainActivity : MainActivityBase() {
                                         topBadgeCounts,
                                         onTabSelectedLambda
                                     )
-                                    Navigation(
-                                        Modifier.pullRefresh(pullRefreshState),
-                                        initialRoute,
+                                    MainScreen(
+                                        viewModel,
                                         navController
                                     )
                                 }
