@@ -11,6 +11,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -18,6 +19,7 @@ import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -25,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
+    private val topScreenState: TopScreenState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
@@ -32,6 +35,8 @@ class MainActivityViewModel @Inject constructor(
     private val repository: InvestigationsRepository
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
+    val topScreenChannel = topScreenState.topScreenChannel
+
     val userInfo get() = userRepository.user
 
     private val _isLoadingInProgress = MutableStateFlow(false)
@@ -63,9 +68,12 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private val _addEditMode: MutableStateFlow<Int> = MutableStateFlow(AddEditMode.NO_MODE.ordinal)
-    val addEditMode: StateFlow<Int> get() = _addEditMode
-    fun setAddEditMode(mode: AddEditMode) {
+    val addEditMode get() = _addEditMode.asStateFlow()
+    private val _addEditAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
+    val addEditAction get() = _addEditAction.asStateFlow()
+    fun setAddEditMode(mode: AddEditMode, addEditAction: () -> Unit = {}) {
         this._addEditMode.value = mode.ordinal
+        this._addEditAction.value = addEditAction
     }
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)

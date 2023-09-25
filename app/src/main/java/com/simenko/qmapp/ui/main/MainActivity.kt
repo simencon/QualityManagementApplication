@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
@@ -58,6 +57,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.common.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.AppBar
 import com.simenko.qmapp.ui.main.main.DrawerBody
@@ -117,6 +117,12 @@ class MainActivity : MainActivityBase() {
         analytics = Firebase.analytics
 
         setContent {
+            StateChangedEffect(
+                topScreenChannel = viewModel.topScreenChannel,
+                onLoadingStateIntent = { viewModel.updateLoadingState(it) },
+                onAddEditModeIntent = { p1, p2 -> viewModel.setAddEditMode(p1, p2) }
+            )
+
             QMAppTheme {
                 navController = rememberNavController()
                 val backStackEntry = navController.currentBackStackEntryAsState()
@@ -140,6 +146,7 @@ class MainActivity : MainActivityBase() {
                 }
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
+                val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
 
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
@@ -195,7 +202,7 @@ class MainActivity : MainActivityBase() {
                                 if (super.showFab(backStackEntry, addEditMode))
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
-                                        onClick = { super.onFabClick(backStackEntry, addEditMode) },
+                                        onClick = { super.onFabClick(backStackEntry, addEditMode, addEditAction) },
                                         content = { super.FabContent(addEditMode = addEditMode) }
                                     )
                             },
