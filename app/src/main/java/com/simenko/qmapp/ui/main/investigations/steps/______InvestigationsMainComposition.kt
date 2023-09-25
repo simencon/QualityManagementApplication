@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
@@ -85,7 +84,7 @@ fun InvestigationsMainComposition(
     }
 
     LaunchedEffect(Unit) {
-        invModel.setUpTopScreenState(processControlOnly)
+        invModel.setupTopScreen(processControlOnly)
     }
 
     LaunchedEffect(currentTask) {

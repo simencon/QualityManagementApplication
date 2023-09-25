@@ -13,27 +13,22 @@ import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.ProcessControlOrderTypeId
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
-import com.simenko.qmapp.utils.BaseOrderFilter
-import com.simenko.qmapp.utils.OrdersFilter
-import com.simenko.qmapp.utils.SubOrdersFilter
+import com.simenko.qmapp.ui.navigation.MAIN_ROUTE
+import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
 
     private lateinit var teamModel: TeamViewModel
-    private lateinit var invModel: InvestigationsViewModel
     private lateinit var newOrderModel: NewItemViewModel
     private lateinit var employeeModel: EmployeeViewModel
     private lateinit var userModel: UserViewModel
@@ -67,17 +62,17 @@ abstract class MainActivityBase : ComponentActivity() {
         when (backStackEntry.value?.destination?.route) {
             Route.Main.Team.EmployeeAddEdit.link -> {
                 if (backStackEntry.value?.arguments?.getInt(NavArguments.employeeId) == NoRecord.num) {
-                    viewModel.setUpToScreenState(AddEditMode.ADD_EMPLOYEE)
+                    viewModel.setupTopScreen(AddEditMode.ADD_EMPLOYEE)
                 } else {
-                    viewModel.setUpToScreenState(AddEditMode.EDIT_EMPLOYEE)
+                    viewModel.setupTopScreen(AddEditMode.EDIT_EMPLOYEE)
                 }
             }
 
             Route.Main.OrderAddEdit.link -> {
                 if (backStackEntry.value?.arguments?.getInt(NavArguments.orderId) == NoRecord.num) {
-                    viewModel.setUpToScreenState(AddEditMode.ADD_ORDER)
+                    viewModel.setupTopScreen(AddEditMode.ADD_ORDER)
                 } else {
-                    viewModel.setUpToScreenState(AddEditMode.EDIT_ORDER)
+                    viewModel.setupTopScreen(AddEditMode.EDIT_ORDER)
                 }
             }
 
@@ -85,33 +80,33 @@ abstract class MainActivityBase : ComponentActivity() {
                 if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) == NoRecord.num &&
                     backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == false
                 ) {
-                    viewModel.setUpToScreenState(AddEditMode.ADD_SUB_ORDER)
+                    viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER)
                 } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) == NoRecord.num &&
                     backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == true
                 ) {
-                    viewModel.setUpToScreenState(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
+                    viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
                 } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) != NoRecord.num &&
                     backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == false
                 ) {
-                    viewModel.setUpToScreenState(AddEditMode.EDIT_SUB_ORDER)
+                    viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER)
                 } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) != NoRecord.num &&
                     backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == true
                 ) {
-                    viewModel.setUpToScreenState(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
+                    viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
                 }
             }
 
 //            Route.Main.Settings.EditUserDetails.link -> { viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT) }
 
             Route.Main.Team.AuthorizeUser.link -> {
-                viewModel.setUpToScreenState(AddEditMode.AUTHORIZE_USER)
+                viewModel.setupTopScreen(AddEditMode.AUTHORIZE_USER)
             }
 
             Route.Main.Team.EditUser.link -> {
-                viewModel.setUpToScreenState(AddEditMode.EDIT_USER)
+                viewModel.setupTopScreen(AddEditMode.EDIT_USER)
             }
 
-            else -> viewModel.setUpToScreenState(AddEditMode.NO_MODE)
+            else -> viewModel.setupTopScreen(AddEditMode.NO_MODE)
         }
     }
 
@@ -132,10 +127,9 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Search bar ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onSearchBarSearch(backStackEntry: State<NavBackStackEntry?>, searchNum: String, searchAction: (BaseOrderFilter) -> Unit) {
+    fun onSearchBarSearch(backStackEntry: State<NavBackStackEntry?>, searchAction: () -> Unit) {
         when (backStackEntry.value?.destination?.route) {
-            Route.Main.Inv.link -> searchAction(OrdersFilter(orderNumber = searchNum))
-            Route.Main.ProcessControl.link -> searchAction(SubOrdersFilter(orderNumber = searchNum))
+            Route.Main.Inv.link, Route.Main.ProcessControl.link -> searchAction()
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
         }
     }
@@ -151,17 +145,18 @@ abstract class MainActivityBase : ComponentActivity() {
         }
     }
 
-    val onTabSelectedLambda: (State<NavBackStackEntry?>, SelectedNumber, Int, (BaseOrderFilter) -> Unit) -> Int =
-        { backStackEntry, tabId, tabIndex, searchAction ->
+    val onTabSelectedLambda: (State<NavBackStackEntry?>, Int, () -> Unit) -> Int =
+        { backStackEntry, tabIndex, searchAction ->
             when (backStackEntry.value?.destination?.parent?.route) {
-                null -> {
+                MAIN_ROUTE -> {
                     when (backStackEntry.value?.destination?.route) {
-                        Route.Main.Inv.link -> searchAction(OrdersFilter(statusId = tabId.num))
-                        Route.Main.ProcessControl.link -> searchAction(SubOrdersFilter(statusId = tabId.num))
+                        Route.Main.Inv.link, Route.Main.ProcessControl.link -> {
+                            searchAction()
+                        }
                     }
                 }
 
-                Route.Main.Team.link -> {
+                TEAM_ROUTE -> {
                     if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
                         if (backStackEntry.value?.destination?.route != Route.Main.Team.Employees.link)
                             viewModel.onTopTabsEmployeesClick()
@@ -258,9 +253,6 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * View models consistency -----------------------------------------------------------------------------------------------------------------------
      * */
-    fun initInvModel(model: InvestigationsViewModel) {
-        this.invModel = model
-    }
 
     fun initTeamModel(model: TeamViewModel) {
         this.teamModel = model

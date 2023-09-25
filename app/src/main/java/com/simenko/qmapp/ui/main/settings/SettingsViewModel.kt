@@ -64,7 +64,7 @@ class SettingsViewModel @Inject constructor(
         appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.link)
     }
 
-    fun setUpTopScreen() {
-        topScreenState.trySendAddEditMode(Pair(AddEditMode.NO_MODE) { }, { updateUserData() }, {})
+    fun setupTopScreen() {
+        topScreenState.trySendTopScreenSetup(Pair(AddEditMode.NO_MODE) { }, { updateUserData() }, {})
     }
 }

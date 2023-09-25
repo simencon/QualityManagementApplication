@@ -55,7 +55,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.StateChangedEffect
@@ -68,6 +67,7 @@ import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.TopTabs
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
+import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -121,7 +121,7 @@ class MainActivity : MainActivityBase() {
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
-                onAddEditModeIntent = { p1, p2, p3, p4 -> viewModel.setUpToScreenState(p1, p2, p3, p4) },
+                onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
                 onEndOfListIntent = { viewModel.onEndOfList(it) }
             )
 
@@ -150,12 +150,14 @@ class MainActivity : MainActivityBase() {
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
                 val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
-                val searchAction by viewModel.searchAction.collectAsStateWithLifecycle()
+                val filterAction by viewModel.filterAction.collectAsStateWithLifecycle()
 
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
-                    { tabId, tabIndex -> selectedTabIndex = onTabSelectedLambda(backStackEntry, tabId, tabIndex, searchAction) }
+                    { tabId, tabIndex ->
+                        selectedTabIndex = onTabSelectedLambda(backStackEntry, tabIndex) { filterAction(BaseFilter(statusId = tabId.num)) }
+                    }
                 }
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
@@ -196,7 +198,7 @@ class MainActivity : MainActivityBase() {
                                     onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
                                     searchBarState = searchBarState,
-                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry, it, searchAction) },
+                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry) { filterAction(BaseFilter(orderNumber = it)) } },
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = { viewModel.onBackFromAddEditMode() }

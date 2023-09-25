@@ -2,10 +2,8 @@ package com.simenko.qmapp.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.main.main.AddEditMode
-import com.simenko.qmapp.utils.BaseOrderFilter
+import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -35,9 +33,9 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override fun trySendAddEditMode(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit, filterAction: (BaseOrderFilter) -> Unit) {
+    override fun trySendTopScreenSetup(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit, filterAction: (BaseFilter) -> Unit) {
         topScreenChannel.trySend(
-            TopScreenIntent.TopScreenState(addEditMode.first, addEditMode.second, refreshAction, filterAction)
+            TopScreenIntent.TopScreenSetup(addEditMode.first, addEditMode.second, refreshAction, filterAction)
         )
     }
 }
@@ -46,7 +44,7 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
     onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit,
-    onAddEditModeIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseOrderFilter) -> Unit) -> Unit = { _, _, _, _ -> },
+    onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
     onEndOfListIntent: (Boolean) -> Unit = {}
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
@@ -60,8 +58,8 @@ fun StateChangedEffect(
                     onEndOfListIntent(intent.state)
                 }
 
-                is TopScreenIntent.TopScreenState -> {
-                    onAddEditModeIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction, intent.filterAction)
+                is TopScreenIntent.TopScreenSetup -> {
+                    onTopScreenSetupIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction, intent.filterAction)
                 }
             }
         }

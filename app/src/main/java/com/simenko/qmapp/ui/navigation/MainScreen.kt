@@ -3,8 +3,6 @@ package com.simenko.qmapp.ui.navigation
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -46,7 +44,6 @@ fun MainScreen(
 
                 composable(destination = Route.Main.Inv) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
-                    (LocalContext.current as MainActivity).initInvModel(invModel)
                     invModel.setCreatedRecord(
                         it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
                         it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
@@ -60,7 +57,6 @@ fun MainScreen(
 
                 composable(destination = Route.Main.ProcessControl) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
-                    (LocalContext.current as MainActivity).initInvModel(invModel)
                     invModel.setCreatedRecord(
                         it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
                         it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num

@@ -1,9 +1,7 @@
 package com.simenko.qmapp.ui.common
 
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.ui.main.main.AddEditMode
-import com.simenko.qmapp.utils.BaseOrderFilter
+import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
 
 interface TopScreenState {
@@ -13,10 +11,10 @@ interface TopScreenState {
 
     fun trySendEndOfListState(state: Boolean)
 
-    fun trySendAddEditMode(
+    fun trySendTopScreenSetup(
         addEditMode: Pair<AddEditMode, () -> Unit>,
         refreshAction: () -> Unit,
-        filterAction: (BaseOrderFilter) -> Unit
+        filterAction: (BaseFilter) -> Unit
     )
 }
 
@@ -29,10 +27,10 @@ sealed class TopScreenIntent {
         val state: Boolean
     ) : TopScreenIntent()
 
-    data class TopScreenState(
+    data class TopScreenSetup(
         val addEditMode: AddEditMode,
         val addEditAction: () -> Unit,
         val refreshAction: () -> Unit,
-        val filterAction: (BaseOrderFilter) -> Unit
+        val filterAction: (BaseFilter) -> Unit
     ) : TopScreenIntent()
 }
