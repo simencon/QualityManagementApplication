@@ -18,7 +18,6 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.navigation.MAIN_ROUTE
 import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
@@ -26,7 +25,6 @@ import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
 
-    private lateinit var employeeModel: EmployeeViewModel
     private lateinit var userModel: UserViewModel
 
     protected lateinit var navController: NavHostController
@@ -202,8 +200,8 @@ abstract class MainActivityBase : ComponentActivity() {
                 AddEditMode.EDIT_SUB_ORDER -> addEditAction()
                 AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> addEditAction()
                 AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> addEditAction()
-                AddEditMode.ADD_EMPLOYEE -> employeeModel.validateInput()
-                AddEditMode.EDIT_EMPLOYEE -> employeeModel.validateInput()
+                AddEditMode.ADD_EMPLOYEE -> addEditAction()
+                AddEditMode.EDIT_EMPLOYEE -> addEditAction()
                 AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
                 AddEditMode.EDIT_USER -> userModel.validateInput()
                 AddEditMode.ACCOUNT_EDIT -> addEditAction()
@@ -248,11 +246,6 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * View models consistency -----------------------------------------------------------------------------------------------------------------------
      * */
-
-    fun initEmployeeModel(employeeModel: EmployeeViewModel) {
-        this.employeeModel = employeeModel
-        this.employeeModel.initMainActivityViewModel(this.viewModel)
-    }
 
     fun initUserModel(model: UserViewModel) {
         this.userModel = model

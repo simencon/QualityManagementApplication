@@ -47,6 +47,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
@@ -55,13 +56,17 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
-    val viewModel: EmployeeViewModel = hiltViewModel()
+fun EmployeeForm(
+    modifier: Modifier = Modifier,
+    viewModel: EmployeeViewModel = hiltViewModel(),
+    employeeId: Int
+) {
 
-    LaunchedEffect(key1 = employeeId) {
-        withContext(Dispatchers.Default) {
-            if (employeeId != NoRecord.num)
-                viewModel.loadEmployee(employeeId)
+    LaunchedEffect(employeeId) {
+        if (employeeId == NoRecord.num) {
+            viewModel.setupTopScreen(AddEditMode.ADD_EMPLOYEE, employeeId)
+        } else {
+            viewModel.setupTopScreen(AddEditMode.EDIT_EMPLOYEE, employeeId)
         }
     }
 
@@ -78,7 +83,7 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
 
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> viewModel.makeEmployee(employee)
+            is FillInSuccess -> viewModel.makeEmployee()
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }

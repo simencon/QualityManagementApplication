@@ -35,9 +35,10 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         }
         composable(destination = Route.Main.Team.EmployeeAddEdit) {
             val employeeModel: EmployeeViewModel = hiltViewModel()
-            (LocalContext.current as MainActivity).initEmployeeModel(employeeModel)
-
-            EmployeeForm(employeeId = it.arguments?.getInt(NavArguments.employeeId) ?: NoRecord.num)
+            EmployeeForm(
+                viewModel = employeeModel,
+                employeeId = it.arguments?.getInt(NavArguments.employeeId) ?: NoRecord.num
+            )
         }
         composable(destination = Route.Main.Team.Users) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
