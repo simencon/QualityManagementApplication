@@ -33,7 +33,6 @@ import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
@@ -64,7 +63,7 @@ fun Orders(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> { { invModel.navController.navigate(Route.Main.OrderAddEdit.withArgs(it.toString())) } }
+    val onClickEditLambda = remember<(Int) -> Unit> { { invModel.onEditInvClick(it) } }
 
     val listState = rememberLazyListState()
 
@@ -218,7 +217,7 @@ fun OrderCard(
                 createdDate = order.order.createdDate,
                 completedDate = order.order.completedDate,
 
-                onClickDetails = {onClickDetails(it) }
+                onClickDetails = { onClickDetails(it) }
             )
         }
     }

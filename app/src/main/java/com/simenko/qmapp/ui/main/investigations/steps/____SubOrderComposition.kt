@@ -62,12 +62,8 @@ fun SubOrdersFlowColumn(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> {
-        { invModel.navController.navigate(Route.Main.SubOrderAddEdit.withArgs(it.toString(), NoRecordStr.str, FalseStr.str)) }
-    }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> {
-        { invModel.navController.navigate(Route.Main.SubOrderAddEdit.withArgs(it.first.toString(), it.second.toString(), FalseStr.str)) }
-    }
+    val onClickAddLambda = remember<(Int) -> Unit> { { invModel.onAddSubOrderClick(it) } }
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditSubOrderClick(it) } }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
         { subOrderComplete, completedById ->

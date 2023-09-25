@@ -17,6 +17,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
@@ -42,14 +43,10 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
     private val repository: ManufacturingRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private lateinit var navController: NavHostController
-    fun initNavController(controller: NavHostController) {
-        this.navController = controller
-    }
-
     private lateinit var _mainViewModel: MainActivityViewModel
     fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
         this._mainViewModel = viewModel
@@ -231,9 +228,11 @@ class EmployeeViewModel @Inject constructor(
         _mainViewModel.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                navController.navigate(Route.Main.Team.Employees.withArgs(it.toString())) {
-                    popUpTo(Route.Main.Team.Employees.link) { inclusive = true }
-                }
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.Team.Employees.withArgs(it.toString()),
+                    popUpToRoute = Route.Main.Team.Employees.link,
+                    inclusive = true
+                )
             }
         }
     }
