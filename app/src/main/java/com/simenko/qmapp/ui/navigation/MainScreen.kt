@@ -61,23 +61,22 @@ fun MainScreen(
                         it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
                         it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
                     )
-                    QMAppTheme {
-                        InvestigationsMainComposition(
-                            modifier = Modifier.padding(all = 0.dp),
-                            processControlOnly = true
-                        )
-                    }
+
+                    InvestigationsMainComposition(
+                        modifier = Modifier.padding(all = 0.dp),
+                        processControlOnly = true
+                    )
                 }
 
                 composable(destination = Route.Main.OrderAddEdit) {
                     val newOrderModel: NewItemViewModel = hiltViewModel()
                     (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
                     BackHandler { navController.popBackStack() }
-                    QMAppTheme {
-                        OrderForm(
-                            orderId = it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num
-                        )
-                    }
+
+                    OrderForm(
+                        viewModel = newOrderModel,
+                        orderId = it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num
+                    )
                 }
 
                 composable(destination = Route.Main.SubOrderAddEdit) {
@@ -85,14 +84,13 @@ fun MainScreen(
                     (LocalContext.current as MainActivity).initNewOrderModel(newOrderModel)
                     newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(NavArguments.subOrderAddEditMode) ?: false)
                     BackHandler { navController.popBackStack() }
-                    QMAppTheme {
-                        SubOrderForm(
-                            record = Pair(
-                                it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
-                                it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
-                            )
+
+                    SubOrderForm(
+                        record = Pair(
+                            it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
+                            it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
                         )
-                    }
+                    )
                 }
 
                 settingsNavigation()

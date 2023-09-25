@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
@@ -33,6 +34,12 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
+    override fun trySendTopBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TopBadgeState(tabIndex, state)
+        )
+    }
+
     override fun trySendTopScreenSetup(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit, filterAction: (BaseFilter) -> Unit) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenSetup(addEditMode.first, addEditMode.second, refreshAction, filterAction)
@@ -44,8 +51,9 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
     onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit,
+    onEndOfListIntent: (Boolean) -> Unit = {},
+    onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
     onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
-    onEndOfListIntent: (Boolean) -> Unit = {}
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->
@@ -56,6 +64,10 @@ fun StateChangedEffect(
 
                 is TopScreenIntent.EndOfListState -> {
                     onEndOfListIntent(intent.state)
+                }
+
+                is TopScreenIntent.TopBadgeState -> {
+                    onTopBadgeStateIntent(intent.tabIndex, intent.state)
                 }
 
                 is TopScreenIntent.TopScreenSetup -> {

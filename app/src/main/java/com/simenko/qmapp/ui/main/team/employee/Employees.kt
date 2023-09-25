@@ -43,7 +43,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
-fun EmployeeComposition(
+fun Employees(
     viewModel: TeamViewModel = hiltViewModel(),
     onClickEdit: (Int) -> Unit
 ) {
@@ -56,6 +56,8 @@ fun EmployeeComposition(
     val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
 
     val listState = rememberLazyListState()
+
+    LaunchedEffect(Unit) { viewModel.setupTopScreen() }
 
     LaunchedEffect(selectedRecord) {
         selectedRecord.getContentIfNotHandled()?.let { recordId ->

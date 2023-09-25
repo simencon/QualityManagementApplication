@@ -121,8 +121,9 @@ class MainActivity : MainActivityBase() {
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
+                onEndOfListIntent = { viewModel.onEndOfList(it) },
+                onTopBadgeStateIntent = { p1, p2 -> viewModel.setTopBadgesCount(p1, p2.first, p2.second, p2.third) },
                 onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
-                onEndOfListIntent = { viewModel.onEndOfList(it) }
             )
 
             QMAppTheme {

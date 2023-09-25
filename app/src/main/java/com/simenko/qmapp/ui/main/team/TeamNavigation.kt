@@ -12,7 +12,7 @@ import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
-import com.simenko.qmapp.ui.main.team.employee.EmployeeComposition
+import com.simenko.qmapp.ui.main.team.employee.Employees
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserForm
@@ -27,12 +27,11 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
     navigation(startDestination = Route.Main.Team.Employees) {
         composable(destination = Route.Main.Team.Employees) {
             val teamModel: TeamViewModel = hiltViewModel()
-            (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 it.arguments?.getInt(NavArguments.employeeId)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
             }
-            EmployeeComposition(onClickEdit = { id -> teamModel.onEmployeeEdictClick(id) })
+            Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeEdictClick(id) })
         }
         composable(destination = Route.Main.Team.EmployeeAddEdit) {
             val employeeModel: EmployeeViewModel = hiltViewModel()
@@ -42,7 +41,6 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         }
         composable(destination = Route.Main.Team.Users) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
-            (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
@@ -57,7 +55,6 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         }
         composable(destination = Route.Main.Team.Requests) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
-            (LocalContext.current as MainActivity).initTeamModel(teamModel)
 
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }

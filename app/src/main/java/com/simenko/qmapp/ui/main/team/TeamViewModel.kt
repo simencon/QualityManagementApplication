@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.team
 
-import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
@@ -13,7 +12,7 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter
@@ -32,18 +31,24 @@ class TeamViewModel @Inject constructor(
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
 ) : ViewModel() {
-    private lateinit var _mainViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this._mainViewModel = viewModel
+    fun setupTopScreen() {
+        topScreenState.trySendTopScreenSetup(
+            addEditMode = Pair(AddEditMode.NO_MODE) {},
+            refreshAction = { updateEmployeesData() },
+            filterAction = {}
+        )
+    }
+    private fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.trySendLoadingState(state)
     }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
     private fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
-        _mainViewModel.setTopBadgesCount(0, employees.size, Color.Green, Color.Black)
-        _mainViewModel.setTopBadgesCount(1, users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black)
-        _mainViewModel.setTopBadgesCount(2, users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
+        topScreenState.trySendTopBadgeState(0, Triple(employees.size, Color.Green, Color.Black))
+        topScreenState.trySendTopBadgeState(1, Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black))
+        topScreenState.trySendTopBadgeState(2, Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White))
     }
 
     val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }
@@ -90,15 +95,15 @@ class TeamViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+        updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             manufacturingRepository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> _mainViewModel.updateLoadingState(Pair(false, null))
-                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> updateLoadingState(Pair(false, null))
+                            Status.ERROR -> updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -158,21 +163,21 @@ class TeamViewModel @Inject constructor(
     }
 
     fun removeUser(userId: String) = viewModelScope.launch {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+        updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             systemRepository.run {
                 removeUser(userId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                            Status.LOADING -> updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
-                                _mainViewModel.updateLoadingState(Pair(false, null))
+                                updateLoadingState(Pair(false, null))
                                 _selectedUserRecord.value = Event(NoRecordStr.str)
                                 setRemoveUserDialogVisibility(false)
                                 navToRemovedRecord(resource.data?.email)
                             }
 
-                            Status.ERROR -> _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                            Status.ERROR -> updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -196,7 +201,7 @@ class TeamViewModel @Inject constructor(
     }
 
     private suspend fun navToRemovedRecord(id: String?) {
-        _mainViewModel.updateLoadingState(Pair(false, null))
+        updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests.withArgs(it), Route.Main.Team.Employees.link) }
         }
@@ -204,7 +209,7 @@ class TeamViewModel @Inject constructor(
 
     fun updateEmployeesData() = viewModelScope.launch {
         try {
-            _mainViewModel.updateLoadingState(Pair(true, null))
+            updateLoadingState(Pair(true, null))
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
@@ -214,9 +219,9 @@ class TeamViewModel @Inject constructor(
             manufacturingRepository.syncDepartments()
             manufacturingRepository.syncTeamMembers()
 
-            _mainViewModel.updateLoadingState(Pair(false, null))
+            updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            _mainViewModel.updateLoadingState(Pair(false, e.message))
+            updateLoadingState(Pair(false, e.message))
         }
     }
 }
