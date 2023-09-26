@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.team.forms.employee
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,11 +13,9 @@ import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
-import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
-import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
@@ -47,8 +44,7 @@ import javax.inject.Inject
 class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
-    private val repository: ManufacturingRepository,
-    private val userRepository: UserRepository
+    private val repository: ManufacturingRepository
 ) : ViewModel() {
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
         topScreenState.trySendLoadingState(state)
@@ -70,7 +66,7 @@ class EmployeeViewModel @Inject constructor(
 
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private var _employeeErrors: MutableStateFlow<EmployeeErrors> = MutableStateFlow(EmployeeErrors())
-    fun loadEmployee(id: Int) {
+    private fun loadEmployee(id: Int) {
         _employee.value = repository.getEmployeeById(id)
     }
 

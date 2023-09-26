@@ -12,9 +12,9 @@ data class UsersFilter(
 )
 
 open class BaseFilter constructor(
-    open val typeId: Int = NoRecord.num,
-    open val statusId: Int = NoRecord.num,
-    open val orderNumber: String = NoString.str
+    open val typeId: Int? = null,
+    open val statusId: Int? = null,
+    open val orderNumber: String? = null
 )
 
 data class OrdersFilter(

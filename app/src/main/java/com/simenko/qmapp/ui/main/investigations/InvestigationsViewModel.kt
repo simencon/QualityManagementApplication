@@ -214,9 +214,9 @@ class InvestigationsViewModel @Inject constructor(
     private fun setCurrentOrdersFilter(filter: BaseFilter) {
         val current = _currentOrdersFilter.value
         _currentOrdersFilter.value = _currentOrdersFilter.value.copy(
-            typeId = if (filter.typeId != NoRecord.num) filter.typeId else current.typeId,
-            statusId = if (filter.statusId != NoRecord.num) filter.statusId else current.statusId,
-            orderNumber = if (filter.orderNumber != NoString.str) filter.orderNumber else current.orderNumber,
+            typeId = filter.typeId ?: current.typeId,
+            statusId = filter.statusId ?: current.statusId,
+            orderNumber = filter.orderNumber ?: current.orderNumber,
         )
     }
 
@@ -313,9 +313,9 @@ class InvestigationsViewModel @Inject constructor(
     fun setCurrentSubOrdersFilter(filter: BaseFilter) {
         val current = _currentSubOrdersFilter.value
         _currentSubOrdersFilter.value = _currentSubOrdersFilter.value.copy(
-            typeId = if (filter.typeId != NoRecord.num) filter.typeId else current.typeId,
-            statusId = if (filter.statusId != NoRecord.num) filter.statusId else current.statusId,
-            orderNumber = if (filter.orderNumber != NoString.str) filter.orderNumber else current.orderNumber,
+            typeId = filter.typeId ?: current.typeId,
+            statusId = filter.statusId ?: current.statusId,
+            orderNumber = filter.orderNumber ?: current.orderNumber,
         )
     }
 

@@ -18,15 +18,11 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.navigation.MAIN_ROUTE
 import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
-
-    private lateinit var userModel: UserViewModel
-
     protected lateinit var navController: NavHostController
 
     /**
@@ -202,8 +198,8 @@ abstract class MainActivityBase : ComponentActivity() {
                 AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> addEditAction()
                 AddEditMode.ADD_EMPLOYEE -> addEditAction()
                 AddEditMode.EDIT_EMPLOYEE -> addEditAction()
-                AddEditMode.AUTHORIZE_USER -> userModel.validateInput()
-                AddEditMode.EDIT_USER -> userModel.validateInput()
+                AddEditMode.AUTHORIZE_USER -> addEditAction()
+                AddEditMode.EDIT_USER -> addEditAction()
                 AddEditMode.ACCOUNT_EDIT -> addEditAction()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
@@ -241,14 +237,5 @@ abstract class MainActivityBase : ComponentActivity() {
             Route.Main.Settings.EditUserDetails.link -> refreshAction()
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
         }
-    }
-
-    /**
-     * View models consistency -----------------------------------------------------------------------------------------------------------------------
-     * */
-
-    fun initUserModel(model: UserViewModel) {
-        this.userModel = model
-        this.userModel.initMainActivityViewModel(this.viewModel)
     }
 }
