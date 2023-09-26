@@ -1,9 +1,9 @@
 package com.simenko.qmapp.ui.main.team.forms.user
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedString
@@ -13,9 +13,9 @@ import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
+import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
-import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
@@ -45,13 +45,25 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
+    private val topScreenState: TopScreenState,
     private val repository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val notificationManager: NotificationManagerCompat
 ) : ViewModel() {
-    private lateinit var _mainViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this._mainViewModel = viewModel
+    private fun updateLoadingState(state: Pair<Boolean, String?>) {
+        topScreenState.trySendLoadingState(state)
+    }
+
+    private val _isUserToAuthorize = mutableStateOf(false)
+    fun setupTopScreen(addEditMode: AddEditMode) {
+        topScreenState.trySendTopScreenSetup(
+            addEditMode = Pair(addEditMode) {
+                _isUserToAuthorize.value = addEditMode == AddEditMode.AUTHORIZE_USER
+                validateInput()
+            },
+            refreshAction = {},
+            filterAction = {}
+        )
     }
 
     fun clearNotificationIfExists(email: String) {
@@ -156,21 +168,16 @@ class UserViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeUser(record: DomainUser) = viewModelScope.launch {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+    fun makeUser(userToAuthorize: Boolean = _isUserToAuthorize.value) = viewModelScope.launch {
+        updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run {
-                if (_mainViewModel.addEditMode.value == AddEditMode.AUTHORIZE_USER.ordinal)
-                    authorizeUser(record)
-                else
-                    updateUserCompanyData(record)
-            }.consumeEach { event ->
+            repository.run { if (userToAuthorize) authorizeUser(_user.value) else updateUserCompanyData(_user.value) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> _mainViewModel.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> updateLoadingState(Pair(true, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.email)
                         Status.ERROR -> {
-                            _mainViewModel.updateLoadingState(Pair(true, resource.message))
+                            updateLoadingState(Pair(true, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -180,7 +187,7 @@ class UserViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: String?) {
-        _mainViewModel.updateLoadingState(Pair(false, null))
+        updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
                 appNavigator.tryNavigateTo(

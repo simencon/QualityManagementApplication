@@ -17,7 +17,7 @@ import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserForm
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
-import com.simenko.qmapp.ui.main.team.user.UserComposition
+import com.simenko.qmapp.ui.main.team.user.Users
 import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
 import com.simenko.qmapp.ui.navigation.sharedViewModel
@@ -47,7 +47,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
                 it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
             }
 
-            UserComposition(
+            Users(
                 viewModel = teamModel,
                 isUsersPage = true,
                 onClickAuthorize = {},
@@ -61,7 +61,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
                 it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
             }
 
-            UserComposition(
+            Users(
                 viewModel = teamModel,
                 isUsersPage = false,
                 onClickAuthorize = { id -> teamModel.onUserAuthorizeClick(id) },
@@ -76,8 +76,9 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
 private fun NavGraphBuilder.editUser(route: Route) {
     composable(destination = route) {
         val userModel: UserViewModel = hiltViewModel()
-        (LocalContext.current as MainActivity).initUserModel(userModel)
-
-        UserForm(userId = it.arguments?.getString(NavArguments.userId) ?: NoRecordStr.str)
+        UserForm(
+            viewModel = userModel,
+            userId = it.arguments?.getString(NavArguments.userId) ?: NoRecordStr.str
+        )
     }
 }

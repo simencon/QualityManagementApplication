@@ -47,7 +47,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @Composable
-fun UserComposition(
+fun Users(
     viewModel: TeamViewModel = hiltViewModel(),
     isUsersPage: Boolean,
     onClickAuthorize: (String) -> Unit,

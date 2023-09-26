@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.team.forms.user
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +28,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecordStr
@@ -36,6 +36,7 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
+import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.settings.InfoLine
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
@@ -48,17 +49,29 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun UserForm(modifier: Modifier = Modifier, userId: String) {
-    val viewModel: UserViewModel = hiltViewModel()
-
+fun UserForm(
+    modifier: Modifier = Modifier,
+    viewModel: UserViewModel,
+    userId: String
+) {
     val user by viewModel.user.collectAsStateWithLifecycle()
-    LaunchedEffect(key1 = userId) {
+    LaunchedEffect(userId) {
         if (user.email == NoRecordStr.str)
             withContext(Dispatchers.Default) {
                 if (userId != NoRecordStr.str) {
                     viewModel.clearNotificationIfExists(userId)
                     viewModel.loadUser(userId)
                 }
+            }
+    }
+    LaunchedEffect(user) {
+        if (user.email != NoRecordStr.str)
+            if (user.restApiUrl.isNullOrEmpty()) {
+                viewModel.setupTopScreen(AddEditMode.AUTHORIZE_USER)
+                Log.d("UserForm", "UserForm: ${AddEditMode.AUTHORIZE_USER}")
+            } else {
+                viewModel.setupTopScreen(AddEditMode.EDIT_USER)
+                Log.d("UserForm", "UserForm: ${AddEditMode.EDIT_USER}")
             }
     }
 
@@ -72,7 +85,7 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
 
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> viewModel.makeUser(user)
+            is FillInSuccess -> viewModel.makeUser()
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
