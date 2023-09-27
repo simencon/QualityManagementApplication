@@ -4,6 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
+import com.simenko.qmapp.di.study.TestDiClassSingleton
+import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.common.TopScreenState
@@ -19,17 +22,19 @@ import javax.inject.Inject
 import javax.inject.Named
 
 private const val TAG = "UserViewModel"
+
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
     @Named("UserActivity") private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState
+    private val topScreenState: TopScreenState,
+    private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     val topScreenChannel = topScreenState.topScreenChannel
 
-    fun logAppNavigator() {
-        Log.d(TAG, "logAppNavigator: $appNavigator")
+    fun logWhenInstantiated() {
+        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }
 
     private val _isLoadingInProgress = MutableStateFlow(false)

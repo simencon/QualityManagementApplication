@@ -5,6 +5,9 @@ import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
+import com.simenko.qmapp.di.study.TestDiClassSingleton
+import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.InvestigationsRepository
@@ -37,13 +40,14 @@ class MainActivityViewModel @Inject constructor(
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository
+    private val repository: InvestigationsRepository,
+    private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     val topScreenChannel = topScreenState.topScreenChannel
 
-    fun logAppNavigator() {
-        Log.d(TAG, "logAppNavigator: $appNavigator")
+    fun logWhenInstantiated() {
+        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }
 
     val userInfo get() = userRepository.user

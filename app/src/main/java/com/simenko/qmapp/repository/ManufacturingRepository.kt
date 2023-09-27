@@ -2,24 +2,27 @@ package com.simenko.qmapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
+import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
-import javax.inject.Singleton
-@Singleton
+
+@ViewModelScoped
 class ManufacturingRepository @Inject constructor(
     private val database: QualityManagementDB,
     private val service: ManufacturingService,
-    private val crudeOperations: CrudeOperations
+    private val crudeOperations: CrudeOperations,
+    private val testDiClassViewModelScope: TestDiClassViewModelScope
 ) {
     /**
      * Update Manufacturing from the network

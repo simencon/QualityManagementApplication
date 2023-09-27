@@ -1,7 +1,9 @@
 package com.simenko.qmapp.ui.main.team
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
+import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -23,6 +25,8 @@ import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 import javax.inject.Named
 
+private const val TAG = "TeamViewModel"
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
@@ -31,7 +35,11 @@ class TeamViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
+    private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
+    fun logWhenInstantiated() {
+        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
+    }
     fun setupTopScreen() {
         topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(AddEditMode.NO_MODE) {},
