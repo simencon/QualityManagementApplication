@@ -5,8 +5,6 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
-import com.simenko.qmapp.di.study.TestDiClassSingleton
-import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.common.TopScreenState
@@ -19,14 +17,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
-import javax.inject.Named
 
 private const val TAG = "UserViewModel"
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    @Named("UserActivity") private val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {

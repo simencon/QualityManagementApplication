@@ -45,6 +45,27 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
             TopScreenIntent.TopScreenSetup(addEditMode.first, addEditMode.second, refreshAction, filterAction)
         )
     }
+
+    override fun trySendTopScreenSetupDev(
+        mainPage: MainPage,
+        onNavBtnClick: () -> Unit,
+        onTitleBtnClick: () -> Unit,
+        onActionBtnClick: () -> Unit,
+        onTabClickAction: () -> Unit,
+        fabAction: () -> Unit,
+        refreshAction: () -> Unit,
+        filterAction: (BaseFilter) -> Unit
+    ) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TopScreenSetupDev(
+                titleSetup = TopBarContent(mainPage, onNavBtnClick, onTitleBtnClick, onActionBtnClick),
+                topTabsSetup = TopTabsContent(mainPage, onTabClickAction),
+                fabSetup = FabSetup(mainPage, fabAction),
+                refreshAction = refreshAction,
+                filterAction = filterAction
+            )
+        )
+    }
 }
 
 @Composable
@@ -54,6 +75,13 @@ fun StateChangedEffect(
     onEndOfListIntent: (Boolean) -> Unit = {},
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
     onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
+    onTopScreenSetupDevIntent: (
+        TopBarContent,
+        TopTabsContent,
+        FabSetup,
+        () -> Unit,
+        (BaseFilter) -> Unit
+    ) -> Unit = { _, _, _, _, _ -> },
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->
@@ -72,6 +100,10 @@ fun StateChangedEffect(
 
                 is TopScreenIntent.TopScreenSetup -> {
                     onTopScreenSetupIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction, intent.filterAction)
+                }
+
+                is TopScreenIntent.TopScreenSetupDev -> {
+                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup, intent.fabSetup, intent.refreshAction, intent.filterAction)
                 }
             }
         }

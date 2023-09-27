@@ -91,12 +91,15 @@ import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.common.TopBarContent
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AppBar(
+    topBarSetup: TopBarContent,
+
     screen: MenuItem,
     destination: NavDestination?,
 
@@ -182,7 +185,20 @@ fun AppBar(
             }
         },
         navigationIcon = {
-            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
+            IconButton(
+                onClick = { if (searchBarState.value) searchBarState.value = false else topBarSetup.onNavBtnClick() },
+                colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+            ) {
+                if (searchBarState.value)
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
+                else
+                    Icon(
+                        imageVector = topBarSetup.navIcon,
+                        contentDescription = "Toggle drawer",
+                        modifier = Modifier.rotate(drawerState.offset.value / 1080f * 360f)
+                    )
+            }
+            /*if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                 if (searchBarState.value)
                     IconButton(
                         onClick = { searchBarState.value = false },
@@ -198,8 +214,7 @@ fun AppBar(
                         Icon(
                             imageVector = Icons.Filled.Menu,
                             contentDescription = "Toggle drawer",
-                            modifier = Modifier
-                                .rotate(drawerState.offset.value / 1080f * 360f)
+                            modifier = Modifier.rotate(drawerState.offset.value / 1080f * 360f)
                         )
                     }
             } else {
@@ -209,15 +224,15 @@ fun AppBar(
                 ) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide add edit bar")
                 }
-            }
+            }*/
         },
         actions = {
-            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
+            if (topBarSetup.actionBtnIcon != null) {
                 IconButton(
                     onClick = { actionsMenuState.value = true },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
-                    Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More")
+                    Icon(topBarSetup.actionBtnIcon, contentDescription = "More")
                 }
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,
@@ -226,10 +241,7 @@ fun AppBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = contentColor
-        )
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = contentColor)
     )
 }
 

@@ -9,7 +9,6 @@ import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 import com.simenko.qmapp.di.study.TestDiClassSingleton
-import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
@@ -31,7 +30,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -154,19 +152,6 @@ object AppModule {
     @Named("firebase_token")
     fun provideFirebaseToken(userRepository: UserRepository): String {
         return userRepository.authToken
-    }
-
-    @Singleton
-    @Provides
-    @Named("UserActivity")
-    fun provideAppNavigatorWithinUserActivity(): AppNavigator {
-        return AppNavigatorImpl()
-    }
-    @Singleton
-    @Provides
-    @Named("MainActivity")
-    fun provideAppNavigatorWithinMainActivity(): AppNavigator {
-        return AppNavigatorImpl()
     }
 
     @Singleton

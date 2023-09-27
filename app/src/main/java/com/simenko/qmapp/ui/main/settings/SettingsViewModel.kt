@@ -12,11 +12,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
-import javax.inject.Named
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    @Named("MainActivity") private val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository
 ) : ViewModel() {

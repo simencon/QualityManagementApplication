@@ -38,12 +38,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import javax.inject.Named
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(
-    @Named("MainActivity") private val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val repository: ManufacturingRepository
 ) : ViewModel() {

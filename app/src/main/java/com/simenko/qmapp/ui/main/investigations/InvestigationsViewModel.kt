@@ -33,7 +33,7 @@ import javax.inject.Named
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
-    @Named("MainActivity") private val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
