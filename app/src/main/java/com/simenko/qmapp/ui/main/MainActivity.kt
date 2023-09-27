@@ -211,7 +211,7 @@ class MainActivity : MainActivityBase() {
                             },
                             floatingActionButtonPosition = fabPosition
                         ) {
-                            LaunchedEffect(key1 = Unit, block = { viewModel.logAppNavigator() })
+                            LaunchedEffect(key1 = Unit, block = { viewModel.logWhenInstantiated() })
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = { super.onPullRefresh(backStackEntry, refreshAction) }

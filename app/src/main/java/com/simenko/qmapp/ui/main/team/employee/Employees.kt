@@ -57,7 +57,10 @@ fun Employees(
 
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) { viewModel.setupTopScreen() }
+    LaunchedEffect(Unit) {
+        viewModel.logWhenInstantiated()
+        viewModel.setupTopScreen()
+    }
 
     LaunchedEffect(selectedRecord) {
         selectedRecord.getContentIfNotHandled()?.let { recordId ->

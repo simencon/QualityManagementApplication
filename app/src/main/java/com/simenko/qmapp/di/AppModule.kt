@@ -8,6 +8,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
+import com.simenko.qmapp.di.study.TestDiClassSingleton
+import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
@@ -29,7 +31,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -171,5 +173,13 @@ object AppModule {
     @Provides
     fun provideTopScreenState(): TopScreenState {
         return TopScreenStateImpl()
+    }
+
+//    @Singleton
+    @Provides
+    fun provideTestDi(): TestDiClassSingleton {
+        val instance = TestDiClassSingleton()
+        instance.name = "Roman Semenyshyn"
+        return instance
     }
 }
