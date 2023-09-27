@@ -12,10 +12,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val appNavigator: AppNavigator,
+    @Named("MainActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository
 ) : ViewModel() {
@@ -54,10 +55,6 @@ class SettingsViewModel @Inject constructor(
     private fun updateUserData() {
         updateLoadingState(Pair(true, null))
         userRepository.updateUserData()
-    }
-
-    fun updateFcmToken() {
-        userRepository.updateFcmToken(userRepository.user.email)
     }
 
     fun onUserDataEditClick() {

@@ -13,16 +13,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Named
 
 private const val MIN_LENGTH = 6
 
-/**
- * EnterDetailsViewModel is the ViewModel that [EnterDetailsFragment] uses to
- * obtain to validate user's input data.
- */
 @HiltViewModel
 class EnterDetailsViewModel @Inject constructor(
-    private val appNavigator: AppNavigator,
+    @Named("UserActivity") private val appNavigatorUser: AppNavigator,
+    @Named("MainActivity") private val appNavigatorMain: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository
 ) : ViewModel() {
@@ -110,11 +108,11 @@ class EnterDetailsViewModel @Inject constructor(
     fun onFillInSuccess(fullName: String) {
         initRawUser()
         resetToInitialState()
-        appNavigator.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions.withArgs(fullName))
+        appNavigatorUser.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions.withArgs(fullName))
     }
 
     fun onLogInClick() {
-        appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link)
+        appNavigatorUser.tryNavigateTo(Route.LoggedOut.LogIn.link)
     }
 
     fun onSaveUserDataClick() {
@@ -123,7 +121,7 @@ class EnterDetailsViewModel @Inject constructor(
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     topScreenState.trySendLoadingState(Pair(false, null))
-                    appNavigator.tryNavigateTo(
+                    appNavigatorMain.tryNavigateTo(
                         route = Route.Main.Settings.UserDetails.link,
                         popUpToRoute = Route.Main.Settings.UserDetails.route,
                         inclusive = true

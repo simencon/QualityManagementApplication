@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main
 
+import android.util.Log
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -24,10 +25,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
+import javax.inject.Named
+
+private const val TAG = "MainActivityViewModel"
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val appNavigator: AppNavigator,
+    @Named("MainActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
@@ -37,6 +41,10 @@ class MainActivityViewModel @Inject constructor(
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     val topScreenChannel = topScreenState.topScreenChannel
+
+    fun logAppNavigator() {
+        Log.d(TAG, "logAppNavigator: $appNavigator")
+    }
 
     val userInfo get() = userRepository.user
 

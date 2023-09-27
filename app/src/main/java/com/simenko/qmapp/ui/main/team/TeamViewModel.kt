@@ -21,11 +21,12 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
+import javax.inject.Named
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
-    private val appNavigator: AppNavigator,
+    @Named("MainActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
@@ -207,7 +208,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    fun updateEmployeesData() = viewModelScope.launch {
+    private fun updateEmployeesData() = viewModelScope.launch {
         try {
             updateLoadingState(Pair(true, null))
 

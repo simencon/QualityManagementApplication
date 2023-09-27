@@ -16,16 +16,21 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Named
 
 private const val TAG = "UserViewModel"
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val appNavigator: AppNavigator,
+    @Named("UserActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     val topScreenChannel = topScreenState.topScreenChannel
+
+    fun logAppNavigator() {
+        Log.d(TAG, "logAppNavigator: $appNavigator")
+    }
 
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
@@ -78,7 +83,7 @@ class UserViewModel @Inject constructor(
     }
 
     fun onStateIsUserLoggedOutState() {
-        Log.d(TAG, "onStateIsUserLoggedOutState")
+        Log.d("InitialScreen", "onStateIsUserLoggedOutState")
         updateLoadingState(Pair(false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToRoute = Route.LoggedOut.LogIn.route, inclusive = true)
     }
