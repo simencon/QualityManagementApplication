@@ -25,11 +25,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+import javax.inject.Named
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NewItemViewModel @Inject constructor(
-    private val appNavigator: AppNavigator,
+    @Named("MainActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,

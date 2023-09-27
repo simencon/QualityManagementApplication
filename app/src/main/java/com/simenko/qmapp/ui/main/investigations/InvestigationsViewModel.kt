@@ -28,11 +28,12 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
+import javax.inject.Named
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
-    private val appNavigator: AppNavigator,
+    @Named("MainActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,

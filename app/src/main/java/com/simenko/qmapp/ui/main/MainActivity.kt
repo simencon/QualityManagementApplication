@@ -56,7 +56,6 @@ import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.AppBar
@@ -93,9 +92,6 @@ class MainActivity : MainActivityBase() {
     private lateinit var syncLastHourOneTimeWork: OneTimeWorkRequest
     private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
     private lateinit var analytics: FirebaseAnalytics
-
-    @Inject
-    lateinit var userRepository: UserRepository
 
     private lateinit var initialRoute: String
 
@@ -215,6 +211,7 @@ class MainActivity : MainActivityBase() {
                             },
                             floatingActionButtonPosition = fabPosition
                         ) {
+                            LaunchedEffect(key1 = Unit, block = { viewModel.logAppNavigator() })
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = { super.onPullRefresh(backStackEntry, refreshAction) }

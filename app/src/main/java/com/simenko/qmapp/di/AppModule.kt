@@ -29,6 +29,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -155,7 +156,14 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideAppNavigator(): AppNavigator {
+    @Named("UserActivity")
+    fun provideAppNavigatorWithinUserActivity(): AppNavigator {
+        return AppNavigatorImpl()
+    }
+    @Singleton
+    @Provides
+    @Named("MainActivity")
+    fun provideAppNavigatorWithinMainActivity(): AppNavigator {
         return AppNavigatorImpl()
     }
 

@@ -30,7 +30,6 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 import com.simenko.qmapp.ui.user.registration.termsandconditions.TermsAndConditions
 import com.simenko.qmapp.ui.user.verification.WaitingForVerification
 import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun InitialScreen(
@@ -43,28 +42,27 @@ fun InitialScreen(
     )
 
     QMAppTheme {
-        val context = LocalContext.current
-
-        val userState by userViewModel.userState.collectAsStateWithLifecycle()
-
-        LaunchedEffect(userState) {
-            userState.let { state ->
-                when (state) {
-                    is NoState -> userViewModel.onStateIsNoState()
-                    is UnregisteredState -> userViewModel.onStateIsUnregisteredState()
-                    is UserNeedToVerifyEmailState -> userViewModel.onStateIsUserNeedToVerifyEmailState(state.msg)
-                    is UserAuthoritiesNotVerifiedState -> userViewModel.onStateIsUserAuthoritiesNotVerifiedState(state.msg)
-                    is UserLoggedOutState -> userViewModel.onStateIsUserLoggedOutState()
-                    is UserLoggedInState -> userViewModel.onStateIsUserLoggedInState(context)
-                    is UserErrorState -> {}
-                }
-            }
-        }
-
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
+            val context = LocalContext.current
+            val userState by userViewModel.userState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(userState) {
+                userState.let { state ->
+                    when (state) {
+                        is NoState -> userViewModel.onStateIsNoState()
+                        is UnregisteredState -> userViewModel.onStateIsUnregisteredState()
+                        is UserNeedToVerifyEmailState -> userViewModel.onStateIsUserNeedToVerifyEmailState(state.msg)
+                        is UserAuthoritiesNotVerifiedState -> userViewModel.onStateIsUserAuthoritiesNotVerifiedState(state.msg)
+                        is UserLoggedOutState -> userViewModel.onStateIsUserLoggedOutState()
+                        is UserLoggedInState -> userViewModel.onStateIsUserLoggedInState(context)
+                        is UserErrorState -> {}
+                    }
+                }
+            }
+
             NavHost(
                 navController = navController,
                 startDestination = Route.LoggedOut.InitialScreen

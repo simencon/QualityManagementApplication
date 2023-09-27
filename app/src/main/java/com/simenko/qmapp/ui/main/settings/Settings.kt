@@ -155,11 +155,6 @@ fun Settings(
                 MaterialTheme.colorScheme.onErrorContainer
             )
         )
-        RecordActionTextBtn(
-            text = "Play with fcm token",
-            onClick = { viewModel.updateFcmToken() },
-            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
-        )
     }
 
     if (approveActionDialogVisibility) {

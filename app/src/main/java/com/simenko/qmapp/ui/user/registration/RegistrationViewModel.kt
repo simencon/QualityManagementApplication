@@ -10,11 +10,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val appNavigator: AppNavigator,
+    @Named("MainActivity") private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState
 ) : ViewModel() {
     fun updateLoadingState(state: Pair<Boolean, String?>) {
