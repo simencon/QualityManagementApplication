@@ -6,8 +6,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
-import com.simenko.qmapp.di.study.TestDiClassSingleton
-import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.InvestigationsRepository
@@ -15,7 +13,10 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.common.FabSetup
+import com.simenko.qmapp.ui.common.TopBarContent
 import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.common.TopTabsContent
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -28,13 +29,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
-import javax.inject.Named
 
 private const val TAG = "MainActivityViewModel"
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    @Named("MainActivity") private val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
@@ -100,6 +100,22 @@ class MainActivityViewModel @Inject constructor(
         this._refreshAction.value = refreshAction
         this._filterAction.value = searchAction
     }
+
+    fun setupTopScreenDev(
+        titleSetup: TopBarContent,
+        topTabsSetup: TopTabsContent,
+        fabSetup: FabSetup,
+        refreshAction: () -> Unit,
+        filterAction: (BaseFilter) -> Unit
+    ) {
+        this._titleSetup.value = titleSetup
+        this._addEditAction.value = addEditAction
+        this._refreshAction.value = refreshAction
+        this._filterAction.value = searchAction
+    }
+
+    private val _titleSetup = MutableStateFlow(TopBarContent())
+    val titleSetup get() = _titleSetup.asStateFlow()
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)
     private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> =

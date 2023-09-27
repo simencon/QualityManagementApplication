@@ -414,7 +414,7 @@ class UserRepository @Inject constructor(
     /**
      * @link (https://app.diagrams.net/#G1BMga3T4D0UNVDUc4v1pVe5eZw5lomqJj)
      * */
-    fun updateFcmToken(userEmail: String) {
+    private fun updateFcmToken(userEmail: String) {
         if (userEmail.isNotEmpty() && _deviceFcmToken.fcmEmail != userEmail && _deviceFcmToken.fcmEmail.isNotEmpty()) {
             this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
                 if (deleteTask.isSuccessful) {

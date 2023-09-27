@@ -23,14 +23,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
-import javax.inject.Named
 
 private const val TAG = "TeamViewModel"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
-    @Named("MainActivity") private val appNavigator: AppNavigator,
+    private val appNavigator: AppNavigator,
     private val topScreenState: TopScreenState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,

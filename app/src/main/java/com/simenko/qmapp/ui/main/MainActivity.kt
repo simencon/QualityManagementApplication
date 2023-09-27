@@ -120,6 +120,7 @@ class MainActivity : MainActivityBase() {
                 onEndOfListIntent = { viewModel.onEndOfList(it) },
                 onTopBadgeStateIntent = { p1, p2 -> viewModel.setTopBadgesCount(p1, p2.first, p2.second, p2.third) },
                 onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
+                onTopScreenSetupDevIntent = { p1, p2, p3, p4, p5 -> viewModel.setupTopScreenDev(p1, p2, p3, p4, p5) }
             )
 
             QMAppTheme {
@@ -144,10 +145,14 @@ class MainActivity : MainActivityBase() {
                     this@MainActivity.moveTaskToBack(true)
                 }
 
+                val topBarSetup by viewModel.titleSetup.collectAsStateWithLifecycle()
+
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
                 val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
                 val filterAction by viewModel.filterAction.collectAsStateWithLifecycle()
+
+
 
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
                 var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
@@ -185,6 +190,8 @@ class MainActivity : MainActivityBase() {
                         Scaffold(
                             topBar = {
                                 AppBar(
+                                    topBarSetup = topBarSetup,
+
                                     screen = MenuItem.getItemById(selectedDrawerMenuItemId),
                                     destination = backStackEntry.value?.destination,
 
