@@ -1,6 +1,8 @@
 package com.simenko.qmapp.ui.main
 
 import android.util.Log
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -8,13 +10,15 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.TrueStr
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.FabSetup
-import com.simenko.qmapp.ui.common.TopBarContent
+import com.simenko.qmapp.ui.common.MainPage
+import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.common.TopTabsContent
 import com.simenko.qmapp.ui.main.main.AddEditMode
@@ -101,21 +105,27 @@ class MainActivityViewModel @Inject constructor(
         this._filterAction.value = searchAction
     }
 
+    private val _topBarSetup = MutableStateFlow(TopBarSetup())
+    val topBarSetup get() = _topBarSetup.asStateFlow()
+
+    private val _topTabsSetup = MutableStateFlow(TopTabsContent())
+    val topTabsSetup get() = _topTabsSetup.asStateFlow()
+
     fun setupTopScreenDev(
-        titleSetup: TopBarContent,
+        titleSetup: TopBarSetup,
         topTabsSetup: TopTabsContent,
         fabSetup: FabSetup,
         refreshAction: () -> Unit,
         filterAction: (BaseFilter) -> Unit
     ) {
-        this._titleSetup.value = titleSetup
-        this._addEditAction.value = addEditAction
-        this._refreshAction.value = refreshAction
-        this._filterAction.value = searchAction
-    }
+        this._topBarSetup.value = titleSetup
+        this._topBarSetup.value.onNavBtnClick = { if (it) _drawerMenuState.value.open() else _drawerMenuState.value.close() }
+        this._topBarSetup.value.onSearchBtnClick = { setSearchBarState(it) }
+        this._topBarSetup.value.onActionBtnClick = { setActionMenuState(it) }
 
-    private val _titleSetup = MutableStateFlow(TopBarContent())
-    val titleSetup get() = _titleSetup.asStateFlow()
+        this._topTabsSetup.value = topTabsSetup
+        this._topTabsSetup.value.onTabClickAction = { setSelectedTabIndex(it) }
+    }
 
     private val _badgeItem = Triple(0, Color.Red, Color.White)
     private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> =
@@ -134,6 +144,30 @@ class MainActivityViewModel @Inject constructor(
 
     fun onBackFromAddEditMode() {
         appNavigator.tryNavigateBack()
+    }
+
+    private val _drawerMenuState = MutableStateFlow(DrawerState(DrawerValue.Closed))
+    val drawerMenuState = _drawerMenuState.asStateFlow()
+    suspend fun setDrawerMenuState(value: Boolean) {
+        if (value) _drawerMenuState.value.open() else _drawerMenuState.value.close()
+    }
+
+    private val _searchBarState = MutableStateFlow(false)
+    val searchBarState = _searchBarState.asStateFlow()
+    fun setSearchBarState(value: Boolean) {
+        _searchBarState.value = value
+    }
+
+    private val _actionsMenuState = MutableStateFlow(false)
+    val actionsMenuState = _actionsMenuState.asStateFlow()
+    fun setActionMenuState(value: Boolean) {
+        _searchBarState.value = value
+    }
+
+    private val _selectedTabIndex = MutableStateFlow(ZeroValue.num)
+    val selectedTabIndex = _selectedTabIndex.asStateFlow()
+    fun setSelectedTabIndex(value: Int) {
+        _selectedTabIndex.value = value
     }
 
     fun onDrawerMenuTeamSelected() {

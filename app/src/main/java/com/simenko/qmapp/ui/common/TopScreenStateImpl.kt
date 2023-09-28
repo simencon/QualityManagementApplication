@@ -48,17 +48,21 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 
     override fun trySendTopScreenSetupDev(
         mainPage: MainPage,
-        onNavBtnClick: () -> Unit,
-        onTitleBtnClick: () -> Unit,
-        onActionBtnClick: () -> Unit,
-        onTabClickAction: () -> Unit,
+
+        onNavBtnClick: suspend (Boolean) -> Unit,
+        onSearchBtnClick: (Boolean) -> Unit,
+        onActionBtnClick: (Boolean) -> Unit,
+
+        onTabClickAction: (Int) -> Unit,
+
         fabAction: () -> Unit,
+
         refreshAction: () -> Unit,
         filterAction: (BaseFilter) -> Unit
     ) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenSetupDev(
-                titleSetup = TopBarContent(mainPage, onNavBtnClick, onTitleBtnClick, onActionBtnClick),
+                titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onActionBtnClick),
                 topTabsSetup = TopTabsContent(mainPage, onTabClickAction),
                 fabSetup = FabSetup(mainPage, fabAction),
                 refreshAction = refreshAction,
@@ -76,7 +80,7 @@ fun StateChangedEffect(
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
     onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
     onTopScreenSetupDevIntent: (
-        TopBarContent,
+        TopBarSetup,
         TopTabsContent,
         FabSetup,
         () -> Unit,
