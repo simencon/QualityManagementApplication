@@ -161,7 +161,7 @@ class MainActivityViewModel @Inject constructor(
     private val _actionsMenuState = MutableStateFlow(false)
     val actionsMenuState = _actionsMenuState.asStateFlow()
     fun setActionMenuState(value: Boolean) {
-        _searchBarState.value = value
+        _actionsMenuState.value = value
     }
 
     private val _selectedTabIndex = MutableStateFlow(ZeroValue.num)

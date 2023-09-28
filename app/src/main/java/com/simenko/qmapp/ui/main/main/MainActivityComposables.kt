@@ -64,6 +64,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -94,30 +95,29 @@ import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AppBar(
     topBarSetup: TopBarSetup,
-
-    screen: MenuItem,
     destination: NavDestination?,
 
-    onDrawerMenuClick: () -> Unit,
     drawerState: DrawerState,
 
     searchBarState: Boolean,
-    onCancelSearch: (Boolean) -> Unit,
+
     onSearchBarSearch: (String) -> Unit,
 
     actionsMenuState: Boolean,
-    setActionMenuState: (Boolean) -> Unit,
+
     selectedActionsMenuItemId: MutableState<String>,
     onActionsMenuItemClick: (String, String) -> Unit,
 
     addEditMode: Int,
     onBackFromAddEditModeClick: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
 
     val orderToSearch = rememberSaveable { mutableStateOf("") }
@@ -177,7 +177,7 @@ fun AppBar(
                     } else {
                         Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
                         if (destination?.route == Route.Main.Inv.link || destination?.route == Route.Main.ProcessControl.link)
-                            IconButton(onClick = { onCancelSearch(true) }) {
+                            IconButton(onClick = { topBarSetup.onSearchBtnClick(true) }) {
                                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
                             }
                     }
@@ -189,14 +189,14 @@ fun AppBar(
             if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                 if (searchBarState)
                     IconButton(
-                        onClick = { onCancelSearch(false) },
+                        onClick = { topBarSetup.onSearchBtnClick(false) },
                         colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                     ) {
                         Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
                     }
                 else
                     IconButton(
-                        onClick = onDrawerMenuClick,
+                        onClick = { scope.launch { topBarSetup.onNavBtnClick(true) } },
                         colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                     ) {
                         Icon(
@@ -218,14 +218,14 @@ fun AppBar(
         actions = {
             if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                 IconButton(
-                    onClick = { setActionMenuState(true) },
+                    onClick = { topBarSetup.onActionBtnClick(true) },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More")
                 }
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,
-                    setActionMenuState = setActionMenuState,
+                    setActionMenuState = topBarSetup.onActionBtnClick,
                     selectedActionsMenuItemId = selectedActionsMenuItemId,
                     onActionsMenuItemClick = onActionsMenuItemClick
                 )
