@@ -17,24 +17,24 @@ open class BaseFilter constructor(
 )
 
 data class EmployeesFilter(
-    override val stringToSearch: String = NoString.str,
+    override val stringToSearch: String = EmptyString.str,
 ) : BaseFilter()
 
 data class UsersFilter(
-    override val stringToSearch: String = NoString.str,
+    override val stringToSearch: String = EmptyString.str,
     override val newUsers: Boolean = false
 ) : BaseFilter()
 
 data class OrdersFilter(
     override val typeId: Int = NoRecord.num,
     override val statusId: Int = NoRecord.num,
-    override val stringToSearch: String = NoString.str
+    override val stringToSearch: String = EmptyString.str
 ) : BaseFilter()
 
 data class SubOrdersFilter(
     override val typeId: Int = NoRecord.num,
     override val statusId: Int = NoRecord.num,
-    override val stringToSearch: String = NoString.str
+    override val stringToSearch: String = EmptyString.str
 ) : BaseFilter()
 
 data class NotificationData(
@@ -211,14 +211,14 @@ object InvestigationsUtils {
 
     fun List<DomainEmployeeComplete>.filterEmployees(filter: EmployeesFilter): List<DomainEmployeeComplete> {
         return filter {
-            (it.teamMember.fullName.lowercase().contains(filter.stringToSearch.lowercase()) || filter.stringToSearch == NoString.str)
+            (it.teamMember.fullName.lowercase().contains(filter.stringToSearch.lowercase()) || filter.stringToSearch == EmptyString.str)
         }
     }
 
     fun List<DomainUser>.filterUsers(filter: UsersFilter): List<DomainUser> {
         return filter {
             (it.restApiUrl.isNullOrEmpty() == filter.newUsers) &&
-                    (it.fullName?.lowercase()?.contains(filter.stringToSearch.lowercase()) ?: true || filter.stringToSearch == NoString.str)
+                    (it.fullName?.lowercase()?.contains(filter.stringToSearch.lowercase()) ?: true || filter.stringToSearch == EmptyString.str)
         }
     }
 
@@ -228,7 +228,7 @@ object InvestigationsUtils {
         return filter {
             (it.order.orderTypeId == ordersFilter.typeId || ordersFilter.typeId == NoRecord.num) &&
                     (it.order.statusId == ordersFilter.statusId || ordersFilter.statusId == NoRecord.num) &&
-                    (it.order.orderNumber.toString().contains(ordersFilter.stringToSearch) || (ordersFilter.stringToSearch == NoString.str))
+                    (it.order.orderNumber.toString().contains(ordersFilter.stringToSearch) || (ordersFilter.stringToSearch == EmptyString.str))
         }
     }
 
@@ -236,14 +236,10 @@ object InvestigationsUtils {
         subOrdersFilter: SubOrdersFilter = SubOrdersFilter()
     ): List<DomainSubOrderComplete> {
         return filter {
-            (it.orderShort.order.orderTypeId == subOrdersFilter.typeId || subOrdersFilter.typeId == NoRecord.num)
-                    &&
-                    (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoRecord.num)
-                    &&
+            (it.orderShort.order.orderTypeId == subOrdersFilter.typeId || subOrdersFilter.typeId == NoRecord.num) &&
+                    (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoRecord.num) &&
                     (it.orderShort.order.orderNumber.toString()
-                        .contains(subOrdersFilter.stringToSearch)
-                            ||
-                            (subOrdersFilter.stringToSearch == NoString.str))
+                        .contains(subOrdersFilter.stringToSearch) || (subOrdersFilter.stringToSearch == EmptyString.str))
         }
     }
 }

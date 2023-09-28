@@ -82,8 +82,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
@@ -102,11 +104,9 @@ fun AppBar(
     drawerState: DrawerState,
 
     searchBarState: Boolean,
-
     actionsMenuState: Boolean,
 
     selectedActionsMenuItemId: MutableState<String>,
-
     onActionsMenuItemClick: (String, String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -139,7 +139,10 @@ fun AppBar(
                         onValueChange = { stringToSearch.value = it },
                         maxLines = 1,
                         singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = topBarSetup.keyboardType ?: KeyboardType.Ascii,
+                            imeAction = ImeAction.Search
+                        ),
                         keyboardActions = KeyboardActions(onSearch = { topBarSetup.onSearchAction(BaseFilter(stringToSearch = stringToSearch.value)) }),
                     ) { innerTextField ->
                         TextFieldDefaults.DecorationBox(
@@ -156,8 +159,11 @@ fun AppBar(
                     }
 
                     IconButton(
-                        onClick = { stringToSearch.value = "" },
-                        enabled = stringToSearch.value != "",
+                        onClick = {
+                            stringToSearch.value = EmptyString.str
+                            topBarSetup.onSearchAction(BaseFilter(stringToSearch = stringToSearch.value))
+                        },
+                        enabled = stringToSearch.value != EmptyString.str,
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = contentColor,
                             disabledContentColor = MaterialTheme.colorScheme.primaryContainer
