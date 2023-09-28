@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.KeyboardType
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
@@ -85,6 +86,7 @@ data class TopBarSetup(
     val navIcon = mainPage.navIcon
     val title: String = mainPage.title
     val placeholderText: String? = mainPage.titlePlaceholderText
+    val keyboardType: KeyboardType? = mainPage.keyboardType
     val titleBtnIcon: ImageVector? = mainPage.searchBtnIcon
     val actionBtnIcon: ImageVector? = mainPage.actionBtnIcon
 }
@@ -107,6 +109,7 @@ enum class MainPage(
     val navIcon: ImageVector,
     val title: String,
     val titlePlaceholderText: String?,
+    val keyboardType: KeyboardType?,
     val searchBtnIcon: ImageVector?,
     val topTabsContent: List<Triple<String, Int, SelectedNumber>>?,
     val fabIcon: ImageVector?,
@@ -116,6 +119,7 @@ enum class MainPage(
         navIcon = Icons.Filled.Menu,
         title = "All investigations",
         titlePlaceholderText = "Search order by number",
+        keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
@@ -125,6 +129,7 @@ enum class MainPage(
         navIcon = Icons.Filled.Menu,
         title = "Process control",
         titlePlaceholderText = "Search order by number",
+        keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
@@ -135,6 +140,7 @@ enum class MainPage(
         navIcon = Icons.Filled.Menu,
         title = "Company team",
         titlePlaceholderText = "Search by full name",
+        keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = TeamTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
@@ -142,17 +148,17 @@ enum class MainPage(
     ),
 
 
-    ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, null),
-    EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, null, null),
-    AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, null),
-    EDIT_USER(Icons.Filled.ArrowBack, "Edit user", null, null, null, null, null),
-    NO_MODE(Icons.Filled.ArrowBack, "No mode", null, null, null, null, null),
-    ADD_ORDER(Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, null),
-    EDIT_ORDER(Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, null),
-    ADD_SUB_ORDER(Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, null),
-    EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null),
-    ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null),
-    EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null),
-    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null),
+    ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, null, null),
+    EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, null, null, null),
+    AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, null, null),
+    EDIT_USER(Icons.Filled.ArrowBack, "Edit user", null, null, null, null, null, null),
+    NO_MODE(Icons.Filled.ArrowBack, "No mode", null, null, null, null, null, null),
+    ADD_ORDER(Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, null, null),
+    EDIT_ORDER(Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, null, null),
+    ADD_SUB_ORDER(Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, null, null),
+    EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null, null),
+    ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null, null),
+    EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null, null),
+    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null, null),
     ;
 }
