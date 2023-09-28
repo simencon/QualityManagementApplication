@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
+import com.simenko.qmapp.ui.main.main.TeamTabs
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
 
@@ -32,11 +33,11 @@ interface TopScreenState {
     fun trySendTopScreenSetupDev(
         mainPage: MainPage,
 
-        onNavBtnClick: () -> Unit,
-        onTitleBtnClick: () -> Unit,
-        onActionBtnClick: () -> Unit,
+        onNavBtnClick: suspend (Boolean) -> Unit,
+        onSearchBtnClick: (Boolean) -> Unit,
+        onActionBtnClick: (Boolean) -> Unit,
 
-        onTabClickAction: () -> Unit,
+        onTabClickAction: (Int) -> Unit,
 
         fabAction: () -> Unit,
 
@@ -67,7 +68,7 @@ sealed class TopScreenIntent {
     ) : TopScreenIntent()
 
     data class TopScreenSetupDev(
-        val titleSetup: TopBarContent,
+        val titleSetup: TopBarSetup,
         val topTabsSetup: TopTabsContent,
         val fabSetup: FabSetup,
         val refreshAction: () -> Unit,
@@ -75,11 +76,11 @@ sealed class TopScreenIntent {
     ) : TopScreenIntent()
 }
 
-data class TopBarContent(
+data class TopBarSetup(
     private val mainPage: MainPage = MainPage.values()[0],
-    val onNavBtnClick: () -> Unit = {},
-    val onTitleBtnClick: () -> Unit = {},
-    val onActionBtnClick: () -> Unit = {}
+    var onNavBtnClick: suspend (Boolean) -> Unit = {},
+    var onSearchBtnClick: (Boolean) -> Unit = {},
+    var onActionBtnClick: (Boolean) -> Unit = {}
 ) {
     val navIcon = mainPage.navIcon
     val title: String = mainPage.title
@@ -89,8 +90,8 @@ data class TopBarContent(
 }
 
 data class TopTabsContent(
-    private val screen: MainPage,
-    val onTabClickAction: () -> Unit
+    private val screen: MainPage = MainPage.values()[0],
+    var onTabClickAction: (Int) -> Unit = {}
 ) {
     val topTabsContent: List<Triple<String, Int, SelectedNumber>>? = screen.topTabsContent
 }
@@ -130,6 +131,17 @@ enum class MainPage(
         actionBtnIcon = Icons.Filled.MoreVert
     ),
 
+    TEAM(
+        navIcon = Icons.Filled.Menu,
+        title = "Company team",
+        titlePlaceholderText = "Search by full name",
+        titleBtnIcon = Icons.Filled.Search,
+        topTabsContent = TeamTabs.toListOfTriples(),
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = Icons.Filled.MoreVert
+    ),
+
+
     ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, null),
     EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, null, null),
     AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, null),
@@ -141,5 +153,6 @@ enum class MainPage(
     EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null),
     ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null),
     EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null),
-    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null);
+    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null),
+    ;
 }

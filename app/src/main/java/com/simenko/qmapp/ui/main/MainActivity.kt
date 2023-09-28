@@ -22,13 +22,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -128,9 +126,9 @@ class MainActivity : MainActivityBase() {
                 val backStackEntry = navController.currentBackStackEntryAsState()
 
                 val scope = rememberCoroutineScope()
-                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                val drawerMenuState by viewModel.drawerMenuState.collectAsStateWithLifecycle()
                 val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
-                BackHandler(enabled = drawerState.isOpen, onBack = { scope.launch { drawerState.close() } })
+                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { viewModel.setDrawerMenuState(false) } })
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
@@ -138,38 +136,42 @@ class MainActivity : MainActivityBase() {
                 val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
                 val fabPosition by viewModel.fabPosition.collectAsStateWithLifecycle()
 
-                val searchBarState = rememberSaveable { mutableStateOf(false) }
-                BackHandler(enabled = searchBarState.value, onBack = { searchBarState.value = false })
+                val searchBarState by viewModel.searchBarState.collectAsStateWithLifecycle()
+                BackHandler(enabled = searchBarState, onBack = { viewModel.setSearchBarState(false) })
 
-                BackHandler(enabled = !drawerState.isOpen && !searchBarState.value) {
+                val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
+
+                BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) {
                     this@MainActivity.moveTaskToBack(true)
                 }
-
-                val topBarSetup by viewModel.titleSetup.collectAsStateWithLifecycle()
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
                 val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
                 val filterAction by viewModel.filterAction.collectAsStateWithLifecycle()
 
-
+                val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
 
                 val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
-                var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
+
+                val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
+
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
                     { tabId, tabIndex ->
-                        selectedTabIndex = onTabSelectedLambda(backStackEntry, tabIndex) { filterAction(BaseFilter(statusId = tabId.num)) }
+                        viewModel.setSelectedTabIndex(
+                            onTabSelectedLambda(backStackEntry, tabIndex) { filterAction(BaseFilter(statusId = tabId.num)) }
+                        )
                     }
                 }
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
-                    super.selectProperTab(backStackEntry)?.let { selectedTabIndex = it }
+                    super.selectProperTab(backStackEntry)?.let { viewModel.setSelectedTabIndex(it) }
                     super.setProperAddEditMode(backStackEntry)
                 }
 
                 ModalNavigationDrawer(
                     gesturesEnabled = addEditMode == AddEditMode.NO_MODE.ordinal,
-                    drawerState = drawerState,
+                    drawerState = drawerMenuState,
                     drawerContent = {
                         ModalDrawerSheet(
                             modifier = Modifier
@@ -180,8 +182,8 @@ class MainActivity : MainActivityBase() {
                             DrawerBody(
                                 selectedItemId = selectedDrawerMenuItemId,
                                 onDrawerItemClick = { id ->
-                                    scope.launch { drawerState.close() }
-                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id)?.let { selectedTabIndex = it }
+                                    scope.launch { viewModel.setDrawerMenuState(false) }
+                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id)?.let { viewModel.setSelectedTabIndex(it) }
                                 }
                             )
                         }
@@ -195,14 +197,17 @@ class MainActivity : MainActivityBase() {
                                     screen = MenuItem.getItemById(selectedDrawerMenuItemId),
                                     destination = backStackEntry.value?.destination,
 
-                                    onDrawerMenuClick = { scope.launch { drawerState.open() } },
-                                    drawerState = drawerState,
-
-                                    selectedActionsMenuItemId = selectedContextMenuItemId,
-                                    onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
+                                    onDrawerMenuClick = { scope.launch { viewModel.setDrawerMenuState(true) } },
+                                    drawerState = drawerMenuState,
 
                                     searchBarState = searchBarState,
+                                    onCancelSearch = { viewModel.setSearchBarState(it) },
                                     onSearchBarSearch = { super.onSearchBarSearch(backStackEntry) { filterAction(BaseFilter(orderNumber = it)) } },
+
+                                    actionsMenuState = actionsMenuState,
+                                    setActionMenuState = { viewModel.setActionMenuState(it) },
+                                    selectedActionsMenuItemId = selectedContextMenuItemId,
+                                    onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
                                     addEditMode = addEditMode,
                                     onBackFromAddEditModeClick = { viewModel.onBackFromAddEditMode() }

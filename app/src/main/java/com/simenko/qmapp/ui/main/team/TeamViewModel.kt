@@ -12,6 +12,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.common.MainPage
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
@@ -39,13 +40,30 @@ class TeamViewModel @Inject constructor(
     fun logWhenInstantiated() {
         Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }
-    fun setupTopScreen() {
+
+    fun setupTopScreenOld() {
         topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(AddEditMode.NO_MODE) {},
             refreshAction = { updateEmployeesData() },
             filterAction = {}
         )
     }
+
+    fun setupTopScreen() {
+        topScreenState.trySendTopScreenSetupDev(
+            mainPage = MainPage.TEAM,
+            onNavBtnClick = { /*main view model fun*/ },
+            onSearchBtnClick = { /*main view model fun*/ },
+            onActionBtnClick = { /*main view model fun*/ },
+
+            onTabClickAction = { /*main view model fun*/ },
+            fabAction = {},
+
+            refreshAction = {},
+            filterAction = {}
+        )
+    }
+
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
         topScreenState.trySendLoadingState(state)
     }

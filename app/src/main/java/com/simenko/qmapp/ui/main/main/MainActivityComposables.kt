@@ -91,14 +91,14 @@ import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.common.TopBarContent
+import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.StringUtils
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AppBar(
-    topBarSetup: TopBarContent,
+    topBarSetup: TopBarSetup,
 
     screen: MenuItem,
     destination: NavDestination?,
@@ -106,24 +106,25 @@ fun AppBar(
     onDrawerMenuClick: () -> Unit,
     drawerState: DrawerState,
 
+    searchBarState: Boolean,
+    onCancelSearch: (Boolean) -> Unit,
+    onSearchBarSearch: (String) -> Unit,
+
+    actionsMenuState: Boolean,
+    setActionMenuState: (Boolean) -> Unit,
     selectedActionsMenuItemId: MutableState<String>,
     onActionsMenuItemClick: (String, String) -> Unit,
-
-    searchBarState: MutableState<Boolean>,
-    onSearchBarSearch: (String) -> Unit,
 
     addEditMode: Int,
     onBackFromAddEditModeClick: () -> Unit
 ) {
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
 
-    val actionsMenuState = rememberSaveable { mutableStateOf(false) }
-
     val orderToSearch = rememberSaveable { mutableStateOf("") }
     val (focusRequesterSearchBar) = FocusRequester.createRefs()
 
-    LaunchedEffect(searchBarState.value) {
-        if (searchBarState.value) focusRequesterSearchBar.requestFocus()
+    LaunchedEffect(searchBarState) {
+        if (searchBarState) focusRequesterSearchBar.requestFocus()
     }
 
     TopAppBar(
@@ -135,7 +136,7 @@ fun AppBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (addEditMode == AddEditMode.NO_MODE.ordinal)
-                    if (searchBarState.value) {
+                    if (searchBarState) {
                         BasicTextField(
                             modifier = Modifier
                                 .width(202.dp)
@@ -174,34 +175,21 @@ fun AppBar(
                             Icon(imageVector = Icons.Filled.Close, contentDescription = "Search order by number")
                         }
                     } else {
-                        Text(text = screen.title, modifier = Modifier.padding(all = 8.dp))
+                        Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
                         if (destination?.route == Route.Main.Inv.link || destination?.route == Route.Main.ProcessControl.link)
-                            IconButton(onClick = { searchBarState.value = true }) {
+                            IconButton(onClick = { onCancelSearch(true) }) {
                                 Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
                             }
                     }
                 else
-                    Text(text = AddEditMode.values()[addEditMode].mode, modifier = Modifier.padding(all = 8.dp))
+                    Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
             }
         },
         navigationIcon = {
-            IconButton(
-                onClick = { if (searchBarState.value) searchBarState.value = false else topBarSetup.onNavBtnClick() },
-                colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
-            ) {
-                if (searchBarState.value)
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
-                else
-                    Icon(
-                        imageVector = topBarSetup.navIcon,
-                        contentDescription = "Toggle drawer",
-                        modifier = Modifier.rotate(drawerState.offset.value / 1080f * 360f)
-                    )
-            }
-            /*if (addEditMode == AddEditMode.NO_MODE.ordinal) {
-                if (searchBarState.value)
+            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
+                if (searchBarState)
                     IconButton(
-                        onClick = { searchBarState.value = false },
+                        onClick = { onCancelSearch(false) },
                         colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                     ) {
                         Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
@@ -214,7 +202,8 @@ fun AppBar(
                         Icon(
                             imageVector = Icons.Filled.Menu,
                             contentDescription = "Toggle drawer",
-                            modifier = Modifier.rotate(drawerState.offset.value / 1080f * 360f)
+                            modifier = Modifier
+                                .rotate(drawerState.offset.value / 1080f * 360f)
                         )
                     }
             } else {
@@ -224,24 +213,28 @@ fun AppBar(
                 ) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide add edit bar")
                 }
-            }*/
+            }
         },
         actions = {
-            if (topBarSetup.actionBtnIcon != null) {
+            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
                 IconButton(
-                    onClick = { actionsMenuState.value = true },
+                    onClick = { setActionMenuState(true) },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
-                    Icon(topBarSetup.actionBtnIcon, contentDescription = "More")
+                    Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More")
                 }
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,
+                    setActionMenuState = setActionMenuState,
                     selectedActionsMenuItemId = selectedActionsMenuItemId,
                     onActionsMenuItemClick = onActionsMenuItemClick
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary, titleContentColor = contentColor)
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = contentColor
+        )
     )
 }
 
@@ -344,7 +337,8 @@ fun DrawerBody(
 
 @Composable
 fun ActionsMenu(
-    actionsMenuState: MutableState<Boolean>,
+    actionsMenuState: Boolean,
+    setActionMenuState: (Boolean) -> Unit,
     selectedActionsMenuItemId: MutableState<String>,
     onActionsMenuItemClick: (String, String) -> Unit
 ) {
@@ -352,13 +346,13 @@ fun ActionsMenu(
     val isContextMenuVisible = rememberSaveable { mutableStateOf(false) }
 
     DropdownMenu(
-        expanded = actionsMenuState.value,
-        onDismissRequest = { actionsMenuState.value = false }
+        expanded = actionsMenuState,
+        onDismissRequest = { setActionMenuState(false) }
     )
     {
         ActionsMenuTop(onTopMenuItemClick = {
             actionsGroup.value = it
-            actionsMenuState.value = false
+            setActionMenuState(false)
             isContextMenuVisible.value = true
         }
         )
@@ -373,7 +367,7 @@ fun ActionsMenu(
             actionsGroup = actionsGroup.value,
             selectedItemId = selectedActionsMenuItemId,
             onClickBack = {
-                actionsMenuState.value = true
+                setActionMenuState(true)
                 isContextMenuVisible.value = false
             },
             onContextMenuItemClick = { p1, p2 ->
