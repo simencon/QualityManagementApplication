@@ -35,14 +35,14 @@ interface TopScreenState {
 
         onNavBtnClick: suspend (Boolean) -> Unit,
         onSearchBtnClick: (Boolean) -> Unit,
+        onSearchAction: (BaseFilter) -> Unit,
         onActionBtnClick: (Boolean) -> Unit,
 
         onTabClickAction: (Int) -> Unit,
 
         fabAction: () -> Unit,
 
-        refreshAction: () -> Unit,
-        filterAction: (BaseFilter) -> Unit
+        refreshAction: () -> Unit
     )
 }
 
@@ -72,7 +72,6 @@ sealed class TopScreenIntent {
         val topTabsSetup: TopTabsContent,
         val fabSetup: FabSetup,
         val refreshAction: () -> Unit,
-        val filterAction: (BaseFilter) -> Unit
     ) : TopScreenIntent()
 }
 
@@ -80,12 +79,13 @@ data class TopBarSetup(
     private val mainPage: MainPage = MainPage.values()[0],
     var onNavBtnClick: suspend (Boolean) -> Unit = {},
     var onSearchBtnClick: (Boolean) -> Unit = {},
-    var onActionBtnClick: (Boolean) -> Unit = {}
+    var onSearchAction: (BaseFilter) -> Unit = {},
+    var onActionBtnClick: (Boolean) -> Unit = {},
 ) {
     val navIcon = mainPage.navIcon
     val title: String = mainPage.title
     val placeholderText: String? = mainPage.titlePlaceholderText
-    val titleBtnIcon: ImageVector? = mainPage.titleBtnIcon
+    val titleBtnIcon: ImageVector? = mainPage.searchBtnIcon
     val actionBtnIcon: ImageVector? = mainPage.actionBtnIcon
 }
 
@@ -107,7 +107,7 @@ enum class MainPage(
     val navIcon: ImageVector,
     val title: String,
     val titlePlaceholderText: String?,
-    val titleBtnIcon: ImageVector?,
+    val searchBtnIcon: ImageVector?,
     val topTabsContent: List<Triple<String, Int, SelectedNumber>>?,
     val fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?
@@ -116,7 +116,7 @@ enum class MainPage(
         navIcon = Icons.Filled.Menu,
         title = "All investigations",
         titlePlaceholderText = "Search order by number",
-        titleBtnIcon = Icons.Filled.Search,
+        searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
@@ -125,7 +125,7 @@ enum class MainPage(
         navIcon = Icons.Filled.Menu,
         title = "Process control",
         titlePlaceholderText = "Search order by number",
-        titleBtnIcon = Icons.Filled.Search,
+        searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
@@ -135,7 +135,7 @@ enum class MainPage(
         navIcon = Icons.Filled.Menu,
         title = "Company team",
         titlePlaceholderText = "Search by full name",
-        titleBtnIcon = Icons.Filled.Search,
+        searchBtnIcon = Icons.Filled.Search,
         topTabsContent = TeamTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert

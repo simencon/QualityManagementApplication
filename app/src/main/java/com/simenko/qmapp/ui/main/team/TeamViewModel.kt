@@ -17,6 +17,10 @@ import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.utils.BaseFilter
+import com.simenko.qmapp.utils.EmployeesFilter
+import com.simenko.qmapp.utils.InvestigationsUtils.filterEmployees
+import com.simenko.qmapp.utils.InvestigationsUtils.filterUsers
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.UsersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,13 +58,16 @@ class TeamViewModel @Inject constructor(
             mainPage = MainPage.TEAM,
             onNavBtnClick = { /*main view model fun*/ },
             onSearchBtnClick = { /*main view model fun*/ },
+            onSearchAction = {
+                setEmployeesFilter(it)
+                setUsersFilter(it)
+            },
             onActionBtnClick = { /*main view model fun*/ },
 
             onTabClickAction = { /*main view model fun*/ },
             fabAction = {},
 
             refreshAction = {},
-            filterAction = {}
         )
     }
 
@@ -99,20 +106,32 @@ class TeamViewModel @Inject constructor(
         _currentEmployeeVisibility.value = _currentEmployeeVisibility.value.setVisibility(dId, aId)
     }
 
+    private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
+    fun setEmployeesFilter(filter: BaseFilter) {
+        val cpy = _currentEmployeesFilter.value
+        _currentEmployeesFilter.value = _currentEmployeesFilter.value.copy(
+            stringToSearch = filter.stringToSearch ?: cpy.stringToSearch
+        )
+    }
+
     val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { employees ->
         _currentEmployeeVisibility.flatMapLatest { visibility ->
             _users.flatMapLatest { users ->
-                updateBudges(employees, users)
-                val cpy = mutableListOf<DomainEmployeeComplete>()
-                employees.forEach {
-                    cpy.add(
-                        it.copy(
-                            detailsVisibility = it.teamMember.id == visibility.first.num,
-                            isExpanded = it.teamMember.id == visibility.second.num
-                        )
-                    )
+                _currentEmployeesFilter.flatMapLatest { filter ->
+                    updateBudges(employees, users)
+                    val cpy = mutableListOf<DomainEmployeeComplete>()
+                    employees
+                        .filterEmployees(filter)
+                        .forEach {
+                            cpy.add(
+                                it.copy(
+                                    detailsVisibility = it.teamMember.id == visibility.first.num,
+                                    isExpanded = it.teamMember.id == visibility.second.num
+                                )
+                            )
+                        }
+                    flow { emit(cpy) }
                 }
-                flow { emit(cpy) }
             }
         }
     }
@@ -153,8 +172,12 @@ class TeamViewModel @Inject constructor(
     }
 
     private val _currentUsersFilter = MutableStateFlow(UsersFilter())
-    fun setUsersFilter(newUsers: Boolean = false) {
-        _currentUsersFilter.value = UsersFilter(newUsers = newUsers)
+    fun setUsersFilter(filter: BaseFilter) {
+        val cpy = _currentUsersFilter.value
+        _currentUsersFilter.value = _currentUsersFilter.value.copy(
+            stringToSearch = filter.stringToSearch ?: cpy.stringToSearch,
+            newUsers = filter.newUsers ?: cpy.newUsers
+        )
     }
 
     val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
@@ -163,15 +186,16 @@ class TeamViewModel @Inject constructor(
                 _employees.flatMapLatest { employees ->
                     updateBudges(employees, users)
                     val cpy = mutableListOf<DomainUser>()
-                    users.forEach {
-                        if (it.restApiUrl.isNullOrEmpty() == filter.newUsers)
+                    users
+                        .filterUsers(filter)
+                        .forEach {
                             cpy.add(
                                 it.copy(
                                     detailsVisibility = it.email == visibility.first.str,
                                     isExpanded = it.email == visibility.second.str
                                 )
                             )
-                    }
+                        }
                     flow { emit(cpy) }
                 }
             }

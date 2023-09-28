@@ -1,32 +1,40 @@
 package com.simenko.qmapp.utils
 
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainOrderComplete
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
+import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
 
-data class UsersFilter(
-    val newUsers: Boolean = false
-)
-
 open class BaseFilter constructor(
     open val typeId: Int? = null,
     open val statusId: Int? = null,
-    open val orderNumber: String? = null
+    open val stringToSearch: String? = null,
+    open val newUsers: Boolean? = null
 )
+
+data class EmployeesFilter(
+    override val stringToSearch: String = NoString.str,
+) : BaseFilter()
+
+data class UsersFilter(
+    override val stringToSearch: String = NoString.str,
+    override val newUsers: Boolean = false
+) : BaseFilter()
 
 data class OrdersFilter(
     override val typeId: Int = NoRecord.num,
     override val statusId: Int = NoRecord.num,
-    override val orderNumber: String = NoString.str
+    override val stringToSearch: String = NoString.str
 ) : BaseFilter()
 
 data class SubOrdersFilter(
     override val typeId: Int = NoRecord.num,
     override val statusId: Int = NoRecord.num,
-    override val orderNumber: String = NoString.str
+    override val stringToSearch: String = NoString.str
 ) : BaseFilter()
 
 data class NotificationData(
@@ -201,17 +209,26 @@ object InvestigationsUtils {
             specificPair
     }
 
+    fun List<DomainEmployeeComplete>.filterEmployees(filter: EmployeesFilter): List<DomainEmployeeComplete> {
+        return filter {
+            (it.teamMember.fullName.lowercase().contains(filter.stringToSearch.lowercase()) || filter.stringToSearch == NoString.str)
+        }
+    }
+
+    fun List<DomainUser>.filterUsers(filter: UsersFilter): List<DomainUser> {
+        return filter {
+            (it.restApiUrl.isNullOrEmpty() == filter.newUsers) &&
+                    (it.fullName?.lowercase()?.contains(filter.stringToSearch.lowercase()) ?: true || filter.stringToSearch == NoString.str)
+        }
+    }
+
     fun List<DomainOrderComplete>.filterByStatusAndNumber(
         ordersFilter: OrdersFilter = OrdersFilter()
     ): List<DomainOrderComplete> {
         return filter {
-            (it.order.orderTypeId == ordersFilter.typeId || ordersFilter.typeId == NoRecord.num)
-                    &&
-                    (it.order.statusId == ordersFilter.statusId || ordersFilter.statusId == NoRecord.num)
-                    &&
-                    (it.order.orderNumber.toString().contains(ordersFilter.orderNumber)
-                            ||
-                            (ordersFilter.orderNumber == NoString.str))
+            (it.order.orderTypeId == ordersFilter.typeId || ordersFilter.typeId == NoRecord.num) &&
+                    (it.order.statusId == ordersFilter.statusId || ordersFilter.statusId == NoRecord.num) &&
+                    (it.order.orderNumber.toString().contains(ordersFilter.stringToSearch) || (ordersFilter.stringToSearch == NoString.str))
         }
     }
 
@@ -224,9 +241,9 @@ object InvestigationsUtils {
                     (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoRecord.num)
                     &&
                     (it.orderShort.order.orderNumber.toString()
-                        .contains(subOrdersFilter.orderNumber)
+                        .contains(subOrdersFilter.stringToSearch)
                             ||
-                            (subOrdersFilter.orderNumber == NoString.str))
+                            (subOrdersFilter.stringToSearch == NoString.str))
         }
     }
 }
