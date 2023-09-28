@@ -194,18 +194,16 @@ class MainActivity : MainActivityBase() {
                                 AppBar(
                                     topBarSetup = topBarSetup,
 
-                                    screen = MenuItem.getItemById(selectedDrawerMenuItemId),
                                     destination = backStackEntry.value?.destination,
 
-                                    onDrawerMenuClick = { scope.launch { viewModel.setDrawerMenuState(true) } },
                                     drawerState = drawerMenuState,
 
                                     searchBarState = searchBarState,
-                                    onCancelSearch = { viewModel.setSearchBarState(it) },
+
                                     onSearchBarSearch = { super.onSearchBarSearch(backStackEntry) { filterAction(BaseFilter(orderNumber = it)) } },
 
                                     actionsMenuState = actionsMenuState,
-                                    setActionMenuState = { viewModel.setActionMenuState(it) },
+
                                     selectedActionsMenuItemId = selectedContextMenuItemId,
                                     onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
