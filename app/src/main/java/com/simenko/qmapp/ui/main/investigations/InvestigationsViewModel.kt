@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
-import javax.inject.Named
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -217,7 +216,7 @@ class InvestigationsViewModel @Inject constructor(
         _currentOrdersFilter.value = _currentOrdersFilter.value.copy(
             typeId = filter.typeId ?: current.typeId,
             statusId = filter.statusId ?: current.statusId,
-            orderNumber = filter.orderNumber ?: current.orderNumber,
+            stringToSearch = filter.stringToSearch ?: current.stringToSearch,
         )
     }
 
@@ -316,7 +315,7 @@ class InvestigationsViewModel @Inject constructor(
         _currentSubOrdersFilter.value = _currentSubOrdersFilter.value.copy(
             typeId = filter.typeId ?: current.typeId,
             statusId = filter.statusId ?: current.statusId,
-            orderNumber = filter.orderNumber ?: current.orderNumber,
+            stringToSearch = filter.stringToSearch ?: current.stringToSearch,
         )
     }
 

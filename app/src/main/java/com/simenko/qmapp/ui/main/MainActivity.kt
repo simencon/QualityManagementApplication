@@ -118,7 +118,7 @@ class MainActivity : MainActivityBase() {
                 onEndOfListIntent = { viewModel.onEndOfList(it) },
                 onTopBadgeStateIntent = { p1, p2 -> viewModel.setTopBadgesCount(p1, p2.first, p2.second, p2.third) },
                 onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
-                onTopScreenSetupDevIntent = { p1, p2, p3, p4, p5 -> viewModel.setupTopScreenDev(p1, p2, p3, p4, p5) }
+                onTopScreenSetupDevIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreenDev(p1, p2, p3, p4) }
             )
 
             QMAppTheme {
@@ -194,21 +194,15 @@ class MainActivity : MainActivityBase() {
                                 AppBar(
                                     topBarSetup = topBarSetup,
 
-                                    destination = backStackEntry.value?.destination,
-
                                     drawerState = drawerMenuState,
 
                                     searchBarState = searchBarState,
 
-                                    onSearchBarSearch = { super.onSearchBarSearch(backStackEntry) { filterAction(BaseFilter(orderNumber = it)) } },
-
                                     actionsMenuState = actionsMenuState,
 
                                     selectedActionsMenuItemId = selectedContextMenuItemId,
-                                    onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) },
 
-                                    addEditMode = addEditMode,
-                                    onBackFromAddEditModeClick = { viewModel.onBackFromAddEditMode() }
+                                    onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) }
                                 )
                             },
                             floatingActionButton = {

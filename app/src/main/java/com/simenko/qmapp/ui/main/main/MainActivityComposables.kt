@@ -31,11 +31,8 @@ import androidx.compose.material.icons.filled.Filter3
 import androidx.compose.material.icons.filled.Filter4
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterAltOff
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.SquareFoot
@@ -85,7 +82,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavDestination
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
 import com.simenko.qmapp.domain.SecondTabId
@@ -94,6 +90,7 @@ import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import kotlinx.coroutines.launch
 
@@ -101,26 +98,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppBar(
     topBarSetup: TopBarSetup,
-    destination: NavDestination?,
 
     drawerState: DrawerState,
 
     searchBarState: Boolean,
 
-    onSearchBarSearch: (String) -> Unit,
-
     actionsMenuState: Boolean,
 
     selectedActionsMenuItemId: MutableState<String>,
-    onActionsMenuItemClick: (String, String) -> Unit,
 
-    addEditMode: Int,
-    onBackFromAddEditModeClick: () -> Unit
+    onActionsMenuItemClick: (String, String) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
 
-    val orderToSearch = rememberSaveable { mutableStateOf("") }
+    val stringToSearch = rememberSaveable { mutableStateOf("") }
     val (focusRequesterSearchBar) = FocusRequester.createRefs()
 
     LaunchedEffect(searchBarState) {
@@ -135,93 +127,81 @@ fun AppBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (addEditMode == AddEditMode.NO_MODE.ordinal)
-                    if (searchBarState) {
-                        BasicTextField(
-                            modifier = Modifier
-                                .width(202.dp)
-                                .padding(start = 10.dp)
-                                .focusRequester(focusRequesterSearchBar),
-                            value = orderToSearch.value,
-                            textStyle = TextStyle(fontSize = 20.sp, color = contentColor, fontWeight = FontWeight.Medium),
-                            cursorBrush = SolidColor(contentColor),
-                            onValueChange = { orderToSearch.value = it },
-                            maxLines = 1,
+                if (searchBarState) {
+                    BasicTextField(
+                        modifier = Modifier
+                            .width(202.dp)
+                            .padding(start = 10.dp)
+                            .focusRequester(focusRequesterSearchBar),
+                        value = stringToSearch.value,
+                        textStyle = TextStyle(fontSize = 20.sp, color = contentColor, fontWeight = FontWeight.Medium),
+                        cursorBrush = SolidColor(contentColor),
+                        onValueChange = { stringToSearch.value = it },
+                        maxLines = 1,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search),
+                        keyboardActions = KeyboardActions(onSearch = { topBarSetup.onSearchAction(BaseFilter(stringToSearch = stringToSearch.value)) }),
+                    ) { innerTextField ->
+                        TextFieldDefaults.DecorationBox(
+                            value = stringToSearch.value,
+                            colors = colors(unfocusedContainerColor = MaterialTheme.colorScheme.primary, unfocusedIndicatorColor = contentColor),
+                            placeholder = { Text(text = topBarSetup.placeholderText ?: "", color = MaterialTheme.colorScheme.primaryContainer) },
+                            innerTextField = innerTextField,
+                            enabled = true,
                             singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Search),
-                            keyboardActions = KeyboardActions(onSearch = { onSearchBarSearch(orderToSearch.value) }),
-                        ) { innerTextField ->
-                            TextFieldDefaults.DecorationBox(
-                                value = orderToSearch.value,
-                                colors = colors(unfocusedContainerColor = MaterialTheme.colorScheme.primary, unfocusedIndicatorColor = contentColor),
-                                placeholder = { Text(text = "Search by order number", color = MaterialTheme.colorScheme.primaryContainer) },
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = true,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = remember { MutableInteractionSource() },
-                                contentPadding = PaddingValues(2.dp)
-                            )
-                        }
-
-                        IconButton(
-                            onClick = { orderToSearch.value = "" },
-                            enabled = orderToSearch.value != "",
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = contentColor,
-                                disabledContentColor = MaterialTheme.colorScheme.primaryContainer
-                            )
-                        ) {
-                            Icon(imageVector = Icons.Filled.Close, contentDescription = "Search order by number")
-                        }
-                    } else {
-                        Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
-                        if (destination?.route == Route.Main.Inv.link || destination?.route == Route.Main.ProcessControl.link)
-                            IconButton(onClick = { topBarSetup.onSearchBtnClick(true) }) {
-                                Icon(imageVector = Icons.Filled.Search, contentDescription = "Search order by number", tint = contentColor)
-                            }
-                    }
-                else
-                    Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
-            }
-        },
-        navigationIcon = {
-            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
-                if (searchBarState)
-                    IconButton(
-                        onClick = { topBarSetup.onSearchBtnClick(false) },
-                        colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
-                    ) {
-                        Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
-                    }
-                else
-                    IconButton(
-                        onClick = { scope.launch { topBarSetup.onNavBtnClick(true) } },
-                        colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Toggle drawer",
-                            modifier = Modifier
-                                .rotate(drawerState.offset.value / 1080f * 360f)
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember { MutableInteractionSource() },
+                            contentPadding = PaddingValues(2.dp)
                         )
                     }
-            } else {
-                IconButton(
-                    onClick = onBackFromAddEditModeClick,
-                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
-                ) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide add edit bar")
+
+                    IconButton(
+                        onClick = { stringToSearch.value = "" },
+                        enabled = stringToSearch.value != "",
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = contentColor,
+                            disabledContentColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    ) {
+                        Icon(imageVector = Icons.Filled.Close, contentDescription = topBarSetup.placeholderText)
+                    }
+                } else {
+                    Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
+                    if (topBarSetup.titleBtnIcon != null)
+                        IconButton(onClick = { topBarSetup.onSearchBtnClick(true) }) {
+                            Icon(imageVector = topBarSetup.titleBtnIcon, contentDescription = topBarSetup.placeholderText, tint = contentColor)
+                        }
                 }
             }
         },
+        navigationIcon = {
+            if (searchBarState)
+                IconButton(
+                    onClick = { topBarSetup.onSearchBtnClick(false) },
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                ) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
+                }
+            else
+                IconButton(
+                    onClick = { scope.launch { topBarSetup.onNavBtnClick(true) } },
+                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                ) {
+                    Icon(
+                        imageVector = topBarSetup.navIcon,
+                        contentDescription = "Navigation button",
+                        modifier = Modifier
+                            .rotate(drawerState.offset.value / 1080f * 360f)
+                    )
+                }
+        },
         actions = {
-            if (addEditMode == AddEditMode.NO_MODE.ordinal) {
+            if (topBarSetup.actionBtnIcon != null) {
                 IconButton(
                     onClick = { topBarSetup.onActionBtnClick(true) },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
-                    Icon(imageVector = Icons.Filled.MoreVert, contentDescription = "More")
+                    Icon(imageVector = topBarSetup.actionBtnIcon, contentDescription = "More")
                 }
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,

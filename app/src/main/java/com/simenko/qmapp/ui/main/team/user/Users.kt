@@ -41,6 +41,7 @@ import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
+import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
@@ -57,7 +58,7 @@ fun Users(
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(isUsersPage) {
-        viewModel.setUsersFilter(!isUsersPage)
+        viewModel.setUsersFilter(BaseFilter(newUsers = !isUsersPage))
     }
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()

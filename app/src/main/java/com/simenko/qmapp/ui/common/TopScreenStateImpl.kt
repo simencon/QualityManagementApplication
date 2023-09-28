@@ -51,22 +51,21 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 
         onNavBtnClick: suspend (Boolean) -> Unit,
         onSearchBtnClick: (Boolean) -> Unit,
+        onSearchAction: (BaseFilter) -> Unit,
         onActionBtnClick: (Boolean) -> Unit,
 
         onTabClickAction: (Int) -> Unit,
 
         fabAction: () -> Unit,
 
-        refreshAction: () -> Unit,
-        filterAction: (BaseFilter) -> Unit
+        refreshAction: () -> Unit
     ) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenSetupDev(
-                titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onActionBtnClick),
+                titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
                 topTabsSetup = TopTabsContent(mainPage, onTabClickAction),
                 fabSetup = FabSetup(mainPage, fabAction),
-                refreshAction = refreshAction,
-                filterAction = filterAction
+                refreshAction = refreshAction
             )
         )
     }
@@ -83,9 +82,8 @@ fun StateChangedEffect(
         TopBarSetup,
         TopTabsContent,
         FabSetup,
-        () -> Unit,
-        (BaseFilter) -> Unit
-    ) -> Unit = { _, _, _, _, _ -> },
+        () -> Unit
+    ) -> Unit = { _, _, _, _ -> },
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->
@@ -107,7 +105,7 @@ fun StateChangedEffect(
                 }
 
                 is TopScreenIntent.TopScreenSetupDev -> {
-                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup, intent.fabSetup, intent.refreshAction, intent.filterAction)
+                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup, intent.fabSetup, intent.refreshAction)
                 }
             }
         }

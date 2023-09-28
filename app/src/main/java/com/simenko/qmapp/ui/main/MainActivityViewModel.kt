@@ -115,8 +115,7 @@ class MainActivityViewModel @Inject constructor(
         titleSetup: TopBarSetup,
         topTabsSetup: TopTabsContent,
         fabSetup: FabSetup,
-        refreshAction: () -> Unit,
-        filterAction: (BaseFilter) -> Unit
+        refreshAction: () -> Unit
     ) {
         this._topBarSetup.value = titleSetup
         this._topBarSetup.value.onNavBtnClick = { if (it) _drawerMenuState.value.open() else _drawerMenuState.value.close() }
