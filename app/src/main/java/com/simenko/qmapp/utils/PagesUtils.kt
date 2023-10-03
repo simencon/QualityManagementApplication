@@ -62,6 +62,21 @@ enum class InvStatuses(val statusId: Int) {
     REJECTED(4)
 }
 
+object TeamUtils {
+    fun List<DomainEmployeeComplete>.filterEmployees(filter: EmployeesFilter): List<DomainEmployeeComplete> {
+        return filter {
+            (it.teamMember.fullName.lowercase().contains(filter.stringToSearch.lowercase()) || filter.stringToSearch == EmptyString.str)
+        }
+    }
+
+    fun List<DomainUser>.filterUsers(filter: UsersFilter): List<DomainUser> {
+        return filter {
+            (it.restApiUrl.isNullOrEmpty() == filter.newUsers) &&
+                    (it.fullName?.lowercase()?.contains(filter.stringToSearch.lowercase()) ?: true || filter.stringToSearch == EmptyString.str)
+        }
+    }
+}
+
 object InvestigationsUtils {
     /**
      * The first means top orderID
@@ -207,19 +222,6 @@ object InvestigationsUtils {
             infPair
         else
             specificPair
-    }
-
-    fun List<DomainEmployeeComplete>.filterEmployees(filter: EmployeesFilter): List<DomainEmployeeComplete> {
-        return filter {
-            (it.teamMember.fullName.lowercase().contains(filter.stringToSearch.lowercase()) || filter.stringToSearch == EmptyString.str)
-        }
-    }
-
-    fun List<DomainUser>.filterUsers(filter: UsersFilter): List<DomainUser> {
-        return filter {
-            (it.restApiUrl.isNullOrEmpty() == filter.newUsers) &&
-                    (it.fullName?.lowercase()?.contains(filter.stringToSearch.lowercase()) ?: true || filter.stringToSearch == EmptyString.str)
-        }
     }
 
     fun List<DomainOrderComplete>.filterByStatusAndNumber(

@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.DrawerState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
@@ -13,8 +14,10 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.main.TeamTabs
+import com.simenko.qmapp.ui.main.main.TopTabsContentImpl
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.StateFlow
 
 interface TopScreenState {
     val topScreenChannel: Channel<TopScreenIntent>
@@ -78,10 +81,10 @@ sealed class TopScreenIntent {
 
 data class TopBarSetup(
     private val mainPage: MainPage = MainPage.values()[0],
-    var onNavBtnClick: suspend (Boolean) -> Unit = {},
-    var onSearchBtnClick: (Boolean) -> Unit = {},
-    var onSearchAction: (BaseFilter) -> Unit = {},
-    var onActionBtnClick: (Boolean) -> Unit = {},
+    var onNavBtnClick: (suspend (Boolean) -> Unit)? = null,
+    var onSearchBtnClick: ((Boolean) -> Unit)? = null,
+    var onSearchAction: ((BaseFilter) -> Unit)? = null,
+    var onActionBtnClick: ((Boolean) -> Unit)? = null,
 ) {
     val navIcon = mainPage.navIcon
     val title: String = mainPage.title
@@ -93,14 +96,14 @@ data class TopBarSetup(
 
 data class TopTabsContent(
     private val screen: MainPage = MainPage.values()[0],
-    var onTabClickAction: (Int) -> Unit = {}
+    var onTabClickAction: ((Int) -> Unit)? = null,
 ) {
-    val topTabsContent: List<Triple<String, Int, SelectedNumber>>? = screen.topTabsContent
+    val topTabsContent: TopTabsContentImpl? = screen.topTabsContent
 }
 
 data class FabSetup(
     private val screen: MainPage,
-    val fabAction: () -> Unit
+    val fabAction: (() -> Unit)? = null
 ) {
     val fabIcon: ImageVector? = screen.fabIcon
 }
@@ -111,7 +114,7 @@ enum class MainPage(
     val titlePlaceholderText: String?,
     val keyboardType: KeyboardType?,
     val searchBtnIcon: ImageVector?,
-    val topTabsContent: List<Triple<String, Int, SelectedNumber>>?,
+    val topTabsContent: TopTabsContentImpl?,
     val fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?
 ) {
@@ -121,7 +124,7 @@ enum class MainPage(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toListOfTriples(),
+        topTabsContent = TopTabsContentImpl(ProgressTabs.toListOfTriples()),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
     ),
@@ -131,7 +134,7 @@ enum class MainPage(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toListOfTriples(),
+        topTabsContent = TopTabsContentImpl(ProgressTabs.toListOfTriples()),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
     ),
@@ -142,7 +145,7 @@ enum class MainPage(
         titlePlaceholderText = "Search by full name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TeamTabs.toListOfTriples(),
+        topTabsContent = TopTabsContentImpl(TeamTabs.toListOfTriples()),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
     ),

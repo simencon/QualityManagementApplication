@@ -17,7 +17,6 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.FabSetup
-import com.simenko.qmapp.ui.common.MainPage
 import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.common.TopTabsContent
@@ -49,13 +48,95 @@ class MainActivityViewModel @Inject constructor(
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     val topScreenChannel = topScreenState.topScreenChannel
+    val userInfo get() = userRepository.user
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun setupTopScreenDev(
+        topBarSetup: TopBarSetup,
+        topTabsSetup: TopTabsContent,
+        fabSetup: FabSetup,
+        refreshAction: () -> Unit
+    ) {
+        this._topBarSetup.value = topBarSetup
+        this._topBarSetup.value.onNavBtnClick = topBarSetup.onNavBtnClick ?: { setDrawerMenuState(it) }
+        this._topBarSetup.value.onSearchBtnClick = topBarSetup.onSearchBtnClick ?: { setSearchBarState(it) }
+        this._topBarSetup.value.onActionBtnClick = topBarSetup.onActionBtnClick ?: { setActionMenuState(it) }
 
-    fun logWhenInstantiated() {
-        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
+        this._topTabsSetup.value = topTabsSetup
+        this._topTabsSetup.value.onTabClickAction = topTabsSetup.onTabClickAction ?: { setSelectedTabIndex(it) }
     }
 
-    val userInfo get() = userRepository.user
+    /**
+     * Top bar state holders -------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _topBarSetup = MutableStateFlow(TopBarSetup())
+    val topBarSetup get() = _topBarSetup.asStateFlow()
 
+    private val _selectedDrawerMenuItemId: MutableStateFlow<String> = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
+    val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
+    fun setDrawerMenuItemId(id: String) {
+        this._selectedDrawerMenuItemId.value = id
+    }
+
+    private val _drawerMenuState = MutableStateFlow(DrawerState(DrawerValue.Closed))
+    val drawerMenuState = _drawerMenuState.asStateFlow()
+    private suspend fun setDrawerMenuState(value: Boolean) {
+        if (value) _drawerMenuState.value.open() else _drawerMenuState.value.close()
+    }
+
+    private val _searchBarState = MutableStateFlow(false)
+    val searchBarState = _searchBarState.asStateFlow()
+    private fun setSearchBarState(value: Boolean) {
+        _searchBarState.value = value
+    }
+
+    private val _actionsMenuState = MutableStateFlow(false)
+    val actionsMenuState = _actionsMenuState.asStateFlow()
+    private fun setActionMenuState(value: Boolean) {
+        _actionsMenuState.value = value
+    }
+
+    /**
+     * Top tabs state holders ------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _topTabsSetup = MutableStateFlow(TopTabsContent())
+    val topTabsSetup get() = _topTabsSetup.asStateFlow()
+    private val _badgeItem = Triple(0, Color.Red, Color.White)
+    private val _topBadgeCounts = MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
+    val topBadgeCounts: StateFlow<List<Triple<Int, Color, Color>>> get() = _topBadgeCounts
+    fun setTopBadgesCount(index: Int, badgeCount: Int, bg: Color, cnt: Color) {
+        _topTabsSetup.value.topTabsContent?.setBadgeContent(index, Triple(badgeCount, bg, cnt))
+        if (index < 4) {
+            var i = 0
+            _topBadgeCounts.value = _topBadgeCounts.value.map { if (index == i++) Triple(badgeCount, bg, cnt) else it }.toList()
+        }
+    }
+
+    fun resetTopBadgesCount() {
+        _topBadgeCounts.value = listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem)
+    }
+
+    private val _selectedTabIndex = MutableStateFlow(ZeroValue.num)
+    val selectedTabIndex = _selectedTabIndex.asStateFlow()
+    fun setSelectedTabIndex(value: Int) {
+        _selectedTabIndex.value = value
+    }
+
+    /**
+     * FAB state holders -----------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _fabPosition: MutableStateFlow<FabPosition> = MutableStateFlow(FabPosition.End)
+    val fabPosition: StateFlow<FabPosition> get() = _fabPosition
+
+
+    fun onEndOfList(position: Boolean) {
+        _fabPosition.value = if (position) FabPosition.Center else FabPosition.End
+    }
+
+    /**
+     * Full refresh holders --------------------------------------------------------------------------------------------------------------------------
+     * */
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
@@ -71,19 +152,7 @@ class MainActivityViewModel @Inject constructor(
         _isErrorMessage.value = null
     }
 
-    private val _fabPosition: MutableStateFlow<FabPosition> = MutableStateFlow(FabPosition.End)
-    val fabPosition: StateFlow<FabPosition> get() = _fabPosition
-
-
-    fun onEndOfList(position: Boolean) {
-        _fabPosition.value = if (position) FabPosition.Center else FabPosition.End
-    }
-
-    private val _selectedDrawerMenuItemId: MutableStateFlow<String> = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
-    val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
-    fun setDrawerMenuItemId(id: String) {
-        this._selectedDrawerMenuItemId.value = id
-    }
+//    TODO: To be deleted
 
     private val _addEditMode: MutableStateFlow<Int> = MutableStateFlow(AddEditMode.NO_MODE.ordinal)
     val addEditMode get() = _addEditMode.asStateFlow()
@@ -105,69 +174,9 @@ class MainActivityViewModel @Inject constructor(
         this._filterAction.value = searchAction
     }
 
-    private val _topBarSetup = MutableStateFlow(TopBarSetup())
-    val topBarSetup get() = _topBarSetup.asStateFlow()
-
-    private val _topTabsSetup = MutableStateFlow(TopTabsContent())
-    val topTabsSetup get() = _topTabsSetup.asStateFlow()
-
-    fun setupTopScreenDev(
-        titleSetup: TopBarSetup,
-        topTabsSetup: TopTabsContent,
-        fabSetup: FabSetup,
-        refreshAction: () -> Unit
-    ) {
-        this._topBarSetup.value = titleSetup
-        this._topBarSetup.value.onNavBtnClick = { if (it) _drawerMenuState.value.open() else _drawerMenuState.value.close() }
-        this._topBarSetup.value.onSearchBtnClick = { setSearchBarState(it) }
-        this._topBarSetup.value.onActionBtnClick = { setActionMenuState(it) }
-
-        this._topTabsSetup.value = topTabsSetup
-        this._topTabsSetup.value.onTabClickAction = { setSelectedTabIndex(it) }
-    }
-
-    private val _badgeItem = Triple(0, Color.Red, Color.White)
-    private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> =
-        MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
-    val topBadgeCounts: StateFlow<List<Triple<Int, Color, Color>>> get() = _topBadgeCounts
-    fun setTopBadgesCount(index: Int, badgeCount: Int, bg: Color, cnt: Color) {
-        if (index < 4) {
-            var i = 0
-            _topBadgeCounts.value = _topBadgeCounts.value.map { if (index == i++) Triple(badgeCount, bg, cnt) else it }.toList()
-        }
-    }
-
-    fun resetTopBadgesCount() {
-        _topBadgeCounts.value = listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem)
-    }
-
-    fun onBackFromAddEditMode() {
-        appNavigator.tryNavigateBack()
-    }
-
-    private val _drawerMenuState = MutableStateFlow(DrawerState(DrawerValue.Closed))
-    val drawerMenuState = _drawerMenuState.asStateFlow()
-    suspend fun setDrawerMenuState(value: Boolean) {
-        if (value) _drawerMenuState.value.open() else _drawerMenuState.value.close()
-    }
-
-    private val _searchBarState = MutableStateFlow(false)
-    val searchBarState = _searchBarState.asStateFlow()
-    fun setSearchBarState(value: Boolean) {
-        _searchBarState.value = value
-    }
-
-    private val _actionsMenuState = MutableStateFlow(false)
-    val actionsMenuState = _actionsMenuState.asStateFlow()
-    fun setActionMenuState(value: Boolean) {
-        _actionsMenuState.value = value
-    }
-
-    private val _selectedTabIndex = MutableStateFlow(ZeroValue.num)
-    val selectedTabIndex = _selectedTabIndex.asStateFlow()
-    fun setSelectedTabIndex(value: Int) {
-        _selectedTabIndex.value = value
-    }
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
 
     fun onDrawerMenuTeamSelected() {
         appNavigator.tryNavigateTo(route = Route.Main.Team.link, popUpToRoute = Route.Main.Team.route, inclusive = true)

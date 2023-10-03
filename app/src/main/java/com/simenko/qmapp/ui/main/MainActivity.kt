@@ -29,12 +29,10 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -53,7 +51,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.common.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.AppBar
@@ -122,40 +119,39 @@ class MainActivity : MainActivityBase() {
             )
 
             QMAppTheme {
-                navController = rememberNavController()
-                val backStackEntry = navController.currentBackStackEntryAsState()
-
                 val scope = rememberCoroutineScope()
-                val drawerMenuState by viewModel.drawerMenuState.collectAsStateWithLifecycle()
+                navController = rememberNavController()
+
                 val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
-                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { viewModel.setDrawerMenuState(false) } })
+
+                val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
+                val drawerMenuState by viewModel.drawerMenuState.collectAsStateWithLifecycle()
+                val searchBarState by viewModel.searchBarState.collectAsStateWithLifecycle()
+                val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
+
+                val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
+                val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
-                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
-                val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
                 val fabPosition by viewModel.fabPosition.collectAsStateWithLifecycle()
 
-                val searchBarState by viewModel.searchBarState.collectAsStateWithLifecycle()
-                BackHandler(enabled = searchBarState, onBack = { viewModel.setSearchBarState(false) })
+                val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
+                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
+                val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
 
-                val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
 
-                BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) {
-                    this@MainActivity.moveTaskToBack(true)
-                }
+                val backStackEntry = navController.currentBackStackEntryAsState()
+
+                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } } })
+                BackHandler(enabled = searchBarState, onBack = { topBarSetup.onSearchBtnClick?.let { it(false) } })
+                BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
+
+
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
-                val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
                 val filterAction by viewModel.filterAction.collectAsStateWithLifecycle()
-
-                val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
-
-                val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
-
-                val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
-
                 val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
                     { tabId, tabIndex ->
                         viewModel.setSelectedTabIndex(
@@ -182,7 +178,7 @@ class MainActivity : MainActivityBase() {
                             DrawerBody(
                                 selectedItemId = selectedDrawerMenuItemId,
                                 onDrawerItemClick = { id ->
-                                    scope.launch { viewModel.setDrawerMenuState(false) }
+                                    scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } }
                                     super.onDrawerItemClick(selectedDrawerMenuItemId, id)?.let { viewModel.setSelectedTabIndex(it) }
                                 }
                             )
@@ -215,7 +211,6 @@ class MainActivity : MainActivityBase() {
                             },
                             floatingActionButtonPosition = fabPosition
                         ) {
-                            LaunchedEffect(key1 = Unit, block = { viewModel.logWhenInstantiated() })
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = { super.onPullRefresh(backStackEntry, refreshAction) }

@@ -85,7 +85,6 @@ import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
@@ -143,12 +142,14 @@ fun AppBar(
                             keyboardType = topBarSetup.keyboardType ?: KeyboardType.Ascii,
                             imeAction = ImeAction.Search
                         ),
-                        keyboardActions = KeyboardActions(onSearch = { topBarSetup.onSearchAction(BaseFilter(stringToSearch = stringToSearch.value)) }),
+                        keyboardActions = KeyboardActions(onSearch = { topBarSetup.onSearchAction?.let { it(BaseFilter(stringToSearch = stringToSearch.value)) } }),
                     ) { innerTextField ->
                         TextFieldDefaults.DecorationBox(
                             value = stringToSearch.value,
                             colors = colors(unfocusedContainerColor = MaterialTheme.colorScheme.primary, unfocusedIndicatorColor = contentColor),
-                            placeholder = { Text(text = topBarSetup.placeholderText ?: "", color = MaterialTheme.colorScheme.primaryContainer) },
+                            placeholder = {
+                                Text(text = topBarSetup.placeholderText ?: EmptyString.str, color = MaterialTheme.colorScheme.primaryContainer)
+                            },
                             innerTextField = innerTextField,
                             enabled = true,
                             singleLine = true,
@@ -161,7 +162,7 @@ fun AppBar(
                     IconButton(
                         onClick = {
                             stringToSearch.value = EmptyString.str
-                            topBarSetup.onSearchAction(BaseFilter(stringToSearch = stringToSearch.value))
+                            topBarSetup.onSearchAction?.let { it(BaseFilter(stringToSearch = stringToSearch.value)) }
                         },
                         enabled = stringToSearch.value != EmptyString.str,
                         colors = IconButtonDefaults.iconButtonColors(
@@ -174,7 +175,7 @@ fun AppBar(
                 } else {
                     Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
                     if (topBarSetup.titleBtnIcon != null)
-                        IconButton(onClick = { topBarSetup.onSearchBtnClick(true) }) {
+                        IconButton(onClick = { topBarSetup.onSearchBtnClick?.let { it(true) } }) {
                             Icon(imageVector = topBarSetup.titleBtnIcon, contentDescription = topBarSetup.placeholderText, tint = contentColor)
                         }
                 }
@@ -183,14 +184,14 @@ fun AppBar(
         navigationIcon = {
             if (searchBarState)
                 IconButton(
-                    onClick = { topBarSetup.onSearchBtnClick(false) },
+                    onClick = { topBarSetup.onSearchBtnClick?.let { it(false) } },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
                 }
             else
                 IconButton(
-                    onClick = { scope.launch { topBarSetup.onNavBtnClick(true) } },
+                    onClick = { scope.launch { topBarSetup.onNavBtnClick?.let { it(true) } } },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(
@@ -204,14 +205,14 @@ fun AppBar(
         actions = {
             if (topBarSetup.actionBtnIcon != null) {
                 IconButton(
-                    onClick = { topBarSetup.onActionBtnClick(true) },
+                    onClick = { topBarSetup.onActionBtnClick?.let { it(true) } },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(imageVector = topBarSetup.actionBtnIcon, contentDescription = "More")
                 }
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,
-                    setActionMenuState = topBarSetup.onActionBtnClick,
+                    setActionMenuState = { topBarSetup.onActionBtnClick?.let { it1 -> it1(it) } },
                     selectedActionsMenuItemId = selectedActionsMenuItemId,
                     onActionsMenuItemClick = onActionsMenuItemClick
                 )
@@ -495,8 +496,6 @@ data class MenuItem(
             navigationAndActionItems.find { it.id == Route.Main.Team.withArgs() } ?: navigationAndActionItems[4]
 
         fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
-
-        fun getItemById(id: String) = navigationAndActionItems.findLast { it.id == id } ?: getStartingDrawerMenuItem()
     }
 
     enum class MenuGroup(val group: String) {
@@ -548,12 +547,13 @@ enum class ProgressTabs(val tabId: SelectedNumber) {
     }
 }
 
-enum class TeamTabs(val tabId: SelectedNumber) {
-    EMPLOYEES(FirstTabId),
-    USERS(SecondTabId),
-    REQUESTS(ThirdTabId);
+enum class TeamTabs(val tabId: SelectedNumber, var badge: Triple<Int, Color, Color>) {
+    EMPLOYEES(FirstTabId, Triple(0, Color.Red, Color.White)),
+    USERS(SecondTabId, Triple(0, Color.Red, Color.White)),
+    REQUESTS(ThirdTabId, Triple(0, Color.Red, Color.White));
 
     companion object {
+
         fun toListOfTriples() = TeamTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
     }
 }
