@@ -19,9 +19,9 @@ import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
-import com.simenko.qmapp.utils.InvestigationsUtils.filterEmployees
-import com.simenko.qmapp.utils.InvestigationsUtils.filterUsers
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
+import com.simenko.qmapp.utils.TeamUtils.filterEmployees
+import com.simenko.qmapp.utils.TeamUtils.filterUsers
 import com.simenko.qmapp.utils.UsersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -54,6 +54,7 @@ class TeamViewModel @Inject constructor(
     }
 
     fun setupTopScreen() {
+        val tmp = MainPage.TEAM
         topScreenState.trySendTopScreenSetupDev(
             mainPage = MainPage.TEAM,
             onNavBtnClick = { /*main view model fun*/ },
