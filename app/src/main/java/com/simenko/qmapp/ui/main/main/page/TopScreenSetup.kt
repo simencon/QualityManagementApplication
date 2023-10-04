@@ -43,9 +43,12 @@ interface TopScreenState {
 
         onTabSelectAction: ((SelectedNumber) -> Unit)?,
 
-        fabAction: () -> Unit,
-
         refreshAction: () -> Unit
+    )
+
+    fun trySendTopScreenFabSetup(
+        mainPage: MainPage,
+        fabAction: () -> Unit,
     )
 }
 
@@ -73,8 +76,11 @@ sealed class TopScreenIntent {
     data class TopScreenSetupDev(
         val titleSetup: TopBarSetup,
         val topTabsSetup: TopTabsSetup,
-        val fabSetup: FabSetup,
         val refreshAction: () -> Unit,
+    ) : TopScreenIntent()
+
+    data class TopScreenFabSetup(
+        val fabSetup: FabSetup
     ) : TopScreenIntent()
 }
 

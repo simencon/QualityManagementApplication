@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.main.team
 
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
@@ -11,7 +10,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.MainActivity
 import com.simenko.qmapp.ui.main.team.employee.Employees
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
@@ -31,7 +29,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 it.arguments?.getInt(NavArguments.employeeId)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
             }
-            Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeEdictClick(id) })
+            Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeAddEdictClick(id) })
         }
         composable(destination = Route.Main.Team.EmployeeAddEdit) {
             val employeeModel: EmployeeViewModel = hiltViewModel()

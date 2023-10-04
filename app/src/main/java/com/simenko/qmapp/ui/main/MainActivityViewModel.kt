@@ -51,7 +51,6 @@ class MainActivityViewModel @Inject constructor(
     fun setupTopScreenDev(
         topBarSetup: TopBarSetup,
         topTabsSetup: TopTabsSetup,
-        fabSetup: FabSetup,
         refreshAction: () -> Unit
     ) {
         this._topBarSetup.value = topBarSetup
@@ -60,6 +59,10 @@ class MainActivityViewModel @Inject constructor(
         this._topBarSetup.value.onActionBtnClick = topBarSetup.onActionBtnClick ?: { setActionMenuState(it) }
 
         this._topTabsSetup.value = topTabsSetup
+    }
+
+    fun setupTopScreenFab(fabSetup: FabSetup) {
+        this._fabSetup.value = fabSetup
     }
 
     /**
@@ -162,22 +165,6 @@ class MainActivityViewModel @Inject constructor(
 
     fun onDrawerMenuSettingsSelected() {
         appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
-    }
-
-    fun onTopTabsEmployeesClick() {
-        appNavigator.tryNavigateBack()
-    }
-
-    fun onTopTabsUsersClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-    }
-
-    fun onTopTabsRequestsClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-    }
-
-    fun onAddEmployeeClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.Team.EmployeeAddEdit.withArgs(NoRecordStr.str))
     }
 
     fun onAddInvClick() {

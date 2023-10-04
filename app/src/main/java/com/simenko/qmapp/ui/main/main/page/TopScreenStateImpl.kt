@@ -56,15 +56,21 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionBtnClick: ((Boolean) -> Unit)?,
         onTabSelectAction: ((SelectedNumber) -> Unit)?,
-        fabAction: () -> Unit,
         refreshAction: () -> Unit
     ) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenSetupDev(
                 titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
                 topTabsSetup = TopTabsSetup(mainPage, onTabSelectAction),
-                fabSetup = FabSetup(mainPage, fabAction),
                 refreshAction = refreshAction
+            )
+        )
+    }
+
+    override fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: () -> Unit) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TopScreenFabSetup(
+                fabSetup = FabSetup(mainPage, fabAction)
             )
         )
     }
@@ -77,7 +83,8 @@ fun StateChangedEffect(
     onEndOfListIntent: (Boolean) -> Unit = {},
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
     onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
-    onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup, FabSetup, () -> Unit) -> Unit = { _, _, _, _ -> },
+    onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup, () -> Unit) -> Unit = { _, _, _ -> },
+    onTopScreenFabSetupIntent: (FabSetup) -> Unit = {}
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->
@@ -99,7 +106,11 @@ fun StateChangedEffect(
                 }
 
                 is TopScreenIntent.TopScreenSetupDev -> {
-                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup, intent.fabSetup, intent.refreshAction)
+                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup, intent.refreshAction)
+                }
+
+                is TopScreenIntent.TopScreenFabSetup -> {
+                    onTopScreenFabSetupIntent(intent.fabSetup)
                 }
             }
         }
