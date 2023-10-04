@@ -44,8 +44,8 @@ class TeamViewModel @Inject constructor(
         Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }
 
-    fun setupTopScreen() {
-        topScreenState.trySendTopScreenSetupDev(
+    fun setupTopScreenTopBar() {
+        topScreenState.trySendTopBarSetup(
             mainPage = MainPage.TEAM,
             onNavBtnClick = null,
             onSearchBtnClick = null,
@@ -53,10 +53,12 @@ class TeamViewModel @Inject constructor(
                 setEmployeesFilter(it)
                 setUsersFilter(it)
             },
-            onActionBtnClick = null,
-
-            onTabSelectAction = { navigateByTopTabs(it) },
+            onActionBtnClick = null
         )
+    }
+
+    fun setupMainScreenTopTabs() {
+        topScreenState.trySendTopTabsSetup(MainPage.TEAM) { navigateByTopTabs(it) }
     }
 
     fun setupTopScreenFab(withFab: Boolean) {
@@ -81,9 +83,9 @@ class TeamViewModel @Inject constructor(
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
     private fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
-        topScreenState.trySendTopBadgeState(0, Triple(employees.size, Color.Green, Color.Black))
-        topScreenState.trySendTopBadgeState(1, Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black))
-        topScreenState.trySendTopBadgeState(2, Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White))
+        topScreenState.trySendTabBadgeState(0, Triple(employees.size, Color.Green, Color.Black))
+        topScreenState.trySendTabBadgeState(1, Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black))
+        topScreenState.trySendTabBadgeState(2, Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White))
     }
 
     val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }

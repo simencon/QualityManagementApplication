@@ -121,7 +121,9 @@ class MainActivity : MainActivityBase() {
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
 
-                onTopScreenSetupDevIntent = { p1, p2 -> viewModel.setupTopScreen(p1, p2) },
+                onTopBarSetupIntent = { viewModel.setupTopScreen(it) },
+
+                onTopTabsSetupIntent = { viewModel.setupTopTabs(it) },
                 onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
 
                 onTopScreenFabSetupIntent = { viewModel.setupTopScreenFab(it) },

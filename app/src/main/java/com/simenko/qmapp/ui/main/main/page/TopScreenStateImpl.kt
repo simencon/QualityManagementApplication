@@ -19,31 +19,31 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendEndOfListState(state: Boolean) {
-        topScreenChannel.trySend(
-            TopScreenIntent.EndOfListState(state)
-        )
-    }
-
-    override fun trySendTopBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TabBadgeState(tabIndex, state)
-        )
-    }
-
-    override fun trySendTopScreenSetupDev(
+    override fun trySendTopBarSetup(
         mainPage: MainPage,
         onNavBtnClick: (suspend (Boolean) -> Unit)?,
         onSearchBtnClick: ((Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?,
-        onActionBtnClick: ((Boolean) -> Unit)?,
-        onTabSelectAction: ((SelectedNumber) -> Unit)?
+        onActionBtnClick: ((Boolean) -> Unit)?
     ) {
         topScreenChannel.trySend(
-            TopScreenIntent.TopScreenSetup(
+            TopScreenIntent.TopBarState(
                 titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
+            )
+        )
+    }
+
+    override fun trySendTopTabsSetup(mainPage: MainPage, onTabSelectAction: ((SelectedNumber) -> Unit)?) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TopTabsState(
                 topTabsSetup = TopTabsSetup(mainPage, onTabSelectAction)
             )
+        )
+    }
+
+    override fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TabBadgeState(tabIndex, state)
         )
     }
 
@@ -55,11 +55,9 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override suspend fun sendPullRefreshSetup(refreshAction: (() -> Unit)?) {
-        topScreenChannel.send(
-            TopScreenIntent.TopScreenPullRefreshSetup(
-                pullRefreshSetup = PullRefreshSetup(refreshAction)
-            )
+    override fun trySendEndOfListState(state: Boolean) {
+        topScreenChannel.trySend(
+            TopScreenIntent.EndOfListState(state)
         )
     }
 
@@ -82,7 +80,9 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
 
-    onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup) -> Unit = { _, _ -> },
+    onTopBarSetupIntent: (TopBarSetup) -> Unit = {},
+
+    onTopTabsSetupIntent: (TopTabsSetup) -> Unit = {},
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
 
     onTopScreenFabSetupIntent: (FabSetup) -> Unit = {},
@@ -94,8 +94,12 @@ fun StateChangedEffect(
     LaunchedEffect(topScreenChannel) {
         topScreenChannel.receiveAsFlow().collect { intent ->
             when (intent) {
-                is TopScreenIntent.TopScreenSetup -> {
-                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup)
+                is TopScreenIntent.TopBarState -> {
+                    onTopBarSetupIntent(intent.titleSetup)
+                }
+
+                is TopScreenIntent.TopTabsState -> {
+                    onTopTabsSetupIntent(intent.topTabsSetup)
                 }
 
                 is TopScreenIntent.TabBadgeState -> {
