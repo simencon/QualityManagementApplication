@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.main
 
+import android.view.WindowInsets.Side
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -59,10 +60,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -88,11 +93,13 @@ import com.simenko.qmapp.domain.FourthTabId
 import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -442,25 +449,31 @@ fun ItemsGroup(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(
-    tabs: List<Triple<String, Int, SelectedNumber>>,
-    selectedTabIndex: Int,
-    badgeCounts: List<Triple<Int, Color, Color>> = listOf(),
+    topTabsSetup: TopTabsSetupImpl,
     onTabSelectedLambda: (SelectedNumber, Int) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    var tabs by remember { mutableStateOf(emptyList<TopTabContent>()) }
+
+    SideEffect { scope.launch { topTabsSetup.topTabsContent.collect { tabs = it } } }
+
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
+    LaunchedEffect(key1 = tabs, block = { tabs.findLast { it.isSelected }?.let { selectedTabIndex = it.index } })
+
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabs.forEach {
-            val selected = selectedTabIndex == it.second
+            val selected = selectedTabIndex == it.index
             Tab(
                 modifier = Modifier.height(40.dp),
                 selected = selected,
-                onClick = { onTabSelectedLambda(it.third, it.second) }
+                onClick = { onTabSelectedLambda(it.tag, it.index) }
             ) {
-                if (badgeCounts.size >= it.second && badgeCounts[it.second].first > 0)
+                if (it.badgeCount > 0)
                     BadgedBox(badge = {
-                        Box(modifier = Modifier.background(color = badgeCounts[it.second].second, shape = RoundedCornerShape(size = 3.dp))) {
+                        Box(modifier = Modifier.background(color = it.badgeBg, shape = RoundedCornerShape(size = 3.dp))) {
                             Text(
-                                text = badgeCounts[it.second].first.toString(),
-                                color = badgeCounts[it.second].third,
+                                text = it.badgeCount.toString(),
+                                color = it.badgeFr,
                                 fontSize = 8.sp,
                                 fontWeight = if (selected) FontWeight.Black else FontWeight.SemiBold
                             )
@@ -468,14 +481,14 @@ fun TopTabs(
                     }
                     ) {
                         Text(
-                            text = StringUtils.getWithSpaces(it.first),
+                            text = StringUtils.getWithSpaces(it.name),
                             fontSize = 12.sp,
                             style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
                         )
                     }
                 else
                     Text(
-                        text = StringUtils.getWithSpaces(it.first),
+                        text = StringUtils.getWithSpaces(it.name),
                         fontSize = 12.sp,
                         style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
                     )

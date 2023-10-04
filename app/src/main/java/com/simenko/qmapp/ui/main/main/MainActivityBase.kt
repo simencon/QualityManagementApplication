@@ -38,7 +38,6 @@ abstract class MainActivityBase : ComponentActivity() {
                 Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
-            viewModel.resetTopBadgesCount()
             ZeroValue.num
         } else {
             null

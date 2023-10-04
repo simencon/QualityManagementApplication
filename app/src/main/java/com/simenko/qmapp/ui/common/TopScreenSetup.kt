@@ -6,7 +6,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DrawerState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
@@ -14,10 +13,9 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.main.TeamTabs
-import com.simenko.qmapp.ui.main.main.TopTabsContentImpl
+import com.simenko.qmapp.ui.main.main.TopTabsSetupImpl
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.StateFlow
 
 interface TopScreenState {
     val topScreenChannel: Channel<TopScreenIntent>
@@ -37,12 +35,12 @@ interface TopScreenState {
     fun trySendTopScreenSetupDev(
         mainPage: MainPage,
 
-        onNavBtnClick: suspend (Boolean) -> Unit,
-        onSearchBtnClick: (Boolean) -> Unit,
-        onSearchAction: (BaseFilter) -> Unit,
-        onActionBtnClick: (Boolean) -> Unit,
+        onNavBtnClick: (suspend (Boolean) -> Unit)?,
+        onSearchBtnClick: ((Boolean) -> Unit)?,
+        onSearchAction: ((BaseFilter) -> Unit)?,
+        onActionBtnClick: ((Boolean) -> Unit)?,
 
-        onTabClickAction: (Int) -> Unit,
+        onTabClickAction: ((Int) -> Unit)?,
 
         fabAction: () -> Unit,
 
@@ -73,7 +71,7 @@ sealed class TopScreenIntent {
 
     data class TopScreenSetupDev(
         val titleSetup: TopBarSetup,
-        val topTabsSetup: TopTabsContent,
+        val topTabsSetup: TopTabsSetupImpl,
         val fabSetup: FabSetup,
         val refreshAction: () -> Unit,
     ) : TopScreenIntent()
@@ -94,13 +92,6 @@ data class TopBarSetup(
     val actionBtnIcon: ImageVector? = mainPage.actionBtnIcon
 }
 
-data class TopTabsContent(
-    private val screen: MainPage = MainPage.values()[0],
-    var onTabClickAction: ((Int) -> Unit)? = null,
-) {
-    val topTabsContent: TopTabsContentImpl? = screen.topTabsContent
-}
-
 data class FabSetup(
     private val screen: MainPage,
     val fabAction: (() -> Unit)? = null
@@ -114,7 +105,7 @@ enum class MainPage(
     val titlePlaceholderText: String?,
     val keyboardType: KeyboardType?,
     val searchBtnIcon: ImageVector?,
-    val topTabsContent: TopTabsContentImpl?,
+    val topTabsContent: List<Triple<String, Int, SelectedNumber>>,
     val fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?
 ) {
@@ -124,7 +115,7 @@ enum class MainPage(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TopTabsContentImpl(ProgressTabs.toListOfTriples()),
+        topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
     ),
@@ -134,7 +125,7 @@ enum class MainPage(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TopTabsContentImpl(ProgressTabs.toListOfTriples()),
+        topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
     ),
@@ -145,23 +136,23 @@ enum class MainPage(
         titlePlaceholderText = "Search by full name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TopTabsContentImpl(TeamTabs.toListOfTriples()),
+        topTabsContent = TeamTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert
     ),
 
 
-    ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, null, null),
-    EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, null, null, null),
-    AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, null, null),
-    EDIT_USER(Icons.Filled.ArrowBack, "Edit user", null, null, null, null, null, null),
-    NO_MODE(Icons.Filled.ArrowBack, "No mode", null, null, null, null, null, null),
-    ADD_ORDER(Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, null, null),
-    EDIT_ORDER(Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, null, null),
-    ADD_SUB_ORDER(Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, null, null),
-    EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null, null),
-    ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null, null),
-    EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null, null),
-    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null, null),
+    ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, emptyList(), null, null),
+    EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, emptyList(), null, null),
+    AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, emptyList(), null, null),
+    EDIT_USER(Icons.Filled.ArrowBack, "Edit user", null, null, null, emptyList(), null, null),
+    NO_MODE(Icons.Filled.ArrowBack, "No mode", null, null, null, emptyList(), null, null),
+    ADD_ORDER(Icons.Filled.ArrowBack, "New investigation order", null, null, null, emptyList(), null, null),
+    EDIT_ORDER(Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, emptyList(), null, null),
+    ADD_SUB_ORDER(Icons.Filled.ArrowBack, "Add new sub order", null, null, null, emptyList(), null, null),
+    EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, emptyList(), null, null),
+    ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, emptyList(), null, null),
+    EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, emptyList(), null, null),
+    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, emptyList(), null, null),
     ;
 }

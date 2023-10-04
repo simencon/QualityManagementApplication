@@ -54,21 +54,20 @@ class TeamViewModel @Inject constructor(
     }
 
     fun setupTopScreen() {
-        val tmp = MainPage.TEAM
         topScreenState.trySendTopScreenSetupDev(
             mainPage = MainPage.TEAM,
-            onNavBtnClick = { /*main view model fun*/ },
-            onSearchBtnClick = { /*main view model fun*/ },
+            onNavBtnClick = null,
+            onSearchBtnClick = null,
             onSearchAction = {
                 setEmployeesFilter(it)
                 setUsersFilter(it)
             },
-            onActionBtnClick = { /*main view model fun*/ },
+            onActionBtnClick = null,
 
-            onTabClickAction = { /*main view model fun*/ },
+            onTabClickAction = null,
             fabAction = {},
 
-            refreshAction = {},
+            refreshAction = { updateEmployeesData() },
         )
     }
 
@@ -108,7 +107,7 @@ class TeamViewModel @Inject constructor(
     }
 
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
-    fun setEmployeesFilter(filter: BaseFilter) {
+    private fun setEmployeesFilter(filter: BaseFilter) {
         val cpy = _currentEmployeesFilter.value
         _currentEmployeesFilter.value = _currentEmployeesFilter.value.copy(
             stringToSearch = filter.stringToSearch ?: cpy.stringToSearch
@@ -136,9 +135,7 @@ class TeamViewModel @Inject constructor(
             }
         }
     }
-        .flowOn(Dispatchers.IO)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+        .flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
         updateLoadingState(Pair(true, null))

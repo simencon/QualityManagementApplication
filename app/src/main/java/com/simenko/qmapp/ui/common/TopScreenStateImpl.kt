@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.ui.main.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.TopTabsSetupImpl
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -48,22 +49,18 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 
     override fun trySendTopScreenSetupDev(
         mainPage: MainPage,
-
-        onNavBtnClick: suspend (Boolean) -> Unit,
-        onSearchBtnClick: (Boolean) -> Unit,
-        onSearchAction: (BaseFilter) -> Unit,
-        onActionBtnClick: (Boolean) -> Unit,
-
-        onTabClickAction: (Int) -> Unit,
-
+        onNavBtnClick: (suspend (Boolean) -> Unit)?,
+        onSearchBtnClick: ((Boolean) -> Unit)?,
+        onSearchAction: ((BaseFilter) -> Unit)?,
+        onActionBtnClick: ((Boolean) -> Unit)?,
+        onTabClickAction: ((Int) -> Unit)?,
         fabAction: () -> Unit,
-
         refreshAction: () -> Unit
     ) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenSetupDev(
                 titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
-                topTabsSetup = TopTabsContent(mainPage, onTabClickAction),
+                topTabsSetup = TopTabsSetupImpl(mainPage, onTabClickAction),
                 fabSetup = FabSetup(mainPage, fabAction),
                 refreshAction = refreshAction
             )
@@ -80,7 +77,7 @@ fun StateChangedEffect(
     onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
     onTopScreenSetupDevIntent: (
         TopBarSetup,
-        TopTabsContent,
+        TopTabsSetupImpl,
         FabSetup,
         () -> Unit
     ) -> Unit = { _, _, _, _ -> },

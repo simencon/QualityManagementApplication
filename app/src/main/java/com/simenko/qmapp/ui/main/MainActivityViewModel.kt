@@ -1,10 +1,8 @@
 package com.simenko.qmapp.ui.main
 
-import android.util.Log
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FabPosition
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
@@ -19,16 +17,24 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.FabSetup
 import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.common.TopScreenState
-import com.simenko.qmapp.ui.common.TopTabsContent
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
+import com.simenko.qmapp.ui.main.main.TopTabContent
+import com.simenko.qmapp.ui.main.main.TopTabsSetupImpl
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -54,7 +60,7 @@ class MainActivityViewModel @Inject constructor(
      * */
     fun setupTopScreenDev(
         topBarSetup: TopBarSetup,
-        topTabsSetup: TopTabsContent,
+        topTabsSetup: TopTabsSetupImpl,
         fabSetup: FabSetup,
         refreshAction: () -> Unit
     ) {
@@ -100,25 +106,11 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Top tabs state holders ------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _topTabsSetup = MutableStateFlow(TopTabsContent())
+    private val _topTabsSetup = MutableStateFlow(TopTabsSetupImpl())
     val topTabsSetup get() = _topTabsSetup.asStateFlow()
-    private val _badgeItem = Triple(0, Color.Red, Color.White)
-    private val _topBadgeCounts = MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
-    val topBadgeCounts: StateFlow<List<Triple<Int, Color, Color>>> get() = _topBadgeCounts
-    fun setTopBadgesCount(index: Int, badgeCount: Int, bg: Color, cnt: Color) {
-        _topTabsSetup.value.topTabsContent?.setBadgeContent(index, Triple(badgeCount, bg, cnt))
-        if (index < 4) {
-            var i = 0
-            _topBadgeCounts.value = _topBadgeCounts.value.map { if (index == i++) Triple(badgeCount, bg, cnt) else it }.toList()
-        }
-    }
-
-    fun resetTopBadgesCount() {
-        _topBadgeCounts.value = listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem)
-    }
 
     private val _selectedTabIndex = MutableStateFlow(ZeroValue.num)
-    val selectedTabIndex = _selectedTabIndex.asStateFlow()
+
     fun setSelectedTabIndex(value: Int) {
         _selectedTabIndex.value = value
     }
