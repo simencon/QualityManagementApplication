@@ -13,13 +13,9 @@ import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.navigation.MAIN_ROUTE
-import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
@@ -28,8 +24,8 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Drawer menu -----------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDrawerItemClick(currentId: String, id: String): Int? {
-        return if (id != currentId) {
+    fun onDrawerItemClick(currentId: String, id: String) {
+        if (id != currentId) {
             viewModel.setDrawerMenuItemId(id)
             when (id) {
                 Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
@@ -38,9 +34,6 @@ abstract class MainActivityBase : ComponentActivity() {
                 Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
-            ZeroValue.num
-        } else {
-            null
         }
     }
 
@@ -120,53 +113,6 @@ abstract class MainActivityBase : ComponentActivity() {
         when (backStackEntry.value?.destination?.route) {
             Route.Main.Inv.link, Route.Main.ProcessControl.link -> searchAction()
             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    /**
-     * Top tabs --------------------------------------------------------------------------------------------------------------------------------------
-     * */
-    fun getTopTabsContent(backStackEntry: State<NavBackStackEntry?>): List<Triple<String, Int, SelectedNumber>> {
-        return when (backStackEntry.value?.destination?.route) {
-            Route.Main.Inv.link, Route.Main.ProcessControl.link -> ProgressTabs.toListOfTriples()
-            Route.Main.Team.Employees.link, Route.Main.Team.Users.link, Route.Main.Team.Requests.link -> TeamTabs.toListOfTriples()
-            else -> emptyList()
-        }
-    }
-
-    val onTabSelectedLambda: (State<NavBackStackEntry?>, Int, () -> Unit) -> Int =
-        { backStackEntry, tabIndex, searchAction ->
-            when (backStackEntry.value?.destination?.parent?.route) {
-                MAIN_ROUTE -> {
-                    when (backStackEntry.value?.destination?.route) {
-                        Route.Main.Inv.link, Route.Main.ProcessControl.link -> {
-                            searchAction()
-                        }
-                    }
-                }
-
-                TEAM_ROUTE -> {
-                    if (tabIndex == TeamTabs.EMPLOYEES.ordinal) {
-                        if (backStackEntry.value?.destination?.route != Route.Main.Team.Employees.link)
-                            viewModel.onTopTabsEmployeesClick()
-                    } else if (tabIndex == TeamTabs.USERS.ordinal) {
-                        if (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link)
-                            viewModel.onTopTabsUsersClick()
-                    } else if (tabIndex == TeamTabs.REQUESTS.ordinal) {
-                        if (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link)
-                            viewModel.onTopTabsRequestsClick()
-                    }
-                }
-            }
-            tabIndex
-        }
-
-    fun selectProperTab(backStackEntry: State<NavBackStackEntry?>): Int? {
-        return when (backStackEntry.value?.destination?.route) {
-            Route.Main.Team.Employees.link -> TeamTabs.EMPLOYEES.ordinal
-            Route.Main.Team.Users.link -> TeamTabs.USERS.ordinal
-            Route.Main.Team.Requests.link -> TeamTabs.REQUESTS.ordinal
-            else -> null
         }
     }
 

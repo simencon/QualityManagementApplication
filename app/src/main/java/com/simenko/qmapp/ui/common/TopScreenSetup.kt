@@ -13,7 +13,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.main.TeamTabs
-import com.simenko.qmapp.ui.main.main.TopTabsSetupImpl
+import com.simenko.qmapp.ui.main.main.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
 
@@ -40,7 +40,7 @@ interface TopScreenState {
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionBtnClick: ((Boolean) -> Unit)?,
 
-        onTabClickAction: ((Int) -> Unit)?,
+        onTabSelectAction: ((SelectedNumber) -> Unit)?,
 
         fabAction: () -> Unit,
 
@@ -71,7 +71,7 @@ sealed class TopScreenIntent {
 
     data class TopScreenSetupDev(
         val titleSetup: TopBarSetup,
-        val topTabsSetup: TopTabsSetupImpl,
+        val topTabsSetup: TopTabsSetup,
         val fabSetup: FabSetup,
         val refreshAction: () -> Unit,
     ) : TopScreenIntent()

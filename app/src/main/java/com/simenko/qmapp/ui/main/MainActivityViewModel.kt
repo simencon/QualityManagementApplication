@@ -19,22 +19,14 @@ import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
-import com.simenko.qmapp.ui.main.main.TopTabContent
-import com.simenko.qmapp.ui.main.main.TopTabsSetupImpl
+import com.simenko.qmapp.ui.main.main.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -60,7 +52,7 @@ class MainActivityViewModel @Inject constructor(
      * */
     fun setupTopScreenDev(
         topBarSetup: TopBarSetup,
-        topTabsSetup: TopTabsSetupImpl,
+        topTabsSetup: TopTabsSetup,
         fabSetup: FabSetup,
         refreshAction: () -> Unit
     ) {
@@ -70,7 +62,6 @@ class MainActivityViewModel @Inject constructor(
         this._topBarSetup.value.onActionBtnClick = topBarSetup.onActionBtnClick ?: { setActionMenuState(it) }
 
         this._topTabsSetup.value = topTabsSetup
-        this._topTabsSetup.value.onTabClickAction = topTabsSetup.onTabClickAction ?: { setSelectedTabIndex(it) }
     }
 
     /**
@@ -106,15 +97,8 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Top tabs state holders ------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _topTabsSetup = MutableStateFlow(TopTabsSetupImpl())
+    private val _topTabsSetup = MutableStateFlow(TopTabsSetup())
     val topTabsSetup get() = _topTabsSetup.asStateFlow()
-
-    private val _selectedTabIndex = MutableStateFlow(ZeroValue.num)
-
-    fun setSelectedTabIndex(value: Int) {
-        _selectedTabIndex.value = value
-    }
-
     /**
      * FAB state holders -----------------------------------------------------------------------------------------------------------------------------
      * */
