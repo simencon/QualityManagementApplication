@@ -108,12 +108,22 @@ class MainActivity : MainActivityBase() {
 
         analytics = Firebase.analytics
 
+
         setContent {
+            val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
+
+            val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
+            val drawerMenuState by viewModel.drawerMenuState.collectAsStateWithLifecycle()
+            val searchBarState by viewModel.searchBarState.collectAsStateWithLifecycle()
+            val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
+
+            val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
+
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
                 onEndOfListIntent = { viewModel.onEndOfList(it) },
-                onTopBadgeStateIntent = { p1, p2 -> viewModel.setTopBadgesCount(p1, p2.first, p2.second, p2.third) },
+                onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
                 onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
                 onTopScreenSetupDevIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreenDev(p1, p2, p3, p4) }
             )
@@ -121,16 +131,6 @@ class MainActivity : MainActivityBase() {
             QMAppTheme {
                 val scope = rememberCoroutineScope()
                 navController = rememberNavController()
-
-                val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
-
-                val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
-                val drawerMenuState by viewModel.drawerMenuState.collectAsStateWithLifecycle()
-                val searchBarState by viewModel.searchBarState.collectAsStateWithLifecycle()
-                val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
-
-                val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
-                val topBadgeCounts by viewModel.topBadgeCounts.collectAsStateWithLifecycle()
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
@@ -227,9 +227,7 @@ class MainActivity : MainActivityBase() {
                                         .padding(it)
                                 ) {
                                     TopTabs(
-                                        super.getTopTabsContent(backStackEntry),
-                                        selectedTabIndex,
-                                        topBadgeCounts,
+                                        topTabsSetup,
                                         onTabSelectedLambda
                                     )
                                     MainScreen(
