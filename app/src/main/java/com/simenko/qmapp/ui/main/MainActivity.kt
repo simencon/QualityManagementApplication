@@ -20,6 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.FloatingActionButton
@@ -125,7 +128,8 @@ class MainActivity : MainActivityBase() {
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },
                 onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
                 onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
-                onTopScreenSetupDevIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreenDev(p1, p2, p3, p4) }
+                onTopScreenSetupDevIntent = { p1, p2, p3 -> viewModel.setupTopScreenDev(p1, p2, p3) },
+                onTopScreenFabSetupIntent = { viewModel.setupTopScreenFab(it) }
             )
 
             QMAppTheme {
@@ -134,7 +138,6 @@ class MainActivity : MainActivityBase() {
                 val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
-
 
 
                 val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
@@ -149,9 +152,7 @@ class MainActivity : MainActivityBase() {
                 BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
 
 
-
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
-                val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
                     super.setProperAddEditMode(backStackEntry)
@@ -194,11 +195,17 @@ class MainActivity : MainActivityBase() {
                                 )
                             },
                             floatingActionButton = {
-                                if (super.showFab(backStackEntry, addEditMode))
+                                if (fabSetup.fabAction != null && fabSetup.fabIcon != null)
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
-                                        onClick = { super.onFabClick(backStackEntry, addEditMode, addEditAction) },
-                                        content = { super.FabContent(addEditMode = addEditMode) }
+                                        onClick = { fabSetup.fabAction!!.invoke() },
+                                        content = {
+                                            Icon(
+                                                imageVector = fabSetup.fabIcon!!,
+                                                contentDescription = "Floating action button",
+                                                tint = MaterialTheme.colorScheme.onTertiary
+                                            )
+                                        }
                                     )
                             },
                             floatingActionButtonPosition = fabPosition

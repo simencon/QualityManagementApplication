@@ -109,16 +109,9 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Main floating action button -------------------------------------------------------------------------------------------------------------------
      * */
-    fun showFab(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int): Boolean {
-        return ((backStackEntry.value?.destination?.route != Route.Main.Settings.UserDetails.link || addEditMode == AddEditMode.ACCOUNT_EDIT.ordinal) &&
-                (backStackEntry.value?.destination?.route != Route.Main.Team.Users.link || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal) &&
-                (backStackEntry.value?.destination?.route != Route.Main.Team.Requests.link || addEditMode == AddEditMode.AUTHORIZE_USER.ordinal))
-    }
-
     fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int, addEditAction: () -> Unit) {
         if (addEditMode == AddEditMode.NO_MODE.ordinal)
             when (backStackEntry.value?.destination?.route) {
-                Route.Main.Team.Employees.link -> viewModel.onAddEmployeeClick()
                 Route.Main.Inv.link -> viewModel.onAddInvClick()
                 Route.Main.ProcessControl.link -> viewModel.onAddProcessControlClick()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
@@ -138,23 +131,6 @@ abstract class MainActivityBase : ComponentActivity() {
                 AddEditMode.ACCOUNT_EDIT -> addEditAction()
                 else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
             }
-        }
-    }
-
-    @Composable
-    fun FabContent(addEditMode: Int) {
-        if (addEditMode == AddEditMode.NO_MODE.ordinal) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add button",
-                tint = MaterialTheme.colorScheme.onTertiary
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Default.Save,
-                contentDescription = "Save button",
-                tint = MaterialTheme.colorScheme.onTertiary
-            )
         }
     }
 

@@ -56,18 +56,16 @@ class TeamViewModel @Inject constructor(
             onActionBtnClick = null,
 
             onTabSelectAction = { navigateByTopTabs(it) },
-            fabAction = {},
 
             refreshAction = { updateEmployeesData() },
         )
     }
 
-    private fun navigateByTopTabs(tag: SelectedNumber) {
-        when (tag) {
-            FirstTabId -> appNavigator.tryNavigateBack()
-            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-        }
+    fun setupTopScreenFab(withFab: Boolean = true) {
+        topScreenState.trySendTopScreenFabSetup(
+            mainPage = MainPage.TEAM,
+            fabAction = { if (withFab) onEmployeeAddEdictClick(NoRecord.num) else null },
+        )
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
@@ -232,7 +230,27 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    fun onEmployeeEdictClick(employeeId: Int) {
+    private fun navigateByTopTabs(tag: SelectedNumber) {
+        when (tag) {
+            FirstTabId -> {
+                appNavigator.tryNavigateBack()
+                setupTopScreenFab(true)
+            }
+
+            SecondTabId -> {
+                appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+                setupTopScreenFab(false)
+            }
+
+            ThirdTabId -> {
+                appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+                setupTopScreenFab(false)
+            }
+        }
+    }
+
+    fun onEmployeeAddEdictClick(employeeId: Int) {
+        println("onEmployeeAddEdictClick - $employeeId")
         setSelectedEmployeeRecord(NoRecord.num)
         appNavigator.tryNavigateTo(Route.Main.Team.EmployeeAddEdit.withArgs(employeeId.toString()))
     }
