@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.main
+package com.simenko.qmapp.ui.main.main.page
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,11 +87,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FirstTabId
-import com.simenko.qmapp.domain.FourthTabId
-import com.simenko.qmapp.domain.SecondTabId
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
@@ -545,28 +539,6 @@ private val navigationAndActionItems = listOf(
     MenuItem("product_audit", "Product audit", "Product audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER),
     MenuItem(MenuItem.Actions.CUSTOM_FILTER.action, "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
 )
-
-enum class ProgressTabs(val tabId: SelectedNumber) {
-    ALL(FirstTabId),
-    TO_DO(SecondTabId),
-    IN_PROGRESS(ThirdTabId),
-    DONE(FourthTabId);
-
-    companion object {
-        fun toListOfTriples() = ProgressTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
-    }
-}
-
-enum class TeamTabs(val tabId: SelectedNumber) {
-    EMPLOYEES(FirstTabId),
-    USERS(SecondTabId),
-    REQUESTS(ThirdTabId);
-
-    companion object {
-
-        fun toListOfTriples() = TeamTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
-    }
-}
 
 enum class AddEditMode(val mode: String) {
     ADD_EMPLOYEE("Add new employee"),

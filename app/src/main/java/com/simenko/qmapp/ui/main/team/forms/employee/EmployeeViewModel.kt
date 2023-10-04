@@ -15,7 +15,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.page.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
