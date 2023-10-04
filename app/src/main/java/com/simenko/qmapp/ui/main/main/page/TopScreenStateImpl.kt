@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main.main.page
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
@@ -88,6 +89,7 @@ fun StateChangedEffect(
 ) {
     LaunchedEffect(topScreenChannel) {
         topScreenChannel.receiveAsFlow().collect { intent ->
+            Log.d("TopScreenStateImpl", "StateChangedEffect: $intent")
             when (intent) {
                 is TopScreenIntent.TopBarState -> {
                     onTopBarSetupIntent(intent.titleSetup)

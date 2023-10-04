@@ -44,7 +44,10 @@ class TeamViewModel @Inject constructor(
         Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }
 
-    fun setupTopScreenTopBar() {
+    private val _needToSetup = MutableStateFlow(Event(Unit))
+    val needToSetup = _needToSetup.asStateFlow()
+
+    fun setupMainPage() {
         topScreenState.trySendTopBarSetup(
             mainPage = MainPage.TEAM,
             onSearchAction = {
@@ -52,10 +55,8 @@ class TeamViewModel @Inject constructor(
                 setUsersFilter(it)
             }
         )
-    }
-
-    fun setupMainScreenTopTabs() {
         topScreenState.trySendTopTabsSetup(MainPage.TEAM) { navigateByTopTabs(it) }
+        topScreenState.trySendPullRefreshSetup { this.updateEmployeesData() }
     }
 
     fun setupTopScreenFab(withFab: Boolean) {
@@ -66,10 +67,6 @@ class TeamViewModel @Inject constructor(
             } else
                 null
         )
-    }
-
-    fun setupTopScreenPullRefresh() {
-        topScreenState.trySendPullRefreshSetup { this.updateEmployeesData() }
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
