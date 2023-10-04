@@ -65,12 +65,13 @@ class InvestigationsViewModel @Inject constructor(
         topScreenState.trySendEndOfListState(state)
     }
 
+    //        todo-me: ToDo make in proper way later
     fun setupTopScreen(pcOnly: Boolean) {
-        topScreenState.trySendTopScreenSetup(
+        /*topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(AddEditMode.NO_MODE) {},
             refreshAction = { uploadNewInvestigations() },
             filterAction = { if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it) }
-        )
+        )*/
     }
 
     private val _isStatusUpdateDialogVisible = MutableLiveData(false)

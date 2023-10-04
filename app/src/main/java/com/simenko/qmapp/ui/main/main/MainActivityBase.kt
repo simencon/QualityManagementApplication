@@ -3,17 +3,9 @@ package com.simenko.qmapp.ui.main.main
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 
@@ -38,61 +30,6 @@ abstract class MainActivityBase : ComponentActivity() {
     }
 
     /**
-     * Action bar ------------------------------------------------------------------------------------------------------------------------------------
-     * */
-    fun setProperAddEditMode(backStackEntry: State<NavBackStackEntry?>) {
-        when (backStackEntry.value?.destination?.route) {
-            Route.Main.Team.EmployeeAddEdit.link -> {
-                if (backStackEntry.value?.arguments?.getInt(NavArguments.employeeId) == NoRecord.num) {
-                    viewModel.setupTopScreen(AddEditMode.ADD_EMPLOYEE)
-                } else {
-                    viewModel.setupTopScreen(AddEditMode.EDIT_EMPLOYEE)
-                }
-            }
-
-            Route.Main.OrderAddEdit.link -> {
-                if (backStackEntry.value?.arguments?.getInt(NavArguments.orderId) == NoRecord.num) {
-                    viewModel.setupTopScreen(AddEditMode.ADD_ORDER)
-                } else {
-                    viewModel.setupTopScreen(AddEditMode.EDIT_ORDER)
-                }
-            }
-
-            Route.Main.SubOrderAddEdit.link -> {
-                if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) == NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == false
-                ) {
-                    viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER)
-                } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) == NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == true
-                ) {
-                    viewModel.setupTopScreen(AddEditMode.ADD_SUB_ORDER_STAND_ALONE)
-                } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) != NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == false
-                ) {
-                    viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER)
-                } else if (backStackEntry.value?.arguments?.getInt(NavArguments.subOrderId) != NoRecord.num &&
-                    backStackEntry.value?.arguments?.getBoolean(NavArguments.subOrderAddEditMode) == true
-                ) {
-                    viewModel.setupTopScreen(AddEditMode.EDIT_SUB_ORDER_STAND_ALONE)
-                }
-            }
-
-//            Route.Main.Settings.EditUserDetails.link -> { viewModel.setAddEditMode(AddEditMode.ACCOUNT_EDIT) }
-
-            Route.Main.Team.AuthorizeUser.link -> {
-                viewModel.setupTopScreen(AddEditMode.AUTHORIZE_USER)
-            }
-
-            Route.Main.Team.EditUser.link -> {
-                viewModel.setupTopScreen(AddEditMode.EDIT_USER)
-            }
-
-            else -> viewModel.setupTopScreen(AddEditMode.NO_MODE)
-        }
-    }
-
-    /**
      * Action menu -----------------------------------------------------------------------------------------------------------------------------------
      * */
     fun onActionsMenuItemClick(filterOnly: String, action: String): String {
@@ -106,33 +43,6 @@ abstract class MainActivityBase : ComponentActivity() {
         return filterOnly
     }
 
-    /**
-     * Main floating action button -------------------------------------------------------------------------------------------------------------------
-     * */
-    fun onFabClick(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int, addEditAction: () -> Unit) {
-        if (addEditMode == AddEditMode.NO_MODE.ordinal)
-            when (backStackEntry.value?.destination?.route) {
-                Route.Main.Inv.link -> viewModel.onAddInvClick()
-                Route.Main.ProcessControl.link -> viewModel.onAddProcessControlClick()
-                else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
-            }
-        else {
-            when (AddEditMode.values()[addEditMode]) {
-                AddEditMode.ADD_ORDER -> addEditAction()
-                AddEditMode.EDIT_ORDER -> addEditAction()
-                AddEditMode.ADD_SUB_ORDER -> addEditAction()
-                AddEditMode.EDIT_SUB_ORDER -> addEditAction()
-                AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> addEditAction()
-                AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> addEditAction()
-                AddEditMode.ADD_EMPLOYEE -> addEditAction()
-                AddEditMode.EDIT_EMPLOYEE -> addEditAction()
-                AddEditMode.AUTHORIZE_USER -> addEditAction()
-                AddEditMode.EDIT_USER -> addEditAction()
-                AddEditMode.ACCOUNT_EDIT -> addEditAction()
-                else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
 
     /**
      * Pull refresh ----------------------------------------------------------------------------------------------------------------------------------

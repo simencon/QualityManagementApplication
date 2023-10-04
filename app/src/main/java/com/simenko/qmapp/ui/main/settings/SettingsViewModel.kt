@@ -61,6 +61,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setupTopScreen() {
-        topScreenState.trySendTopScreenSetup(Pair(AddEditMode.NO_MODE) { }, { updateUserData() }, {})
+//        todo-me: ToDo make in proper way later
+        /*topScreenState.trySendTopScreenSetup(Pair(AddEditMode.NO_MODE) { }, { updateUserData() }, {})*/
     }
 }

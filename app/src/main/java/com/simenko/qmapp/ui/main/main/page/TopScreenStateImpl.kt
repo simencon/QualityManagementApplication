@@ -43,12 +43,6 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override fun trySendTopScreenSetup(addEditMode: Pair<AddEditMode, () -> Unit>, refreshAction: () -> Unit, filterAction: (BaseFilter) -> Unit) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TopScreenSetup(addEditMode.first, addEditMode.second, refreshAction, filterAction)
-        )
-    }
-
     override fun trySendTopScreenSetupDev(
         mainPage: MainPage,
         onNavBtnClick: (suspend (Boolean) -> Unit)?,
@@ -82,7 +76,6 @@ fun StateChangedEffect(
     onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit,
     onEndOfListIntent: (Boolean) -> Unit = {},
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
-    onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
     onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup, () -> Unit) -> Unit = { _, _, _ -> },
     onTopScreenFabSetupIntent: (FabSetup) -> Unit = {}
 ) {
@@ -99,10 +92,6 @@ fun StateChangedEffect(
 
                 is TopScreenIntent.TopBadgeState -> {
                     onTopBadgeStateIntent(intent.tabIndex, intent.state)
-                }
-
-                is TopScreenIntent.TopScreenSetup -> {
-                    onTopScreenSetupIntent(intent.addEditMode, intent.addEditAction, intent.refreshAction, intent.filterAction)
                 }
 
                 is TopScreenIntent.TopScreenSetupDev -> {
