@@ -8,18 +8,17 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.TrueStr
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.common.FabSetup
-import com.simenko.qmapp.ui.common.TopBarSetup
-import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopBarSetup
+import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.MenuItem
-import com.simenko.qmapp.ui.main.main.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.page.components.FabSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
@@ -30,8 +29,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
-
-private const val TAG = "MainActivityViewModel"
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
@@ -47,6 +44,7 @@ class MainActivityViewModel @Inject constructor(
     val navigationChannel = appNavigator.navigationChannel
     val topScreenChannel = topScreenState.topScreenChannel
     val userInfo get() = userRepository.user
+
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -99,16 +97,12 @@ class MainActivityViewModel @Inject constructor(
      * */
     private val _topTabsSetup = MutableStateFlow(TopTabsSetup())
     val topTabsSetup get() = _topTabsSetup.asStateFlow()
+
     /**
      * FAB state holders -----------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _fabPosition: MutableStateFlow<FabPosition> = MutableStateFlow(FabPosition.End)
-    val fabPosition: StateFlow<FabPosition> get() = _fabPosition
-
-
-    fun onEndOfList(position: Boolean) {
-        _fabPosition.value = if (position) FabPosition.Center else FabPosition.End
-    }
+    private val _fabSetup = MutableStateFlow(FabSetup())
+    val fabSetup get() = _fabSetup.asStateFlow()
 
     /**
      * Full refresh holders --------------------------------------------------------------------------------------------------------------------------
@@ -137,7 +131,7 @@ class MainActivityViewModel @Inject constructor(
     private val _refreshAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
     val refreshAction get() = _refreshAction.asStateFlow()
     private val _filterAction: MutableStateFlow<(BaseFilter) -> Unit> = MutableStateFlow {}
-    val filterAction get() = _filterAction.asStateFlow()
+
     fun setupTopScreen(
         mode: AddEditMode,
         addEditAction: () -> Unit = {},

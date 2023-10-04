@@ -107,16 +107,6 @@ abstract class MainActivityBase : ComponentActivity() {
     }
 
     /**
-     * Search bar ------------------------------------------------------------------------------------------------------------------------------------
-     * */
-    fun onSearchBarSearch(backStackEntry: State<NavBackStackEntry?>, searchAction: () -> Unit) {
-        when (backStackEntry.value?.destination?.route) {
-            Route.Main.Inv.link, Route.Main.ProcessControl.link -> searchAction()
-            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    /**
      * Main floating action button -------------------------------------------------------------------------------------------------------------------
      * */
     fun showFab(backStackEntry: State<NavBackStackEntry?>, addEditMode: Int): Boolean {

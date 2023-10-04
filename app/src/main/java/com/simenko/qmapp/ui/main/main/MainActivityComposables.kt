@@ -94,7 +94,9 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.common.TopBarSetup
+import com.simenko.qmapp.ui.main.main.page.TopBarSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopTabContent
+import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
