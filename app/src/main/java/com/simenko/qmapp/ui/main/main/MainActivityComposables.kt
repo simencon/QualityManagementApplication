@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.main
 
-import android.view.WindowInsets.Side
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -99,7 +98,6 @@ import com.simenko.qmapp.ui.common.TopBarSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -448,10 +446,7 @@ fun ItemsGroup(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopTabs(
-    topTabsSetup: TopTabsSetupImpl,
-    onTabSelectedLambda: (SelectedNumber, Int) -> Unit
-) {
+fun TopTabs(topTabsSetup: TopTabsSetup) {
     val scope = rememberCoroutineScope()
     var tabs by remember { mutableStateOf(emptyList<TopTabContent>()) }
 
@@ -466,7 +461,7 @@ fun TopTabs(
             Tab(
                 modifier = Modifier.height(40.dp),
                 selected = selected,
-                onClick = { onTabSelectedLambda(it.tag, it.index) }
+                onClick = { topTabsSetup.onTabSelect(it.index, it.tag) }
             ) {
                 if (it.badgeCount > 0)
                     BadgedBox(badge = {
@@ -560,10 +555,10 @@ enum class ProgressTabs(val tabId: SelectedNumber) {
     }
 }
 
-enum class TeamTabs(val tabId: SelectedNumber, var badge: Triple<Int, Color, Color>) {
-    EMPLOYEES(FirstTabId, Triple(0, Color.Red, Color.White)),
-    USERS(SecondTabId, Triple(0, Color.Red, Color.White)),
-    REQUESTS(ThirdTabId, Triple(0, Color.Red, Color.White));
+enum class TeamTabs(val tabId: SelectedNumber) {
+    EMPLOYEES(FirstTabId),
+    USERS(SecondTabId),
+    REQUESTS(ThirdTabId);
 
     companion object {
 

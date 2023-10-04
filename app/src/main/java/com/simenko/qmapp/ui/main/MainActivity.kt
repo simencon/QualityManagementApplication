@@ -151,17 +151,8 @@ class MainActivity : MainActivityBase() {
 
                 val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
                 val addEditAction by viewModel.addEditAction.collectAsStateWithLifecycle()
-                val filterAction by viewModel.filterAction.collectAsStateWithLifecycle()
-                val onTabSelectedLambda = remember<(SelectedNumber, Int) -> Unit> {
-                    { tabId, tabIndex ->
-                        viewModel.setSelectedTabIndex(
-                            onTabSelectedLambda(backStackEntry, tabIndex) { filterAction(BaseFilter(statusId = tabId.num)) }
-                        )
-                    }
-                }
 
                 LaunchedEffect(backStackEntry.value?.destination?.route) {
-                    super.selectProperTab(backStackEntry)?.let { viewModel.setSelectedTabIndex(it) }
                     super.setProperAddEditMode(backStackEntry)
                 }
 
@@ -179,7 +170,7 @@ class MainActivity : MainActivityBase() {
                                 selectedItemId = selectedDrawerMenuItemId,
                                 onDrawerItemClick = { id ->
                                     scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } }
-                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id)?.let { viewModel.setSelectedTabIndex(it) }
+                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id)
                                 }
                             )
                         }
@@ -226,10 +217,7 @@ class MainActivity : MainActivityBase() {
                                         .fillMaxWidth()
                                         .padding(it)
                                 ) {
-                                    TopTabs(
-                                        topTabsSetup,
-                                        onTabSelectedLambda
-                                    )
+                                    TopTabs(topTabsSetup)
                                     MainScreen(
                                         viewModel,
                                         navController

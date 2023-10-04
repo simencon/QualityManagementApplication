@@ -15,7 +15,6 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.common.MainPage
 import com.simenko.qmapp.ui.common.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
@@ -45,14 +44,6 @@ class TeamViewModel @Inject constructor(
         Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }
 
-    fun setupTopScreenOld() {
-        topScreenState.trySendTopScreenSetup(
-            addEditMode = Pair(AddEditMode.NO_MODE) {},
-            refreshAction = { updateEmployeesData() },
-            filterAction = {}
-        )
-    }
-
     fun setupTopScreen() {
         topScreenState.trySendTopScreenSetupDev(
             mainPage = MainPage.TEAM,
@@ -64,11 +55,19 @@ class TeamViewModel @Inject constructor(
             },
             onActionBtnClick = null,
 
-            onTabClickAction = null,
+            onTabSelectAction = { navigateByTopTabs(it) },
             fabAction = {},
 
             refreshAction = { updateEmployeesData() },
         )
+    }
+
+    private fun navigateByTopTabs(tag: SelectedNumber) {
+        when (tag) {
+            FirstTabId -> appNavigator.tryNavigateBack()
+            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+        }
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {

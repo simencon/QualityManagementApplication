@@ -3,8 +3,9 @@ package com.simenko.qmapp.ui.common
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
+import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
-import com.simenko.qmapp.ui.main.main.TopTabsSetupImpl
+import com.simenko.qmapp.ui.main.main.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -53,14 +54,14 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         onSearchBtnClick: ((Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionBtnClick: ((Boolean) -> Unit)?,
-        onTabClickAction: ((Int) -> Unit)?,
+        onTabSelectAction: ((SelectedNumber) -> Unit)?,
         fabAction: () -> Unit,
         refreshAction: () -> Unit
     ) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenSetupDev(
                 titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
-                topTabsSetup = TopTabsSetupImpl(mainPage, onTabClickAction),
+                topTabsSetup = TopTabsSetup(mainPage, onTabSelectAction),
                 fabSetup = FabSetup(mainPage, fabAction),
                 refreshAction = refreshAction
             )
@@ -75,12 +76,7 @@ fun StateChangedEffect(
     onEndOfListIntent: (Boolean) -> Unit = {},
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
     onTopScreenSetupIntent: (AddEditMode, () -> Unit, () -> Unit, (BaseFilter) -> Unit) -> Unit = { _, _, _, _ -> },
-    onTopScreenSetupDevIntent: (
-        TopBarSetup,
-        TopTabsSetupImpl,
-        FabSetup,
-        () -> Unit
-    ) -> Unit = { _, _, _, _ -> },
+    onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup, FabSetup, () -> Unit) -> Unit = { _, _, _, _ -> },
 ) {
     LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
         topScreenChannel.receiveAsFlow().collect { intent ->

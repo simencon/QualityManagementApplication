@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.ui.graphics.Color
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.ui.common.MainPage
@@ -12,12 +11,16 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 @OptIn(ExperimentalCoroutinesApi::class)
-data class TopTabsSetupImpl(private val screen: MainPage = MainPage.values()[0], var onTabClickAction: ((Int) -> Unit)? = null) {
+data class TopTabsSetup(private val screen: MainPage = MainPage.values()[0], var onTabSelectAction: ((SelectedNumber) -> Unit)? = null) {
 
     private val _badgesContent = MutableStateFlow(Array(screen.topTabsContent.size) { Triple(0, Color.Red, Color.White) })
     private val _selectedTab = MutableStateFlow(ZeroValue.num)
-    fun selectTab(index: Int) {
-        if (_selectedTab.value != index) _selectedTab.value = index
+
+    val onTabSelect: (Int, SelectedNumber) -> Unit = { index, tag ->
+        if (_selectedTab.value != index) {
+            _selectedTab.value = index
+            onTabSelectAction?.let { it(tag) }
+        }
     }
 
     fun setBadgeContent(index: Int, value: Triple<Int, Color, Color>) {
