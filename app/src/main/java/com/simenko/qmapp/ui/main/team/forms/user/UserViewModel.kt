@@ -13,7 +13,7 @@ import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopPageState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.page.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -45,13 +45,13 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState,
+    private val topPageState: TopPageState,
     private val repository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val notificationManager: NotificationManagerCompat
 ) : ViewModel() {
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topScreenState.trySendLoadingState(state)
+        topPageState.trySendLoadingState(state)
     }
 
     private val _isUserToAuthorize = mutableStateOf(false)

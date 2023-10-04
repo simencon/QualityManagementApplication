@@ -49,6 +49,7 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.main.page.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.page.AppBar
@@ -135,7 +136,7 @@ class MainActivity : MainActivityBase() {
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
                 val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
-                val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
+                val selectedContextMenuItemId = rememberSaveable { mutableStateOf(EmptyString.str) }
 
                 val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()

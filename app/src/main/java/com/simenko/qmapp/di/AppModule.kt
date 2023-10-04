@@ -20,8 +20,8 @@ import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
-import com.simenko.qmapp.ui.main.main.page.TopScreenStateImpl
+import com.simenko.qmapp.ui.main.main.page.TopPageState
+import com.simenko.qmapp.ui.main.main.page.TopPageStateImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -154,8 +154,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideTopScreenState(): TopScreenState {
-        return TopScreenStateImpl()
+    fun provideTopScreenState(): TopPageState {
+        return TopPageStateImpl()
     }
 
 //    @Singleton

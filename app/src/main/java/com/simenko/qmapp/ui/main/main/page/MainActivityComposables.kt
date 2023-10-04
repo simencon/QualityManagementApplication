@@ -58,14 +58,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -87,14 +84,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopTabContent
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -215,7 +211,8 @@ fun AppBar(
                     actionsMenuState = actionsMenuState,
                     setActionMenuState = { topBarSetup.setActionMenuState(it) },
                     selectedActionsMenuItemId = selectedActionsMenuItemId,
-                    onActionsMenuItemClick = onActionsMenuItemClick
+                    onActionsMenuItemClick = onActionsMenuItemClick,
+                    topBarSetup = topBarSetup
                 )
             }
         },
@@ -328,9 +325,10 @@ fun ActionsMenu(
     actionsMenuState: Boolean,
     setActionMenuState: (Boolean) -> Unit,
     selectedActionsMenuItemId: MutableState<String>,
-    onActionsMenuItemClick: (String, String) -> Unit
+    onActionsMenuItemClick: (String, String) -> Unit,
+    topBarSetup: TopBarSetup
 ) {
-    val actionsGroup = rememberSaveable { mutableStateOf(MenuItem.MenuGroup.ACTIONS) }
+    val actionsGroup = rememberSaveable { mutableStateOf(EmptyString.str) }
     val isContextMenuVisible = rememberSaveable { mutableStateOf(false) }
 
     DropdownMenu(
@@ -338,11 +336,13 @@ fun ActionsMenu(
         onDismissRequest = { setActionMenuState(false) }
     )
     {
-        ActionsMenuTop(onTopMenuItemClick = {
-            actionsGroup.value = it
-            setActionMenuState(false)
-            isContextMenuVisible.value = true
-        }
+        ActionsMenuTop(
+            onTopMenuItemClick = {
+                actionsGroup.value = it
+                setActionMenuState(false)
+                isContextMenuVisible.value = true
+            },
+            categories = topBarSetup.actionMenuItems.map { it.category.name }.toSet().toList()
         )
     }
 
@@ -361,20 +361,22 @@ fun ActionsMenu(
             onContextMenuItemClick = { p1, p2 ->
                 onActionsMenuItemClick(p1, p2)
                 isContextMenuVisible.value = false
-            }
+            },
+            actions = topBarSetup.actionMenuItems
         )
     }
 }
 
 @Composable
 fun ActionsMenuTop(
-    onTopMenuItemClick: (MenuItem.MenuGroup) -> Unit
+    onTopMenuItemClick: (String) -> Unit,
+    categories: List<String>
 ) {
-    listOf(MenuItem.MenuGroup.ACTIONS, MenuItem.MenuGroup.FILTER).forEach { item ->
+    categories.forEach {
         DropdownMenuItem(
-            text = { Text(item.group) },
-            onClick = { onTopMenuItemClick(item) },
-            leadingIcon = { Icon(Icons.Filled.ArrowBack, contentDescription = item.group) },
+            text = { Text(getWithSpaces(it)) },
+            onClick = { onTopMenuItemClick(it) },
+            leadingIcon = { Icon(Icons.Filled.ArrowBack, contentDescription = getWithSpaces(it)) },
             modifier = Modifier
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
         )
@@ -383,30 +385,31 @@ fun ActionsMenuTop(
 
 @Composable
 fun ActionsMenuContext(
-    actionsGroup: MenuItem.MenuGroup,
+    actionsGroup: String,
     selectedItemId: MutableState<String>,
     onClickBack: () -> Unit,
-    onContextMenuItemClick: (String, String) -> Unit
+    onContextMenuItemClick: (String, String) -> Unit,
+    actions: List<ActionItem>
 ) {
     DropdownMenuItem(
-        text = { Text(actionsGroup.group) },
+        text = { Text(getWithSpaces(actionsGroup)) },
         onClick = onClickBack,
-        trailingIcon = { Icon(Icons.Filled.ArrowForward, contentDescription = actionsGroup.group) },
+        trailingIcon = { Icon(Icons.Filled.ArrowForward, contentDescription = getWithSpaces(actionsGroup)) },
         modifier = Modifier
             .padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 
-    navigationAndActionItems.filter { it.category == actionsGroup }.forEach { item ->
+    actions.filter { it.category.name == actionsGroup }.forEach { item ->
         DropdownMenuItem(
             text = { Text(item.title) },
             onClick = {
                 onContextMenuItemClick(
-                    if (item.category != MenuItem.MenuGroup.ACTIONS && item.id != "custom_filter") item.id else selectedItemId.value,
-                    item.id
+                    if (item.category != MenuItem.MenuGroup.ACTIONS && item.tag != "custom_filter") item.tag else selectedItemId.value,
+                    item.tag
                 )
             },
-            enabled = selectedItemId.value != item.id,
-            leadingIcon = { Icon(item.image, contentDescription = item.contentDescription) },
+            enabled = selectedItemId.value != item.tag,
+            leadingIcon = { Icon(item.image, contentDescription = item.title) },
             modifier = Modifier
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
         )
@@ -493,8 +496,6 @@ data class MenuItem(
     companion object {
         fun getStartingDrawerMenuItem() =
             navigationAndActionItems.find { it.id == Route.Main.Team.withArgs() } ?: navigationAndActionItems[4]
-
-        fun getStartingActionsFilterMenuItem() = navigationAndActionItems[10]
     }
 
     enum class MenuGroup(val group: String) {
@@ -522,17 +523,7 @@ private val navigationAndActionItems = listOf(
     MenuItem(Route.Main.ProcessControl.link, "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
     MenuItem(Route.Main.ScrapLevel.link, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
 
-    MenuItem(Route.Main.Settings.link, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL),
-
-    MenuItem(MenuItem.Actions.UPLOAD_MD.action, "Upload master data", "Upload master data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
-    MenuItem(MenuItem.Actions.SYNC_INV.action, "Sync investigations", "Sync investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
-
-    MenuItem("no_filter", "No filter", "No filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
-    MenuItem("ppap", "PPAP", "PPAP", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
-    MenuItem("incoming_inspection", "Incoming inspection", "Incoming inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
-    MenuItem("process_control", "Process control", "Process control", Icons.Filled.Filter3, MenuItem.MenuGroup.FILTER),
-    MenuItem("product_audit", "Product audit", "Product audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER),
-    MenuItem(MenuItem.Actions.CUSTOM_FILTER.action, "Custom filter", "Custom filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER),
+    MenuItem(Route.Main.Settings.link, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL)
 )
 
 enum class AddEditMode(val mode: String) {

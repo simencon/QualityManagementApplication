@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopPageState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
@@ -24,11 +24,11 @@ private const val TAG = "UserViewModel"
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState,
+    private val topPageState: TopPageState,
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
-    val topScreenChannel = topScreenState.topScreenChannel
+    val topScreenChannel = topPageState.topScreenChannel
 
     fun logWhenInstantiated() {
         Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")

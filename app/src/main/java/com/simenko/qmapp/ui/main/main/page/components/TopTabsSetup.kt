@@ -1,10 +1,9 @@
 package com.simenko.qmapp.ui.main.main.page.components
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.ui.main.main.page.MainPage
+import com.simenko.qmapp.ui.main.main.page.Page
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +12,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 
 @OptIn(ExperimentalCoroutinesApi::class)
-data class TopTabsSetup(private val screen: MainPage = MainPage.values()[0], var onTabSelectAction: ((SelectedNumber) -> Unit)? = null) {
+data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSelectAction: ((SelectedNumber) -> Unit)? = null) {
 
     private val _badgesContent = MutableStateFlow( Array(screen.topTabsContent.size) { Triple(0, Color.Red, Color.White) })
     private val _selectedTab = MutableStateFlow(ZeroValue.num)

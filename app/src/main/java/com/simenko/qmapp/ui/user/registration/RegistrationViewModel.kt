@@ -3,7 +3,7 @@ package com.simenko.qmapp.ui.user.registration
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,10 +15,10 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState
+    private val topPageState: TopPageState
 ) : ViewModel() {
     fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topScreenState.trySendLoadingState(state)
+        topPageState.trySendLoadingState(state)
     }
 
     val userState: StateFlow<UserState> get() = userRepository.userState

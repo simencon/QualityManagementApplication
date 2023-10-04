@@ -5,7 +5,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +18,7 @@ private const val MIN_LENGTH = 6
 @HiltViewModel
 class EnterDetailsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState,
+    private val topPageState: TopPageState,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -114,24 +114,24 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            topScreenState.trySendLoadingState(Pair(true, null))
+            topPageState.trySendLoadingState(Pair(true, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    topScreenState.trySendLoadingState(Pair(false, null))
+                    topPageState.trySendLoadingState(Pair(false, null))
                     appNavigator.tryNavigateTo(
                         route = Route.Main.Settings.UserDetails.link,
                         popUpToRoute = Route.Main.Settings.UserDetails.route,
                         inclusive = true
                     )
                 } else {
-                    topScreenState.trySendLoadingState(Pair(false, task.exception?.message))
+                    topPageState.trySendLoadingState(Pair(false, task.exception?.message))
                 }
             }
         }
     }
 
     private fun updateUserData() {
-        topScreenState.trySendLoadingState(Pair(true, null))
+        topPageState.trySendLoadingState(Pair(true, null))
         userRepository.updateUserData()
     }
 

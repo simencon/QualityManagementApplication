@@ -15,24 +15,24 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
-class TopScreenStateImpl @Inject constructor() : TopScreenState {
+class TopPageStateImpl @Inject constructor() : TopPageState {
     override val topScreenChannel: Channel<TopScreenIntent> = Channel(
         capacity = Int.MAX_VALUE,
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendTopBarSetup(mainPage: MainPage, onSearchAction: ((BaseFilter) -> Unit)?) {
+    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopBarState(
-                titleSetup = TopBarSetup(mainPage, onSearchAction),
+                titleSetup = TopBarSetup(page, onSearchAction),
             )
         )
     }
 
-    override fun trySendTopTabsSetup(mainPage: MainPage, onTabSelectAction: ((SelectedNumber) -> Unit)?) {
+    override fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopTabsState(
-                topTabsSetup = TopTabsSetup(mainPage, onTabSelectAction)
+                topTabsSetup = TopTabsSetup(page, onTabSelectAction)
             )
         )
     }
@@ -43,10 +43,10 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: (() -> Unit)?) {
+    override fun trySendTopScreenFabSetup(page: Page, fabAction: (() -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenFabSetup(
-                fabSetup = FabSetup(mainPage, fabAction)
+                fabSetup = FabSetup(page, fabAction)
             )
         )
     }
