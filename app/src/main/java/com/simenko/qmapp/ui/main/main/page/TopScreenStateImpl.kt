@@ -1,11 +1,12 @@
-package com.simenko.qmapp.ui.common
+package com.simenko.qmapp.ui.main.main.page
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
-import com.simenko.qmapp.ui.main.main.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.page.components.FabSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel

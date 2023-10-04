@@ -28,9 +28,9 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -50,8 +50,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.common.StateChangedEffect
+import com.simenko.qmapp.ui.main.main.page.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.AppBar
 import com.simenko.qmapp.ui.main.main.DrawerBody
@@ -61,7 +60,6 @@ import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.TopTabs
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
 import com.simenko.qmapp.works.WorkerKeys
@@ -119,10 +117,12 @@ class MainActivity : MainActivityBase() {
 
             val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
 
+            val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
+
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
-                onEndOfListIntent = { viewModel.onEndOfList(it) },
+                onEndOfListIntent = { fabSetup.onEndOfList(it) },
                 onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
                 onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
                 onTopScreenSetupDevIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreenDev(p1, p2, p3, p4) }
@@ -131,10 +131,11 @@ class MainActivity : MainActivityBase() {
             QMAppTheme {
                 val scope = rememberCoroutineScope()
                 navController = rememberNavController()
+                val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
-                val fabPosition by viewModel.fabPosition.collectAsStateWithLifecycle()
+
 
                 val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
                 val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()

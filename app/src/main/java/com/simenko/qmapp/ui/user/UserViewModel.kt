@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
-import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT

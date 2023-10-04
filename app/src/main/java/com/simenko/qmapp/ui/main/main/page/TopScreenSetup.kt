@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.common
+package com.simenko.qmapp.ui.main.main.page
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -13,7 +13,8 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.main.TeamTabs
-import com.simenko.qmapp.ui.main.main.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.page.components.FabSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
 
@@ -90,13 +91,6 @@ data class TopBarSetup(
     val keyboardType: KeyboardType? = mainPage.keyboardType
     val titleBtnIcon: ImageVector? = mainPage.searchBtnIcon
     val actionBtnIcon: ImageVector? = mainPage.actionBtnIcon
-}
-
-data class FabSetup(
-    private val screen: MainPage,
-    val fabAction: (() -> Unit)? = null
-) {
-    val fabIcon: ImageVector? = screen.fabIcon
 }
 
 enum class MainPage(

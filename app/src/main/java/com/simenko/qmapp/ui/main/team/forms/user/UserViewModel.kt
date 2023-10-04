@@ -13,7 +13,7 @@ import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
-import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator

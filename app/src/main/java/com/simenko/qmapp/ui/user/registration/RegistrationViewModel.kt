@@ -3,7 +3,7 @@ package com.simenko.qmapp.ui.user.registration
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
-import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel

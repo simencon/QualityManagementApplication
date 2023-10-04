@@ -7,7 +7,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
-import com.simenko.qmapp.ui.common.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
-import javax.inject.Named
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
