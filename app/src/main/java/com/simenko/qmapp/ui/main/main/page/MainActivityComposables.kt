@@ -443,13 +443,8 @@ fun ItemsGroup(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(topTabsSetup: TopTabsSetup) {
-    val scope = rememberCoroutineScope()
-    var tabs by remember { mutableStateOf(emptyList<TopTabContent>()) }
-
-    SideEffect { scope.launch { topTabsSetup.topTabsContent.collect { tabs = it } } }
-
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(ZeroValue.num) }
-    LaunchedEffect(key1 = tabs, block = { tabs.findLast { it.isSelected }?.let { selectedTabIndex = it.index } })
+    val tabs by topTabsSetup.topTabsContent.collectAsStateWithLifecycle(initialValue = emptyList())
+    val selectedTabIndex by topTabsSetup.selectedTab.collectAsStateWithLifecycle()
 
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabs.forEach {

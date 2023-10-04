@@ -105,11 +105,8 @@ class MainActivity : MainActivityBase() {
 
         analytics = Firebase.analytics
 
-
         setContent {
             val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
-
-
             val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
             val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
             val pullRefreshSetup by viewModel.pullRefreshSetup.collectAsStateWithLifecycle()

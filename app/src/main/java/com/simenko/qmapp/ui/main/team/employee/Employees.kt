@@ -47,6 +47,7 @@ fun Employees(
     viewModel: TeamViewModel = hiltViewModel(),
     onClickEdit: (Int) -> Unit
 ) {
+    val needToSetup by viewModel.needToSetup.collectAsStateWithLifecycle()
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
     val selectedRecord by viewModel.selectedEmployeeRecord.collectAsStateWithLifecycle()
 
@@ -58,11 +59,11 @@ fun Employees(
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
+        needToSetup.getContentIfNotHandled()?.let {
+            viewModel.setupMainPage()
+        }
         viewModel.logWhenInstantiated()
-        viewModel.setupTopScreenTopBar()
-        viewModel.setupMainScreenTopTabs()
         viewModel.setupTopScreenFab(true)
-        viewModel.setupTopScreenPullRefresh()
     }
 
     LaunchedEffect(selectedRecord) {
