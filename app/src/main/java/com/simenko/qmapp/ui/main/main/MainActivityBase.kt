@@ -3,11 +3,10 @@ package com.simenko.qmapp.ui.main.main
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.compose.runtime.State
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 
 abstract class MainActivityBase : ComponentActivity() {
     val viewModel: MainActivityViewModel by viewModels()
@@ -16,9 +15,9 @@ abstract class MainActivityBase : ComponentActivity() {
     /**
      * Drawer menu -----------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDrawerItemClick(currentId: String, id: String) {
+    fun onDrawerItemClick(currentId: String, id: String, topBarSetup: TopBarSetup) {
         if (id != currentId) {
-            viewModel.setDrawerMenuItemId(id)
+            topBarSetup.setDrawerMenuItemId(id)
             when (id) {
                 Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
                 Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
@@ -41,22 +40,5 @@ abstract class MainActivityBase : ComponentActivity() {
             }
         }
         return filterOnly
-    }
-
-
-    /**
-     * Pull refresh ----------------------------------------------------------------------------------------------------------------------------------
-     * */
-    fun onPullRefresh(backStackEntry: State<NavBackStackEntry?>, refreshAction: () -> Unit) {
-        when (backStackEntry.value?.destination?.route) {
-            Route.Main.Team.Employees.link -> refreshAction()
-            Route.Main.Team.Users.link -> refreshAction()
-            Route.Main.Team.Requests.link -> refreshAction()
-            Route.Main.Inv.link -> refreshAction()
-            Route.Main.ProcessControl.link -> refreshAction()
-            Route.Main.Settings.UserDetails.link -> refreshAction()
-            Route.Main.Settings.EditUserDetails.link -> refreshAction()
-            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
-        }
     }
 }
