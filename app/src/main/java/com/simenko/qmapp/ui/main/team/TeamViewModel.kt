@@ -61,10 +61,13 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    fun setupTopScreenFab(withFab: Boolean = true) {
+    fun setupTopScreenFab(withFab: Boolean) {
         topScreenState.trySendTopScreenFabSetup(
             mainPage = MainPage.TEAM,
-            fabAction = { if (withFab) onEmployeeAddEdictClick(NoRecord.num) else null },
+            fabAction = if (withFab) {
+                { onEmployeeAddEdictClick(NoRecord.num) }
+            } else
+                null
         )
     }
 
@@ -234,17 +237,14 @@ class TeamViewModel @Inject constructor(
         when (tag) {
             FirstTabId -> {
                 appNavigator.tryNavigateBack()
-                setupTopScreenFab(true)
             }
 
             SecondTabId -> {
                 appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-                setupTopScreenFab(false)
             }
 
             ThirdTabId -> {
                 appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-                setupTopScreenFab(false)
             }
         }
     }

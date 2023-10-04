@@ -67,7 +67,7 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         )
     }
 
-    override fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: () -> Unit) {
+    override fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: (() -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopScreenFabSetup(
                 fabSetup = FabSetup(mainPage, fabAction)

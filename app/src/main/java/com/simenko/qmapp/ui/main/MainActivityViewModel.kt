@@ -62,6 +62,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun setupTopScreenFab(fabSetup: FabSetup) {
+        println("setupTopScreenFab - $fabSetup")
         this._fabSetup.value = fabSetup
     }
 

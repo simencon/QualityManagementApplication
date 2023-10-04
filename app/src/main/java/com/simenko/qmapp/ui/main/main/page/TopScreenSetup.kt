@@ -48,7 +48,7 @@ interface TopScreenState {
 
     fun trySendTopScreenFabSetup(
         mainPage: MainPage,
-        fabAction: () -> Unit,
+        fabAction: (() -> Unit)?,
     )
 }
 
