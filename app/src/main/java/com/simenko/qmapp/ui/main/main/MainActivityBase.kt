@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.navigation.NavHostController
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.main.main.page.MenuItem
 import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 
 abstract class MainActivityBase : ComponentActivity() {

@@ -47,13 +47,10 @@ class TeamViewModel @Inject constructor(
     fun setupTopScreenTopBar() {
         topScreenState.trySendTopBarSetup(
             mainPage = MainPage.TEAM,
-            onNavBtnClick = null,
-            onSearchBtnClick = null,
             onSearchAction = {
                 setEmployeesFilter(it)
                 setUsersFilter(it)
-            },
-            onActionBtnClick = null
+            }
         )
     }
 

@@ -9,9 +9,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
+import com.simenko.qmapp.domain.FirstTabId
+import com.simenko.qmapp.domain.FourthTabId
+import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.main.ProgressTabs
-import com.simenko.qmapp.ui.main.main.TeamTabs
+import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
 import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
@@ -35,14 +37,10 @@ interface TopScreenState {
 
 sealed class TopScreenIntent {
     data class TopBarState(val titleSetup: TopBarSetup) : TopScreenIntent()
-
     data class TopTabsState(val topTabsSetup: TopTabsSetup) : TopScreenIntent()
-
     data class TabBadgeState(val tabIndex: Int, val state: Triple<Int, Color, Color>) : TopScreenIntent()
-
     data class TopScreenFabSetup(val fabSetup: FabSetup) : TopScreenIntent()
     data class EndOfListState(val state: Boolean) : TopScreenIntent()
-
     data class TopScreenPullRefreshSetup(val pullRefreshSetup: PullRefreshSetup) : TopScreenIntent()
     data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
 }
@@ -103,4 +101,25 @@ enum class MainPage(
     EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, emptyList(), null, null),
     ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, emptyList(), null, null),
     ;
+}
+
+enum class ProgressTabs(val tabId: SelectedNumber) {
+    ALL(FirstTabId),
+    TO_DO(SecondTabId),
+    IN_PROGRESS(ThirdTabId),
+    DONE(FourthTabId);
+
+    companion object {
+        fun toListOfTriples() = ProgressTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
+    }
+}
+
+enum class TeamTabs(val tabId: SelectedNumber) {
+    EMPLOYEES(FirstTabId),
+    USERS(SecondTabId),
+    REQUESTS(ThirdTabId);
+
+    companion object {
+        fun toListOfTriples() = TeamTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
+    }
 }

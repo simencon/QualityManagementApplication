@@ -23,7 +23,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.SubDepartmentsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.SubOrderPlacersSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.VersionsSelection
-import com.simenko.qmapp.ui.main.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.page.AddEditMode
 
 @Composable
 fun SubOrderForm(

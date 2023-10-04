@@ -51,12 +51,12 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.main.page.StateChangedEffect
-import com.simenko.qmapp.ui.main.main.AppBar
-import com.simenko.qmapp.ui.main.main.DrawerBody
-import com.simenko.qmapp.ui.main.main.DrawerHeader
+import com.simenko.qmapp.ui.main.main.page.AppBar
+import com.simenko.qmapp.ui.main.main.page.DrawerBody
+import com.simenko.qmapp.ui.main.main.page.DrawerHeader
 import com.simenko.qmapp.ui.main.main.MainActivityBase
-import com.simenko.qmapp.ui.main.main.MenuItem
-import com.simenko.qmapp.ui.main.main.TopTabs
+import com.simenko.qmapp.ui.main.main.page.MenuItem
+import com.simenko.qmapp.ui.main.main.page.TopTabs
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
