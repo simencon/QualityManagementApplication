@@ -10,7 +10,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.TopPageState
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
 import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState,
+    private val topPageState: TopPageState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
@@ -36,7 +36,7 @@ class MainActivityViewModel @Inject constructor(
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
-    val topScreenChannel = topScreenState.topScreenChannel
+    val topScreenChannel = topPageState.topScreenChannel
     val userInfo get() = userRepository.user
 
     /**

@@ -3,8 +3,15 @@ package com.simenko.qmapp.ui.main.main.page
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Filter1
+import androidx.compose.material.icons.filled.Filter2
+import androidx.compose.material.icons.filled.Filter3
+import androidx.compose.material.icons.filled.Filter4
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,16 +26,17 @@ import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
+import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 import kotlinx.coroutines.channels.Channel
 
-interface TopScreenState {
+interface TopPageState {
     val topScreenChannel: Channel<TopScreenIntent>
-    fun trySendTopBarSetup(mainPage: MainPage, onSearchAction: ((BaseFilter) -> Unit)?)
+    fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?)
 
-    fun trySendTopTabsSetup(mainPage: MainPage, onTabSelectAction: ((SelectedNumber) -> Unit)?)
+    fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?)
     fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
 
-    fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: (() -> Unit)?)
+    fun trySendTopScreenFabSetup(page: Page, fabAction: (() -> Unit)?)
     fun trySendEndOfListState(state: Boolean)
 
     fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?)
@@ -45,7 +53,7 @@ sealed class TopScreenIntent {
     data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
 }
 
-enum class MainPage(
+enum class Page(
     val navIcon: ImageVector,
     val title: String,
     val titlePlaceholderText: String?,
@@ -53,7 +61,8 @@ enum class MainPage(
     val searchBtnIcon: ImageVector?,
     val topTabsContent: List<Triple<String, Int, SelectedNumber>>,
     val fabIcon: ImageVector?,
-    val actionBtnIcon: ImageVector?
+    val actionBtnIcon: ImageVector?,
+    val actionMenuItems: List<ActionItem> = emptyList()
 ) {
     INVESTIGATIONS(
         navIcon = Icons.Filled.Menu,
@@ -63,7 +72,8 @@ enum class MainPage(
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
-        actionBtnIcon = Icons.Filled.MoreVert
+        actionBtnIcon = Icons.Filled.MoreVert,
+        actionMenuItems = InvestigationsActions.toList()
     ),
     PROCESS_CONTROL(
         navIcon = Icons.Filled.Menu,
@@ -73,7 +83,8 @@ enum class MainPage(
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
-        actionBtnIcon = Icons.Filled.MoreVert
+        actionBtnIcon = Icons.Filled.MoreVert,
+        actionMenuItems = ProcessControlActions.toList()
     ),
 
     TEAM(
@@ -84,7 +95,8 @@ enum class MainPage(
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = TeamTabs.toListOfTriples(),
         fabIcon = Icons.Filled.Add,
-        actionBtnIcon = Icons.Filled.MoreVert
+        actionBtnIcon = Icons.Filled.MoreVert,
+        actionMenuItems = TeamActions.toList()
     ),
 
 
@@ -121,5 +133,72 @@ enum class TeamTabs(val tabId: SelectedNumber) {
 
     companion object {
         fun toListOfTriples() = TeamTabs.values().map { Triple(it.name, it.ordinal, it.tabId) }
+    }
+}
+
+interface ActionItem {
+    val tag: String
+    val title: String
+    val image: ImageVector
+    val category: MenuItem.MenuGroup
+}
+
+enum class Common(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+    UPLOAD_MASTER_DATA("upload_master_data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    NO_FILTER("no_filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
+    CUSTOM_FILTER("custom_filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER)
+    ;
+
+    override val title: String get() = getWithSpaces(this.name)
+
+    companion object {
+        fun toList(): List<ActionItem> = Common.values().toList()
+    }
+}
+
+enum class TeamActions(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+    SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    PPAP("ppap", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
+    INCOMING_INSPECTION("incoming_inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
+    PROCESS_CONTROL("process_control", Icons.Filled.Filter3, MenuItem.MenuGroup.FILTER),
+    PRODUCT_AUDIT("product_audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER)
+    ;
+
+    override val title: String get() = getWithSpaces(this.name)
+
+    companion object {
+        fun toList(): List<ActionItem> {
+            return Common.toList().union(TeamActions.values().toList()).toList()
+        }
+    }
+}
+
+enum class InvestigationsActions(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+    SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    PPAP("ppap", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
+    INCOMING_INSPECTION("incoming_inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
+    PROCESS_CONTROL("process_control", Icons.Filled.Filter3, MenuItem.MenuGroup.FILTER),
+    PRODUCT_AUDIT("product_audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER)
+    ;
+
+    override val title: String get() = getWithSpaces(this.name)
+
+    companion object {
+        fun toList(): List<ActionItem> {
+            return Common.toList().union(InvestigationsActions.values().toList()).toList()
+        }
+    }
+}
+
+enum class ProcessControlActions(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+
+    ;
+
+    override val title: String get() = getWithSpaces(this.name)
+
+    companion object {
+        fun toList(): List<ActionItem> {
+            return Common.toList().union(ProcessControlActions.values().toList()).toList()
+        }
     }
 }

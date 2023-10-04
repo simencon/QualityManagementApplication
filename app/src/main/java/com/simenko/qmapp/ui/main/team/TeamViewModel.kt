@@ -12,8 +12,8 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.page.MainPage
-import com.simenko.qmapp.ui.main.main.page.TopScreenState
+import com.simenko.qmapp.ui.main.main.page.Page
+import com.simenko.qmapp.ui.main.main.page.TopPageState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.BaseFilter
@@ -34,7 +34,7 @@ private const val TAG = "TeamViewModel"
 @HiltViewModel
 class TeamViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topScreenState: TopScreenState,
+    private val topPageState: TopPageState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
@@ -48,20 +48,20 @@ class TeamViewModel @Inject constructor(
     val needToSetup = _needToSetup.asStateFlow()
 
     fun setupMainPage() {
-        topScreenState.trySendTopBarSetup(
-            mainPage = MainPage.TEAM,
+        topPageState.trySendTopBarSetup(
+            page = Page.TEAM,
             onSearchAction = {
                 setEmployeesFilter(it)
                 setUsersFilter(it)
             }
         )
-        topScreenState.trySendTopTabsSetup(MainPage.TEAM) { navigateByTopTabs(it) }
-        topScreenState.trySendPullRefreshSetup { this.updateEmployeesData() }
+        topPageState.trySendTopTabsSetup(Page.TEAM) { navigateByTopTabs(it) }
+        topPageState.trySendPullRefreshSetup { this.updateEmployeesData() }
     }
 
     fun setupTopScreenFab(withFab: Boolean) {
-        topScreenState.trySendTopScreenFabSetup(
-            mainPage = MainPage.TEAM,
+        topPageState.trySendTopScreenFabSetup(
+            page = Page.TEAM,
             fabAction = if (withFab) {
                 { onEmployeeAddEdictClick(NoRecord.num) }
             } else
@@ -70,16 +70,16 @@ class TeamViewModel @Inject constructor(
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topScreenState.trySendLoadingState(state)
+        topPageState.trySendLoadingState(state)
     }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
     private fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
-        topScreenState.trySendTabBadgeState(0, Triple(employees.size, Color.Green, Color.Black))
-        topScreenState.trySendTabBadgeState(1, Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black))
-        topScreenState.trySendTabBadgeState(2, Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White))
+        topPageState.trySendTabBadgeState(0, Triple(employees.size, Color.Green, Color.Black))
+        topPageState.trySendTabBadgeState(1, Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black))
+        topPageState.trySendTabBadgeState(2, Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White))
     }
 
     val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }
@@ -94,7 +94,7 @@ class TeamViewModel @Inject constructor(
     }
 
     fun onListEnd(state: Boolean) {
-        topScreenState.trySendEndOfListState(state)
+        topPageState.trySendEndOfListState(state)
     }
 
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
