@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
+import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
@@ -19,18 +19,6 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override suspend fun sendLoadingState(loadingState: Pair<Boolean, String?>) {
-        topScreenChannel.send(
-            TopScreenIntent.LoadingState(loadingState)
-        )
-    }
-
-    override fun trySendLoadingState(loadingState: Pair<Boolean, String?>) {
-        topScreenChannel.trySend(
-            TopScreenIntent.LoadingState(loadingState)
-        )
-    }
-
     override fun trySendEndOfListState(state: Boolean) {
         topScreenChannel.trySend(
             TopScreenIntent.EndOfListState(state)
@@ -39,7 +27,7 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
 
     override fun trySendTopBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>) {
         topScreenChannel.trySend(
-            TopScreenIntent.TopBadgeState(tabIndex, state)
+            TopScreenIntent.TabBadgeState(tabIndex, state)
         )
     }
 
@@ -49,14 +37,12 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
         onSearchBtnClick: ((Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionBtnClick: ((Boolean) -> Unit)?,
-        onTabSelectAction: ((SelectedNumber) -> Unit)?,
-        refreshAction: () -> Unit
+        onTabSelectAction: ((SelectedNumber) -> Unit)?
     ) {
         topScreenChannel.trySend(
-            TopScreenIntent.TopScreenSetupDev(
+            TopScreenIntent.TopScreenSetup(
                 titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
-                topTabsSetup = TopTabsSetup(mainPage, onTabSelectAction),
-                refreshAction = refreshAction
+                topTabsSetup = TopTabsSetup(mainPage, onTabSelectAction)
             )
         )
     }
@@ -68,38 +54,68 @@ class TopScreenStateImpl @Inject constructor() : TopScreenState {
             )
         )
     }
+
+    override suspend fun sendPullRefreshSetup(refreshAction: (() -> Unit)?) {
+        topScreenChannel.send(
+            TopScreenIntent.TopScreenPullRefreshSetup(
+                pullRefreshSetup = PullRefreshSetup(refreshAction)
+            )
+        )
+    }
+
+    override fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?) {
+        topScreenChannel.trySend(
+            TopScreenIntent.TopScreenPullRefreshSetup(
+                pullRefreshSetup = PullRefreshSetup(refreshAction)
+            )
+        )
+    }
+
+    override fun trySendLoadingState(state: Pair<Boolean, String?>) {
+        topScreenChannel.trySend(
+            TopScreenIntent.LoadingState(state)
+        )
+    }
 }
 
 @Composable
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
-    onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit,
-    onEndOfListIntent: (Boolean) -> Unit = {},
+
+    onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup) -> Unit = { _, _ -> },
     onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
-    onTopScreenSetupDevIntent: (TopBarSetup, TopTabsSetup, () -> Unit) -> Unit = { _, _, _ -> },
-    onTopScreenFabSetupIntent: (FabSetup) -> Unit = {}
+
+    onTopScreenFabSetupIntent: (FabSetup) -> Unit = {},
+    onEndOfListIntent: (Boolean) -> Unit = {},
+
+    onTopScreenPullRefreshSetupIntent: (PullRefreshSetup) -> Unit = {},
+    onLoadingState: (Pair<Boolean, String?>) -> Unit = {}
 ) {
-    LaunchedEffect(topScreenChannel, onLoadingStateIntent) {
+    LaunchedEffect(topScreenChannel) {
         topScreenChannel.receiveAsFlow().collect { intent ->
             when (intent) {
-                is TopScreenIntent.LoadingState -> {
-                    onLoadingStateIntent(intent.loadingState)
+                is TopScreenIntent.TopScreenSetup -> {
+                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup)
+                }
+
+                is TopScreenIntent.TabBadgeState -> {
+                    onTopBadgeStateIntent(intent.tabIndex, intent.state)
+                }
+
+                is TopScreenIntent.TopScreenFabSetup -> {
+                    onTopScreenFabSetupIntent(intent.fabSetup)
                 }
 
                 is TopScreenIntent.EndOfListState -> {
                     onEndOfListIntent(intent.state)
                 }
 
-                is TopScreenIntent.TopBadgeState -> {
-                    onTopBadgeStateIntent(intent.tabIndex, intent.state)
+                is TopScreenIntent.TopScreenPullRefreshSetup -> {
+                    onTopScreenPullRefreshSetupIntent(intent.pullRefreshSetup)
                 }
 
-                is TopScreenIntent.TopScreenSetupDev -> {
-                    onTopScreenSetupDevIntent(intent.titleSetup, intent.topTabsSetup, intent.refreshAction)
-                }
-
-                is TopScreenIntent.TopScreenFabSetup -> {
-                    onTopScreenFabSetupIntent(intent.fabSetup)
+                is TopScreenIntent.LoadingState -> {
+                    onLoadingState(intent.state)
                 }
             }
         }

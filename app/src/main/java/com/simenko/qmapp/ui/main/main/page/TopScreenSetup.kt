@@ -10,19 +10,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.main.TeamTabs
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
+import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
 
 interface TopScreenState {
     val topScreenChannel: Channel<TopScreenIntent>
-    suspend fun sendLoadingState(loadingState: Pair<Boolean, String?>)
-    fun trySendLoadingState(loadingState: Pair<Boolean, String?>)
-
     fun trySendEndOfListState(state: Boolean)
 
     fun trySendTopBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
@@ -35,40 +32,25 @@ interface TopScreenState {
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionBtnClick: ((Boolean) -> Unit)?,
 
-        onTabSelectAction: ((SelectedNumber) -> Unit)?,
-
-        refreshAction: () -> Unit
+        onTabSelectAction: ((SelectedNumber) -> Unit)?
     )
 
-    fun trySendTopScreenFabSetup(
-        mainPage: MainPage,
-        fabAction: (() -> Unit)?,
-    )
+    fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: (() -> Unit)?)
+    suspend fun sendPullRefreshSetup(refreshAction: (() -> Unit)?)
+    fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?)
+
+    fun trySendLoadingState(state: Pair<Boolean, String?>)
 }
 
 sealed class TopScreenIntent {
-    data class LoadingState(
-        val loadingState: Pair<Boolean, String?> = Pair(false, null)
-    ) : TopScreenIntent()
+    data class TopScreenSetup(val titleSetup: TopBarSetup, val topTabsSetup: TopTabsSetup) : TopScreenIntent()
+    data class TabBadgeState(val tabIndex: Int, val state: Triple<Int, Color, Color>) : TopScreenIntent()
 
-    data class EndOfListState(
-        val state: Boolean
-    ) : TopScreenIntent()
+    data class TopScreenFabSetup(val fabSetup: FabSetup) : TopScreenIntent()
+    data class EndOfListState(val state: Boolean) : TopScreenIntent()
 
-    data class TopBadgeState(
-        val tabIndex: Int,
-        val state: Triple<Int, Color, Color>
-    ) : TopScreenIntent()
-
-    data class TopScreenSetupDev(
-        val titleSetup: TopBarSetup,
-        val topTabsSetup: TopTabsSetup,
-        val refreshAction: () -> Unit,
-    ) : TopScreenIntent()
-
-    data class TopScreenFabSetup(
-        val fabSetup: FabSetup
-    ) : TopScreenIntent()
+    data class TopScreenPullRefreshSetup(val pullRefreshSetup: PullRefreshSetup) : TopScreenIntent()
+    data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
 }
 
 data class TopBarSetup(

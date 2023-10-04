@@ -16,6 +16,7 @@ import com.simenko.qmapp.ui.main.main.page.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.TopScreenState
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
+import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
@@ -47,8 +48,7 @@ class MainActivityViewModel @Inject constructor(
      * */
     fun setupTopScreen(
         topBarSetup: TopBarSetup,
-        topTabsSetup: TopTabsSetup,
-        refreshAction: () -> Unit
+        topTabsSetup: TopTabsSetup
     ) {
         this._topBarSetup.value = topBarSetup
         this._topBarSetup.value.onNavBtnClick = topBarSetup.onNavBtnClick ?: { setDrawerMenuState(it) }
@@ -56,8 +56,6 @@ class MainActivityViewModel @Inject constructor(
         this._topBarSetup.value.onActionBtnClick = topBarSetup.onActionBtnClick ?: { setActionMenuState(it) }
 
         this._topTabsSetup.value = topTabsSetup
-
-        this._refreshAction.value = refreshAction
     }
 
     fun setupTopScreenFab(fabSetup: FabSetup) {
@@ -110,24 +108,12 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Full refresh holders --------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _refreshAction: MutableStateFlow<() -> Unit> = MutableStateFlow {}
-    val refreshAction get() = _refreshAction.asStateFlow()
+    private val _pullRefreshSetup = MutableStateFlow(PullRefreshSetup())
+    val pullRefreshSetup get() = _pullRefreshSetup.asStateFlow()
 
-    private val _isLoadingInProgress = MutableStateFlow(false)
-    val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
-    private val _isErrorMessage = MutableStateFlow<String?>(null)
-    val isErrorMessage: StateFlow<String?> get() = _isErrorMessage
-
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _isLoadingInProgress.value = state.first
-        _isErrorMessage.value = state.second
+    fun setupTopScreenPullRefresh(pullRefreshSetup: PullRefreshSetup) {
+        _pullRefreshSetup.value = pullRefreshSetup
     }
-
-    fun onNetworkErrorShown() {
-        _isLoadingInProgress.value = false
-        _isErrorMessage.value = null
-    }
-
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -159,7 +145,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
-            updateLoadingState(Pair(true, null))
+            pullRefreshSetup.value.updateLoadingState(Pair(true, null))
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
@@ -201,9 +187,9 @@ class MainActivityViewModel @Inject constructor(
             repository.syncInvestigationTypes()
             repository.syncResultsDecryptions()
 
-            updateLoadingState(Pair(false, null))
+            pullRefreshSetup.value.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            updateLoadingState(Pair(false, e.message))
+            pullRefreshSetup.value.updateLoadingState(Pair(false, e.message))
         }
     }
 }

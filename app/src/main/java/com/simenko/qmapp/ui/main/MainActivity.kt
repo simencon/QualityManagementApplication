@@ -115,16 +115,20 @@ class MainActivity : MainActivityBase() {
             val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
 
             val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
-
             val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
+            val pullRefreshSetup by viewModel.pullRefreshSetup.collectAsStateWithLifecycle()
 
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
-                onLoadingStateIntent = { viewModel.updateLoadingState(it) },
-                onEndOfListIntent = { fabSetup.onEndOfList(it) },
+
+                onTopScreenSetupDevIntent = { p1, p2 -> viewModel.setupTopScreen(p1, p2) },
                 onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
-                onTopScreenSetupDevIntent = { p1, p2, p3 -> viewModel.setupTopScreen(p1, p2, p3) },
-                onTopScreenFabSetupIntent = { viewModel.setupTopScreenFab(it) }
+
+                onTopScreenFabSetupIntent = { viewModel.setupTopScreenFab(it) },
+                onEndOfListIntent = { fabSetup.onEndOfList(it) },
+
+                onTopScreenPullRefreshSetupIntent = { viewModel.setupTopScreenPullRefresh(it) },
+                onLoadingState = { pullRefreshSetup.updateLoadingState(it) }
             )
 
             QMAppTheme {
@@ -134,10 +138,8 @@ class MainActivity : MainActivityBase() {
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
 
-
-                val refreshAction by viewModel.refreshAction.collectAsStateWithLifecycle()
-                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
-                val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
+                val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
+                val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
 
                 BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } } })
                 BackHandler(enabled = searchBarState, onBack = { topBarSetup.onSearchBtnClick?.let { it(false) } })
@@ -197,7 +199,7 @@ class MainActivity : MainActivityBase() {
                         ) {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
-                                onRefresh = { refreshAction() }
+                                onRefresh = { pullRefreshSetup.refreshAction?.invoke() }
                             )
                             Box(
                                 modifier = Modifier
@@ -228,7 +230,7 @@ class MainActivity : MainActivityBase() {
                             }
                             if (observerIsNetworkError != null) {
                                 Toast.makeText(this, observerIsNetworkError, Toast.LENGTH_SHORT).show()
-                                viewModel.onNetworkErrorShown()
+                                pullRefreshSetup.onNetworkErrorShown()
                             }
                         }
                     }
