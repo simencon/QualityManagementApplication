@@ -22,7 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.FloatingActionButton
@@ -30,8 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.Data
@@ -54,7 +51,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.main.page.StateChangedEffect
-import com.simenko.qmapp.ui.main.main.AddEditMode
 import com.simenko.qmapp.ui.main.main.AppBar
 import com.simenko.qmapp.ui.main.main.DrawerBody
 import com.simenko.qmapp.ui.main.main.DrawerHeader
@@ -127,8 +123,7 @@ class MainActivity : MainActivityBase() {
                 onLoadingStateIntent = { viewModel.updateLoadingState(it) },
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },
                 onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
-                onTopScreenSetupIntent = { p1, p2, p3, p4 -> viewModel.setupTopScreen(p1, p2, p3, p4) },
-                onTopScreenSetupDevIntent = { p1, p2, p3 -> viewModel.setupTopScreenDev(p1, p2, p3) },
+                onTopScreenSetupDevIntent = { p1, p2, p3 -> viewModel.setupTopScreen(p1, p2, p3) },
                 onTopScreenFabSetupIntent = { viewModel.setupTopScreenFab(it) }
             )
 
@@ -144,22 +139,12 @@ class MainActivity : MainActivityBase() {
                 val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by viewModel.isErrorMessage.collectAsStateWithLifecycle()
 
-
-                val backStackEntry = navController.currentBackStackEntryAsState()
-
                 BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } } })
                 BackHandler(enabled = searchBarState, onBack = { topBarSetup.onSearchBtnClick?.let { it(false) } })
                 BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
 
-
-                val addEditMode by viewModel.addEditMode.collectAsStateWithLifecycle()
-
-                LaunchedEffect(backStackEntry.value?.destination?.route) {
-                    super.setProperAddEditMode(backStackEntry)
-                }
-
                 ModalNavigationDrawer(
-                    gesturesEnabled = addEditMode == AddEditMode.NO_MODE.ordinal,
+                    gesturesEnabled = topBarSetup.navIcon == Icons.Filled.Menu,
                     drawerState = drawerMenuState,
                     drawerContent = {
                         ModalDrawerSheet(
@@ -212,7 +197,7 @@ class MainActivity : MainActivityBase() {
                         ) {
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
-                                onRefresh = { super.onPullRefresh(backStackEntry, refreshAction) }
+                                onRefresh = { refreshAction() }
                             )
                             Box(
                                 modifier = Modifier

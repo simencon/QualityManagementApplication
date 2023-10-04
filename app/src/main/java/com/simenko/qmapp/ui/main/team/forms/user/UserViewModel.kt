@@ -56,14 +56,15 @@ class UserViewModel @Inject constructor(
 
     private val _isUserToAuthorize = mutableStateOf(false)
     fun setupTopScreen(addEditMode: AddEditMode) {
-        topScreenState.trySendTopScreenSetup(
+//        todo-me: ToDo make in proper way later
+        /*topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(addEditMode) {
                 _isUserToAuthorize.value = addEditMode == AddEditMode.AUTHORIZE_USER
                 validateInput()
             },
             refreshAction = {},
             filterAction = {}
-        )
+        )*/
     }
 
     fun clearNotificationIfExists(email: String) {

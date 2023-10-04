@@ -27,12 +27,6 @@ interface TopScreenState {
 
     fun trySendTopBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
 
-    fun trySendTopScreenSetup(
-        addEditMode: Pair<AddEditMode, () -> Unit>,
-        refreshAction: () -> Unit,
-        filterAction: (BaseFilter) -> Unit
-    )
-
     fun trySendTopScreenSetupDev(
         mainPage: MainPage,
 
@@ -64,13 +58,6 @@ sealed class TopScreenIntent {
     data class TopBadgeState(
         val tabIndex: Int,
         val state: Triple<Int, Color, Color>
-    ) : TopScreenIntent()
-
-    data class TopScreenSetup(
-        val addEditMode: AddEditMode,
-        val addEditAction: () -> Unit,
-        val refreshAction: () -> Unit,
-        val filterAction: (BaseFilter) -> Unit
     ) : TopScreenIntent()
 
     data class TopScreenSetupDev(

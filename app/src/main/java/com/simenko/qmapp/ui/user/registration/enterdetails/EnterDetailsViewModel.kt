@@ -137,7 +137,8 @@ class EnterDetailsViewModel @Inject constructor(
     }
 
     fun setupTopScreen() {
-        topScreenState.trySendTopScreenSetup(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() }, { updateUserData() }, {})
+//        todo-me: ToDo make in proper way later
+        /*topScreenState.trySendTopScreenSetup(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() }, { updateUserData() }, {})*/
     }
 }
 

@@ -78,11 +78,12 @@ class NewItemViewModel @Inject constructor(
             else -> {}
         }
 
-        topScreenState.trySendTopScreenSetup(
+//        todo-me: ToDo make in proper way later
+        /*topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(addEditMode) { makeAction() },
             refreshAction = {},
             filterAction = {}
-        )
+        )*/
         withContext(Dispatchers.Default) { recordSetUpAction() }
     }
 

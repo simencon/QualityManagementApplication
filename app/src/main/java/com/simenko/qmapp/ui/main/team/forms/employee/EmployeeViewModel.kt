@@ -52,14 +52,15 @@ class EmployeeViewModel @Inject constructor(
 
     private val _isNewEmployeeRecord = mutableStateOf(false)
     suspend fun setupTopScreen(addEditMode: AddEditMode, employeeId: Int) {
-        topScreenState.trySendTopScreenSetup(
+//        todo-me: ToDo make in proper way later
+        /*topScreenState.trySendTopScreenSetup(
             addEditMode = Pair(addEditMode) {
                 _isNewEmployeeRecord.value = addEditMode == AddEditMode.ADD_EMPLOYEE
                 validateInput()
             },
             refreshAction = {},
             filterAction = {}
-        )
+        )*/
         if (addEditMode == AddEditMode.EDIT_EMPLOYEE)
             withContext(Dispatchers.Default) { loadEmployee(employeeId) }
     }
