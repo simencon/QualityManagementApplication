@@ -46,22 +46,16 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun setupTopScreen(
-        topBarSetup: TopBarSetup,
-        topTabsSetup: TopTabsSetup
-    ) {
+    fun setupTopScreen(topBarSetup: TopBarSetup) {
         this._topBarSetup.value = topBarSetup
         this._topBarSetup.value.onNavBtnClick = topBarSetup.onNavBtnClick ?: { setDrawerMenuState(it) }
         this._topBarSetup.value.onSearchBtnClick = topBarSetup.onSearchBtnClick ?: { setSearchBarState(it) }
         this._topBarSetup.value.onActionBtnClick = topBarSetup.onActionBtnClick ?: { setActionMenuState(it) }
-
-        this._topTabsSetup.value = topTabsSetup
     }
 
-    fun setupTopScreenFab(fabSetup: FabSetup) {
-        println("setupTopScreenFab - $fabSetup")
-        this._fabSetup.value = fabSetup
-    }
+    fun setupTopTabs(topTabsSetup: TopTabsSetup) {this._topTabsSetup.value = topTabsSetup}
+
+    fun setupTopScreenFab(fabSetup: FabSetup) { this._fabSetup.value = fabSetup }
 
     /**
      * Top bar state holders -------------------------------------------------------------------------------------------------------------------------

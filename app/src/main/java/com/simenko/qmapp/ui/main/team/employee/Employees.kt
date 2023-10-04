@@ -59,7 +59,8 @@ fun Employees(
 
     LaunchedEffect(Unit) {
         viewModel.logWhenInstantiated()
-        viewModel.setupTopScreen()
+        viewModel.setupTopScreenTopBar()
+        viewModel.setupMainScreenTopTabs()
         viewModel.setupTopScreenFab(true)
         viewModel.setupTopScreenPullRefresh()
     }

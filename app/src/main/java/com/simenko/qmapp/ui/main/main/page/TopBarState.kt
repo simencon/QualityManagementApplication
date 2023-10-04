@@ -20,30 +20,30 @@ import kotlinx.coroutines.channels.Channel
 
 interface TopScreenState {
     val topScreenChannel: Channel<TopScreenIntent>
-    fun trySendEndOfListState(state: Boolean)
-
-    fun trySendTopBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
-
-    fun trySendTopScreenSetupDev(
+    fun trySendTopBarSetup(
         mainPage: MainPage,
 
         onNavBtnClick: (suspend (Boolean) -> Unit)?,
         onSearchBtnClick: ((Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?,
-        onActionBtnClick: ((Boolean) -> Unit)?,
-
-        onTabSelectAction: ((SelectedNumber) -> Unit)?
+        onActionBtnClick: ((Boolean) -> Unit)?
     )
 
-    fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: (() -> Unit)?)
-    suspend fun sendPullRefreshSetup(refreshAction: (() -> Unit)?)
-    fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?)
+    fun trySendTopTabsSetup(mainPage: MainPage, onTabSelectAction: ((SelectedNumber) -> Unit)?)
+    fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
 
+    fun trySendTopScreenFabSetup(mainPage: MainPage, fabAction: (() -> Unit)?)
+    fun trySendEndOfListState(state: Boolean)
+
+    fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?)
     fun trySendLoadingState(state: Pair<Boolean, String?>)
 }
 
 sealed class TopScreenIntent {
-    data class TopScreenSetup(val titleSetup: TopBarSetup, val topTabsSetup: TopTabsSetup) : TopScreenIntent()
+    data class TopBarState(val titleSetup: TopBarSetup) : TopScreenIntent()
+
+    data class TopTabsState(val topTabsSetup: TopTabsSetup) : TopScreenIntent()
+
     data class TabBadgeState(val tabIndex: Int, val state: Triple<Int, Color, Color>) : TopScreenIntent()
 
     data class TopScreenFabSetup(val fabSetup: FabSetup) : TopScreenIntent()
