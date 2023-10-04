@@ -167,9 +167,7 @@ enum class TeamActions(override val tag: String, override val image: ImageVector
     override val title: String get() = getWithSpaces(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> {
-            return Common.toList().union(TeamActions.values().toList()).toList()
-        }
+        fun toList(): List<ActionItem> = Common.toList().union(TeamActions.values().toList()).toList()
     }
 }
 
@@ -184,9 +182,7 @@ enum class InvestigationsActions(override val tag: String, override val image: I
     override val title: String get() = getWithSpaces(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> {
-            return Common.toList().union(InvestigationsActions.values().toList()).toList()
-        }
+        fun toList(): List<ActionItem> = Common.toList().union(InvestigationsActions.values().toList()).toList()
     }
 }
 
@@ -197,8 +193,6 @@ enum class ProcessControlActions(override val tag: String, override val image: I
     override val title: String get() = getWithSpaces(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> {
-            return Common.toList().union(ProcessControlActions.values().toList()).toList()
-        }
+        fun toList(): List<ActionItem> = Common.toList().union(ProcessControlActions.values().toList()).toList()
     }
 }
