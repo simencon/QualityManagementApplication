@@ -14,20 +14,14 @@ import com.simenko.qmapp.ui.main.main.ProgressTabs
 import com.simenko.qmapp.ui.main.main.TeamTabs
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
 import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel
 
 interface TopScreenState {
     val topScreenChannel: Channel<TopScreenIntent>
-    fun trySendTopBarSetup(
-        mainPage: MainPage,
-
-        onNavBtnClick: (suspend (Boolean) -> Unit)?,
-        onSearchBtnClick: ((Boolean) -> Unit)?,
-        onSearchAction: ((BaseFilter) -> Unit)?,
-        onActionBtnClick: ((Boolean) -> Unit)?
-    )
+    fun trySendTopBarSetup(mainPage: MainPage, onSearchAction: ((BaseFilter) -> Unit)?)
 
     fun trySendTopTabsSetup(mainPage: MainPage, onTabSelectAction: ((SelectedNumber) -> Unit)?)
     fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
@@ -51,21 +45,6 @@ sealed class TopScreenIntent {
 
     data class TopScreenPullRefreshSetup(val pullRefreshSetup: PullRefreshSetup) : TopScreenIntent()
     data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
-}
-
-data class TopBarSetup(
-    private val mainPage: MainPage = MainPage.values()[0],
-    var onNavBtnClick: (suspend (Boolean) -> Unit)? = null,
-    var onSearchBtnClick: ((Boolean) -> Unit)? = null,
-    var onSearchAction: ((BaseFilter) -> Unit)? = null,
-    var onActionBtnClick: ((Boolean) -> Unit)? = null,
-) {
-    val navIcon = mainPage.navIcon
-    val title: String = mainPage.title
-    val placeholderText: String? = mainPage.titlePlaceholderText
-    val keyboardType: KeyboardType? = mainPage.keyboardType
-    val titleBtnIcon: ImageVector? = mainPage.searchBtnIcon
-    val actionBtnIcon: ImageVector? = mainPage.actionBtnIcon
 }
 
 enum class MainPage(

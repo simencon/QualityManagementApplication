@@ -86,6 +86,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FirstTabId
 import com.simenko.qmapp.domain.FourthTabId
@@ -94,7 +95,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.page.TopBarSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabContent
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.Route
@@ -107,14 +108,13 @@ import kotlinx.coroutines.launch
 fun AppBar(
     topBarSetup: TopBarSetup,
 
-    drawerState: DrawerState,
-
-    searchBarState: Boolean,
-    actionsMenuState: Boolean,
-
     selectedActionsMenuItemId: MutableState<String>,
     onActionsMenuItemClick: (String, String) -> Unit,
 ) {
+    val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
+    val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
+    val actionsMenuState by topBarSetup.actionsMenuState.collectAsStateWithLifecycle()
+
     val scope = rememberCoroutineScope()
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
 
@@ -182,7 +182,7 @@ fun AppBar(
                 } else {
                     Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
                     if (topBarSetup.titleBtnIcon != null)
-                        IconButton(onClick = { topBarSetup.onSearchBtnClick?.let { it(true) } }) {
+                        IconButton(onClick = { topBarSetup.setSearchBarState(true) }) {
                             Icon(imageVector = topBarSetup.titleBtnIcon, contentDescription = topBarSetup.placeholderText, tint = contentColor)
                         }
                 }
@@ -191,35 +191,35 @@ fun AppBar(
         navigationIcon = {
             if (searchBarState)
                 IconButton(
-                    onClick = { topBarSetup.onSearchBtnClick?.let { it(false) } },
+                    onClick = { topBarSetup.setSearchBarState(false) },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
                 }
             else
                 IconButton(
-                    onClick = { scope.launch { topBarSetup.onNavBtnClick?.let { it(true) } } },
+                    onClick = { scope.launch { topBarSetup.setDrawerMenuState(true) } },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(
                         imageVector = topBarSetup.navIcon,
                         contentDescription = "Navigation button",
                         modifier = Modifier
-                            .rotate(drawerState.offset.value / 1080f * 360f)
+                            .rotate(drawerMenuState.offset.value / 1080f * 360f)
                     )
                 }
         },
         actions = {
             if (topBarSetup.actionBtnIcon != null) {
                 IconButton(
-                    onClick = { topBarSetup.onActionBtnClick?.let { it(true) } },
+                    onClick = { topBarSetup.setActionMenuState(true) },
                     colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                 ) {
                     Icon(imageVector = topBarSetup.actionBtnIcon, contentDescription = "More")
                 }
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,
-                    setActionMenuState = { topBarSetup.onActionBtnClick?.let { it1 -> it1(it) } },
+                    setActionMenuState = { topBarSetup.setActionMenuState(it) },
                     selectedActionsMenuItemId = selectedActionsMenuItemId,
                     onActionsMenuItemClick = onActionsMenuItemClick
                 )

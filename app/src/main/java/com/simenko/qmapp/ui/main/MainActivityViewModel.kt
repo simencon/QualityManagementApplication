@@ -1,7 +1,5 @@
 package com.simenko.qmapp.ui.main
 
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
@@ -12,17 +10,15 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.page.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.TopScreenState
-import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
 import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -46,46 +42,26 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun setupTopScreen(topBarSetup: TopBarSetup) {
+    fun setupTopBar(topBarSetup: TopBarSetup) {
         this._topBarSetup.value = topBarSetup
-        this._topBarSetup.value.onNavBtnClick = topBarSetup.onNavBtnClick ?: { setDrawerMenuState(it) }
-        this._topBarSetup.value.onSearchBtnClick = topBarSetup.onSearchBtnClick ?: { setSearchBarState(it) }
-        this._topBarSetup.value.onActionBtnClick = topBarSetup.onActionBtnClick ?: { setActionMenuState(it) }
     }
 
-    fun setupTopTabs(topTabsSetup: TopTabsSetup) {this._topTabsSetup.value = topTabsSetup}
+    fun setupTopTabs(topTabsSetup: TopTabsSetup) {
+        this._topTabsSetup.value = topTabsSetup
+    }
 
-    fun setupTopScreenFab(fabSetup: FabSetup) { this._fabSetup.value = fabSetup }
+    fun setupFab(fabSetup: FabSetup) {
+        this._fabSetup.value = fabSetup
+    }
+    fun setupPullRefresh(pullRefreshSetup: PullRefreshSetup) {
+        _pullRefreshSetup.value = pullRefreshSetup
+    }
 
     /**
      * Top bar state holders -------------------------------------------------------------------------------------------------------------------------
      * */
     private val _topBarSetup = MutableStateFlow(TopBarSetup())
     val topBarSetup get() = _topBarSetup.asStateFlow()
-
-    private val _selectedDrawerMenuItemId: MutableStateFlow<String> = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
-    val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
-    fun setDrawerMenuItemId(id: String) {
-        this._selectedDrawerMenuItemId.value = id
-    }
-
-    private val _drawerMenuState = MutableStateFlow(DrawerState(DrawerValue.Closed))
-    val drawerMenuState = _drawerMenuState.asStateFlow()
-    private suspend fun setDrawerMenuState(value: Boolean) {
-        if (value) _drawerMenuState.value.open() else _drawerMenuState.value.close()
-    }
-
-    private val _searchBarState = MutableStateFlow(false)
-    val searchBarState = _searchBarState.asStateFlow()
-    private fun setSearchBarState(value: Boolean) {
-        _searchBarState.value = value
-    }
-
-    private val _actionsMenuState = MutableStateFlow(false)
-    val actionsMenuState = _actionsMenuState.asStateFlow()
-    private fun setActionMenuState(value: Boolean) {
-        _actionsMenuState.value = value
-    }
 
     /**
      * Top tabs state holders ------------------------------------------------------------------------------------------------------------------------
@@ -105,9 +81,6 @@ class MainActivityViewModel @Inject constructor(
     private val _pullRefreshSetup = MutableStateFlow(PullRefreshSetup())
     val pullRefreshSetup get() = _pullRefreshSetup.asStateFlow()
 
-    fun setupTopScreenPullRefresh(pullRefreshSetup: PullRefreshSetup) {
-        _pullRefreshSetup.value = pullRefreshSetup
-    }
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */

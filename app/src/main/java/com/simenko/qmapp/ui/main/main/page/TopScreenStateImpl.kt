@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.page.components.FabSetup
 import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
@@ -14,21 +15,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 class TopScreenStateImpl @Inject constructor() : TopScreenState {
-    override val topScreenChannel: Channel<TopScreenIntent> = Channel<TopScreenIntent>(
+    override val topScreenChannel: Channel<TopScreenIntent> = Channel(
         capacity = Int.MAX_VALUE,
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendTopBarSetup(
-        mainPage: MainPage,
-        onNavBtnClick: (suspend (Boolean) -> Unit)?,
-        onSearchBtnClick: ((Boolean) -> Unit)?,
-        onSearchAction: ((BaseFilter) -> Unit)?,
-        onActionBtnClick: ((Boolean) -> Unit)?
-    ) {
+    override fun trySendTopBarSetup(mainPage: MainPage, onSearchAction: ((BaseFilter) -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopBarState(
-                titleSetup = TopBarSetup(mainPage, onNavBtnClick, onSearchBtnClick, onSearchAction, onActionBtnClick),
+                titleSetup = TopBarSetup(mainPage, onSearchAction),
             )
         )
     }

@@ -107,12 +107,8 @@ class MainActivity : MainActivityBase() {
 
 
         setContent {
-            val selectedDrawerMenuItemId by viewModel.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
-
             val topBarSetup by viewModel.topBarSetup.collectAsStateWithLifecycle()
-            val drawerMenuState by viewModel.drawerMenuState.collectAsStateWithLifecycle()
-            val searchBarState by viewModel.searchBarState.collectAsStateWithLifecycle()
-            val actionsMenuState by viewModel.actionsMenuState.collectAsStateWithLifecycle()
+
 
             val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
             val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
@@ -121,21 +117,25 @@ class MainActivity : MainActivityBase() {
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
 
-                onTopBarSetupIntent = { viewModel.setupTopScreen(it) },
+                onTopBarSetupIntent = { viewModel.setupTopBar(it) },
 
                 onTopTabsSetupIntent = { viewModel.setupTopTabs(it) },
                 onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
 
-                onTopScreenFabSetupIntent = { viewModel.setupTopScreenFab(it) },
+                onTopScreenFabSetupIntent = { viewModel.setupFab(it) },
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },
 
-                onTopScreenPullRefreshSetupIntent = { viewModel.setupTopScreenPullRefresh(it) },
+                onTopScreenPullRefreshSetupIntent = { viewModel.setupPullRefresh(it) },
                 onLoadingState = { pullRefreshSetup.updateLoadingState(it) }
             )
 
             QMAppTheme {
                 val scope = rememberCoroutineScope()
                 navController = rememberNavController()
+
+                val selectedDrawerMenuItemId by topBarSetup.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
+                val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
+                val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
                 val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
                 val selectedContextMenuItemId = rememberSaveable { mutableStateOf(MenuItem.getStartingActionsFilterMenuItem().id) }
@@ -143,8 +143,8 @@ class MainActivity : MainActivityBase() {
                 val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
 
-                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } } })
-                BackHandler(enabled = searchBarState, onBack = { topBarSetup.onSearchBtnClick?.let { it(false) } })
+                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.setDrawerMenuState(false) } })
+                BackHandler(enabled = searchBarState, onBack = { topBarSetup.setSearchBarState(false) })
                 BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
 
                 ModalNavigationDrawer(
@@ -160,8 +160,8 @@ class MainActivity : MainActivityBase() {
                             DrawerBody(
                                 selectedItemId = selectedDrawerMenuItemId,
                                 onDrawerItemClick = { id ->
-                                    scope.launch { topBarSetup.onNavBtnClick?.let { it(false) } }
-                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id)
+                                    scope.launch { topBarSetup.setDrawerMenuState(false) }
+                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id, topBarSetup)
                                 }
                             )
                         }
@@ -171,15 +171,7 @@ class MainActivity : MainActivityBase() {
                             topBar = {
                                 AppBar(
                                     topBarSetup = topBarSetup,
-
-                                    drawerState = drawerMenuState,
-
-                                    searchBarState = searchBarState,
-
-                                    actionsMenuState = actionsMenuState,
-
                                     selectedActionsMenuItemId = selectedContextMenuItemId,
-
                                     onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) }
                                 )
                             },
