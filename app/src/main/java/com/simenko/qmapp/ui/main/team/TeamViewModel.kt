@@ -56,8 +56,6 @@ class TeamViewModel @Inject constructor(
             onActionBtnClick = null,
 
             onTabSelectAction = { navigateByTopTabs(it) },
-
-            refreshAction = { updateEmployeesData() },
         )
     }
 
@@ -69,6 +67,10 @@ class TeamViewModel @Inject constructor(
             } else
                 null
         )
+    }
+
+    fun setupTopScreenPullRefresh() {
+        topScreenState.trySendPullRefreshSetup { this.updateEmployeesData() }
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {

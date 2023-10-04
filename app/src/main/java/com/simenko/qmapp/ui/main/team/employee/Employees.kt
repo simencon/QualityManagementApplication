@@ -61,6 +61,7 @@ fun Employees(
         viewModel.logWhenInstantiated()
         viewModel.setupTopScreen()
         viewModel.setupTopScreenFab(true)
+        viewModel.setupTopScreenPullRefresh()
     }
 
     LaunchedEffect(selectedRecord) {
