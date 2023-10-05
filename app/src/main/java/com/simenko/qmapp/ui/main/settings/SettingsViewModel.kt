@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,11 +15,11 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topPageState: TopPageState,
+    private val mainPageState: MainPageState,
     private val userRepository: UserRepository
 ) : ViewModel() {
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topPageState.trySendLoadingState(state)
+        mainPageState.trySendLoadingState(state)
     }
 
     private val _isApproveActionVisible = MutableStateFlow(false)

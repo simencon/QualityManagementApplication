@@ -5,7 +5,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +18,7 @@ private const val MIN_LENGTH = 6
 @HiltViewModel
 class EnterDetailsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topPageState: TopPageState,
+    private val mainPageState: MainPageState,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -114,24 +114,24 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            topPageState.trySendLoadingState(Pair(true, null))
+            mainPageState.trySendLoadingState(Pair(true, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    topPageState.trySendLoadingState(Pair(false, null))
+                    mainPageState.trySendLoadingState(Pair(false, null))
                     appNavigator.tryNavigateTo(
                         route = Route.Main.Settings.UserDetails.link,
                         popUpToRoute = Route.Main.Settings.UserDetails.route,
                         inclusive = true
                     )
                 } else {
-                    topPageState.trySendLoadingState(Pair(false, task.exception?.message))
+                    mainPageState.trySendLoadingState(Pair(false, task.exception?.message))
                 }
             }
         }
     }
 
     private fun updateUserData() {
-        topPageState.trySendLoadingState(Pair(true, null))
+        mainPageState.trySendLoadingState(Pair(true, null))
         userRepository.updateUserData()
     }
 

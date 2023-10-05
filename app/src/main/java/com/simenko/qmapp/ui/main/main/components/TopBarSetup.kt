@@ -5,11 +5,8 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import com.simenko.qmapp.ui.main.main.MenuItem
-import com.simenko.qmapp.ui.main.main.Common
-import com.simenko.qmapp.ui.main.main.DrawerMenuItems
-import com.simenko.qmapp.ui.main.main.InvestigationsActions
 import com.simenko.qmapp.ui.main.main.Page
-import com.simenko.qmapp.ui.main.main.ProcessControlActions
+import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

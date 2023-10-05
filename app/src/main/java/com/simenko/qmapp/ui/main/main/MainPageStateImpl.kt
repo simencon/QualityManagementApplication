@@ -5,17 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.main.components.FabSetup
-import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
-import com.simenko.qmapp.ui.main.main.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.components.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
-class TopPageStateImpl @Inject constructor() : TopPageState {
+class MainPageStateImpl @Inject constructor() : MainPageState {
     override val topScreenChannel: Channel<TopScreenIntent> = Channel(
         capacity = Int.MAX_VALUE,
         onBufferOverflow = BufferOverflow.DROP_LATEST,

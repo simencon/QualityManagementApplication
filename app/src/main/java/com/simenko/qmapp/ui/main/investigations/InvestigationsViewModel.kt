@@ -7,7 +7,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
-import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -32,7 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topPageState: TopPageState,
+    private val mainPageState: MainPageState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
@@ -57,11 +57,11 @@ class InvestigationsViewModel @Inject constructor(
 
     fun updateLoadingState(state: Pair<Boolean, String?>) {
         _isLoadingInProgress.value = state.first
-        topPageState.trySendLoadingState(state)
+        mainPageState.trySendLoadingState(state)
     }
 
     fun onListEnd(state: Boolean) {
-        topPageState.trySendEndOfListState(state)
+        mainPageState.trySendEndOfListState(state)
     }
 
     //        todo-me: ToDo make in proper way later
