@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.main.components
+package com.simenko.qmapp.ui.main.main.setup
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
