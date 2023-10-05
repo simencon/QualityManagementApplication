@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.main.page
+package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,14 +25,7 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Factory
-import androidx.compose.material.icons.filled.Filter1
-import androidx.compose.material.icons.filled.Filter2
-import androidx.compose.material.icons.filled.Filter3
-import androidx.compose.material.icons.filled.Filter4
-import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.SquareFoot
@@ -57,7 +50,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -85,8 +77,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.components.TopBarSetup
+import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
@@ -96,10 +88,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AppBar(
-    topBarSetup: TopBarSetup,
-
-    selectedActionsMenuItemId: MutableState<String>,
-    onActionsMenuItemClick: (String, String) -> Unit,
+    topBarSetup: TopBarSetup
 ) {
     val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
     val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
@@ -210,8 +199,6 @@ fun AppBar(
                 ActionsMenu(
                     actionsMenuState = actionsMenuState,
                     setActionMenuState = { topBarSetup.setActionMenuState(it) },
-                    selectedActionsMenuItemId = selectedActionsMenuItemId,
-                    onActionsMenuItemClick = onActionsMenuItemClick,
                     topBarSetup = topBarSetup
                 )
             }
@@ -276,7 +263,7 @@ fun DrawerBody(
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.COMPANY.group, withDivider = false)
     navigationAndActionItems.forEach { item ->
-        if (item.category == MenuItem.MenuGroup.COMPANY)
+        if (item.group == MenuItem.MenuGroup.COMPANY)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
@@ -291,7 +278,7 @@ fun DrawerBody(
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.QUALITY.group)
     navigationAndActionItems.forEach { item ->
-        if (item.category == MenuItem.MenuGroup.QUALITY)
+        if (item.group == MenuItem.MenuGroup.QUALITY)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
@@ -306,7 +293,7 @@ fun DrawerBody(
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.GENERAL.group)
     navigationAndActionItems.forEach { item ->
-        if (item.category == MenuItem.MenuGroup.GENERAL)
+        if (item.group == MenuItem.MenuGroup.GENERAL)
             NavigationDrawerItem(
                 icon = { Icon(item.image, contentDescription = item.contentDescription) },
                 label = { Text(item.title) },
@@ -324,8 +311,6 @@ fun DrawerBody(
 fun ActionsMenu(
     actionsMenuState: Boolean,
     setActionMenuState: (Boolean) -> Unit,
-    selectedActionsMenuItemId: MutableState<String>,
-    onActionsMenuItemClick: (String, String) -> Unit,
     topBarSetup: TopBarSetup
 ) {
     val actionsGroup = rememberSaveable { mutableStateOf(EmptyString.str) }
@@ -342,7 +327,7 @@ fun ActionsMenu(
                 setActionMenuState(false)
                 isContextMenuVisible.value = true
             },
-            categories = topBarSetup.actionMenuItems.map { it.category.name }.toSet().toList()
+            categories = topBarSetup.actionMenuItems.map { it.group.name }.toSet().toList()
         )
     }
 
@@ -353,16 +338,15 @@ fun ActionsMenu(
     {
         ActionsMenuContext(
             actionsGroup = actionsGroup.value,
-            selectedItemId = selectedActionsMenuItemId,
             onClickBack = {
                 setActionMenuState(true)
                 isContextMenuVisible.value = false
             },
-            onContextMenuItemClick = { p1, p2 ->
-                onActionsMenuItemClick(p1, p2)
+            onContextMenuItemClick = {
+                topBarSetup.onActionMenuItemClick(it)
                 isContextMenuVisible.value = false
             },
-            actions = topBarSetup.actionMenuItems
+            topBarSetup = topBarSetup
         )
     }
 }
@@ -386,11 +370,12 @@ fun ActionsMenuTop(
 @Composable
 fun ActionsMenuContext(
     actionsGroup: String,
-    selectedItemId: MutableState<String>,
     onClickBack: () -> Unit,
-    onContextMenuItemClick: (String, String) -> Unit,
-    actions: List<ActionItem>
+    onContextMenuItemClick: (ActionItem) -> Unit,
+    topBarSetup: TopBarSetup
 ) {
+    val selectedItemId by topBarSetup.selectedActionMenuItem.collectAsStateWithLifecycle()
+
     DropdownMenuItem(
         text = { Text(getWithSpaces(actionsGroup)) },
         onClick = onClickBack,
@@ -399,16 +384,11 @@ fun ActionsMenuContext(
             .padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 
-    actions.filter { it.category.name == actionsGroup }.forEach { item ->
+    topBarSetup.actionMenuItems.filter { it.group.name == actionsGroup }.forEach { item ->
         DropdownMenuItem(
             text = { Text(item.title) },
-            onClick = {
-                onContextMenuItemClick(
-                    if (item.category != MenuItem.MenuGroup.ACTIONS && item.tag != "custom_filter") item.tag else selectedItemId.value,
-                    item.tag
-                )
-            },
-            enabled = selectedItemId.value != item.tag,
+            onClick = { onContextMenuItemClick(item) },
+            enabled = selectedItemId != item,
             leadingIcon = { Icon(item.image, contentDescription = item.title) },
             modifier = Modifier
                 .padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -470,14 +450,14 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
                     }
                     ) {
                         Text(
-                            text = StringUtils.getWithSpaces(it.name),
+                            text = getWithSpaces(it.name),
                             fontSize = 12.sp,
                             style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
                         )
                     }
                 else
                     Text(
-                        text = StringUtils.getWithSpaces(it.name),
+                        text = getWithSpaces(it.name),
                         fontSize = 12.sp,
                         style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
                     )
@@ -491,7 +471,7 @@ data class MenuItem(
     val title: String,
     val contentDescription: String,
     val image: ImageVector,
-    val category: MenuGroup
+    val group: MenuGroup
 ) {
     companion object {
         fun getStartingDrawerMenuItem() =
@@ -504,12 +484,6 @@ data class MenuItem(
         GENERAL("General"),
         ACTIONS("Actions"),
         FILTER("Filter")
-    }
-
-    enum class Actions(val action: String) {
-        UPLOAD_MD("upload_master_data"),
-        SYNC_INV("sync_investigations"),
-        CUSTOM_FILTER("custom_filter")
     }
 }
 

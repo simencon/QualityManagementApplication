@@ -5,7 +5,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.page.TopPageState
+import com.simenko.qmapp.ui.main.main.TopPageState
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel

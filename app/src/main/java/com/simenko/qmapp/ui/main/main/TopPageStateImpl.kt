@@ -1,14 +1,14 @@
-package com.simenko.qmapp.ui.main.main.page
+package com.simenko.qmapp.ui.main.main
 
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.main.page.components.FabSetup
-import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.components.FabSetup
+import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.components.TopBarSetup
+import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -21,10 +21,10 @@ class TopPageStateImpl @Inject constructor() : TopPageState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?) {
+    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick:((ActionItem) -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopBarState(
-                titleSetup = TopBarSetup(page, onSearchAction),
+                titleSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
             )
         )
     }

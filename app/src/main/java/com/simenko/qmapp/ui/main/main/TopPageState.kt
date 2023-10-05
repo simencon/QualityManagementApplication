@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.main.page
+package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -21,17 +21,17 @@ import com.simenko.qmapp.domain.FourthTabId
 import com.simenko.qmapp.domain.SecondTabId
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ThirdTabId
-import com.simenko.qmapp.ui.main.main.page.components.FabSetup
-import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.components.FabSetup
+import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.components.TopBarSetup
+import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 import kotlinx.coroutines.channels.Channel
 
 interface TopPageState {
     val topScreenChannel: Channel<TopScreenIntent>
-    fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?)
+    fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick:((ActionItem) -> Unit)?)
 
     fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?)
     fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
@@ -86,7 +86,6 @@ enum class Page(
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = ProcessControlActions.toList()
     ),
-
     TEAM(
         navIcon = Icons.Filled.Menu,
         title = "Company team",
@@ -140,10 +139,10 @@ interface ActionItem {
     val tag: String
     val title: String
     val image: ImageVector
-    val category: MenuItem.MenuGroup
+    val group: MenuItem.MenuGroup
 }
 
-enum class Common(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+enum class Common(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
     UPLOAD_MASTER_DATA("upload_master_data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     NO_FILTER("no_filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     CUSTOM_FILTER("custom_filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER)
@@ -156,7 +155,7 @@ enum class Common(override val tag: String, override val image: ImageVector, ove
     }
 }
 
-enum class TeamActions(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+enum class TeamActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
     SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     PPAP("ppap", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
     INCOMING_INSPECTION("incoming_inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
@@ -171,7 +170,7 @@ enum class TeamActions(override val tag: String, override val image: ImageVector
     }
 }
 
-enum class InvestigationsActions(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
+enum class InvestigationsActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
     SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     PPAP("ppap", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
     INCOMING_INSPECTION("incoming_inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
@@ -186,8 +185,8 @@ enum class InvestigationsActions(override val tag: String, override val image: I
     }
 }
 
-enum class ProcessControlActions(override val tag: String, override val image: ImageVector, override val category: MenuItem.MenuGroup) : ActionItem {
-
+enum class ProcessControlActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
+    SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     ;
 
     override val title: String get() = getWithSpaces(this.name)

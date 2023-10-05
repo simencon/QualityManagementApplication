@@ -1,9 +1,9 @@
-package com.simenko.qmapp.ui.main.main.page.components
+package com.simenko.qmapp.ui.main.main.components
 
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.ui.main.main.page.Page
+import com.simenko.qmapp.ui.main.main.Page
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
