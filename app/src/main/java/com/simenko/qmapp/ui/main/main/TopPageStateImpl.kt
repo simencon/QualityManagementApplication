@@ -21,7 +21,7 @@ class TopPageStateImpl @Inject constructor() : TopPageState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick:((ActionItem) -> Unit)?) {
+    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick:((MenuItem) -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopBarState(
                 titleSetup = TopBarSetup(page, onSearchAction, onActionItemClick),

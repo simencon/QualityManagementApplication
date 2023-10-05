@@ -55,7 +55,7 @@ import com.simenko.qmapp.ui.main.main.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.AppBar
 import com.simenko.qmapp.ui.main.main.DrawerBody
 import com.simenko.qmapp.ui.main.main.DrawerHeader
-import com.simenko.qmapp.ui.main.main.MenuItem
+import com.simenko.qmapp.ui.main.main.DrawerMenuItems
 import com.simenko.qmapp.ui.main.main.TopTabs
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.navigation.Route
@@ -70,7 +70,7 @@ import javax.inject.Inject
 
 internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
 
-fun createMainActivityIntent(context: Context, route: String = MenuItem.getStartingDrawerMenuItem().id): Intent {
+fun createMainActivityIntent(context: Context, route: String = DrawerMenuItems.startingDrawerMenuItem.tag): Intent {
     val intent = Intent(context, MainActivity::class.java)
     intent.putExtra(INITIAL_ROUTE, route)
     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: MenuItem.getStartingDrawerMenuItem().id
+        initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: DrawerMenuItems.startingDrawerMenuItem.tag
 
         if (
             ActivityCompat.checkSelfPermission(
