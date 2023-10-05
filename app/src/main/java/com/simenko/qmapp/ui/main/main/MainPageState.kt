@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.ui.main.main.components.*
+import com.simenko.qmapp.ui.main.main.setup.*
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.Channel

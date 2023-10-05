@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.main.components
+package com.simenko.qmapp.ui.main.main.setup
 
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.vector.ImageVector

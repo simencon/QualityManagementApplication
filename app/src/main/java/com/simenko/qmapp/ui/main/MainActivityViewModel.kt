@@ -12,10 +12,10 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.main.main.components.FabSetup
-import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
-import com.simenko.qmapp.ui.main.main.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.setup.FabSetup
+import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
+import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.ui.main.main.content.Common
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route

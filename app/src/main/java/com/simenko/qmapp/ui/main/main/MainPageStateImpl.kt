@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.ui.main.main.components.*
+import com.simenko.qmapp.ui.main.main.setup.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel

@@ -69,8 +69,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.MenuItem
-import com.simenko.qmapp.ui.main.main.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
+import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getWithSpaces

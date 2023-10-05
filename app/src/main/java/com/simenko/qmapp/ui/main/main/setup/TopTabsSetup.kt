@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.main.components
+package com.simenko.qmapp.ui.main.main.setup
 
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
