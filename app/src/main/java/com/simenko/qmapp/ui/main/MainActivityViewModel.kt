@@ -10,7 +10,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.ActionItem
+import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.Common
 import com.simenko.qmapp.ui.main.main.TopPageState
 import com.simenko.qmapp.ui.main.main.components.FabSetup
@@ -46,7 +46,7 @@ class MainActivityViewModel @Inject constructor(
      * */
     fun setupTopBar(topBarSetup: TopBarSetup) {
         this._topBarSetup.value = topBarSetup
-        val currentOnActionItemClick: ((ActionItem)-> Unit)? = topBarSetup.onActionItemClick
+        val currentOnActionItemClick: ((MenuItem)-> Unit)? = topBarSetup.onActionItemClick
         topBarSetup.onActionItemClick = {
             currentOnActionItemClick?.invoke(it)
             if (it == Common.UPLOAD_MASTER_DATA) {

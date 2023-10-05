@@ -1,8 +1,12 @@
 package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Factory
 import androidx.compose.material.icons.filled.Filter1
 import androidx.compose.material.icons.filled.Filter2
 import androidx.compose.material.icons.filled.Filter3
@@ -11,8 +15,12 @@ import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.FilterAltOff
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.SquareFoot
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,13 +33,15 @@ import com.simenko.qmapp.ui.main.main.components.FabSetup
 import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils.getWithSpaces
+import com.simenko.qmapp.utils.StringUtils.getWithSpacesTitle
 import kotlinx.coroutines.channels.Channel
 
 interface TopPageState {
     val topScreenChannel: Channel<TopScreenIntent>
-    fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick:((ActionItem) -> Unit)?)
+    fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?)
 
     fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?)
     fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
@@ -62,7 +72,7 @@ enum class Page(
     val topTabsContent: List<Triple<String, Int, SelectedNumber>>,
     val fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?,
-    val actionMenuItems: List<ActionItem> = emptyList()
+    val actionMenuItems: List<MenuItem> = emptyList()
 ) {
     INVESTIGATIONS(
         navIcon = Icons.Filled.Menu,
@@ -135,27 +145,56 @@ enum class TeamTabs(val tabId: SelectedNumber) {
     }
 }
 
-interface ActionItem {
+interface MenuItem {
     val tag: String
     val title: String
     val image: ImageVector
-    val group: MenuItem.MenuGroup
+    val group: MenuGroup
+
+    enum class MenuGroup(val group: String) {
+        COMPANY("Company"),
+        QUALITY("Quality management"),
+        GENERAL("General"),
+        ACTIONS("Actions"),
+        FILTER("Filter")
+    }
 }
 
-enum class Common(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
+enum class DrawerMenuItems(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
+    COMPANY_PROFILE(Route.Main.CompanyProfile.link, Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
+    TEAM(Route.Main.Team.link, Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
+    COMPANY_STRUCTURE(Route.Main.CompanyStructure.link, Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
+    COMPANY_PRODUCTS(Route.Main.CompanyProducts.link, Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
+
+    ALL_INVESTIGATIONS(Route.Main.Inv.link, Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
+    PROCESS_CONTROL(Route.Main.ProcessControl.link, Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
+    SCRAP_LEVEL(Route.Main.ScrapLevel.link, Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
+
+    ACCOUNT_SETTINGS(Route.Main.Settings.link, Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL)
+    ;
+
+    override val title: String get() = getWithSpacesTitle(this.name)
+
+    companion object {
+        fun toList(): List<MenuItem> = DrawerMenuItems.values().toList()
+        val startingDrawerMenuItem: MenuItem = TEAM
+    }
+}
+
+enum class Common(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
     UPLOAD_MASTER_DATA("upload_master_data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     NO_FILTER("no_filter", Icons.Filled.FilterAltOff, MenuItem.MenuGroup.FILTER),
     CUSTOM_FILTER("custom_filter", Icons.Filled.FilterAlt, MenuItem.MenuGroup.FILTER)
     ;
 
-    override val title: String get() = getWithSpaces(this.name)
+    override val title: String get() = getWithSpacesTitle(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> = Common.values().toList()
+        fun toList(): List<MenuItem> = Common.values().toList()
     }
 }
 
-enum class TeamActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
+enum class TeamActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
     SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     PPAP("ppap", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
     INCOMING_INSPECTION("incoming_inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
@@ -163,14 +202,14 @@ enum class TeamActions(override val tag: String, override val image: ImageVector
     PRODUCT_AUDIT("product_audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER)
     ;
 
-    override val title: String get() = getWithSpaces(this.name)
+    override val title: String get() = if (this == PPAP) getWithSpaces(this.name) else getWithSpacesTitle(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> = Common.toList().union(TeamActions.values().toList()).toList()
+        fun toList(): List<MenuItem> = Common.toList().union(TeamActions.values().toList()).toList()
     }
 }
 
-enum class InvestigationsActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
+enum class InvestigationsActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
     SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     PPAP("ppap", Icons.Filled.Filter1, MenuItem.MenuGroup.FILTER),
     INCOMING_INSPECTION("incoming_inspection", Icons.Filled.Filter2, MenuItem.MenuGroup.FILTER),
@@ -178,20 +217,20 @@ enum class InvestigationsActions(override val tag: String, override val image: I
     PRODUCT_AUDIT("product_audit", Icons.Filled.Filter4, MenuItem.MenuGroup.FILTER)
     ;
 
-    override val title: String get() = getWithSpaces(this.name)
+    override val title: String get() = if (this == PPAP) getWithSpaces(this.name) else getWithSpacesTitle(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> = Common.toList().union(InvestigationsActions.values().toList()).toList()
+        fun toList(): List<MenuItem> = Common.toList().union(InvestigationsActions.values().toList()).toList()
     }
 }
 
-enum class ProcessControlActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : ActionItem {
+enum class ProcessControlActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
     SYNC_INVESTIGATIONS("sync_investigations", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     ;
 
-    override val title: String get() = getWithSpaces(this.name)
+    override val title: String get() = getWithSpacesTitle(this.name)
 
     companion object {
-        fun toList(): List<ActionItem> = Common.toList().union(ProcessControlActions.values().toList()).toList()
+        fun toList(): List<MenuItem> = Common.toList().union(ProcessControlActions.values().toList()).toList()
     }
 }

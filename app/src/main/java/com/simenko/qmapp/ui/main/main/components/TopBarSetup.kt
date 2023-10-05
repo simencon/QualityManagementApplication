@@ -4,10 +4,10 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
-import com.simenko.qmapp.ui.main.main.ActionItem
-import com.simenko.qmapp.ui.main.main.Common
-import com.simenko.qmapp.ui.main.main.InvestigationsActions
 import com.simenko.qmapp.ui.main.main.MenuItem
+import com.simenko.qmapp.ui.main.main.Common
+import com.simenko.qmapp.ui.main.main.DrawerMenuItems
+import com.simenko.qmapp.ui.main.main.InvestigationsActions
 import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.main.main.ProcessControlActions
 import com.simenko.qmapp.utils.BaseFilter
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 data class TopBarSetup(
     private val page: Page = Page.values()[0],
     var onSearchAction: ((BaseFilter) -> Unit)? = null,
-    var onActionItemClick:((ActionItem) -> Unit)? = null
+    var onActionItemClick:((MenuItem) -> Unit)? = null
 ) {
     val navIcon = page.navIcon
     val title: String = page.title
@@ -26,9 +26,9 @@ data class TopBarSetup(
     val keyboardType: KeyboardType? = page.keyboardType
     val titleBtnIcon: ImageVector? = page.searchBtnIcon
     val actionBtnIcon: ImageVector? = page.actionBtnIcon
-    val actionMenuItems: List<ActionItem> = page.actionMenuItems
+    val actionMenuItems: List<MenuItem> = page.actionMenuItems
 
-    private val _selectedDrawerMenuItemId = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
+    private val _selectedDrawerMenuItemId = MutableStateFlow(DrawerMenuItems.startingDrawerMenuItem.tag)
     val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
     fun setDrawerMenuItemId(id: String) {
         this._selectedDrawerMenuItemId.value = id
@@ -52,10 +52,10 @@ data class TopBarSetup(
         _actionsMenuState.value = value
     }
 
-    private val _selectedActionMenuItem = MutableStateFlow(Common.NO_FILTER as ActionItem)
+    private val _selectedActionMenuItem = MutableStateFlow(Common.NO_FILTER as MenuItem)
     val selectedActionMenuItem = _selectedActionMenuItem.asStateFlow()
 
-    fun onActionMenuItemClick(item: ActionItem) {
+    fun onActionMenuItemClick(item: MenuItem) {
         when (item) {
             Common.CUSTOM_FILTER, Common.UPLOAD_MASTER_DATA, InvestigationsActions.SYNC_INVESTIGATIONS, ProcessControlActions.SYNC_INVESTIGATIONS -> {
                 onNotSelectableActionMenuItemClick(item)
@@ -67,10 +67,10 @@ data class TopBarSetup(
         onActionItemClick?.invoke(item)
     }
 
-    private fun onSelectableActionMenuItemClick(item: ActionItem) {
+    private fun onSelectableActionMenuItemClick(item: MenuItem) {
         _selectedActionMenuItem.value = item
     }
 
-    private fun onNotSelectableActionMenuItemClick(item: ActionItem) {
+    private fun onNotSelectableActionMenuItemClick(item: MenuItem) {
     }
 }

@@ -262,13 +262,13 @@ fun DrawerBody(
 ) {
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.COMPANY.group, withDivider = false)
-    navigationAndActionItems.forEach { item ->
+    DrawerMenuItems.toList().forEach { item ->
         if (item.group == MenuItem.MenuGroup.COMPANY)
             NavigationDrawerItem(
-                icon = { Icon(item.image, contentDescription = item.contentDescription) },
+                icon = { Icon(item.image, contentDescription = item.title) },
                 label = { Text(item.title) },
-                selected = item.id == selectedItemId,
-                onClick = { onDrawerItemClick(item.id) },
+                selected = item.tag == selectedItemId,
+                onClick = { onDrawerItemClick(item.tag) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
                     .height(48.dp)
@@ -277,13 +277,13 @@ fun DrawerBody(
     }
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.QUALITY.group)
-    navigationAndActionItems.forEach { item ->
+    DrawerMenuItems.toList().forEach { item ->
         if (item.group == MenuItem.MenuGroup.QUALITY)
             NavigationDrawerItem(
-                icon = { Icon(item.image, contentDescription = item.contentDescription) },
+                icon = { Icon(item.image, contentDescription = item.title) },
                 label = { Text(item.title) },
-                selected = item.id == selectedItemId,
-                onClick = { onDrawerItemClick(item.id) },
+                selected = item.tag == selectedItemId,
+                onClick = { onDrawerItemClick(item.tag) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
                     .height(48.dp)
@@ -292,13 +292,13 @@ fun DrawerBody(
     }
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.GENERAL.group)
-    navigationAndActionItems.forEach { item ->
+    DrawerMenuItems.toList().forEach { item ->
         if (item.group == MenuItem.MenuGroup.GENERAL)
             NavigationDrawerItem(
-                icon = { Icon(item.image, contentDescription = item.contentDescription) },
+                icon = { Icon(item.image, contentDescription = item.title) },
                 label = { Text(item.title) },
-                selected = item.id == selectedItemId,
-                onClick = { onDrawerItemClick(item.id) },
+                selected = item.tag == selectedItemId,
+                onClick = { onDrawerItemClick(item.tag) },
                 modifier = Modifier
                     .padding(NavigationDrawerItemDefaults.ItemPadding)
                     .height(48.dp)
@@ -371,7 +371,7 @@ fun ActionsMenuTop(
 fun ActionsMenuContext(
     actionsGroup: String,
     onClickBack: () -> Unit,
-    onContextMenuItemClick: (ActionItem) -> Unit,
+    onContextMenuItemClick: (MenuItem) -> Unit,
     topBarSetup: TopBarSetup
 ) {
     val selectedItemId by topBarSetup.selectedActionMenuItem.collectAsStateWithLifecycle()
@@ -465,40 +465,6 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
         }
     }
 }
-
-data class MenuItem(
-    val id: String,
-    val title: String,
-    val contentDescription: String,
-    val image: ImageVector,
-    val group: MenuGroup
-) {
-    companion object {
-        fun getStartingDrawerMenuItem() =
-            navigationAndActionItems.find { it.id == Route.Main.Team.withArgs() } ?: navigationAndActionItems[4]
-    }
-
-    enum class MenuGroup(val group: String) {
-        COMPANY("Company"),
-        QUALITY("Quality management"),
-        GENERAL("General"),
-        ACTIONS("Actions"),
-        FILTER("Filter")
-    }
-}
-
-private val navigationAndActionItems = listOf(
-    MenuItem(Route.Main.CompanyProfile.link, "Company profile", "Company profile", Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Route.Main.Team.link, "Team", "Team", Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Route.Main.CompanyStructure.link, "Company structure", "Company structure", Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
-    MenuItem(Route.Main.CompanyProducts.link, "Company products", "Company products", Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
-
-    MenuItem(Route.Main.Inv.link, "All investigations", "All investigations", Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Route.Main.ProcessControl.link, "Process control", "Process control", Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),
-    MenuItem(Route.Main.ScrapLevel.link, "Scrap level", "Scrap level", Icons.Filled.AttachMoney, MenuItem.MenuGroup.QUALITY),
-
-    MenuItem(Route.Main.Settings.link, "Account settings", "Account settings", Icons.Filled.Settings, MenuItem.MenuGroup.GENERAL)
-)
 
 enum class AddEditMode(val mode: String) {
     ADD_EMPLOYEE("Add new employee"),
