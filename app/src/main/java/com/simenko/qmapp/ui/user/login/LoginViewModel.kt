@@ -5,7 +5,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.user.registration.enterdetails.UserErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,10 +15,10 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val topPageState: TopPageState
+    private val mainPageState: MainPageState
 ) : ViewModel() {
     fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topPageState.trySendLoadingState(state)
+        mainPageState.trySendLoadingState(state)
     }
 
     private var _loggedOutPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))

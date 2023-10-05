@@ -13,9 +13,9 @@ import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
-import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.main.AddEditMode
+import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
@@ -43,11 +43,11 @@ import javax.inject.Inject
 @HiltViewModel
 class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topPageState: TopPageState,
+    private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository
 ) : ViewModel() {
     private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        topPageState.trySendLoadingState(state)
+        mainPageState.trySendLoadingState(state)
     }
 
     private val _isNewEmployeeRecord = mutableStateOf(false)

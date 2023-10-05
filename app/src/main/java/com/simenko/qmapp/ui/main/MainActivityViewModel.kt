@@ -11,12 +11,12 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MenuItem
-import com.simenko.qmapp.ui.main.main.Common
-import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.components.FabSetup
 import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.components.TopBarSetup
 import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.content.Common
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
-    private val topPageState: TopPageState,
+    private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
@@ -38,7 +38,7 @@ class MainActivityViewModel @Inject constructor(
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
-    val topScreenChannel = topPageState.topScreenChannel
+    val topScreenChannel = mainPageState.topScreenChannel
     val userInfo get() = userRepository.user
 
     /**
@@ -120,7 +120,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
 
-    fun refreshMasterDataFromRepository() = viewModelScope.launch {
+    private fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
             pullRefreshSetup.value.updateLoadingState(Pair(true, null))
 
