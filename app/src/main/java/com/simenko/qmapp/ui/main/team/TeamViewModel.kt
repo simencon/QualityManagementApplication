@@ -12,8 +12,8 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.page.Page
-import com.simenko.qmapp.ui.main.main.page.TopPageState
+import com.simenko.qmapp.ui.main.main.Page
+import com.simenko.qmapp.ui.main.main.TopPageState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.BaseFilter
@@ -53,7 +53,8 @@ class TeamViewModel @Inject constructor(
             onSearchAction = {
                 setEmployeesFilter(it)
                 setUsersFilter(it)
-            }
+            },
+            onActionItemClick = null
         )
         topPageState.trySendTopTabsSetup(Page.TEAM) { navigateByTopTabs(it) }
         topPageState.trySendPullRefreshSetup { this.updateEmployeesData() }

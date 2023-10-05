@@ -7,9 +7,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,14 +33,13 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.Data
@@ -49,16 +50,15 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.main.main.page.StateChangedEffect
-import com.simenko.qmapp.ui.main.main.page.AppBar
-import com.simenko.qmapp.ui.main.main.page.DrawerBody
-import com.simenko.qmapp.ui.main.main.page.DrawerHeader
-import com.simenko.qmapp.ui.main.main.MainActivityBase
-import com.simenko.qmapp.ui.main.main.page.MenuItem
-import com.simenko.qmapp.ui.main.main.page.TopTabs
+import com.simenko.qmapp.ui.main.main.StateChangedEffect
+import com.simenko.qmapp.ui.main.main.AppBar
+import com.simenko.qmapp.ui.main.main.DrawerBody
+import com.simenko.qmapp.ui.main.main.DrawerHeader
+import com.simenko.qmapp.ui.main.main.MenuItem
+import com.simenko.qmapp.ui.main.main.TopTabs
 import com.simenko.qmapp.ui.navigation.MainScreen
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.SyncEntitiesWorker
 import com.simenko.qmapp.works.SyncPeriods
@@ -78,7 +78,7 @@ fun createMainActivityIntent(context: Context, route: String = MenuItem.getStart
 }
 
 @AndroidEntryPoint
-class MainActivity : MainActivityBase() {
+class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var workManager: WorkManager
@@ -87,6 +87,9 @@ class MainActivity : MainActivityBase() {
     private lateinit var analytics: FirebaseAnalytics
 
     private lateinit var initialRoute: String
+
+    val viewModel: MainActivityViewModel by viewModels()
+    private lateinit var navController: NavHostController
 
     @OptIn(ExperimentalMaterialApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -136,14 +139,26 @@ class MainActivity : MainActivityBase() {
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
                 val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
-                val selectedContextMenuItemId = rememberSaveable { mutableStateOf(EmptyString.str) }
-
                 val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
 
                 BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.setDrawerMenuState(false) } })
                 BackHandler(enabled = searchBarState, onBack = { topBarSetup.setSearchBarState(false) })
                 BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
+
+                fun onDrawerItemClick(id: String) {
+                    if (id != selectedDrawerMenuItemId) {
+                        topBarSetup.setDrawerMenuItemId(id)
+                        when (id) {
+                            Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
+                            Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
+                            Route.Main.ProcessControl.link -> viewModel.onDrawerMenuProcessControlSelected()
+                            Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()
+                            else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    scope.launch { topBarSetup.setDrawerMenuState(false) }
+                }
 
                 ModalNavigationDrawer(
                     gesturesEnabled = topBarSetup.navIcon == Icons.Filled.Menu,
@@ -157,22 +172,13 @@ class MainActivity : MainActivityBase() {
                             DrawerHeader(userInfo = viewModel.userInfo)
                             DrawerBody(
                                 selectedItemId = selectedDrawerMenuItemId,
-                                onDrawerItemClick = { id ->
-                                    scope.launch { topBarSetup.setDrawerMenuState(false) }
-                                    super.onDrawerItemClick(selectedDrawerMenuItemId, id, topBarSetup)
-                                }
+                                onDrawerItemClick = { id -> onDrawerItemClick(id) }
                             )
                         }
                     },
                     content = {
                         Scaffold(
-                            topBar = {
-                                AppBar(
-                                    topBarSetup = topBarSetup,
-                                    selectedActionsMenuItemId = selectedContextMenuItemId,
-                                    onActionsMenuItemClick = { f, a -> selectedContextMenuItemId.value = super.onActionsMenuItemClick(f, a) }
-                                )
-                            },
+                            topBar = { AppBar(topBarSetup = topBarSetup) },
                             floatingActionButton = {
                                 if (fabSetup.fabAction != null && fabSetup.fabIcon != null)
                                     FloatingActionButton(
@@ -243,9 +249,7 @@ class MainActivity : MainActivityBase() {
         syncLastHourOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiredNetworkType(
-                        NetworkType.CONNECTED
-                    )
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
             .setInputData(
@@ -260,9 +264,7 @@ class MainActivity : MainActivityBase() {
         syncLastDayOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiredNetworkType(
-                        NetworkType.CONNECTED
-                    )
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
             .setInitialDelay(Duration.ofSeconds(5))

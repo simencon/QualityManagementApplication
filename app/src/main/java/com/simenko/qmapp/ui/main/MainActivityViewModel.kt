@@ -10,11 +10,13 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.page.TopPageState
-import com.simenko.qmapp.ui.main.main.page.components.FabSetup
-import com.simenko.qmapp.ui.main.main.page.components.PullRefreshSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopBarSetup
-import com.simenko.qmapp.ui.main.main.page.components.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.ActionItem
+import com.simenko.qmapp.ui.main.main.Common
+import com.simenko.qmapp.ui.main.main.TopPageState
+import com.simenko.qmapp.ui.main.main.components.FabSetup
+import com.simenko.qmapp.ui.main.main.components.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.components.TopBarSetup
+import com.simenko.qmapp.ui.main.main.components.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +46,13 @@ class MainActivityViewModel @Inject constructor(
      * */
     fun setupTopBar(topBarSetup: TopBarSetup) {
         this._topBarSetup.value = topBarSetup
+        val currentOnActionItemClick: ((ActionItem)-> Unit)? = topBarSetup.onActionItemClick
+        topBarSetup.onActionItemClick = {
+            currentOnActionItemClick?.invoke(it)
+            if (it == Common.UPLOAD_MASTER_DATA) {
+                refreshMasterDataFromRepository()
+            }
+        }
     }
 
     fun setupTopTabs(topTabsSetup: TopTabsSetup) {
@@ -53,6 +62,7 @@ class MainActivityViewModel @Inject constructor(
     fun setupFab(fabSetup: FabSetup) {
         this._fabSetup.value = fabSetup
     }
+
     fun setupPullRefresh(pullRefreshSetup: PullRefreshSetup) {
         _pullRefreshSetup.value = pullRefreshSetup
     }
