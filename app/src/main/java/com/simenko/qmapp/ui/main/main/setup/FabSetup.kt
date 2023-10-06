@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.simenko.qmapp.ui.main.main.Page
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class FabSetup(
     private val screen: Page = Page.values()[0],
@@ -16,5 +17,11 @@ data class FabSetup(
 
     fun onEndOfList(position: Boolean) {
         _fabPosition.value = if (position) FabPosition.Center else FabPosition.End
+    }
+
+    private val _isFabVisible = MutableStateFlow(false)
+    val isFabVisible = _isFabVisible.asStateFlow()
+    fun setFabVisibility(isVisible: Boolean) {
+        _isFabVisible.value = isVisible
     }
 }

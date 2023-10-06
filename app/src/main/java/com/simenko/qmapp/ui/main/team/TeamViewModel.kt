@@ -60,14 +60,8 @@ class TeamViewModel @Inject constructor(
             refreshAction = { this.updateEmployeesData() }
         )
     }
-    fun setupTopScreenFab(withFab: Boolean) {
-        mainPageState.trySendTopScreenFabSetup(
-            page = Page.TEAM,
-            fabAction = if (withFab) {
-                { onEmployeeAddEdictClick(NoRecord.num) }
-            } else
-                null
-        )
+    fun updateFabState(withFab: Boolean) {
+        mainPageState.trySendFabState(withFab)
     }
 
     private fun updateLoadingState(state: Pair<Boolean, String?>) {

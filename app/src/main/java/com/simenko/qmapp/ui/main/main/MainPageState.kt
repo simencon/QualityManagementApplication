@@ -13,17 +13,6 @@ import kotlinx.coroutines.channels.Channel
 
 interface MainPageState {
     val topScreenChannel: Channel<TopScreenIntent>
-    fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?)
-
-    fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?)
-    fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>)
-
-    fun trySendTopScreenFabSetup(page: Page, fabAction: (() -> Unit)?)
-    fun trySendEndOfListState(state: Boolean)
-
-    fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?)
-    fun trySendLoadingState(state: Pair<Boolean, String?>)
-
     fun trySendMainPageState(
         page: Page,
         onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?,
@@ -31,22 +20,24 @@ interface MainPageState {
         fabAction: (() -> Unit)?,
         refreshAction: (() -> Unit)?
     )
+    fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>)
+    fun trySendFabState(isVisible: Boolean)
+    fun trySendEndOfListState(state: Boolean)
+    fun trySendLoadingState(state: Pair<Boolean, String?>)
 }
 
 sealed class TopScreenIntent {
-    data class TopBarState(val topBarSetup: TopBarSetup) : TopScreenIntent()
-    data class TopTabsState(val topTabsSetup: TopTabsSetup) : TopScreenIntent()
-    data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent()
-    data class TopScreenFabSetup(val fabSetup: FabSetup) : TopScreenIntent()
-    data class EndOfListState(val state: Boolean) : TopScreenIntent()
-    data class TopScreenPullRefreshSetup(val pullRefreshSetup: PullRefreshSetup) : TopScreenIntent()
-    data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
     data class MainPageSetup(
         val topBarSetup: TopBarSetup,
         val topTabsSetup: TopTabsSetup,
         val fabSetup: FabSetup,
         val pullRefreshSetup: PullRefreshSetup
     ) : TopScreenIntent()
+
+    data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent()
+    data class FabState(val state: Boolean) : TopScreenIntent()
+    data class EndOfListState(val state: Boolean) : TopScreenIntent()
+    data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
 }
 
 enum class Page(

@@ -12,7 +12,6 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.main.main.setup.FabSetup
 import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
@@ -47,42 +46,16 @@ class MainActivityViewModel @Inject constructor(
      * */
     fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
         this._topBarSetup.value = topBarSetup
-        val currentOnActionItemClick: ((MenuItem)-> Unit)? = topBarSetup.onActionItemClick
+        val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
         topBarSetup.onActionItemClick = {
             currentOnActionItemClick?.invoke(it)
             if (it == Common.UPLOAD_MASTER_DATA) {
                 refreshMasterDataFromRepository()
             }
         }
-
         this._topTabsSetup.value = topTabsSetup
-
         this._fabSetup.value = fabSetup
-
         this._pullRefreshSetup.value = pullRefreshSetup
-    }
-
-    fun setupTopBar(topBarSetup: TopBarSetup) {
-        this._topBarSetup.value = topBarSetup
-        val currentOnActionItemClick: ((MenuItem)-> Unit)? = topBarSetup.onActionItemClick
-        topBarSetup.onActionItemClick = {
-            currentOnActionItemClick?.invoke(it)
-            if (it == Common.UPLOAD_MASTER_DATA) {
-                refreshMasterDataFromRepository()
-            }
-        }
-    }
-
-    fun setupTopTabs(topTabsSetup: TopTabsSetup) {
-        this._topTabsSetup.value = topTabsSetup
-    }
-
-    fun setupFab(fabSetup: FabSetup) {
-        this._fabSetup.value = fabSetup
-    }
-
-    fun setupPullRefresh(pullRefreshSetup: PullRefreshSetup) {
-        _pullRefreshSetup.value = pullRefreshSetup
     }
 
     /**
