@@ -111,3 +111,15 @@ interface MenuItem {
         FILTER("Filter")
     }
 }
+
+interface TabItem {
+    val index: Int
+    val tag: SelectedNumber
+    val title: String
+
+    var badgeCount: Int
+    var badgeBg: Color
+    var badgeFr: Color
+
+    fun updateBadge(state: Triple<Int, Color, Color>)
+}
