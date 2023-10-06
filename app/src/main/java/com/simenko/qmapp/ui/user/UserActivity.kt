@@ -53,7 +53,7 @@ class UserActivity : ComponentActivity() {
         setContent {
             StateChangedEffect(
                 topScreenChannel = userViewModel.topScreenChannel,
-                onLoadingState = { userViewModel.updateLoadingState(it) }
+                onLoadingStateIntent = { userViewModel.updateLoadingState(it) }
             )
 
             QMAppTheme {

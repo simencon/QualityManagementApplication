@@ -63,7 +63,7 @@ fun Employees(
             viewModel.setupMainPage()
         }
         viewModel.logWhenInstantiated()
-        viewModel.setupTopScreenFab(true)
+        viewModel.updateFabState(true)
     }
 
     LaunchedEffect(selectedRecord) {

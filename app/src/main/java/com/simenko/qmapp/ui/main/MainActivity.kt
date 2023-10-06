@@ -27,10 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -104,19 +102,12 @@ class MainActivity : ComponentActivity() {
 
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
+                onMainPageSetupIntent = { p1, p2, p3, p4 -> viewModel.setupMainPage(p1, p2, p3, p4) },
 
-                onTopBarSetupIntent = { viewModel.setupTopBar(it) },
-
-                onTopTabsSetupIntent = { viewModel.setupTopTabs(it) },
                 onTopBadgeStatesIntent = { topTabsSetup.updateBadgeContent(it) },
-
-                onTopScreenFabSetupIntent = { viewModel.setupFab(it) },
+                onFabStateIntent = { fabSetup.setFabVisibility(it) },
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },
-
-                onTopScreenPullRefreshSetupIntent = { viewModel.setupPullRefresh(it) },
-                onLoadingState = { pullRefreshSetup.updateLoadingState(it) },
-
-                onMainPageSetupIntent = { p1, p2, p3, p4 -> viewModel.setupMainPage(p1, p2, p3, p4) }
+                onLoadingStateIntent = { pullRefreshSetup.updateLoadingState(it) },
             )
 
             QMAppTheme {
@@ -126,6 +117,7 @@ class MainActivity : ComponentActivity() {
                 val selectedDrawerMenuItemId by topBarSetup.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
+                val isFabVisible by fabSetup.isFabVisible.collectAsStateWithLifecycle()
                 val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
                 val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
@@ -169,7 +161,7 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             topBar = { AppBar(topBarSetup = topBarSetup) },
                             floatingActionButton = {
-                                if (fabSetup.fabAction != null && fabSetup.fabIcon != null)
+                                if (fabSetup.fabAction != null && fabSetup.fabIcon != null && isFabVisible)
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = { fabSetup.fabAction!!.invoke() },

@@ -18,56 +18,6 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TopBarState(
-                topBarSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
-            )
-        )
-    }
-
-    override fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TopTabsState(
-                topTabsSetup = TopTabsSetup(page, onTabSelectAction)
-            )
-        )
-    }
-
-    override fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TabBadgesState(state)
-        )
-    }
-
-    override fun trySendTopScreenFabSetup(page: Page, fabAction: (() -> Unit)?) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TopScreenFabSetup(
-                fabSetup = FabSetup(page, fabAction)
-            )
-        )
-    }
-
-    override fun trySendEndOfListState(state: Boolean) {
-        topScreenChannel.trySend(
-            TopScreenIntent.EndOfListState(state)
-        )
-    }
-
-    override fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?) {
-        topScreenChannel.trySend(
-            TopScreenIntent.TopScreenPullRefreshSetup(
-                pullRefreshSetup = PullRefreshSetup(refreshAction)
-            )
-        )
-    }
-
-    override fun trySendLoadingState(state: Pair<Boolean, String?>) {
-        topScreenChannel.trySend(
-            TopScreenIntent.LoadingState(state)
-        )
-    }
-
     override fun trySendMainPageState(
         page: Page,
         onSearchAction: ((BaseFilter) -> Unit)?,
@@ -85,59 +35,54 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
             )
         )
     }
+
+    override fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>) {
+        topScreenChannel.trySend(TopScreenIntent.TabBadgesState(state))
+    }
+
+    override fun trySendFabState(isVisible: Boolean) {
+        topScreenChannel.trySend(TopScreenIntent.FabState(state = isVisible))
+    }
+
+    override fun trySendEndOfListState(state: Boolean) {
+        topScreenChannel.trySend(TopScreenIntent.EndOfListState(state))
+    }
+
+    override fun trySendLoadingState(state: Pair<Boolean, String?>) {
+        topScreenChannel.trySend(TopScreenIntent.LoadingState(state))
+    }
 }
 
 @Composable
 fun StateChangedEffect(
     topScreenChannel: Channel<TopScreenIntent>,
-
-    onTopBarSetupIntent: (TopBarSetup) -> Unit = {},
-
-    onTopTabsSetupIntent: (TopTabsSetup) -> Unit = {},
-    onTopBadgeStatesIntent: (List<Triple<Int, Color, Color>>) -> Unit = {},
-
-    onTopScreenFabSetupIntent: (FabSetup) -> Unit = {},
-    onEndOfListIntent: (Boolean) -> Unit = {},
-
-    onTopScreenPullRefreshSetupIntent: (PullRefreshSetup) -> Unit = {},
-    onLoadingState: (Pair<Boolean, String?>) -> Unit = {},
-
     onMainPageSetupIntent: (TopBarSetup, TopTabsSetup, FabSetup, PullRefreshSetup) -> Unit = { _, _, _, _ -> },
+
+    onTopBadgeStatesIntent: (List<Triple<Int, Color, Color>>) -> Unit = {},
+    onFabStateIntent: (Boolean) -> Unit = {},
+    onEndOfListIntent: (Boolean) -> Unit = {},
+    onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit = {},
 ) {
     LaunchedEffect(topScreenChannel) {
         topScreenChannel.receiveAsFlow().collect { intent ->
             Log.d("TopScreenStateImpl", "StateChangedEffect: $intent")
             when (intent) {
-                is TopScreenIntent.TopBarState -> {
-                    onTopBarSetupIntent(intent.topBarSetup)
+                is TopScreenIntent.MainPageSetup -> {
+                    onMainPageSetupIntent(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
                 }
-
-                is TopScreenIntent.TopTabsState -> {
-                    onTopTabsSetupIntent(intent.topTabsSetup)
-                }
-
                 is TopScreenIntent.TabBadgesState -> {
                     onTopBadgeStatesIntent(intent.state)
                 }
 
-                is TopScreenIntent.TopScreenFabSetup -> {
-                    onTopScreenFabSetupIntent(intent.fabSetup)
+                is TopScreenIntent.FabState -> {
+                    onFabStateIntent(intent.state)
                 }
 
                 is TopScreenIntent.EndOfListState -> {
                     onEndOfListIntent(intent.state)
                 }
-
-                is TopScreenIntent.TopScreenPullRefreshSetup -> {
-                    onTopScreenPullRefreshSetupIntent(intent.pullRefreshSetup)
-                }
-
                 is TopScreenIntent.LoadingState -> {
-                    onLoadingState(intent.state)
-                }
-
-                is TopScreenIntent.MainPageSetup -> {
-                    onMainPageSetupIntent(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
+                    onLoadingStateIntent(intent.state)
                 }
             }
         }
