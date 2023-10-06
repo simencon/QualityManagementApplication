@@ -114,7 +114,9 @@ class MainActivity : ComponentActivity() {
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },
 
                 onTopScreenPullRefreshSetupIntent = { viewModel.setupPullRefresh(it) },
-                onLoadingState = { pullRefreshSetup.updateLoadingState(it) }
+                onLoadingState = { pullRefreshSetup.updateLoadingState(it) },
+
+                onMainPageSetupIntent = { p1, p2, p3, p4 -> viewModel.setupMainPage(p1, p2, p3, p4) }
             )
 
             QMAppTheme {
@@ -187,33 +189,33 @@ class MainActivity : ComponentActivity() {
                                 refreshing = observerLoadingProcess,
                                 onRefresh = { pullRefreshSetup.refreshAction?.invoke() }
                             )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(all = 0.dp)
-                                ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(all = 0.dp)
+                            ) {
 
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(it)
-                                    ) {
-                                        TopTabs(topTabsSetup)
-                                        MainScreen(
-                                            viewModel,
-                                            navController
-                                        )
-                                    }
-                                    PullRefreshIndicator(
-                                        refreshing = observerLoadingProcess,
-                                        state = pullRefreshState,
-                                        modifier = Modifier
-                                            .padding(it)
-                                            .align(Alignment.TopCenter),
-                                        backgroundColor = MaterialTheme.colorScheme.onSecondary,
-                                        contentColor = MaterialTheme.colorScheme.secondary
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(it)
+                                ) {
+                                    TopTabs(topTabsSetup)
+                                    MainScreen(
+                                        viewModel,
+                                        navController
                                     )
                                 }
+                                PullRefreshIndicator(
+                                    refreshing = observerLoadingProcess,
+                                    state = pullRefreshState,
+                                    modifier = Modifier
+                                        .padding(it)
+                                        .align(Alignment.TopCenter),
+                                    backgroundColor = MaterialTheme.colorScheme.onSecondary,
+                                    contentColor = MaterialTheme.colorScheme.secondary
+                                )
+                            }
                             if (observerIsNetworkError != null) {
                                 Toast.makeText(this, observerIsNetworkError, Toast.LENGTH_SHORT).show()
                                 pullRefreshSetup.onNetworkErrorShown()

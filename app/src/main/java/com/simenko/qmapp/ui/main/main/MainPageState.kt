@@ -23,16 +23,30 @@ interface MainPageState {
 
     fun trySendPullRefreshSetup(refreshAction: (() -> Unit)?)
     fun trySendLoadingState(state: Pair<Boolean, String?>)
+
+    fun trySendMainPageState(
+        page: Page,
+        onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?,
+        onTabSelectAction: ((SelectedNumber) -> Unit)?,
+        fabAction: (() -> Unit)?,
+        refreshAction: (() -> Unit)?
+    )
 }
 
 sealed class TopScreenIntent {
-    data class TopBarState(val titleSetup: TopBarSetup) : TopScreenIntent()
+    data class TopBarState(val topBarSetup: TopBarSetup) : TopScreenIntent()
     data class TopTabsState(val topTabsSetup: TopTabsSetup) : TopScreenIntent()
     data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent()
     data class TopScreenFabSetup(val fabSetup: FabSetup) : TopScreenIntent()
     data class EndOfListState(val state: Boolean) : TopScreenIntent()
     data class TopScreenPullRefreshSetup(val pullRefreshSetup: PullRefreshSetup) : TopScreenIntent()
     data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
+    data class MainPageSetup(
+        val topBarSetup: TopBarSetup,
+        val topTabsSetup: TopTabsSetup,
+        val fabSetup: FabSetup,
+        val pullRefreshSetup: PullRefreshSetup
+    ) : TopScreenIntent()
 }
 
 enum class Page(
