@@ -150,7 +150,8 @@ fun AppBar(
                         Icon(imageVector = Icons.Filled.Close, contentDescription = topBarSetup.placeholderText)
                     }
                 } else {
-                    Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
+                    if (topBarSetup.title != null)
+                        Text(text = topBarSetup.title, modifier = Modifier.padding(all = 8.dp))
                     if (topBarSetup.titleBtnIcon != null)
                         IconButton(onClick = { topBarSetup.setSearchBarState(true) }) {
                             Icon(imageVector = topBarSetup.titleBtnIcon, contentDescription = topBarSetup.placeholderText, tint = contentColor)
@@ -167,17 +168,18 @@ fun AppBar(
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Hide search bar")
                 }
             else
-                IconButton(
-                    onClick = { scope.launch { topBarSetup.setDrawerMenuState(true) } },
-                    colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
-                ) {
-                    Icon(
-                        imageVector = topBarSetup.navIcon,
-                        contentDescription = "Navigation button",
-                        modifier = Modifier
-                            .rotate(drawerMenuState.offset.value / 1080f * 360f)
-                    )
-                }
+                if (topBarSetup.navIcon != null)
+                    IconButton(
+                        onClick = { scope.launch { topBarSetup.setDrawerMenuState(true) } },
+                        colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
+                    ) {
+                        Icon(
+                            imageVector = topBarSetup.navIcon,
+                            contentDescription = "Navigation button",
+                            modifier = Modifier
+                                .rotate(drawerMenuState.offset.value / 1080f * 360f)
+                        )
+                    }
         },
         actions = {
             if (topBarSetup.actionBtnIcon != null) {
@@ -318,7 +320,7 @@ fun ActionsMenu(
                 setActionMenuState(false)
                 isContextMenuVisible.value = true
             },
-            categories = topBarSetup.actionMenuItems.map { it.group.name }.toSet().toList()
+            categories = topBarSetup.actionMenuItems?.map { it.group.name }?.toSet()?.toList()?: emptyList()
         )
     }
 
@@ -375,7 +377,7 @@ fun ActionsMenuContext(
             .padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 
-    topBarSetup.actionMenuItems.filter { it.group.name == actionsGroup }.forEach { item ->
+    topBarSetup.actionMenuItems?.filter { it.group.name == actionsGroup }?.forEach { item ->
         DropdownMenuItem(
             text = { Text(item.title) },
             onClick = { onContextMenuItemClick(item) },

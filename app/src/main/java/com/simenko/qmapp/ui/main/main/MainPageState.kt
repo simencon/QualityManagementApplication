@@ -36,16 +36,18 @@ sealed class TopScreenIntent {
 }
 
 enum class Page(
-    val navIcon: ImageVector,
-    val title: String,
+    val navIcon: ImageVector?,
+    val title: String?,
     val titlePlaceholderText: String?,
     val keyboardType: KeyboardType?,
     val searchBtnIcon: ImageVector?,
-    val topTabsContent: List<Triple<String, Int, SelectedNumber>>,
+    val topTabsContent: List<Triple<String, Int, SelectedNumber>>?,
     val fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?,
-    val actionMenuItems: List<MenuItem> = emptyList()
+    val actionMenuItems: List<MenuItem>? = null
 ) {
+    EMPTY_PAGE(null, null, null, null, null, null, null, null),
+
     INVESTIGATIONS(
         navIcon = Icons.Filled.Menu,
         title = "All investigations",

@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.flow
 @OptIn(ExperimentalCoroutinesApi::class)
 data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSelectAction: ((SelectedNumber) -> Unit)? = null) {
 
-    private val _badgesContent = MutableStateFlow( Array(screen.topTabsContent.size) { Triple(0, Color.Red, Color.White) })
+    private val _badgesContent = MutableStateFlow(
+        Array(screen.topTabsContent?.size ?: 0) { Triple(0, Color.Red, Color.White) }
+    )
     private val _selectedTab = MutableStateFlow(ZeroValue.num)
     val selectedTab = _selectedTab.asStateFlow()
 
@@ -33,19 +35,21 @@ data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSe
     }
 
     val topTabsContent: Flow<List<TopTabContent>> = _badgesContent.flatMapLatest { badges ->
-        val tmp: MutableList<TopTabContent> = mutableListOf()
-        for (i in screen.topTabsContent.indices) {
-            tmp.add(
-                TopTabContent(
-                    index = i,
-                    tag = screen.topTabsContent[i].third,
-                    name = screen.topTabsContent[i].first,
+        val tmp: MutableList<TopTabContent> = emptyList<TopTabContent>().toMutableList()
+        screen.topTabsContent?.let {
+            for (i in it.indices) {
+                tmp.add(
+                    TopTabContent(
+                        index = i,
+                        tag = it[i].third,
+                        name = it[i].first,
 
-                    badgeCount = badges[i].first,
-                    badgeBg = badges[i].second,
-                    badgeFr = badges[i].third,
+                        badgeCount = badges[i].first,
+                        badgeBg = badges[i].second,
+                        badgeFr = badges[i].third,
+                    )
                 )
-            )
+            }
         }
         flow { emit(tmp.toList()) }
     }
