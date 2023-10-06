@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
                 onTopBarSetupIntent = { viewModel.setupTopBar(it) },
 
                 onTopTabsSetupIntent = { viewModel.setupTopTabs(it) },
-                onTopBadgeStateIntent = { p1, p2 -> topTabsSetup.setBadgeContent(p1, p2) },
+                onTopBadgeStatesIntent = {topTabsSetup.updateBadgeContent(it) },
 
                 onTopScreenFabSetupIntent = { viewModel.setupFab(it) },
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },

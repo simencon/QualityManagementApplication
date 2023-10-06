@@ -34,9 +34,9 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         )
     }
 
-    override fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>) {
+    override fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>) {
         topScreenChannel.trySend(
-            TopScreenIntent.TabBadgeState(tabIndex, state)
+            TopScreenIntent.TabBadgesState(state)
         )
     }
 
@@ -76,7 +76,7 @@ fun StateChangedEffect(
     onTopBarSetupIntent: (TopBarSetup) -> Unit = {},
 
     onTopTabsSetupIntent: (TopTabsSetup) -> Unit = {},
-    onTopBadgeStateIntent: (Int, Triple<Int, Color, Color>) -> Unit = { _, _ -> },
+    onTopBadgeStatesIntent: (List<Triple<Int, Color, Color>>) -> Unit = {},
 
     onTopScreenFabSetupIntent: (FabSetup) -> Unit = {},
     onEndOfListIntent: (Boolean) -> Unit = {},
@@ -96,8 +96,8 @@ fun StateChangedEffect(
                     onTopTabsSetupIntent(intent.topTabsSetup)
                 }
 
-                is TopScreenIntent.TabBadgeState -> {
-                    onTopBadgeStateIntent(intent.tabIndex, intent.state)
+                is TopScreenIntent.TabBadgesState -> {
+                    onTopBadgeStatesIntent(intent.state)
                 }
 
                 is TopScreenIntent.TopScreenFabSetup -> {
