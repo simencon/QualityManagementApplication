@@ -48,18 +48,18 @@ class TeamViewModel @Inject constructor(
     val needToSetup = _needToSetup.asStateFlow()
 
     fun setupMainPage() {
-        mainPageState.trySendTopBarSetup(
+        mainPageState.trySendMainPageState(
             page = Page.TEAM,
             onSearchAction = {
                 setEmployeesFilter(it)
                 setUsersFilter(it)
             },
-            onActionItemClick = null
+            onActionItemClick = null,
+            onTabSelectAction = { navigateByTopTabs(it) },
+            fabAction = { onEmployeeAddEdictClick(NoRecord.num) },
+            refreshAction = { this.updateEmployeesData() }
         )
-        mainPageState.trySendTopTabsSetup(Page.TEAM) { navigateByTopTabs(it) }
-        mainPageState.trySendPullRefreshSetup { this.updateEmployeesData() }
     }
-
     fun setupTopScreenFab(withFab: Boolean) {
         mainPageState.trySendTopScreenFabSetup(
             page = Page.TEAM,

@@ -9,7 +9,6 @@ import com.simenko.qmapp.ui.main.main.setup.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
@@ -19,10 +18,10 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
-    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick:((MenuItem) -> Unit)?) {
+    override fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?) {
         topScreenChannel.trySend(
             TopScreenIntent.TopBarState(
-                titleSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
+                topBarSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
             )
         )
     }
@@ -68,6 +67,24 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
             TopScreenIntent.LoadingState(state)
         )
     }
+
+    override fun trySendMainPageState(
+        page: Page,
+        onSearchAction: ((BaseFilter) -> Unit)?,
+        onActionItemClick: ((MenuItem) -> Unit)?,
+        onTabSelectAction: ((SelectedNumber) -> Unit)?,
+        fabAction: (() -> Unit)?,
+        refreshAction: (() -> Unit)?
+    ) {
+        topScreenChannel.trySend(
+            TopScreenIntent.MainPageSetup(
+                topBarSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
+                topTabsSetup = TopTabsSetup(page, onTabSelectAction),
+                fabSetup = FabSetup(page, fabAction),
+                pullRefreshSetup = PullRefreshSetup(refreshAction)
+            )
+        )
+    }
 }
 
 @Composable
@@ -83,14 +100,16 @@ fun StateChangedEffect(
     onEndOfListIntent: (Boolean) -> Unit = {},
 
     onTopScreenPullRefreshSetupIntent: (PullRefreshSetup) -> Unit = {},
-    onLoadingState: (Pair<Boolean, String?>) -> Unit = {}
+    onLoadingState: (Pair<Boolean, String?>) -> Unit = {},
+
+    onMainPageSetupIntent: (TopBarSetup, TopTabsSetup, FabSetup, PullRefreshSetup) -> Unit = { _, _, _, _ -> },
 ) {
     LaunchedEffect(topScreenChannel) {
         topScreenChannel.receiveAsFlow().collect { intent ->
             Log.d("TopScreenStateImpl", "StateChangedEffect: $intent")
             when (intent) {
                 is TopScreenIntent.TopBarState -> {
-                    onTopBarSetupIntent(intent.titleSetup)
+                    onTopBarSetupIntent(intent.topBarSetup)
                 }
 
                 is TopScreenIntent.TopTabsState -> {
@@ -115,6 +134,10 @@ fun StateChangedEffect(
 
                 is TopScreenIntent.LoadingState -> {
                     onLoadingState(intent.state)
+                }
+
+                is TopScreenIntent.MainPageSetup -> {
+                    onMainPageSetupIntent(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
                 }
             }
         }
