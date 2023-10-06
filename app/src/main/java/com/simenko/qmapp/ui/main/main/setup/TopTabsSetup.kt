@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.main.setup
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.main.main.TabItem
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +31,10 @@ data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSe
                 _topTabsContent.value?.get(i)?.updateBadge(value[i])?.let { cpy.add(it) }
             }
 
-            if (!isEqual) _topTabsContent.value = cpy
+            if (!isEqual) {
+                _topTabsContent.value = cpy
+                println("TopTabsSetup - updateBadgeContent: $cpy")
+            }
         }
     }
 }
