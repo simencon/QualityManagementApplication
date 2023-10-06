@@ -27,8 +27,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -106,7 +108,7 @@ class MainActivity : ComponentActivity() {
                 onTopBarSetupIntent = { viewModel.setupTopBar(it) },
 
                 onTopTabsSetupIntent = { viewModel.setupTopTabs(it) },
-                onTopBadgeStatesIntent = {topTabsSetup.updateBadgeContent(it) },
+                onTopBadgeStatesIntent = { topTabsSetup.updateBadgeContent(it) },
 
                 onTopScreenFabSetupIntent = { viewModel.setupFab(it) },
                 onEndOfListIntent = { fabSetup.onEndOfList(it) },
@@ -180,37 +182,38 @@ class MainActivity : ComponentActivity() {
                             },
                             floatingActionButtonPosition = fabPosition
                         ) {
+
                             val pullRefreshState = rememberPullRefreshState(
                                 refreshing = observerLoadingProcess,
                                 onRefresh = { pullRefreshSetup.refreshAction?.invoke() }
                             )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(all = 0.dp)
-                            ) {
-
-                                Column(
+                                Box(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(it)
+                                        .fillMaxSize()
+                                        .padding(all = 0.dp)
                                 ) {
-                                    TopTabs(topTabsSetup)
-                                    MainScreen(
-                                        viewModel,
-                                        navController
+
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(it)
+                                    ) {
+                                        TopTabs(topTabsSetup)
+                                        MainScreen(
+                                            viewModel,
+                                            navController
+                                        )
+                                    }
+                                    PullRefreshIndicator(
+                                        refreshing = observerLoadingProcess,
+                                        state = pullRefreshState,
+                                        modifier = Modifier
+                                            .padding(it)
+                                            .align(Alignment.TopCenter),
+                                        backgroundColor = MaterialTheme.colorScheme.onSecondary,
+                                        contentColor = MaterialTheme.colorScheme.secondary
                                     )
                                 }
-                                PullRefreshIndicator(
-                                    refreshing = observerLoadingProcess,
-                                    state = pullRefreshState,
-                                    modifier = Modifier
-                                        .padding(it)
-                                        .align(Alignment.TopCenter),
-                                    backgroundColor = MaterialTheme.colorScheme.onSecondary,
-                                    contentColor = MaterialTheme.colorScheme.secondary
-                                )
-                            }
                             if (observerIsNetworkError != null) {
                                 Toast.makeText(this, observerIsNetworkError, Toast.LENGTH_SHORT).show()
                                 pullRefreshSetup.onNetworkErrorShown()

@@ -41,7 +41,9 @@ import androidx.compose.material3.TextFieldDefaults.colors
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +67,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.storage.Principle
@@ -457,6 +461,21 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
             }
         }
     }
+}
+
+@Composable
+fun Lifecycle.observeAsState(): State<Lifecycle.Event> {
+    val state = remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
+    DisposableEffect(this) {
+        val observer = LifecycleEventObserver { _, event ->
+            state.value = event
+        }
+        this@observeAsState.addObserver(observer)
+        onDispose {
+            this@observeAsState.removeObserver(observer)
+        }
+    }
+    return state
 }
 
 enum class AddEditMode(val mode: String) {
