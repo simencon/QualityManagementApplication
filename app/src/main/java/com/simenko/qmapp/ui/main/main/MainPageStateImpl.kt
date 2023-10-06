@@ -54,20 +54,40 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         )
     }
 
+    override suspend fun sendTabBadgesState(state: List<Triple<Int, Color, Color>>) {
+        topScreenChannel.send(TopScreenIntent.TabBadgesState(state))
+    }
+
     override fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>) {
         topScreenChannel.trySend(TopScreenIntent.TabBadgesState(state))
+    }
+
+    override suspend fun sendSelectedTab(selectedTab: Int) {
+        topScreenChannel.send(TopScreenIntent.SelectedTabState(state = selectedTab))
     }
 
     override fun trySendSelectedTab(selectedTab: Int) {
         topScreenChannel.trySend(TopScreenIntent.SelectedTabState(state = selectedTab))
     }
 
+    override suspend fun sendFabVisibility(isVisible: Boolean) {
+        topScreenChannel.send(TopScreenIntent.FabVisibilityState(state = isVisible))
+    }
+
     override fun trySendFabVisibility(isVisible: Boolean) {
         topScreenChannel.trySend(TopScreenIntent.FabVisibilityState(state = isVisible))
     }
 
+    override suspend fun sendEndOfListState(state: Boolean) {
+        topScreenChannel.send(TopScreenIntent.EndOfListState(state))
+    }
+
     override fun trySendEndOfListState(state: Boolean) {
         topScreenChannel.trySend(TopScreenIntent.EndOfListState(state))
+    }
+
+    override suspend fun sendLoadingState(state: Pair<Boolean, String?>) {
+        topScreenChannel.send(TopScreenIntent.LoadingState(state))
     }
 
     override fun trySendLoadingState(state: Pair<Boolean, String?>) {

@@ -112,7 +112,12 @@ fun Orders(
         }
     }
 
-    if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(lastItemIsVisible) {
+        scope.launch {
+            if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
+        }
+    }
 
     LazyColumn(
         modifier = modifier,

@@ -40,7 +40,9 @@ class TeamViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
-    fun logWhenInstantiated() { Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}") }
+    fun logWhenInstantiated() {
+        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
+    }
 
     val setupMainPage: Event<suspend () -> Unit> = Event {
         mainPageState.sendMainPageState(
@@ -55,16 +57,16 @@ class TeamViewModel @Inject constructor(
             refreshAction = { this.updateEmployeesData() })
     }
 
-    val updateFabVisibility: (Boolean) -> Unit = { mainPageState.trySendFabVisibility(it) }
-    val onSelectedTab: (Int) -> Unit = { mainPageState.trySendSelectedTab(it) }
+    val updateFabVisibility: suspend (Boolean) -> Unit = { mainPageState.sendFabVisibility(it) }
+    val onSelectedTab: suspend (Int) -> Unit = { mainPageState.sendSelectedTab(it) }
     private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
-    val onListEnd: (Boolean) -> Unit = { mainPageState.trySendEndOfListState(it) }
+    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
-    private fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
-        mainPageState.trySendTabBadgesState(
+    private suspend fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
+        mainPageState.sendTabBadgesState(
             listOf(
                 Triple(employees.size, Color.Green, Color.Black),
                 Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),

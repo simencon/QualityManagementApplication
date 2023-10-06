@@ -27,10 +27,15 @@ interface MainPageState {
         fabAction: (() -> Unit)?,
         refreshAction: (() -> Unit)?
     )
+    suspend fun sendTabBadgesState(state: List<Triple<Int, Color, Color>>)
     fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>)
+    suspend fun sendSelectedTab(selectedTab: Int)
     fun trySendSelectedTab(selectedTab: Int)
+    suspend fun sendFabVisibility(isVisible: Boolean)
     fun trySendFabVisibility(isVisible: Boolean)
+    suspend fun sendEndOfListState(state: Boolean)
     fun trySendEndOfListState(state: Boolean)
+    suspend fun sendLoadingState(state: Pair<Boolean, String?>)
     fun trySendLoadingState(state: Pair<Boolean, String?>)
 }
 

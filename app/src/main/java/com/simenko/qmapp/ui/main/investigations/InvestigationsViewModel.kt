@@ -60,9 +60,7 @@ class InvestigationsViewModel @Inject constructor(
         mainPageState.trySendLoadingState(state)
     }
 
-    fun onListEnd(state: Boolean) {
-        mainPageState.trySendEndOfListState(state)
-    }
+    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
 
     //        todo-me: ToDo make in proper way later
     fun setupTopScreen(pcOnly: Boolean) {

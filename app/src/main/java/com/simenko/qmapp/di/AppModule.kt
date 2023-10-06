@@ -152,12 +152,6 @@ object AppModule {
         return userRepository.authToken
     }
 
-    @Singleton
-    @Provides
-    fun provideTopScreenState(): MainPageState {
-        return MainPageStateImpl()
-    }
-
 //    @Singleton
     @Provides
     fun provideTestDi(): TestDiClassSingleton {
