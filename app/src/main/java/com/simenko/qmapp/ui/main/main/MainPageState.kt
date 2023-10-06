@@ -16,7 +16,7 @@ interface MainPageState {
     fun trySendTopBarSetup(page: Page, onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?)
 
     fun trySendTopTabsSetup(page: Page, onTabSelectAction: ((SelectedNumber) -> Unit)?)
-    fun trySendTabBadgeState(tabIndex: Int, state: Triple<Int, Color, Color>)
+    fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>)
 
     fun trySendTopScreenFabSetup(page: Page, fabAction: (() -> Unit)?)
     fun trySendEndOfListState(state: Boolean)
@@ -28,7 +28,7 @@ interface MainPageState {
 sealed class TopScreenIntent {
     data class TopBarState(val titleSetup: TopBarSetup) : TopScreenIntent()
     data class TopTabsState(val topTabsSetup: TopTabsSetup) : TopScreenIntent()
-    data class TabBadgeState(val tabIndex: Int, val state: Triple<Int, Color, Color>) : TopScreenIntent()
+    data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent()
     data class TopScreenFabSetup(val fabSetup: FabSetup) : TopScreenIntent()
     data class EndOfListState(val state: Boolean) : TopScreenIntent()
     data class TopScreenPullRefreshSetup(val pullRefreshSetup: PullRefreshSetup) : TopScreenIntent()
@@ -41,7 +41,7 @@ enum class Page(
     val titlePlaceholderText: String?,
     val keyboardType: KeyboardType?,
     val searchBtnIcon: ImageVector?,
-    val topTabsContent: List<Triple<String, Int, SelectedNumber>>?,
+    val topTabsContent: List<TabItem>?,
     val fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?,
     val actionMenuItems: List<MenuItem>? = null
@@ -54,7 +54,7 @@ enum class Page(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toListOfTriples(),
+        topTabsContent = ProgressTabs.toList(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = InvestigationsActions.toList()
@@ -65,7 +65,7 @@ enum class Page(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toListOfTriples(),
+        topTabsContent = ProgressTabs.toList(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = ProcessControlActions.toList()
@@ -76,27 +76,27 @@ enum class Page(
         titlePlaceholderText = "Search by full name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TeamTabs.toListOfTriples(),
+        topTabsContent = TeamTabs.toList(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = TeamActions.toList()
     ),
 
-
-    ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, emptyList(), null, null),
-    EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, emptyList(), null, null),
-    AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, emptyList(), null, null),
-    EDIT_USER(Icons.Filled.ArrowBack, "Edit user", null, null, null, emptyList(), null, null),
-    NO_MODE(Icons.Filled.ArrowBack, "No mode", null, null, null, emptyList(), null, null),
-    ADD_ORDER(Icons.Filled.ArrowBack, "New investigation order", null, null, null, emptyList(), null, null),
-    EDIT_ORDER(Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, emptyList(), null, null),
-    ADD_SUB_ORDER(Icons.Filled.ArrowBack, "Add new sub order", null, null, null, emptyList(), null, null),
-    EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, emptyList(), null, null),
-    ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, emptyList(), null, null),
-    EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, emptyList(), null, null),
-    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, emptyList(), null, null),
+    ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, null, null),
+    EDIT_EMPLOYEE(Icons.Filled.ArrowBack, "Edit employee", null, null, null, null, null, null),
+    AUTHORIZE_USER(Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, null, null),
+    EDIT_USER(Icons.Filled.ArrowBack, "Edit user", null, null, null, null, null, null),
+    NO_MODE(Icons.Filled.ArrowBack, "No mode", null, null, null, null, null, null),
+    ADD_ORDER(Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, null, null),
+    EDIT_ORDER(Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, null, null),
+    ADD_SUB_ORDER(Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, null, null),
+    EDIT_SUB_ORDER(Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null, null),
+    ADD_SUB_ORDER_SA(Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null, null),
+    EDIT_SUB_ORDER_SA(Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null, null),
+    ACCOUNT_EDIT(Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null, null),
     ;
 }
+
 interface MenuItem {
     val tag: String
     val title: String
@@ -118,8 +118,13 @@ interface TabItem {
     val title: String
 
     var badgeCount: Int
-    var badgeBg: Color
-    var badgeFr: Color
+    var badgeBackgroundColor: Color
+    var badgeContentColor: Color
 
-    fun updateBadge(state: Triple<Int, Color, Color>)
+    fun getBadge(): Triple<Int, Color, Color>
+    fun updateBadge(state: Triple<Int, Color, Color>): TabItem
+
+    interface Static {
+        val startingTabItem: TabItem
+    }
 }

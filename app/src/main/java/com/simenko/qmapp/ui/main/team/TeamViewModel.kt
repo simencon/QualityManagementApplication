@@ -78,9 +78,13 @@ class TeamViewModel @Inject constructor(
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
     private fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
-        mainPageState.trySendTabBadgeState(0, Triple(employees.size, Color.Green, Color.Black))
-        mainPageState.trySendTabBadgeState(1, Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black))
-        mainPageState.trySendTabBadgeState(2, Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White))
+        mainPageState.trySendTabBadgesState(
+            listOf(
+                Triple(employees.size, Color.Green, Color.Black),
+                Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),
+                Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
+            )
+        )
     }
 
     val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }

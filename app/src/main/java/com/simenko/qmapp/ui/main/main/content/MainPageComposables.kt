@@ -423,7 +423,7 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
     val selectedTabIndex by topTabsSetup.selectedTab.collectAsStateWithLifecycle()
 
     TabRow(selectedTabIndex = selectedTabIndex) {
-        tabs.forEach {
+        tabs?.forEach {
             val selected = selectedTabIndex == it.index
             Tab(
                 modifier = Modifier.height(40.dp),
@@ -432,10 +432,10 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
             ) {
                 if (it.badgeCount > 0)
                     BadgedBox(badge = {
-                        Box(modifier = Modifier.background(color = it.badgeBg, shape = RoundedCornerShape(size = 3.dp))) {
+                        Box(modifier = Modifier.background(color = it.badgeBackgroundColor, shape = RoundedCornerShape(size = 3.dp))) {
                             Text(
                                 text = it.badgeCount.toString(),
-                                color = it.badgeFr,
+                                color = it.badgeContentColor,
                                 fontSize = 8.sp,
                                 fontWeight = if (selected) FontWeight.Black else FontWeight.SemiBold
                             )
@@ -443,14 +443,14 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
                     }
                     ) {
                         Text(
-                            text = getWithSpaces(it.name),
+                            text = getWithSpaces(it.title),
                             fontSize = 12.sp,
                             style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
                         )
                     }
                 else
                     Text(
-                        text = getWithSpaces(it.name),
+                        text = getWithSpaces(it.title),
                         fontSize = 12.sp,
                         style = if (selected) LocalTextStyle.current.copy(fontWeight = FontWeight.Bold) else LocalTextStyle.current
                     )
