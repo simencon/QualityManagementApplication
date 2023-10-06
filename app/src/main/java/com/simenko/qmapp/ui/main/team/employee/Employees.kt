@@ -40,6 +40,7 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -76,7 +77,12 @@ fun Employees(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
 
-    if (lastItemIsVisible) viewModel.onListEnd(true) else viewModel.onListEnd(false)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(lastItemIsVisible) {
+        scope.launch {
+            if (lastItemIsVisible) viewModel.onListEnd(true) else viewModel.onListEnd(false)
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

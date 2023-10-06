@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -14,7 +13,6 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -88,7 +86,12 @@ fun SubOrdersStandAlone(
         }
     }
 
-    if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(lastItemIsVisible) {
+        scope.launch {
+            if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
+        }
+    }
 
     LazyColumn(
         modifier = modifier,
