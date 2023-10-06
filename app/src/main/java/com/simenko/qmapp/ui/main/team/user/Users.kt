@@ -59,7 +59,8 @@ fun Users(
 
     LaunchedEffect(isUsersPage) {
         viewModel.setUsersFilter(BaseFilter(newUsers = !isUsersPage))
-        viewModel.updateFabState(false)
+        if(isUsersPage) viewModel.onSelectedTab(1) else viewModel.onSelectedTab(2)
+        viewModel.updateFabVisibility(false)
     }
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()

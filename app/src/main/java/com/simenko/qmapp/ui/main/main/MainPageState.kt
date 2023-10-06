@@ -13,6 +13,13 @@ import kotlinx.coroutines.channels.Channel
 
 interface MainPageState {
     val topScreenChannel: Channel<TopScreenIntent>
+    suspend fun sendMainPageState(
+        page: Page,
+        onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?,
+        onTabSelectAction: ((SelectedNumber) -> Unit)?,
+        fabAction: (() -> Unit)?,
+        refreshAction: (() -> Unit)?
+    )
     fun trySendMainPageState(
         page: Page,
         onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?,
@@ -21,7 +28,8 @@ interface MainPageState {
         refreshAction: (() -> Unit)?
     )
     fun trySendTabBadgesState(state: List<Triple<Int, Color, Color>>)
-    fun trySendFabState(isVisible: Boolean)
+    fun trySendSelectedTab(selectedTab: Int)
+    fun trySendFabVisibility(isVisible: Boolean)
     fun trySendEndOfListState(state: Boolean)
     fun trySendLoadingState(state: Pair<Boolean, String?>)
 }
@@ -35,7 +43,8 @@ sealed class TopScreenIntent {
     ) : TopScreenIntent()
 
     data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent()
-    data class FabState(val state: Boolean) : TopScreenIntent()
+    class SelectedTabState(val state: Int) : TopScreenIntent()
+    data class FabVisibilityState(val state: Boolean) : TopScreenIntent()
     data class EndOfListState(val state: Boolean) : TopScreenIntent()
     data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
 }

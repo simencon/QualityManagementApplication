@@ -13,6 +13,10 @@ data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSe
     private val _selectedTab = MutableStateFlow(ZeroValue.num)
     val selectedTab = _selectedTab.asStateFlow()
 
+    val setSelectedTab: (Int)-> Unit = {
+        if(_selectedTab.value!= it) _selectedTab.value = it
+    }
+
     val onTabSelect: (Int, SelectedNumber) -> Unit = { index, tag ->
         if (_selectedTab.value != index) {
             _selectedTab.value = index
