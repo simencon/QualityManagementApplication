@@ -17,13 +17,13 @@ data class TopBarSetup(
     var onSearchAction: ((BaseFilter) -> Unit)? = null,
     var onActionItemClick:((MenuItem) -> Unit)? = null
 ) {
-    val navIcon = page.navIcon
-    val title: String = page.title
+    val navIcon: ImageVector? = page.navIcon
+    val title: String? = page.title
     val placeholderText: String? = page.titlePlaceholderText
     val keyboardType: KeyboardType? = page.keyboardType
     val titleBtnIcon: ImageVector? = page.searchBtnIcon
     val actionBtnIcon: ImageVector? = page.actionBtnIcon
-    val actionMenuItems: List<MenuItem> = page.actionMenuItems
+    val actionMenuItems: List<MenuItem>? = page.actionMenuItems
 
     private val _selectedDrawerMenuItemId = MutableStateFlow(DrawerMenuItems.startingDrawerMenuItem.tag)
     val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
