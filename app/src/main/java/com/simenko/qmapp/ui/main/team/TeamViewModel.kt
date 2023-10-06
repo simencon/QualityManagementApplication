@@ -40,15 +40,10 @@ class TeamViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
-    fun logWhenInstantiated() {
-        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
-    }
+    fun logWhenInstantiated() { Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}") }
 
-    private val _needToSetup = MutableStateFlow(Event(Unit))
-    val needToSetup = _needToSetup.asStateFlow()
-
-    fun setupMainPage() {
-        mainPageState.trySendMainPageState(
+    val setupMainPage: Event<suspend () -> Unit> = Event {
+        mainPageState.sendMainPageState(
             page = Page.TEAM,
             onSearchAction = {
                 setEmployeesFilter(it)
@@ -57,16 +52,13 @@ class TeamViewModel @Inject constructor(
             onActionItemClick = null,
             onTabSelectAction = { navigateByTopTabs(it) },
             fabAction = { onEmployeeAddEdictClick(NoRecord.num) },
-            refreshAction = { this.updateEmployeesData() }
-        )
-    }
-    fun updateFabState(withFab: Boolean) {
-        mainPageState.trySendFabState(withFab)
+            refreshAction = { this.updateEmployeesData() })
     }
 
-    private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        mainPageState.trySendLoadingState(state)
-    }
+    val updateFabVisibility: (Boolean) -> Unit = { mainPageState.trySendFabVisibility(it) }
+    val onSelectedTab: (Int) -> Unit = { mainPageState.trySendSelectedTab(it) }
+    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
+    val onListEnd: (Boolean) -> Unit = { mainPageState.trySendEndOfListState(it) }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
@@ -90,10 +82,6 @@ class TeamViewModel @Inject constructor(
     val selectedEmployeeRecord = _selectedEmployeeRecord.asStateFlow()
     fun setSelectedEmployeeRecord(id: Int) {
         if (selectedEmployeeRecord.value.peekContent() != id) this._selectedEmployeeRecord.value = Event(id)
-    }
-
-    fun onListEnd(state: Boolean) {
-        mainPageState.trySendEndOfListState(state)
     }
 
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete

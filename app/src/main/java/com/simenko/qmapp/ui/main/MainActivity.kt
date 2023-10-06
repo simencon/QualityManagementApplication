@@ -105,8 +105,9 @@ class MainActivity : ComponentActivity() {
                 onMainPageSetupIntent = { p1, p2, p3, p4 -> viewModel.setupMainPage(p1, p2, p3, p4) },
 
                 onTopBadgeStatesIntent = { topTabsSetup.updateBadgeContent(it) },
-                onFabStateIntent = { fabSetup.setFabVisibility(it) },
-                onEndOfListIntent = { fabSetup.onEndOfList(it) },
+                onSelectedTabStateIntent = { topTabsSetup.setSelectedTab(it) },
+                onFabVisibilityStateIntent = { fabSetup.setFabVisibility(it) },
+                onEndOfListStateIntent = { fabSetup.onEndOfList(it) },
                 onLoadingStateIntent = { pullRefreshSetup.updateLoadingState(it) },
             )
 

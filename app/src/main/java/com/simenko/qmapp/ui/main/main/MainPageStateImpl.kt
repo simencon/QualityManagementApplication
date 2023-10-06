@@ -18,6 +18,24 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         onBufferOverflow = BufferOverflow.DROP_LATEST,
     )
 
+    override suspend fun sendMainPageState(
+        page: Page,
+        onSearchAction: ((BaseFilter) -> Unit)?,
+        onActionItemClick: ((MenuItem) -> Unit)?,
+        onTabSelectAction: ((SelectedNumber) -> Unit)?,
+        fabAction: (() -> Unit)?,
+        refreshAction: (() -> Unit)?
+    ) {
+        topScreenChannel.send(
+            TopScreenIntent.MainPageSetup(
+                topBarSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
+                topTabsSetup = TopTabsSetup(page, onTabSelectAction),
+                fabSetup = FabSetup(page, fabAction),
+                pullRefreshSetup = PullRefreshSetup(refreshAction)
+            )
+        )
+    }
+
     override fun trySendMainPageState(
         page: Page,
         onSearchAction: ((BaseFilter) -> Unit)?,
@@ -40,8 +58,12 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         topScreenChannel.trySend(TopScreenIntent.TabBadgesState(state))
     }
 
-    override fun trySendFabState(isVisible: Boolean) {
-        topScreenChannel.trySend(TopScreenIntent.FabState(state = isVisible))
+    override fun trySendSelectedTab(selectedTab: Int) {
+        topScreenChannel.trySend(TopScreenIntent.SelectedTabState(state = selectedTab))
+    }
+
+    override fun trySendFabVisibility(isVisible: Boolean) {
+        topScreenChannel.trySend(TopScreenIntent.FabVisibilityState(state = isVisible))
     }
 
     override fun trySendEndOfListState(state: Boolean) {
@@ -59,8 +81,9 @@ fun StateChangedEffect(
     onMainPageSetupIntent: (TopBarSetup, TopTabsSetup, FabSetup, PullRefreshSetup) -> Unit = { _, _, _, _ -> },
 
     onTopBadgeStatesIntent: (List<Triple<Int, Color, Color>>) -> Unit = {},
-    onFabStateIntent: (Boolean) -> Unit = {},
-    onEndOfListIntent: (Boolean) -> Unit = {},
+    onSelectedTabStateIntent: (Int) -> Unit = {},
+    onFabVisibilityStateIntent: (Boolean) -> Unit = {},
+    onEndOfListStateIntent: (Boolean) -> Unit = {},
     onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit = {},
 ) {
     LaunchedEffect(topScreenChannel) {
@@ -70,20 +93,11 @@ fun StateChangedEffect(
                 is TopScreenIntent.MainPageSetup -> {
                     onMainPageSetupIntent(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
                 }
-                is TopScreenIntent.TabBadgesState -> {
-                    onTopBadgeStatesIntent(intent.state)
-                }
-
-                is TopScreenIntent.FabState -> {
-                    onFabStateIntent(intent.state)
-                }
-
-                is TopScreenIntent.EndOfListState -> {
-                    onEndOfListIntent(intent.state)
-                }
-                is TopScreenIntent.LoadingState -> {
-                    onLoadingStateIntent(intent.state)
-                }
+                is TopScreenIntent.TabBadgesState -> onTopBadgeStatesIntent(intent.state)
+                is TopScreenIntent.SelectedTabState -> onSelectedTabStateIntent(intent.state)
+                is TopScreenIntent.FabVisibilityState -> onFabVisibilityStateIntent(intent.state)
+                is TopScreenIntent.EndOfListState -> onEndOfListStateIntent(intent.state)
+                is TopScreenIntent.LoadingState -> onLoadingStateIntent(intent.state)
             }
         }
     }
