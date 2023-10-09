@@ -1,10 +1,12 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,10 +20,33 @@ class SettingsViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        mainPageState.trySendLoadingState(state)
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val setupMainPage: Event<suspend () -> Unit> = Event {
+        mainPageState.sendMainPageState(
+            page = Page.ACCOUNT_SETTINGS,
+            onSearchAction = null,
+            onActionItemClick = null,
+            onTabSelectAction = null,
+            fabAction = null,
+            refreshAction = { this.updateUserData() })
+    }
+    val updateFabVisibility: suspend (Boolean) -> Unit = { mainPageState.sendFabVisibility(it) }
+    val onSelectedTab: suspend () -> Unit = { mainPageState.sendSelectedTab(0) }
+    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
+    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
+
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun onUserDataEditClick() {
+        appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.link)
     }
 
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
     private val _isApproveActionVisible = MutableStateFlow(false)
     val isApproveActionVisible: StateFlow<Boolean> = _isApproveActionVisible
     fun hideActionApproveDialog() {
@@ -53,14 +78,5 @@ class SettingsViewModel @Inject constructor(
     private fun updateUserData() {
         updateLoadingState(Pair(true, null))
         userRepository.updateUserData()
-    }
-
-    fun onUserDataEditClick() {
-        appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.link)
-    }
-
-    fun setupTopScreen() {
-//        todo-me: ToDo make in proper way later
-        /*topScreenState.trySendTopScreenSetup(Pair(AddEditMode.NO_MODE) { }, { updateUserData() }, {})*/
     }
 }

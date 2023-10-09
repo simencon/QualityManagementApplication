@@ -1,16 +1,11 @@
 package com.simenko.qmapp.ui.main.main
 
-import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.Lifecycle
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.setup.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 import javax.inject.Inject
 
 class MainPageStateImpl @Inject constructor() : MainPageState {
