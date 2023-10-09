@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.ui.main.main.StateChangedEffect
 import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,12 +50,6 @@ class UserActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            StateChangedEffect(
-                topScreenChannel = userViewModel.topScreenChannel,
-                onStartHappen = true,
-                onLoadingStateIntent = { userViewModel.updateLoadingState(it) }
-            )
-
             QMAppTheme {
                 val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()
 
