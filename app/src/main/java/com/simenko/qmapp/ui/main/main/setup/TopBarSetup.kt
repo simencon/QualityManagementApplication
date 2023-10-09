@@ -26,7 +26,7 @@ data class TopBarSetup(
     val actionMenuItems: List<MenuItem>? = page.actionMenuItems
 
     private val _selectedDrawerMenuItemId = MutableStateFlow(DrawerMenuItems.startingDrawerMenuItem.tag)
-    val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
+    val selectedDrawerMenuItemId get() = _selectedDrawerMenuItemId.asStateFlow()
     fun setDrawerMenuItemId(id: String) {
         this._selectedDrawerMenuItemId.value = id
     }

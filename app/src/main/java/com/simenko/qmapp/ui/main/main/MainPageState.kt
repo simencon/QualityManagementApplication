@@ -67,6 +67,18 @@ enum class Page(
 ) {
     EMPTY_PAGE(null, null, null, null, null, null, null, null),
 
+    TEAM(
+        navIcon = Icons.Filled.Menu,
+        title = "Company team",
+        titlePlaceholderText = "Search by full name",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = TeamTabs.toList(),
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = Icons.Filled.MoreVert,
+        actionMenuItems = TeamActions.toList()
+    ),
+
     INVESTIGATIONS(
         navIcon = Icons.Filled.Menu,
         title = "All investigations",
@@ -89,16 +101,16 @@ enum class Page(
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = ProcessControlActions.toList()
     ),
-    TEAM(
+    ACCOUNT_SETTINGS(
         navIcon = Icons.Filled.Menu,
-        title = "Company team",
-        titlePlaceholderText = "Search by full name",
-        keyboardType = KeyboardType.Text,
-        searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = TeamTabs.toList(),
-        fabIcon = Icons.Filled.Add,
+        title = "Account settings",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = null,
+        fabIcon = null,
         actionBtnIcon = Icons.Filled.MoreVert,
-        actionMenuItems = TeamActions.toList()
+        actionMenuItems = AccountSettingsActions.toList()
     ),
 
     ADD_EMPLOYEE(Icons.Filled.ArrowBack, "Add new employee", null, null, null, null, null, null),

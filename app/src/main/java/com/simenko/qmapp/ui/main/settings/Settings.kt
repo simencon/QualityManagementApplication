@@ -52,7 +52,10 @@ fun Settings(
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     LaunchedEffect(userState) {
-        viewModel.setupTopScreen()
+        viewModel.setupMainPage.getContentIfNotHandled()?.invoke()
+        viewModel.updateFabVisibility(false)
+        viewModel.onSelectedTab()
+        viewModel.onListEnd(false)
 
         userState.let {
             when (it) {
@@ -115,9 +118,11 @@ fun Settings(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier.padding(all = 0.dp)
         ) {
-            Spacer(modifier = Modifier
-                .width(320.dp)
-                .height(0.dp))
+            Spacer(
+                modifier = Modifier
+                    .width(320.dp)
+                    .height(0.dp)
+            )
             InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = viewModel.userLocalData.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
