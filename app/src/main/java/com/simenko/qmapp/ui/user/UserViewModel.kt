@@ -4,18 +4,28 @@ import android.content.Context
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
+import com.simenko.qmapp.ui.main.main.TopScreenIntent
+import com.simenko.qmapp.ui.main.main.setup.FabSetup
+import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "UserViewModel"
@@ -28,8 +38,32 @@ class UserViewModel @Inject constructor(
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
-    val topScreenChannel = mainPageState.topScreenChannel
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    init {
+        println("Main page setup - mainPageState - $mainPageState")
+        subscribeEvents(mainPageState.topScreenChannel.receiveAsFlow())
+    }
 
+    private fun subscribeEvents(intents: Flow<TopScreenIntent>) {
+        viewModelScope.launch {
+            intents.collect {
+                handleEvent(it)
+            }
+        }
+    }
+
+    private fun handleEvent(intent: TopScreenIntent) {
+        when (intent) {
+            is TopScreenIntent.LoadingState -> updateLoadingState(intent.state)
+            else -> {}
+        }
+    }
+
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
     fun logWhenInstantiated() {
         Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
     }

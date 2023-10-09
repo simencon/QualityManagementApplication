@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,7 +42,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.ui.main.main.StateChangedEffect
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.navigation.Route
@@ -100,20 +98,6 @@ class MainActivity : ComponentActivity() {
             val topTabsSetup by viewModel.topTabsSetup.collectAsStateWithLifecycle()
             val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
             val pullRefreshSetup by viewModel.pullRefreshSetup.collectAsStateWithLifecycle()
-
-            val onStartHappen by viewModel.onStartHappen.collectAsStateWithLifecycle()
-
-            StateChangedEffect(
-                topScreenChannel = viewModel.topScreenChannel,
-                onStartHappen = onStartHappen,
-                onMainPageSetupIntent = { p1, p2, p3, p4 -> viewModel.setupMainPage(p1, p2, p3, p4) },
-
-                onTopBadgeStatesIntent = { topTabsSetup.updateBadgeContent(it) },
-                onSelectedTabStateIntent = { topTabsSetup.setSelectedTab(it) },
-                onFabVisibilityStateIntent = { fabSetup.setFabVisibility(it) },
-                onEndOfListStateIntent = { fabSetup.onEndOfList(it) },
-                onLoadingStateIntent = { pullRefreshSetup.updateLoadingState(it) },
-            )
 
             QMAppTheme {
                 val scope = rememberCoroutineScope()
@@ -222,11 +206,6 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.setOnStartHappen()
     }
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

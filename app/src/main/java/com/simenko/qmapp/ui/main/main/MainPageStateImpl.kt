@@ -95,32 +95,3 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
         topScreenChannel.trySend(TopScreenIntent.LoadingState(state))
     }
 }
-
-@Composable
-fun StateChangedEffect(
-    topScreenChannel: Channel<TopScreenIntent>,
-    onStartHappen: Boolean,
-    onMainPageSetupIntent: (TopBarSetup, TopTabsSetup, FabSetup, PullRefreshSetup) -> Unit = { _, _, _, _ -> },
-
-    onTopBadgeStatesIntent: (List<Triple<Int, Color, Color>>) -> Unit = {},
-    onSelectedTabStateIntent: (Int) -> Unit = {},
-    onFabVisibilityStateIntent: (Boolean) -> Unit = {},
-    onEndOfListStateIntent: (Boolean) -> Unit = {},
-    onLoadingStateIntent: (Pair<Boolean, String?>) -> Unit = {},
-) {
-    LaunchedEffect(topScreenChannel, onStartHappen) {
-        Log.d("TopScreenStateImpl", "lifecycleState: $onStartHappen")
-        if (onStartHappen)
-            topScreenChannel.receiveAsFlow().collect { intent ->
-                Log.d("TopScreenStateImpl", "StateChangedEffect: $intent")
-                when (intent) {
-                    is TopScreenIntent.MainPageSetup -> onMainPageSetupIntent(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
-                    is TopScreenIntent.TabBadgesState -> onTopBadgeStatesIntent(intent.state)
-                    is TopScreenIntent.SelectedTabState -> onSelectedTabStateIntent(intent.state)
-                    is TopScreenIntent.FabVisibilityState -> onFabVisibilityStateIntent(intent.state)
-                    is TopScreenIntent.EndOfListState -> onEndOfListStateIntent(intent.state)
-                    is TopScreenIntent.LoadingState -> onLoadingStateIntent(intent.state)
-                }
-            }
-    }
-}

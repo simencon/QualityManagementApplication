@@ -12,6 +12,7 @@ import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.main.main.setup.FabSetup
 import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
@@ -20,8 +21,12 @@ import com.simenko.qmapp.ui.main.main.content.Common
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -38,30 +43,7 @@ class MainActivityViewModel @Inject constructor(
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
-    val topScreenChannel = mainPageState.topScreenChannel
     val userInfo get() = userRepository.user
-
-    /**
-     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
-     * */
-    private val _onStartHappen = MutableStateFlow(false)
-    val onStartHappen = _onStartHappen.asStateFlow()
-    fun setOnStartHappen() {
-        _onStartHappen.value = true
-    }
-    fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
-        this._topBarSetup.value = topBarSetup
-        val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
-        topBarSetup.onActionItemClick = {
-            currentOnActionItemClick?.invoke(it)
-            if (it == Common.UPLOAD_MASTER_DATA) {
-                refreshMasterDataFromRepository()
-            }
-        }
-        this._topTabsSetup.value = topTabsSetup
-        this._fabSetup.value = fabSetup
-        this._pullRefreshSetup.value = pullRefreshSetup
-    }
 
     /**
      * Top bar state holders -------------------------------------------------------------------------------------------------------------------------
@@ -86,6 +68,47 @@ class MainActivityViewModel @Inject constructor(
      * */
     private val _pullRefreshSetup = MutableStateFlow(PullRefreshSetup())
     val pullRefreshSetup get() = _pullRefreshSetup.asStateFlow()
+
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    init {
+        println("Main page setup - mainPageState - $mainPageState")
+        subscribeEvents(mainPageState.topScreenChannel.receiveAsFlow())
+    }
+
+    private fun subscribeEvents(intents: Flow<TopScreenIntent>) {
+        viewModelScope.launch {
+            combine(intents, _topTabsSetup, _fabSetup, _pullRefreshSetup) { intent, topTabsSetup, fabSetup, pullRefreshSetup ->
+                handleEvent(intent, topTabsSetup, fabSetup, pullRefreshSetup)
+            }.collect()
+        }
+    }
+
+    private fun handleEvent(intent: TopScreenIntent, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+        when (intent) {
+            is TopScreenIntent.MainPageSetup -> setupMainPage(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
+            is TopScreenIntent.TabBadgesState -> topTabsSetup.updateBadgeContent(intent.state)
+            is TopScreenIntent.SelectedTabState -> topTabsSetup.setSelectedTab(intent.state)
+            is TopScreenIntent.FabVisibilityState -> fabSetup.setFabVisibility(intent.state)
+            is TopScreenIntent.EndOfListState -> fabSetup.onEndOfList(intent.state)
+            is TopScreenIntent.LoadingState -> pullRefreshSetup.updateLoadingState(intent.state)
+        }
+    }
+
+    private fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+        this._topBarSetup.value = topBarSetup
+        val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
+        topBarSetup.onActionItemClick = {
+            currentOnActionItemClick?.invoke(it)
+            if (it == Common.UPLOAD_MASTER_DATA) {
+                refreshMasterDataFromRepository()
+            }
+        }
+        this._topTabsSetup.value = topTabsSetup
+        this._fabSetup.value = fabSetup
+        this._pullRefreshSetup.value = pullRefreshSetup
+    }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
