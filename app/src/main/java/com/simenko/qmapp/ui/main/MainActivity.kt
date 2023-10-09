@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -100,8 +101,11 @@ class MainActivity : ComponentActivity() {
             val fabSetup by viewModel.fabSetup.collectAsStateWithLifecycle()
             val pullRefreshSetup by viewModel.pullRefreshSetup.collectAsStateWithLifecycle()
 
+            val onStartHappen by viewModel.onStartHappen.collectAsStateWithLifecycle()
+
             StateChangedEffect(
                 topScreenChannel = viewModel.topScreenChannel,
+                onStartHappen = onStartHappen,
                 onMainPageSetupIntent = { p1, p2, p3, p4 -> viewModel.setupMainPage(p1, p2, p3, p4) },
 
                 onTopBadgeStatesIntent = { topTabsSetup.updateBadgeContent(it) },
@@ -218,6 +222,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.setOnStartHappen()
     }
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
