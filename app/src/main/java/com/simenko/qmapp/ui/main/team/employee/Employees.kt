@@ -60,7 +60,6 @@ fun Employees(
 
     LaunchedEffect(Unit) {
         viewModel.setupMainPage.getContentIfNotHandled()?.invoke()
-        viewModel.logWhenInstantiated()
         viewModel.onSelectedTab(0)
         viewModel.updateFabVisibility(true)
     }

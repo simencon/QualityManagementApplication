@@ -131,15 +131,6 @@ class MainActivityViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
     }
 
-    fun onAddInvClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
-    }
-
-    fun onAddProcessControlClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
-    }
-
-
     private fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
             pullRefreshSetup.value.updateLoadingState(Pair(true, null))
