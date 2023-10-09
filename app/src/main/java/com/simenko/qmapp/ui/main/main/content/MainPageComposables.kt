@@ -423,11 +423,11 @@ fun ItemsGroup(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(topTabsSetup: TopTabsSetup) {
-    val tabs by topTabsSetup.topTabsContent.collectAsStateWithLifecycle(initialValue = emptyList())
+    val tabs by topTabsSetup.topTabsContent.collectAsStateWithLifecycle()
     val selectedTabIndex by topTabsSetup.selectedTab.collectAsStateWithLifecycle()
 
     TabRow(selectedTabIndex = selectedTabIndex) {
-        tabs?.forEach {
+        tabs.items.forEach {
             val selected = selectedTabIndex == it.index
             Tab(
                 modifier = Modifier.height(40.dp),

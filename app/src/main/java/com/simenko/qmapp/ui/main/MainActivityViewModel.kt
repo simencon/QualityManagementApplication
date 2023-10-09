@@ -86,6 +86,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun handleEvent(intent: TopScreenIntent, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+        println("Main page setup - handleEvent - $intent")
         when (intent) {
             is TopScreenIntent.MainPageSetup -> setupMainPage(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
             is TopScreenIntent.TabBadgesState -> topTabsSetup.updateBadgeContent(intent.state)

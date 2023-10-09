@@ -13,8 +13,8 @@ data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSe
     private val _selectedTab = MutableStateFlow(ZeroValue.num)
     val selectedTab = _selectedTab.asStateFlow()
 
-    val setSelectedTab: (Int)-> Unit = {
-        if(_selectedTab.value!= it) _selectedTab.value = it
+    val setSelectedTab: (Int) -> Unit = {
+        if (_selectedTab.value != it) _selectedTab.value = it
     }
 
     val onTabSelect: (Int, SelectedNumber) -> Unit = { index, tag ->
@@ -24,21 +24,23 @@ data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSe
         }
     }
 
-    private val _topTabsContent = MutableStateFlow(screen.topTabsContent)
+    private val _topTabsContent = MutableStateFlow(TabItems(screen.topTabsContent ?: emptyList(), false))
     val topTabsContent get() = _topTabsContent.asStateFlow()
     fun updateBadgeContent(value: List<Triple<Int, Color, Color>>) {
-        if (value.size == _topTabsContent.value?.size) {
+        if (value.size == _topTabsContent.value.items.size) {
             var isEqual = true
-            val cpy = mutableListOf<TabItem>()
-            for (i in value.indices) {
-                if (value[i] != _topTabsContent.value?.get(i)?.getBadge()) isEqual = false
-                _topTabsContent.value?.get(i)?.updateBadge(value[i])?.let { cpy.add(it) }
+
+            value.mapIndexed { index, triple ->
+                if (triple != _topTabsContent.value.items[index].getBadge()) isEqual = false
+                _topTabsContent.value.items[index].updateBadge(triple)
             }
 
             if (!isEqual) {
-                _topTabsContent.value = cpy
-                println("TopTabsSetup - updateBadgeContent: $cpy")
+                val trigger = _topTabsContent.value.trigger
+                _topTabsContent.value = _topTabsContent.value.copy(trigger = !trigger)
             }
         }
     }
+
+    data class TabItems(val items: List<TabItem>, val trigger: Boolean)
 }
