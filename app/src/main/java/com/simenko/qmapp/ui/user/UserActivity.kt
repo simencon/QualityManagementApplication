@@ -53,6 +53,7 @@ class UserActivity : ComponentActivity() {
         setContent {
             StateChangedEffect(
                 topScreenChannel = userViewModel.topScreenChannel,
+                onStartHappen = true,
                 onLoadingStateIntent = { userViewModel.updateLoadingState(it) }
             )
 

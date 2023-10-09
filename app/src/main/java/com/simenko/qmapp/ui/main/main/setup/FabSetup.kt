@@ -24,4 +24,10 @@ data class FabSetup(
     fun setFabVisibility(isVisible: Boolean) {
         _isFabVisible.value = isVisible
     }
+
+    private val _isRendered = MutableStateFlow(false)
+    val isRendered = _isRendered.asStateFlow()
+    fun setIsRendered(isRendered: Boolean) {
+        _isRendered.value = isRendered
+    }
 }

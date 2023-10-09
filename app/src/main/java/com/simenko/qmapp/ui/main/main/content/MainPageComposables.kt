@@ -476,6 +476,8 @@ fun Lifecycle.observeAsState(): State<Lifecycle.Event> {
         }
     }
     return state
+//    Usage
+//    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 }
 
 enum class AddEditMode(val mode: String) {

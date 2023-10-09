@@ -44,6 +44,11 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
+    private val _onStartHappen = MutableStateFlow(false)
+    val onStartHappen = _onStartHappen.asStateFlow()
+    fun setOnStartHappen() {
+        _onStartHappen.value = true
+    }
     fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
         this._topBarSetup.value = topBarSetup
         val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
