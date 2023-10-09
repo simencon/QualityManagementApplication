@@ -65,7 +65,7 @@ enum class Page(
     val actionBtnIcon: ImageVector?,
     val actionMenuItems: List<MenuItem>? = null
 ) {
-    EMPTY_PAGE(null, null, null, null, null, null, null, null),
+    EMPTY_PAGE(null, null, null, null, null, null, null, null, null),
 
     TEAM(
         navIcon = Icons.Filled.Menu,

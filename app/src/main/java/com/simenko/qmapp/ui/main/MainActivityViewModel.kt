@@ -3,8 +3,6 @@ package com.simenko.qmapp.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
-import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -73,7 +71,6 @@ class MainActivityViewModel @Inject constructor(
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     init {
-        println("Main page setup - mainPageState - $mainPageState")
         subscribeEvents(mainPageState.topScreenChannel.receiveAsFlow())
     }
 
@@ -86,7 +83,6 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun handleEvent(intent: TopScreenIntent, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
-        println("Main page setup - handleEvent - $intent")
         when (intent) {
             is TopScreenIntent.MainPageSetup -> setupMainPage(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
             is TopScreenIntent.TabBadgesState -> topTabsSetup.updateBadgeContent(intent.state)
@@ -98,6 +94,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+        topBarSetup.setDrawerMenuItemId(this._topBarSetup.value.selectedDrawerMenuItemId.value)
         this._topBarSetup.value = topBarSetup
         val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
         topBarSetup.onActionItemClick = {

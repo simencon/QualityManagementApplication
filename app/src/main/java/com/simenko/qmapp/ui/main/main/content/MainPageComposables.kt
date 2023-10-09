@@ -257,7 +257,6 @@ fun DrawerBody(
     selectedItemId: String,
     onDrawerItemClick: (String) -> Unit
 ) {
-    println("DrawerBody - selectedItemId: $selectedItemId")
     Spacer(modifier = Modifier.height(10.dp))
     ItemsGroup(title = MenuItem.MenuGroup.COMPANY.group, withDivider = false)
     DrawerMenuItems.toList().forEach { item ->
