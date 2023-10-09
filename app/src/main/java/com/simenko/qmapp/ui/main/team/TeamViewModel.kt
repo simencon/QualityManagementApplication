@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.team
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
@@ -28,8 +27,6 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
-private const val TAG = "TeamViewModel"
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
@@ -40,10 +37,9 @@ class TeamViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
-    fun logWhenInstantiated() {
-        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
-    }
-
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
     val setupMainPage: Event<suspend () -> Unit> = Event {
         mainPageState.sendMainPageState(
             page = Page.TEAM,

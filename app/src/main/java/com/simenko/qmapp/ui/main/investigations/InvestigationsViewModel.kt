@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.investigations
 import androidx.lifecycle.*
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -10,6 +11,7 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.CreatedRecord
+import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
@@ -37,12 +39,51 @@ class InvestigationsViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository
 ) : ViewModel() {
-    fun onEditInvClick(orderId: Int) {
-        appNavigator.tryNavigateTo(Route.Main.OrderAddEdit.withArgs(orderId.toString()))
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val setupMainPage: Event<suspend (Boolean) -> Unit> = Event { pcOnly ->
+        mainPageState.sendMainPageState(
+            page = if (pcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS,
+            onSearchAction = { if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it) },
+            onActionItemClick = null,
+            onTabSelectAction = { if (pcOnly) setCurrentSubOrdersFilter(SubOrdersFilter(statusId = it.num)) else setCurrentOrdersFilter(OrdersFilter(statusId = it.num)) },
+            fabAction = { if (pcOnly) onAddProcessControlClick() else onAddInvClick() },
+            refreshAction = { this.uploadNewInvestigations() })
+    }
+    val updateFabVisibility: suspend (Boolean) -> Unit = { mainPageState.sendFabVisibility(it) }
+    val onSelectedTab: suspend (Boolean) -> Unit = {
+        if (it) {
+            when (_currentSubOrdersFilter.value.statusId) {
+                FirstTabId.num -> mainPageState.sendSelectedTab(0)
+                SecondTabId.num -> mainPageState.sendSelectedTab(1)
+                ThirdTabId.num -> mainPageState.sendSelectedTab(2)
+                FourthTabId.num -> mainPageState.sendSelectedTab(3)
+            }
+        } else {
+            when (_currentOrdersFilter.value.statusId) {
+                FirstTabId.num -> mainPageState.sendSelectedTab(0)
+                SecondTabId.num -> mainPageState.sendSelectedTab(1)
+                ThirdTabId.num -> mainPageState.sendSelectedTab(2)
+                FourthTabId.num -> mainPageState.sendSelectedTab(3)
+            }
+        }
+    }
+    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = {
+        _isLoadingInProgress.value = it.first
+        mainPageState.trySendLoadingState(it)
+    }
+    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
+
+    /**
+     * Navigation -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    private fun onAddInvClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
     }
 
-    fun onEditProcessControlClick(record: Pair<Int, Int>) {
-        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), TrueStr.str))
+    fun onEditInvClick(orderId: Int) {
+        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(orderId.toString()))
     }
 
     fun onAddSubOrderClick(orderId: Int) {
@@ -53,23 +94,15 @@ class InvestigationsViewModel @Inject constructor(
         appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), FalseStr.str))
     }
 
+    private fun onAddProcessControlClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
+    }
+
+    fun onEditProcessControlClick(record: Pair<Int, Int>) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), TrueStr.str))
+    }
+
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _isLoadingInProgress.value = state.first
-        mainPageState.trySendLoadingState(state)
-    }
-
-    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
-
-    //        todo-me: ToDo make in proper way later
-    fun setupTopScreen(pcOnly: Boolean) {
-        /*topScreenState.trySendTopScreenSetup(
-            addEditMode = Pair(AddEditMode.NO_MODE) {},
-            refreshAction = { uploadNewInvestigations() },
-            filterAction = { if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it) }
-        )*/
-    }
 
     private val _isStatusUpdateDialogVisible = MutableLiveData(false)
     val isStatusUpdateDialogVisible: LiveData<Boolean> = _isStatusUpdateDialogVisible

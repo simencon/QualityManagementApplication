@@ -84,7 +84,9 @@ fun InvestigationsMainComposition(
     }
 
     LaunchedEffect(Unit) {
-        invModel.setupTopScreen(processControlOnly)
+        invModel.setupMainPage.getContentIfNotHandled()?.invoke(processControlOnly)
+        invModel.onSelectedTab(processControlOnly)
+        invModel.updateFabVisibility(true)
     }
 
     LaunchedEffect(currentTask) {

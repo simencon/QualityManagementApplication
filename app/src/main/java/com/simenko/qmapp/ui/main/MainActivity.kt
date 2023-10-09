@@ -21,6 +21,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
@@ -174,8 +175,8 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(all = 0.dp)
+                                    .pullRefresh(pullRefreshState)
                             ) {
-
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
