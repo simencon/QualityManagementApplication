@@ -70,9 +70,6 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
 private fun NavGraphBuilder.editUser(route: Route) {
     composable(destination = route) {
         val userModel: UserViewModel = hiltViewModel()
-        UserForm(
-            viewModel = userModel,
-            userId = it.arguments?.getString(NavArguments.userId) ?: NoRecordStr.str
-        )
+        UserForm(viewModel = userModel)
     }
 }

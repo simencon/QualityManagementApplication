@@ -21,8 +21,7 @@ import javax.inject.Inject
 class ManufacturingRepository @Inject constructor(
     private val database: QualityManagementDB,
     private val service: ManufacturingService,
-    private val crudeOperations: CrudeOperations,
-    private val testDiClassViewModelScope: TestDiClassViewModelScope
+    private val crudeOperations: CrudeOperations
 ) {
     /**
      * Update Manufacturing from the network
