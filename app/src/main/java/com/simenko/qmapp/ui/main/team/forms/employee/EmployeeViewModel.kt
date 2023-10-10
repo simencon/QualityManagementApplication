@@ -240,9 +240,7 @@ class EmployeeViewModel @Inject constructor(
         withContext(Dispatchers.Main) {
             id?.let {
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.Team.Employees.withArgs(it.toString()),
-                    popUpToRoute = Route.Main.Team.Employees.link,
-                    inclusive = true
+                    route = Route.Main.Team.Employees.withArgs(it.toString()), popUpToRoute = Route.Main.Team.Employees.link, inclusive = true
                 )
             }
         }

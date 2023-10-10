@@ -61,11 +61,13 @@ fun UserForm(
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    fillInState.let { state ->
-        when (state) {
-            is FillInSuccess -> viewModel.makeUser()
-            is FillInError -> error = state.errorMsg
-            is FillInInitialState -> error = UserError.NO_ERROR.error
+    LaunchedEffect(fillInState) {
+        fillInState.let { state ->
+            when (state) {
+                is FillInSuccess -> viewModel.makeUser()
+                is FillInError -> error = state.errorMsg
+                is FillInInitialState -> error = UserError.NO_ERROR.error
+            }
         }
     }
 
