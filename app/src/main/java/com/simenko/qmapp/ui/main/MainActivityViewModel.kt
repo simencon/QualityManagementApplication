@@ -94,7 +94,6 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
-        topBarSetup.setDrawerMenuItemId(this._topBarSetup.value.selectedDrawerMenuItemId.value)
         this._topBarSetup.value = topBarSetup
         val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
         topBarSetup.onActionItemClick = {

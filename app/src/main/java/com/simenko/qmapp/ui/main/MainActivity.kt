@@ -104,7 +104,6 @@ class MainActivity : ComponentActivity() {
                 val scope = rememberCoroutineScope()
                 navController = rememberNavController()
 
-                val selectedDrawerMenuItemId by topBarSetup.selectedDrawerMenuItemId.collectAsStateWithLifecycle()
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
                 val isFabVisible by fabSetup.isFabVisible.collectAsStateWithLifecycle()
@@ -118,8 +117,7 @@ class MainActivity : ComponentActivity() {
                 BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
 
                 fun onDrawerItemClick(id: String) {
-                    if (id != selectedDrawerMenuItemId) {
-                        topBarSetup.setDrawerMenuItemId(id)
+                    if (id != topBarSetup.link) {
                         when (id) {
                             Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
                             Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
@@ -142,7 +140,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             DrawerHeader(userInfo = viewModel.userInfo)
                             DrawerBody(
-                                selectedItemId = selectedDrawerMenuItemId,
+                                selectedItemId = topBarSetup.link,
                                 onDrawerItemClick = { id -> onDrawerItemClick(id) }
                             )
                         }
