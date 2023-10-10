@@ -55,9 +55,7 @@ class EmployeeViewModel @Inject constructor(
     val setupMainPage: Event<suspend (Boolean, Int) -> Unit> = Event { isNewRecord, employeeId ->
         mainPageState.sendMainPageState(
             page = if (isNewRecord) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE,
-            onNavMenuClick = {
-                appNavigator.navigateTo(route = Route.Main.Team.Employees.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true)
-            },
+            onNavMenuClick = { appNavigator.navigateBack() },
             onSearchAction = null,
             onActionItemClick = null,
             onTabSelectAction = null,

@@ -40,7 +40,7 @@ class TeamViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val setupMainPage: Event<suspend () -> Unit> = Event {
+    val setupMainPage: suspend (Int, Boolean) -> Unit = { selectedTabIndex, isFabVisible ->
         mainPageState.sendMainPageState(
             page = Page.TEAM,
             onNavMenuClick = null,
@@ -51,26 +51,29 @@ class TeamViewModel @Inject constructor(
             onActionItemClick = null,
             onTabSelectAction = { navigateByTopTabs(it) },
             fabAction = { onEmployeeAddEdictClick(NoRecord.num) },
-            refreshAction = { this.updateEmployeesData() })
-    }
+            refreshAction = { updateEmployeesData() }
+        )
+        mainPageState.sendSelectedTab(selectedTabIndex)
+        mainPageState.sendFabVisibility(isFabVisible)
 
-    val updateFabVisibility: suspend (Boolean) -> Unit = { mainPageState.sendFabVisibility(it) }
-    val onSelectedTab: suspend (Int) -> Unit = { mainPageState.sendSelectedTab(it) }
+        combine(_employees, _users) { employees, users ->
+            println("setupMainPage - combine, employees: ${employees.size}")
+            println("setupMainPage - combine, users: ${users.size}")
+            mainPageState.sendTabBadgesState(
+                listOf(
+                    Triple(employees.size, Color.Green, Color.Black),
+                    Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),
+                    Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
+                )
+            )
+        }.collect {}
+    }
     private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
     val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
-    private suspend fun updateBudges(employees: List<DomainEmployeeComplete>, users: List<DomainUser>) {
-        mainPageState.sendTabBadgesState(
-            listOf(
-                Triple(employees.size, Color.Green, Color.Black),
-                Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),
-                Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
-            )
-        )
-    }
 
     val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }
 
@@ -98,24 +101,21 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { employees ->
+    val employees: SharedFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { employees ->
         _currentEmployeeVisibility.flatMapLatest { visibility ->
-            _users.flatMapLatest { users ->
-                _currentEmployeesFilter.flatMapLatest { filter ->
-                    updateBudges(employees, users)
-                    val cpy = mutableListOf<DomainEmployeeComplete>()
-                    employees
-                        .filterEmployees(filter)
-                        .forEach {
-                            cpy.add(
-                                it.copy(
-                                    detailsVisibility = it.teamMember.id == visibility.first.num,
-                                    isExpanded = it.teamMember.id == visibility.second.num
-                                )
+            _currentEmployeesFilter.flatMapLatest { filter ->
+                val cpy = mutableListOf<DomainEmployeeComplete>()
+                employees
+                    .filterEmployees(filter)
+                    .forEach {
+                        cpy.add(
+                            it.copy(
+                                detailsVisibility = it.teamMember.id == visibility.first.num,
+                                isExpanded = it.teamMember.id == visibility.second.num
                             )
-                        }
-                    flow { emit(cpy) }
-                }
+                        )
+                    }
+                flow { emit(cpy) }
             }
         }
     }
@@ -162,30 +162,25 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
+    val users: SharedFlow<List<DomainUser>> = _users.flatMapLatest { users ->
         _currentUserVisibility.flatMapLatest { visibility ->
             _currentUsersFilter.flatMapLatest { filter ->
-                _employees.flatMapLatest { employees ->
-                    updateBudges(employees, users)
-                    val cpy = mutableListOf<DomainUser>()
-                    users
-                        .filterUsers(filter)
-                        .forEach {
-                            cpy.add(
-                                it.copy(
-                                    detailsVisibility = it.email == visibility.first.str,
-                                    isExpanded = it.email == visibility.second.str
-                                )
+                val cpy = mutableListOf<DomainUser>()
+                users
+                    .filterUsers(filter)
+                    .forEach {
+                        cpy.add(
+                            it.copy(
+                                detailsVisibility = it.email == visibility.first.str,
+                                isExpanded = it.email == visibility.second.str
                             )
-                        }
-                    flow { emit(cpy) }
-                }
+                        )
+                    }
+                flow { emit(cpy) }
             }
         }
     }
-        .flowOn(Dispatchers.IO)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+        .flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     private val _isRemoveUserDialogVisible = MutableStateFlow(false)
     val isRemoveUserDialogVisible get() = _isRemoveUserDialogVisible.asStateFlow()

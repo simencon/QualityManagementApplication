@@ -59,9 +59,7 @@ fun Employees(
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        viewModel.setupMainPage.getContentIfNotHandled()?.invoke()
-        viewModel.onSelectedTab(0)
-        viewModel.updateFabVisibility(true)
+        viewModel.setupMainPage(0, true)
     }
 
     LaunchedEffect(selectedRecord) {
