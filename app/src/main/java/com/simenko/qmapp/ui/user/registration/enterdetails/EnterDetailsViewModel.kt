@@ -29,6 +29,13 @@ class EnterDetailsViewModel @Inject constructor(
     val setupMainPage: Event<suspend () -> Unit> = Event {
         mainPageState.sendMainPageState(
             page = Page.ACCOUNT_EDIT,
+            onNavMenuClick = {
+                appNavigator.navigateTo(
+                    route = Route.Main.Settings.UserDetails.link,
+                    popUpToRoute = Route.Main.Settings.UserDetails.route,
+                    inclusive = true
+                )
+            },
             onSearchAction = null,
             onActionItemClick = null,
             onTabSelectAction = null,
@@ -39,7 +46,6 @@ class EnterDetailsViewModel @Inject constructor(
     }
     private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
     private fun updateUserData() {
-        updateLoadingState(Pair(true, null))
         userRepository.updateUserData()
     }
 

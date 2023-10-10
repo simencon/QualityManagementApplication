@@ -16,6 +16,7 @@ interface MainPageState {
     val topScreenChannel: Channel<TopScreenIntent>
     suspend fun sendMainPageState(
         page: Page,
+        onNavMenuClick: (suspend (Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?,
         onTabSelectAction: ((SelectedNumber) -> Unit)?,
         fabAction: (() -> Unit)?,
@@ -24,6 +25,7 @@ interface MainPageState {
 
     fun trySendMainPageState(
         page: Page,
+        onNavMenuClick: (suspend (Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?, onActionItemClick: ((MenuItem) -> Unit)?,
         onTabSelectAction: ((SelectedNumber) -> Unit)?,
         fabAction: (() -> Unit)?,

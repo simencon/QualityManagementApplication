@@ -26,6 +26,7 @@ class SettingsViewModel @Inject constructor(
     val setupMainPage: Event<suspend () -> Unit> = Event {
         mainPageState.sendMainPageState(
             page = Page.ACCOUNT_SETTINGS,
+            onNavMenuClick = null,
             onSearchAction = null,
             onActionItemClick = null,
             onTabSelectAction = null,

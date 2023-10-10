@@ -174,7 +174,7 @@ fun AppBar(
             else
                 if (topBarSetup.navIcon != null)
                     IconButton(
-                        onClick = { scope.launch { topBarSetup.setDrawerMenuState(true) } },
+                        onClick = { scope.launch { topBarSetup.onNavMenuClick?.invoke(true) } },
                         colors = IconButtonDefaults.iconButtonColors(contentColor = contentColor)
                     ) {
                         Icon(
