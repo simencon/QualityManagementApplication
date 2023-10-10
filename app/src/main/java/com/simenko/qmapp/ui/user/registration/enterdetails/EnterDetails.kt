@@ -89,7 +89,7 @@ fun EnterDetails(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
-        if (editMode) viewModel.setupTopScreen()
+        if (editMode) viewModel.setupMainPage.getContentIfNotHandled()?.invoke()
         focusRequesterUserName.requestFocus()
     }
 
