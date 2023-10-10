@@ -17,6 +17,7 @@ data class TopBarSetup(
     var onSearchAction: ((BaseFilter) -> Unit)? = null,
     var onActionItemClick:((MenuItem) -> Unit)? = null
 ) {
+    val link: String = page.link
     val navIcon: ImageVector? = page.navIcon
     val title: String? = page.title
     val placeholderText: String? = page.titlePlaceholderText
@@ -24,12 +25,6 @@ data class TopBarSetup(
     val titleBtnIcon: ImageVector? = page.searchBtnIcon
     val actionBtnIcon: ImageVector? = page.actionBtnIcon
     val actionMenuItems: List<MenuItem>? = page.actionMenuItems
-
-    private val _selectedDrawerMenuItemId = MutableStateFlow(DrawerMenuItems.startingDrawerMenuItem.tag)
-    val selectedDrawerMenuItemId get() = _selectedDrawerMenuItemId.asStateFlow()
-    fun setDrawerMenuItemId(id: String) {
-        this._selectedDrawerMenuItemId.value = id
-    }
 
     private val _drawerMenuState = MutableStateFlow(DrawerState(DrawerValue.Closed))
     val drawerMenuState = _drawerMenuState.asStateFlow()
