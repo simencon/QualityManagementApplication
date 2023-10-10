@@ -6,7 +6,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
@@ -33,10 +32,7 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         }
         composable(destination = Route.Main.Team.EmployeeAddEdit) {
             val employeeModel: EmployeeViewModel = hiltViewModel()
-            EmployeeForm(
-                viewModel = employeeModel,
-                employeeId = it.arguments?.getInt(NavArguments.employeeId) ?: NoRecord.num
-            )
+            EmployeeForm(viewModel = employeeModel)
         }
         composable(destination = Route.Main.Team.Users) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)

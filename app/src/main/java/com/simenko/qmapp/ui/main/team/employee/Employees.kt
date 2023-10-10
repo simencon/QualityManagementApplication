@@ -59,7 +59,7 @@ fun Employees(
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        viewModel.setupMainPage(0, true)
+        viewModel.mainPageHandler.setupMainPage(0, true)
     }
 
     LaunchedEffect(selectedRecord) {
@@ -74,7 +74,7 @@ fun Employees(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) viewModel.onListEnd(true) else viewModel.onListEnd(false)
+        if (lastItemIsVisible) viewModel.mainPageHandler.onListEnd(true) else viewModel.mainPageHandler.onListEnd(false)
     }
 
     LazyColumn(

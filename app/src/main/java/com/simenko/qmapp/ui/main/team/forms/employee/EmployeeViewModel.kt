@@ -1,11 +1,10 @@
 package com.simenko.qmapp.ui.main.team.forms.employee
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.di.EmployeeIdParameter
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
@@ -15,10 +14,10 @@ import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
@@ -47,31 +46,34 @@ import javax.inject.Inject
 class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    private val repository: ManufacturingRepository
+    private val repository: ManufacturingRepository,
+    @EmployeeIdParameter private val employeeId: Int
 ) : ViewModel() {
-    /**
-     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
-     * */
-    val setupMainPage: Event<suspend (Boolean, Int) -> Unit> = Event { isNewRecord, employeeId ->
-        mainPageState.sendMainPageState(
-            page = if (isNewRecord) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE,
-            onNavMenuClick = { appNavigator.navigateBack() },
-            onSearchAction = null,
-            onActionItemClick = null,
-            onTabSelectAction = null,
-            fabAction = { this.validateInput() },
-            refreshAction = {}
-        )
-        mainPageState.sendFabVisibility(true)
-        if (!isNewRecord) withContext(Dispatchers.Default) { loadEmployee(employeeId) }
-    }
-    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
-
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
-    private var _employeeErrors: MutableStateFlow<EmployeeErrors> = MutableStateFlow(EmployeeErrors())
     private fun loadEmployee(id: Int) {
         _employee.value = repository.getEmployeeById(id)
     }
+
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val mainPageHandler: MainPageHandler
+
+    init {
+        mainPageHandler = MainPageHandler.Builder(if (employeeId == NoRecord.num) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE, mainPageState)
+            .setOnNavMenuClickAction { appNavigator.navigateBack() }
+            .setOnFabClickAction { this.validateInput() }
+            .build()
+        viewModelScope.launch {
+            if (employeeId != NoRecord.num) withContext(Dispatchers.Default) { loadEmployee(employeeId) }
+        }
+    }
+
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
+
+    private var _employeeErrors: MutableStateFlow<EmployeeErrors> = MutableStateFlow(EmployeeErrors())
 
     val employee get() = _employee.asStateFlow()
     val employeeErrors get() = _employeeErrors.asStateFlow()
@@ -216,16 +218,16 @@ class EmployeeViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeEmployee(newRecord: Boolean) = viewModelScope.launch {
-        updateLoadingState(Pair(true, null))
+    fun makeEmployee() = viewModelScope.launch {
+        mainPageHandler.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (newRecord) insertTeamMember(_employee.value) else updateTeamMember(_employee.value) }.consumeEach { event ->
+            repository.run { if (employeeId == NoRecord.num) insertTeamMember(_employee.value) else updateTeamMember(_employee.value) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.id)
                         Status.ERROR -> {
-                            updateLoadingState(Pair(true, resource.message))
+                            mainPageHandler.updateLoadingState(Pair(true, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -235,7 +237,7 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: Int?) {
-        updateLoadingState(Pair(false, null))
+        mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
                 appNavigator.tryNavigateTo(
