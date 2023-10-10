@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.team.forms.user
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -30,13 +29,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
-import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import com.simenko.qmapp.ui.main.settings.InfoLine
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
@@ -44,35 +41,16 @@ import com.simenko.qmapp.ui.main.team.forms.user.subforms.TrueFalseField
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UserForm(
     modifier: Modifier = Modifier,
-    viewModel: UserViewModel,
-    userId: String
+    viewModel: UserViewModel
 ) {
     val user by viewModel.user.collectAsStateWithLifecycle()
-    LaunchedEffect(userId) {
-        if (user.email == NoRecordStr.str)
-            withContext(Dispatchers.Default) {
-                if (userId != NoRecordStr.str) {
-                    viewModel.clearNotificationIfExists(userId)
-                    viewModel.loadUser(userId)
-                }
-            }
-    }
     LaunchedEffect(user) {
-        if (user.email != NoRecordStr.str)
-            if (user.restApiUrl.isNullOrEmpty()) {
-                viewModel.setupTopScreen(AddEditMode.AUTHORIZE_USER)
-                Log.d("UserForm", "UserForm: ${AddEditMode.AUTHORIZE_USER}")
-            } else {
-                viewModel.setupTopScreen(AddEditMode.EDIT_USER)
-                Log.d("UserForm", "UserForm: ${AddEditMode.EDIT_USER}")
-            }
+        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
     val userRoles by viewModel.userRoles.collectAsStateWithLifecycle()

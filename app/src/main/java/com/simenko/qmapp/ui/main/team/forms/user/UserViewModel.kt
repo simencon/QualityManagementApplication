@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.di.UserIdParameter
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedString
@@ -13,9 +14,10 @@ import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
+import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.Route
-import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
@@ -48,35 +50,39 @@ class UserViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
-    private val notificationManager: NotificationManagerCompat
+    private val notificationManager: NotificationManagerCompat,
+    @UserIdParameter private val userId: String
 ) : ViewModel() {
-    private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        mainPageState.trySendLoadingState(state)
-    }
-
-    private val _isUserToAuthorize = mutableStateOf(false)
-    fun setupTopScreen(addEditMode: AddEditMode) {
-//        todo-me: ToDo make in proper way later
-        /*topScreenState.trySendTopScreenSetup(
-            addEditMode = Pair(addEditMode) {
-                _isUserToAuthorize.value = addEditMode == AddEditMode.AUTHORIZE_USER
-                validateInput()
-            },
-            refreshAction = {},
-            filterAction = {}
-        )*/
-    }
-
-    fun clearNotificationIfExists(email: String) {
-        notificationManager.activeNotifications.find { it.id == Objects.hash(email) }?.let { notificationManager.cancel(it.id) }
-    }
-
     private val _user = MutableStateFlow(DomainUser())
     val user get() = _user.asStateFlow()
-    fun loadUser(id: String) {
-        _user.value = repository.getUserById(id)
+    private var _isUserToAuthorize = false
+
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    var mainPageHandler: MainPageHandler? = null
+        private set
+
+    init {
+        notificationManager.activeNotifications.find { it.id == Objects.hash(userId) }?.let { notificationManager.cancel(it.id) }
+        if (userId != NoRecordStr.str)
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    repository.getUserById(userId).let {
+                        _user.value = it
+                        _isUserToAuthorize = it.restApiUrl.isNullOrEmpty()
+                        mainPageHandler = MainPageHandler.Builder(if (_isUserToAuthorize) Page.AUTHORIZE_USER else Page.EDIT_USER, mainPageState)
+                            .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                            .setOnFabClickAction { validateInput() }
+                            .build()
+                    }
+                }
+            }
     }
 
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
     private val _userErrors = MutableStateFlow(UserErrors())
     val userErrors get() = _userErrors.asStateFlow()
 
@@ -145,7 +151,7 @@ class UserViewModel @Inject constructor(
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
 
-    fun validateInput(user: DomainUser = _user.value) {
+    private fun validateInput(user: DomainUser = _user.value) {
         val errorMsg = buildString {
             println("validateInput - ${user.teamMemberId}")
             if (user.teamMemberId == NoRecord.num.toLong()) {
@@ -169,16 +175,16 @@ class UserViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeUser(userToAuthorize: Boolean = _isUserToAuthorize.value) = viewModelScope.launch {
-        updateLoadingState(Pair(true, null))
+    fun makeUser() = viewModelScope.launch {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (userToAuthorize) authorizeUser(_user.value) else updateUserCompanyData(_user.value) }.consumeEach { event ->
+            repository.run { if (_isUserToAuthorize) authorizeUser(_user.value) else updateUserCompanyData(_user.value) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> navBackToRecord(resource.data?.email)
                         Status.ERROR -> {
-                            updateLoadingState(Pair(true, resource.message))
+                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
                             _fillInState.value = FillInInitialState
                         }
                     }
@@ -188,14 +194,10 @@ class UserViewModel @Inject constructor(
     }
 
     private suspend fun navBackToRecord(id: String?) {
-        updateLoadingState(Pair(false, null))
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                appNavigator.tryNavigateTo(
-                    route = Route.Main.Team.Users.withArgs(it),
-                    popUpToRoute = Route.Main.Team.Employees.link,
-                    inclusive = true
-                )
+                appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(it), popUpToRoute = Route.Main.Team.Employees.link, inclusive = true)
             }
         }
     }
