@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
                 val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
 
-                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.setDrawerMenuState(false) } })
+                BackHandler(enabled = drawerMenuState.isOpen, onBack = { scope.launch { topBarSetup.onNavMenuClick?.invoke(false) } })
                 BackHandler(enabled = searchBarState, onBack = { topBarSetup.setSearchBarState(false) })
                 BackHandler(enabled = !drawerMenuState.isOpen && !searchBarState) { this@MainActivity.moveTaskToBack(true) }
 
@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
                             else -> Toast.makeText(this, "Not yet implemented", Toast.LENGTH_LONG).show()
                         }
                     }
-                    scope.launch { topBarSetup.setDrawerMenuState(false) }
+                    scope.launch { topBarSetup.onNavMenuClick?.invoke(false) }
                 }
 
                 ModalNavigationDrawer(

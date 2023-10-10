@@ -45,6 +45,7 @@ class InvestigationsViewModel @Inject constructor(
     val setupMainPage: Event<suspend (Boolean) -> Unit> = Event { pcOnly ->
         mainPageState.sendMainPageState(
             page = if (pcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS,
+            onNavMenuClick = null,
             onSearchAction = { if (pcOnly) setCurrentSubOrdersFilter(it) else setCurrentOrdersFilter(it) },
             onActionItemClick = null,
             onTabSelectAction = { if (pcOnly) setCurrentSubOrdersFilter(SubOrdersFilter(statusId = it.num)) else setCurrentOrdersFilter(OrdersFilter(statusId = it.num)) },

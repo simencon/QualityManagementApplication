@@ -43,6 +43,7 @@ class TeamViewModel @Inject constructor(
     val setupMainPage: Event<suspend () -> Unit> = Event {
         mainPageState.sendMainPageState(
             page = Page.TEAM,
+            onNavMenuClick = null,
             onSearchAction = {
                 setEmployeesFilter(it)
                 setUsersFilter(it)

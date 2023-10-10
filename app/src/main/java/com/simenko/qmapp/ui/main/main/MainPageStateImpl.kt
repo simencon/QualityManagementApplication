@@ -16,6 +16,7 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
 
     override suspend fun sendMainPageState(
         page: Page,
+        onNavMenuClick: (suspend (Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionItemClick: ((MenuItem) -> Unit)?,
         onTabSelectAction: ((SelectedNumber) -> Unit)?,
@@ -24,7 +25,7 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
     ) {
         topScreenChannel.send(
             TopScreenIntent.MainPageSetup(
-                topBarSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
+                topBarSetup = TopBarSetup(page, onNavMenuClick, onSearchAction, onActionItemClick),
                 topTabsSetup = TopTabsSetup(page, onTabSelectAction),
                 fabSetup = FabSetup(page, fabAction),
                 pullRefreshSetup = PullRefreshSetup(refreshAction)
@@ -34,6 +35,7 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
 
     override fun trySendMainPageState(
         page: Page,
+        onNavMenuClick: (suspend (Boolean) -> Unit)?,
         onSearchAction: ((BaseFilter) -> Unit)?,
         onActionItemClick: ((MenuItem) -> Unit)?,
         onTabSelectAction: ((SelectedNumber) -> Unit)?,
@@ -42,7 +44,7 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
     ) {
         topScreenChannel.trySend(
             TopScreenIntent.MainPageSetup(
-                topBarSetup = TopBarSetup(page, onSearchAction, onActionItemClick),
+                topBarSetup = TopBarSetup(page, onNavMenuClick, onSearchAction, onActionItemClick),
                 topTabsSetup = TopTabsSetup(page, onTabSelectAction),
                 fabSetup = FabSetup(page, fabAction),
                 pullRefreshSetup = PullRefreshSetup(refreshAction)

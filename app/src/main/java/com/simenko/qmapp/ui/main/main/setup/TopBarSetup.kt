@@ -13,9 +13,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 data class TopBarSetup(
     private val page: Page = Page.values()[0],
+    var onNavMenuClick: (suspend (Boolean) -> Unit)? = null,
     var onSearchAction: ((BaseFilter) -> Unit)? = null,
-    var onActionItemClick:((MenuItem) -> Unit)? = null
+    var onActionItemClick: ((MenuItem) -> Unit)? = null
 ) {
+    init {
+        if (onNavMenuClick == null) onNavMenuClick = { this.setDrawerMenuState(it) }
+    }
+
     val link: String = page.link
     val navIcon: ImageVector? = page.navIcon
     val title: String? = page.title
@@ -27,7 +32,7 @@ data class TopBarSetup(
 
     private val _drawerMenuState = MutableStateFlow(DrawerState(DrawerValue.Closed))
     val drawerMenuState = _drawerMenuState.asStateFlow()
-    suspend fun setDrawerMenuState(value: Boolean) {
+    private suspend fun setDrawerMenuState(value: Boolean) {
         if (value) _drawerMenuState.value.open() else _drawerMenuState.value.close()
     }
 
@@ -51,6 +56,7 @@ data class TopBarSetup(
             Common.CUSTOM_FILTER, Common.UPLOAD_MASTER_DATA, InvestigationsActions.SYNC_INVESTIGATIONS, ProcessControlActions.SYNC_INVESTIGATIONS -> {
                 onNotSelectableActionMenuItemClick(item)
             }
+
             else -> {
                 onSelectableActionMenuItemClick(item)
             }
