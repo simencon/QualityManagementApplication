@@ -59,7 +59,7 @@ fun Users(
 
     LaunchedEffect(isUsersPage) {
         viewModel.setUsersFilter(BaseFilter(newUsers = !isUsersPage))
-        viewModel.setupMainPage(if (isUsersPage) 1 else 2, false)
+        viewModel.mainPageHandler.setupMainPage(if (isUsersPage) 1 else 2, false)
     }
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()

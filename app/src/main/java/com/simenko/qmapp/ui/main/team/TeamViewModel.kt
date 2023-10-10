@@ -11,6 +11,7 @@ import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.Route
@@ -37,44 +38,38 @@ class TeamViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
+    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
+    private val _users: Flow<List<DomainUser>> = systemRepository.users
+
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val setupMainPage: suspend (Int, Boolean) -> Unit = { selectedTabIndex, isFabVisible ->
-        mainPageState.sendMainPageState(
-            page = Page.TEAM,
-            onNavMenuClick = null,
-            onSearchAction = {
+    val mainPageHandler: MainPageHandler
+
+    init {
+        mainPageHandler = MainPageHandler.Builder(Page.TEAM, mainPageState)
+            .setOnSearchClickAction {
                 setEmployeesFilter(it)
                 setUsersFilter(it)
-            },
-            onActionItemClick = null,
-            onTabSelectAction = { navigateByTopTabs(it) },
-            fabAction = { onEmployeeAddEdictClick(NoRecord.num) },
-            refreshAction = { updateEmployeesData() }
-        )
-        mainPageState.sendSelectedTab(selectedTabIndex)
-        mainPageState.sendFabVisibility(isFabVisible)
-
-        combine(_employees, _users) { employees, users ->
-            println("setupMainPage - combine, employees: ${employees.size}")
-            println("setupMainPage - combine, users: ${users.size}")
-            mainPageState.sendTabBadgesState(
-                listOf(
-                    Triple(employees.size, Color.Green, Color.Black),
-                    Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),
-                    Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
-                )
+            }
+            .setOnTabSelectAction { navigateByTopTabs(it) }
+            .setOnFabClickAction { onEmployeeAddEdictClick(NoRecord.num) }
+            .setOnPullRefreshAction { updateEmployeesData() }
+            .setTabBadgesFlow(
+                combine(_employees, _users) { employees, users ->
+                    listOf(
+                        Triple(employees.size, Color.Green, Color.Black),
+                        Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),
+                        Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
+                    )
+                }
             )
-        }.collect {}
+            .build()
     }
-    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
-    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
-
     val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }
 
     /**
@@ -86,7 +81,6 @@ class TeamViewModel @Inject constructor(
         if (selectedEmployeeRecord.value.peekContent() != id) this._selectedEmployeeRecord.value = Event(id)
     }
 
-    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
 
     fun setCurrentEmployeeVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
@@ -122,15 +116,15 @@ class TeamViewModel @Inject constructor(
         .flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
-        updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             manufacturingRepository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> updateLoadingState(Pair(true, null))
-                            Status.SUCCESS -> updateLoadingState(Pair(false, null))
-                            Status.ERROR -> updateLoadingState(Pair(true, resource.message))
+                            Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -147,7 +141,6 @@ class TeamViewModel @Inject constructor(
         if (selectedUserRecord.value.peekContent() != id) this._selectedUserRecord.value = Event(id)
     }
 
-    private val _users: Flow<List<DomainUser>> = systemRepository.users
     private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
     fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
         _currentUserVisibility.value = _currentUserVisibility.value.setVisibility(dId, aId)
@@ -190,21 +183,21 @@ class TeamViewModel @Inject constructor(
     }
 
     fun removeUser(userId: String) = viewModelScope.launch {
-        updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             systemRepository.run {
                 removeUser(userId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> updateLoadingState(Pair(true, null))
+                            Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
-                                updateLoadingState(Pair(false, null))
+                                mainPageHandler.updateLoadingState(Pair(false, null))
                                 _selectedUserRecord.value = Event(NoRecordStr.str)
                                 setRemoveUserDialogVisibility(false)
                                 navToRemovedRecord(resource.data?.email)
                             }
 
-                            Status.ERROR -> updateLoadingState(Pair(true, resource.message))
+                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(true, resource.message))
                         }
                     }
                 }
@@ -245,7 +238,7 @@ class TeamViewModel @Inject constructor(
     }
 
     private suspend fun navToRemovedRecord(id: String?) {
-        updateLoadingState(Pair(false, null))
+        mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests.withArgs(it), Route.Main.Team.Employees.link) }
         }
@@ -253,7 +246,7 @@ class TeamViewModel @Inject constructor(
 
     private fun updateEmployeesData() = viewModelScope.launch {
         try {
-            updateLoadingState(Pair(true, null))
+            mainPageHandler.updateLoadingState(Pair(true, null))
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
@@ -263,9 +256,9 @@ class TeamViewModel @Inject constructor(
             manufacturingRepository.syncDepartments()
             manufacturingRepository.syncTeamMembers()
 
-            updateLoadingState(Pair(false, null))
+            mainPageHandler.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            updateLoadingState(Pair(false, e.message))
+            mainPageHandler.updateLoadingState(Pair(false, e.message))
         }
     }
 }

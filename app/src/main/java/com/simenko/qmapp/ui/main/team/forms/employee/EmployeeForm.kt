@@ -55,11 +55,10 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
 @Composable
 fun EmployeeForm(
     modifier: Modifier = Modifier,
-    viewModel: EmployeeViewModel = hiltViewModel(),
-    employeeId: Int
+    viewModel: EmployeeViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(employeeId) {
-        viewModel.setupMainPage.getContentIfNotHandled()?.invoke(employeeId == NoRecord.num, employeeId)
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler.setupMainPage(0, true)
     }
 
     val employee by viewModel.employee.collectAsStateWithLifecycle()
@@ -75,7 +74,7 @@ fun EmployeeForm(
 
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> viewModel.makeEmployee(employeeId == NoRecord.num)
+            is FillInSuccess -> viewModel.makeEmployee()
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
