@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,8 +18,6 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
-
-private const val TAG = "SubOrdersStandAlone"
 
 @Composable
 fun SubOrdersStandAlone(
@@ -90,7 +87,6 @@ fun SubOrdersStandAlone(
         state = listState
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
-            Log.d(TAG, "SubOrdersStandAlone: ${subOrder.orderShort.order.orderNumber}")
             SubOrderCard(
                 modifier = modifier.padding(CARDS_PADDING),
                 processControlOnly = true,

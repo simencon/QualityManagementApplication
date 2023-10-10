@@ -30,11 +30,7 @@ class EnterDetailsViewModel @Inject constructor(
         mainPageState.sendMainPageState(
             page = Page.ACCOUNT_EDIT,
             onNavMenuClick = {
-                appNavigator.navigateTo(
-                    route = Route.Main.Settings.UserDetails.link,
-                    popUpToRoute = Route.Main.Settings.UserDetails.route,
-                    inclusive = true
-                )
+                appNavigator.navigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
             },
             onSearchAction = null,
             onActionItemClick = null,
@@ -145,11 +141,7 @@ class EnterDetailsViewModel @Inject constructor(
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     updateLoadingState(Pair(false, null))
-                    appNavigator.tryNavigateTo(
-                        route = Route.Main.Settings.UserDetails.link,
-                        popUpToRoute = Route.Main.Settings.UserDetails.route,
-                        inclusive = true
-                    )
+                    appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
                 } else {
                     updateLoadingState(Pair(false, task.exception?.message))
                 }

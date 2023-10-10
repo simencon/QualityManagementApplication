@@ -5,15 +5,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.domain.entities.DomainJobRole
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainEmployee
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -46,24 +49,25 @@ class EmployeeViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository
 ) : ViewModel() {
-    private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        mainPageState.trySendLoadingState(state)
-    }
-
-    private val _isNewEmployeeRecord = mutableStateOf(false)
-    suspend fun setupTopScreen(addEditMode: AddEditMode, employeeId: Int) {
-//        todo-me: ToDo make in proper way later
-        /*topScreenState.trySendTopScreenSetup(
-            addEditMode = Pair(addEditMode) {
-                _isNewEmployeeRecord.value = addEditMode == AddEditMode.ADD_EMPLOYEE
-                validateInput()
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val setupMainPage: Event<suspend (Boolean, Int) -> Unit> = Event { isNewRecord, employeeId ->
+        mainPageState.sendMainPageState(
+            page = if (isNewRecord) Page.ADD_EMPLOYEE else Page.EDIT_EMPLOYEE,
+            onNavMenuClick = {
+                appNavigator.navigateTo(route = Route.Main.Team.Employees.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true)
             },
-            refreshAction = {},
-            filterAction = {}
-        )*/
-        if (addEditMode == AddEditMode.EDIT_EMPLOYEE)
-            withContext(Dispatchers.Default) { loadEmployee(employeeId) }
+            onSearchAction = null,
+            onActionItemClick = null,
+            onTabSelectAction = null,
+            fabAction = { this.validateInput() },
+            refreshAction = {}
+        )
+        mainPageState.sendFabVisibility(true)
+        if (!isNewRecord) withContext(Dispatchers.Default) { loadEmployee(employeeId) }
     }
+    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
 
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private var _employeeErrors: MutableStateFlow<EmployeeErrors> = MutableStateFlow(EmployeeErrors())
@@ -175,7 +179,7 @@ class EmployeeViewModel @Inject constructor(
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
 
-    fun validateInput(principle: DomainEmployee = _employee.value) {
+    private fun validateInput(principle: DomainEmployee = _employee.value) {
         val errorMsg = buildString {
             if (principle.fullName.isEmpty()) {
                 _employeeErrors.value = _employeeErrors.value.copy(fullNameError = true)
@@ -214,7 +218,7 @@ class EmployeeViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeEmployee(newRecord: Boolean = _isNewEmployeeRecord.value) = viewModelScope.launch {
+    fun makeEmployee(newRecord: Boolean) = viewModelScope.launch {
         updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             repository.run { if (newRecord) insertTeamMember(_employee.value) else updateTeamMember(_employee.value) }.consumeEach { event ->

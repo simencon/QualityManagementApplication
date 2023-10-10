@@ -47,7 +47,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
@@ -59,13 +58,8 @@ fun EmployeeForm(
     viewModel: EmployeeViewModel = hiltViewModel(),
     employeeId: Int
 ) {
-
     LaunchedEffect(employeeId) {
-        if (employeeId == NoRecord.num) {
-            viewModel.setupTopScreen(AddEditMode.ADD_EMPLOYEE, employeeId)
-        } else {
-            viewModel.setupTopScreen(AddEditMode.EDIT_EMPLOYEE, employeeId)
-        }
+        viewModel.setupMainPage.getContentIfNotHandled()?.invoke(employeeId == NoRecord.num, employeeId)
     }
 
     val employee by viewModel.employee.collectAsStateWithLifecycle()
@@ -81,7 +75,7 @@ fun EmployeeForm(
 
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> viewModel.makeEmployee()
+            is FillInSuccess -> viewModel.makeEmployee(employeeId == NoRecord.num)
             is FillInError -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
