@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.team.forms.user
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -197,7 +196,7 @@ class UserViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(it), popUpToRoute = Route.Main.Team.Employees.link, inclusive = true)
+                appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(it), popUpToRoute = Route.Main.Team.Requests.link, inclusive = true)
             }
         }
     }
