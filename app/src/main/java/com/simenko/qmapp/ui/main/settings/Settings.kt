@@ -53,9 +53,6 @@ fun Settings(
 
     LaunchedEffect(userState) {
         viewModel.setupMainPage.getContentIfNotHandled()?.invoke()
-        viewModel.updateFabVisibility(false)
-        viewModel.onSelectedTab()
-        viewModel.onListEnd(false)
 
         userState.let {
             when (it) {

@@ -9,7 +9,6 @@ import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class TopBarSetup(

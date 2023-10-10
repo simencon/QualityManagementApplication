@@ -30,12 +30,10 @@ class SettingsViewModel @Inject constructor(
             onActionItemClick = null,
             onTabSelectAction = null,
             fabAction = null,
-            refreshAction = { this.updateUserData() })
+            refreshAction = { this.updateUserData() }
+        )
     }
-    val updateFabVisibility: suspend (Boolean) -> Unit = { mainPageState.sendFabVisibility(it) }
-    val onSelectedTab: suspend () -> Unit = { mainPageState.sendSelectedTab(0) }
     private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
-    val onListEnd: suspend (Boolean) -> Unit = { mainPageState.sendEndOfListState(it) }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------

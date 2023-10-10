@@ -3,9 +3,11 @@ package com.simenko.qmapp.ui.user.registration.enterdetails
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,25 @@ class EnterDetailsViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val setupMainPage: Event<suspend () -> Unit> = Event {
+        mainPageState.sendMainPageState(
+            page = Page.ACCOUNT_EDIT,
+            onSearchAction = null,
+            onActionItemClick = null,
+            onTabSelectAction = null,
+            fabAction = { this.validateInput() },
+            refreshAction = { this.updateUserData() }
+        )
+        mainPageState.sendFabVisibility(true)
+    }
+    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
+    private fun updateUserData() {
+        updateLoadingState(Pair(true, null))
+        userRepository.updateUserData()
+    }
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     private fun resetToInitialState() {
@@ -114,30 +135,20 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            mainPageState.trySendLoadingState(Pair(true, null))
+            updateLoadingState(Pair(true, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    mainPageState.trySendLoadingState(Pair(false, null))
+                    updateLoadingState(Pair(false, null))
                     appNavigator.tryNavigateTo(
                         route = Route.Main.Settings.UserDetails.link,
                         popUpToRoute = Route.Main.Settings.UserDetails.route,
                         inclusive = true
                     )
                 } else {
-                    mainPageState.trySendLoadingState(Pair(false, task.exception?.message))
+                    updateLoadingState(Pair(false, task.exception?.message))
                 }
             }
         }
-    }
-
-    private fun updateUserData() {
-        mainPageState.trySendLoadingState(Pair(true, null))
-        userRepository.updateUserData()
-    }
-
-    fun setupTopScreen() {
-//        todo-me: ToDo make in proper way later
-        /*topScreenState.trySendTopScreenSetup(Pair(AddEditMode.ACCOUNT_EDIT) { validateInput() }, { updateUserData() }, {})*/
     }
 }
 

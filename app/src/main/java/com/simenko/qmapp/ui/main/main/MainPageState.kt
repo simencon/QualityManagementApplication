@@ -131,7 +131,8 @@ enum class Page(
     EDIT_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null, null),
     ADD_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null, null),
     EDIT_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null, null),
-    ACCOUNT_EDIT(Route.Main.Settings.EditUserDetails.link, Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, null, null),
+
+    ACCOUNT_EDIT(Route.Main.Settings.EditUserDetails.link, Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, Icons.Filled.Save, null),
     ;
 }
 
