@@ -75,12 +75,8 @@ fun Employees(
     }
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
-
-    val scope = rememberCoroutineScope()
     LaunchedEffect(lastItemIsVisible) {
-        scope.launch {
-            if (lastItemIsVisible) viewModel.onListEnd(true) else viewModel.onListEnd(false)
-        }
+        if (lastItemIsVisible) viewModel.onListEnd(true) else viewModel.onListEnd(false)
     }
 
     LazyColumn(

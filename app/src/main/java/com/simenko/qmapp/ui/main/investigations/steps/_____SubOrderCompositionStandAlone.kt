@@ -80,17 +80,9 @@ fun SubOrdersStandAlone(
         }
     }
 
-    val lastItemIsVisible by remember {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
-        }
-    }
-
-    val scope = rememberCoroutineScope()
+    val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        scope.launch {
-            if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
-        }
+        if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
     }
 
     LazyColumn(

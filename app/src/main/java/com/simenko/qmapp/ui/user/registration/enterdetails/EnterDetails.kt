@@ -63,18 +63,21 @@ fun EnterDetails(
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    fillInState.let { state ->
-        when (state) {
-            is FillInSuccess ->
-                if (!editMode) {
-                    viewModel.onFillInSuccess(rawPrinciple.email)
-                } else {
-                    viewModel.initRawUser()
-                    viewModel.onSaveUserDataClick()
-                }
+    LaunchedEffect(fillInState) {
+        fillInState.let { state ->
+            println("EnterDetails - fillInState: $state")
+            when (state) {
+                is FillInSuccess ->
+                    if (!editMode) {
+                        viewModel.onFillInSuccess(rawPrinciple.email)
+                    } else {
+                        viewModel.initRawUser()
+                        viewModel.onSaveUserDataClick()
+                    }
 
-            is FillInError -> error = state.errorMsg
-            is FillInInitialState -> {}
+                is FillInError -> error = state.errorMsg
+                is FillInInitialState -> {}
+            }
         }
     }
 
