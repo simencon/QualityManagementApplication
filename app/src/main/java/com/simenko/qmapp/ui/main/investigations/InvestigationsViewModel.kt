@@ -6,7 +6,6 @@ import com.simenko.qmapp.di.ProcessControlOnlyParameter
 import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -56,7 +55,7 @@ class InvestigationsViewModel @Inject constructor(
     init {
         mainPageHandler = MainPageHandler.Builder(if (processControlOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
             .setOnSearchClickAction { if (processControlOnly) setSubOrdersFilter(it) else setOrdersFilter(it) }
-            .setOnTabSelectAction { if (processControlOnly) setSubOrdersFilter(SubOrdersFilter(statusId = it.num)) else setOrdersFilter(OrdersFilter(statusId = it.num)) }
+            .setOnTabSelectAction { if (processControlOnly) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
             .setOnFabClickAction { if (processControlOnly) onAddProcessControlClick() else onAddInvClick() }
             .setOnPullRefreshAction { this.uploadNewInvestigations() }
             .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }

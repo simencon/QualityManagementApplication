@@ -30,7 +30,6 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
@@ -49,10 +48,9 @@ private const val TAG = "SubOrderComposition"
 @Composable
 fun SubOrdersFlowColumn(
     modifier: Modifier = Modifier,
-    parentId: Int = 0
+    invModel: InvestigationsViewModel = hiltViewModel(),
+    parentId: Int = NoRecord.num
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())

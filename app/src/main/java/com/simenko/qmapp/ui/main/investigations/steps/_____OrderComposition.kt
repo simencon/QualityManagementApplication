@@ -51,11 +51,9 @@ private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-    Log.d(TAG, "InvestigationsViewModel: $invModel")
-
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
 
     val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
@@ -116,6 +114,7 @@ fun Orders(
             Log.d(TAG, "OrdersLog: ${order.order.orderNumber}")
             OrderCard(
                 order = order,
+                invModel = invModel,
                 onClickDetails = { onClickDetailsLambda(it) },
                 modifier = modifier.padding(CARDS_PADDING),
                 onClickActions = { onClickActionsLambda(it) },
@@ -130,6 +129,7 @@ fun Orders(
 @Composable
 fun OrderCard(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel(),
     order: DomainOrderComplete = DomainOrderComplete(),
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
@@ -193,6 +193,7 @@ fun OrderCard(
         ) {
             Order(
                 modifier = modifier,
+                invModel = invModel,
 
                 orderId = order.order.id,
 
@@ -220,6 +221,7 @@ fun OrderCard(
 @Composable
 fun Order(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel(),
 
     orderId: Int = 0,
 
@@ -397,6 +399,7 @@ fun Order(
 
         OrderDetails(
             modifier = modifier,
+            invModel = invModel,
             orderId = orderId,
             detailsVisibility = detailsVisibility,
             placerFullName = placerFullName,
@@ -409,6 +412,7 @@ fun Order(
 @Composable
 fun OrderDetails(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel(),
     orderId: Int = NoRecord.num,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
@@ -421,6 +425,6 @@ fun OrderDetails(
         TopLevelSingleRecordDetails("Initiated by:", placerFullName, modifier)
         TopLevelSingleRecordDetails("Initiation date:", getStringDate(createdDate) ?: NoString.str, modifier)
         TopLevelSingleRecordDetails("Completion date:", getStringDate(completedDate) ?: NoString.str, modifier)
-        SubOrdersFlowColumn(modifier = Modifier, parentId = orderId)
+        SubOrdersFlowColumn(modifier = Modifier, invModel = invModel, parentId = orderId)
     }
 }
