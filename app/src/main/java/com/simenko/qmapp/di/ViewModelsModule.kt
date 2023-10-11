@@ -13,6 +13,10 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class UserEditModeParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class EmployeeIdParameter
 
 @Qualifier
@@ -22,6 +26,12 @@ annotation class UserIdParameter
 @Module
 @InstallIn(ViewModelComponent::class)
 object ViewModelsModule {
+    @Provides
+    @UserEditModeParameter
+    @ViewModelScoped
+    fun provideUserEditModeParameter(savedStateHandle: SavedStateHandle): Boolean =
+        savedStateHandle.get<Boolean>(NavArguments.userEditMode) ?: false
+
     @Provides
     @EmployeeIdParameter
     @ViewModelScoped

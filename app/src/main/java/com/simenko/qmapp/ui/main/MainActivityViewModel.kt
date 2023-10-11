@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -37,8 +36,7 @@ class MainActivityViewModel @Inject constructor(
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository,
-    private val testDiScope: TestDiClassActivityRetainedScope
+    private val repository: InvestigationsRepository
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     val userInfo get() = userRepository.user

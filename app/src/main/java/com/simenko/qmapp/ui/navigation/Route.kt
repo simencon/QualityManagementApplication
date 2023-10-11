@@ -30,7 +30,7 @@ object NavRouteName {
 
     const val initial_screen = "initial_screen"
 
-//    const val registration = "registration"
+    //    const val registration = "registration"
     const val enter_details = "enter_details"
     const val terms_and_conditions = "terms_and_conditions"
 
@@ -44,7 +44,7 @@ object NavRouteName {
 
     const val company_profile = "company_profile"
 
-//    const val team = "team"
+    //    const val team = "team"
     const val employees = "employees"
     const val employee_add_edit = "employee_add_edit"
     const val users = "users"
@@ -66,7 +66,7 @@ object NavRouteName {
 
     const val scrap_level = "scrap_level"
 
-//    const val settings = "settings"
+    //    const val settings = "settings"
     const val user_details = "user_details"
     const val edit_user_details = "edit_user_details"
     //--------------------------------------------------------------------
@@ -75,6 +75,8 @@ object NavRouteName {
 
 object NavArguments {
     const val domain = "https://qm.simple.com"
+
+    const val userEditMode = "userEditMode"
 
     const val fullName = "name"
     const val message = "message"
@@ -93,10 +95,20 @@ sealed class Route(
     val deepLinks: List<NavDeepLink> = emptyList(),
     val route: String = EmptyString.str
 ) {
-    object LoggedOut : Route( link = LOGGED_OUT_ROOT) {
+    object LoggedOut : Route(link = LOGGED_OUT_ROOT) {
         object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROOT)
         object Registration : Route(link = REGISTRATION_ROOT, route = LOGGED_OUT_ROOT) {
-            object EnterDetails : Route(link = NavRouteName.enter_details, route = REGISTRATION_ROOT)
+            object EnterDetails : Route(
+                link = "${NavRouteName.enter_details}${arg(NavArguments.userEditMode)}",
+                arguments = listOf(
+                    navArgument(name = NavArguments.userEditMode) {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                ),
+                route = REGISTRATION_ROOT
+            )
+
             object TermsAndConditions : Route(
                 link = "${NavRouteName.terms_and_conditions}/{${NavArguments.fullName}}",
                 arguments = listOf(
@@ -273,7 +285,16 @@ sealed class Route(
 
         object Settings : Route(link = SETTINGS_ROUTE, route = MAIN_ROUTE) {
             object UserDetails : Route(link = NavRouteName.user_details, route = SETTINGS_ROUTE)
-            object EditUserDetails : Route(link = NavRouteName.edit_user_details, route = SETTINGS_ROUTE)
+            object EditUserDetails : Route(
+                link = "${NavRouteName.edit_user_details}${arg(NavArguments.userEditMode)}",
+                arguments = listOf(
+                    navArgument(name = NavArguments.userEditMode) {
+                        type = NavType.BoolType
+                        defaultValue = true
+                    }
+                ),
+                route = SETTINGS_ROUTE
+            )
         }
     }
 

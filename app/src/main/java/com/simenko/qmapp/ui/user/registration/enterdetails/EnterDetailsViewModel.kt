@@ -1,11 +1,12 @@
 package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.di.UserEditModeParameter
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -21,26 +22,25 @@ private const val MIN_LENGTH = 6
 class EnterDetailsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    @UserEditModeParameter private val userEditMode: Boolean
 ) : ViewModel() {
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val setupMainPage: Event<suspend () -> Unit> = Event {
-        mainPageState.sendMainPageState(
-            page = Page.ACCOUNT_EDIT,
-            onNavMenuClick = {
+    val mainPageHandler: MainPageHandler
+    init {
+        mainPageHandler = MainPageHandler.Builder(if(userEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
+            .setOnNavMenuClickAction {
                 appNavigator.navigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
-            },
-            onSearchAction = null,
-            onActionItemClick = null,
-            onTabSelectAction = null,
-            fabAction = { this.validateInput() },
-            refreshAction = { this.updateUserData() }
-        )
-        mainPageState.sendFabVisibility(true)
+            }
+            .setOnFabClickAction { this.validateInput() }
+            .setOnPullRefreshAction { this.updateUserData() }
+            .build()
     }
-    private val updateLoadingState: (Pair<Boolean, String?>) -> Unit = { mainPageState.trySendLoadingState(it) }
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
     private fun updateUserData() {
         userRepository.updateUserData()
     }
@@ -137,13 +137,13 @@ class EnterDetailsViewModel @Inject constructor(
 
     fun onSaveUserDataClick() {
         userRepository.rawUser?.let {
-            updateLoadingState(Pair(true, null))
+            mainPageHandler.updateLoadingState(Pair(true, null))
             userRepository.editUserData(it).addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    updateLoadingState(Pair(false, null))
+                    mainPageHandler.updateLoadingState(Pair(false, null))
                     appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
                 } else {
-                    updateLoadingState(Pair(false, task.exception?.message))
+                    mainPageHandler.updateLoadingState(Pair(false, task.exception?.message))
                 }
             }
         }

@@ -66,8 +66,6 @@ class UserActivity : ComponentActivity() {
                         )
                     }
                 ) {
-                    LaunchedEffect(key1 = Unit, block = { userViewModel.logWhenInstantiated() })
-
                     val pullRefreshState = rememberPullRefreshState(
                         refreshing = observerLoadingProcess,
                         onRefresh = {}

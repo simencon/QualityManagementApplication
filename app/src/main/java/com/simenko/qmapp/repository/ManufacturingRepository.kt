@@ -2,7 +2,6 @@ package com.simenko.qmapp.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
-import com.simenko.qmapp.di.study.TestDiClassViewModelScope
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
