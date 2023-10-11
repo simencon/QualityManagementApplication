@@ -84,6 +84,7 @@ object NavArguments {
     const val employeeId = "employeeId"
     const val userId = "userId"
 
+    const val processControlOnly = "processControlOnly"
     const val orderId = "orderId"
     const val subOrderId = "subOrderId"
     const val subOrderAddEditMode = "subOrderAddEditMode"
@@ -222,8 +223,12 @@ sealed class Route(
         object CompanyStructure : Route(link = NavRouteName.company_structure, route = MAIN_ROUTE)
         object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
         object Inv : Route(
-            link = "${NavRouteName.all_investigations}?${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
+            link = "${NavRouteName.all_investigations}?${opt(NavArguments.processControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
+                navArgument(NavArguments.processControlOnly) {
+                    type = NavType.BoolType
+                    defaultValue = false
+                },
                 navArgument(NavArguments.orderId) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num
@@ -237,8 +242,12 @@ sealed class Route(
         )
 
         object ProcessControl : Route(
-            link = "${NavRouteName.process_control}?${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
+            link = "${NavRouteName.process_control}?${opt(NavArguments.processControlOnly)}$${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
+                navArgument(NavArguments.processControlOnly) {
+                    type = NavType.BoolType
+                    defaultValue = true
+                },
                 navArgument(NavArguments.orderId) {
                     type = NavType.IntType
                     defaultValue = NoRecord.num

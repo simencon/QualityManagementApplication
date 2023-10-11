@@ -23,6 +23,18 @@ annotation class EmployeeIdParameter
 @Retention(AnnotationRetention.BINARY)
 annotation class UserIdParameter
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ProcessControlOnlyParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class OrderIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class SubOrderIdParameter
+
 @Module
 @InstallIn(ViewModelComponent::class)
 object ViewModelsModule {
@@ -43,4 +55,22 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideUserIdParameter(savedStateHandle: SavedStateHandle): String =
         savedStateHandle.get<String>(NavArguments.userId) ?: NoRecordStr.str
+
+    @Provides
+    @ProcessControlOnlyParameter
+    @ViewModelScoped
+    fun provideProcessControlOnlyParameter(savedStateHandle: SavedStateHandle): Boolean =
+        savedStateHandle.get<Boolean>(NavArguments.processControlOnly) ?: false
+
+    @Provides
+    @OrderIdParameter
+    @ViewModelScoped
+    fun provideOrderIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle.get<Int>(NavArguments.orderId) ?: NoRecord.num
+
+    @Provides
+    @SubOrderIdParameter
+    @ViewModelScoped
+    fun provideSubOrderIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle.get<Int>(NavArguments.subOrderId) ?: NoRecord.num
 }

@@ -27,10 +27,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun InvestigationsMainComposition(
     modifier: Modifier = Modifier,
-    processControlOnly: Boolean = false,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp.dp
@@ -84,9 +82,7 @@ fun InvestigationsMainComposition(
     }
 
     LaunchedEffect(Unit) {
-        invModel.setupMainPage.getContentIfNotHandled()?.invoke(processControlOnly)
-        invModel.onSelectedTab(processControlOnly)
-        invModel.updateFabVisibility(true)
+        invModel.mainPageHandler.setupMainPage(invModel.selectedTabIndex, true)
     }
 
     LaunchedEffect(currentTask) {
@@ -113,7 +109,7 @@ fun InvestigationsMainComposition(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            if (processControlOnly)
+            if (invModel.processControlOnly)
                 SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
             else
                 Orders(

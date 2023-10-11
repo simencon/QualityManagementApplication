@@ -42,28 +42,12 @@ fun MainScreen(
 
                 composable(destination = Route.Main.Inv) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
-                    invModel.setCreatedRecord(
-                        it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
-                        it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
-                    )
-
-                    InvestigationsMainComposition(
-                        modifier = Modifier.padding(all = 0.dp),
-                        processControlOnly = false
-                    )
+                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), invModel = invModel)
                 }
 
                 composable(destination = Route.Main.ProcessControl) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
-                    invModel.setCreatedRecord(
-                        it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
-                        it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
-                    )
-
-                    InvestigationsMainComposition(
-                        modifier = Modifier.padding(all = 0.dp),
-                        processControlOnly = true
-                    )
+                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), invModel = invModel)
                 }
 
                 composable(destination = Route.Main.OrderAddEdit) {
