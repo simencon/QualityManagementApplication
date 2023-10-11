@@ -49,11 +49,12 @@ fun Settings(
     onLogOut: () -> Unit,
     onEditUserData: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler.setupMainPage(0, false)
+    }
+
     val userState by viewModel.userState.collectAsStateWithLifecycle()
-
     LaunchedEffect(userState) {
-        viewModel.setupMainPage.getContentIfNotHandled()?.invoke()
-
         userState.let {
             when (it) {
                 is UserErrorState ->
@@ -65,7 +66,6 @@ fun Settings(
                 is UserLoggedOutState, is UnregisteredState, is UserNeedToVerifyEmailState, is UserAuthoritiesNotVerifiedState -> onLogOut()
                 is UserLoggedInState, NoState -> viewModel.clearLoadingState()
             }
-            println("Settings $it")
         }
     }
 

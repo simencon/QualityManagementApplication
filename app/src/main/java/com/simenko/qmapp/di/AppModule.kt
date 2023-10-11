@@ -8,7 +8,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
-import com.simenko.qmapp.di.study.TestDiClassSingleton
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
@@ -20,8 +19,6 @@ import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.room.implementation.*
-import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.main.main.MainPageStateImpl
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -150,13 +147,5 @@ object AppModule {
     @Named("firebase_token")
     fun provideFirebaseToken(userRepository: UserRepository): String {
         return userRepository.authToken
-    }
-
-//    @Singleton
-    @Provides
-    fun provideTestDi(): TestDiClassSingleton {
-        val instance = TestDiClassSingleton()
-        instance.name = "Roman Semenyshyn"
-        return instance
     }
 }

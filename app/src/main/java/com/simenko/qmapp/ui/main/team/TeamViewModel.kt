@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.main.team
 
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
-import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -36,7 +35,6 @@ class TeamViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
-    private val testDiScope: TestDiClassActivityRetainedScope
 ) : ViewModel() {
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     private val _users: Flow<List<DomainUser>> = systemRepository.users

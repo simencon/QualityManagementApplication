@@ -5,15 +5,11 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.study.TestDiClassActivityRetainedScope
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.main.main.TopScreenIntent
-import com.simenko.qmapp.ui.main.main.setup.FabSetup
-import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
-import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
 import com.simenko.qmapp.ui.navigation.Route
@@ -22,8 +18,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,15 +28,13 @@ private const val TAG = "UserViewModel"
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
-    private val mainPageState: MainPageState,
-    private val testDiScope: TestDiClassActivityRetainedScope
+    private val mainPageState: MainPageState
 ) : ViewModel() {
     val navigationChannel = appNavigator.navigationChannel
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     init {
-        println("Main page setup - mainPageState - $mainPageState")
         subscribeEvents(mainPageState.topScreenChannel.receiveAsFlow())
     }
 
@@ -64,10 +56,6 @@ class UserViewModel @Inject constructor(
     /**
      * -----------------------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun logWhenInstantiated() {
-        Log.d(TAG, "logWhenInstantiated: ${testDiScope.getOwnerName()}")
-    }
-
     private val _isLoadingInProgress = MutableStateFlow(false)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
@@ -91,19 +79,16 @@ class UserViewModel @Inject constructor(
     }
 
     fun onStateIsNoState() {
-        Log.d(TAG, "onStateIsNoState")
         appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen.link, popUpToRoute = Route.LoggedOut.InitialScreen.route, inclusive = true)
         updateCurrentUserState()
     }
 
     fun onStateIsUnregisteredState() {
-        Log.d(TAG, "onStateIsUnregisteredState")
         updateLoadingState(Pair(false, null))
         appNavigator.tryNavigateTo(route = REGISTRATION_ROOT, popUpToId = 0, inclusive = true)
     }
 
     suspend fun onStateIsUserNeedToVerifyEmailState(msg: String) {
-        Log.d(TAG, "onStateIsUserNeedToVerifyEmailState")
         updateLoadingState(Pair(false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation.withArgs(msg), popUpToId = 0, inclusive = true)
         delay(5000)
@@ -111,7 +96,6 @@ class UserViewModel @Inject constructor(
     }
 
     suspend fun onStateIsUserAuthoritiesNotVerifiedState(msg: String) {
-        Log.d(TAG, "onStateIsUserAuthoritiesNotVerifiedState")
         updateLoadingState(Pair(false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.WaitingForValidation.withArgs(msg), popUpToId = 0, inclusive = true)
         delay(5000)
@@ -119,13 +103,11 @@ class UserViewModel @Inject constructor(
     }
 
     fun onStateIsUserLoggedOutState() {
-        Log.d("InitialScreen", "onStateIsUserLoggedOutState")
         updateLoadingState(Pair(false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.LogIn.link, popUpToRoute = Route.LoggedOut.LogIn.route, inclusive = true)
     }
 
     fun onStateIsUserLoggedInState(context: Context) {
-        Log.d(TAG, "onStateIsUserLoggedInState")
         ContextCompat.startActivity(context, createMainActivityIntent(context), null)
     }
 }
