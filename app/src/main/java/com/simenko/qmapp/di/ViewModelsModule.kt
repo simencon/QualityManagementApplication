@@ -25,7 +25,7 @@ annotation class UserIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class ProcessControlOnlyParameter
+annotation class IsProcessControlOnlyParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -42,35 +42,35 @@ object ViewModelsModule {
     @UserEditModeParameter
     @ViewModelScoped
     fun provideUserEditModeParameter(savedStateHandle: SavedStateHandle): Boolean =
-        savedStateHandle.get<Boolean>(NavArguments.userEditMode) ?: false
+        savedStateHandle[NavArguments.userEditMode] ?: false
 
     @Provides
     @EmployeeIdParameter
     @ViewModelScoped
     fun provideEmployeeIdParameter(savedStateHandle: SavedStateHandle): Int =
-        savedStateHandle.get<Int>(NavArguments.employeeId) ?: NoRecord.num
+        savedStateHandle[NavArguments.employeeId] ?: NoRecord.num
 
     @Provides
     @UserIdParameter
     @ViewModelScoped
     fun provideUserIdParameter(savedStateHandle: SavedStateHandle): String =
-        savedStateHandle.get<String>(NavArguments.userId) ?: NoRecordStr.str
+        savedStateHandle[NavArguments.userId] ?: NoRecordStr.str
 
     @Provides
-    @ProcessControlOnlyParameter
+    @IsProcessControlOnlyParameter
     @ViewModelScoped
-    fun provideProcessControlOnlyParameter(savedStateHandle: SavedStateHandle): Boolean =
-        savedStateHandle.get<Boolean>(NavArguments.processControlOnly) ?: false
+    fun provideProcessControlOnlyParameter(savedStateHandle: SavedStateHandle): Boolean? =
+        savedStateHandle[NavArguments.isProcessControlOnly]
 
     @Provides
     @OrderIdParameter
     @ViewModelScoped
     fun provideOrderIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
-        savedStateHandle.get<Int>(NavArguments.orderId) ?: NoRecord.num
+        savedStateHandle[NavArguments.orderId] ?: NoRecord.num
 
     @Provides
     @SubOrderIdParameter
     @ViewModelScoped
     fun provideSubOrderIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
-        savedStateHandle.get<Int>(NavArguments.subOrderId) ?: NoRecord.num
+        savedStateHandle[NavArguments.subOrderId] ?: NoRecord.num
 }

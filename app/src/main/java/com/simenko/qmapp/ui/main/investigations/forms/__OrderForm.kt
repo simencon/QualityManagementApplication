@@ -23,26 +23,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.investigations.forms.steps.CustomersSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.InitiatorsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.TypesSelection
-import com.simenko.qmapp.ui.main.main.content.AddEditMode
 import java.util.Locale
 
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
-    viewModel: NewItemViewModel = hiltViewModel(),
-    orderId: Int
+    viewModel: NewItemViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(orderId) {
-        if (orderId == NoRecord.num) {
-            viewModel.setupTopScreen(AddEditMode.ADD_ORDER, Pair(orderId, NoRecord.num))
-        } else {
-            viewModel.setupTopScreen(AddEditMode.EDIT_ORDER, Pair(orderId, NoRecord.num))
-        }
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
     Box {

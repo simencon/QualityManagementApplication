@@ -2,7 +2,7 @@ package com.simenko.qmapp.ui.main.investigations
 
 import androidx.lifecycle.*
 import com.simenko.qmapp.di.OrderIdParameter
-import com.simenko.qmapp.di.ProcessControlOnlyParameter
+import com.simenko.qmapp.di.IsProcessControlOnlyParameter
 import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
@@ -41,7 +41,7 @@ class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
-    @ProcessControlOnlyParameter val pcOnly: Boolean,
+    @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
     @OrderIdParameter private val orderId: Int,
     @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
@@ -54,10 +54,10 @@ class InvestigationsViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(if (pcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
-            .setOnSearchClickAction { if (pcOnly) setSubOrdersFilter(it) else setOrdersFilter(it) }
-            .setOnTabSelectAction { if (pcOnly) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
-            .setOnFabClickAction { if (pcOnly) onAddProcessControlClick() else onAddInvClick() }
+        mainPageHandler = MainPageHandler.Builder(if (isPcOnly == true) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
+            .setOnSearchClickAction { if (isPcOnly == true) setSubOrdersFilter(it) else setOrdersFilter(it) }
+            .setOnTabSelectAction { if (isPcOnly == true) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
+            .setOnFabClickAction { if (isPcOnly == true) onAddProcessControlClick() else onAddInvClick() }
             .setOnPullRefreshAction { this.uploadNewInvestigations() }
             .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
             .build()
@@ -69,7 +69,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
     val selectedTabIndex
-        get() = if (pcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num
+        get() = if (isPcOnly == true) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num
 
     /**
      * Navigation -------------------------------------------------------------------------------------------------------------------------------
