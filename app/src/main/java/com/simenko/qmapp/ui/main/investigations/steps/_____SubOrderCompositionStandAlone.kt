@@ -24,7 +24,7 @@ fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
+    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {
@@ -46,25 +46,21 @@ fun SubOrdersStandAlone(
     }
 
     val listState = rememberLazyListState()
-
-    val needScrollToItem by remember { derivedStateOf { createdRecord.subOrderId != NoRecord.num } }
-
-    LaunchedEffect(needScrollToItem) {
-        if (needScrollToItem) {
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord.getContentIfNotHandled()?.let { record ->
             listState.scrollToSelectedItem(
                 list = items.map { it.subOrder.id }.toList(),
-                selectedId = createdRecord.orderId
+                selectedId = record.second
             )
 
             delay(200)
 
             val subOrder = items.find {
-                it.subOrder.id == createdRecord.subOrderId
+                it.subOrder.id == record.second
             }
 
             if (subOrder != null && !subOrder.detailsVisibility) {
                 onClickDetailsLambda(subOrder.subOrder.id)
-                invModel.resetCreatedSubOrderId()
             }
         }
     }

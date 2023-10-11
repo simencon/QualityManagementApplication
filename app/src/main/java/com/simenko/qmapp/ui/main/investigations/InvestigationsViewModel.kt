@@ -6,13 +6,13 @@ import com.simenko.qmapp.di.IsProcessControlOnlyParameter
 import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.dialogs.DialogInput
-import com.simenko.qmapp.ui.main.CreatedRecord
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -46,7 +46,7 @@ class InvestigationsViewModel @Inject constructor(
     @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _createdRecord = MutableStateFlow(CreatedRecord())
+    private val _createdRecord: MutableStateFlow<Event<Pair<Int, Int>>> = MutableStateFlow(Event(Pair(NoRecord.num, NoRecord.num)))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -61,10 +61,7 @@ class InvestigationsViewModel @Inject constructor(
             .setOnPullRefreshAction { this.uploadNewInvestigations() }
             .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
             .build()
-        _createdRecord.value = CreatedRecord(
-            if (orderId != NoRecord.num) orderId else _createdRecord.value.orderId,
-            if (subOrderId != NoRecord.num) subOrderId else _createdRecord.value.subOrderId
-        )
+        _createdRecord.value = Event(Pair(orderId, subOrderId))
     }
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
@@ -149,47 +146,20 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Handling scrolling to just created record-------------------------------------------------
      * */
-    val createdRecord: StateFlow<CreatedRecord> = _createdRecord.flatMapLatest { record ->
-        _ordersSF.flatMapLatest { ordersList ->
-            _subOrdersSF.flatMapLatest { subOrdersList ->
+    private val _isScrollingEnabled = MutableStateFlow(false)
 
-                val recordToEmit =
-                    if (
-                        (record.orderId != NoRecord.num) && (record.subOrderId != NoRecord.num) &&
-                        (ordersList.find { it.order.id == record.orderId } != null) && (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
-                    )
-                        record
-                    else if (
-                        (record.orderId != NoRecord.num) && (record.subOrderId == NoRecord.num) &&
-                        (ordersList.find { it.order.id == record.orderId } != null)
-                    )
-                        record
-                    else if (
-                        (record.orderId == NoRecord.num) && (record.subOrderId != NoRecord.num) &&
-                        (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
-                    )
-                        record
-                    else
-                        CreatedRecord()
-
-                flow { emit(recordToEmit) }
-            }
+    val scrollToRecord: StateFlow<Event<Pair<Int, Int>?>> = _createdRecord.flatMapLatest { record ->
+        _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
+            if (isScrollingEnabled) flow { emit(record) } else flow { emit(Event(null)) }
         }
     }
         .flowOn(Dispatchers.Default)
         .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreatedRecord())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Event(null))
 
-    fun resetCreatedOrderId() {
-        _createdRecord.value = CreatedRecord(NoRecord.num, _createdRecord.value.subOrderId)
+    fun enableScrollToCreatedRecord() {
+        _isScrollingEnabled.value = true
     }
-
-    fun resetCreatedSubOrderId() {
-        _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, NoRecord.num)
-    }
-    /**
-     * Handling scrolling to just created record-------------------------------------------------
-     * */
 
     /**
      * Operations with orders ______________________________________________________________

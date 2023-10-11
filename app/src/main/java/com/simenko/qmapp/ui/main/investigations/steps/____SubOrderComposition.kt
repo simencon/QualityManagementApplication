@@ -51,11 +51,8 @@ fun SubOrdersFlowColumn(
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = NoRecord.num
 ) {
-    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
-
+    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
-
-    val coroutineScope = rememberCoroutineScope()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
@@ -72,18 +69,16 @@ fun SubOrdersFlowColumn(
         }
     }
 
-    LaunchedEffect(createdRecord) {
-        if (createdRecord.subOrderId != NoRecord.num)
-            coroutineScope.launch {
-                delay(200)
-                val subOrder = items.find {
-                    it.subOrder.id == createdRecord.subOrderId
-                }
-                if (subOrder != null) {
-                    onClickDetailsLambda(subOrder.subOrder.id)
-                    invModel.resetCreatedSubOrderId()
-                }
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord.getContentIfNotHandled()?.let { record ->
+            delay(200)
+            val subOrder = items.find {
+                it.subOrder.id == record.second
             }
+            if (subOrder != null) {
+                onClickDetailsLambda(subOrder.subOrder.id)
+            }
+        }
     }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {

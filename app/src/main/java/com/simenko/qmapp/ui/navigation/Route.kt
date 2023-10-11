@@ -241,7 +241,7 @@ sealed class Route(
         )
 
         object ProcessControl : Route(
-            link = "${NavRouteName.process_control}?${opt(NavArguments.isProcessControlOnly)}$${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
+            link = "${NavRouteName.process_control}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
                 navArgument(NavArguments.isProcessControlOnly) {
                     type = NavType.BoolType
