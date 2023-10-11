@@ -68,13 +68,13 @@ fun Orders(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.first.getContentIfNotHandled()?.let { orderId ->
-                println("scrollToRecord - orderId: $orderId")
-                listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId)
-
-                delay(100)
-
-                val order = items.find { it.order.id == orderId }
-                if (order != null && !order.detailsVisibility) onClickDetailsLambda(order.order.id)
+                invModel.channel.trySend (
+                    this.launch {
+                        listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId)
+                        val order = items.find { it.order.id == orderId }
+                        if (order != null && !order.detailsVisibility) onClickDetailsLambda(order.order.id)
+                    }
+                )
             }
         }
     }
@@ -108,6 +108,7 @@ fun Orders(
     }
 }
 
+@OptIn(InternalAnimationApi::class)
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
@@ -133,6 +134,7 @@ fun OrderCard(
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
         targetValueByState = { if (order.isExpanded) CARD_OFFSET.dp() else 0f },
     )
+
     val containerColor = when (order.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
         false -> MaterialTheme.colorScheme.surfaceVariant
