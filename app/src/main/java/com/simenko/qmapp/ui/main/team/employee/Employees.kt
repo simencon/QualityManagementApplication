@@ -66,7 +66,7 @@ fun Employees(
         selectedRecord.getContentIfNotHandled()?.let { recordId ->
             if (recordId != NoRecord.num) {
                 listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = recordId)
-                delay(25)
+//                delay(25)
                 items.find { it.teamMember.id == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
             }
         }

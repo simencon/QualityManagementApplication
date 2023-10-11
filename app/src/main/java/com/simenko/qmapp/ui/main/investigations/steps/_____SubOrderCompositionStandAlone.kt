@@ -48,12 +48,13 @@ fun SubOrdersStandAlone(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.second.getContentIfNotHandled()?.let { subOrderId ->
-                listState.scrollToSelectedItem(list = items.map { it.subOrder.id }.toList(), selectedId = subOrderId)
-
-                delay(200)
-
-                val subOrder = items.find { it.subOrder.id == subOrderId }
-                if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
+                invModel.channel.trySend(
+                    this.launch {
+                        listState.scrollToSelectedItem(list = items.map { it.subOrder.id }.toList(), selectedId = subOrderId)
+                        val subOrder = items.find { it.subOrder.id == subOrderId }
+                        if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
+                    }
+                )
             }
         }
     }
