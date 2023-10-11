@@ -39,7 +39,8 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
 private const val TAG = "SubOrderComposition"
@@ -61,22 +62,16 @@ fun SubOrdersFlowColumn(
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditSubOrderClick(it) } }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
-        { subOrderComplete, completedById ->
-            invModel.showStatusUpdateDialog(
-                currentSubOrder = subOrderComplete,
-                performerId = completedById
-            )
-        }
+        { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrder = subOrderComplete, performerId = completedById) }
     }
 
     LaunchedEffect(scrollToRecord) {
-        scrollToRecord.getContentIfNotHandled()?.let { record ->
-            delay(200)
-            val subOrder = items.find {
-                it.subOrder.id == record.second
-            }
-            if (subOrder != null) {
-                onClickDetailsLambda(subOrder.subOrder.id)
+        scrollToRecord?.let { record ->
+            record.second.getContentIfNotHandled()?.let { subOrderId ->
+                println("scrollToRecord - subOrderId: $subOrderId")
+                delay(2000)
+                val subOrder = items.find { it.subOrder.id == subOrderId }
+                if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
             }
         }
     }

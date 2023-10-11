@@ -44,6 +44,8 @@ import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -64,20 +66,15 @@ fun Orders(
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {
-        scrollToRecord.getContentIfNotHandled()?.let { record ->
-            listState.scrollToSelectedItem(
-                list = items.map { it.order.id }.toList(),
-                selectedId = record.first
-            )
+        scrollToRecord?.let { record ->
+            record.first.getContentIfNotHandled()?.let { orderId ->
+                println("scrollToRecord - orderId: $orderId")
+                listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId)
 
-            delay(200)
+                delay(100)
 
-            val order = items.find {
-                it.order.id == record.first
-            }
-
-            if (order != null) {
-                if (!order.detailsVisibility) onClickDetailsLambda(order.order.id)
+                val order = items.find { it.order.id == orderId }
+                if (order != null && !order.detailsVisibility) onClickDetailsLambda(order.order.id)
             }
         }
     }

@@ -31,6 +31,7 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,7 +47,7 @@ class InvestigationsViewModel @Inject constructor(
     @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _createdRecord: MutableStateFlow<Event<Pair<Int, Int>>> = MutableStateFlow(Event(Pair(NoRecord.num, NoRecord.num)))
+    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecord.num)))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -61,7 +62,7 @@ class InvestigationsViewModel @Inject constructor(
             .setOnPullRefreshAction { this.uploadNewInvestigations() }
             .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
             .build()
-        _createdRecord.value = Event(Pair(orderId, subOrderId))
+        _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
     }
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
@@ -148,14 +149,14 @@ class InvestigationsViewModel @Inject constructor(
      * */
     private val _isScrollingEnabled = MutableStateFlow(false)
 
-    val scrollToRecord: StateFlow<Event<Pair<Int, Int>?>> = _createdRecord.flatMapLatest { record ->
+    val scrollToRecord: StateFlow<Pair<Event<Int>, Event<Int>>?> = _createdRecord.flatMapLatest { record ->
         _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
-            if (isScrollingEnabled) flow { emit(record) } else flow { emit(Event(null)) }
+            if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
         }
     }
         .flowOn(Dispatchers.Default)
         .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Event(null))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     fun enableScrollToCreatedRecord() {
         _isScrollingEnabled.value = true

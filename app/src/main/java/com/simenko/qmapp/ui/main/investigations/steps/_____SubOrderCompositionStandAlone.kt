@@ -13,7 +13,6 @@ import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
-import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.dp
@@ -47,20 +46,14 @@ fun SubOrdersStandAlone(
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {
-        scrollToRecord.getContentIfNotHandled()?.let { record ->
-            listState.scrollToSelectedItem(
-                list = items.map { it.subOrder.id }.toList(),
-                selectedId = record.second
-            )
+        scrollToRecord?.let { record ->
+            record.second.getContentIfNotHandled()?.let { subOrderId ->
+                listState.scrollToSelectedItem(list = items.map { it.subOrder.id }.toList(), selectedId = subOrderId)
 
-            delay(200)
+                delay(200)
 
-            val subOrder = items.find {
-                it.subOrder.id == record.second
-            }
-
-            if (subOrder != null && !subOrder.detailsVisibility) {
-                onClickDetailsLambda(subOrder.subOrder.id)
+                val subOrder = items.find { it.subOrder.id == subOrderId }
+                if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
             }
         }
     }
