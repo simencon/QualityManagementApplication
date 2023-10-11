@@ -29,7 +29,7 @@ fun SubOrdersStandAlone(
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {
-        invModel.setCurrentSubOrdersFilter(OrdersFilter(typeId = ProcessControlOrderTypeId.num))
+        invModel.setSubOrdersFilter(OrdersFilter(typeId = ProcessControlOrderTypeId.num))
     }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
@@ -79,7 +79,7 @@ fun SubOrdersStandAlone(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
+        if (lastItemIsVisible) invModel.mainPageHandler.onListEnd(true) else invModel.mainPageHandler.onListEnd(false)
     }
 
     LazyColumn(

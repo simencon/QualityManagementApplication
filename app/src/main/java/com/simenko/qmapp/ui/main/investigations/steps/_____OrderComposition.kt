@@ -105,7 +105,7 @@ fun Orders(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) invModel.onListEnd(true) else invModel.onListEnd(false)
+        if (lastItemIsVisible) invModel.mainPageHandler.onListEnd(true) else invModel.mainPageHandler.onListEnd(false)
     }
 
     LazyColumn(
