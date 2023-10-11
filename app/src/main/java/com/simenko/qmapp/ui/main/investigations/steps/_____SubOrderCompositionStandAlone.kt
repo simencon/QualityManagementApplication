@@ -15,21 +15,20 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import com.simenko.qmapp.utils.OrdersFilter
+import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
 @Composable
 fun SubOrdersStandAlone(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-
     val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {
-        invModel.setSubOrdersFilter(OrdersFilter(typeId = ProcessControlOrderTypeId.num))
+        invModel.setSubOrdersFilter(BaseFilter(typeId = ProcessControlOrderTypeId.num))
     }
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }

@@ -82,6 +82,9 @@ fun InvestigationsMainComposition(
     }
 
     LaunchedEffect(Unit) {
+        println("InvestigationsMainComposition - processControlOnly: ${invModel.processControlOnly}")
+        println("InvestigationsMainComposition - selectedTabIndex: ${invModel.selectedTabIndex}")
+
         invModel.mainPageHandler.setupMainPage(invModel.selectedTabIndex, true)
     }
 
@@ -110,11 +113,9 @@ fun InvestigationsMainComposition(
                 .height(screenHeight)
         ) {
             if (invModel.processControlOnly)
-                SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
+                SubOrdersStandAlone(modifier = modifier.width(screenSizes.second), invModel = invModel)
             else
-                Orders(
-                    modifier = modifier.width(screenSizes.second)
-                )
+                Orders(modifier = modifier.width(screenSizes.second), invModel = invModel)
 
             if (currentTask != NoRecord)
                 SampleComposition(modifier = modifier.width(screenSizes.third))
