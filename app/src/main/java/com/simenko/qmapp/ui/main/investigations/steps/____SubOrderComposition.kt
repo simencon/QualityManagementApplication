@@ -39,8 +39,7 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
-import java.time.Instant
-import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private const val TAG = "SubOrderComposition"
@@ -68,10 +67,14 @@ fun SubOrdersFlowColumn(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.second.getContentIfNotHandled()?.let { subOrderId ->
-                println("scrollToRecord - subOrderId: $subOrderId")
-                delay(2000)
-                val subOrder = items.find { it.subOrder.id == subOrderId }
-                if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
+                invModel.channel.trySend(
+                    this.launch {
+//                        todo-me instead delay should be trigger when previous animations will finish
+                        delay(550)
+                        val subOrder = items.find { it.subOrder.id == subOrderId }
+                        if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
+                    }
+                )
             }
         }
     }

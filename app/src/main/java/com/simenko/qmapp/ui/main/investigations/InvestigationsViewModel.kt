@@ -27,6 +27,7 @@ import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
@@ -160,6 +161,11 @@ class InvestigationsViewModel @Inject constructor(
 
     fun enableScrollToCreatedRecord() {
         _isScrollingEnabled.value = true
+    }
+    val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply {
+        viewModelScope.launch {
+            consumeEach { it.join() }
+        }
     }
 
     /**
