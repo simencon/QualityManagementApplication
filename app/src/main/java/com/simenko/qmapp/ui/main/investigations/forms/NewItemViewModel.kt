@@ -51,38 +51,41 @@ class NewItemViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                println("NewItemViewModel - init - isPcOnly: $isPcOnly")
+                println("NewItemViewModel - init - orderId: $orderId")
+                println("NewItemViewModel - init - subOrderId: $subOrderId")
                 val pageWithMakeAction =
                     if (isPcOnly == null) {
                         if (orderId == NoRecord.num) {
-                            Pair(Page.ADD_ORDER, makeOrder(true))
+                            Pair(Page.ADD_ORDER) { makeOrder(true) }
                         } else {
                             loadOrder(orderId)
-                            Pair(Page.EDIT_ORDER, makeOrder(false))
+                            Pair(Page.EDIT_ORDER) { makeOrder(false) }
                         }
                     } else {
                         if (isPcOnly == true) {
                             if (subOrderId == NoRecord.num) {
                                 setNewOrderForProcessControl()
-                                Pair(Page.ADD_SUB_ORDER_SA, makeOrderWithSubOrder(true))
+                                Pair(Page.ADD_SUB_ORDER_SA) { makeOrderWithSubOrder(true) }
                             } else {
                                 loadOrder(orderId)
                                 loadSubOrder(subOrderId)
-                                Pair(Page.EDIT_SUB_ORDER_SA, makeOrderWithSubOrder(false))
+                                Pair(Page.EDIT_SUB_ORDER_SA) { makeOrderWithSubOrder(false) }
                             }
                         } else {
                             if (subOrderId == NoRecord.num) {
                                 loadOrder(orderId)
-                                Pair(Page.ADD_SUB_ORDER, makeSubOrder(true))
+                                Pair(Page.ADD_SUB_ORDER) { makeSubOrder(true) }
                             } else {
                                 loadOrder(orderId)
                                 loadSubOrder(subOrderId)
-                                Pair(Page.EDIT_SUB_ORDER, makeSubOrder(false))
+                                Pair(Page.EDIT_SUB_ORDER) { makeSubOrder(false) }
                             }
                         }
                     }
                 mainPageHandler = MainPageHandler.Builder(pageWithMakeAction.first, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
-                    .setOnFabClickAction { pageWithMakeAction.second }
+                    .setOnFabClickAction { pageWithMakeAction.second() }
                     .build()
             }
         }
