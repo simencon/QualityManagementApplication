@@ -109,7 +109,7 @@ fun InvestigationsMainComposition(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            if (invModel.pcOnly)
+            if (invModel.isPcOnly == true)
                 SubOrdersStandAlone(modifier = modifier.width(screenSizes.second), invModel = invModel)
             else
                 Orders(modifier = modifier.width(screenSizes.second), invModel = invModel)

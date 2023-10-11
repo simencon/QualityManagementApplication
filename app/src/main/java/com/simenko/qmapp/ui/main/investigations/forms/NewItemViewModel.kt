@@ -1,14 +1,18 @@
 package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.lifecycle.*
+import com.simenko.qmapp.di.IsProcessControlOnlyParameter
+import com.simenko.qmapp.di.OrderIdParameter
+import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.main.main.content.AddEditMode
+import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvStatuses
@@ -33,84 +37,70 @@ class NewItemViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository
+    private val repository: InvestigationsRepository,
+    @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
+    @OrderIdParameter private val orderId: Int,
+    @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
-    suspend fun setupTopScreen(addEditMode: AddEditMode, record: Pair<Int, Int>) {
-        var makeAction: () -> Unit = {}
-        var recordSetUpAction: () -> Unit = {}
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    var mainPageHandler: MainPageHandler? = null
+        private set
 
-        when (addEditMode) {
-            AddEditMode.ADD_ORDER -> {
-                makeAction = { makeOrder(true) }
+    init {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val pageWithMakeAction =
+                    if (isPcOnly == null) {
+                        if (orderId == NoRecord.num) {
+                            Pair(Page.ADD_ORDER, makeOrder(true))
+                        } else {
+                            loadOrder(orderId)
+                            Pair(Page.EDIT_ORDER, makeOrder(false))
+                        }
+                    } else {
+                        if (isPcOnly == true) {
+                            if (subOrderId == NoRecord.num) {
+                                setNewOrderForProcessControl()
+                                Pair(Page.ADD_SUB_ORDER_SA, makeOrderWithSubOrder(true))
+                            } else {
+                                loadOrder(orderId)
+                                loadSubOrder(subOrderId)
+                                Pair(Page.EDIT_SUB_ORDER_SA, makeOrderWithSubOrder(false))
+                            }
+                        } else {
+                            if (subOrderId == NoRecord.num) {
+                                loadOrder(orderId)
+                                Pair(Page.ADD_SUB_ORDER, makeSubOrder(true))
+                            } else {
+                                loadOrder(orderId)
+                                loadSubOrder(subOrderId)
+                                Pair(Page.EDIT_SUB_ORDER, makeSubOrder(false))
+                            }
+                        }
+                    }
+                mainPageHandler = MainPageHandler.Builder(pageWithMakeAction.first, mainPageState)
+                    .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                    .setOnFabClickAction { pageWithMakeAction.second }
+                    .build()
             }
-
-            AddEditMode.EDIT_ORDER -> {
-                makeAction = { makeOrder(false) }
-                recordSetUpAction = { loadOrder(record.first) }
-            }
-
-            AddEditMode.ADD_SUB_ORDER -> {
-                makeAction = { makeSubOrder(true) }
-                recordSetUpAction = { loadOrder(record.first) }
-            }
-
-            AddEditMode.EDIT_SUB_ORDER -> {
-                makeAction = { makeSubOrder(true) }
-                recordSetUpAction = {
-                    loadOrder(record.first)
-                    loadSubOrder(record.second)
-                }
-            }
-
-            AddEditMode.ADD_SUB_ORDER_STAND_ALONE -> {
-                makeAction = { makeNewOrderWithSubOrder(true) }
-                recordSetUpAction = { setNewOrderForProcessControl() }
-            }
-
-            AddEditMode.EDIT_SUB_ORDER_STAND_ALONE -> {
-                makeAction = { makeNewOrderWithSubOrder(false) }
-                recordSetUpAction = {
-                    loadOrder(record.first)
-                    loadSubOrder(record.second)
-                }
-            }
-
-            else -> {}
         }
-
-//        todo-me: ToDo make in proper way later
-        /*topScreenState.trySendTopScreenSetup(
-            addEditMode = Pair(addEditMode) { makeAction() },
-            refreshAction = {},
-            filterAction = {}
-        )*/
-        withContext(Dispatchers.Default) { recordSetUpAction() }
-    }
-
-    private fun updateLoadingState(state: Pair<Boolean, String?>) {
-        mainPageState.trySendLoadingState(state)
     }
 
     /**
      * Order logic -----------------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _subOrderStandAlone: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val subOrderStandAlone: StateFlow<Boolean> get() = _subOrderStandAlone
-    fun setSubOrderStandAlone(value: Boolean) {
-        _subOrderStandAlone.value = value
-    }
-
-
     private val _order: MutableStateFlow<DomainOrder> = MutableStateFlow(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
     )
     val order: StateFlow<DomainOrder> get() = _order
 
-    fun loadOrder(id: Int) {
+    private fun loadOrder(id: Int) {
         _order.value = repository.getOrderById(id)
     }
 
-    fun setNewOrderForProcessControl() {
+    private fun setNewOrderForProcessControl() {
         _order.value = _order.value.copy(orderTypeId = 3/*Process Control*/, customerId = 4/*УЯк*/, orderedById = 18/*Роман Семенишин*/)
     }
 
@@ -144,7 +134,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectOrderReason(id: Int) {
-        if (_order.value.reasonId != id && !_subOrderStandAlone.value)
+        if (_order.value.reasonId != id && isPcOnly != true)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
         else if (_order.value.reasonId != id)
             _order.value = _order.value.copy(reasonId = id)
@@ -201,7 +191,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
 
-    fun loadSubOrder(id: Int) {
+    private fun loadSubOrder(id: Int) {
         val subOrder = repository.getSubOrderById(id)
         val samples = repository.getSamplesBySubOrderId(id)
         val tasks = repository.getTasksBySubOrderId(id)
@@ -566,9 +556,9 @@ class NewItemViewModel @Inject constructor(
                 with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> updateLoadingState(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                             Status.SUCCESS -> {
-                                updateLoadingState(Pair(false, null))
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                 withContext(Dispatchers.Main) {
                                     appNavigator.tryNavigateTo(
                                         route = Route.Main.Inv.withOpts(resource.data?.id.toString(), NoRecordStr.str),
@@ -578,22 +568,22 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                         }
                     }
                 }
             }
         else
-            updateLoadingState(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
-    private fun makeNewOrderWithSubOrder(newRecord: Boolean = true) {
+    private fun makeOrderWithSubOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> updateLoadingState(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
                             Status.SUCCESS -> {
                                 resource.data?.let {
@@ -604,13 +594,13 @@ class NewItemViewModel @Inject constructor(
                                 }
                             }
 
-                            Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                         }
                     }
                 }
             }
         else
-            updateLoadingState(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
     private fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
@@ -620,13 +610,13 @@ class NewItemViewModel @Inject constructor(
                     .consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> updateLoadingState(Pair(true, null))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                                 Status.SUCCESS -> {
                                     resource.data?.let {
                                         postDeleteSubOrderTasks(it.id)
                                         postDeleteSamples(it.id)
                                     }
-                                    updateLoadingState(Pair(false, null))
+                                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
                                             appNavigator.tryNavigateTo(
@@ -646,13 +636,13 @@ class NewItemViewModel @Inject constructor(
                                     }
                                 }
 
-                                Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
             }
         else
-            updateLoadingState(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
     private suspend fun postDeleteSamples(subOrderId: Int) {
@@ -666,9 +656,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -677,9 +667,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -700,9 +690,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -711,9 +701,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }

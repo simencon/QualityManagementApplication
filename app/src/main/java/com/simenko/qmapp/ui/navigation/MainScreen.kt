@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -11,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -52,25 +50,12 @@ fun MainScreen(
 
                 composable(destination = Route.Main.OrderAddEdit) {
                     val newOrderModel: NewItemViewModel = hiltViewModel()
-                    BackHandler { navController.popBackStack() }
-
-                    OrderForm(
-                        viewModel = newOrderModel,
-                        orderId = it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num
-                    )
+                    OrderForm(viewModel = newOrderModel)
                 }
 
                 composable(destination = Route.Main.SubOrderAddEdit) {
                     val newOrderModel: NewItemViewModel = hiltViewModel()
-                    newOrderModel.setSubOrderStandAlone(it.arguments?.getBoolean(NavArguments.subOrderAddEditMode) ?: false)
-                    BackHandler { navController.popBackStack() }
-
-                    SubOrderForm(
-                        record = Pair(
-                            it.arguments?.getInt(NavArguments.orderId) ?: NoRecord.num,
-                            it.arguments?.getInt(NavArguments.subOrderId) ?: NoRecord.num
-                        )
-                    )
+                    SubOrderForm(viewModel = newOrderModel)
                 }
 
                 settingsNavigation()

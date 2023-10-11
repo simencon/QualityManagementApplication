@@ -11,7 +11,6 @@ import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.domain.entities.DomainJobRole
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.domain.entities.DomainEmployee
-import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler

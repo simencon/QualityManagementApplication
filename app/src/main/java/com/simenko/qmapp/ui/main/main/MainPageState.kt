@@ -129,12 +129,12 @@ enum class Page(
     AUTHORIZE_USER(Route.Main.Team.AuthorizeUser.link, Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, Icons.Filled.Save, null),
     EDIT_USER(Route.Main.Team.EditUser.link, Icons.Filled.ArrowBack, "Edit user", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, null, null),
-    EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, null, null),
-    ADD_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, null, null),
-    EDIT_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, null, null),
-    ADD_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "New process control order", null, null, null, null, null, null),
-    EDIT_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, null, null),
+    ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
+    ADD_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit sub order", null, null, null, null, Icons.Filled.Save, null),
+    ADD_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "New process control order", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, Icons.Filled.Save, null),
 
     ACCOUNT_EDIT(Route.Main.Settings.EditUserDetails.link, Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, Icons.Filled.Save, null),
     ;

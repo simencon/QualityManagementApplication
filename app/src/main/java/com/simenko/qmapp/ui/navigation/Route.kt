@@ -84,10 +84,9 @@ object NavArguments {
     const val employeeId = "employeeId"
     const val userId = "userId"
 
-    const val processControlOnly = "processControlOnly"
+    const val isProcessControlOnly = "isProcessControlOnly"
     const val orderId = "orderId"
     const val subOrderId = "subOrderId"
-    const val subOrderAddEditMode = "subOrderAddEditMode"
 }
 
 sealed class Route(
@@ -223,9 +222,9 @@ sealed class Route(
         object CompanyStructure : Route(link = NavRouteName.company_structure, route = MAIN_ROUTE)
         object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
         object Inv : Route(
-            link = "${NavRouteName.all_investigations}?${opt(NavArguments.processControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
+            link = "${NavRouteName.all_investigations}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
-                navArgument(NavArguments.processControlOnly) {
+                navArgument(NavArguments.isProcessControlOnly) {
                     type = NavType.BoolType
                     defaultValue = false
                 },
@@ -242,9 +241,9 @@ sealed class Route(
         )
 
         object ProcessControl : Route(
-            link = "${NavRouteName.process_control}?${opt(NavArguments.processControlOnly)}$${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
+            link = "${NavRouteName.process_control}?${opt(NavArguments.isProcessControlOnly)}$${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
-                navArgument(NavArguments.processControlOnly) {
+                navArgument(NavArguments.isProcessControlOnly) {
                     type = NavType.BoolType
                     defaultValue = true
                 },
@@ -272,7 +271,7 @@ sealed class Route(
         )
 
         object SubOrderAddEdit : Route(
-            link = "${NavRouteName.sub_order_add_edit}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}${arg(NavArguments.subOrderAddEditMode)}",
+            link = "${NavRouteName.sub_order_add_edit}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}${arg(NavArguments.isProcessControlOnly)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
                     type = NavType.IntType
@@ -282,7 +281,7 @@ sealed class Route(
                     type = NavType.IntType
                     defaultValue = NoRecord.num
                 },
-                navArgument(NavArguments.subOrderAddEditMode) {
+                navArgument(NavArguments.isProcessControlOnly) {
                     type = NavType.BoolType
                     defaultValue = false
                 }
