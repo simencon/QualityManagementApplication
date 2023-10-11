@@ -65,33 +65,25 @@ fun Orders(
 
     val listState = rememberLazyListState()
 
-    val needScrollToItem by remember {
-        derivedStateOf {
-            createdRecord.orderId != NoRecord.num
-        }
-    }
+    val needScrollToItem by remember { derivedStateOf { createdRecord.orderId != NoRecord.num } }
 
-    if (needScrollToItem) {
-        val coroutineScope = rememberCoroutineScope()
-        SideEffect {
-            coroutineScope.launch {
+    LaunchedEffect(needScrollToItem) {
+        if (needScrollToItem) {
+            listState.scrollToSelectedItem(
+                list = items.map { it.order.id }.toList(),
+                selectedId = createdRecord.orderId
+            )
 
-                listState.scrollToSelectedItem(
-                    list = items.map { it.order.id }.toList(),
-                    selectedId = createdRecord.orderId
-                )
+            delay(200)
 
-                delay(25)
+            val order = items.find {
+                it.order.id == createdRecord.orderId
+            }
 
-                val order = items.find {
-                    it.order.id == createdRecord.orderId
-                }
-
-                if (order != null) {
-                    if (!order.detailsVisibility)
-                        onClickDetailsLambda(order.order.id)
-                    invModel.resetCreatedOrderId()
-                }
+            if (order != null) {
+                if (!order.detailsVisibility)
+                    onClickDetailsLambda(order.order.id)
+                invModel.resetCreatedOrderId()
             }
         }
     }

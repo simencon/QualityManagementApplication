@@ -47,31 +47,24 @@ fun SubOrdersStandAlone(
 
     val listState = rememberLazyListState()
 
-    val needScrollToItem by remember {
-        derivedStateOf {
-            createdRecord.subOrderId != NoRecord.num
-        }
-    }
+    val needScrollToItem by remember { derivedStateOf { createdRecord.subOrderId != NoRecord.num } }
 
-    if (needScrollToItem) {
-        val coroutineScope = rememberCoroutineScope()
-        SideEffect {
-            coroutineScope.launch {
-                listState.scrollToSelectedItem(
-                    list = items.map { it.subOrder.id }.toList(),
-                    selectedId = createdRecord.orderId
-                )
+    LaunchedEffect(needScrollToItem) {
+        if (needScrollToItem) {
+            listState.scrollToSelectedItem(
+                list = items.map { it.subOrder.id }.toList(),
+                selectedId = createdRecord.orderId
+            )
 
-                delay(200)
+            delay(200)
 
-                val subOrder = items.find {
-                    it.subOrder.id == createdRecord.subOrderId
-                }
+            val subOrder = items.find {
+                it.subOrder.id == createdRecord.subOrderId
+            }
 
-                if (subOrder != null && !subOrder.detailsVisibility) {
-                    onClickDetailsLambda(subOrder.subOrder.id)
-                    invModel.resetCreatedSubOrderId()
-                }
+            if (subOrder != null && !subOrder.detailsVisibility) {
+                onClickDetailsLambda(subOrder.subOrder.id)
+                invModel.resetCreatedSubOrderId()
             }
         }
     }

@@ -41,22 +41,23 @@ class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
-    @ProcessControlOnlyParameter val processControlOnly: Boolean,
+    @ProcessControlOnlyParameter val pcOnly: Boolean,
     @OrderIdParameter private val orderId: Int,
     @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _createdRecord = MutableStateFlow(CreatedRecord())
+
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(if (processControlOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
-            .setOnSearchClickAction { if (processControlOnly) setSubOrdersFilter(it) else setOrdersFilter(it) }
-            .setOnTabSelectAction { if (processControlOnly) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
-            .setOnFabClickAction { if (processControlOnly) onAddProcessControlClick() else onAddInvClick() }
+        mainPageHandler = MainPageHandler.Builder(if (pcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
+            .setOnSearchClickAction { if (pcOnly) setSubOrdersFilter(it) else setOrdersFilter(it) }
+            .setOnTabSelectAction { if (pcOnly) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
+            .setOnFabClickAction { if (pcOnly) onAddProcessControlClick() else onAddInvClick() }
             .setOnPullRefreshAction { this.uploadNewInvestigations() }
             .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
             .build()
@@ -66,25 +67,10 @@ class InvestigationsViewModel @Inject constructor(
         )
     }
 
+    private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
     val selectedTabIndex
-        get() =
-            if (processControlOnly) {
-                when (_currentSubOrdersFilter.value.statusId) {
-                    FirstTabId.num -> 0
-                    SecondTabId.num -> 1
-                    ThirdTabId.num -> 2
-                    FourthTabId.num -> 3
-                    else -> NoRecord.num
-                }
-            } else {
-                when (_currentOrdersFilter.value.statusId) {
-                    FirstTabId.num -> 0
-                    SecondTabId.num -> 1
-                    ThirdTabId.num -> 2
-                    FourthTabId.num -> 3
-                    else -> NoRecord.num
-                }
-            }
+        get() = if (pcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num
+
     /**
      * Navigation -------------------------------------------------------------------------------------------------------------------------------
      * */
