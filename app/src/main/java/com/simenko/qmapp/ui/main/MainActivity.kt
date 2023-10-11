@@ -241,8 +241,3 @@ class MainActivity : ComponentActivity() {
             .build()
     }
 }
-
-data class CreatedRecord(
-    val orderId: Int = NoRecord.num,
-    val subOrderId: Int = NoRecord.num
-)

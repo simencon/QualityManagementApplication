@@ -1,5 +1,7 @@
 package com.simenko.qmapp.ui.navigation
 
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -8,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.main.MainActivityViewModel
@@ -20,6 +23,7 @@ import com.simenko.qmapp.ui.main.settings.settingsNavigation
 import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainScreen(
     mainViewModel: MainActivityViewModel = hiltViewModel(),
@@ -40,11 +44,15 @@ fun MainScreen(
 
                 composable(destination = Route.Main.Inv) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
+                    if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
+                        invModel.enableScrollToCreatedRecord()
                     InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), invModel = invModel)
                 }
 
                 composable(destination = Route.Main.ProcessControl) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
+                    if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
+                        invModel.enableScrollToCreatedRecord()
                     InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), invModel = invModel)
                 }
 

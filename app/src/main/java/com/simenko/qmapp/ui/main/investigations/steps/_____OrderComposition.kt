@@ -54,8 +54,7 @@ fun Orders(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
-
+    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
     val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
@@ -64,26 +63,21 @@ fun Orders(
     val onClickEditLambda = remember<(Int) -> Unit> { { invModel.onEditInvClick(it) } }
 
     val listState = rememberLazyListState()
-
-    val needScrollToItem by remember { derivedStateOf { createdRecord.orderId != NoRecord.num } }
-
-    LaunchedEffect(needScrollToItem) {
-        if (needScrollToItem) {
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord.getContentIfNotHandled()?.let { record ->
             listState.scrollToSelectedItem(
                 list = items.map { it.order.id }.toList(),
-                selectedId = createdRecord.orderId
+                selectedId = record.first
             )
 
             delay(200)
 
             val order = items.find {
-                it.order.id == createdRecord.orderId
+                it.order.id == record.first
             }
 
             if (order != null) {
-                if (!order.detailsVisibility)
-                    onClickDetailsLambda(order.order.id)
-                invModel.resetCreatedOrderId()
+                if (!order.detailsVisibility) onClickDetailsLambda(order.order.id)
             }
         }
     }

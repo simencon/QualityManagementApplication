@@ -564,7 +564,7 @@ class NewItemViewModel @Inject constructor(
                                 mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                 withContext(Dispatchers.Main) {
                                     appNavigator.tryNavigateTo(
-                                        route = Route.Main.Inv.withOpts(resource.data?.id.toString(), NoRecordStr.str),
+                                        route = Route.Main.Inv.withOpts(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str),
                                         popUpToRoute = Route.Main.Inv.route,
                                         inclusive = true
                                     )
@@ -623,16 +623,13 @@ class NewItemViewModel @Inject constructor(
                                     withContext(Dispatchers.Main) {
                                         if (pcOnly)
                                             appNavigator.tryNavigateTo(
-                                                route = Route.Main.ProcessControl.withOpts(
-                                                    resource.data?.orderId.toString(),
-                                                    resource.data?.id.toString()
-                                                ),
+                                                route = Route.Main.ProcessControl.withOpts(TrueStr.str, resource.data?.orderId.toString(), resource.data?.id.toString()),
                                                 popUpToRoute = Route.Main.ProcessControl.route,
                                                 inclusive = true
                                             )
                                         else
                                             appNavigator.tryNavigateTo(
-                                                route = Route.Main.Inv.withOpts(resource.data?.orderId.toString(), resource.data?.id.toString()),
+                                                route = Route.Main.Inv.withOpts(FalseStr.str, resource.data?.orderId.toString(), resource.data?.id.toString()),
                                                 popUpToRoute = Route.Main.Inv.route,
                                                 inclusive = true
                                             )
