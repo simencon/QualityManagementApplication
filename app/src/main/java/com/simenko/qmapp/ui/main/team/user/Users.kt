@@ -52,7 +52,7 @@ fun Users(
     val items by viewModel.users.collectAsStateWithLifecycle()
     val currentUserVisibility by viewModel.currentUserVisibility.collectAsStateWithLifecycle()
 
-    LaunchedEffect(isUsersPage) {
+    LaunchedEffect(Unit) {
         viewModel.setUsersFilter(BaseFilter(newUsers = !isUsersPage))
         viewModel.mainPageHandler.setupMainPage(if (isUsersPage) 1 else 2, false)
     }
@@ -64,7 +64,7 @@ fun Users(
     val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
     val onClickAuthorizeLambda = remember<(String) -> Unit> { { viewModel.onUserAuthorizeClick(it) } }
     val onClickRemoveLambda = remember<(String) -> Unit> { { viewModel.setRemoveUserDialogVisibility(true, it) } }
-    val onClickEditLambda = remember<(String) -> Unit> { {viewModel.onUserEditClick(it) } }
+    val onClickEditLambda = remember<(String) -> Unit> { { viewModel.onUserEditClick(it) } }
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {
