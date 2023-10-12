@@ -50,27 +50,22 @@ fun Employees(
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
     val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+
     val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteEmployee(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
 
     val listState = rememberLazyListState()
-
-    LaunchedEffect(Unit) {
-        viewModel.mainPageHandler.setupMainPage(0, true)
-    }
-
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.first.getContentIfNotHandled()?.let { employeeId ->
-                if (employeeId != NoRecord.num) {
-                    viewModel.channel.trySend(
-                        this.launch {
-                            listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId)
-                        }
-                    )
-                }
+                viewModel.channel.trySend(
+                    this.launch {
+                        listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId)
+                    }
+                )
             }
         }
     }
