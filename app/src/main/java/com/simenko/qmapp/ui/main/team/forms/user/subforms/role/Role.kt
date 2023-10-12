@@ -43,7 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.repository.UserError
-import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
 import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
@@ -215,7 +215,7 @@ fun SelectionGrid(
 
     LaunchedEffect(currentItem) {
         if (currentItem != NoRecordStr.str)
-            gritState.scrollToSelectedStringItem(
+            gritState.scrollToSelectedItem(
                 list = items.map { it.first }.toList(),
                 selectedId = currentItem,
             )

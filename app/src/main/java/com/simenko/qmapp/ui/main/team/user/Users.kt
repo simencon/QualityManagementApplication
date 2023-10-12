@@ -36,7 +36,7 @@ import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
-import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
@@ -72,9 +72,7 @@ fun Users(
             record.second.getContentIfNotHandled()?.let { userId ->
                 viewModel.channel.trySend(
                     this.launch {
-                        println("Users - scrollToRecord: $userId")
-                        listState.scrollToSelectedStringItem(list = items.map { it.email }.toList(), selectedId = userId)
-                        items.find { it.email == userId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.email) }
+                        listState.scrollToSelectedItem(list = items.map { it.email }.toList(), selectedId = userId)
                     }
                 )
             }

@@ -10,9 +10,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
+import com.simenko.qmapp.domain.NoRecord
 
 @Composable
 fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) -> Unit) {
@@ -21,69 +19,17 @@ fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) ->
 
     DisposableEffect(lifecycleOwner.value) {
         val lifecycle = lifecycleOwner.value.lifecycle
-        val observer = LifecycleEventObserver { owner, event ->
-            eventHandler.value(owner, event)
-        }
-
+        val observer = LifecycleEventObserver { owner, event -> eventHandler.value(owner, event) }
         lifecycle.addObserver(observer)
-        onDispose {
-            lifecycle.removeObserver(observer)
-        }
+        onDispose { lifecycle.removeObserver(observer) }
     }
 }
 
-suspend fun < T : ScrollableState> T.scrollToSelectedItem(
-    list: List<Int>,
-    selectedId: Int,
-): Boolean {
-    val state = this
-    var result = false
-    withContext(Dispatchers.Main) {
-        var index = 0
-        list.forEach {
-            if (it == selectedId) {
-                delay(100)
-                when {
-                    (state::class.java == LazyListState::class.java) -> {
-                        (state as LazyListState).animateScrollToItem(index = index)
-                        result = true
-                    }
-                    (state::class.java == LazyGridState::class.java) -> {
-                        (state as LazyGridState).animateScrollToItem(index = index)
-                        result = true
-                    }
-                }
-            }
-            index++
+suspend fun <S : ScrollableState, T> S.scrollToSelectedItem(list: List<T>, selectedId: T) = list.indexOf(selectedId).let { index ->
+    if (index != NoRecord.num)
+        when (this) {
+            is LazyGridState -> (this as LazyGridState).animateScrollToItem(index = index)
+            is LazyListState -> (this as LazyListState).scrollToItem(index = index)
+            else -> {}
         }
-    }
-    return result
-}
-
-suspend fun < T : ScrollableState> T.scrollToSelectedStringItem(
-    list: List<String>,
-    selectedId: String,
-): Boolean {
-    val state = this
-    var result = false
-    withContext(Dispatchers.Main) {
-        var index = 0
-        list.forEach {
-            if (it == selectedId) {
-                delay(100)
-                when {
-                    (state::class.java == LazyListState::class.java) -> {
-                        (state as LazyListState).animateScrollToItem(index = index)
-                        result = true
-                    }
-                    (state::class.java == LazyGridState::class.java) -> {
-                        (state as LazyGridState).animateScrollToItem(index = index)
-                        result = true
-                    }
-                }
-            }
-            index++
-        }
-    }
-    return result
 }

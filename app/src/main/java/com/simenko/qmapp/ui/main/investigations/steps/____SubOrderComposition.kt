@@ -51,7 +51,6 @@ fun SubOrdersFlowColumn(
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = NoRecord.num
 ) {
-    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
@@ -62,21 +61,6 @@ fun SubOrdersFlowColumn(
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrder = subOrderComplete, performerId = completedById) }
-    }
-
-    LaunchedEffect(scrollToRecord) {
-        scrollToRecord?.let { record ->
-            record.second.getContentIfNotHandled()?.let { subOrderId ->
-                invModel.channel.trySend(
-                    this.launch {
-//                        todo-me instead delay should be trigger when previous animations will finish
-                        delay(550)
-                        val subOrder = items.find { it.subOrder.id == subOrderId }
-                        if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
-                    }
-                )
-            }
-        }
     }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
