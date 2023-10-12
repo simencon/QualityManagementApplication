@@ -1,7 +1,11 @@
 package com.simenko.qmapp.ui.main.team
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.*
+import com.simenko.qmapp.di.EmployeeIdParameter
+import com.simenko.qmapp.di.UserIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -22,7 +26,9 @@ import com.simenko.qmapp.utils.TeamUtils.filterEmployees
 import com.simenko.qmapp.utils.TeamUtils.filterUsers
 import com.simenko.qmapp.utils.UsersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -30,14 +36,19 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TeamViewModel @Inject constructor(
+    @ApplicationContext context: Context,
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
+    @EmployeeIdParameter private val employeeId: Int,
+    @UserIdParameter private val userId: String
 ) : ViewModel() {
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     private val _users: Flow<List<DomainUser>> = systemRepository.users
+    private val _employeeIdEvent = MutableStateFlow(Event(NoRecord.num))
+    private val _userIdEvent = MutableStateFlow(Event(NoRecordStr.str))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -63,22 +74,33 @@ class TeamViewModel @Inject constructor(
                 }
             )
             .build()
+        _employeeIdEvent.value = Event(employeeId)
+        _userIdEvent.value = Event(userId)
     }
 
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
-    val isOwnAccount: (String) -> Boolean = { it == userRepository.user.email }
+    private val _isScrollingEnabled = MutableStateFlow(false)
+    val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
+
+    val scrollToRecord: StateFlow<Pair<Event<Int>, Event<String>>?> = _employeeIdEvent.flatMapLatest { employeeIdEvent ->
+        _userIdEvent.flatMapLatest { userIdEvent ->
+            _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
+                if (isScrollingEnabled) flow { emit(Pair(employeeIdEvent, userIdEvent)) } else flow { emit(null) }
+            }
+        }
+    }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+
+    val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
+
+    val isOwnAccount: (String) -> Boolean = { userId ->
+        (userId == userRepository.user.email).also { if (it) Toast.makeText(context, "You cannot edit your own account!", Toast.LENGTH_LONG).show() }
+    }
 
     /**
      * Employee logic and operations -----------------------------------------------------------------------------------------------------------------
      * */
-    private val _selectedEmployeeRecord = MutableStateFlow(Event(NoRecord.num))
-    val selectedEmployeeRecord = _selectedEmployeeRecord.asStateFlow()
-    fun setSelectedEmployeeRecord(id: Int) {
-        if (selectedEmployeeRecord.value.peekContent() != id) this._selectedEmployeeRecord.value = Event(id)
-    }
-
     private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
 
     fun setCurrentEmployeeVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
@@ -110,8 +132,7 @@ class TeamViewModel @Inject constructor(
                 flow { emit(cpy) }
             }
         }
-    }
-        .flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
         mainPageHandler.updateLoadingState(Pair(true, null))
@@ -133,11 +154,6 @@ class TeamViewModel @Inject constructor(
     /**
      * User logic and operations ---------------------------------------------------------------------------------------------------------------------
      * */
-    private val _selectedUserRecord = MutableStateFlow(Event(NoRecordStr.str))
-    val selectedUserRecord = _selectedUserRecord.asStateFlow()
-    fun setSelectedUserRecord(id: String) {
-        if (selectedUserRecord.value.peekContent() != id) this._selectedUserRecord.value = Event(id)
-    }
 
     private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
     fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
@@ -170,14 +186,15 @@ class TeamViewModel @Inject constructor(
                 flow { emit(cpy) }
             }
         }
-    }
-        .flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     private val _isRemoveUserDialogVisible = MutableStateFlow(false)
     val isRemoveUserDialogVisible get() = _isRemoveUserDialogVisible.asStateFlow()
 
-    fun setRemoveUserDialogVisibility(value: Boolean) {
-        _isRemoveUserDialogVisible.value = value
+    fun setRemoveUserDialogVisibility(isDialogVisible: Boolean, userId: String = _userIdEvent.value.peekContent()) {
+        if (isOwnAccount(userId)) return
+        this._userIdEvent.value = Event(userId)
+        _isRemoveUserDialogVisible.value = isDialogVisible
     }
 
     fun removeUser(userId: String) = viewModelScope.launch {
@@ -190,7 +207,7 @@ class TeamViewModel @Inject constructor(
                             Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
                                 mainPageHandler.updateLoadingState(Pair(false, null))
-                                _selectedUserRecord.value = Event(NoRecordStr.str)
+                                _userIdEvent.value = Event(NoRecordStr.str)
                                 setRemoveUserDialogVisibility(false)
                                 navToRemovedRecord(resource.data?.email)
                             }
@@ -205,33 +222,25 @@ class TeamViewModel @Inject constructor(
 
     private fun navigateByTopTabs(tag: SelectedNumber) {
         when (tag) {
-            FirstTabId -> {
-                appNavigator.tryNavigateBack()
-            }
-
-            SecondTabId -> {
-                appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-            }
-
-            ThirdTabId -> {
-                appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-            }
+            FirstTabId -> appNavigator.tryNavigateBack()
+            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
         }
     }
 
     fun onEmployeeAddEdictClick(employeeId: Int) {
-        println("onEmployeeAddEdictClick - $employeeId")
-        setSelectedEmployeeRecord(NoRecord.num)
         appNavigator.tryNavigateTo(Route.Main.Team.EmployeeAddEdit.withArgs(employeeId.toString()))
     }
 
     fun onUserEditClick(userId: String) {
-        setSelectedUserRecord(NoRecordStr.str)
+        if (isOwnAccount(userId)) return
+        this._userIdEvent.value = Event(userId)
         appNavigator.tryNavigateTo(Route.Main.Team.EditUser.withArgs(userId))
     }
 
     fun onUserAuthorizeClick(userId: String) {
-        setSelectedUserRecord(NoRecordStr.str)
+        if (isOwnAccount(userId)) return
+        this._userIdEvent.value = Event(userId)
         appNavigator.tryNavigateTo(Route.Main.Team.AuthorizeUser.withArgs(userId))
     }
 

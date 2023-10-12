@@ -6,8 +6,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.NoRecordStr
-import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.team.employee.Employees
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
@@ -24,9 +22,8 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
     navigation(startDestination = Route.Main.Team.Employees) {
         composable(destination = Route.Main.Team.Employees) {
             val teamModel: TeamViewModel = hiltViewModel()
-
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getInt(NavArguments.employeeId)?.let { id -> teamModel.setSelectedEmployeeRecord(id) }
+                teamModel.enableScrollToCreatedRecord()
             }
             Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeAddEdictClick(id) })
         }
@@ -36,31 +33,17 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
         }
         composable(destination = Route.Main.Team.Users) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
-
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
+                teamModel.enableScrollToCreatedRecord()
             }
-
-            Users(
-                viewModel = teamModel,
-                isUsersPage = true,
-                onClickAuthorize = {},
-                onClickEdit = { id -> teamModel.onUserEditClick(id) }
-            )
+            Users(viewModel = teamModel, isUsersPage = true)
         }
         composable(destination = Route.Main.Team.Requests) {
             val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
-
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                it.arguments?.getString(NavArguments.userId)?.let { id -> teamModel.setSelectedUserRecord(id) }
+                teamModel.enableScrollToCreatedRecord()
             }
-
-            Users(
-                viewModel = teamModel,
-                isUsersPage = false,
-                onClickAuthorize = { id -> teamModel.onUserAuthorizeClick(id) },
-                onClickEdit = {}
-            )
+            Users(viewModel = teamModel, isUsersPage = false)
         }
         editUser(Route.Main.Team.AuthorizeUser)
         editUser(Route.Main.Team.EditUser)

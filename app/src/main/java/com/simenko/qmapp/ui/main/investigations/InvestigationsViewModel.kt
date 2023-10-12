@@ -32,7 +32,6 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -149,6 +148,7 @@ class InvestigationsViewModel @Inject constructor(
      * Handling scrolling to just created record-------------------------------------------------
      * */
     private val _isScrollingEnabled = MutableStateFlow(false)
+    val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
 
     val scrollToRecord: StateFlow<Pair<Event<Int>, Event<Int>>?> = _createdRecord.flatMapLatest { record ->
         _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
@@ -159,14 +159,7 @@ class InvestigationsViewModel @Inject constructor(
         .conflate()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
-    fun enableScrollToCreatedRecord() {
-        _isScrollingEnabled.value = true
-    }
-    val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply {
-        viewModelScope.launch {
-            consumeEach { it.join() }
-        }
-    }
+    val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
 
     /**
      * Operations with orders ______________________________________________________________

@@ -39,6 +39,7 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.dialogs.ApproveAction
 
@@ -166,29 +167,6 @@ fun Settings(
             onOkClick = { password -> onApproveLambda(password) }
         )
     }
-}
-
-@Composable
-fun InfoLine(
-    modifier: Modifier,
-    title: String,
-    body: String
-) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-    )
-    Text(
-        text = body,
-        style = MaterialTheme.typography.bodyMedium,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-    )
-    Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Preview(name = "Lite Mode Settings", showBackground = true, widthDp = 360)

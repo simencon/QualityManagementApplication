@@ -39,7 +39,6 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -49,7 +48,7 @@ fun Employees(
     onClickEdit: (Int) -> Unit
 ) {
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
-    val selectedRecord by viewModel.selectedEmployeeRecord.collectAsStateWithLifecycle()
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
@@ -62,12 +61,17 @@ fun Employees(
         viewModel.mainPageHandler.setupMainPage(0, true)
     }
 
-    LaunchedEffect(selectedRecord) {
-        selectedRecord.getContentIfNotHandled()?.let { recordId ->
-            if (recordId != NoRecord.num) {
-                listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = recordId)
-//                delay(25)
-                items.find { it.teamMember.id == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord?.let { record ->
+            record.first.getContentIfNotHandled()?.let { employeeId ->
+                if (employeeId != NoRecord.num) {
+                    viewModel.channel.trySend(
+                        this.launch {
+                            listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId)
+                            items . find { it.teamMember.id == employeeId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
+                        }
+                    )
+                }
             }
         }
     }
