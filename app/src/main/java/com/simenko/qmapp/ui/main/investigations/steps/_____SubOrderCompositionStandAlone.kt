@@ -51,8 +51,6 @@ fun SubOrdersStandAlone(
                 invModel.channel.trySend(
                     this.launch {
                         listState.scrollToSelectedItem(list = items.map { it.subOrder.id }.toList(), selectedId = subOrderId)
-                        val subOrder = items.find { it.subOrder.id == subOrderId }
-                        if (subOrder != null && !subOrder.detailsVisibility) onClickDetailsLambda(subOrder.subOrder.id)
                     }
                 )
             }

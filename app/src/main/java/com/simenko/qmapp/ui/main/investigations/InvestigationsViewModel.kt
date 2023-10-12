@@ -48,6 +48,8 @@ class InvestigationsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecord.num)))
+    private val _currentOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _currentSubOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -63,6 +65,8 @@ class InvestigationsViewModel @Inject constructor(
             .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
             .build()
         _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
+        setCurrentOrderVisibility(dId = SelectedNumber(orderId))
+        setCurrentSubOrderVisibility(dId = SelectedNumber(subOrderId))
     }
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
@@ -184,10 +188,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-    fun setCurrentOrderVisibility(
-        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
-    ) {
+    fun setCurrentOrderVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _currentOrderVisibility.value = _currentOrderVisibility.value.setVisibility(dId, aId)
     }
 
@@ -281,12 +282,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Visibility operations
      * */
-    private val _currentSubOrderVisibility =
-        MutableStateFlow(Pair(NoRecord, NoRecord))
-
-    fun setCurrentSubOrderVisibility(
-        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
-    ) {
+    fun setCurrentSubOrderVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _currentSubOrderVisibility.value = _currentSubOrderVisibility.value.setVisibility(dId, aId)
     }
 

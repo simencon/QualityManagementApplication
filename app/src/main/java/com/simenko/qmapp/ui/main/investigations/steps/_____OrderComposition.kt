@@ -69,11 +69,7 @@ fun Orders(
         scrollToRecord?.let { record ->
             record.first.getContentIfNotHandled()?.let { orderId ->
                 invModel.channel.trySend (
-                    this.launch {
-                        listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId)
-                        val order = items.find { it.order.id == orderId }
-                        if (order != null && !order.detailsVisibility) onClickDetailsLambda(order.order.id)
-                    }
+                    this.launch { listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId) }
                 )
             }
         }

@@ -68,7 +68,6 @@ fun Employees(
                     viewModel.channel.trySend(
                         this.launch {
                             listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId)
-                            items . find { it.teamMember.id == employeeId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
                         }
                     )
                 }

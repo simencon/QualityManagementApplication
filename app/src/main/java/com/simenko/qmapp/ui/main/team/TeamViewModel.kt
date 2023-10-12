@@ -47,8 +47,10 @@ class TeamViewModel @Inject constructor(
 ) : ViewModel() {
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     private val _users: Flow<List<DomainUser>> = systemRepository.users
-    private val _employeeIdEvent = MutableStateFlow(Event(NoRecord.num))
-    private val _userIdEvent = MutableStateFlow(Event(NoRecordStr.str))
+    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<String>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecordStr.str)))
+    private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
+    val currentUserVisibility = _currentUserVisibility.asStateFlow()
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -74,8 +76,9 @@ class TeamViewModel @Inject constructor(
                 }
             )
             .build()
-        _employeeIdEvent.value = Event(employeeId)
-        _userIdEvent.value = Event(userId)
+        _createdRecord.value = Pair(Event(employeeId), Event(userId))
+        setCurrentEmployeeVisibility(dId = SelectedNumber(employeeId))
+        setCurrentUserVisibility(dId = SelectedString(userId))
     }
 
     /**
@@ -84,11 +87,9 @@ class TeamViewModel @Inject constructor(
     private val _isScrollingEnabled = MutableStateFlow(false)
     val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
 
-    val scrollToRecord: StateFlow<Pair<Event<Int>, Event<String>>?> = _employeeIdEvent.flatMapLatest { employeeIdEvent ->
-        _userIdEvent.flatMapLatest { userIdEvent ->
-            _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
-                if (isScrollingEnabled) flow { emit(Pair(employeeIdEvent, userIdEvent)) } else flow { emit(null) }
-            }
+    val scrollToRecord: StateFlow<Pair<Event<Int>, Event<String>>?> = _createdRecord.flatMapLatest { record ->
+        _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
+            if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
         }
     }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
@@ -101,8 +102,6 @@ class TeamViewModel @Inject constructor(
     /**
      * Employee logic and operations -----------------------------------------------------------------------------------------------------------------
      * */
-    private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-
     fun setCurrentEmployeeVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _currentEmployeeVisibility.value = _currentEmployeeVisibility.value.setVisibility(dId, aId)
     }
@@ -154,9 +153,6 @@ class TeamViewModel @Inject constructor(
     /**
      * User logic and operations ---------------------------------------------------------------------------------------------------------------------
      * */
-
-    private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
-    val currentUserVisibility = _currentUserVisibility.asStateFlow()
     fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
         _currentUserVisibility.value = _currentUserVisibility.value.setVisibility(dId, aId)
     }
@@ -192,7 +188,7 @@ class TeamViewModel @Inject constructor(
     private val _isRemoveUserDialogVisible = MutableStateFlow(false)
     val isRemoveUserDialogVisible get() = _isRemoveUserDialogVisible.asStateFlow()
 
-    fun setRemoveUserDialogVisibility(isDialogVisible: Boolean, userId: String = _userIdEvent.value.peekContent()) {
+    fun setRemoveUserDialogVisibility(isDialogVisible: Boolean, userId: String = _createdRecord.value.second.peekContent()) {
         if (isOwnAccount(userId)) return
         _isRemoveUserDialogVisible.value = isDialogVisible
     }
@@ -207,7 +203,6 @@ class TeamViewModel @Inject constructor(
                             Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
                             Status.SUCCESS -> {
                                 mainPageHandler.updateLoadingState(Pair(false, null))
-                                _userIdEvent.value = Event(NoRecordStr.str)
                                 setRemoveUserDialogVisibility(false)
                                 navToRemovedRecord(resource.data?.email)
                             }
