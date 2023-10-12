@@ -33,8 +33,8 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
-import com.simenko.qmapp.ui.main.settings.InfoLine
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.TrueFalseField

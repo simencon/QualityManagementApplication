@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
@@ -305,6 +307,29 @@ fun <T> TopLevelSingleRecordMainHeader(
             )
         }
     }
+}
+
+@Composable
+fun InfoLine(
+    modifier: Modifier,
+    title: String,
+    body: String
+) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.width(320.dp)
+    )
+    Text(
+        text = body,
+        style = MaterialTheme.typography.bodyMedium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.width(320.dp)
+    )
+    Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Composable

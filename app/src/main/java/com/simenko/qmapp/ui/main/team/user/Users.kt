@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.team.user
 
 import android.annotation.SuppressLint
-import android.widget.Toast
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.MutableTransitionState
@@ -23,13 +22,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
@@ -44,17 +41,14 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun Users(
     viewModel: TeamViewModel = hiltViewModel(),
-    isUsersPage: Boolean,
-    onClickAuthorize: (String) -> Unit,
-    onClickEdit: (String) -> Unit
+    isUsersPage: Boolean
 ) {
-    val context = LocalContext.current
     val items by viewModel.users.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(isUsersPage) {
@@ -63,37 +57,25 @@ fun Users(
     }
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
-    val selectedRecord by viewModel.selectedUserRecord.collectAsStateWithLifecycle()
-
-    fun checkIfCanEdit(id: String): Boolean {
-        return if (viewModel.isOwnAccount(id)) {
-            Toast.makeText(context, "You cannot edit your own account!", Toast.LENGTH_LONG).show()
-            false
-        } else
-            true
-    }
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
-    val onClickAuthorizeLambda = remember<(String) -> Unit> { { if (checkIfCanEdit(it)) onClickAuthorize(it) } }
-    val onClickRemoveLambda = remember<(String) -> Unit> {
-        {
-            if (checkIfCanEdit(it)) {
-                viewModel.setSelectedUserRecord(it)
-                viewModel.setRemoveUserDialogVisibility(true)
-            }
-        }
-    }
-    val onClickEditLambda = remember<(String) -> Unit> { { if (checkIfCanEdit(it)) onClickEdit(it) } }
+    val onClickAuthorizeLambda = remember<(String) -> Unit> { { viewModel.onUserAuthorizeClick(it) } }
+    val onClickRemoveLambda = remember<(String) -> Unit> { { viewModel.setRemoveUserDialogVisibility(true, it) } }
+    val onClickEditLambda = remember<(String) -> Unit> { {viewModel.onUserEditClick(it) } }
 
     val listState = rememberLazyListState()
-
-    LaunchedEffect(selectedRecord) {
-        selectedRecord.getContentIfNotHandled()?.let { recordId ->
-            if (recordId != NoRecordStr.str) {
-                listState.scrollToSelectedStringItem(list = items.map { it.email }.toList(), selectedId = recordId)
-                delay(25)
-                items.find { it.email == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.email) }
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord?.let { record ->
+            record.second.getContentIfNotHandled()?.let { userId ->
+                viewModel.channel.trySend(
+                    this.launch {
+                        println("Users - scrollToRecord: $userId")
+                        listState.scrollToSelectedStringItem(list = items.map { it.email }.toList(), selectedId = userId)
+                        items.find { it.email == userId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.email) }
+                    }
+                )
             }
         }
     }
@@ -116,10 +98,10 @@ fun Users(
 
     if (isRemoveUserDialogVisible)
         UserExistDialog(
-            msg = "Remove user ${selectedRecord.peekContent()} from authorized users?",
+            msg = "Remove user ${scrollToRecord?.second?.peekContent()} from authorized users?",
             btn = Pair("Cancel", "Remove"),
             onCancel = { viewModel.setRemoveUserDialogVisibility(false) },
-            onOk = { viewModel.removeUser(selectedRecord.peekContent()) },
+            onOk = { viewModel.removeUser(scrollToRecord?.second?.peekContent() ?: "") },
             onDismiss = { viewModel.setRemoveUserDialogVisibility(false) }
         )
 }
