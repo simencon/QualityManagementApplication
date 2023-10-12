@@ -156,6 +156,7 @@ class TeamViewModel @Inject constructor(
      * */
 
     private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
+    val currentUserVisibility = _currentUserVisibility.asStateFlow()
     fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
         _currentUserVisibility.value = _currentUserVisibility.value.setVisibility(dId, aId)
     }
@@ -169,7 +170,7 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    val users: SharedFlow<List<DomainUser>> = _users.flatMapLatest { users ->
+    val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
         _currentUserVisibility.flatMapLatest { visibility ->
             _currentUsersFilter.flatMapLatest { filter ->
                 val cpy = mutableListOf<DomainUser>()
@@ -193,7 +194,6 @@ class TeamViewModel @Inject constructor(
 
     fun setRemoveUserDialogVisibility(isDialogVisible: Boolean, userId: String = _userIdEvent.value.peekContent()) {
         if (isOwnAccount(userId)) return
-        this._userIdEvent.value = Event(userId)
         _isRemoveUserDialogVisible.value = isDialogVisible
     }
 
@@ -222,9 +222,9 @@ class TeamViewModel @Inject constructor(
 
     private fun navigateByTopTabs(tag: SelectedNumber) {
         when (tag) {
-            FirstTabId -> appNavigator.tryNavigateBack()
-            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
-            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.link)
+            FirstTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Employees.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true)
+            SecondTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Users.route, inclusive = true)
+            ThirdTabId -> appNavigator.tryNavigateTo(route = Route.Main.Team.Requests.withArgs(NoRecordStr.str), popUpToRoute = Route.Main.Team.Requests.route, inclusive = true)
         }
     }
 
@@ -234,20 +234,18 @@ class TeamViewModel @Inject constructor(
 
     fun onUserEditClick(userId: String) {
         if (isOwnAccount(userId)) return
-        this._userIdEvent.value = Event(userId)
         appNavigator.tryNavigateTo(Route.Main.Team.EditUser.withArgs(userId))
     }
 
     fun onUserAuthorizeClick(userId: String) {
         if (isOwnAccount(userId)) return
-        this._userIdEvent.value = Event(userId)
         appNavigator.tryNavigateTo(Route.Main.Team.AuthorizeUser.withArgs(userId))
     }
 
     private suspend fun navToRemovedRecord(id: String?) {
         mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests.withArgs(it), Route.Main.Team.Employees.link) }
+            id?.let { appNavigator.tryNavigateTo(Route.Main.Team.Requests.withArgs(it), Route.Main.Team.Requests.route, inclusive = true) }
         }
     }
 

@@ -49,7 +49,8 @@ fun Users(
     viewModel: TeamViewModel = hiltViewModel(),
     isUsersPage: Boolean
 ) {
-    val items by viewModel.users.collectAsStateWithLifecycle(listOf())
+    val items by viewModel.users.collectAsStateWithLifecycle()
+    val currentUserVisibility by viewModel.currentUserVisibility.collectAsStateWithLifecycle()
 
     LaunchedEffect(isUsersPage) {
         viewModel.setUsersFilter(BaseFilter(newUsers = !isUsersPage))
@@ -98,10 +99,10 @@ fun Users(
 
     if (isRemoveUserDialogVisible)
         UserExistDialog(
-            msg = "Remove user ${scrollToRecord?.second?.peekContent()} from authorized users?",
+            msg = "Remove user ${currentUserVisibility.first.str} from authorized users?",
             btn = Pair("Cancel", "Remove"),
             onCancel = { viewModel.setRemoveUserDialogVisibility(false) },
-            onOk = { viewModel.removeUser(scrollToRecord?.second?.peekContent() ?: "") },
+            onOk = { viewModel.removeUser(currentUserVisibility.first.str) },
             onDismiss = { viewModel.setRemoveUserDialogVisibility(false) }
         )
 }

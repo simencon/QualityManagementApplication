@@ -237,11 +237,7 @@ class EmployeeViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: Int?) {
         mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let {
-                appNavigator.tryNavigateTo(
-                    route = Route.Main.Team.Employees.withArgs(it.toString()), popUpToRoute = Route.Main.Team.Employees.link, inclusive = true
-                )
-            }
+            id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Employees.withArgs(it.toString()), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true) }
         }
     }
 
