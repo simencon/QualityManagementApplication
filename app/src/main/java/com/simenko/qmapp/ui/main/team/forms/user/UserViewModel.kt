@@ -195,9 +195,7 @@ class UserViewModel @Inject constructor(
     private suspend fun navBackToRecord(id: String?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
-            id?.let {
-                appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(it), popUpToRoute = Route.Main.Team.Requests.link, inclusive = true)
-            }
+            id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Users.withArgs(it), popUpToRoute = Route.Main.Team.Users.route, inclusive = true) }
         }
     }
 }

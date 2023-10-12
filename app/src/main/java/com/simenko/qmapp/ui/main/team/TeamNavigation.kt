@@ -32,14 +32,14 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
             EmployeeForm(viewModel = employeeModel)
         }
         composable(destination = Route.Main.Team.Users) {
-            val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
+            val teamModel: TeamViewModel = hiltViewModel()
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 teamModel.enableScrollToCreatedRecord()
             }
             Users(viewModel = teamModel, isUsersPage = true)
         }
         composable(destination = Route.Main.Team.Requests) {
-            val teamModel: TeamViewModel = it.sharedViewModel(navController = navController)
+            val teamModel: TeamViewModel = hiltViewModel()
             if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
                 teamModel.enableScrollToCreatedRecord()
             }
