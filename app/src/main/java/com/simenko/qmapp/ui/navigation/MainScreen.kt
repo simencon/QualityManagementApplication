@@ -37,39 +37,34 @@ fun MainScreen(
     )
 
     QMAppTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            NavHost(navController = navController, startDestination = Route.Main.Team) {
-                teamNavigation(navController)
+        NavHost(navController = navController, startDestination = Route.Main.Team) {
+            teamNavigation(navController)
 
-                composable(destination = Route.Main.Inv) {
-                    val invModel: InvestigationsViewModel = hiltViewModel()
-                    if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
-                        invModel.enableScrollToCreatedRecord()
-                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
-                }
-
-                composable(destination = Route.Main.ProcessControl) {
-                    val invModel: InvestigationsViewModel = hiltViewModel()
-                    if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
-                        invModel.enableScrollToCreatedRecord()
-                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
-                }
-
-                composable(destination = Route.Main.OrderAddEdit) {
-                    val newOrderModel: NewItemViewModel = hiltViewModel()
-                    OrderForm(viewModel = newOrderModel)
-                }
-
-                composable(destination = Route.Main.SubOrderAddEdit) {
-                    val newOrderModel: NewItemViewModel = hiltViewModel()
-                    SubOrderForm(viewModel = newOrderModel)
-                }
-
-                settingsNavigation()
+            composable(destination = Route.Main.Inv) {
+                val invModel: InvestigationsViewModel = hiltViewModel()
+                if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
+                    invModel.enableScrollToCreatedRecord()
+                InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
             }
+
+            composable(destination = Route.Main.ProcessControl) {
+                val invModel: InvestigationsViewModel = hiltViewModel()
+                if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
+                    invModel.enableScrollToCreatedRecord()
+                InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
+            }
+
+            composable(destination = Route.Main.OrderAddEdit) {
+                val newOrderModel: NewItemViewModel = hiltViewModel()
+                OrderForm(viewModel = newOrderModel)
+            }
+
+            composable(destination = Route.Main.SubOrderAddEdit) {
+                val newOrderModel: NewItemViewModel = hiltViewModel()
+                SubOrderForm(viewModel = newOrderModel)
+            }
+
+            settingsNavigation()
         }
     }
 }
