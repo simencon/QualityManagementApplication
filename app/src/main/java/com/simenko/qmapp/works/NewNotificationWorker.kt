@@ -22,6 +22,8 @@ import com.simenko.qmapp.services.MessagingService
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.navigation.NavRouteName
+import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 import com.simenko.qmapp.works.WorkerKeys.ACTION
 import com.simenko.qmapp.works.WorkerKeys.BODY
 import com.simenko.qmapp.works.WorkerKeys.EMAIL
@@ -84,9 +86,12 @@ class NewNotificationWorker @AssistedInject constructor(
                     val remindMeLaterPendingIntent =
                         PendingIntent.getBroadcast(context, Objects.hash(it), remindMeLaterIntent, PendingIntent.FLAG_IMMUTABLE)
 
+                    println("UserViewModel - userId:" +
+                            "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/${Route.Main.Team.AuthorizeUser.withArgs(it)}")
+
                     val intent = Intent(context, MainActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
-                        data = "${NavArguments.domain}/${Route.Main.Team.withArgs()}/${Route.Main.Team.AuthorizeUser.withArgs(it)}".toUri()
+                        data = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/${Route.Main.Team.AuthorizeUser.withArgs(it)}".toUri()
                     }
                     val pendingIntent = TaskStackBuilder.create(context).run {
                         addNextIntentWithParentStack(intent)

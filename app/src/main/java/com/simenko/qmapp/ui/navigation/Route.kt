@@ -211,7 +211,7 @@ sealed class Route(
                 ),
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.users}/$link"
+                        uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/$link"
                         action = Intent.ACTION_VIEW
                     }
                 ),

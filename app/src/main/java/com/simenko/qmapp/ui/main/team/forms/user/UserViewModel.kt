@@ -63,6 +63,7 @@ class UserViewModel @Inject constructor(
         private set
 
     init {
+        println("UserViewModel - userId: $userId")
         notificationManager.activeNotifications.find { it.id == Objects.hash(userId) }?.let { notificationManager.cancel(it.id) }
         if (userId != NoRecordStr.str)
             viewModelScope.launch {
