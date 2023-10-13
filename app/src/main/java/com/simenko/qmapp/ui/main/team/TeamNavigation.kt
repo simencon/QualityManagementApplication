@@ -5,7 +5,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.team.employee.Employees
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
@@ -17,7 +16,7 @@ import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
 
 @OptIn(ExperimentalAnimationApi::class)
-fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
+fun NavGraphBuilder.teamNavigation() {
     navigation(startDestination = Route.Main.Team.Employees) {
         composable(destination = Route.Main.Team.Employees) {
             val teamModel: TeamViewModel = hiltViewModel()

@@ -9,8 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.ui.main.MainActivityViewModel
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.main.investigations.steps.InvestigationsMainComposition
@@ -25,17 +23,11 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 @Composable
 fun MainScreen(
     mainViewModel: MainActivityViewModel = hiltViewModel(),
-    navController: NavHostController = rememberNavController(),
     mainScreenPadding: PaddingValues
 ) {
-    NavigationEffects(
-        navigationChannel = mainViewModel.navigationChannel,
-        navHostController = navController
-    )
-
     QMAppTheme {
-        NavHost(navController = navController, startDestination = Route.Main.Team) {
-            teamNavigation(navController)
+        NavHost(navController = mainViewModel.navHostController, startDestination = Route.Main.Team) {
+            teamNavigation()
 
             composable(destination = Route.Main.Inv) {
                 val invModel: InvestigationsViewModel = hiltViewModel()

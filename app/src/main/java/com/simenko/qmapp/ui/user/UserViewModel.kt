@@ -1,10 +1,10 @@
 package com.simenko.qmapp.ui.user
 
 import android.content.Context
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -13,6 +13,7 @@ import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -22,23 +23,22 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "UserViewModel"
-
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val appNavigator: AppNavigator,
-    private val mainPageState: MainPageState
+    private val mainPageState: MainPageState,
+    val navHostController: NavHostController
 ) : ViewModel() {
-    val navigationChannel = appNavigator.navigationChannel
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     init {
-        subscribeEvents(mainPageState.topScreenChannel.receiveAsFlow())
+        subscribeMainScreenSetupEvents(mainPageState.topScreenChannel.receiveAsFlow())
+        appNavigator.navigationChannel.receiveAsFlow().subscribeNavigationEvents(viewModelScope, navHostController)
     }
 
-    private fun subscribeEvents(intents: Flow<TopScreenIntent>) {
+    private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {
         viewModelScope.launch {
             intents.collect {
                 handleEvent(it)
@@ -78,6 +78,9 @@ class UserViewModel @Inject constructor(
         userRepository.getActualUserState()
     }
 
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
     fun onStateIsNoState() {
         appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen.link, popUpToRoute = Route.LoggedOut.InitialScreen.route, inclusive = true)
         updateCurrentUserState()
