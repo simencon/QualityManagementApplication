@@ -9,6 +9,7 @@ object Constants {
     const val ACTION_ITEM_SIZE = 45
     const val CARD_HEIGHT = 45
     const val CARD_OFFSET = 90f//135f
+    const val TOP_TAB_ROW_HEIGHT = 40
 
     const val ANIMATION_DURATION = 500
     const val MIN_DRAG_AMOUNT = 6

@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.navigation
 
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +28,8 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 @Composable
 fun MainScreen(
     mainViewModel: MainActivityViewModel = hiltViewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    mainScreenPadding: PaddingValues
 ) {
     NavigationEffects(
         navigationChannel = mainViewModel.navigationChannel,
@@ -46,14 +48,14 @@ fun MainScreen(
                     val invModel: InvestigationsViewModel = hiltViewModel()
                     if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
                         invModel.enableScrollToCreatedRecord()
-                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), invModel = invModel)
+                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
                 }
 
                 composable(destination = Route.Main.ProcessControl) {
                     val invModel: InvestigationsViewModel = hiltViewModel()
                     if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
                         invModel.enableScrollToCreatedRecord()
-                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), invModel = invModel)
+                    InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
                 }
 
                 composable(destination = Route.Main.OrderAddEdit) {
