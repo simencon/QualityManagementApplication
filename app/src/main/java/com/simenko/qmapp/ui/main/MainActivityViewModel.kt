@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -17,6 +18,7 @@ import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.ui.main.main.content.Common
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,9 +38,9 @@ class MainActivityViewModel @Inject constructor(
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository
+    private val repository: InvestigationsRepository,
+    val navHostController: NavHostController
 ) : ViewModel() {
-    val navigationChannel = appNavigator.navigationChannel
     val userInfo get() = userRepository.user
 
     /**
@@ -69,10 +71,11 @@ class MainActivityViewModel @Inject constructor(
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     init {
-        subscribeEvents(mainPageState.topScreenChannel.receiveAsFlow())
+        subscribeMainScreenSetupEvents(mainPageState.topScreenChannel.receiveAsFlow())
+        appNavigator.navigationChannel.receiveAsFlow().subscribeNavigationEvents(viewModelScope, navHostController)
     }
 
-    private fun subscribeEvents(intents: Flow<TopScreenIntent>) {
+    private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {
         viewModelScope.launch {
             combine(intents, _topTabsSetup, _fabSetup, _pullRefreshSetup) { intent, topTabsSetup, fabSetup, pullRefreshSetup ->
                 handleEvent(intent, topTabsSetup, fabSetup, pullRefreshSetup)
@@ -108,7 +111,6 @@ class MainActivityViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-
     fun onDrawerMenuTeamSelected() {
         appNavigator.tryNavigateTo(route = Route.Main.Team.link, popUpToRoute = Route.Main.Team.route, inclusive = true)
     }

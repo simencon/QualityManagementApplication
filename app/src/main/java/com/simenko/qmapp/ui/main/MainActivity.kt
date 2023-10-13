@@ -31,8 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.NetworkType
@@ -42,7 +40,6 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.navigation.Route
@@ -74,7 +71,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var initialRoute: String
 
     val viewModel: MainActivityViewModel by viewModels()
-    private lateinit var navController: NavHostController
 
     @OptIn(ExperimentalMaterialApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -102,7 +98,6 @@ class MainActivity : ComponentActivity() {
 
             QMAppTheme {
                 val scope = rememberCoroutineScope()
-                navController = rememberNavController()
 
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
@@ -181,11 +176,7 @@ class MainActivity : ComponentActivity() {
                                         .padding(it)
                                 ) {
                                     TopTabs(topTabsSetup)
-                                    MainScreen(
-                                        viewModel,
-                                        navController,
-                                        it
-                                    )
+                                    MainScreen(viewModel, it)
                                 }
                                 PullRefreshIndicator(
                                     refreshing = observerLoadingProcess,

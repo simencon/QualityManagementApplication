@@ -1,12 +1,11 @@
 package com.simenko.qmapp.ui.navigation
 
-import android.app.Activity
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 interface AppNavigator {
     val navigationChannel: Channel<NavigationIntent>
@@ -53,17 +52,9 @@ sealed class NavigationIntent {
     ) : NavigationIntent()
 }
 
-@Composable
-fun NavigationEffects(
-    navigationChannel: Channel<NavigationIntent>,
-    navHostController: NavHostController
-) {
-    val activity = (LocalContext.current as? Activity)
-    LaunchedEffect(activity, navHostController, navigationChannel) {
-        navigationChannel.receiveAsFlow().collect { intent ->
-            if (activity?.isFinishing == true) {
-                return@collect
-            }
+fun Flow<NavigationIntent>.subscribeNavigationEvents(viewModelScope: CoroutineScope, navHostController: NavHostController) {
+    viewModelScope.launch {
+        collectLatest { intent ->
             when (intent) {
                 is NavigationIntent.NavigateBack -> {
                     if (intent.route != null) {

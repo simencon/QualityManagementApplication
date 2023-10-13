@@ -10,8 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.repository.NoState
 import com.simenko.qmapp.repository.UnregisteredState
 import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
@@ -33,14 +31,8 @@ import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 
 @Composable
 fun InitialScreen(
-    userViewModel: UserViewModel = hiltViewModel(),
-    navController: NavHostController = rememberNavController()
+    userViewModel: UserViewModel = hiltViewModel()
 ) {
-    NavigationEffects(
-        navigationChannel = userViewModel.navigationChannel,
-        navHostController = navController
-    )
-
     QMAppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -63,10 +55,7 @@ fun InitialScreen(
                 }
             }
 
-            NavHost(
-                navController = navController,
-                startDestination = Route.LoggedOut.InitialScreen
-            ) {
+            NavHost(navController = userViewModel.navHostController, startDestination = Route.LoggedOut.InitialScreen) {
                 composable(destination = Route.LoggedOut.InitialScreen) {
                     LoadingScreen()
                 }
