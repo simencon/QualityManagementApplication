@@ -223,25 +223,4 @@ object InvestigationsUtils {
         else
             specificPair
     }
-
-    fun List<DomainOrderComplete>.filterByStatusAndNumber(
-        ordersFilter: OrdersFilter = OrdersFilter()
-    ): List<DomainOrderComplete> {
-        return filter {
-            (it.order.orderTypeId == ordersFilter.typeId || ordersFilter.typeId == NoRecord.num) &&
-                    (it.order.statusId == ordersFilter.statusId || ordersFilter.statusId == NoRecord.num) &&
-                    (it.order.orderNumber.toString().contains(ordersFilter.stringToSearch) || (ordersFilter.stringToSearch == EmptyString.str))
-        }
-    }
-
-    fun List<DomainSubOrderComplete>.filterSubOrderByStatusAndNumber(
-        subOrdersFilter: SubOrdersFilter = SubOrdersFilter()
-    ): List<DomainSubOrderComplete> {
-        return filter {
-            (it.orderShort.order.orderTypeId == subOrdersFilter.typeId || subOrdersFilter.typeId == NoRecord.num) &&
-                    (it.subOrder.statusId == subOrdersFilter.statusId || subOrdersFilter.statusId == NoRecord.num) &&
-                    (it.orderShort.order.orderNumber.toString()
-                        .contains(subOrdersFilter.stringToSearch) || (subOrdersFilter.stringToSearch == EmptyString.str))
-        }
-    }
 }

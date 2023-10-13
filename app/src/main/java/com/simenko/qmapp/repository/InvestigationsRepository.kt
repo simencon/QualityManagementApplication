@@ -13,6 +13,8 @@ import com.simenko.qmapp.retrofit.implementation.InvestigationsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.InvestigationsUtils.getOrdersRange
 import com.simenko.qmapp.utils.NotificationData
+import com.simenko.qmapp.utils.OrdersFilter
+import com.simenko.qmapp.utils.SubOrdersFilter
 import com.simenko.qmapp.works.SyncPeriods
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -351,19 +353,24 @@ class InvestigationsRepository @Inject constructor(
         return database.orderDao.getLatestOrderId(localLatestOrderDate) ?: NoRecord.num
     }
 
-    suspend fun ordersListByLastVisibleId(lastVisibleId: Int): Flow<List<DomainOrderComplete>> {
-        val dbOrder = database.orderDao.getRecordById(lastVisibleId.toString())
-        return if (dbOrder != null)
-            database.orderDao.ordersListByLastVisibleIdForUI(dbOrder.createdDate).map { list ->
-                list.map { it.toDomainModel() }
-            }
-        else flow { emit(listOf()) }
-    }
+    fun ordersListByLastVisibleId(lastVisibleId: Int, filter: OrdersFilter): Flow<List<DomainOrderComplete>> =
+        database.orderDao.getRecordById(lastVisibleId.toString())?.let { order ->
+            database.orderDao.getRecordsByTimeRangeForUI(
+                lastVisibleCreateDate = order.createdDate,
+                orderTypeId = filter.typeId,
+                orderStatusId = filter.statusId,
+                orderNumber = "%${filter.stringToSearch}%"
+            ).map { list -> list.map { it.toDomainModel() } }
+        } ?: flow { listOf<DomainOrderComplete>() }
 
-    fun subOrdersRangeList(pair: Pair<Long, Long>): Flow<List<DomainSubOrderComplete>> =
-        database.subOrderDao.getRecordsByTimeRangeForUI(pair).map { list ->
-            list.map { it.toDomainModel() }
-        }
+    fun subOrdersRangeList(pair: Pair<Long, Long>, filter: SubOrdersFilter): Flow<List<DomainSubOrderComplete>> =
+        database.subOrderDao.getRecordsByTimeRangeForUI(
+            fromDate = pair.first,
+            toDate = pair.second,
+            orderTypeId = filter.typeId,
+            orderStatusId = filter.statusId,
+            orderNumber = "%${filter.stringToSearch}%"
+        ).map { list -> list.map { it.toDomainModel() } }
 
     fun tasksRangeList(subOrderId: Int): Flow<List<DomainSubOrderTaskComplete>> =
         database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list ->

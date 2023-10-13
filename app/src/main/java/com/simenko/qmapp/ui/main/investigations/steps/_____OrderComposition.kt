@@ -44,8 +44,6 @@ import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
-import java.time.Instant
-import java.time.format.DateTimeFormatter
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -57,7 +55,7 @@ fun Orders(
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
     val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
-    val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.ordersSF.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
@@ -74,15 +72,14 @@ fun Orders(
             }
         }
     }
+    val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
+    LaunchedEffect(lastItemIsVisible) {
+        if (lastItemIsVisible) invModel.mainPageHandler?.onListEnd?.invoke(true) else invModel.mainPageHandler?.onListEnd?.invoke(false)
+    }
 
     val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key } }
     LaunchedEffect(listState.isScrollInProgress) {
         if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
-    }
-
-    val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
-    LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) invModel.mainPageHandler.onListEnd(true) else invModel.mainPageHandler.onListEnd(false)
     }
 
     LazyColumn(
@@ -104,7 +101,6 @@ fun Orders(
     }
 }
 
-@OptIn(InternalAnimationApi::class)
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
