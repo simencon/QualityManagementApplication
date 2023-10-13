@@ -83,11 +83,7 @@ class NewNotificationWorker @AssistedInject constructor(
                         putExtra(ACTION, message.getString(ACTION))
                         putExtra(EMAIL, message.getString(EMAIL))
                     }
-                    val remindMeLaterPendingIntent =
-                        PendingIntent.getBroadcast(context, Objects.hash(it), remindMeLaterIntent, PendingIntent.FLAG_IMMUTABLE)
-
-                    println("UserViewModel - userId:" +
-                            "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/${Route.Main.Team.AuthorizeUser.withArgs(it)}")
+                    val remindMeLaterPendingIntent = PendingIntent.getBroadcast(context, Objects.hash(it), remindMeLaterIntent, PendingIntent.FLAG_IMMUTABLE)
 
                     val intent = Intent(context, MainActivity::class.java).apply {
                         action = Intent.ACTION_VIEW
