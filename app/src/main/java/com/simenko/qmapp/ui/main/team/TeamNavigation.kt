@@ -6,7 +6,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.team.employee.Employees
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
@@ -14,10 +13,8 @@ import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserForm
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.main.team.user.Users
-import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
-import com.simenko.qmapp.ui.navigation.sharedViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
@@ -55,7 +52,6 @@ fun NavGraphBuilder.teamNavigation(navController: NavHostController) {
 private fun NavGraphBuilder.editUser(route: Route) {
     composable(destination = route) {
         val userModel: UserViewModel = hiltViewModel()
-        println("UserViewModel - userId: ${it.arguments?.getString(NavArguments.userId) ?: NoRecordStr.str}")
         UserForm(viewModel = userModel)
     }
 }
