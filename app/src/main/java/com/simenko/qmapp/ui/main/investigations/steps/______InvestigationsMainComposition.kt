@@ -85,7 +85,7 @@ fun InvestigationsMainComposition(
     }
 
     LaunchedEffect(Unit) {
-        invModel.mainPageHandler.setupMainPage(invModel.selectedTabIndex, true)
+        invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true)
     }
 
     LaunchedEffect(currentTask) {

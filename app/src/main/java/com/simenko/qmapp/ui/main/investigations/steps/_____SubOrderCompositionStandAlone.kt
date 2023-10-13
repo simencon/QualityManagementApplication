@@ -59,7 +59,12 @@ fun SubOrdersStandAlone(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) invModel.mainPageHandler.onListEnd(true) else invModel.mainPageHandler.onListEnd(false)
+        if (lastItemIsVisible) invModel.mainPageHandler?.onListEnd?.invoke(true) else invModel.mainPageHandler?.onListEnd?.invoke(false)
+    }
+
+    val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key } }
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
     }
 
     LazyColumn(

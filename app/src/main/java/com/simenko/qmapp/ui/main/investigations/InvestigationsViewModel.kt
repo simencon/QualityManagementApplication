@@ -19,8 +19,6 @@ import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.InvStatuses
-import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
-import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
@@ -48,25 +46,29 @@ class InvestigationsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecord.num)))
+    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
     private val _currentOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _currentSubOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    val mainPageHandler: MainPageHandler
+    var mainPageHandler: MainPageHandler? = null
 
     init {
-        mainPageHandler = MainPageHandler.Builder(if (isPcOnly == true) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
-            .setOnSearchClickAction { if (isPcOnly == true) setSubOrdersFilter(it) else setOrdersFilter(it) }
-            .setOnTabSelectAction { if (isPcOnly == true) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
-            .setOnFabClickAction { if (isPcOnly == true) onAddProcessControlClick() else onAddInvClick() }
-            .setOnPullRefreshAction { this.uploadNewInvestigations() }
-            .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
-            .build()
-        _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
-        setCurrentOrderVisibility(dId = SelectedNumber(orderId))
-        setCurrentSubOrderVisibility(dId = SelectedNumber(subOrderId))
+        viewModelScope.launch(Dispatchers.IO) {
+            setLastVisibleItemKey(if (orderId == NoRecord.num) repository.latestLocalOrderId() else orderId)
+            mainPageHandler = MainPageHandler.Builder(if (isPcOnly == true) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
+                .setOnSearchClickAction { if (isPcOnly == true) setSubOrdersFilter(it) else setOrdersFilter(it) }
+                .setOnTabSelectAction { if (isPcOnly == true) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
+                .setOnFabClickAction { if (isPcOnly == true) onAddProcessControlClick() else onAddInvClick() }
+                .setOnPullRefreshAction { uploadNewInvestigations() }
+                .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
+                .build()
+            _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
+            setCurrentOrderVisibility(dId = SelectedNumber(orderId))
+            setCurrentSubOrderVisibility(dId = SelectedNumber(subOrderId))
+        }
     }
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
@@ -168,9 +170,6 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with orders ______________________________________________________________
      * */
-
-    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
-
     fun setLastVisibleItemKey(key: Any) {
         _lastVisibleItemKey.value = key
     }
@@ -182,7 +181,9 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _ordersSF: Flow<List<DomainOrderComplete>> =
         _lastVisibleItemKey.flatMapLatest { key ->
-            repository.ordersListByLastVisibleId(key as Int)
+            _currentOrdersFilter.flatMapLatest { filter ->
+                repository.ordersListByLastVisibleId(key as Int, filter)
+            }
         }
 
     /**
@@ -212,39 +213,26 @@ class InvestigationsViewModel @Inject constructor(
         _isLoadingInProgress.flatMapLatest { isLoading ->
             _ordersSF.flatMapLatest { orders ->
                 _currentOrderVisibility.flatMapLatest { visibility ->
-                    _currentOrdersFilter.flatMapLatest { filter ->
-                        if (visibility.first == NoRecord) {
-                            setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
-                            setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                            setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                        }
-
-                        val cyp = mutableListOf<DomainOrderComplete>()
-                        orders
-                            .filterByStatusAndNumber(filter)
-                            .forEach {
-                                cyp.add(
-                                    it.copy(
-                                        detailsVisibility = it.order.id == visibility.first.num,
-                                        isExpanded = it.order.id == visibility.second.num
-                                    )
-                                )
-                            }
-                        _currentOrdersRange.value = cyp.getDetailedOrdersRange()
-                        if (!isLoading)
-                            uploadOlderInvestigations(_currentOrdersRange.value.first)
-                        flow {
-                            emit(
-                                cyp
-                            )
-                        }
+                    if (visibility.first == NoRecord) {
+                        setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
+                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
+                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
                     }
+                    val cyp = mutableListOf<DomainOrderComplete>()
+                    orders.forEach {
+                        cyp.add(
+                            it.copy(
+                                detailsVisibility = it.order.id == visibility.first.num,
+                                isExpanded = it.order.id == visibility.second.num
+                            )
+                        )
+                    }
+                    _currentOrdersRange.value = cyp.getDetailedOrdersRange()
+                    if (!isLoading) uploadOlderInvestigations(_currentOrdersRange.value.first)
+                    flow { emit(cyp) }
                 }
             }
-        }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+        }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -256,9 +244,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteOrder(orderId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -276,7 +264,9 @@ class InvestigationsViewModel @Inject constructor(
      * */
     private val _subOrdersSF: Flow<List<DomainSubOrderComplete>> =
         _currentOrdersRange.flatMapLatest { ordersRange ->
-            repository.subOrdersRangeList(ordersRange)
+            _currentSubOrdersFilter.flatMapLatest { filter ->
+                repository.subOrdersRangeList(ordersRange, filter)
+            }
         }
 
     /**
@@ -305,32 +295,22 @@ class InvestigationsViewModel @Inject constructor(
     val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> =
         _subOrdersSF.flatMapLatest { subOrders ->
             _currentSubOrderVisibility.flatMapLatest { visibility ->
-                _currentSubOrdersFilter.flatMapLatest { filter ->
-
-                    if (visibility.first == NoRecord) {
-                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                    }
-
-                    val cyp = mutableListOf<DomainSubOrderComplete>()
-                    subOrders
-                        .filterSubOrderByStatusAndNumber(filter)
-                        .forEach {
-                            cyp.add(
-                                it.copy(
-                                    detailsVisibility = it.subOrder.id == visibility.first.num,
-                                    isExpanded = it.subOrder.id == visibility.second.num
-                                )
-                            )
-                        }
-
-                    flow { emit(cyp) }
+                if (visibility.first == NoRecord) {
+                    setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
+                    setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
                 }
+                val cyp = mutableListOf<DomainSubOrderComplete>()
+                subOrders.forEach {
+                    cyp.add(
+                        it.copy(
+                            detailsVisibility = it.subOrder.id == visibility.first.num,
+                            isExpanded = it.subOrder.id == visibility.second.num
+                        )
+                    )
+                }
+                flow { emit(cyp) }
             }
-        }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+        }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -342,9 +322,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteSubOrder(subOrderId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -416,9 +396,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteSubOrderTask(taskId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -430,14 +410,14 @@ class InvestigationsViewModel @Inject constructor(
     fun syncTasks() {
         viewModelScope.launch {
             try {
-                mainPageHandler.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
                 repository.syncSubOrderTasks(_currentOrdersRange.value)
                 repository.syncResults(_currentOrdersRange.value)
 
-                mainPageHandler.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: IOException) {
-                mainPageHandler.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -559,9 +539,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteResults(task.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -573,7 +553,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {
-                mainPageHandler.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
                         repository.getTasksBySubOrderId(subOrder.id).forEach {
@@ -588,9 +568,9 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
                 hideStatusUpdateDialog()
-                mainPageHandler.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: IOException) {
-                mainPageHandler.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -598,7 +578,7 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
         viewModelScope.launch {
             try {
-                mainPageHandler.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
 
@@ -613,9 +593,9 @@ class InvestigationsViewModel @Inject constructor(
                     }
                 }
                 hideStatusUpdateDialog()
-                mainPageHandler.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: IOException) {
-                mainPageHandler.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -681,7 +661,7 @@ class InvestigationsViewModel @Inject constructor(
                                                     when (resource.status) {
                                                         Status.LOADING -> {}
                                                         Status.SUCCESS -> {}
-                                                        Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                                     }
                                                 }
                                             }
@@ -700,14 +680,14 @@ class InvestigationsViewModel @Inject constructor(
                                         when (resource.status) {
                                             Status.LOADING -> {}
                                             Status.SUCCESS -> {}
-                                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                         }
                                     }
                                 }
                             }
                         }
 
-                        Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
@@ -719,9 +699,9 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { updateResult(result) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                        Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                        Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
@@ -734,7 +714,7 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> {
                             resource.data?.also {
                                 repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
@@ -745,17 +725,17 @@ class InvestigationsViewModel @Inject constructor(
                                                 resource.data?.let {
                                                     if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
                                                 }
-                                                mainPageHandler.updateLoadingState(Pair(false, null))
+                                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                             }
 
-                                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                         }
                                     }
                                 }
-                            } ?: mainPageHandler.updateLoadingState(Pair(false, null))
+                            } ?: mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                         }
 
-                        Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
@@ -767,24 +747,18 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { uploadOldInvestigations(earliestOrderDate) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> {
                             resource.data?.let {
                                 if (it.isNotEmpty()) setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
                             }
-                            mainPageHandler.updateLoadingState(Pair(false, null))
+                            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                         }
 
-                        Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
-        }
-    }
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            setLastVisibleItemKey(repository.latestLocalOrderId())
         }
     }
 }

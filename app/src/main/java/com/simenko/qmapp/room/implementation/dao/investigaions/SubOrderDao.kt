@@ -33,13 +33,22 @@ abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentMod
 
     @Transaction
     @Query(
-        "select so.* from `12_orders` o " +
-                "join `13_sub_orders` so on o.id = so.orderId " +
-                "where o.createdDate >= substr(:timeRange,1,instr(:timeRange,':')-1) " +
-                "and o.createdDate <= substr(:timeRange,instr(:timeRange,':')+1,length(:timeRange)-instr(:timeRange,':')) " +
-                "order by o.orderNumber desc;"
+        """
+            select so.* from `12_orders` o
+            join `13_sub_orders` so on o.id = so.orderId
+            where (o.createdDate >= :fromDate and o.createdDate <= :toDate)
+            and (:orderTypeId = -1 or o.orderTypeId = :orderTypeId)
+            and (:orderStatusId = -1 or so.statusId = :orderStatusId)
+            and (:orderNumber = '' or o.orderNumber like :orderNumber)
+            order by o.orderNumber desc;"""
     )
-    abstract fun getRecordsByTimeRangeForUI(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderComplete>>
+    abstract fun getRecordsByTimeRangeForUI(
+        fromDate: Long,
+        toDate: Long,
+        orderTypeId: Int,
+        orderStatusId: Int,
+        orderNumber: String
+    ): Flow<List<DatabaseSubOrderComplete>>
 
     @Transaction
     @Query("select so.* from `13_sub_orders` so where so.id = :id")
