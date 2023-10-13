@@ -183,7 +183,8 @@ class MainActivity : ComponentActivity() {
                                     TopTabs(topTabsSetup)
                                     MainScreen(
                                         viewModel,
-                                        navController
+                                        navController,
+                                        it
                                     )
                                 }
                                 PullRefreshIndicator(

@@ -32,6 +32,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
@@ -391,7 +392,7 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
         tabs.items.forEach {
             val selected = selectedTabIndex == it.index
             Tab(
-                modifier = Modifier.height(40.dp),
+                modifier = Modifier.height(TOP_TAB_ROW_HEIGHT.dp),
                 selected = selected,
                 onClick = { topTabsSetup.onTabSelect(it.index, it.tag) }
             ) {
