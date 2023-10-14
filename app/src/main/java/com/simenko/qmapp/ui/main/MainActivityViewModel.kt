@@ -8,7 +8,6 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.main.main.setup.FabSetup
@@ -16,6 +15,7 @@ import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
 import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
 import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.ui.main.main.content.Common
+import com.simenko.qmapp.ui.main.main.content.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents

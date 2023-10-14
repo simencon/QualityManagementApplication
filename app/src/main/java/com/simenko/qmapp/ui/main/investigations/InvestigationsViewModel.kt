@@ -16,8 +16,8 @@ import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.main.MainPageHandler
-import com.simenko.qmapp.ui.main.main.Page
 import com.simenko.qmapp.ui.main.main.content.InvestigationsActions
+import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.content.ProcessControlActions
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
@@ -51,10 +51,13 @@ class InvestigationsViewModel @Inject constructor(
     @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecord.num)))
+    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(orderId), Event(subOrderId)))
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
-    private val _currentOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-    private val _currentSubOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _ordersVisibility = MutableStateFlow(Pair(SelectedNumber(orderId), NoRecord))
+    private val _subOrdersVisibility = MutableStateFlow(Pair(SelectedNumber(subOrderId), NoRecord))
+    private val _tasksVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _samplesVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _resultsVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -71,13 +74,10 @@ class InvestigationsViewModel @Inject constructor(
                 .setOnPullRefreshAction { uploadNewInvestigations() }
                 .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
                 .setOnActionItemClickAction {
-                    if(it == InvestigationsActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
-                    if(it == ProcessControlActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                    if (it == InvestigationsActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                    if (it == ProcessControlActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
                 }
                 .build()
-            _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
-            setCurrentOrderVisibility(dId = SelectedNumber(orderId))
-            setCurrentSubOrderVisibility(dId = SelectedNumber(subOrderId))
         }
     }
 
@@ -138,27 +138,18 @@ class InvestigationsViewModel @Inject constructor(
         _selectedStatus.value = statusId
     }
 
-    val invStatuses: StateFlow<List<DomainOrdersStatus>> =
-        _invStatuses.flatMapLatest { statuses ->
-            _selectedStatus.flatMapLatest { selectedStatus ->
-                val cpy = mutableListOf<DomainOrdersStatus>()
-                statuses.forEach {
-                    cpy.add(it.copy(isSelected = it.id == selectedStatus.num))
-                }
-                flow { emit(cpy) }
-            }
+    val invStatuses: StateFlow<List<DomainOrdersStatus>> = _invStatuses.flatMapLatest { statuses ->
+        _selectedStatus.flatMapLatest { selectedStatus ->
+            val cpy = mutableListOf<DomainOrdersStatus>()
+            statuses.forEach { cpy.add(it.copy(isSelected = it.id == selectedStatus.num)) }
+            flow { emit(cpy) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         flow { emit(team) }
-    }
-        .flowOn(Dispatchers.IO)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * Handling scrolling to just created record-------------------------------------------------
@@ -170,10 +161,7 @@ class InvestigationsViewModel @Inject constructor(
         _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
             if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
         }
-    }
-        .flowOn(Dispatchers.Default)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
 
@@ -189,18 +177,17 @@ class InvestigationsViewModel @Inject constructor(
 //        MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
         MutableStateFlow(Pair(1691991128021L, Instant.now().toEpochMilli()))
 
-    private val _ordersSF: Flow<List<DomainOrderComplete>> =
-        _lastVisibleItemKey.flatMapLatest { key ->
-            _currentOrdersFilter.flatMapLatest { filter ->
-                repository.ordersListByLastVisibleId(key as Int, filter)
-            }
+    private val _ordersSF: Flow<List<DomainOrderComplete>> = _lastVisibleItemKey.flatMapLatest { key ->
+        _currentOrdersFilter.flatMapLatest { filter ->
+            repository.ordersListByLastVisibleId(key as Int, filter)
         }
+    }
 
     /**
      * Visibility operations
      * */
-    fun setCurrentOrderVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _currentOrderVisibility.value = _currentOrderVisibility.value.setVisibility(dId, aId)
+    fun setOrdersVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _ordersVisibility.value = _ordersVisibility.value.setVisibility(dId, aId)
     }
 
     /**
@@ -219,30 +206,22 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val ordersSF: StateFlow<List<DomainOrderComplete>> =
-        _isLoadingInProgress.flatMapLatest { isLoading ->
-            _ordersSF.flatMapLatest { orders ->
-                _currentOrderVisibility.flatMapLatest { visibility ->
-                    if (visibility.first == NoRecord) {
-                        setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
-                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                    }
-                    val cyp = mutableListOf<DomainOrderComplete>()
-                    orders.forEach {
-                        cyp.add(
-                            it.copy(
-                                detailsVisibility = it.order.id == visibility.first.num,
-                                isExpanded = it.order.id == visibility.second.num
-                            )
-                        )
-                    }
-                    _currentOrdersRange.value = cyp.getDetailedOrdersRange()
-                    if (!isLoading) uploadOlderInvestigations(_currentOrdersRange.value.first)
-                    flow { emit(cyp) }
+    val ordersSF: StateFlow<List<DomainOrderComplete>> = _isLoadingInProgress.flatMapLatest { isLoading ->
+        _ordersSF.flatMapLatest { orders ->
+            _ordersVisibility.flatMapLatest { visibility ->
+                if (visibility.first == NoRecord) {
+                    setSubOrdersVisibility(dId = _subOrdersVisibility.value.first)
+                    setTasksVisibility(dId = _tasksVisibility.value.first)
+                    setSamplesVisibility(dId = _samplesVisibility.value.first)
                 }
+                val cyp = mutableListOf<DomainOrderComplete>()
+                orders.forEach { cyp.add(it.copy(detailsVisibility = it.order.id == visibility.first.num, isExpanded = it.order.id == visibility.second.num)) }
+                _currentOrdersRange.value = cyp.getDetailedOrdersRange()
+                if (!isLoading) uploadOlderInvestigations(_currentOrdersRange.value.first)
+                flow { emit(cyp) }
             }
-        }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -272,18 +251,17 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with sub orders __________________________________________________________
      * */
-    private val _subOrdersSF: Flow<List<DomainSubOrderComplete>> =
-        _currentOrdersRange.flatMapLatest { ordersRange ->
-            _currentSubOrdersFilter.flatMapLatest { filter ->
-                repository.subOrdersRangeList(ordersRange, filter)
-            }
+    private val _subOrdersSF: Flow<List<DomainSubOrderComplete>> = _currentOrdersRange.flatMapLatest { ordersRange ->
+        _currentSubOrdersFilter.flatMapLatest { filter ->
+            repository.subOrdersRangeList(ordersRange, filter)
         }
+    }
 
     /**
      * Visibility operations
      * */
-    fun setCurrentSubOrderVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _currentSubOrderVisibility.value = _currentSubOrderVisibility.value.setVisibility(dId, aId)
+    fun setSubOrdersVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _subOrdersVisibility.value = _subOrdersVisibility.value.setVisibility(dId, aId)
     }
 
     /**
@@ -302,25 +280,17 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> =
-        _subOrdersSF.flatMapLatest { subOrders ->
-            _currentSubOrderVisibility.flatMapLatest { visibility ->
-                if (visibility.first == NoRecord) {
-                    setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                    setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                }
-                val cyp = mutableListOf<DomainSubOrderComplete>()
-                subOrders.forEach {
-                    cyp.add(
-                        it.copy(
-                            detailsVisibility = it.subOrder.id == visibility.first.num,
-                            isExpanded = it.subOrder.id == visibility.second.num
-                        )
-                    )
-                }
-                flow { emit(cyp) }
+    val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> = _subOrdersSF.flatMapLatest { subOrders ->
+        _subOrdersVisibility.flatMapLatest { visibility ->
+            if (visibility.first == NoRecord) {
+                setTasksVisibility(dId = _tasksVisibility.value.first)
+                setSamplesVisibility(dId = _samplesVisibility.value.first)
             }
-        }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+            val cyp = mutableListOf<DomainSubOrderComplete>()
+            subOrders.forEach { cyp.add(it.copy(detailsVisibility = it.subOrder.id == visibility.first.num, isExpanded = it.subOrder.id == visibility.second.num)) }
+            flow { emit(cyp) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -350,51 +320,31 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with tasks __________________________________________________________
      * */
-    private val _tasksSF: Flow<List<DomainSubOrderTaskComplete>> =
-        _currentSubOrderVisibility.flatMapLatest { subOrdersIds ->
-            repository.tasksRangeList(subOrdersIds.first.num)
-        }
+    private val _tasksSF: Flow<List<DomainSubOrderTaskComplete>> = _subOrdersVisibility.flatMapLatest { subOrdersIds ->
+        repository.tasksRangeList(subOrdersIds.first.num)
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentTaskVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
-    fun setCurrentTaskVisibility(
-        dId: SelectedNumber = NoRecord,
-        aId: SelectedNumber = NoRecord
-    ) {
-        _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
+    fun setTasksVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _tasksVisibility.value = _tasksVisibility.value.setVisibility(dId, aId)
     }
 
-    val currentTaskDetails: StateFlow<SelectedNumber>
-        get() = _currentTaskVisibility.flatMapLatest {
-            flow { emit(it.first) }
-        }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentTaskVisibility.value.first)
+    val currentTaskDetails: StateFlow<SelectedNumber> = _tasksVisibility.flatMapLatest {
+        flow { emit(it.first) }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _tasksVisibility.value.first)
 
     /**
      * The result flow
      * */
-    val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> =
-        _tasksSF.flatMapLatest { tasks ->
-            _currentTaskVisibility.flatMapLatest { visibility ->
-                val cyp = mutableListOf<DomainSubOrderTaskComplete>()
-                tasks.forEach {
-                    cyp.add(
-                        it.copy(
-                            detailsVisibility = it.subOrderTask.id == visibility.first.num,
-                            isExpanded = it.subOrderTask.id == visibility.second.num
-                        )
-                    )
-                }
-                flow { emit(cyp) }
-            }
+    val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> = _tasksSF.flatMapLatest { tasks ->
+        _tasksVisibility.flatMapLatest { visibility ->
+            val cyp = mutableListOf<DomainSubOrderTaskComplete>()
+            tasks.forEach { cyp.add(it.copy(detailsVisibility = it.subOrderTask.id == visibility.first.num, isExpanded = it.subOrderTask.id == visibility.second.num)) }
+            flow { emit(cyp) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -439,25 +389,18 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with samples __________________________________________________________
      * */
-    private val _samplesSF: Flow<List<DomainSampleComplete>> =
-        _currentSubOrderVisibility.flatMapLatest { subOrderId ->
-            repository.samplesRangeList(subOrderId.first.num)
-        }
+    private val _samplesSF: Flow<List<DomainSampleComplete>> = _subOrdersVisibility.flatMapLatest { subOrderId ->
+        repository.samplesRangeList(subOrderId.first.num)
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentSampleVisibility =
-        MutableStateFlow(Pair(NoRecord, NoRecord))
-
-    fun setCurrentSampleVisibility(
-        dId: SelectedNumber = NoRecord,
-        aId: SelectedNumber = NoRecord
-    ) {
-        _currentSampleVisibility.value = _currentSampleVisibility.value.setVisibility(dId, aId)
+    fun setSamplesVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _samplesVisibility.value = _samplesVisibility.value.setVisibility(dId, aId)
     }
 
-    val currentSampleDetails: LiveData<SelectedNumber> = _currentSampleVisibility.flatMapLatest {
+    val currentSampleDetails: LiveData<SelectedNumber> = _samplesVisibility.flatMapLatest {
         flow { emit(it.first) }
     }.asLiveData()
 
@@ -466,21 +409,12 @@ class InvestigationsViewModel @Inject constructor(
      * */
     val samplesSF: StateFlow<List<DomainSampleComplete>> =
         _samplesSF.flatMapLatest { samples ->
-            _currentSampleVisibility.flatMapLatest { visibility ->
+            _samplesVisibility.flatMapLatest { visibility ->
                 val cpy = mutableListOf<DomainSampleComplete>()
-                samples.forEach {
-                    cpy.add(
-                        it.copy(
-                            detailsVisibility = it.sample.id == visibility.first.num
-                        )
-                    )
-                }
+                samples.forEach { cpy.add(it.copy(detailsVisibility = it.sample.id == visibility.first.num)) }
                 flow { emit(cpy) }
             }
-        }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+        }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * REST operations
@@ -495,48 +429,29 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with results __________________________________________________________
      * */
-    private val _resultsSF: Flow<List<DomainResultComplete>> =
-        _currentTaskVisibility.flatMapLatest { taskIds ->
-            _currentSampleVisibility.flatMapLatest { sampleIds ->
-                repository.resultsRangeList(taskIds.first.num, sampleIds.first.num)
-            }
+    private val _resultsSF: Flow<List<DomainResultComplete>> = _tasksVisibility.flatMapLatest { taskIds ->
+        _samplesVisibility.flatMapLatest { sampleIds ->
+            repository.resultsRangeList(taskIds.first.num, sampleIds.first.num)
         }
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentResultVisibility =
-        MutableStateFlow(Pair(NoRecord, NoRecord))
-
-    fun setCurrentResultVisibility(
-        dId: SelectedNumber = NoRecord,
-        aId: SelectedNumber = NoRecord
-    ) {
-        _currentResultVisibility.value = _currentResultVisibility.value.setVisibility(dId, aId)
+    fun setResultsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _resultsVisibility.value = _resultsVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * The result flow
      * */
-    val resultsSF: StateFlow<List<DomainResultComplete>> =
-        _resultsSF.flatMapLatest { results ->
-            _currentResultVisibility.flatMapLatest { visibility ->
-                val cpy = mutableListOf<DomainResultComplete>()
-
-                results.forEach {
-                    cpy.add(
-                        it.copy(
-                            detailsVisibility = it.result.id == visibility.first.num
-                        )
-                    )
-                }
-
-                flow { emit(cpy) }
-            }
+    val resultsSF: StateFlow<List<DomainResultComplete>> = _resultsSF.flatMapLatest { results ->
+        _resultsVisibility.flatMapLatest { visibility ->
+            val cpy = mutableListOf<DomainResultComplete>()
+            results.forEach { cpy.add(it.copy(detailsVisibility = it.result.id == visibility.first.num)) }
+            flow { emit(cpy) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * End of operations with results _______________________________________________________

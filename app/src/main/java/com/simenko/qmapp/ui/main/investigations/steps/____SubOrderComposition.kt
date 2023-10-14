@@ -38,8 +38,6 @@ import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 private const val TAG = "SubOrderComposition"
@@ -53,8 +51,8 @@ fun SubOrdersFlowColumn(
 ) {
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
     val onClickAddLambda = remember<(Int) -> Unit> { { invModel.onAddSubOrderClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditSubOrderClick(it) } }

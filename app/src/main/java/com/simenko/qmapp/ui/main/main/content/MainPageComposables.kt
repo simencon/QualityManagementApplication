@@ -34,7 +34,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
 import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.utils.BaseFilter

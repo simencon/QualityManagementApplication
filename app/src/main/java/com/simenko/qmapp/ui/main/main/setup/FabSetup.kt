@@ -2,7 +2,7 @@ package com.simenko.qmapp.ui.main.main.setup
 
 import androidx.compose.material3.FabPosition
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.simenko.qmapp.ui.main.main.Page
+import com.simenko.qmapp.ui.main.main.content.Page
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -52,7 +52,7 @@ fun ResultsComposition(
 
     val items by invModel.resultsSF.collectAsState(initial = listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentResultVisibility(dId = SelectedNumber(it)) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setResultsVisibility(dId = SelectedNumber(it)) } }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> { { invModel.editResult(it.result) } }
 
     FlowRow(

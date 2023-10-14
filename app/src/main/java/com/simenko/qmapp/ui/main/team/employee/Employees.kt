@@ -51,8 +51,8 @@ fun Employees(
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
-    val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
+    val onClickDetailsLambda: (Int) -> Unit = { viewModel.setEmployeesVisibility(dId = SelectedNumber(it)) }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setEmployeesVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteEmployee(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
 

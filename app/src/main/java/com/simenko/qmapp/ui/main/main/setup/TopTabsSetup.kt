@@ -3,8 +3,8 @@ package com.simenko.qmapp.ui.main.main.setup
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.ui.main.main.Page
-import com.simenko.qmapp.ui.main.main.TabItem
+import com.simenko.qmapp.ui.main.main.content.Page
+import com.simenko.qmapp.ui.main.main.content.TabItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

@@ -15,7 +15,7 @@ import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
-import com.simenko.qmapp.ui.main.main.Page
+import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
@@ -47,10 +47,10 @@ class TeamViewModel @Inject constructor(
 ) : ViewModel() {
     private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
     private val _users: Flow<List<DomainUser>> = systemRepository.users
-    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<String>>> = MutableStateFlow(Pair(Event(NoRecord.num), Event(NoRecordStr.str)))
-    private val _currentEmployeeVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-    private val _currentUserVisibility = MutableStateFlow(Pair(NoRecordStr, NoRecordStr))
-    val currentUserVisibility = _currentUserVisibility.asStateFlow()
+    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<String>>> = MutableStateFlow(Pair(Event(employeeId), Event(userId)))
+    private val _employeesVisibility = MutableStateFlow(Pair(SelectedNumber(employeeId), NoRecord))
+    private val _usersVisibility = MutableStateFlow(Pair(SelectedString(userId), NoRecordStr))
+    val currentUserVisibility = _usersVisibility.asStateFlow()
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -76,9 +76,6 @@ class TeamViewModel @Inject constructor(
                 }
             )
             .build()
-        _createdRecord.value = Pair(Event(employeeId), Event(userId))
-        setCurrentEmployeeVisibility(dId = SelectedNumber(employeeId))
-        setCurrentUserVisibility(dId = SelectedString(userId))
     }
 
     /**
@@ -102,8 +99,8 @@ class TeamViewModel @Inject constructor(
     /**
      * Employee logic and operations -----------------------------------------------------------------------------------------------------------------
      * */
-    fun setCurrentEmployeeVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _currentEmployeeVisibility.value = _currentEmployeeVisibility.value.setVisibility(dId, aId)
+    fun setEmployeesVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _employeesVisibility.value = _employeesVisibility.value.setVisibility(dId, aId)
     }
 
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
@@ -115,19 +112,12 @@ class TeamViewModel @Inject constructor(
     }
 
     val employees: SharedFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { employees ->
-        _currentEmployeeVisibility.flatMapLatest { visibility ->
+        _employeesVisibility.flatMapLatest { visibility ->
             _currentEmployeesFilter.flatMapLatest { filter ->
                 val cpy = mutableListOf<DomainEmployeeComplete>()
                 employees
                     .filterEmployees(filter)
-                    .forEach {
-                        cpy.add(
-                            it.copy(
-                                detailsVisibility = it.teamMember.id == visibility.first.num,
-                                isExpanded = it.teamMember.id == visibility.second.num
-                            )
-                        )
-                    }
+                    .forEach { cpy.add(it.copy(detailsVisibility = it.teamMember.id == visibility.first.num, isExpanded = it.teamMember.id == visibility.second.num)) }
                 flow { emit(cpy) }
             }
         }
@@ -153,8 +143,8 @@ class TeamViewModel @Inject constructor(
     /**
      * User logic and operations ---------------------------------------------------------------------------------------------------------------------
      * */
-    fun setCurrentUserVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
-        _currentUserVisibility.value = _currentUserVisibility.value.setVisibility(dId, aId)
+    fun setUsersVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
+        _usersVisibility.value = _usersVisibility.value.setVisibility(dId, aId)
     }
 
     private val _currentUsersFilter = MutableStateFlow(UsersFilter())
@@ -167,19 +157,12 @@ class TeamViewModel @Inject constructor(
     }
 
     val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
-        _currentUserVisibility.flatMapLatest { visibility ->
+        _usersVisibility.flatMapLatest { visibility ->
             _currentUsersFilter.flatMapLatest { filter ->
                 val cpy = mutableListOf<DomainUser>()
                 users
                     .filterUsers(filter)
-                    .forEach {
-                        cpy.add(
-                            it.copy(
-                                detailsVisibility = it.email == visibility.first.str,
-                                isExpanded = it.email == visibility.second.str
-                            )
-                        )
-                    }
+                    .forEach { cpy.add(it.copy(detailsVisibility = it.email == visibility.first.str, isExpanded = it.email == visibility.second.str)) }
                 flow { emit(cpy) }
             }
         }

@@ -84,6 +84,12 @@ object NavArguments {
     const val employeeId = "employeeId"
     const val userId = "userId"
 
+    const val departmentId = "departmentId"
+    const val subDepartmentId = "subDepartmentId"
+    const val channelId = "channelId"
+    const val lineId = "lineId"
+    const val operationId = "operationId"
+
     const val isProcessControlOnly = "isProcessControlOnly"
     const val orderId = "orderId"
     const val subOrderId = "subOrderId"
@@ -175,16 +181,16 @@ sealed class Route(
 
             object EditUser : Route(
                 link = "${NavRouteName.edit_user}${arg(NavArguments.userId)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.userId) {
-                        type = NavType.StringType
-                        defaultValue = NoRecordStr.str
-                    }
-                ),
                 deepLinks = listOf(
                     navDeepLink {
                         uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.users}/${NavRouteName.edit_user}${arg(NavArguments.userId)}"
                         action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(name = NavArguments.userId) {
+                        type = NavType.StringType
+                        defaultValue = NoRecordStr.str
                     }
                 ),
                 route = TEAM_ROUTE
@@ -203,23 +209,57 @@ sealed class Route(
 
             object AuthorizeUser : Route(
                 link = "${NavRouteName.authorize_user}${arg(NavArguments.userId)}",
-                arguments = listOf(
-                    navArgument(name = NavArguments.userId) {
-                        type = NavType.StringType
-                        defaultValue = NoRecordStr.str
-                    }
-                ),
                 deepLinks = listOf(
                     navDeepLink {
                         uriPattern = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/${NavRouteName.authorize_user}${arg(NavArguments.userId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),
+                arguments = listOf(
+                    navArgument(name = NavArguments.userId) {
+                        type = NavType.StringType
+                        defaultValue = NoRecordStr.str
+                    }
+                ),
                 route = TEAM_ROUTE
             )
         }
 
-        object CompanyStructure : Route(link = NavRouteName.company_structure, route = MAIN_ROUTE)
+        object CompanyStructure : Route(
+            link = NavRouteName.company_structure +
+                    "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}",
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "${NavArguments.domain}/$MAIN_ROUTE/${NavRouteName.company_structure}?" +
+                            "${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}"
+                    action = Intent.ACTION_VIEW
+                }
+            ),
+            arguments = listOf(
+                navArgument(NavArguments.departmentId) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                },
+                navArgument(NavArguments.subOrderId) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                },
+                navArgument(NavArguments.channelId) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                },
+                navArgument(NavArguments.lineId) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                },
+                navArgument(NavArguments.operationId) {
+                    type = NavType.IntType
+                    defaultValue = NoRecord.num
+                }
+            ),
+            route = MAIN_ROUTE
+        )
+
         object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
         object Inv : Route(
             link = "${NavRouteName.all_investigations}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
