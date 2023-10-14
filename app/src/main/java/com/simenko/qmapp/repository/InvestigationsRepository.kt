@@ -26,8 +26,6 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private const val TAG = "InvestigationsRepository"
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class InvestigationsRepository @Inject constructor(

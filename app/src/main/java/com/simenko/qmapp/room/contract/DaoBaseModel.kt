@@ -16,6 +16,9 @@ interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseMo
     @Update
     fun updateRecord(record: DB)
 
+    @Update
+    fun updateRecords(record: List<DB>)
+
     @Delete
     fun deleteRecord(record: DB)
 
