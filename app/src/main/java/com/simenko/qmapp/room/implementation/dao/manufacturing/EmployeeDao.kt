@@ -27,6 +27,12 @@ abstract class EmployeeDao : DaoBaseModel<DatabaseEmployee> {
     abstract fun getRecordsFlowForUI(): Flow<List<DatabaseEmployee>>
 
     @Transaction
-    @Query("SELECT * FROM '8_employees' ORDER BY id DESC")
-    abstract fun getRecordsCompleteFlowForUI(): Flow<List<DatabaseEmployeeComplete>>
+    @Query(
+        """
+            SELECT * FROM '8_employees'
+            WHERE (:fullName = '' or fullName like :fullName)
+            ORDER BY id DESC
+        """
+    )
+    abstract fun getRecordsCompleteFlowForUI(fullName: String): Flow<List<DatabaseEmployeeComplete>>
 }

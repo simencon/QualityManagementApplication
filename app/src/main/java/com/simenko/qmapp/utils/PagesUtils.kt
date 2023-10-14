@@ -1,10 +1,7 @@
 package com.simenko.qmapp.utils
 
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.domain.entities.DomainOrderComplete
-import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
-import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
@@ -60,21 +57,6 @@ enum class InvStatuses(val statusId: Int) {
     IN_PROGRESS(2),
     DONE(3),
     REJECTED(4)
-}
-
-object TeamUtils {
-    fun List<DomainEmployeeComplete>.filterEmployees(filter: EmployeesFilter): List<DomainEmployeeComplete> {
-        return filter {
-            (it.teamMember.fullName.lowercase().contains(filter.stringToSearch.lowercase()) || filter.stringToSearch == EmptyString.str)
-        }
-    }
-
-    fun List<DomainUser>.filterUsers(filter: UsersFilter): List<DomainUser> {
-        return filter {
-            (it.restApiUrl.isNullOrEmpty() == filter.newUsers) &&
-                    (it.fullName?.lowercase()?.contains(filter.stringToSearch.lowercase()) ?: true || filter.stringToSearch == EmptyString.str)
-        }
-    }
 }
 
 object InvestigationsUtils {

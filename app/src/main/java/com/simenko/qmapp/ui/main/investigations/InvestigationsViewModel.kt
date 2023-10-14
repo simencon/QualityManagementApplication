@@ -22,6 +22,7 @@ import com.simenko.qmapp.ui.main.main.content.ProcessControlActions
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
+import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvStatuses
 import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
@@ -146,7 +147,7 @@ class InvestigationsViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
+    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete(EmployeesFilter())
     val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         flow { emit(team) }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
