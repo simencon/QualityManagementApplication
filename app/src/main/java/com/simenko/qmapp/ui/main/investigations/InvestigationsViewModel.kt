@@ -178,7 +178,7 @@ class InvestigationsViewModel @Inject constructor(
 //        MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
         MutableStateFlow(Pair(1691991128021L, Instant.now().toEpochMilli()))
 
-    private val _ordersSF: Flow<List<DomainOrderComplete>> = _lastVisibleItemKey.flatMapLatest { key ->
+    private val _orders: Flow<List<DomainOrderComplete>> = _lastVisibleItemKey.flatMapLatest { key ->
         _currentOrdersFilter.flatMapLatest { filter ->
             repository.ordersListByLastVisibleId(key as Int, filter)
         }
@@ -207,8 +207,8 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val ordersSF: StateFlow<List<DomainOrderComplete>> = _isLoadingInProgress.flatMapLatest { isLoading ->
-        _ordersSF.flatMapLatest { orders ->
+    val orders: StateFlow<List<DomainOrderComplete>> = _isLoadingInProgress.flatMapLatest { isLoading ->
+        _orders.flatMapLatest { orders ->
             _ordersVisibility.flatMapLatest { visibility ->
                 if (visibility.first == NoRecord) {
                     setSubOrdersVisibility(dId = _subOrdersVisibility.value.first)
@@ -676,7 +676,7 @@ class InvestigationsViewModel @Inject constructor(
                         Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> {
                             resource.data?.let {
-                                if (it.isNotEmpty()) setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
+                                if (it.isNotEmpty()) setLastVisibleItemKey(orders.value[orders.value.lastIndex - 1].order.id)
                             }
                             mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                         }

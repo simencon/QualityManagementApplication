@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.structure
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.ChannelIdParameter
 import com.simenko.qmapp.di.DepartmentIdParameter
 import com.simenko.qmapp.di.LineIdParameter
@@ -8,6 +9,8 @@ import com.simenko.qmapp.di.OperationIdParameter
 import com.simenko.qmapp.di.SubDepartmentIdParameter
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
+import com.simenko.qmapp.domain.entities.DomainOrderComplete
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -16,11 +19,20 @@ import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class StructureViewModel @Inject constructor(
+class CompanyStructureViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
@@ -39,6 +51,7 @@ class StructureViewModel @Inject constructor(
     private val _channelsVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))
     private val _linesVisibility = MutableStateFlow(Pair(SelectedNumber(lineId), NoRecord))
     private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
+    private val _departments = repository.departmentsDetailed
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -81,6 +94,18 @@ class StructureViewModel @Inject constructor(
     fun setOperationsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _operationsVisibility.value = _operationsVisibility.value.setVisibility(dId, aId)
     }
+
+    /**
+     * UI state -------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val departments = _departments.flatMapLatest { departments ->
+            _departmentsVisibility.flatMapLatest { visibility ->
+                val cyp = mutableListOf<DomainDepartmentComplete>()
+                departments.forEach { cyp.add(it.copy(detailsVisibility = it.department.id == visibility.first.num, isExpanded = it.department.id == visibility.second.num)) }
+                flow { emit(cyp) }
+            }
+        }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
 
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------

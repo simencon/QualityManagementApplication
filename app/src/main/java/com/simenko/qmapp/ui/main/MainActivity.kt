@@ -107,6 +107,7 @@ class MainActivity : ComponentActivity() {
                     if (id != topBarSetup.link) {
                         when (id) {
                             Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
+                            Route.Main.CompanyStructure.link -> viewModel.onDrawerMenuCompanyStructureSelected()
                             Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
                             Route.Main.ProcessControl.link -> viewModel.onDrawerMenuProcessControlSelected()
                             Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()

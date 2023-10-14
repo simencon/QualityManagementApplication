@@ -7,6 +7,7 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
+import kotlin.reflect.jvm.internal.impl.types.TypeCheckerState.SupertypesPolicy.DoCustomTransform
 
 @Stable
 data class DomainEmployee(
@@ -212,10 +213,11 @@ data class DomainEmployeeComplete(
 }
 
 data class DomainDepartmentComplete(
-    val department: DomainDepartment,
-    val depManager: DomainEmployee,
-    val company: DomainCompany,
-    var departmentDetailsVisibility: Boolean = false
+    val department: DomainDepartment = DomainDepartment(),
+    val depManager: DomainEmployee = DomainEmployee(),
+    val company: DomainCompany = DomainCompany(),
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseDepartmentsComplete>() {
     override fun getRecordId() = department.id
     override fun getParentId() = department.companyId ?: NoRecord.num

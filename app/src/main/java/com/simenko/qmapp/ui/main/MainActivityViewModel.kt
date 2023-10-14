@@ -113,6 +113,10 @@ class MainActivityViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.Team.link, popUpToRoute = Route.Main.Team.route, inclusive = true)
     }
 
+    fun onDrawerMenuCompanyStructureSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+    }
+
     fun onDrawerMenuInvSelected() {
         appNavigator.tryNavigateTo(route = Route.Main.Inv.withOpts(), popUpToRoute = Route.Main.Inv.route, inclusive = true)
     }
