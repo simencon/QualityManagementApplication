@@ -23,9 +23,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -46,9 +44,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -69,9 +65,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -92,10 +86,9 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
+
     /**
      * Last day
      * */
@@ -112,9 +105,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
 
     @Test
@@ -122,8 +113,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 40
         val toTimeDays = 20
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_DAY
@@ -135,9 +126,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
 
     @Test
@@ -145,8 +134,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 120
         val toTimeDays = 20
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_DAY
@@ -158,9 +147,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
 
     @Test
@@ -168,8 +155,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 120
         val toTimeDays = 90
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_DAY
@@ -181,9 +168,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
 
     @Test
@@ -191,8 +176,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 6
         val toTimeDays = 90
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24 * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24 * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_DAY
@@ -204,9 +189,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
 
     @Test
@@ -214,8 +197,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 6
         val toTimeDays = 15
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24 * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24 * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_DAY
@@ -227,9 +210,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
 
     @Test
@@ -250,10 +231,9 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60
-        ).isEqualTo(23.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60).isEqualTo(23.0)
     }
+
     /**
      * Last week
      * */
@@ -270,9 +250,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -293,9 +271,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -316,9 +292,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(2.5)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(2.5)
     }
 
     @Test
@@ -339,9 +313,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(4.5)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(4.5)
     }
 
     @Test
@@ -362,9 +334,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(6.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(6.0)
     }
 
     @Test
@@ -385,9 +355,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(6.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(6.0)
     }
 
     @Test
@@ -395,8 +363,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 20
         val toTimeDays = 10
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_WEEK
@@ -408,10 +376,9 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(6.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(6.0)
     }
+
     /**
      * Last month
      * */
@@ -428,9 +395,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -451,9 +416,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -474,9 +437,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(13.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(13.0)
     }
 
     @Test
@@ -497,9 +458,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(13.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(13.0)
     }
 
     @Test
@@ -507,7 +466,7 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 50
         val toTimeDays = 8.3
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
             Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
         )
 
@@ -520,9 +479,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(24.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(24.0)
     }
 
     @Test
@@ -530,7 +487,7 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 50
         val toTimeDays = 0.3
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
             Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
         )
 
@@ -543,9 +500,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(24.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(24.0)
     }
 
     @Test
@@ -553,8 +508,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 50
         val toTimeDays = 40
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_MONTH
@@ -566,10 +521,9 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(24.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(24.0)
     }
+
     /**
      * Last quarter
      * */
@@ -586,9 +540,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -609,9 +561,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -619,8 +569,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 60
         val toTimeDays = 18
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_QUARTER
@@ -632,9 +582,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(29.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(29.0)
     }
 
     @Test
@@ -642,8 +590,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 60
         val toTimeDays = 37
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_QUARTER
@@ -655,9 +603,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(29.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(29.0)
     }
 
     @Test
@@ -665,8 +611,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 160
         val toTimeDays = 37
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_QUARTER
@@ -678,9 +624,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(59.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(59.0)
     }
 
     @Test
@@ -688,7 +632,7 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 160
         val toTimeDays = 0.3
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
             Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
         )
 
@@ -701,9 +645,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(59.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(59.0)
     }
 
     @Test
@@ -711,8 +653,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 160
         val toTimeDays = 100
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_QUARTER
@@ -724,10 +666,9 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(59.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(59.0)
     }
+
     /**
      * Last year
      * */
@@ -744,9 +685,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -754,7 +693,7 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 89
         val toTimeDays = 0.3
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
             Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
         )
 
@@ -767,9 +706,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -777,8 +714,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 110
         val toTimeDays = 18
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_YEAR
@@ -790,9 +727,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(20.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(20.0)
     }
 
     @Test
@@ -800,8 +735,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 110
         val toTimeDays = 95
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_YEAR
@@ -823,8 +758,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 385
         val toTimeDays = 95
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_YEAR
@@ -836,9 +771,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(275.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(275.0)
     }
 
     @Test
@@ -846,7 +779,7 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 385
         val toTimeDays = 0.3
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
             Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
         )
 
@@ -859,9 +792,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(275.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(275.0)
     }
 
     @Test
@@ -869,8 +800,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 500
         val toTimeDays = 400
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.LAST_YEAR
@@ -882,10 +813,9 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(275.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(275.0)
     }
+
     /**
      * Complete period
      * */
@@ -902,9 +832,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -912,7 +840,7 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 364
         val toTimeDays = 0.3
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
             Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
         )
 
@@ -925,9 +853,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60
-        ).isEqualTo(60.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60).isEqualTo(60.0)
     }
 
     @Test
@@ -935,8 +861,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 385
         val toTimeDays = 18
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.COMPLETE_PERIOD
@@ -948,9 +874,7 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(20.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(20.0)
     }
 
     @Test
@@ -958,8 +882,8 @@ class InvestigationsUtilsTest {
         val fromTimeDays = 385
         val toTimeDays = 375
         val currentState = Pair(
-            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli(),
-            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L).toLong()).toEpochMilli()
+            Instant.now().minusMillis((fromTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli(),
+            Instant.now().minusMillis((toTimeDays * 24L * 60L * 60L * 1000L)).toEpochMilli()
         )
 
         val syncPeriod = SyncPeriods.COMPLETE_PERIOD
@@ -971,8 +895,23 @@ class InvestigationsUtilsTest {
         val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
         val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
 
-        Truth.assertThat(
-            (endTime - startTime).toDouble() / 60 / 60 / 24
-        ).isEqualTo(20.0)
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(20.0)
+    }
+
+    @Test
+    fun `just for testing`() {
+        val currentState = Pair(1681267032020, 1697273790352)
+
+        val syncPeriod = SyncPeriods.LAST_WEEK
+        val resultSyncPeriod = InvestigationsUtils.getPeriodToSync(
+            currentState,
+            syncPeriod.latestMillis,
+            syncPeriod.excludeMillis
+        )
+        println("just for testing: $resultSyncPeriod")
+        val startTime = Instant.ofEpochMilli(resultSyncPeriod.first).epochSecond
+        val endTime = Instant.ofEpochMilli(resultSyncPeriod.second).epochSecond
+
+        Truth.assertThat((endTime - startTime).toDouble() / 60 / 60 / 24).isEqualTo(6.0)
     }
 }

@@ -31,11 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -47,7 +42,6 @@ import com.simenko.qmapp.ui.theme.QMAppTheme
 import com.simenko.qmapp.works.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.time.Duration
 import javax.inject.Inject
 
 internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
@@ -64,8 +58,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var workManager: WorkManager
-    private lateinit var syncLastHourOneTimeWork: OneTimeWorkRequest
-    private lateinit var syncLastDayOneTimeWork: OneTimeWorkRequest
     private lateinit var analytics: FirebaseAnalytics
 
     private lateinit var initialRoute: String
@@ -205,31 +197,5 @@ class MainActivity : ComponentActivity() {
         } else {
             Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun prepareOneTimeWorks() {
-        syncLastHourOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .setInputData(
-                Data.Builder()
-                    .putLong(WorkerKeys.LATEST_MILLIS, SyncPeriods.LAST_HOUR.latestMillis)
-                    .putLong(WorkerKeys.EXCLUDE_MILLIS, SyncPeriods.LAST_HOUR.excludeMillis)
-                    .build()
-            )
-            .setInitialDelay(Duration.ofSeconds(5))
-            .build()
-
-        syncLastDayOneTimeWork = OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .setInitialDelay(Duration.ofSeconds(5))
-            .build()
     }
 }
