@@ -22,8 +22,6 @@ import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
-import com.simenko.qmapp.utils.TeamUtils.filterEmployees
-import com.simenko.qmapp.utils.TeamUtils.filterUsers
 import com.simenko.qmapp.utils.UsersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,13 +38,15 @@ class TeamViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
-    private val systemRepository: SystemRepository,
-    private val manufacturingRepository: ManufacturingRepository,
+    private val sRepository: SystemRepository,
+    private val mRepository: ManufacturingRepository,
     @EmployeeIdParameter private val employeeId: Int,
     @UserIdParameter private val userId: String
 ) : ViewModel() {
-    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
-    private val _users: Flow<List<DomainUser>> = systemRepository.users
+    private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
+    private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }
+    private val _currentUsersFilter = MutableStateFlow(UsersFilter())
+    private val _users: Flow<List<DomainUser>> = _currentUsersFilter.flatMapLatest { filter -> sRepository.users(filter) }
     private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<String>>> = MutableStateFlow(Pair(Event(employeeId), Event(userId)))
     private val _employeesVisibility = MutableStateFlow(Pair(SelectedNumber(employeeId), NoRecord))
     private val _usersVisibility = MutableStateFlow(Pair(SelectedString(userId), NoRecordStr))
@@ -67,11 +67,15 @@ class TeamViewModel @Inject constructor(
             .setOnFabClickAction { onEmployeeAddEdictClick(NoRecord.num) }
             .setOnPullRefreshAction { updateEmployeesData() }
             .setTabBadgesFlow(
-                combine(_employees, _users) { employees, users ->
+                combine(
+                    mRepository.employeesComplete(EmployeesFilter()),
+                    sRepository.users(UsersFilter(newUsers = false)),
+                    sRepository.users(UsersFilter(newUsers = true))
+                ) { employees, users, requests ->
                     listOf(
                         Triple(employees.size, Color.Green, Color.Black),
-                        Triple(users.filter { !it.restApiUrl.isNullOrEmpty() }.size, Color.Green, Color.Black),
-                        Triple(users.filter { it.restApiUrl.isNullOrEmpty() }.size, Color.Red, Color.White)
+                        Triple(users.size, Color.Green, Color.Black),
+                        Triple(requests.size, Color.Red, Color.White)
                     )
                 }
             )
@@ -103,7 +107,6 @@ class TeamViewModel @Inject constructor(
         _employeesVisibility.value = _employeesVisibility.value.setVisibility(dId, aId)
     }
 
-    private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
     private fun setEmployeesFilter(filter: BaseFilter) {
         val cpy = _currentEmployeesFilter.value
         _currentEmployeesFilter.value = _currentEmployeesFilter.value.copy(
@@ -113,20 +116,16 @@ class TeamViewModel @Inject constructor(
 
     val employees: SharedFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { employees ->
         _employeesVisibility.flatMapLatest { visibility ->
-            _currentEmployeesFilter.flatMapLatest { filter ->
-                val cpy = mutableListOf<DomainEmployeeComplete>()
-                employees
-                    .filterEmployees(filter)
-                    .forEach { cpy.add(it.copy(detailsVisibility = it.teamMember.id == visibility.first.num, isExpanded = it.teamMember.id == visibility.second.num)) }
-                flow { emit(cpy) }
-            }
+            val cpy = mutableListOf<DomainEmployeeComplete>()
+            employees.forEach { cpy.add(it.copy(detailsVisibility = it.teamMember.id == visibility.first.num, isExpanded = it.teamMember.id == visibility.second.num)) }
+            flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
         mainPageHandler.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            manufacturingRepository.run {
+            mRepository.run {
                 deleteTeamMember(teamMemberId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
@@ -147,7 +146,6 @@ class TeamViewModel @Inject constructor(
         _usersVisibility.value = _usersVisibility.value.setVisibility(dId, aId)
     }
 
-    private val _currentUsersFilter = MutableStateFlow(UsersFilter())
     fun setUsersFilter(filter: BaseFilter) {
         val cpy = _currentUsersFilter.value
         _currentUsersFilter.value = _currentUsersFilter.value.copy(
@@ -158,13 +156,9 @@ class TeamViewModel @Inject constructor(
 
     val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
         _usersVisibility.flatMapLatest { visibility ->
-            _currentUsersFilter.flatMapLatest { filter ->
-                val cpy = mutableListOf<DomainUser>()
-                users
-                    .filterUsers(filter)
-                    .forEach { cpy.add(it.copy(detailsVisibility = it.email == visibility.first.str, isExpanded = it.email == visibility.second.str)) }
-                flow { emit(cpy) }
-            }
+            val cpy = mutableListOf<DomainUser>()
+            users.forEach { cpy.add(it.copy(detailsVisibility = it.email == visibility.first.str, isExpanded = it.email == visibility.second.str)) }
+            flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
@@ -179,7 +173,7 @@ class TeamViewModel @Inject constructor(
     fun removeUser(userId: String) = viewModelScope.launch {
         mainPageHandler.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
-            systemRepository.run {
+            sRepository.run {
                 removeUser(userId).consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
@@ -231,13 +225,13 @@ class TeamViewModel @Inject constructor(
         try {
             mainPageHandler.updateLoadingState(Pair(true, null))
 
-            systemRepository.syncUserRoles()
-            systemRepository.syncUsers()
+            sRepository.syncUserRoles()
+            sRepository.syncUsers()
 
-            manufacturingRepository.syncCompanies()
-            manufacturingRepository.syncJobRoles()
-            manufacturingRepository.syncDepartments()
-            manufacturingRepository.syncTeamMembers()
+            mRepository.syncCompanies()
+            mRepository.syncJobRoles()
+            mRepository.syncDepartments()
+            mRepository.syncTeamMembers()
 
             mainPageHandler.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {

@@ -8,6 +8,7 @@ import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
+import com.simenko.qmapp.utils.EmployeesFilter
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -34,11 +35,13 @@ class ManufacturingRepository @Inject constructor(
             taskExecutor = { service.deleteEmployee(orderId) }
         ) { r -> database.employeeDao.deleteRecord(r) }
     }
+
     fun CoroutineScope.insertTeamMember(record: DomainEmployee) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { service.insertEmployee(record.toDatabaseModel().toNetworkModel()) }
         ) { r -> database.employeeDao.insertRecord(r) }
     }
+
     fun CoroutineScope.updateTeamMember(record: DomainEmployee) = crudeOperations.run {
         responseHandlerForSingleRecord(
             taskExecutor = { service.editEmployee(record.id, record.toDatabaseModel().toNetworkModel()) }
@@ -89,48 +92,49 @@ class ManufacturingRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
-    val employeesComplete: Flow<List<DomainEmployeeComplete>> =
-        database.employeeDao.getRecordsCompleteFlowForUI().map { list ->
+    val employeesComplete: (EmployeesFilter) -> Flow<List<DomainEmployeeComplete>> = { filter ->
+        database.employeeDao.getRecordsCompleteFlowForUI("%${filter.stringToSearch}%").map { list ->
             list.map { it.toDomainModel() }
         }
+    }
 
     val companies: Flow<List<DomainCompany>> =
-        database.companyDao.getRecordsFlowForUI().map {list ->
+        database.companyDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val jobRoles: Flow<List<DomainJobRole>> =
-        database.jobRoleDao.getRecordsFlowForUI().map {list ->
+        database.jobRoleDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val departments: Flow<List<DomainDepartment>> =
-        database.departmentDao.getRecordsFlowForUI().map {list ->
+        database.departmentDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val subDepartments: Flow<List<DomainSubDepartment>> =
-        database.subDepartmentDao.getRecordsFlowForUI().map {list ->
+        database.subDepartmentDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val channels: Flow<List<DomainManufacturingChannel>> =
-        database.channelDao.getRecordsFlowForUI().map {list ->
+        database.channelDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val lines: Flow<List<DomainManufacturingLine>> =
-        database.lineDao.getRecordsFlowForUI().map {list ->
+        database.lineDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val operations: Flow<List<DomainManufacturingOperation>> =
-        database.operationDao.getRecordsFlowForUI().map {list ->
+        database.operationDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
     val operationsFlows: Flow<List<DomainOperationsFlow>> =
-        database.operationsFlowDao.getRecordsFlowForUI().map {list ->
+        database.operationsFlowDao.getRecordsFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }
 
