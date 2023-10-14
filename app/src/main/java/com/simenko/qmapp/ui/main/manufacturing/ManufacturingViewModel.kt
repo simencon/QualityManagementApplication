@@ -20,7 +20,6 @@ class ManufacturingViewModel @Inject constructor(
     private val isLoadingInProgress = MutableLiveData(false)
     private val isNetworkError = MutableLiveData(false)
 
-    val departmentsDetailed = manufacturingRepository.departmentsDetailed
     val lines = manufacturingRepository.lines.asLiveData()
     val operations = manufacturingRepository.operations.asLiveData()
 

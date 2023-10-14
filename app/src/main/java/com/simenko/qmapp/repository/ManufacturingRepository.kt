@@ -138,7 +138,7 @@ class ManufacturingRepository @Inject constructor(
             list.map { it.toDomainModel() }
         }
 
-    val departmentsDetailed: LiveData<List<DomainDepartmentComplete>> =
+    val departmentsDetailed: Flow<List<DomainDepartmentComplete>> =
         database.departmentDao.getRecordsDetailedFlowForUI().map { list ->
             list.map { it.toDomainModel() }
         }

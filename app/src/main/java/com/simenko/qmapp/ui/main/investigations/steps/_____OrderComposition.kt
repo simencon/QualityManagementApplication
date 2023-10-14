@@ -55,7 +55,7 @@ fun Orders(
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
     val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
-    val items by invModel.ordersSF.collectAsStateWithLifecycle()
+    val items by invModel.orders.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(aId = SelectedNumber(it)) } }
@@ -66,7 +66,7 @@ fun Orders(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.first.getContentIfNotHandled()?.let { orderId ->
-                invModel.channel.trySend (
+                invModel.channel.trySend(
                     this.launch { listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId) }
                 )
             }
@@ -82,12 +82,8 @@ fun Orders(
         if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
     }
 
-    LazyColumn(
-        modifier = modifier,
-        state = listState
-    ) {
+    LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.order.id }) { order ->
-            Log.d(TAG, "OrdersLog: ${order.order.orderNumber}")
             OrderCard(
                 order = order,
                 invModel = invModel,
@@ -162,11 +158,7 @@ fun OrderCard(
             modifier = modifier
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(order.order.id) {
-                    detectTapGestures(
-                        onDoubleTap = { onClickActions(order.order.id) }
-                    )
-                }
+                .pointerInput(order.order.id) { detectTapGestures(onDoubleTap = { onClickActions(order.order.id) }) }
         ) {
             Order(
                 modifier = modifier,
