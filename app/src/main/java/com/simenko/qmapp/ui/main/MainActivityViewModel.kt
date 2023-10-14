@@ -99,9 +99,7 @@ class MainActivityViewModel @Inject constructor(
         val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
         topBarSetup.onActionItemClick = {
             currentOnActionItemClick?.invoke(it)
-            if (it == Common.UPLOAD_MASTER_DATA) {
-                refreshMasterDataFromRepository()
-            }
+            if (it == Common.UPLOAD_MASTER_DATA) refreshMasterDataFromRepository()
         }
         this._topTabsSetup.value = topTabsSetup
         this._fabSetup.value = fabSetup

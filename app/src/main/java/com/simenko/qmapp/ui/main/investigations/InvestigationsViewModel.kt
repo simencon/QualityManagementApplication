@@ -1,6 +1,8 @@
 package com.simenko.qmapp.ui.main.investigations
 
+import android.content.Context
 import androidx.lifecycle.*
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.di.OrderIdParameter
 import com.simenko.qmapp.di.IsProcessControlOnlyParameter
 import com.simenko.qmapp.di.SubOrderIdParameter
@@ -15,6 +17,8 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.Page
+import com.simenko.qmapp.ui.main.main.content.InvestigationsActions
+import com.simenko.qmapp.ui.main.main.content.ProcessControlActions
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.BaseFilter
@@ -24,6 +28,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
@@ -40,6 +45,7 @@ class InvestigationsViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
+    @ApplicationContext context: Context,
     @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
     @OrderIdParameter private val orderId: Int,
     @SubOrderIdParameter private val subOrderId: Int
@@ -64,6 +70,10 @@ class InvestigationsViewModel @Inject constructor(
                 .setOnFabClickAction { if (isPcOnly == true) onAddProcessControlClick() else onAddInvClick() }
                 .setOnPullRefreshAction { uploadNewInvestigations() }
                 .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
+                .setOnActionItemClickAction {
+                    if(it == InvestigationsActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                    if(it == ProcessControlActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                }
                 .build()
             _createdRecord.value = Pair(Event(orderId), Event(subOrderId))
             setCurrentOrderVisibility(dId = SelectedNumber(orderId))
