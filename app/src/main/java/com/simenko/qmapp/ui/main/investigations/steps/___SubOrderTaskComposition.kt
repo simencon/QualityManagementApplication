@@ -52,12 +52,12 @@ fun SubOrderTasksFlowColumn(
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
         {
-            invModel.setCurrentTaskVisibility(dId = SelectedNumber(it))
+            invModel.setTasksVisibility(dId = SelectedNumber(it))
             println("selected task is: $it")
         }
     }
 
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentTaskVisibility(aId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrderTask(it) } }
     val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, Int?) -> Unit> {
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrderTask = subOrderComplete, performerId = completedById) }

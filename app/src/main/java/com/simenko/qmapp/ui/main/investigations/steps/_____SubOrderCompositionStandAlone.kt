@@ -30,8 +30,8 @@ fun SubOrdersStandAlone(
         invModel.setSubOrdersFilter(BaseFilter(typeId = ProcessControlOrderTypeId.num))
     }
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentSubOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditProcessControlClick(it) } }
 

@@ -2,7 +2,6 @@ package com.simenko.qmapp.ui.main.main.content
 
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.ui.main.main.TabItem
 import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 
 enum class TeamTabs(override val tag: SelectedNumber) : TabItem {

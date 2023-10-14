@@ -57,8 +57,8 @@ fun Orders(
     val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
     val items by invModel.ordersSF.collectAsStateWithLifecycle()
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> { { invModel.onEditInvClick(it) } }
 

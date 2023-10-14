@@ -2,6 +2,8 @@ package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.ui.graphics.Color
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.ui.main.main.content.MenuItem
+import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.setup.*
 import com.simenko.qmapp.utils.BaseFilter
 import kotlinx.coroutines.channels.BufferOverflow

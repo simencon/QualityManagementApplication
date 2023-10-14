@@ -60,8 +60,8 @@ fun Users(
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
     val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle()
 
-    val onClickDetailsLambda: (String) -> Unit = { viewModel.setCurrentUserVisibility(dId = SelectedString(it)) }
-    val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setCurrentUserVisibility(aId = SelectedString(it)) } }
+    val onClickDetailsLambda: (String) -> Unit = { viewModel.setUsersVisibility(dId = SelectedString(it)) }
+    val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setUsersVisibility(aId = SelectedString(it)) } }
     val onClickAuthorizeLambda = remember<(String) -> Unit> { { viewModel.onUserAuthorizeClick(it) } }
     val onClickRemoveLambda = remember<(String) -> Unit> { { viewModel.setRemoveUserDialogVisibility(true, it) } }
     val onClickEditLambda = remember<(String) -> Unit> { { viewModel.onUserEditClick(it) } }

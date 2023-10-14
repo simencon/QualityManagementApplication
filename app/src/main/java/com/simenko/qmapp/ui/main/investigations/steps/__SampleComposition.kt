@@ -50,7 +50,7 @@ fun SampleComposition(
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
         {
-            invModel.setCurrentSampleVisibility(dId = SelectedNumber(it.sample.id))
+            invModel.setSamplesVisibility(dId = SelectedNumber(it.sample.id))
         }
     }
 

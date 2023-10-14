@@ -25,6 +25,26 @@ annotation class UserIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class DepartmentIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class SubDepartmentIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ChannelIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class LineIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class OperationIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class IsProcessControlOnlyParameter
 
 @Qualifier
@@ -55,6 +75,36 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideUserIdParameter(savedStateHandle: SavedStateHandle): String =
         savedStateHandle[NavArguments.userId] ?: NoRecordStr.str
+
+    @Provides
+    @DepartmentIdParameter
+    @ViewModelScoped
+    fun provideDepartmentIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.departmentId] ?: NoRecord.num
+
+    @Provides
+    @SubDepartmentIdParameter
+    @ViewModelScoped
+    fun provideSubDepartmentIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.subDepartmentId] ?: NoRecord.num
+
+    @Provides
+    @ChannelIdParameter
+    @ViewModelScoped
+    fun provideChannelIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.channelId] ?: NoRecord.num
+
+    @Provides
+    @LineIdParameter
+    @ViewModelScoped
+    fun provideLineIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.lineId] ?: NoRecord.num
+
+    @Provides
+    @OperationIdParameter
+    @ViewModelScoped
+    fun provideOperationIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.operationId] ?: NoRecord.num
 
     @Provides
     @IsProcessControlOnlyParameter

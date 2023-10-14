@@ -8,7 +8,7 @@ import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
-import com.simenko.qmapp.ui.main.main.Page
+import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel

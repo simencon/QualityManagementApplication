@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.main.content
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.simenko.qmapp.ui.main.main.MenuItem
 import com.simenko.qmapp.utils.StringUtils
 
 enum class Common(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
@@ -16,6 +15,17 @@ enum class Common(override val tag: String, override val image: ImageVector, ove
 
     companion object {
         fun toList(): List<MenuItem> = Common.values().toList()
+    }
+}
+
+enum class CompanyStructureActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
+    SYNC_STRUCTURE_DATA("sync_structure_data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    ;
+
+    override val title: String get() = StringUtils.getWithSpacesTitle(this.name)
+
+    companion object {
+        fun toList(): List<MenuItem> = Common.toList().union(TeamActions.values().toList()).toList()
     }
 }
 
