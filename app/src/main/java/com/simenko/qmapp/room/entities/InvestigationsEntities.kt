@@ -10,8 +10,6 @@ import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.ObjectTransformer
 import com.simenko.qmapp.utils.StringUtils
 
-//    @ColumnInfo(name = "nameInTable")
-
 @Entity(
     tableName = "1_1_inputForMeasurementRegister",
     primaryKeys = [
