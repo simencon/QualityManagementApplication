@@ -1,7 +1,5 @@
 package com.simenko.qmapp.ui.common
 
-import android.graphics.Rect
-import android.view.ViewTreeObserver
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -39,9 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,7 +49,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -219,36 +214,6 @@ fun RecordFieldItemWithMenu(
     }
 }
 
-enum class Keyboard {
-    Opened, Closed
-}
-
-@Composable
-fun keyboardAsState(): State<Keyboard> {
-    val keyboardState = remember { mutableStateOf(Keyboard.Closed) }
-    val view = LocalView.current
-    DisposableEffect(view) {
-        val onGlobalListener = ViewTreeObserver.OnGlobalLayoutListener {
-            val rect = Rect()
-            view.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = view.rootView.height
-            val keypadHeight = screenHeight - rect.bottom
-            keyboardState.value = if (keypadHeight > screenHeight * 0.15) {
-                Keyboard.Opened
-            } else {
-                Keyboard.Closed
-            }
-        }
-        view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalListener)
-
-        onDispose {
-            view.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalListener)
-        }
-    }
-
-    return keyboardState
-}
-
 @Composable
 fun RecordActionTextBtn(
     text: String,
@@ -279,12 +244,30 @@ fun RecordActionTextBtn(
 }
 
 @Composable
-fun <T> TopLevelSingleRecordMainHeader(
+fun InfoLine(modifier: Modifier, title: String, body: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.width(320.dp)
+    )
+    Text(
+        text = body,
+        style = MaterialTheme.typography.bodyMedium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.width(320.dp)
+    )
+    Spacer(modifier = Modifier.height(5.dp))
+}
+
+@Composable
+fun <T> SimpleRecordHeader(
     modifier: Modifier,
     value: DomainBaseModel<T>,
     detailsVisibility: Boolean,
-    onClick: (String) -> Unit,
-    title: String? = null
+    onClick: (String) -> Unit
 ) {
     Row(
         modifier = modifier.padding(start = 8.dp),
@@ -304,37 +287,10 @@ fun <T> TopLevelSingleRecordMainHeader(
         IconButton(onClick = { onClick(value.getRecordId().toString()) }) {
             Icon(
                 imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = if (detailsVisibility) {
-                    stringResource(R.string.show_less)
-                } else {
-                    stringResource(R.string.show_more)
-                }
+                contentDescription = if (detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
             )
         }
     }
-}
-
-@Composable
-fun InfoLine(
-    modifier: Modifier,
-    title: String,
-    body: String
-) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier.width(320.dp)
-    )
-    Text(
-        text = body,
-        style = MaterialTheme.typography.bodyMedium,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier.width(320.dp)
-    )
-    Spacer(modifier = Modifier.height(5.dp))
 }
 
 @Composable

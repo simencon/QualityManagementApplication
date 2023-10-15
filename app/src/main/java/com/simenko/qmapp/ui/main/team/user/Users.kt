@@ -34,7 +34,7 @@ import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
+import com.simenko.qmapp.ui.common.SimpleRecordHeader
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
@@ -186,7 +186,7 @@ fun User(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, onClickDetails)
+        SimpleRecordHeader(modifier, item, item.detailsVisibility, onClickDetails)
 
         if (item.detailsVisibility) {
             val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
@@ -210,8 +210,7 @@ fun User(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (!item.restApiUrl.isNullOrEmpty()) {
-                    val containerColor =
-                        if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                    val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
                     RecordActionTextBtn(
                         text = "Remove user",
                         onClick = { onClickRemove(item.email) },
@@ -222,8 +221,7 @@ fun User(
                         elevation = ButtonDefaults.buttonElevation(4.dp)
                     )
                 } else {
-                    val containerColor =
-                        if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
+                    val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
                     RecordActionTextBtn(
                         text = "Authorize user",
                         onClick = { onClickAuthorize(item.email) },
