@@ -17,11 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -58,13 +59,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import kotlin.math.round
 
 @Composable
 fun RecordFieldItem(
@@ -330,6 +335,58 @@ fun InfoLine(
         modifier = modifier.width(320.dp)
     )
     Spacer(modifier = Modifier.height(5.dp))
+}
+
+@Composable
+fun StatusWithPercentage(
+    status: Pair<Int, String?>,
+    result: Triple<Boolean?, Int?, Int?>,
+    onlyInt: Boolean = false,
+    percentageTextSize: TextUnit = 12.sp
+) {
+    if (status.second!= EmptyString.str)
+        Text(
+            text = status.second ?: NoString.str,
+            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+        )
+    if (status.first == 3) {
+        if (status.second!= EmptyString.str)
+            Text(
+                text = "(",
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+            )
+        Icon(
+            imageVector = if (result.first != false) Icons.Filled.Check else Icons.Filled.Close,
+            contentDescription = if (result.first != false) stringResource(R.string.show_less) else stringResource(R.string.show_more),
+            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+            tint = if (result.first != false) Color.Green else Color.Red,
+        )
+        val conformity = (result.second?.toFloat()?.let { result.third?.toFloat()?.div(it) }?.times(100)) ?: 0.0f
+        Text(
+            text = if (!conformity.isNaN()) (round(conformity * 10) / 10).let { (if (onlyInt) it.toInt() else it).toString() + "%" } else "",
+            style = MaterialTheme.typography.titleSmall.copy(fontSize = percentageTextSize),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+        )
+        if (status.second!= EmptyString.str)
+            Text(
+                text = ")",
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+            )
+    }
 }
 
 @Composable

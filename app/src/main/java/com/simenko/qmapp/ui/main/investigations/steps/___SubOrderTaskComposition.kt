@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -30,6 +29,7 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -193,12 +193,7 @@ fun SubOrderTask(
                     .weight(0.90f),
             ) {
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
@@ -207,8 +202,7 @@ fun SubOrderTask(
                             .weight(0.54f),
                     ) {
                         Row(
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+                            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
                         ) {
                             Text(
                                 text = "Group:",
@@ -222,8 +216,7 @@ fun SubOrderTask(
                                     .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
-                                text = subOrderTask.characteristic.characteristicGroup.ishElement
-                                    ?: "-",
+                                text = subOrderTask.characteristic.characteristicGroup.ishElement ?: "-",
                                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -249,8 +242,7 @@ fun SubOrderTask(
                                     .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                             )
                             Text(
-                                text = subOrderTask.characteristic.characteristicSubGroup.ishElement
-                                    ?: "-",
+                                text = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: "-",
                                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -268,90 +260,11 @@ fun SubOrderTask(
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
                         onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
                         content = {
-                            Text(
-                                text = subOrderTask.status.statusDescription ?: "-",
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            StatusWithPercentage(
+                                status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
+                                result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),
+                                onlyInt = true
                             )
-                            if (subOrderTask.subOrderTask.statusId == 3) {
-                                Text(
-                                    text = "(",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
-                                )
-                                Icon(
-                                    imageVector = if (subOrderTask.taskResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
-                                    contentDescription = if (subOrderTask.taskResult.isOk != false) {
-                                        stringResource(R.string.show_less)
-                                    } else {
-                                        stringResource(R.string.show_more)
-                                    },
-                                    modifier = Modifier.padding(
-                                        top = 0.dp,
-                                        start = 0.dp,
-                                        end = 0.dp,
-                                        bottom = 0.dp
-                                    ),
-                                    tint = if (subOrderTask.taskResult.isOk != false) {
-                                        Color.Green
-                                    } else {
-                                        Color.Red
-                                    },
-                                )
-                                val conformity = (subOrderTask.taskResult.total?.toFloat()?.let {
-                                    subOrderTask.taskResult.good?.toFloat()
-                                        ?.div(it)
-                                }?.times(100)) ?: 0.0f
-
-                                Text(
-                                    text = when {
-                                        !conformity.isNaN() -> {
-                                            conformity.roundToInt().toString() + "%"
-                                        }
-
-                                        else -> {
-                                            ""
-                                        }
-                                    },
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
-                                )
-                                Text(
-                                    text = ")",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
-                                )
-                            }
                         },
                         enabled = true,
                         shape = MaterialTheme.shapes.medium,
@@ -399,11 +312,7 @@ fun SubOrderTask(
             ) {
                 Icon(
                     imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext/*NavigateBefore*/,
-                    contentDescription = if (subOrderTask.detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
+                    contentDescription = if (subOrderTask.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
                     modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
