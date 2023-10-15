@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -16,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -26,9 +24,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
@@ -38,17 +38,13 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
-private const val TAG = "SubOrderTaskComposition"
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubOrderTasksFlowColumn(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = 0,
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-    Log.d(TAG, "InvestigationsViewModel: $invModel")
-
     val items by invModel.tasksSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> {
@@ -70,8 +66,7 @@ fun SubOrderTasksFlowColumn(
 
                 Box(Modifier.fillMaxWidth()) {
                     SubOrderTaskCard(
-                        modifier = modifier,
-                        appModel = invModel,
+                        modifier = Modifier.padding(Constants.CARDS_PADDING),
                         task = task,
                         onClickDetails = { onClickDetailsLambda(it) },
                         cardOffset = CARD_OFFSET.dp(),
@@ -90,7 +85,6 @@ fun SubOrderTasksFlowColumn(
 @Composable
 fun SubOrderTaskCard(
     modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel? = null,
     task: DomainSubOrderTaskComplete,
     onClickDetails: (Int) -> Unit,
     cardOffset: Float,
@@ -182,83 +176,38 @@ fun SubOrderTask(
                     stiffness = Spring.StiffnessLow
                 )
             )
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
+            .padding(start = 4.dp, end = 4.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
+                    .padding(start = 4.dp, end = 4.dp)
                     .weight(0.90f),
             ) {
                 Row(
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(0.54f),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                        ) {
-                            Text(
-                                text = "Group:",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.35f)
-                                    .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Text(
-                                text = subOrderTask.characteristic.characteristicGroup.ishElement ?: "-",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.65f)
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                        ) {
-                            Text(
-                                text = "Sub group:",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.35f)
-                                    .padding(top = 2.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Text(
-                                text = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: "-",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 12.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.65f)
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                        }
-
+                    Column(modifier = Modifier.weight(0.54f)) {
+                        ContentWithTitle(
+                            title = "Group:",
+                            contentTextSize = 12.sp,
+                            value = subOrderTask.characteristic.characteristicGroup.ishElement ?: NoString.str,
+                            titleWight = 0.35f
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        ContentWithTitle(
+                            title = "Sub group:",
+                            contentTextSize = 12.sp,
+                            value = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: NoString.str,
+                            titleWight = 0.35f
+                        )
                     }
 
                     TextButton(
                         modifier = Modifier
                             .weight(weight = 0.46f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+                            .padding(start = 3.dp),
                         onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
                         content = {
                             StatusWithPercentage(
@@ -305,7 +254,7 @@ fun MySubOrderTaskPreview() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 0.dp, horizontal = 0.dp),
-            onClickStatus = { a, b -> }
+            onClickStatus = { _, _ -> }
         )
     }
 }

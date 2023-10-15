@@ -16,22 +16,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
-import com.simenko.qmapp.ui.common.SecondLevelSingleRecordDetails
-import com.simenko.qmapp.ui.common.SecondLevelSingleRecordHeader
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
@@ -68,7 +66,8 @@ fun SubOrdersFlowColumn(
                 if (subOrder.subOrder.orderId == parentId) {
 
                     SubOrderCard(
-                        modifier = modifier,
+                        modifier = Modifier.padding(Constants.CARDS_PADDING),
+                        invModel = invModel,
                         subOrder = subOrder,
                         onClickDetails = { onClickDetailsLambda(it) },
                         cardOffset = CARD_OFFSET.dp(),
@@ -96,6 +95,7 @@ fun SubOrdersFlowColumn(
 @Composable
 fun SubOrderCard(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel,
     processControlOnly: Boolean = false,
     subOrder: DomainSubOrderComplete,
     onClickDetails: (Int) -> Unit,
@@ -159,6 +159,7 @@ fun SubOrderCard(
         ) {
             SubOrder(
                 modifier = modifier,
+                invModel = invModel,
                 processControlOnly = processControlOnly,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetails(it) },
@@ -176,6 +177,7 @@ fun SubOrderCard(
 @Composable
 fun SubOrder(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel,
     processControlOnly: Boolean,
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete(),
     onClickDetails: (Int) -> Unit = {},
@@ -255,31 +257,37 @@ fun SubOrder(
                 }
 
 
-                SecondLevelSingleRecordHeader(
-                    "Process:",
-                    StringUtils.concatFourStrings(
+                ContentWithTitle(
+                    title = "Process:",
+                    value = StringUtils.concatFourStrings(
                         subOrder.department.depAbbr,
                         subOrder.subDepartment.subDepAbbr,
                         subOrder.channel.channelAbbr,
                         subOrder.line.lineAbbr
-                    )
+                    ),
+                    titleWight = 0.2f
                 )
-                SecondLevelSingleRecordHeader(
-                    "Product:",
-                    StringUtils.concatTwoStrings1(
+                Spacer(modifier = Modifier.height(4.dp))
+                ContentWithTitle(
+                    title = "Product:",
+                    value = StringUtils.concatTwoStrings1(
                         StringUtils.concatTwoStrings3(
                             subOrder.itemVersionComplete.itemComplete.key.componentKey,
                             subOrder.itemVersionComplete.itemComplete.item.itemDesignation
                         ), subOrder.itemVersionComplete.itemVersion.versionDescription
-                    )
+                    ),
+                    titleWight = 0.2f
                 )
-                SecondLevelSingleRecordHeader(
-                    "Operation:",
-                    StringUtils.concatTwoStrings2(
+                Spacer(modifier = Modifier.height(4.dp))
+                ContentWithTitle(
+                    title = "Operation:",
+                    value = StringUtils.concatTwoStrings2(
                         subOrder.operation.operationAbbr,
                         subOrder.operation.operationDesignation
-                    )
+                    ),
+                    titleWight = 0.2f
                 )
+                Spacer(modifier = Modifier.height(4.dp))
             }
             IconButton(
                 onClick = { onClickDetails(subOrder.subOrder.id) },
@@ -296,6 +304,7 @@ fun SubOrder(
 
         SubOrderDetails(
             modifier = modifier,
+            invModel = invModel,
             subOrder = subOrder
         )
     }
@@ -304,14 +313,19 @@ fun SubOrder(
 @Composable
 fun SubOrderDetails(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel,
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete()
 ) {
     if (subOrder.detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        SecondLevelSingleRecordDetails("Ordered by:", subOrder.orderedBy.fullName)
-        SecondLevelSingleRecordDetails("Created:", getStringDate(subOrder.subOrder.createdDate) ?: NoString.str)
-        SecondLevelSingleRecordDetails("Completed by:", subOrder.completedBy?.fullName ?: "-")
-        SecondLevelSingleRecordDetails("Completed:", getStringDate(subOrder.subOrder.completedDate) ?: NoString.str)
-        SubOrderTasksFlowColumn(modifier = Modifier, parentId = subOrder.subOrder.id)
+        ContentWithTitle(modifier = modifier, title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(4.dp))
+        ContentWithTitle(modifier = modifier, title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(4.dp))
+        ContentWithTitle(modifier = modifier, title = "Completed by:", value = subOrder.completedBy?.fullName ?: NoString.str, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(4.dp))
+        ContentWithTitle(modifier = modifier, title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(4.dp))
+        SubOrderTasksFlowColumn(modifier = Modifier, invModel = invModel, parentId = subOrder.subOrder.id)
     }
 }
