@@ -341,7 +341,7 @@ fun InfoLine(
 fun HeaderWithTitle(
     modifier: Modifier = Modifier,
     titleWight: Float,
-    title: String,
+    title: String? = null,
     text: String? = null,
     content: @Composable (() -> Unit)? = null,
 ) {
@@ -350,14 +350,15 @@ fun HeaderWithTitle(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Start
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(weight = titleWight)
-        )
-
+        title?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(weight = titleWight)
+            )
+        }
         text?.let {
             Text(
                 text = it,
@@ -369,7 +370,6 @@ fun HeaderWithTitle(
                     .padding(start = 3.dp)
             )
         }
-
         content?.let {
             Row(
                 modifier = Modifier
@@ -384,7 +384,7 @@ fun HeaderWithTitle(
 }
 
 @Composable
-fun ContentWithTitle(modifier: Modifier = Modifier, title: String, value: String, titleWight: Float) {
+fun ContentWithTitle(modifier: Modifier = Modifier, title: String, contentTextSize: TextUnit = 14.sp, value: String, titleWight: Float) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.Bottom,
@@ -400,7 +400,7 @@ fun ContentWithTitle(modifier: Modifier = Modifier, title: String, value: String
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = contentTextSize),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -458,60 +458,5 @@ fun StatusWithPercentage(
                 textAlign = TextAlign.Start,
                 modifier = Modifier.padding(start = 3.dp)
             )
-    }
-}
-
-
-@Composable
-fun SecondLevelSingleRecordHeader(title: String, value: String) {
-    Row(
-        modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.20f)
-                .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.80f)
-                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-        )
-    }
-}
-
-@Composable
-fun SecondLevelSingleRecordDetails(title: String, value: String) {
-    Row(
-        modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.22f)
-                .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.78f)
-                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-        )
     }
 }

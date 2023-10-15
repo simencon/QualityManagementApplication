@@ -141,7 +141,7 @@ fun Sample(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Деталь № ",
+                        text = "Sample num.: ",
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

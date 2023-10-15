@@ -57,6 +57,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.ContentWithTitle
+import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
@@ -184,55 +185,22 @@ fun Department(
                     stiffness = Spring.StiffnessLow
                 )
             )
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
+            .padding(start = 4.dp, end = 4.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
+                    .padding(start = 4.dp, end = 4.dp)
                     .weight(0.72f),
             ) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = department.department.depOrder?.toString() ?: NoString.str,
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = "Department:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.31f)
-                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(weight = 0.54f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = department.department.depAbbr ?: NoString.str,
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                        )
-                    }
+                    HeaderWithTitle(modifier = Modifier.weight(0.15f), titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.36f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
                 }
                 ContentWithTitle(modifier = modifier, title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.28f)
                 Spacer(modifier = Modifier.height(4.dp))
@@ -240,7 +208,7 @@ fun Department(
             TextButton(
                 modifier = Modifier
                     .weight(weight = 0.28f)
-                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+                    .padding(start = 3.dp),
                 onClick = { onClickProducts(department.department.id) },
                 content = {
                     Text(
@@ -248,8 +216,6 @@ fun Department(
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                 },
                 enabled = true,
@@ -267,12 +233,7 @@ fun Department(
             ) {
                 Icon(
                     imageVector = if (department.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (department.detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
-                    modifier = Modifier.padding(0.dp)
+                    contentDescription = if (department.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
