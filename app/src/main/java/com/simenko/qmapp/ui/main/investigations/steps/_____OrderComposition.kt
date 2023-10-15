@@ -18,10 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
@@ -31,6 +29,7 @@ import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
@@ -39,7 +38,6 @@ import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
-import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
@@ -178,53 +176,35 @@ fun Order(
     Column(
         modifier = Modifier
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
+            .padding(start = 4.dp, end = 4.dp),
     ) {
         Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
+                    .padding(start = 4.dp, end = 4.dp)
                     .weight(0.90f),
             ) {
                 Row(
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Num.:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    HeaderWithTitle(
                         modifier = Modifier
-                            .weight(weight = 0.11f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .padding(start = 0.dp)
+                            .weight(0.26f),
+                        titleWight = 0.42f,
+                        title = "Num.:",
+                        text = order.order.orderNumber.toString()
                     )
-                    Text(
-                        text = order.order.orderNumber.toString(),
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = "Status:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.13f)
-                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(weight = 0.61f),
-                        verticalAlignment = Alignment.CenterVertically
+
+                    HeaderWithTitle(
+                        modifier = modifier
+                            .padding(start = 3.dp)
+                            .weight(0.74f),
+                        titleWight = 0.18f,
+                        title = "Status:"
                     ) {
                         StatusWithPercentage(
                             status = Pair(order.order.statusId, order.orderStatus.statusDescription),

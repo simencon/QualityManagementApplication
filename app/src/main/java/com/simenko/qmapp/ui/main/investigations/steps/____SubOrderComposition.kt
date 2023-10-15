@@ -29,6 +29,7 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordHeader
 import com.simenko.qmapp.ui.common.StatusWithPercentage
@@ -193,114 +194,50 @@ fun SubOrder(
                     stiffness = Spring.StiffnessLow
                 )
             )
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
+            .padding(start = 4.dp, end = 4.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Column(
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
+                    .padding(start = 4.dp, end = 4.dp)
                     .weight(0.90f),
             ) {
                 Row(
-                    modifier = Modifier
-                        .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
+                    modifier = Modifier.padding(bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(0.54f),
+                        modifier = Modifier.weight(0.54f),
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Num.:",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.2f)
-                                    .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            HeaderWithTitle(
+                                modifier = Modifier.weight(0.5f),
+                                titleWight = 0.40f,
+                                title = "Num.:",
+                                text = if (processControlOnly) subOrder.orderShort.order.orderNumber.toString() else subOrder.subOrder.subOrderNumber.toString()
                             )
-                            Text(
-                                text = when (processControlOnly) {
-                                    false -> subOrder.subOrder.subOrderNumber.toString()
-                                    else -> subOrder.orderShort.order.orderNumber.toString()
-                                },
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
+
+                            HeaderWithTitle(
                                 modifier = Modifier
-                                    .weight(weight = 0.3f)
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Text(
-                                text = "Quantity:",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 10.sp
-                                ),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.33f)
-                                    .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Text(
-                                text = subOrder.subOrder.samplesCount.toString(),
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(weight = 0.17f)
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                                    .padding(start = 3.dp)
+                                    .weight(0.5f),
+                                titleWight = 0.66f,
+                                title = "Quantity:",
+                                text = subOrder.subOrder.samplesCount.toString()
                             )
                         }
                         if (processControlOnly)
-                            Row(
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Reason:",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 10.sp
-                                    ),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .weight(weight = 0.27f)
-                                        .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                                )
-                                Text(
-                                    text = subOrder.orderShort.orderReason.reasonFormalDescript
-                                        ?: "",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .weight(weight = 0.73f)
-                                        .padding(
-                                            top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp
-                                        )
-                                )
-                            }
-
+                            HeaderWithTitle(
+                                titleWight = 0.27f,
+                                title = "Reason:",
+                                text = subOrder.orderShort.orderReason.reasonFormalDescript
+                            )
                     }
 
                     TextButton(
                         modifier = Modifier
                             .weight(weight = 0.46f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+                            .padding(start = 3.dp),
                         onClick = { onClickStatus(subOrder, subOrder.subOrder.completedById) },
                         content = {
                             StatusWithPercentage(
@@ -316,6 +253,8 @@ fun SubOrder(
                         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                     )
                 }
+
+
                 SecondLevelSingleRecordHeader(
                     "Process:",
                     StringUtils.concatFourStrings(
@@ -346,13 +285,11 @@ fun SubOrder(
                 onClick = { onClickDetails(subOrder.subOrder.id) },
                 modifier = Modifier
                     .weight(weight = 0.10f)
-                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     .fillMaxWidth()
             ) {
                 Icon(
                     imageVector = if (subOrder.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (subOrder.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    contentDescription = if (subOrder.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
