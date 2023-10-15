@@ -287,7 +287,7 @@ fun <T> TopLevelSingleRecordMainHeader(
     title: String? = null
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier.padding(start = 8.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -384,6 +384,33 @@ fun HeaderWithTitle(
 }
 
 @Composable
+fun ContentWithTitle(modifier: Modifier = Modifier, title: String, value: String, titleWight: Float) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = titleWight)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(weight = 1f - titleWight)
+                .padding(start = 3.dp)
+        )
+    }
+}
+
+@Composable
 fun StatusWithPercentage(
     status: Pair<Int, String?>,
     result: Triple<Boolean?, Int?, Int?>,
@@ -434,68 +461,11 @@ fun StatusWithPercentage(
     }
 }
 
-@Composable
-fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float = 0.22f) {
-    Row(
-        modifier = Modifier.padding(bottom = 4.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = titleWight)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 1f - titleWight)
-                .padding(start = 3.dp)
-        )
-    }
-}
-
-@Composable
-fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier, titleWight: Float = 0.35f) {
-    Row(
-        modifier = modifier.padding(start = 8.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(weight = titleWight)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 1f - titleWight)
-                .padding(start = 3.dp)
-        )
-    }
-}
 
 @Composable
 fun SecondLevelSingleRecordHeader(title: String, value: String) {
     Row(
-        modifier = Modifier.padding(
-            top = 0.dp,
-            start = 0.dp,
-            end = 0.dp,
-            bottom = 4.dp
-        ),
+        modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

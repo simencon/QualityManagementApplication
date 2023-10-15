@@ -32,8 +32,8 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.ui.dialogs.UserExistDialog
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
@@ -181,6 +181,7 @@ fun User(
 ) {
     Column(
         modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
@@ -190,18 +191,17 @@ fun User(
         if (item.detailsVisibility) {
             val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
             Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            TopLevelSingleRecordDetails("Job role: ", item.jobRole ?: NoString.str, modifier, 0.3f)
-            TopLevelSingleRecordDetails("Department: ", department, modifier, 0.3f)
-            TopLevelSingleRecordDetails("Email: ", StringUtils.getMail(item.email), modifier, 0.3f)
-            TopLevelSingleRecordDetails("Phone num.: ", StringUtils.getMail(item.phoneNumber.toString()), modifier, 0.3f)
-            item.roles?.forEach {
-                TopLevelSingleRecordDetails("System role: ", it, modifier, 0.3f)
-            } ?: TopLevelSingleRecordDetails("System role: ", NoString.str, modifier, 0.3f)
-            TopLevelSingleRecordDetails("Email verified: ", item.isEmailVerified.toString(), modifier, 0.3f)
-            TopLevelSingleRecordDetails("Account expired: ", item.accountNonExpired.toString(), modifier, 0.3f)
-            TopLevelSingleRecordDetails("Account locked: ", item.accountNonLocked.toString(), modifier, 0.3f)
-            TopLevelSingleRecordDetails("Credentials expired: ", item.credentialsNonExpired.toString(), modifier, 0.3f)
-            TopLevelSingleRecordDetails("Enabled: ", item.enabled.toString(), modifier, 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Job role: ", value = item.jobRole ?: NoString.str, titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Department: ", value = department, titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Email: ", value = StringUtils.getMail(item.email), titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Phone num.: ", value = StringUtils.getMail(item.phoneNumber.toString()), titleWight = 0.3f)
+            item.roles?.forEach { ContentWithTitle(modifier = modifier, title = "System role: ", value = it, titleWight = 0.3f) }
+                ?: ContentWithTitle(modifier = modifier, title = "System role: ", value = NoString.str, titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Email verified: ", value = item.isEmailVerified.toString(), titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Account expired: ", value = item.accountNonExpired.toString(), titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Account locked: ", value = item.accountNonLocked.toString(), titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Credentials expired: ", value = item.credentialsNonExpired.toString(), titleWight = 0.3f)
+            ContentWithTitle(modifier = modifier, title = "Enabled: ", value = item.enabled.toString(), titleWight = 0.3f)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
