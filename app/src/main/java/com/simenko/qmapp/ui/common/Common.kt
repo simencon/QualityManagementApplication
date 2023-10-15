@@ -338,34 +338,79 @@ fun InfoLine(
 }
 
 @Composable
+fun HeaderWithTitle(
+    modifier: Modifier = Modifier,
+    titleWight: Float,
+    title: String,
+    text: String? = null,
+    content: @Composable (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(weight = titleWight)
+        )
+
+        text?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(weight = 1f - titleWight)
+                    .padding(start = 3.dp)
+            )
+        }
+
+        content?.let {
+            Row(
+                modifier = Modifier
+                    .padding(start = 3.dp)
+                    .weight(weight = 1 - titleWight),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                it()
+            }
+        }
+    }
+}
+
+@Composable
 fun StatusWithPercentage(
     status: Pair<Int, String?>,
     result: Triple<Boolean?, Int?, Int?>,
     onlyInt: Boolean = false,
     percentageTextSize: TextUnit = 12.sp
 ) {
-    if (status.second!= EmptyString.str)
+    if (status.second != EmptyString.str)
         Text(
             text = status.second ?: NoString.str,
             style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+            overflow = TextOverflow.Ellipsis
         )
     if (status.first == 3) {
-        if (status.second!= EmptyString.str)
+        if (status.second != EmptyString.str)
             Text(
                 text = "(",
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                modifier = Modifier.padding(start = 3.dp)
             )
         Icon(
             imageVector = if (result.first != false) Icons.Filled.Check else Icons.Filled.Close,
             contentDescription = if (result.first != false) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
+            modifier = Modifier.height(20.dp),
             tint = if (result.first != false) Color.Green else Color.Red,
         )
         val conformity = (result.second?.toFloat()?.let { result.third?.toFloat()?.div(it) }?.times(100)) ?: 0.0f
@@ -375,16 +420,16 @@ fun StatusWithPercentage(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+            modifier = Modifier.padding(start = 3.dp)
         )
-        if (status.second!= EmptyString.str)
+        if (status.second != EmptyString.str)
             Text(
                 text = ")",
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                modifier = Modifier.padding(start = 3.dp)
             )
     }
 }
@@ -392,13 +437,9 @@ fun StatusWithPercentage(
 @Composable
 fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float = 0.22f) {
     Row(
-        modifier = Modifier.padding(
-            top = 0.dp,
-            start = 0.dp,
-            end = 0.dp,
-            bottom = 4.dp
-        ),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.padding(bottom = 4.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start
     ) {
         Text(
             text = title,
@@ -407,7 +448,6 @@ fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float =
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(weight = titleWight)
-                .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
         )
         Text(
             text = value,
@@ -415,8 +455,8 @@ fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float =
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 1 - titleWight)
-                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                .weight(weight = 1f - titleWight)
+                .padding(start = 3.dp)
         )
     }
 }
@@ -433,8 +473,7 @@ fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = titleWight)
+            modifier = Modifier.weight(weight = titleWight)
         )
         Text(
             text = value,
@@ -442,7 +481,7 @@ fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 1 - titleWight)
+                .weight(weight = 1f - titleWight)
                 .padding(start = 3.dp)
         )
     }

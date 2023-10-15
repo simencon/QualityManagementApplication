@@ -29,6 +29,7 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
@@ -274,46 +275,22 @@ fun SubOrderTask(
                     )
                 }
 
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Characteristic:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.253f)
-                            .padding(top = 4.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = subOrderTask.characteristic.characteristic.charDescription ?: "-",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.747f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
+                HeaderWithTitle(
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    titleWight = 0.253f,
+                    title = "Characteristic:",
+                    text = subOrderTask.characteristic.characteristic.charDescription ?: NoString.str
+                )
             }
             IconButton(
                 onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
                 modifier = Modifier
                     .weight(weight = 0.10f)
-                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext/*NavigateBefore*/,
+                    imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
                     contentDescription = if (subOrderTask.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
         }
