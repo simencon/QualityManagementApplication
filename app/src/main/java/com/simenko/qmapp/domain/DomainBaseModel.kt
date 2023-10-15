@@ -28,6 +28,7 @@ value class SelectedNumber(val num: Int)
 
 val NoRecord = SelectedNumber(-1)
 val ZeroValue = SelectedNumber(0)
+val StatusDoneId = SelectedNumber(3)
 val ProcessControlOrderTypeId = SelectedNumber(3)
 
 val FirstTabId = NoRecord

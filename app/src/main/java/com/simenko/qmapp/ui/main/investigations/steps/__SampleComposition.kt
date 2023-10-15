@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,31 +25,28 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.StatusDoneId
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
+import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
-import kotlin.math.roundToInt
 
 private const val TAG = "SampleComposition"
 
 @Composable
 fun SampleComposition(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
 
     val observeCurrentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
-
     val items by invModel.samplesSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> {
-        {
-            invModel.setSamplesVisibility(dId = SelectedNumber(it.sample.id))
-        }
-    }
+    val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> { { invModel.setSamplesVisibility(dId = SelectedNumber(it.sample.id)) } }
 
     LazyColumn(
         modifier = Modifier.animateContentSize(
@@ -107,7 +101,7 @@ fun SampleCard(
     ) {
         Sample(
             modifier = modifier,
-            appModel = appModel,
+            invModel = appModel,
             sample = sample,
             onClickDetails = { onClickDetails(sample) }
         )
@@ -117,7 +111,7 @@ fun SampleCard(
 @Composable
 fun Sample(
     modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel? = null,
+    invModel: InvestigationsViewModel = hiltViewModel(),
     sample: DomainSampleComplete = DomainSampleComplete(),
     onClickDetails: () -> Unit = {},
 ) {
@@ -129,36 +123,13 @@ fun Sample(
             modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = if (sample.sampleResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
-                contentDescription = if (sample.sampleResult.isOk != false) {
-                    stringResource(R.string.show_less)
-                } else {
-                    stringResource(R.string.show_more)
-                },
-                modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                tint = if (sample.sampleResult.isOk != false) {
-                    Color.Green
-                } else {
-                    Color.Red
-                },
+            StatusWithPercentage(
+                status = Pair(StatusDoneId.num, EmptyString.str),
+                result = Triple(sample.sampleResult.isOk, sample.sampleResult.total, sample.sampleResult.good),
+                onlyInt = true,
+                percentageTextSize = 14.sp
             )
 
-            val conformity = (sample.sampleResult.total?.toFloat()?.let {
-                sample.sampleResult.good?.toFloat()
-                    ?.div(it)
-            }?.times(100)) ?: 0.0f
-
-            Text(
-                text = conformity.roundToInt().toString() + "%",
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .weight(weight = 0.5f)
-                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-            )
             Column(
                 modifier = Modifier
                     .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
@@ -199,20 +170,13 @@ fun Sample(
             ) {
                 Icon(
                     imageVector = if (sample.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (sample.detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
+                    contentDescription = if (sample.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
                     modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
         }
 
-        if (appModel != null && sample.detailsVisibility)
-            ResultsComposition(
-                modifier = modifier
-            )
+        if (sample.detailsVisibility) ResultsComposition(modifier = modifier, invModel = invModel)
     }
 }
 

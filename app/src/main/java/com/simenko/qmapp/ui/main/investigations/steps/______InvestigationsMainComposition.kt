@@ -118,7 +118,7 @@ fun InvestigationsMainComposition(
                 Orders(modifier = modifier.width(screenSizes.second), invModel = invModel)
 
             if (currentTask != NoRecord)
-                SampleComposition(modifier = modifier.width(screenSizes.third))
+                SampleComposition(modifier = modifier.width(screenSizes.third), invModel = invModel)
         }
 
         if (showStatusChangeDialog.value == true)

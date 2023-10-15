@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -32,6 +31,7 @@ import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.SecondLevelSingleRecordHeader
+import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -106,12 +106,7 @@ fun SubOrderCard(
 ) {
     Log.d(TAG, "SubOrderCard: ${subOrder.orderShort.order.orderNumber}")
 
-    val transitionState = remember {
-        MutableTransitionState(subOrder.isExpanded).apply {
-            targetState = !subOrder.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(subOrder.isExpanded).apply { targetState = !subOrder.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
@@ -284,12 +279,7 @@ fun SubOrder(
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier
                                         .weight(weight = 0.27f)
-                                        .padding(
-                                            top = 5.dp,
-                                            start = 0.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
+                                        .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                                 )
                                 Text(
                                     text = subOrder.orderShort.orderReason.reasonFormalDescript
@@ -300,10 +290,7 @@ fun SubOrder(
                                     modifier = Modifier
                                         .weight(weight = 0.73f)
                                         .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
+                                            top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp
                                         )
                                 )
                             }
@@ -314,97 +301,13 @@ fun SubOrder(
                         modifier = Modifier
                             .weight(weight = 0.46f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
-                        onClick = {
-                            onClickStatus(
-                                subOrder,
-                                subOrder.subOrder.completedById
-                            )
-                        },
+                        onClick = { onClickStatus(subOrder, subOrder.subOrder.completedById) },
                         content = {
-                            Text(
-                                text = subOrder.status.statusDescription ?: "-",
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            StatusWithPercentage(
+                                status = Pair(subOrder.subOrder.statusId, subOrder.status.statusDescription),
+                                result = Triple(subOrder.subOrderResult.isOk, subOrder.subOrderResult.total, subOrder.subOrderResult.good),
+                                onlyInt = true
                             )
-                            if (subOrder.subOrder.statusId == 3) {
-                                Text(
-                                    text = "(",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
-                                )
-                                Icon(
-                                    imageVector = if (subOrder.subOrderResult.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
-                                    contentDescription = if (subOrder.subOrderResult.isOk != false) {
-                                        stringResource(R.string.show_less)
-                                    } else {
-                                        stringResource(R.string.show_more)
-                                    },
-                                    modifier = Modifier.padding(
-                                        top = 0.dp,
-                                        start = 0.dp,
-                                        end = 0.dp,
-                                        bottom = 0.dp
-                                    ),
-                                    tint = if (subOrder.subOrderResult.isOk != false) {
-                                        Color.Green
-                                    } else {
-                                        Color.Red
-                                    },
-                                )
-                                val conformity = (subOrder.subOrderResult.total?.toFloat()?.let {
-                                    subOrder.subOrderResult.good?.toFloat()
-                                        ?.div(it)
-                                }?.times(100)) ?: 0.0f
-
-                                Text(
-                                    text = when {
-                                        !conformity.isNaN() -> {
-                                            conformity.roundToInt().toString() + "%"
-                                        }
-
-                                        else -> {
-                                            ""
-                                        }
-                                    },
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
-                                )
-                                Text(
-                                    text = ")",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.Start,
-                                    modifier = Modifier
-                                        .padding(
-                                            top = 0.dp,
-                                            start = 3.dp,
-                                            end = 0.dp,
-                                            bottom = 0.dp
-                                        )
-                                )
-                            }
                         },
                         enabled = true,
                         shape = MaterialTheme.shapes.medium,
@@ -448,11 +351,7 @@ fun SubOrder(
             ) {
                 Icon(
                     imageVector = if (subOrder.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (subOrder.detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
+                    contentDescription = if (subOrder.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
                     modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             }

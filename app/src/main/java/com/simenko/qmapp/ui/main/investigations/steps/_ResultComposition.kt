@@ -43,8 +43,8 @@ private const val TAG = "ResultComposition"
 @Composable
 fun ResultsComposition(
     modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
     Log.d(TAG, "InvestigationsViewModel: $invModel")
 
     val currentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
@@ -66,12 +66,9 @@ fun ResultsComposition(
         )
     ) {
         items.forEach { result ->
-            if (result.result.taskId == currentSubOrderTask.num &&
-                result.result.sampleId == currentSample?.num
-            ) {
+            if (result.result.taskId == currentSubOrderTask.num && result.result.sampleId == currentSample?.num) {
                 ResultCard(
                     modifier = modifier,
-                    appModel = invModel,
                     result = result,
                     onSelect = { onClickDetailsLambda(it) },
                     onChangeValue = { onChangeValueLambda(it) }
@@ -85,7 +82,6 @@ fun ResultsComposition(
 @Composable
 fun ResultCard(
     modifier: Modifier = Modifier,
-    appModel: InvestigationsViewModel,
     result: DomainResultComplete,
     onSelect: (Int) -> Unit,
     onChangeValue: (DomainResultComplete) -> Unit,
@@ -122,14 +118,7 @@ fun Result(
     onSelect: (Int) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var text: String by rememberSaveable {
-        mutableStateOf(result.result.result.let {
-            when (it) {
-                null -> "-"
-                else -> it.toString()
-            }
-        })
-    }
+    var text: String by rememberSaveable { mutableStateOf(result.result.result.let { it?.toString() ?: NoString.str }) }
 
     Column(
         modifier = Modifier
@@ -141,17 +130,9 @@ fun Result(
         ) {
             Icon(
                 imageVector = if (result.result.isOk != false) Icons.Filled.Check else Icons.Filled.Close,
-                contentDescription = if (result.result.isOk != false) {
-                    stringResource(R.string.show_less)
-                } else {
-                    stringResource(R.string.show_more)
-                },
+                contentDescription = if (result.result.isOk != false) stringResource(R.string.show_less) else stringResource(R.string.show_more),
                 modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-                tint = if (result.result.isOk != false) {
-                    Color.Green
-                } else {
-                    Color.Red
-                },
+                tint = if (result.result.isOk != false) Color.Green else Color.Red
             )
             Column(
                 modifier = Modifier

@@ -16,10 +16,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -33,6 +31,7 @@ import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
 import com.simenko.qmapp.ui.dialogs.*
@@ -44,7 +43,6 @@ import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
-import kotlin.math.round
 import kotlin.math.roundToInt
 
 private const val TAG = "OrderComposition"
@@ -163,24 +161,7 @@ fun OrderCard(
             Order(
                 modifier = modifier,
                 invModel = invModel,
-
-                orderId = order.order.id,
-
-                orderNumber = order.order.orderNumber.toString(),
-                statusId = order.order.statusId,
-                statusDescription = order.orderStatus.statusDescription ?: "-",
-                isOk = order.orderResult.isOk ?: true,
-                total = order.orderResult.total,
-                good = order.orderResult.good,
-                typeDescription = order.orderType.typeDescription ?: "-",
-                reasonFormalDescription = order.orderReason.reasonFormalDescript ?: "-",
-                customerDepAbbr = order.customer.depAbbr ?: "-",
-
-                detailsVisibility = order.detailsVisibility,
-                placerFullName = order.orderPlacer.fullName,
-                createdDate = order.order.createdDate,
-                completedDate = order.order.completedDate,
-
+                order = order,
                 onClickDetails = { onClickDetails(it) }
             )
         }
@@ -191,33 +172,12 @@ fun OrderCard(
 fun Order(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
-
-    orderId: Int = 0,
-
-    orderNumber: String = "",
-    statusId: Int = 0,
-    statusDescription: String = "",
-    isOk: Boolean = true,
-    total: Int? = 1,
-    good: Int? = 1,
-    typeDescription: String = "",
-    reasonFormalDescription: String = "",
-    customerDepAbbr: String = "",
-
-    detailsVisibility: Boolean = false,
-    placerFullName: String = "",
-    createdDate: Long = getMillisecondsDate("2022-12-15T22:24:43.666+02:00")!!,
-    completedDate: Long? = getMillisecondsDate("2022-12-15T22:24:43.666+02:00"),
+    order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
             .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
     ) {
         Row(
@@ -230,12 +190,7 @@ fun Order(
                     .weight(0.90f),
             ) {
                 Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
+                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -248,7 +203,7 @@ fun Order(
                             .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
-                        text = orderNumber,
+                        text = order.order.orderNumber.toString(),
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -258,9 +213,7 @@ fun Order(
                     )
                     Text(
                         text = "Status:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
@@ -269,98 +222,32 @@ fun Order(
                     )
                     Row(
                         modifier = Modifier
-                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                             .weight(weight = 0.61f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = statusDescription,
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                        StatusWithPercentage(
+                            status = Pair(order.order.statusId, order.orderStatus.statusDescription),
+                            result = Triple(order.orderResult.isOk, order.orderResult.total, order.orderResult.good)
                         )
-                        if (statusId == 3) {
-                            Text(
-                                text = "(",
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Icon(
-                                imageVector = if (isOk) Icons.Filled.Check else Icons.Filled.Close,
-                                contentDescription = if (isOk) {
-                                    stringResource(R.string.show_less)
-                                } else {
-                                    stringResource(R.string.show_more)
-                                },
-                                modifier = Modifier.padding(
-                                    top = 0.dp,
-                                    start = 0.dp,
-                                    end = 0.dp,
-                                    bottom = 0.dp
-                                ),
-                                tint = if (isOk) {
-                                    Color.Green
-                                } else {
-                                    Color.Red
-                                },
-                            )
-                            val conformity = (total?.toFloat()?.let {
-                                good?.toFloat()
-                                    ?.div(it)
-                            }?.times(100)) ?: 0.0f
-
-                            Text(
-                                text = when {
-                                    !conformity.isNaN() -> {
-                                        (round(conformity * 10) / 10).toString() + "%"
-                                    }
-
-                                    else -> {
-                                        ""
-                                    }
-                                },
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Text(
-                                text = ")",
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                        }
                     }
                 }
-                TopLevelSingleRecordHeader("Type/reason:", StringUtils.concatTwoStrings(typeDescription, reasonFormalDescription))
-                TopLevelSingleRecordHeader("Customer:", customerDepAbbr)
+                TopLevelSingleRecordHeader(
+                    title = "Type/reason:",
+                    value = StringUtils.concatTwoStrings(order.orderType.typeDescription ?: NoString.str, order.orderReason.reasonFormalDescript ?: NoString.str)
+                )
+                TopLevelSingleRecordHeader("Customer:", order.customer.depAbbr ?: NoString.str)
             }
             IconButton(
-                onClick = { onClickDetails(orderId) },
+                onClick = { onClickDetails(order.order.id) },
                 modifier = Modifier
                     .weight(weight = 0.10f)
                     .padding(0.dp)
                     .fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
+                    imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (order.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
                     modifier = Modifier.padding(0.dp)
                 )
             }
@@ -369,11 +256,11 @@ fun Order(
         OrderDetails(
             modifier = modifier,
             invModel = invModel,
-            orderId = orderId,
-            detailsVisibility = detailsVisibility,
-            placerFullName = placerFullName,
-            createdDate = createdDate,
-            completedDate = completedDate
+            orderId = order.order.id,
+            detailsVisibility = order.detailsVisibility,
+            placerFullName = order.orderPlacer.fullName,
+            createdDate = order.order.createdDate,
+            completedDate = order.order.completedDate
         )
     }
 }
