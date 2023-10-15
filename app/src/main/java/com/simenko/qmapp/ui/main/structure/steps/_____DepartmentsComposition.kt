@@ -22,10 +22,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -33,14 +36,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -148,6 +155,7 @@ fun DepartmentCard(
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(department.department.id) { detectTapGestures(onDoubleTap = { onClickActions(department.department.id) }) }
+                .padding(all = 3.dp)
         ) {
             Department(
                 modifier = modifier,
@@ -164,8 +172,14 @@ fun Department(
     modifier: Modifier = Modifier,
     viewModel: CompanyStructureViewModel = hiltViewModel(),
     department: DomainDepartmentComplete,
-    onClickDetails: (Int) -> Unit = {}
+    onClickDetails: (Int) -> Unit = {},
+    onClickProducts: (Int) -> Unit = {},
 ) {
+    val containerColor = when (department.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
     Column(
         modifier = Modifier
             .animateContentSize(
@@ -183,28 +197,19 @@ fun Department(
             Column(
                 modifier = Modifier
                     .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
-                    .weight(0.90f),
+                    .weight(0.72f),
             ) {
                 Row(
                     modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Order:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.11f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
                         text = department.department.depOrder?.toString() ?: NoString.str,
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.11f)
+                            .weight(weight = 0.15f)
                             .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Text(
@@ -215,13 +220,13 @@ fun Department(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
-                            .weight(weight = 0.22f)
+                            .weight(weight = 0.31f)
                             .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
                     )
                     Row(
                         modifier = Modifier
                             .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(weight = 0.56f),
+                            .weight(weight = 0.54f),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -233,8 +238,29 @@ fun Department(
                         )
                     }
                 }
-                TopLevelSingleRecordHeader("Functions:", department.department.depOrganization ?: NoString.str, 0.20f)
+                TopLevelSingleRecordHeader("Functions:", department.department.depOrganization ?: NoString.str, 0.28f)
             }
+            TextButton(
+                modifier = Modifier
+                    .weight(weight = 0.28f)
+                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp),
+                onClick = { onClickProducts(department.department.id) },
+                content = {
+                    Text(
+                        text = "Products",
+                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
+                    )
+                },
+                enabled = true,
+                shape = MaterialTheme.shapes.medium,
+                elevation = ButtonDefaults.buttonElevation(4.dp),
+                border = null,
+                colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
+            )
             IconButton(
                 onClick = { onClickDetails(department.department.id) },
                 modifier = Modifier
