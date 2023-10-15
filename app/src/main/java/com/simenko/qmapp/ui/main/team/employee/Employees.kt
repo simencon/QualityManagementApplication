@@ -33,7 +33,7 @@ import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.ContentWithTitle
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
+import com.simenko.qmapp.ui.common.SimpleRecordHeader
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
@@ -172,7 +172,7 @@ fun Employee(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, { onClickDetails(it.toInt()) })
+        SimpleRecordHeader(modifier, item, item.detailsVisibility) { onClickDetails(it.toInt()) }
         if (item.detailsVisibility) {
             val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
             Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)

@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -41,8 +40,6 @@ import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
-
-private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
@@ -103,7 +100,6 @@ fun OrderCard(
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    Log.d(TAG, "OrderCardLog: ${order.order.orderNumber}")
     val transitionState = remember {
         MutableTransitionState(order.isExpanded).apply {
             targetState = !order.isExpanded
@@ -190,14 +186,11 @@ fun Order(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     HeaderWithTitle(
-                        modifier = Modifier
-                            .padding(start = 0.dp)
-                            .weight(0.26f),
+                        modifier = Modifier.weight(0.26f),
                         titleWight = 0.42f,
                         title = "Num.:",
                         text = order.order.orderNumber.toString()
                     )
-
                     HeaderWithTitle(
                         modifier = modifier
                             .padding(start = 3.dp)
