@@ -32,7 +32,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
@@ -167,18 +167,18 @@ fun Employee(
 ) {
     Column(
         modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp)
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
         TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, { onClickDetails(it.toInt()) })
         if (item.detailsVisibility) {
-            val dep =
-                item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
+            val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
             Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            TopLevelSingleRecordDetails("Job role:", item.teamMember.jobRole, modifier, 0.2f)
-            TopLevelSingleRecordDetails("Department:", dep, modifier, 0.2f)
-            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.teamMember.email), modifier, 0.2f)
+            ContentWithTitle(modifier = modifier, title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
+            ContentWithTitle(modifier = modifier, title = "Department:", value = dep, titleWight = 0.2f)
+            ContentWithTitle(modifier = modifier, title = "Email:", value = StringUtils.getMail(item.teamMember.email), titleWight = 0.2f)
         }
     }
 }

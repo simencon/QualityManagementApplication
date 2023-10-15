@@ -31,8 +31,7 @@ import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -212,11 +211,14 @@ fun Order(
                         )
                     }
                 }
-                TopLevelSingleRecordHeader(
+                ContentWithTitle(
                     title = "Type/reason:",
-                    value = StringUtils.concatTwoStrings(order.orderType.typeDescription ?: NoString.str, order.orderReason.reasonFormalDescript ?: NoString.str)
+                    value = StringUtils.concatTwoStrings(order.orderType.typeDescription ?: NoString.str, order.orderReason.reasonFormalDescript ?: NoString.str),
+                    titleWight = 0.22f
                 )
-                TopLevelSingleRecordHeader("Customer:", order.customer.depAbbr ?: NoString.str)
+                Spacer(modifier = Modifier.height(4.dp))
+                ContentWithTitle(title = "Customer:", value = order.customer.depAbbr ?: NoString.str, titleWight = 0.22f)
+                Spacer(modifier = Modifier.height(4.dp))
             }
             IconButton(
                 onClick = { onClickDetails(order.order.id) },
@@ -258,9 +260,9 @@ fun OrderDetails(
 
     if (detailsVisibility) {
         Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        TopLevelSingleRecordDetails("Initiated by:", placerFullName, modifier)
-        TopLevelSingleRecordDetails("Initiation date:", getStringDate(createdDate) ?: NoString.str, modifier)
-        TopLevelSingleRecordDetails("Completion date:", getStringDate(completedDate) ?: NoString.str, modifier)
+        ContentWithTitle(modifier = modifier, title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
+        ContentWithTitle(modifier = modifier, title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
+        ContentWithTitle(modifier = modifier, title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
         SubOrdersFlowColumn(modifier = Modifier, invModel = invModel, parentId = orderId)
     }
 }

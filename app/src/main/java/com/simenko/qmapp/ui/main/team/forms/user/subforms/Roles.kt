@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -56,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
@@ -237,7 +238,9 @@ fun Role(item: DomainUserRole) {
     Column(
         modifier = Modifier.padding(start = 4.dp),
     ) {
-        TopLevelSingleRecordHeader("Function / Role level:", concatTwoStrings(item.function, item.roleLevel), 0.35f)
-        TopLevelSingleRecordHeader("Access level:", item.accessLevel, 0.35f)
+        ContentWithTitle(title = "Function / Role level:", value = concatTwoStrings(item.function, item.roleLevel), titleWight = 0.35f)
+        Spacer(modifier = Modifier.height(4.dp))
+        ContentWithTitle(title = "Access level:", value = item.accessLevel, titleWight = 0.35f)
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }
