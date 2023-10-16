@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.dp
 object Constants {
 
     val CARDS_PADDING: PaddingValues = PaddingValues(all = 2.dp)
-    const val DEFAULT_SPACE = 4
+    const val DEFAULT_SPACE = 6
     const val ACTION_ITEM_SIZE = 45
     const val CARD_OFFSET = 45f//135f
     const val TOP_TAB_ROW_HEIGHT = 40
@@ -17,19 +17,12 @@ object Constants {
     /**
      * To update local DB only in this range of Order Numbers
      * */
-    const val BTN_ORDER_ID = 1681452721020L
-    const val TOP_ORDER_ID = 1684923458020L
 
     const val UI_SAFETY_GAP = 100
     const val UI_TOTAL_VISIBLE = 10
 
-    const val INITIAL_UPDATE_PERIOD_H = 24L
-
     const val SYNC_NOTIFICATION_CHANNEL_ID = "sync_notification_channel_qm_app"
     const val SYNC_NOTIFICATION_CHANNEL_NAME = "Entity synchronization"
-
-    const val NOTIFICATION_ID_KEY = "notificationIdKey"
-    const val NOTIFICATION_ID = 0
 
     const val DATABASE_NAME = "QualityManagementDB"
 

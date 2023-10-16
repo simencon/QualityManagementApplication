@@ -164,12 +164,7 @@ fun Order(
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    HeaderWithTitle(
-                        modifier = Modifier.weight(0.26f),
-                        titleWight = 0.42f,
-                        title = "Num.:",
-                        text = order.order.orderNumber.toString()
-                    )
+                    HeaderWithTitle(modifier = Modifier.weight(0.26f), titleWight = 0.42f, title = "Num.:", text = order.order.orderNumber.toString())
                     HeaderWithTitle(
                         modifier = Modifier
                             .padding(start = DEFAULT_SPACE.dp)
@@ -202,7 +197,6 @@ fun Order(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         OrderDetails(
             invModel = invModel,
             orderId = order.order.id,
@@ -224,12 +218,9 @@ fun OrderDetails(
     completedDate: Long? = null
 ) {
     if (detailsVisibility) {
-        Divider(
-            modifier = Modifier
-                .height(1.dp)
-                .padding(horizontal = DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
-        )
         Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
