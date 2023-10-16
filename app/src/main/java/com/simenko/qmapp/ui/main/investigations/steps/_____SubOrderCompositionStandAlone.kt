@@ -73,7 +73,6 @@ fun SubOrdersStandAlone(
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
             SubOrderCard(
-                modifier = modifier.padding(CARDS_PADDING),
                 invModel = invModel,
                 processControlOnly = true,
                 subOrder = subOrder,
