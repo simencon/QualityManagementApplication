@@ -31,7 +31,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
@@ -110,7 +109,6 @@ fun UserForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RolesHeader(
-                modifier = Modifier.padding(Constants.CARDS_PADDING),
                 userRoles = userRoles,
                 userRolesError = userErrors.rolesError,
                 onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
@@ -119,7 +117,6 @@ fun UserForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             TrueFalseField(
-                modifier = Modifier.padding(Constants.CARDS_PADDING),
                 user = user,
                 onSwitch = { viewModel.setUserIsEnabled(it) },
                 isError = userErrors.enabledError

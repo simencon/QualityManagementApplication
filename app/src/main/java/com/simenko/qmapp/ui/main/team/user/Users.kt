@@ -138,7 +138,7 @@ fun UserCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(all = DEFAULT_SPACE.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickEdit(item.email) },

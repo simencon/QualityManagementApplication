@@ -73,9 +73,7 @@ fun Departments(
 
     val listState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
-        viewModel.mainPageHandler.setupMainPage(0, true)
-    }
+    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
     LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.department.id }) { department ->
@@ -102,12 +100,7 @@ fun DepartmentCard(
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(department.isExpanded).apply {
-            targetState = !department.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(department.isExpanded).apply { targetState = !department.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
@@ -179,12 +172,7 @@ fun Department(
 
     Column(
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
             .padding(start = 4.dp, end = 4.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
