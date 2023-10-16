@@ -53,16 +53,19 @@ fun ResultsComposition(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setResultsVisibility(dId = SelectedNumber(it)) } }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> { { invModel.editResult(it.result) } }
 
-    FlowRow {
-        items.forEach { result ->
-            if (result.result.taskId == currentSubOrderTask.num && result.result.sampleId == currentSample?.num) {
-                ResultCard(
-                    result = result,
-                    onSelect = { onClickDetailsLambda(it) },
-                    onChangeValue = { onChangeValueLambda(it) }
-                )
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+        FlowRow {
+            items.forEach { result ->
+                if (result.result.taskId == currentSubOrderTask.num && result.result.sampleId == currentSample?.num) {
+                    ResultCard(
+                        result = result,
+                        onSelect = { onClickDetailsLambda(it) },
+                        onChangeValue = { onChangeValueLambda(it) }
+                    )
+                }
             }
         }
+        Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
     }
 }
 
@@ -85,7 +88,7 @@ fun ResultCard(
         border = BorderStroke(width = 1.dp, borderColor),
         elevation = CardDefaults.cardElevation(4.dp),
         modifier = Modifier
-            .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
+            .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
             .fillMaxWidth()
     ) {
         Result(
