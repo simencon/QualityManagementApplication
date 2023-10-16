@@ -28,6 +28,7 @@ import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
@@ -83,8 +84,8 @@ fun SubOrdersFlowColumn(
         }
         Divider(modifier = modifier.height(0.dp))
         FloatingActionButton(
+            modifier = Modifier.padding(all = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            modifier = Modifier.padding(vertical = 4.dp),
             onClick = { onClickAddLambda(parentId) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
@@ -149,6 +150,7 @@ fun SubOrderCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
+                .padding(horizontal = Constants.DEFAULT_SPACE.dp, vertical = (Constants.DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(subOrder.subOrder.id) {
@@ -158,7 +160,6 @@ fun SubOrderCard(
                 }
         ) {
             SubOrder(
-                modifier = modifier,
                 invModel = invModel,
                 processControlOnly = processControlOnly,
                 subOrder = subOrder,
@@ -176,7 +177,6 @@ fun SubOrderCard(
 
 @Composable
 fun SubOrder(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel,
     processControlOnly: Boolean,
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete(),
@@ -190,27 +190,13 @@ fun SubOrder(
 
     Column(
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-            .padding(start = 4.dp, end = 4.dp),
+            .padding(all = Constants.DEFAULT_SPACE.dp)
+            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(
-                modifier = Modifier
-                    .padding(start = 4.dp, end = 4.dp)
-                    .weight(0.90f),
-            ) {
-                Row(
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(0.54f),
-                    ) {
+            Column(modifier = Modifier.weight(0.90f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(0.54f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             HeaderWithTitle(
                                 modifier = Modifier.weight(0.5f),
@@ -218,28 +204,29 @@ fun SubOrder(
                                 title = "Num.:",
                                 text = if (processControlOnly) subOrder.orderShort.order.orderNumber.toString() else subOrder.subOrder.subOrderNumber.toString()
                             )
-
                             HeaderWithTitle(
                                 modifier = Modifier
-                                    .padding(start = 3.dp)
+                                    .padding(start = DEFAULT_SPACE.dp)
                                     .weight(0.5f),
                                 titleWight = 0.66f,
                                 title = "Quantity:",
                                 text = subOrder.subOrder.samplesCount.toString()
                             )
                         }
-                        if (processControlOnly)
+                        if (processControlOnly) {
+                            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                             HeaderWithTitle(
                                 titleWight = 0.27f,
                                 title = "Reason:",
                                 text = subOrder.orderShort.orderReason.reasonFormalDescript
                             )
+                        }
                     }
 
                     TextButton(
                         modifier = Modifier
                             .weight(weight = 0.46f)
-                            .padding(start = 3.dp),
+                            .padding(start = DEFAULT_SPACE.dp),
                         onClick = { onClickStatus(subOrder, subOrder.subOrder.completedById) },
                         content = {
                             StatusWithPercentage(
@@ -255,8 +242,7 @@ fun SubOrder(
                         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                     )
                 }
-
-
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(
                     title = "Process:",
                     value = StringUtils.concatFourStrings(
@@ -267,27 +253,21 @@ fun SubOrder(
                     ),
                     titleWight = 0.2f
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(
                     title = "Product:",
                     value = StringUtils.concatTwoStrings1(
-                        StringUtils.concatTwoStrings3(
-                            subOrder.itemVersionComplete.itemComplete.key.componentKey,
-                            subOrder.itemVersionComplete.itemComplete.item.itemDesignation
-                        ), subOrder.itemVersionComplete.itemVersion.versionDescription
+                        StringUtils.concatTwoStrings3(subOrder.itemVersionComplete.itemComplete.key.componentKey, subOrder.itemVersionComplete.itemComplete.item.itemDesignation),
+                        subOrder.itemVersionComplete.itemVersion.versionDescription
                     ),
                     titleWight = 0.2f
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(
                     title = "Operation:",
-                    value = StringUtils.concatTwoStrings2(
-                        subOrder.operation.operationAbbr,
-                        subOrder.operation.operationDesignation
-                    ),
+                    value = StringUtils.concatTwoStrings2(subOrder.operation.operationAbbr, subOrder.operation.operationDesignation),
                     titleWight = 0.2f
                 )
-                Spacer(modifier = Modifier.height(4.dp))
             }
             IconButton(
                 onClick = { onClickDetails(subOrder.subOrder.id) },
@@ -301,9 +281,8 @@ fun SubOrder(
                 )
             }
         }
-
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         SubOrderDetails(
-            modifier = modifier,
             invModel = invModel,
             subOrder = subOrder
         )
@@ -312,20 +291,19 @@ fun SubOrder(
 
 @Composable
 fun SubOrderDetails(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel,
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete()
 ) {
     if (subOrder.detailsVisibility) {
-        Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        ContentWithTitle(modifier = modifier, title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(4.dp))
-        ContentWithTitle(modifier = modifier, title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(4.dp))
-        ContentWithTitle(modifier = modifier, title = "Completed by:", value = subOrder.completedBy?.fullName ?: NoString.str, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(4.dp))
-        ContentWithTitle(modifier = modifier, title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(4.dp))
+        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        ContentWithTitle(title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        ContentWithTitle(title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        ContentWithTitle(title = "Completed by:", value = subOrder.completedBy?.fullName ?: NoString.str, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        ContentWithTitle(title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         SubOrderTasksFlowColumn(modifier = Modifier, invModel = invModel, parentId = subOrder.subOrder.id)
     }
 }

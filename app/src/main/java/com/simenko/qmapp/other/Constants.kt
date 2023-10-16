@@ -6,6 +6,7 @@ import androidx.compose.ui.unit.dp
 object Constants {
 
     val CARDS_PADDING: PaddingValues = PaddingValues(all = 2.dp)
+    const val DEFAULT_SPACE = 4
     const val ACTION_ITEM_SIZE = 45
     const val CARD_HEIGHT = 45
     const val CARD_OFFSET = 90f//135f

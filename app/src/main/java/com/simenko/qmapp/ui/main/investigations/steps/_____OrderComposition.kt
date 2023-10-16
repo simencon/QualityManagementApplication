@@ -26,8 +26,8 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
-import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -77,10 +77,9 @@ fun Orders(
     LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.order.id }) { order ->
             OrderCard(
-                order = order,
                 invModel = invModel,
+                order = order,
                 onClickDetails = { onClickDetailsLambda(it) },
-                modifier = modifier.padding(CARDS_PADDING),
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) }
@@ -92,7 +91,6 @@ fun Orders(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
     order: DomainOrderComplete = DomainOrderComplete(),
     onClickDetails: (Int) -> Unit,
@@ -146,13 +144,14 @@ fun OrderCard(
             colors = CardDefaults.cardColors(containerColor = containerColor),
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = modifier
+            modifier = Modifier
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
+                .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(order.order.id) { detectTapGestures(onDoubleTap = { onClickActions(order.order.id) }) }
         ) {
             Order(
-                modifier = modifier,
                 invModel = invModel,
                 order = order,
                 onClickDetails = { onClickDetails(it) }
@@ -163,28 +162,16 @@ fun OrderCard(
 
 @Composable
 fun Order(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
     order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
-            .padding(start = 4.dp, end = 4.dp),
-    ) {
+    Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(start = 4.dp, end = 4.dp)
-                    .weight(0.90f),
-            ) {
-                Row(
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            Column(modifier = Modifier.weight(0.90f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     HeaderWithTitle(
                         modifier = Modifier.weight(0.26f),
                         titleWight = 0.42f,
@@ -192,8 +179,8 @@ fun Order(
                         text = order.order.orderNumber.toString()
                     )
                     HeaderWithTitle(
-                        modifier = modifier
-                            .padding(start = 3.dp)
+                        modifier = Modifier
+                            .padding(start = DEFAULT_SPACE.dp)
                             .weight(0.74f),
                         titleWight = 0.18f,
                         title = "Status:"
@@ -204,45 +191,41 @@ fun Order(
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(
                     title = "Type/reason:",
                     value = StringUtils.concatTwoStrings(order.orderType.typeDescription ?: NoString.str, order.orderReason.reasonFormalDescript ?: NoString.str),
                     titleWight = 0.22f
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(title = "Customer:", value = order.customer.depAbbr ?: NoString.str, titleWight = 0.22f)
-                Spacer(modifier = Modifier.height(4.dp))
             }
             IconButton(
                 onClick = { onClickDetails(order.order.id) },
                 modifier = Modifier
                     .weight(weight = 0.10f)
-                    .padding(0.dp)
                     .fillMaxWidth()
             ) {
                 Icon(
                     imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (order.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-                    modifier = Modifier.padding(0.dp)
+                    contentDescription = if (order.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-
-        OrderDetails(
-            modifier = modifier,
-            invModel = invModel,
-            orderId = order.order.id,
-            detailsVisibility = order.detailsVisibility,
-            placerFullName = order.orderPlacer.fullName,
-            createdDate = order.order.createdDate,
-            completedDate = order.order.completedDate
-        )
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
     }
+    OrderDetails(
+        invModel = invModel,
+        orderId = order.order.id,
+        detailsVisibility = order.detailsVisibility,
+        placerFullName = order.orderPlacer.fullName,
+        createdDate = order.order.createdDate,
+        completedDate = order.order.completedDate
+    )
 }
 
 @Composable
 fun OrderDetails(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
     orderId: Int = NoRecord.num,
     detailsVisibility: Boolean = false,
@@ -250,12 +233,17 @@ fun OrderDetails(
     createdDate: Long = NoRecord.num.toLong(),
     completedDate: Long? = null
 ) {
-
     if (detailsVisibility) {
-        Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        ContentWithTitle(modifier = modifier, title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
-        ContentWithTitle(modifier = modifier, title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
-        ContentWithTitle(modifier = modifier, title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
+        Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        }
         SubOrdersFlowColumn(modifier = Modifier, invModel = invModel, parentId = orderId)
     }
 }
