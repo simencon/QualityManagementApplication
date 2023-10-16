@@ -297,6 +297,7 @@ fun <T> SimpleRecordHeader(
 @Composable
 fun HeaderWithTitle(
     modifier: Modifier = Modifier,
+    titleTextSize: TextUnit = 10.sp,
     titleWight: Float,
     title: String? = null,
     text: String? = null,
@@ -310,7 +311,7 @@ fun HeaderWithTitle(
         title?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(weight = titleWight)

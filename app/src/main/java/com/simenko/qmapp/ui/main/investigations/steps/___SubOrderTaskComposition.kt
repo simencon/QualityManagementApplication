@@ -82,7 +82,6 @@ fun SubOrderTaskCard(
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(task.isExpanded).apply { targetState = !task.isExpanded } }
-
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
@@ -204,9 +203,7 @@ fun SubOrderTask(
         }
         IconButton(
             onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
-            modifier = Modifier
-                .weight(weight = 0.10f)
-                .fillMaxWidth()
+            modifier = Modifier.weight(weight = 0.10f)
         ) {
             Icon(
                 imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,

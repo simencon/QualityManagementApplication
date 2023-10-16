@@ -243,9 +243,7 @@ fun SubOrder(
             }
             IconButton(
                 onClick = { onClickDetails(subOrder.subOrder.id) },
-                modifier = Modifier
-                    .weight(weight = 0.10f)
-                    .fillMaxWidth()
+                modifier = Modifier.weight(weight = 0.10f)
             ) {
                 Icon(
                     imageVector = if (subOrder.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,

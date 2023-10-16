@@ -98,12 +98,7 @@ fun OrderCard(
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(order.isExpanded).apply {
-            targetState = !order.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(order.isExpanded).apply { targetState = !order.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
@@ -145,7 +140,7 @@ fun OrderCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(order.order.id) { detectTapGestures(onDoubleTap = { onClickActions(order.order.id) }) }
@@ -199,9 +194,7 @@ fun Order(
             }
             IconButton(
                 onClick = { onClickDetails(order.order.id) },
-                modifier = Modifier
-                    .weight(weight = 0.10f)
-                    .fillMaxWidth()
+                modifier = Modifier.weight(weight = 0.10f)
             ) {
                 Icon(
                     imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,

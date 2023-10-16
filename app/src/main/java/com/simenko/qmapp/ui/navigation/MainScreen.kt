@@ -40,14 +40,14 @@ fun MainScreen(
                 val invModel: InvestigationsViewModel = hiltViewModel()
                 if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
                     invModel.enableScrollToCreatedRecord()
-                InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
+                InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = invModel)
             }
 
             composable(destination = Route.Main.ProcessControl) {
                 val invModel: InvestigationsViewModel = hiltViewModel()
                 if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
                     invModel.enableScrollToCreatedRecord()
-                InvestigationsMainComposition(modifier = Modifier.padding(all = 0.dp), mainScreenPadding = mainScreenPadding, invModel = invModel)
+                InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = invModel)
             }
 
             composable(destination = Route.Main.OrderAddEdit) {

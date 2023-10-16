@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -17,53 +16,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.entities.DomainSampleComplete
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.StatusDoneId
-import com.simenko.qmapp.other.Constants.CARDS_PADDING
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
-
-private const val TAG = "SampleComposition"
 
 @Composable
 fun SampleComposition(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    Log.d(TAG, "InvestigationsViewModel: $invModel")
-
     val observeCurrentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
     val items by invModel.samplesSF.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> { { invModel.setSamplesVisibility(dId = SelectedNumber(it.sample.id)) } }
 
-    LazyColumn(
-        modifier = Modifier.animateContentSize(
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            )
-        )
-    ) {
-        items(
-            items = items,
-            key = {
-                it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString()
-            }) { sample ->
+    LazyColumn(modifier = modifier) {
+        items(items = items, key = { it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString() }) { sample ->
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask.num) {
                 SampleCard(
-                    modifier = modifier.padding(CARDS_PADDING),
                     appModel = invModel,
                     sample = sample,
                     onClickDetails = { onClickDetailsLambda(it) },
@@ -78,7 +58,6 @@ fun SampleComposition(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SampleCard(
-    modifier: Modifier = Modifier,
     appModel: InvestigationsViewModel,
     sample: DomainSampleComplete,
     onClickDetails: (DomainSampleComplete) -> Unit,
@@ -95,12 +74,12 @@ fun SampleCard(
         colors = CardDefaults.cardColors(containerColor = containerColor),
         border = BorderStroke(width = 1.dp, borderColor),
         elevation = CardDefaults.cardElevation(4.dp),
-        modifier = modifier
+        modifier = Modifier
+            .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
             .fillMaxWidth()
             .clickable { onChangeExpandState(sample) }
     ) {
         Sample(
-            modifier = modifier,
             invModel = appModel,
             sample = sample,
             onClickDetails = { onClickDetails(sample) }
@@ -110,73 +89,51 @@ fun SampleCard(
 
 @Composable
 fun Sample(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
     sample: DomainSampleComplete = DomainSampleComplete(),
     onClickDetails: () -> Unit = {},
 ) {
-    Column(
-        modifier = Modifier
-            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            StatusWithPercentage(
-                status = Pair(StatusDoneId.num, EmptyString.str),
-                result = Triple(sample.sampleResult.isOk, sample.sampleResult.total, sample.sampleResult.good),
-                onlyInt = true,
-                percentageTextSize = 14.sp
+    val containerColor = MaterialTheme.colorScheme.surfaceVariant
+
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
+            HeaderWithTitle(
+                modifier = Modifier.weight(0.39f),
+                titleWight = 0.65f,
+                title = "Sample num.: ",
+                text = sample.sample.sampleNumber.toString()
             )
 
-            Column(
+            TextButton(
                 modifier = Modifier
-                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
-                    .weight(0.85f),
-            ) {
+                    .weight(weight = 0.46f)
+                    .padding(start = DEFAULT_SPACE.dp),
+                onClick = { },
+                content = {
+                    StatusWithPercentage(
+                        status = Pair(StatusDoneId.num, "Done"),
+                        result = Triple(sample.sampleResult.isOk, sample.sampleResult.total, sample.sampleResult.good),
+                        onlyInt = true
+                    )
+                },
+                enabled = true,
+                shape = MaterialTheme.shapes.medium,
+                elevation = ButtonDefaults.buttonElevation(4.dp),
+                border = null,
+                colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
+            )
 
-                Row(
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Sample num.: ",
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier
-                            .weight(weight = 0.5f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = sample.sample.sampleNumber.toString(),
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .weight(weight = 0.5f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                }
-            }
             IconButton(
-                onClick = onClickDetails, modifier = Modifier
-                    .weight(weight = 0.15f)
-                    .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    .fillMaxWidth()
+                onClick = onClickDetails,
+                modifier = Modifier.weight(weight = 0.15f)
             ) {
                 Icon(
                     imageVector = if (sample.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (sample.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-                    modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
                 )
             }
         }
-
-        if (sample.detailsVisibility) ResultsComposition(modifier = modifier, invModel = invModel)
+        if (sample.detailsVisibility) ResultsComposition(invModel = invModel)
     }
 }
 
@@ -184,11 +141,7 @@ fun Sample(
 @Composable
 fun MySamplePreview() {
     QMAppTheme {
-        Sample(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 0.dp, horizontal = 0.dp)
-        )
+        Sample()
     }
 }
 
