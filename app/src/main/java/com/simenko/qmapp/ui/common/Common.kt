@@ -267,13 +267,12 @@ fun InfoLine(modifier: Modifier, title: String, body: String) {
 
 @Composable
 fun <T> SimpleRecordHeader(
-    modifier: Modifier,
     value: DomainBaseModel<T>,
     detailsVisibility: Boolean,
     onClick: (String) -> Unit
 ) {
     Row(
-        modifier = modifier.padding(start = 8.dp),
+        modifier = Modifier.padding(start = 8.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {

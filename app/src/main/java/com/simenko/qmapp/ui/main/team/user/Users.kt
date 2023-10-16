@@ -186,7 +186,7 @@ fun User(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        SimpleRecordHeader(modifier, item, item.detailsVisibility, onClickDetails)
+        SimpleRecordHeader(item, item.detailsVisibility, onClickDetails)
 
         if (item.detailsVisibility) {
             val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"

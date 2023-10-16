@@ -32,6 +32,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.SimpleRecordHeader
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
@@ -74,10 +75,7 @@ fun Employees(
         if (lastItemIsVisible) viewModel.mainPageHandler.onListEnd(true) else viewModel.mainPageHandler.onListEnd(false)
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = listState
-    ) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
         items(items = items, key = { it.teamMember.id }) { teamMember ->
             EmployeeCard(
                 teamMember = teamMember,
@@ -99,24 +97,18 @@ fun EmployeeCard(
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(teamMember.isExpanded).apply {
-            targetState = !teamMember.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(teamMember.isExpanded).apply { targetState = !teamMember.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (teamMember.isExpanded) CARD_OFFSET.dp() else 0f },
+        targetValueByState = { (if (teamMember.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
     )
     val containerColor = when (teamMember.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
         false -> MaterialTheme.colorScheme.surfaceVariant
     }
-
     val borderColor = when (teamMember.detailsVisibility) {
         true -> MaterialTheme.colorScheme.outline
         false -> when (teamMember.isExpanded) {
@@ -126,13 +118,12 @@ fun EmployeeCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = DEFAULT_SPACE.dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(teamMember.teamMember.id) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
-
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickEdit(teamMember.teamMember.id) },
@@ -144,17 +135,13 @@ fun EmployeeCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(teamMember.teamMember.id) {
                     detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) })
                 },
         ) {
-            Employee(
-                item = teamMember,
-                onClickDetails = onClickDetails,
-                modifier = Modifier.padding(Constants.CARDS_PADDING)
-            )
+            Employee(item = teamMember, onClickDetails = onClickDetails)
         }
     }
 }
@@ -162,23 +149,26 @@ fun EmployeeCard(
 @Composable
 fun Employee(
     item: DomainEmployeeComplete,
-    onClickDetails: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    onClickDetails: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp)
+            .padding(all = DEFAULT_SPACE.dp)
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.Start
     ) {
-        SimpleRecordHeader(modifier, item, item.detailsVisibility) { onClickDetails(it.toInt()) }
+        SimpleRecordHeader(item, item.detailsVisibility) { onClickDetails(it.toInt()) }
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         if (item.detailsVisibility) {
             val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
-            Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            ContentWithTitle(modifier = modifier, title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
-            ContentWithTitle(modifier = modifier, title = "Department:", value = dep, titleWight = 0.2f)
-            ContentWithTitle(modifier = modifier, title = "Email:", value = StringUtils.getMail(item.teamMember.email), titleWight = 0.2f)
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Department:", value = dep, titleWight = 0.2f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Email:", value = StringUtils.getMail(item.teamMember.email), titleWight = 0.2f)
         }
     }
 }
