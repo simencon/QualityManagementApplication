@@ -109,7 +109,7 @@ fun OrderCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (order.isExpanded) CARD_OFFSET * 2 else 0f },
+        targetValueByState = { (if (order.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
     )
 
     val containerColor = when (order.isExpanded) {
@@ -147,7 +147,7 @@ fun OrderCard(
             modifier = Modifier
                 .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
-                .offset { IntOffset(offsetTransition.dp().roundToInt(), 0) }
+                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(order.order.id) { detectTapGestures(onDoubleTap = { onClickActions(order.order.id) }) }
         ) {
             Order(

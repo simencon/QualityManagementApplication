@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,10 +23,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusWithPercentage
@@ -41,69 +40,55 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubOrderTasksFlowColumn(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = 0,
 ) {
     val items by invModel.tasksSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setTasksVisibility(dId = SelectedNumber(it))
-            println("selected task is: $it")
-        }
-    }
-
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrderTask(it) } }
     val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, Int?) -> Unit> {
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrderTask = subOrderComplete, performerId = completedById) }
     }
 
-    FlowRow(modifier = modifier) {
-        items.forEach { task ->
-            if (task.subOrderTask.subOrderId == parentId) {
-
-                Box(Modifier.fillMaxWidth()) {
-                    SubOrderTaskCard(
-                        modifier = Modifier.padding(Constants.CARDS_PADDING),
-                        task = task,
-                        onClickDetails = { onClickDetailsLambda(it) },
-                        cardOffset = CARD_OFFSET.dp(),
-                        onClickActions = { onClickActionsLambda(it) },
-                        onClickDelete = { onClickDeleteLambda(it) },
-                        onClickStatus = { taskComplete, completedById -> onClickStatusLambda(taskComplete, completedById) }
-                    )
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+        FlowRow {
+            items.forEach { task ->
+                if (task.subOrderTask.subOrderId == parentId) {
+                    Box(Modifier.fillMaxWidth()) {
+                        SubOrderTaskCard(
+                            task = task,
+                            onClickDetails = { onClickDetailsLambda(it) },
+                            onClickActions = { onClickActionsLambda(it) },
+                            onClickDelete = { onClickDeleteLambda(it) },
+                            onClickStatus = { taskComplete, completedById -> onClickStatusLambda(taskComplete, completedById) }
+                        )
+                    }
                 }
-                Divider(thickness = 4.dp, color = Color.Transparent)
             }
         }
+        Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
     }
 }
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SubOrderTaskCard(
-    modifier: Modifier = Modifier,
     task: DomainSubOrderTaskComplete,
     onClickDetails: (Int) -> Unit,
-    cardOffset: Float,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(task.isExpanded).apply {
-            targetState = !task.isExpanded
-        }
-    }
+    val transitionState = remember { MutableTransitionState(task.isExpanded).apply { targetState = !task.isExpanded } }
 
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (task.isExpanded) cardOffset else 0f },
+        targetValueByState = { (if (task.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
     )
 
     val containerColor = when (task.isExpanded) {
@@ -120,7 +105,7 @@ fun SubOrderTaskCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(task.subOrderTask.id) },
@@ -129,7 +114,7 @@ fun SubOrderTaskCard(
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = {},
-                content = { Icon(imageVector = Icons.Filled.AttachFile, contentDescription = "edit action") }
+                content = { Icon(imageVector = Icons.Filled.AttachFile, contentDescription = "attach file action") }
             )
         }
 
@@ -137,17 +122,13 @@ fun SubOrderTaskCard(
             colors = CardDefaults.cardColors(containerColor = containerColor),
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = modifier
+            modifier = Modifier
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(task.subOrderTask.id) {
-                    detectTapGestures(
-                        onDoubleTap = { onClickActions(task.subOrderTask.id) }
-                    )
-                },
+                .pointerInput(task.subOrderTask.id) { detectTapGestures(onDoubleTap = { onClickActions(task.subOrderTask.id) }) },
         ) {
             SubOrderTask(
-                modifier = modifier,
                 subOrderTask = task,
                 onClickDetails = onClickDetails,
                 onClickStatus = onClickStatus
@@ -158,7 +139,6 @@ fun SubOrderTaskCard(
 
 @Composable
 fun SubOrderTask(
-    modifier: Modifier = Modifier,
     onClickDetails: (Int) -> Unit = {},
     subOrderTask: DomainSubOrderTaskComplete = DomainSubOrderTaskComplete(),
     onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
@@ -168,80 +148,70 @@ fun SubOrderTask(
         false -> MaterialTheme.colorScheme.tertiaryContainer
     }
 
-    Column(
+    Row(
         modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-            .padding(start = 4.dp, end = 4.dp),
+            .padding(all = DEFAULT_SPACE.dp)
+            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(
-                modifier = Modifier
-                    .padding(start = 4.dp, end = 4.dp)
-                    .weight(0.90f),
-            ) {
-                Row(
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(0.54f)) {
-                        ContentWithTitle(
-                            title = "Group:",
-                            contentTextSize = 12.sp,
-                            value = subOrderTask.characteristic.characteristicGroup.ishElement ?: NoString.str,
-                            titleWight = 0.35f
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        ContentWithTitle(
-                            title = "Sub group:",
-                            contentTextSize = 12.sp,
-                            value = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: NoString.str,
-                            titleWight = 0.35f
-                        )
-                    }
-
-                    TextButton(
-                        modifier = Modifier
-                            .weight(weight = 0.46f)
-                            .padding(start = 3.dp),
-                        onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
-                        content = {
-                            StatusWithPercentage(
-                                status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
-                                result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),
-                                onlyInt = true
-                            )
-                        },
-                        enabled = true,
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = ButtonDefaults.buttonElevation(4.dp),
-                        border = null,
-                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
+        Column(
+            modifier = Modifier
+                .padding(start = 4.dp, end = 4.dp)
+                .weight(0.90f),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(0.54f)) {
+                    ContentWithTitle(
+                        title = "Group:",
+                        contentTextSize = 12.sp,
+                        value = subOrderTask.characteristic.characteristicGroup.ishElement ?: NoString.str,
+                        titleWight = 0.35f
+                    )
+                    Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                    ContentWithTitle(
+                        title = "Sub group:",
+                        contentTextSize = 12.sp,
+                        value = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: NoString.str,
+                        titleWight = 0.35f
                     )
                 }
 
-                HeaderWithTitle(
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    titleWight = 0.253f,
-                    title = "Characteristic:",
-                    text = subOrderTask.characteristic.characteristic.charDescription ?: NoString.str
+                TextButton(
+                    modifier = Modifier
+                        .weight(weight = 0.46f)
+                        .padding(start = DEFAULT_SPACE.dp),
+                    onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
+                    content = {
+                        StatusWithPercentage(
+                            status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
+                            result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),
+                            onlyInt = true
+                        )
+                    },
+                    enabled = true,
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = ButtonDefaults.buttonElevation(4.dp),
+                    border = null,
+                    colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
                 )
             }
-            IconButton(
-                onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
-                modifier = Modifier
-                    .weight(weight = 0.10f)
-                    .fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
-                    contentDescription = if (subOrderTask.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-                )
-            }
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            HeaderWithTitle(
+                titleWight = 0.253f,
+                title = "Characteristic:",
+                text = subOrderTask.characteristic.characteristic.charDescription ?: NoString.str
+            )
+        }
+        IconButton(
+            onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
+            modifier = Modifier
+                .weight(weight = 0.10f)
+                .fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
+                contentDescription = if (subOrderTask.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
+            )
         }
     }
 }
@@ -251,9 +221,6 @@ fun SubOrderTask(
 fun MySubOrderTaskPreview() {
     QMAppTheme {
         SubOrderTask(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 0.dp, horizontal = 0.dp),
             onClickStatus = { _, _ -> }
         )
     }

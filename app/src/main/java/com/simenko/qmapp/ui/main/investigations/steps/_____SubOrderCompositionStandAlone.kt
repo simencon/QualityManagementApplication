@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -10,12 +9,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
-import com.simenko.qmapp.other.Constants.CARDS_PADDING
-import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.BaseFilter
-import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
 
 @Composable
