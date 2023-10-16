@@ -28,7 +28,6 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun InvestigationsMainComposition(
-    modifier: Modifier = Modifier,
     mainScreenPadding: PaddingValues,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
@@ -104,7 +103,7 @@ fun InvestigationsMainComposition(
         }
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
@@ -113,12 +112,12 @@ fun InvestigationsMainComposition(
                 .height(screenHeight)
         ) {
             if (invModel.isPcOnly == true)
-                SubOrdersStandAlone(modifier = modifier.width(screenSizes.second), invModel = invModel)
+                SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), invModel = invModel)
             else
-                Orders(modifier = modifier.width(screenSizes.second), invModel = invModel)
+                Orders(modifier = Modifier.width(screenSizes.second), invModel = invModel)
 
             if (currentTask != NoRecord)
-                SampleComposition(modifier = modifier.width(screenSizes.third), invModel = invModel)
+                SampleComposition(modifier = Modifier.width(screenSizes.third), invModel = invModel)
         }
 
         if (showStatusChangeDialog.value == true)
