@@ -25,7 +25,6 @@ import com.simenko.qmapp.domain.entities.DomainUser
 
 @Composable
 fun TrueFalseField(
-    modifier: Modifier,
     user: DomainUser,
     onSwitch: (Boolean) -> Unit,
     isError: Boolean
@@ -53,7 +52,7 @@ fun TrueFalseField(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = modifier
+                modifier = Modifier
                     .weight(1f)
                     .padding(start = 3.dp)
             )
