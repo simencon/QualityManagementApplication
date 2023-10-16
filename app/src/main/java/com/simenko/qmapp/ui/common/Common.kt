@@ -64,6 +64,7 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import kotlin.math.round
 
 @Composable
@@ -323,13 +324,13 @@ fun HeaderWithTitle(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(weight = 1f - titleWight)
-                    .padding(start = 3.dp)
+                    .padding(start = DEFAULT_SPACE.dp)
             )
         }
         content?.let {
             Row(
                 modifier = Modifier
-                    .padding(start = 3.dp)
+                    .padding(start = DEFAULT_SPACE.dp)
                     .weight(weight = 1 - titleWight),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -360,8 +361,8 @@ fun ContentWithTitle(modifier: Modifier = Modifier, title: String, contentTextSi
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
+                .padding(start = DEFAULT_SPACE.dp)
                 .weight(weight = 1f - titleWight)
-                .padding(start = 3.dp)
         )
     }
 }
@@ -388,7 +389,7 @@ fun StatusWithPercentage(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.padding(start = 3.dp)
+                modifier = Modifier.padding(start = DEFAULT_SPACE.dp)
             )
         Icon(
             imageVector = if (result.first != false) Icons.Filled.Check else Icons.Filled.Close,
@@ -403,7 +404,7 @@ fun StatusWithPercentage(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(start = 3.dp)
+            modifier = Modifier.padding(start = DEFAULT_SPACE.dp)
         )
         if (status.second != EmptyString.str)
             Text(
@@ -412,7 +413,7 @@ fun StatusWithPercentage(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.padding(start = 3.dp)
+                modifier = Modifier.padding(start = DEFAULT_SPACE.dp)
             )
     }
 }

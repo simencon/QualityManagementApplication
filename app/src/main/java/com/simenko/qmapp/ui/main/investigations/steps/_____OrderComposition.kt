@@ -126,7 +126,7 @@ fun OrderCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(order.order.id) },
@@ -146,7 +146,6 @@ fun OrderCard(
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
                 .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
-                .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(order.order.id) { detectTapGestures(onDoubleTap = { onClickActions(order.order.id) }) }
@@ -166,10 +165,8 @@ fun Order(
     order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit = {}
 ) {
-    Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     HeaderWithTitle(
@@ -213,15 +210,15 @@ fun Order(
             }
         }
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        OrderDetails(
+            invModel = invModel,
+            orderId = order.order.id,
+            detailsVisibility = order.detailsVisibility,
+            placerFullName = order.orderPlacer.fullName,
+            createdDate = order.order.createdDate,
+            completedDate = order.order.completedDate
+        )
     }
-    OrderDetails(
-        invModel = invModel,
-        orderId = order.order.id,
-        detailsVisibility = order.detailsVisibility,
-        placerFullName = order.orderPlacer.fullName,
-        createdDate = order.order.createdDate,
-        completedDate = order.order.completedDate
-    )
 }
 
 @Composable
@@ -234,15 +231,18 @@ fun OrderDetails(
     completedDate: Long? = null
 ) {
     if (detailsVisibility) {
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .padding(horizontal = DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
+        )
         Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
         SubOrdersFlowColumn(modifier = Modifier, invModel = invModel, parentId = orderId)
     }

@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -13,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -65,9 +63,7 @@ fun SubOrdersFlowColumn(
         FlowRow(modifier = modifier) {
             items.forEach { subOrder ->
                 if (subOrder.subOrder.orderId == parentId) {
-
                     SubOrderCard(
-                        modifier = Modifier.padding(Constants.CARDS_PADDING),
                         invModel = invModel,
                         subOrder = subOrder,
                         onClickDetails = { onClickDetailsLambda(it) },
@@ -77,14 +73,12 @@ fun SubOrdersFlowColumn(
                         onClickEdit = { onClickEditLambda(it) },
                         onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
                     )
-
-                    Divider(thickness = 4.dp, color = Color.Transparent)
                 }
             }
         }
         Divider(modifier = modifier.height(0.dp))
         FloatingActionButton(
-            modifier = Modifier.padding(all = DEFAULT_SPACE.dp),
+            modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             onClick = { onClickAddLambda(parentId) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
@@ -95,7 +89,6 @@ fun SubOrdersFlowColumn(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SubOrderCard(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel,
     processControlOnly: Boolean = false,
     subOrder: DomainSubOrderComplete,
@@ -106,8 +99,6 @@ fun SubOrderCard(
     onClickEdit: (Pair<Int, Int>) -> Unit,
     onClickStatus: (DomainSubOrderComplete, Int?) -> Unit
 ) {
-    Log.d(TAG, "SubOrderCard: ${subOrder.orderShort.order.orderNumber}")
-
     val transitionState = remember { MutableTransitionState(subOrder.isExpanded).apply { targetState = !subOrder.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
@@ -131,8 +122,7 @@ fun SubOrderCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(subOrder.subOrder.id) },
@@ -144,20 +134,15 @@ fun SubOrderCard(
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
             )
         }
-
         Card(
             colors = CardDefaults.cardColors(containerColor = containerColor),
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = modifier
-                .padding(horizontal = Constants.DEFAULT_SPACE.dp, vertical = (Constants.DEFAULT_SPACE / 2).dp)
+            modifier = Modifier
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(subOrder.subOrder.id) {
-                    detectTapGestures(
-                        onDoubleTap = { onClickActions(subOrder.subOrder.id) }
-                    )
-                }
+                .pointerInput(subOrder.subOrder.id) { detectTapGestures(onDoubleTap = { onClickActions(subOrder.subOrder.id) }) }
         ) {
             SubOrder(
                 invModel = invModel,
@@ -188,12 +173,8 @@ fun SubOrder(
         false -> MaterialTheme.colorScheme.primaryContainer
     }
 
-    Column(
-        modifier = Modifier
-            .padding(all = Constants.DEFAULT_SPACE.dp)
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(0.54f)) {
@@ -295,15 +276,21 @@ fun SubOrderDetails(
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete()
 ) {
     if (subOrder.detailsVisibility) {
-        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        ContentWithTitle(title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Completed by:", value = subOrder.completedBy?.fullName ?: NoString.str, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .padding(horizontal = DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
+        )
+        Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+            ContentWithTitle(title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Completed by:", value = subOrder.completedBy?.fullName ?: NoString.str, titleWight = 0.22f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        }
         SubOrderTasksFlowColumn(modifier = Modifier, invModel = invModel, parentId = subOrder.subOrder.id)
     }
 }
