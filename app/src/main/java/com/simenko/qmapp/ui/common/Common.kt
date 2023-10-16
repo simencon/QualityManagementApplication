@@ -299,9 +299,11 @@ fun <T> SimpleRecordHeader(
 @Composable
 fun HeaderWithTitle(
     modifier: Modifier = Modifier,
+    titleFirst: Boolean = true,
     titleTextSize: TextUnit = 10.sp,
     titleWight: Float,
     title: String? = null,
+    textTextSize: TextUnit = 14.sp,
     text: String? = null,
     content: @Composable (() -> Unit)? = null,
 ) {
@@ -310,19 +312,20 @@ fun HeaderWithTitle(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.Start
     ) {
-        title?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(weight = titleWight)
-            )
-        }
+        if (titleFirst)
+            title?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = titleWight)
+                )
+            }
         text?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = textTextSize),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
@@ -340,6 +343,16 @@ fun HeaderWithTitle(
                 it()
             }
         }
+        if (!titleFirst)
+            title?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = titleWight)
+                )
+            }
     }
 }
 

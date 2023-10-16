@@ -161,16 +161,48 @@ object InvestigationsUtils {
         val infPair = Pair(
             when {
                 currentState.first == NoRecord.num.toLong() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
-                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
+                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis)
+                    .toEpochMilli()
+
                 else -> currentState.first
             },
             when {
                 currentState.second == NoRecord.num.toLong() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
-                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
+                currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis)
+                    .toEpochMilli()
+
                 else -> excludedMillis
             }
         )
 
         return if (exclude == SyncPeriods.COMPLETE_PERIOD.excludeMillis) infPair else specificPair
+    }
+
+    fun generateResult(record: Triple<Float, Float?, Float?>): Triple<Float?, Boolean, Int> {
+        /**
+         * record: measurement/LSL/USL; generatedResult: measurement/isOk/resultDecryptionId
+         * */
+        return when {
+            (record.third != null && record.second != null) -> {
+                when {
+                    (record.first > record.third!!) -> Triple(record.first, false, 2)
+                    (record.first < record.second!!) -> Triple(record.first, false, 3)
+                    else -> Triple(record.first, true, 1)
+                }
+            }
+
+            (record.third == null && record.second != null) -> {
+                when {
+                    (record.first < record.second!!) -> Triple(record.first, false, 3)
+                    else -> Triple(record.first, true, 1)
+                }
+            }
+            /*(record.third != null && record.second == null)*/else -> {
+                when {
+                    (record.first > record.third!!) -> Triple(record.first, false, 2)
+                    else -> Triple(record.first, true, 1)
+                }
+            }
+        }
     }
 }
