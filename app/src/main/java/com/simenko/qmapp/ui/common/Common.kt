@@ -233,9 +233,7 @@ fun RecordActionTextBtn(
                 text = text,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
+                overflow = TextOverflow.Ellipsis
             )
         },
         colors = colors.first,

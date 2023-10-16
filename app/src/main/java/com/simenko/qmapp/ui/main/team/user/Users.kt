@@ -32,6 +32,7 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.SimpleRecordHeader
@@ -115,18 +116,13 @@ fun UserCard(
     onClickRemove: (String) -> Unit,
     onClickEdit: (String) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(item.isExpanded).apply {
-            targetState = !item.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(item.isExpanded).apply { targetState = !item.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (item.isExpanded) (CARD_OFFSET / 2).dp() else 0f },
+        targetValueByState = { (if (item.isExpanded) CARD_OFFSET else 0f).dp() },
     )
     val containerColor = when (item.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -142,7 +138,7 @@ fun UserCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = DEFAULT_SPACE.dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickEdit(item.email) },
@@ -154,18 +150,15 @@ fun UserCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(item.email) {
-                    detectTapGestures(onDoubleTap = { onDoubleClick(item.email) })
-                },
+                .pointerInput(item.email) { detectTapGestures(onDoubleTap = { onDoubleClick(item.email) }) },
         ) {
             User(
                 item = item,
                 onClickDetails = onClickDetails,
                 onClickAuthorize = onClickAuthorize,
-                onClickRemove = onClickRemove,
-                modifier = Modifier.padding(Constants.CARDS_PADDING)
+                onClickRemove = onClickRemove
             )
         }
     }
@@ -177,20 +170,21 @@ fun User(
     onClickDetails: (String) -> Unit,
     onClickAuthorize: (String) -> Unit,
     onClickRemove: (String) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp)
+            .padding(all = DEFAULT_SPACE.dp)
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.End
     ) {
         SimpleRecordHeader(item, item.detailsVisibility, onClickDetails)
-
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         if (item.detailsVisibility) {
+            val modifier: Modifier = Modifier.padding(bottom = DEFAULT_SPACE.dp)
             val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
-            Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(modifier = modifier, title = "Job role: ", value = item.jobRole ?: NoString.str, titleWight = 0.3f)
             ContentWithTitle(modifier = modifier, title = "Department: ", value = department, titleWight = 0.3f)
             ContentWithTitle(modifier = modifier, title = "Email: ", value = StringUtils.getMail(item.email), titleWight = 0.3f)
@@ -202,36 +196,23 @@ fun User(
             ContentWithTitle(modifier = modifier, title = "Account locked: ", value = item.accountNonLocked.toString(), titleWight = 0.3f)
             ContentWithTitle(modifier = modifier, title = "Credentials expired: ", value = item.credentialsNonExpired.toString(), titleWight = 0.3f)
             ContentWithTitle(modifier = modifier, title = "Enabled: ", value = item.enabled.toString(), titleWight = 0.3f)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (!item.restApiUrl.isNullOrEmpty()) {
-                    val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
-                    RecordActionTextBtn(
-                        text = "Remove user",
-                        onClick = { onClickRemove(item.email) },
-                        colors = Pair(
-                            ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
-                            null
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(4.dp)
-                    )
-                } else {
-                    val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
-                    RecordActionTextBtn(
-                        text = "Authorize user",
-                        onClick = { onClickAuthorize(item.email) },
-                        colors = Pair(
-                            ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)),
-                            null
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(4.dp)
-                    )
-                }
+
+            if (!item.restApiUrl.isNullOrEmpty()) {
+                val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                RecordActionTextBtn(
+                    text = "Remove user",
+                    onClick = { onClickRemove(item.email) },
+                    colors = Pair(ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)), null),
+                    elevation = ButtonDefaults.buttonElevation(4.dp)
+                )
+            } else {
+                val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
+                RecordActionTextBtn(
+                    text = "Authorize user",
+                    onClick = { onClickAuthorize(item.email) },
+                    colors = Pair(ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)), null),
+                    elevation = ButtonDefaults.buttonElevation(4.dp)
+                )
             }
         }
     }

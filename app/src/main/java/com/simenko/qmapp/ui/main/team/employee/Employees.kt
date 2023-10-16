@@ -137,9 +137,7 @@ fun EmployeeCard(
             modifier = Modifier
                 .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(teamMember.teamMember.id) {
-                    detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) })
-                },
+                .pointerInput(teamMember.teamMember.id) { detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) }) },
         ) {
             Employee(item = teamMember, onClickDetails = onClickDetails)
         }
