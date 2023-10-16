@@ -101,7 +101,7 @@ fun SubOrderCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (subOrder.isExpanded) CARD_OFFSET * 2 else 0f },
+        targetValueByState = { (if (subOrder.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
     )
 
     val containerColor = when (subOrder.isExpanded) {
@@ -137,7 +137,7 @@ fun SubOrderCard(
             modifier = Modifier
                 .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
-                .offset { IntOffset(offsetTransition.dp().roundToInt(), 0) }
+                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(subOrder.subOrder.id) { detectTapGestures(onDoubleTap = { onClickActions(subOrder.subOrder.id) }) }
         ) {
             SubOrder(
@@ -145,12 +145,7 @@ fun SubOrderCard(
                 processControlOnly = processControlOnly,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetails(it) },
-                onClickStatus = { subOrderComplete, completedById ->
-                    onClickStatus(
-                        subOrderComplete,
-                        completedById
-                    )
-                }
+                onClickStatus = { subOrderComplete, completedById -> onClickStatus(subOrderComplete, completedById) }
             )
         }
     }
@@ -287,6 +282,6 @@ fun SubOrderDetails(
             ContentWithTitle(title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         }
-        SubOrderTasksFlowColumn(modifier = Modifier, invModel = invModel, parentId = subOrder.subOrder.id)
+        SubOrderTasksFlowColumn(invModel = invModel, parentId = subOrder.subOrder.id)
     }
 }
