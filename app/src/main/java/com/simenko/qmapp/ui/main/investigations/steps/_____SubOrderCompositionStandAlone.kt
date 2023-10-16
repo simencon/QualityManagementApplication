@@ -77,16 +77,10 @@ fun SubOrdersStandAlone(
                 processControlOnly = true,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetailsLambda(it) },
-                cardOffset = CARD_OFFSET.dp(),
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) },
-                onClickStatus = { subOrderComplete, completedById ->
-                    onClickStatusLambda(
-                        subOrderComplete,
-                        completedById
-                    )
-                }
+                onClickStatus = { subOrderComplete, completedById -> onClickStatusLambda(subOrderComplete, completedById) }
             )
         }
     }

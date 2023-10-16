@@ -22,7 +22,6 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.domain.entities.*
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
@@ -38,12 +37,10 @@ import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
-private const val TAG = "SubOrderComposition"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SubOrdersFlowColumn(
-    modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = NoRecord.num
 ) {
@@ -60,14 +57,14 @@ fun SubOrdersFlowColumn(
     }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        FlowRow(modifier = modifier) {
+        FlowRow {
             items.forEach { subOrder ->
                 if (subOrder.subOrder.orderId == parentId) {
                     SubOrderCard(
                         invModel = invModel,
+                        processControlOnly = false,
                         subOrder = subOrder,
                         onClickDetails = { onClickDetailsLambda(it) },
-                        cardOffset = CARD_OFFSET.dp(),
                         onClickActions = { onClickActionsLambda(it) },
                         onClickDelete = { onClickDeleteLambda(it) },
                         onClickEdit = { onClickEditLambda(it) },
@@ -76,7 +73,7 @@ fun SubOrdersFlowColumn(
                 }
             }
         }
-        Divider(modifier = modifier.height(0.dp))
+        Divider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -90,10 +87,9 @@ fun SubOrdersFlowColumn(
 @Composable
 fun SubOrderCard(
     invModel: InvestigationsViewModel,
-    processControlOnly: Boolean = false,
+    processControlOnly: Boolean,
     subOrder: DomainSubOrderComplete,
     onClickDetails: (Int) -> Unit,
-    cardOffset: Float,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Pair<Int, Int>) -> Unit,
@@ -105,7 +101,7 @@ fun SubOrderCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (subOrder.isExpanded) cardOffset else 0f },
+        targetValueByState = { if (subOrder.isExpanded) CARD_OFFSET * 2 else 0f },
     )
 
     val containerColor = when (subOrder.isExpanded) {
@@ -141,7 +137,7 @@ fun SubOrderCard(
             modifier = Modifier
                 .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
-                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
+                .offset { IntOffset(offsetTransition.dp().roundToInt(), 0) }
                 .pointerInput(subOrder.subOrder.id) { detectTapGestures(onDoubleTap = { onClickActions(subOrder.subOrder.id) }) }
         ) {
             SubOrder(
