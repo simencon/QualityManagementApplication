@@ -26,6 +26,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.StatusDoneId
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
@@ -103,26 +104,13 @@ fun Sample(
                 title = "Sample num.: ",
                 text = sample.sample.sampleNumber.toString()
             )
-
-            TextButton(
-                modifier = Modifier
-                    .weight(weight = 0.46f)
-                    .padding(start = DEFAULT_SPACE.dp),
-                onClick = { },
-                content = {
-                    StatusWithPercentage(
-                        status = Pair(StatusDoneId.num, "Done"),
-                        result = Triple(sample.sampleResult.isOk, sample.sampleResult.total, sample.sampleResult.good),
-                        onlyInt = true
-                    )
-                },
-                enabled = true,
-                shape = MaterialTheme.shapes.medium,
-                elevation = ButtonDefaults.buttonElevation(4.dp),
-                border = null,
-                colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
-            )
-
+            StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, {}) {
+                StatusWithPercentage(
+                    status = Pair(StatusDoneId.num, "Done"),
+                    result = Triple(sample.sampleResult.isOk, sample.sampleResult.total, sample.sampleResult.good),
+                    onlyInt = true
+                )
+            }
             IconButton(
                 onClick = onClickDetails,
                 modifier = Modifier.weight(weight = 0.15f)
@@ -144,6 +132,3 @@ fun MySamplePreview() {
         Sample()
     }
 }
-
-
-

@@ -28,6 +28,7 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
@@ -36,7 +37,6 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -194,25 +194,13 @@ fun SubOrder(
                             )
                         }
                     }
-
-                    TextButton(
-                        modifier = Modifier
-                            .weight(weight = 0.46f)
-                            .padding(start = DEFAULT_SPACE.dp),
-                        onClick = { onClickStatus(subOrder, subOrder.subOrder.completedById) },
-                        content = {
-                            StatusWithPercentage(
-                                status = Pair(subOrder.subOrder.statusId, subOrder.status.statusDescription),
-                                result = Triple(subOrder.subOrderResult.isOk, subOrder.subOrderResult.total, subOrder.subOrderResult.good),
-                                onlyInt = true
-                            )
-                        },
-                        enabled = true,
-                        shape = MaterialTheme.shapes.medium,
-                        elevation = ButtonDefaults.buttonElevation(4.dp),
-                        border = null,
-                        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
-                    )
+                    StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, { onClickStatus(subOrder, subOrder.subOrder.completedById) }) {
+                        StatusWithPercentage(
+                            status = Pair(subOrder.subOrder.statusId, subOrder.status.statusDescription),
+                            result = Triple(subOrder.subOrderResult.isOk, subOrder.subOrderResult.total, subOrder.subOrderResult.good),
+                            onlyInt = true
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(

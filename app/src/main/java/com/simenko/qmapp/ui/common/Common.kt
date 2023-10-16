@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +37,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -339,6 +341,25 @@ fun HeaderWithTitle(
             }
         }
     }
+}
+
+@Composable
+fun StatusChangeBtn(
+    modifier: Modifier,
+    containerColor: Color,
+    onClick: () -> Unit,
+    content: @Composable (() -> Unit),
+) {
+    TextButton(
+        modifier = modifier,
+        onClick = onClick,
+        content = { content() },
+        enabled = true,
+        shape = MaterialTheme.shapes.medium,
+        elevation = ButtonDefaults.buttonElevation(4.dp),
+        border = null,
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
+    )
 }
 
 @Composable
