@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -35,8 +34,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,8 +53,10 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
@@ -106,7 +105,7 @@ fun DepartmentCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (department.isExpanded) Constants.CARD_OFFSET.dp() else 0f },
+        targetValueByState = { (if (department.isExpanded) Constants.CARD_OFFSET else 0f).dp() },
     )
 
     val containerColor = when (department.isExpanded) {
@@ -123,7 +122,7 @@ fun DepartmentCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(department.department.id) },
@@ -142,13 +141,12 @@ fun DepartmentCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(department.department.id) { detectTapGestures(onDoubleTap = { onClickActions(department.department.id) }) }
-                .padding(all = 3.dp)
         ) {
             Department(
-                modifier = modifier.padding(Constants.CARDS_PADDING),
                 viewModel = viewModel,
                 department = department,
                 onClickDetails = { onClickDetails(it) }
@@ -159,7 +157,6 @@ fun DepartmentCard(
 
 @Composable
 fun Department(
-    modifier: Modifier = Modifier,
     viewModel: CompanyStructureViewModel = hiltViewModel(),
     department: DomainDepartmentComplete,
     onClickDetails: (Int) -> Unit = {},
@@ -170,81 +167,56 @@ fun Department(
         false -> MaterialTheme.colorScheme.surfaceVariant
     }
 
-    Column(
-        modifier = Modifier
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
-            .padding(start = 4.dp, end = 4.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(
-                modifier = Modifier
-                    .padding(start = 4.dp, end = 4.dp)
-                    .weight(0.72f),
-            ) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(0.72f)) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.15f), titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HeaderWithTitle(modifier = Modifier.weight(0.15f), titleFirst = false, titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
                     Spacer(modifier = Modifier.height(4.dp))
                     HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.36f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
                 }
-                ContentWithTitle(modifier = modifier, title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.28f)
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.28f)
             }
-            TextButton(
-                modifier = Modifier
-                    .weight(weight = 0.28f)
-                    .padding(start = 3.dp),
-                onClick = { onClickProducts(department.department.id) },
-                content = {
-                    Text(
-                        text = "Products",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                },
-                enabled = true,
-                shape = MaterialTheme.shapes.medium,
-                elevation = ButtonDefaults.buttonElevation(4.dp),
-                border = null,
-                colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
-            )
-            IconButton(
-                onClick = { onClickDetails(department.department.id) },
-                modifier = Modifier
-                    .weight(weight = 0.10f)
-                    .padding(0.dp)
-                    .fillMaxWidth()
+            StatusChangeBtn(
+                modifier = Modifier.weight(weight = 0.28f),
+                containerColor = containerColor,
+                onClick = { onClickProducts(department.department.id) }
             ) {
+                Text(
+                    text = "Products",
+                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(department.department.id) }) {
                 Icon(
                     imageVector = if (department.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (department.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-
-        DepartmentDetails(
-            modifier = modifier,
-            viewModel = viewModel,
-            department = department
-        )
+        DepartmentDetails(viewModel = viewModel, department = department)
     }
 }
 
 @Composable
 fun DepartmentDetails(
-    modifier: Modifier = Modifier,
     viewModel: CompanyStructureViewModel,
     department: DomainDepartmentComplete
 ) {
 
     if (department.detailsVisibility) {
-        Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        ContentWithTitle(modifier, title = "Complete name:", value = department.department.depName ?: NoString.str, titleWight = 0.25f)
-        ContentWithTitle(modifier, title = "Dep. manager:", value = department.depManager.fullName, titleWight = 0.25f)
+        Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Complete name:", value = department.department.depName ?: NoString.str, titleWight = 0.25f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Dep. manager:", value = department.depManager.fullName, titleWight = 0.25f)
 //        SubOrdersFlowColumn(modifier = Modifier, invModel = invModel, parentId = orderId)
+        }
     }
 }

@@ -318,6 +318,7 @@ fun HeaderWithTitle(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = titleWight)
                 )
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
             }
         text?.let {
             Text(
@@ -325,16 +326,12 @@ fun HeaderWithTitle(
                 style = MaterialTheme.typography.titleSmall.copy(fontSize = textTextSize),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .weight(weight = 1f - titleWight)
-                    .padding(start = DEFAULT_SPACE.dp)
+                modifier = Modifier.weight(weight = 1f - titleWight)
             )
         }
         content?.let {
             Row(
-                modifier = Modifier
-                    .padding(start = DEFAULT_SPACE.dp)
-                    .weight(weight = 1 - titleWight),
+                modifier = Modifier.weight(weight = 1 - titleWight),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 it()
@@ -342,6 +339,7 @@ fun HeaderWithTitle(
         }
         if (!titleFirst)
             title?.let {
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                 Text(
                     text = it,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),

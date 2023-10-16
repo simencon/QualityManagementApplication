@@ -125,7 +125,8 @@ fun Sample(
             Divider(
                 modifier = Modifier
                     .height(1.dp)
-                    .padding(horizontal = DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
+                    .padding(horizontal = DEFAULT_SPACE.dp),
+                color = MaterialTheme.colorScheme.secondary
             )
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
             ResultsComposition(invModel = invModel)

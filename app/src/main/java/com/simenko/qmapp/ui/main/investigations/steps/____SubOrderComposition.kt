@@ -239,7 +239,6 @@ fun SubOrder(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         SubOrderDetails(
             invModel = invModel,
             subOrder = subOrder
@@ -253,12 +252,9 @@ fun SubOrderDetails(
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete()
 ) {
     if (subOrder.detailsVisibility) {
-        Divider(
-            modifier = Modifier
-                .height(1.dp)
-                .padding(horizontal = DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
-        )
         Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
