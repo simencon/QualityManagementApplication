@@ -29,6 +29,7 @@ import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.common.StatusWithPercentage
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
@@ -174,25 +175,13 @@ fun SubOrderTask(
                         titleWight = 0.35f
                     )
                 }
-
-                TextButton(
-                    modifier = Modifier
-                        .weight(weight = 0.46f)
-                        .padding(start = DEFAULT_SPACE.dp),
-                    onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) },
-                    content = {
-                        StatusWithPercentage(
-                            status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
-                            result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),
-                            onlyInt = true
-                        )
-                    },
-                    enabled = true,
-                    shape = MaterialTheme.shapes.medium,
-                    elevation = ButtonDefaults.buttonElevation(4.dp),
-                    border = null,
-                    colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
-                )
+                StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) }) {
+                    StatusWithPercentage(
+                        status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
+                        result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),
+                        onlyInt = true
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             HeaderWithTitle(
