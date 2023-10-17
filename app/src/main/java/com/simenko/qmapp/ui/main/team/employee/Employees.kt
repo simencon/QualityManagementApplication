@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
@@ -61,11 +60,7 @@ fun Employees(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.first.getContentIfNotHandled()?.let { employeeId ->
-                viewModel.channel.trySend(
-                    this.launch {
-                        listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId)
-                    }
-                )
+                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId) })
             }
         }
     }
@@ -118,7 +113,7 @@ fun EmployeeCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(all = DEFAULT_SPACE.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(teamMember.teamMember.id) },
@@ -149,24 +144,19 @@ fun Employee(
     item: DomainEmployeeComplete,
     onClickDetails: (Int) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .padding(all = DEFAULT_SPACE.dp)
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
-    ) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         SimpleRecordHeader(item, item.detailsVisibility) { onClickDetails(it.toInt()) }
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         if (item.detailsVisibility) {
-            val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Department:", value = dep, titleWight = 0.2f)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Email:", value = StringUtils.getMail(item.teamMember.email), titleWight = 0.2f)
+            Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+                val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
+                Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Department:", value = dep, titleWight = 0.2f)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Email:", value = StringUtils.getMail(item.teamMember.email), titleWight = 0.2f)
+            }
         }
     }
 }
