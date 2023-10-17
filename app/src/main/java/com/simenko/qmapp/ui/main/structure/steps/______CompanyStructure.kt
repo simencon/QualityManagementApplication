@@ -1,8 +1,6 @@
 package com.simenko.qmapp.ui.main.structure.steps
 
-import android.widget.Toast
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,10 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,9 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
-import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
-import kotlin.math.abs
 
 @Composable
 fun CompanyStructure(
@@ -38,7 +31,7 @@ fun CompanyStructure(
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding()
 
-    val channelVisibility by viewModel.channelVisibility.collectAsStateWithLifecycle()
+    val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -110,8 +103,8 @@ fun CompanyStructure(
                 .height(screenHeight)
         ) {
             Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-//            if (channelVisibility.first != NoRecord)
-//                Lines(modifier = Modifier.width(screenSizes.third), invModel = viewModel)
+            if (channelVisibility.first != NoRecord)
+                Lines(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }
 }

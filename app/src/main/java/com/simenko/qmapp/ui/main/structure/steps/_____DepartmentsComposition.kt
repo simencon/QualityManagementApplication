@@ -175,14 +175,9 @@ fun Department(
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.72f)) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.15f), titleFirst = false, titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.36f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
-                }
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                ContentWithTitle(title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.28f)
+                HeaderWithTitle(titleWight = 0.37f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
             }
             StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts(department.department.id) }) {
                 Text(
@@ -210,12 +205,14 @@ fun DepartmentDetails(
 ) {
 
     if (department.detailsVisibility) {
-        Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Complete name:", value = department.department.depName ?: NoString.str, titleWight = 0.25f)
+            ContentWithTitle(title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.24f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Dep. manager:", value = department.depManager.fullName, titleWight = 0.25f)
+            ContentWithTitle(title = "Complete name:", value = department.department.depName ?: NoString.str, titleWight = 0.24f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Dep. manager:", value = department.depManager.fullName, titleWight = 0.24f)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
         SubDepartments(viewModel = viewModel)
