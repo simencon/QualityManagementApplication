@@ -107,7 +107,7 @@ fun InvestigationsMainComposition(
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState)
+                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {

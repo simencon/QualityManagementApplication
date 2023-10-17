@@ -101,50 +101,11 @@ fun CompanyStructure(
         }
     }
 
-    val context = LocalContext.current
-    var direction = 0
-    var (x, y) = Offset(0f, 0f)
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            /*.pointerInput(horizontalScrollState.value) {
-                detectDragGestures(
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        x = dragAmount.x
-                        y = dragAmount.y
-                        if (abs(x) > abs(y)) {
-                            when {
-                                x > 0 -> direction = 0
-                                x < 0 -> direction = 1
-                            }
-                        } else {
-                            when {
-                                y > 0 -> direction = 2
-                                y < 0 -> direction = 3
-                            }
-                        }
-
-                    },
-                    onDragEnd = {
-                        println("CompanyStructure - detectDragGestures: direction = $direction, x = ${x.dp()}, y = ${y.dp()}")
-                        when (direction) {
-                            0 -> if (abs(x.dp()) > 50) Toast.makeText(context, "Long right", Toast.LENGTH_LONG).show()
-                            1 -> if (abs(x.dp()) > 50) Toast.makeText(context, "Long left", Toast.LENGTH_LONG).show()
-                            2 -> if (abs(y.dp()) > 50) Toast.makeText(context, "Long down", Toast.LENGTH_LONG).show()
-                            3 -> if (abs(y.dp()) > 50) Toast.makeText(context, "Long up", Toast.LENGTH_LONG).show()
-                        }
-
-                    }
-                )
-            }*/
-    )
-    {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState, channelVisibility.first != NoRecord)
+                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
