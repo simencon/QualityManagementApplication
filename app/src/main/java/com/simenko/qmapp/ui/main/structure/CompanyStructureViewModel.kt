@@ -59,7 +59,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
     private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channelsBySubDepartment(it.first.num) }
     private val _lines = _channelsVisibility.flatMapLatest { repository.linesByChannel(it.first.num) }
-    private val _operations = _operationsVisibility.flatMapLatest { repository.operationsByLine(it.first.num) }
+    private val _operations = _linesVisibility.flatMapLatest { repository.operationsByLine(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ class CompanyStructureViewModel @Inject constructor(
 
     val operationsVisibility = _linesVisibility.asStateFlow()
     val operations = _operations.flatMapLatest { operation ->
-        _linesVisibility.flatMapLatest { visibility ->
+        _operationsVisibility.flatMapLatest { visibility ->
             val cyp = mutableListOf<DomainManufacturingOperation>()
             operation.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
             flow { emit(cyp) }
@@ -214,6 +214,22 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onLineProductsClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onDeleteOperationClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onAddOperationClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onEditOperationClick(it: Pair<Int, Int>) {
+        TODO("Not yet implemented")
+    }
+
+    fun onOperationProductsClick(it: Int) {
         TODO("Not yet implemented")
     }
 }
