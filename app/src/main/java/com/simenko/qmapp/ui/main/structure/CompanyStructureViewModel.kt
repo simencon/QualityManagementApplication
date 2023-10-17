@@ -162,4 +162,20 @@ class CompanyStructureViewModel @Inject constructor(
     fun onSubDepartmentProductsClick(it: Int) {
         TODO("Not yet implemented")
     }
+
+    fun onDeleteChannelClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onAddChannelClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onEditChannelClick(it: Pair<Int, Int>) {
+        TODO("Not yet implemented")
+    }
+
+    fun onChannelProductsClick(it: Int) {
+        TODO("Not yet implemented")
+    }
 }

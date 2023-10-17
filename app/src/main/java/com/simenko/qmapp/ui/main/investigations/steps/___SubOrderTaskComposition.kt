@@ -44,7 +44,7 @@ fun SubOrderTasksFlowColumn(
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = 0,
 ) {
-    val items by invModel.tasksSF.collectAsStateWithLifecycle(listOf())
+    val items by invModel.tasks.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(aId = SelectedNumber(it)) } }
@@ -53,7 +53,7 @@ fun SubOrderTasksFlowColumn(
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrderTask = subOrderComplete, performerId = completedById) }
     }
 
-    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+    Column {
         FlowRow {
             items.forEach { task ->
                 if (task.subOrderTask.subOrderId == parentId) {
@@ -190,10 +190,7 @@ fun SubOrderTask(
                 text = subOrderTask.characteristic.characteristic.charDescription ?: NoString.str
             )
         }
-        IconButton(
-            onClick = { onClickDetails(subOrderTask.subOrderTask.id) },
-            modifier = Modifier.weight(weight = 0.10f)
-        ) {
+        IconButton(onClick = { onClickDetails(subOrderTask.subOrderTask.id) }, modifier = Modifier.weight(weight = 0.10f)) {
             Icon(
                 imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
                 contentDescription = if (subOrderTask.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
