@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -53,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.DomainManufacturingLine
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
@@ -65,24 +68,26 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
+fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
-    val departmentVisibility by viewModel.departmentsVisibility.collectAsStateWithLifecycle()
-    val items by viewModel.subDepartments.collectAsStateWithLifecycle()
+    val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
+    val items by viewModel.lines.collectAsStateWithLifecycle()
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setSubDepartmentsVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteSubDepartmentClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddSubDepartmentClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditSubDepartmentClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteLineClick(it) } }
+    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddLineClick(it) } }
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
+    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
-    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+    val verticalScrollState = rememberScrollState()
+
+    Column(modifier = modifier.verticalScroll(verticalScrollState), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow {
-            items.forEach { subDepartment ->
-                SubDepartmentCard(
+            items.forEach { line ->
+                LineCard(
                     viewModel = viewModel,
-                    subDepartment = subDepartment,
+                    line = line,
                     onClickDetails = { onClickDetailsLambda(it) },
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
@@ -94,8 +99,8 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
         Divider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            onClick = { onClickAddLambda(departmentVisibility.first.num) },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            onClick = { onClickAddLambda(channelVisibility.first.num) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }
@@ -103,34 +108,34 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
-fun SubDepartmentCard(
+fun LineCard(
     viewModel: CompanyStructureViewModel,
-    subDepartment: DomainSubDepartment,
+    line: DomainManufacturingLine,
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Pair<Int, Int>) -> Unit,
     onClickProducts: (Int) -> Unit
 ) {
-    val transitionState = remember { MutableTransitionState(subDepartment.isExpanded).apply { targetState = !subDepartment.isExpanded } }
+    val transitionState = remember { MutableTransitionState(line.isExpanded).apply { targetState = !line.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { (if (subDepartment.isExpanded) Constants.CARD_OFFSET * 2 else 0f).dp() },
+        targetValueByState = { (if (line.isExpanded) Constants.CARD_OFFSET * 2 else 0f).dp() },
     )
 
-    val containerColor = when (subDepartment.isExpanded) {
+    val containerColor = when (line.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.primaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
     }
 
-    val borderColor = when (subDepartment.detailsVisibility) {
+    val borderColor = when (line.detailsVisibility) {
         true -> MaterialTheme.colorScheme.outline
-        false -> when (subDepartment.isExpanded) {
+        false -> when (line.isExpanded) {
             true -> MaterialTheme.colorScheme.secondaryContainer
-            false -> MaterialTheme.colorScheme.primaryContainer
+            false -> MaterialTheme.colorScheme.surfaceVariant
         }
     }
 
@@ -138,12 +143,12 @@ fun SubDepartmentCard(
         Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(subDepartment.id) },
+                onClick = { onClickDelete(line.id) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(Pair(subDepartment.depId, subDepartment.id)) },
+                onClick = { onClickEdit(Pair(line.chId, line.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
             )
         }
@@ -152,14 +157,14 @@ fun SubDepartmentCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(subDepartment.id) { detectTapGestures(onDoubleTap = { onClickActions(subDepartment.id) }) }
+                .pointerInput(line.id) { detectTapGestures(onDoubleTap = { onClickActions(line.id) }) }
         ) {
-            SubDepartment(
+            Line(
                 viewModel = viewModel,
-                subDepartment = subDepartment,
+                line = line,
                 onClickDetails = { onClickDetails(it) },
                 onClickProducts = { onClickProducts(it) }
             )
@@ -168,25 +173,25 @@ fun SubDepartmentCard(
 }
 
 @Composable
-fun SubDepartment(
+fun Line(
     viewModel: CompanyStructureViewModel,
-    subDepartment: DomainSubDepartment,
+    line: DomainManufacturingLine,
     onClickDetails: (Int) -> Unit = {},
     onClickProducts: (Int) -> Unit
 ) {
-    val containerColor = when (subDepartment.isExpanded) {
+    val containerColor = when (line.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.primaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
-            Column(modifier = Modifier.weight(0.72f)) {
-                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = subDepartment.subDepOrder?.toString() ?: NoString.str)
+            Column(modifier = Modifier.weight(0.61f)) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = line.lineOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.39f, title = "Sub department:", text = subDepartment.subDepAbbr ?: NoString.str)
+                HeaderWithTitle(titleWight = 0.18f, title = "Line:", text = line.lineAbbr)
             }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts(subDepartment.id) }) {
+            StatusChangeBtn(modifier = Modifier.weight(weight = 0.29f), containerColor = containerColor, onClick = { onClickProducts(line.id) }) {
                 Text(
                     text = "Products",
                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -194,28 +199,28 @@ fun SubDepartment(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(subDepartment.id) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(line.id) }) {
                 Icon(
-                    imageVector = if (subDepartment.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (subDepartment.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
+                    imageVector = if (line.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (line.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-        SubDepartmentDetails(viewModel = viewModel, subDepartment = subDepartment)
+        LineDetails(viewModel = viewModel, line = line)
     }
 }
 
 @Composable
-fun SubDepartmentDetails(
+fun LineDetails(
     viewModel: CompanyStructureViewModel,
-    subDepartment: DomainSubDepartment
+    line: DomainManufacturingLine
 ) {
-    if (subDepartment.detailsVisibility) {
+    if (line.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Complete name:", value = subDepartment.subDepDesignation?: NoString.str, titleWight = 0.26f)
+            ContentWithTitle(title = "Comp. name:", value = line.lineDesignation, titleWight = 0.23f)
         }
-        Channels(viewModel = viewModel)
+//        Operations(viewModel = viewModel)
     }
 }

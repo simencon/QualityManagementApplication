@@ -55,6 +55,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
@@ -67,7 +68,7 @@ import kotlin.math.roundToInt
 fun Channels(
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
-    val subDepartmentVisibility by viewModel.subDepartmentVisibility.collectAsStateWithLifecycle()
+    val subDepartmentVisibility by viewModel.subDepartmentsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.channels.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
@@ -92,7 +93,7 @@ fun Channels(
         }
         Divider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
-            modifier = Modifier.padding(top = (Constants.DEFAULT_SPACE / 2).dp, end = Constants.DEFAULT_SPACE.dp, bottom = Constants.DEFAULT_SPACE.dp),
+            modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             onClick = { onClickAddLambda(subDepartmentVisibility.first.num) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add channel") }
@@ -151,7 +152,7 @@ fun ChannelCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(horizontal = Constants.DEFAULT_SPACE.dp, vertical = (Constants.DEFAULT_SPACE / 2).dp)
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(channel.id) { detectTapGestures(onDoubleTap = { onClickActions(channel.id) }) },
@@ -176,32 +177,38 @@ fun Channel(
         false -> MaterialTheme.colorScheme.tertiaryContainer
     }
 
-    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
-        Row(modifier = Modifier.padding(all = Constants.DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
-            Column(modifier = Modifier.weight(0.72f)) {
-                Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.15f), titleFirst = false, titleWight = 0f, text = channel.channelOrder?.toString() ?: NoString.str)
-                    Spacer(modifier = Modifier.width(Constants.DEFAULT_SPACE.dp))
-                    HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.30f, title = "Channel:", text = channel.channelAbbr ?: NoString.str)
+    Row(
+        modifier = Modifier
+            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
+            .padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(0.91f)) {
+            Row {
+                Column(modifier = Modifier.weight(weight = 0.70f), horizontalAlignment = Alignment.Start) {
+                    HeaderWithTitle(titleFirst = false, titleWight = 0f, text = channel.channelOrder?.toString() ?: NoString.str)
+                    Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                    HeaderWithTitle(titleWight = 0.34f, title = "Channel:", text = channel.channelAbbr ?: NoString.str)
                 }
-                Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
-                ContentWithTitle(title = "Comp. name:", value = channel.channelDesignation ?: NoString.str, titleWight = 0.35f)
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(channel.id) }) {
+                    Text(
+                        text = "Products",
+                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
             }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts(channel.id) }) {
-                Text(
-                    text = "Products",
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            IconButton(onClick = { onClickDetails(channel.id) }, modifier = Modifier.weight(weight = 0.10f)) {
-                Icon(
-                    imageVector = if (channel.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
-                    contentDescription = if (channel.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
-                )
-            }
+            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
+            ContentWithTitle(title = "Comp. name:", value = channel.channelDesignation ?: NoString.str, titleWight = 0.23f)
+        }
+
+        IconButton(onClick = { onClickDetails(channel.id) }, modifier = Modifier.weight(weight = 0.09f)) {
+            Icon(
+                imageVector = if (channel.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
+                contentDescription = if (channel.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
+            )
         }
     }
 }

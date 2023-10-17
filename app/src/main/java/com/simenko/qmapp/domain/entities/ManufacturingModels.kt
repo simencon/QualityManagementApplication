@@ -142,7 +142,8 @@ data class DomainManufacturingLine(
     var lineAbbr: String = NoString.str,
     var lineDesignation: String = NoString.str,
     var lineOrder: Int = NoRecord.num,
-    var operationVisibility: Boolean = false,
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingLine>() {
     override fun getRecordId() = id
