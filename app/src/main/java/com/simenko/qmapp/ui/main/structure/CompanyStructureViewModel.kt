@@ -10,6 +10,7 @@ import com.simenko.qmapp.di.SubDepartmentIdParameter
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
+import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -54,6 +55,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
     private val _departments = repository.departmentsComplete
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
+    private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channelsBySubDepartment(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -102,10 +104,20 @@ class CompanyStructureViewModel @Inject constructor(
             }
         }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
+    val subDepartmentVisibility = _subDepartmentsVisibility.asStateFlow()
     val subDepartments = _subDepartments.flatMapLatest { subDepartment ->
         _subDepartmentsVisibility.flatMapLatest { visibility ->
             val cyp = mutableListOf<DomainSubDepartment>()
             subDepartment.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
+            flow { emit(cyp) }
+        }
+    }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    val channelVisibility = _channelsVisibility.asStateFlow()
+    val channels = _channels.flatMapLatest { channel ->
+        _channelsVisibility.flatMapLatest { visibility ->
+            val cyp = mutableListOf<DomainManufacturingChannel>()
+            channel.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
             flow { emit(cyp) }
         }
     }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())

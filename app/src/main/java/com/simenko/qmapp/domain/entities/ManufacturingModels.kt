@@ -122,7 +122,8 @@ data class DomainManufacturingChannel(
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null,
-    var linesVisibility: Boolean = false,
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingChannel>() {
     override fun getRecordId() = id
