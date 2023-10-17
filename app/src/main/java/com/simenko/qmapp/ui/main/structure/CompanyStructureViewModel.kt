@@ -12,6 +12,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -58,6 +59,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
     private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channelsBySubDepartment(it.first.num) }
     private val _lines = _channelsVisibility.flatMapLatest { repository.linesByChannel(it.first.num) }
+    private val _operations = _operationsVisibility.flatMapLatest { repository.operationsByLine(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -125,10 +127,19 @@ class CompanyStructureViewModel @Inject constructor(
     }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     val linesVisibility = _linesVisibility.asStateFlow()
-    val lines = _lines.flatMapLatest { channel ->
+    val lines = _lines.flatMapLatest { line ->
         _linesVisibility.flatMapLatest { visibility ->
             val cyp = mutableListOf<DomainManufacturingLine>()
-            channel.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
+            line.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
+            flow { emit(cyp) }
+        }
+    }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    val operationsVisibility = _linesVisibility.asStateFlow()
+    val operations = _operations.flatMapLatest { operation ->
+        _linesVisibility.flatMapLatest { visibility ->
+            val cyp = mutableListOf<DomainManufacturingOperation>()
+            operation.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
             flow { emit(cyp) }
         }
     }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())

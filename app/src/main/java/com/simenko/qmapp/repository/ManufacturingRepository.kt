@@ -77,6 +77,7 @@ class ManufacturingRepository @Inject constructor(
     val linesByChannel:(Int) ->  Flow<List<DomainManufacturingLine>> = { flow { emit(database.lineDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val operations: Flow<List<DomainManufacturingOperation>> = database.operationDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val operationsByLine:(Int) ->  Flow<List<DomainManufacturingOperation>> = { flow { emit(database.operationDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
 }
