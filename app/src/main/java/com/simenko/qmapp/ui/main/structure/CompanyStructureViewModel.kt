@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -61,16 +62,9 @@ class CompanyStructureViewModel @Inject constructor(
 
     init {
         mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
-            .setOnFabClickAction { onAddChannelClick() }
+            .setOnFabClickAction { onAddDepartmentClick() }
             .setOnPullRefreshAction { syncCompanyStructureData() }
             .build()
-    }
-
-    /**
-     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
-     * */
-    private fun onAddChannelClick() {
-        TODO("Not yet implemented")
     }
 
     /**
@@ -99,6 +93,7 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
+    val departmentVisibility = _departmentsVisibility.asStateFlow()
     val departments = _departments.flatMapLatest { departments ->
             _departmentsVisibility.flatMapLatest { visibility ->
                 val cyp = mutableListOf<DomainDepartmentComplete>()
@@ -108,7 +103,7 @@ class CompanyStructureViewModel @Inject constructor(
         }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     val subDepartments = _subDepartments.flatMapLatest { subDepartment ->
-        _departmentsVisibility.flatMapLatest { visibility ->
+        _subDepartmentsVisibility.flatMapLatest { visibility ->
             val cyp = mutableListOf<DomainSubDepartment>()
             subDepartment.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
             flow { emit(cyp) }
@@ -122,4 +117,37 @@ class CompanyStructureViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun onDeleteDepartmentClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+    private fun onAddDepartmentClick() {
+        TODO("Not yet implemented")
+    }
+
+    fun onEditDepartmentClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onDepartmentProductsClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onDeleteSubDepartmentClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onAddSubDepartmentClick(it: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun onEditSubDepartmentClick(it: Pair<Int, Int>) {
+        TODO("Not yet implemented")
+    }
+
+    fun onSubDepartmentProductsClick(it: Int) {
+        TODO("Not yet implemented")
+    }
 }

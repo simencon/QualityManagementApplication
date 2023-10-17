@@ -296,7 +296,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * REST operations
      * */
-    fun deleteSubOrder(subOrderId: Int) {
+    fun onDeleteSubOrderClick(subOrderId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {

@@ -28,7 +28,7 @@ fun SubOrdersStandAlone(
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.onDeleteSubOrderClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditProcessControlClick(it) } }
 
     val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
