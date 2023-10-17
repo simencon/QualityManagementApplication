@@ -13,8 +13,6 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,9 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -53,10 +51,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
-import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -66,7 +62,6 @@ import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
@@ -80,29 +75,29 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
-    val verticalScrollState = rememberScrollState()
+    val listState = rememberLazyListState()
 
-    Column(modifier = modifier.verticalScroll(verticalScrollState), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        FlowRow {
-            items.forEach { line ->
-                LineCard(
-                    viewModel = viewModel,
-                    line = line,
-                    onClickDetails = { onClickDetailsLambda(it) },
-                    onClickActions = { onClickActionsLambda(it) },
-                    onClickDelete = { onClickDeleteLambda(it) },
-                    onClickEdit = { onClickEditLambda(it) },
-                    onClickProducts = { onClickProductsLambda(it) }
-                )
-            }
+    LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+        items(items = items, key = { it.id }) { line ->
+            LineCard(
+                viewModel = viewModel,
+                line = line,
+                onClickDetails = { onClickDetailsLambda(it) },
+                onClickActions = { onClickActionsLambda(it) },
+                onClickDelete = { onClickDeleteLambda(it) },
+                onClickEdit = { onClickEditLambda(it) },
+                onClickProducts = { onClickProductsLambda(it) }
+            )
         }
-        Divider(modifier = Modifier.height(0.dp))
-        FloatingActionButton(
-            modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            onClick = { onClickAddLambda(channelVisibility.first.num) },
-            content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
-        )
+        item {
+            Divider(modifier = Modifier.height(0.dp))
+            FloatingActionButton(
+                modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                onClick = { onClickAddLambda(channelVisibility.first.num) },
+                content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
+            )
+        }
     }
 }
 

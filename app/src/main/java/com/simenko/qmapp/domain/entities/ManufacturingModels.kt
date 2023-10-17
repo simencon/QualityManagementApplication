@@ -164,6 +164,7 @@ data class DomainManufacturingOperation(
     var operationOrder: Int = NoRecord.num,
     var equipment: String? = null,
     var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingOperation>() {
     override fun getRecordId() = id

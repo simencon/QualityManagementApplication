@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -41,7 +42,9 @@ fun SampleComposition(
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> { { invModel.setSamplesVisibility(dId = SelectedNumber(it.sample.id)) } }
 
-    LazyColumn(modifier = modifier) {
+    val listState = rememberLazyListState()
+
+    LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString() }) { sample ->
             if (sample.sampleResult.taskId == observeCurrentSubOrderTask.num) {
                 SampleCard(
