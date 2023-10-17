@@ -321,7 +321,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with tasks __________________________________________________________
      * */
-    private val _tasksSF: Flow<List<DomainSubOrderTaskComplete>> = _subOrdersVisibility.flatMapLatest { subOrdersIds ->
+    private val _tasks: Flow<List<DomainSubOrderTaskComplete>> = _subOrdersVisibility.flatMapLatest { subOrdersIds ->
         repository.tasksRangeList(subOrdersIds.first.num)
     }
 
@@ -339,7 +339,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * The result flow
      * */
-    val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> = _tasksSF.flatMapLatest { tasks ->
+    val tasks: StateFlow<List<DomainSubOrderTaskComplete>> = _tasks.flatMapLatest { tasks ->
         _tasksVisibility.flatMapLatest { visibility ->
             val cyp = mutableListOf<DomainSubOrderTaskComplete>()
             tasks.forEach { cyp.add(it.copy(detailsVisibility = it.subOrderTask.id == visibility.first.num, isExpanded = it.subOrderTask.id == visibility.second.num)) }
