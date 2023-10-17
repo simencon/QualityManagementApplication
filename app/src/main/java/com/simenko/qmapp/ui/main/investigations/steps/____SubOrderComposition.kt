@@ -40,7 +40,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SubOrdersFlowColumn(
+fun SubOrders(
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = NoRecord.num
 ) {
@@ -48,7 +48,7 @@ fun SubOrdersFlowColumn(
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrder(it) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.onDeleteSubOrderClick(it) } }
     val onClickAddLambda = remember<(Int) -> Unit> { { invModel.onAddSubOrderClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditSubOrderClick(it) } }
 
@@ -229,10 +229,7 @@ fun SubOrder(
                     titleWight = 0.2f
                 )
             }
-            IconButton(
-                onClick = { onClickDetails(subOrder.subOrder.id) },
-                modifier = Modifier.weight(weight = 0.10f)
-            ) {
+            IconButton(onClick = { onClickDetails(subOrder.subOrder.id) }, modifier = Modifier.weight(weight = 0.10f)) {
                 Icon(
                     imageVector = if (subOrder.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (subOrder.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)

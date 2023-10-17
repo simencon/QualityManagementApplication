@@ -228,6 +228,6 @@ fun OrderDetails(
             ContentWithTitle(title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
-        SubOrdersFlowColumn(invModel = invModel, parentId = orderId)
+        SubOrders(invModel = invModel, parentId = orderId)
     }
 }

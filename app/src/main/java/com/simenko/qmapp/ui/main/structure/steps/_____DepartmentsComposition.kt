@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -69,6 +70,10 @@ fun Departments(
     val items by viewModel.departments.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteDepartmentClick(it) } }
+    val onClickEditLambda = remember<(Int) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
+    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
     val listState = rememberLazyListState()
 
@@ -80,9 +85,10 @@ fun Departments(
                 viewModel = viewModel,
                 department = department,
                 onClickDetails = { onClickDetailsLambda(it) },
-                onClickActions = {},
-                onClickDelete = {},
-                onClickEdit = {}
+                onClickActions = { onClickActionsLambda(it) },
+                onClickDelete = { onClickDeleteLambda(it) },
+                onClickEdit = { onClickEditLambda(it) },
+                onClickProducts = { onClickProductsLambda(it) }
             )
         }
     }
@@ -97,7 +103,8 @@ fun DepartmentCard(
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int) -> Unit
+    onClickEdit: (Int) -> Unit,
+    onClickProducts: (Int) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(department.isExpanded).apply { targetState = !department.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -105,7 +112,7 @@ fun DepartmentCard(
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { (if (department.isExpanded) Constants.CARD_OFFSET else 0f).dp() },
+        targetValueByState = { (if (department.isExpanded) Constants.CARD_OFFSET * 2 else 0f).dp() },
     )
 
     val containerColor = when (department.isExpanded) {
@@ -149,7 +156,8 @@ fun DepartmentCard(
             Department(
                 viewModel = viewModel,
                 department = department,
-                onClickDetails = { onClickDetails(it) }
+                onClickDetails = { onClickDetails(it) },
+                onClickProducts = { onClickProducts(it) }
             )
         }
     }
@@ -159,8 +167,8 @@ fun DepartmentCard(
 fun Department(
     viewModel: CompanyStructureViewModel = hiltViewModel(),
     department: DomainDepartmentComplete,
-    onClickDetails: (Int) -> Unit = {},
-    onClickProducts: (Int) -> Unit = {},
+    onClickDetails: (Int) -> Unit,
+    onClickProducts: (Int) -> Unit
 ) {
     val containerColor = when (department.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -170,20 +178,16 @@ fun Department(
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.72f)) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     HeaderWithTitle(modifier = Modifier.weight(0.15f), titleFirst = false, titleWight = 0f, text = department.department.depOrder?.toString() ?: NoString.str)
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                     HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.36f, title = "Department:", text = department.department.depAbbr ?: NoString.str)
                 }
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.28f)
             }
-            StatusChangeBtn(
-                modifier = Modifier.weight(weight = 0.28f),
-                containerColor = containerColor,
-                onClick = { onClickProducts(department.department.id) }
-            ) {
+            StatusChangeBtn(modifier = Modifier.weight(weight = 0.28f), containerColor = containerColor, onClick = { onClickProducts(department.department.id) }) {
                 Text(
                     text = "Products",
                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -191,7 +195,6 @@ fun Department(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(department.department.id) }) {
                 Icon(
                     imageVector = if (department.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -216,7 +219,8 @@ fun DepartmentDetails(
             ContentWithTitle(title = "Complete name:", value = department.department.depName ?: NoString.str, titleWight = 0.25f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Dep. manager:", value = department.depManager.fullName, titleWight = 0.25f)
-//        SubOrdersFlowColumn(modifier = Modifier, invModel = invModel, parentId = orderId)
+            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
+        SubDepartments(viewModel = viewModel)
     }
 }
