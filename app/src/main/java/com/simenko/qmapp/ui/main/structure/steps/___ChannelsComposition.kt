@@ -67,7 +67,7 @@ import kotlin.math.roundToInt
 fun Channels(
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
-    val channelVisibility by viewModel.channelVisibility.collectAsStateWithLifecycle()
+    val subDepartmentVisibility by viewModel.subDepartmentVisibility.collectAsStateWithLifecycle()
     val items by viewModel.channels.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
@@ -94,7 +94,7 @@ fun Channels(
         FloatingActionButton(
             modifier = Modifier.padding(top = (Constants.DEFAULT_SPACE / 2).dp, end = Constants.DEFAULT_SPACE.dp, bottom = Constants.DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-            onClick = { onClickAddLambda(channelVisibility.first.num) },
+            onClick = { onClickAddLambda(subDepartmentVisibility.first.num) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add channel") }
         )
     }

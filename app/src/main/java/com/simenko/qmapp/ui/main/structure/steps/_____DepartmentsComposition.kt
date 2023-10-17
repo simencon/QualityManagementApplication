@@ -36,7 +36,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -76,8 +75,6 @@ fun Departments(
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
     val listState = rememberLazyListState()
-
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
     LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.department.id }) { department ->
