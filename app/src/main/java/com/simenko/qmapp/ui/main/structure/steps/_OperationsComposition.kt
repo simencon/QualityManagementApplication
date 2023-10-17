@@ -13,6 +13,8 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,9 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -51,8 +50,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainManufacturingLine
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -62,26 +62,25 @@ import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = hiltViewModel()) {
+fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
-    val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
-    val items by viewModel.lines.collectAsStateWithLifecycle()
+    val departmentVisibility by viewModel.linesVisibility.collectAsStateWithLifecycle()
+    val items by viewModel.operations.collectAsStateWithLifecycle()
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteLineClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddLineClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteOperationClick(it) } }
+    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddOperationClick(it) } }
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditOperationClick(it) } }
+    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onOperationProductsClick(it) } }
 
-    val listState = rememberLazyListState()
-
-    LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.id }) { line ->
-            LineCard(
+    FlowRow(horizontalArrangement = Arrangement.End, verticalArrangement = Arrangement.Center) {
+        items.forEach { subDepartment ->
+            OperationCard(
                 viewModel = viewModel,
-                line = line,
+                operation = subDepartment,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
@@ -89,48 +88,46 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
                 onClickProducts = { onClickProductsLambda(it) }
             )
         }
-        item {
-            Divider(modifier = Modifier.height(0.dp))
-            FloatingActionButton(
-                modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                onClick = { onClickAddLambda(channelVisibility.first.num) },
-                content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
-            )
-        }
+        Divider(modifier = Modifier.height(0.dp))
+        FloatingActionButton(
+            modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            onClick = { onClickAddLambda(departmentVisibility.first.num) },
+            content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
+        )
     }
 }
 
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
-fun LineCard(
+fun OperationCard(
     viewModel: CompanyStructureViewModel,
-    line: DomainManufacturingLine,
+    operation: DomainManufacturingOperation,
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Pair<Int, Int>) -> Unit,
     onClickProducts: (Int) -> Unit
 ) {
-    val transitionState = remember { MutableTransitionState(line.isExpanded).apply { targetState = !line.isExpanded } }
+    val transitionState = remember { MutableTransitionState(operation.isExpanded).apply { targetState = !operation.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { (if (line.isExpanded) Constants.CARD_OFFSET * 2 else 0f).dp() },
+        targetValueByState = { (if (operation.isExpanded) Constants.CARD_OFFSET * 2 else 0f).dp() },
     )
 
-    val containerColor = when (line.isExpanded) {
+    val containerColor = when (operation.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
+        false -> MaterialTheme.colorScheme.primaryContainer
     }
 
-    val borderColor = when (line.detailsVisibility) {
+    val borderColor = when (operation.detailsVisibility) {
         true -> MaterialTheme.colorScheme.outline
-        false -> when (line.isExpanded) {
+        false -> when (operation.isExpanded) {
             true -> MaterialTheme.colorScheme.secondaryContainer
-            false -> MaterialTheme.colorScheme.surfaceVariant
+            false -> MaterialTheme.colorScheme.primaryContainer
         }
     }
 
@@ -138,12 +135,12 @@ fun LineCard(
         Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(line.id) },
+                onClick = { onClickDelete(operation.id) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(Pair(line.chId, line.id)) },
+                onClick = { onClickEdit(Pair(operation.lineId, operation.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
             )
         }
@@ -152,14 +149,14 @@ fun LineCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(line.id) { detectTapGestures(onDoubleTap = { onClickActions(line.id) }) }
+                .pointerInput(operation.id) { detectTapGestures(onDoubleTap = { onClickActions(operation.id) }) }
         ) {
-            Line(
+            Operation(
                 viewModel = viewModel,
-                line = line,
+                operation = operation,
                 onClickDetails = { onClickDetails(it) },
                 onClickProducts = { onClickProducts(it) }
             )
@@ -168,25 +165,25 @@ fun LineCard(
 }
 
 @Composable
-fun Line(
+fun Operation(
     viewModel: CompanyStructureViewModel,
-    line: DomainManufacturingLine,
+    operation: DomainManufacturingOperation,
     onClickDetails: (Int) -> Unit = {},
     onClickProducts: (Int) -> Unit
 ) {
-    val containerColor = when (line.isExpanded) {
+    val containerColor = when (operation.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
+        false -> MaterialTheme.colorScheme.primaryContainer
     }
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
-            Column(modifier = Modifier.weight(0.61f)) {
-                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = line.lineOrder.toString())
+            Column(modifier = Modifier.weight(0.60f)) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = operation.operationOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.18f, title = "Line:", text = line.lineAbbr)
+                HeaderWithTitle(titleWight = 0.39f, title = "Operation:", text = operation.operationAbbr)
             }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.29f), containerColor = containerColor, onClick = { onClickProducts(line.id) }) {
+            StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(operation.id) }) {
                 Text(
                     text = "Products",
                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -194,28 +191,30 @@ fun Line(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(line.id) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(operation.id) }) {
                 Icon(
-                    imageVector = if (line.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (line.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
+                    imageVector = if (operation.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (operation.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-        LineDetails(viewModel = viewModel, line = line)
+        OperationDetails(viewModel = viewModel, operation = operation)
     }
 }
 
 @Composable
-fun LineDetails(
+fun OperationDetails(
     viewModel: CompanyStructureViewModel,
-    line: DomainManufacturingLine
+    operation: DomainManufacturingOperation
 ) {
-    if (line.detailsVisibility) {
+    if (operation.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Comp. name:", value = line.lineDesignation, titleWight = 0.23f)
+            ContentWithTitle(title = "Comp. name:", value = operation.operationDesignation, titleWight = 0.23f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Equipment:", value = operation.equipment ?: NoString.str, titleWight = 0.23f)
         }
-        Operations(viewModel = viewModel)
+//        OperationsFlows(viewModel = viewModel)
     }
 }
