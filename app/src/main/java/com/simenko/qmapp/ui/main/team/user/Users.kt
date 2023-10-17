@@ -71,19 +71,12 @@ fun Users(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.second.getContentIfNotHandled()?.let { userId ->
-                viewModel.channel.trySend(
-                    this.launch {
-                        listState.scrollToSelectedItem(list = items.map { it.email }.toList(), selectedId = userId)
-                    }
-                )
+                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.email }.toList(), selectedId = userId) })
             }
         }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = listState
-    ) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
         items(items = items, key = { it.email }) { teamMember ->
             UserCard(
                 item = teamMember,
@@ -171,48 +164,46 @@ fun User(
     onClickAuthorize: (String) -> Unit,
     onClickRemove: (String) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .padding(all = DEFAULT_SPACE.dp)
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.End
-    ) {
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         SimpleRecordHeader(item, item.detailsVisibility, onClickDetails)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         if (item.detailsVisibility) {
-            val modifier: Modifier = Modifier.padding(bottom = DEFAULT_SPACE.dp)
-            val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(modifier = modifier, title = "Job role: ", value = item.jobRole ?: NoString.str, titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Department: ", value = department, titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Email: ", value = StringUtils.getMail(item.email), titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Phone num.: ", value = StringUtils.getMail(item.phoneNumber.toString()), titleWight = 0.3f)
-            item.roles?.forEach { ContentWithTitle(modifier = modifier, title = "System role: ", value = it, titleWight = 0.3f) }
-                ?: ContentWithTitle(modifier = modifier, title = "System role: ", value = NoString.str, titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Email verified: ", value = item.isEmailVerified.toString(), titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Account expired: ", value = item.accountNonExpired.toString(), titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Account locked: ", value = item.accountNonLocked.toString(), titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Credentials expired: ", value = item.credentialsNonExpired.toString(), titleWight = 0.3f)
-            ContentWithTitle(modifier = modifier, title = "Enabled: ", value = item.enabled.toString(), titleWight = 0.3f)
-
-            if (!item.restApiUrl.isNullOrEmpty()) {
-                val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
-                RecordActionTextBtn(
-                    text = "Remove user",
-                    onClick = { onClickRemove(item.email) },
-                    colors = Pair(ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)), null),
-                    elevation = ButtonDefaults.buttonElevation(4.dp)
-                )
-            } else {
-                val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
-                RecordActionTextBtn(
-                    text = "Authorize user",
-                    onClick = { onClickAuthorize(item.email) },
-                    colors = Pair(ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)), null),
-                    elevation = ButtonDefaults.buttonElevation(4.dp)
-                )
+            Column(
+                modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = DEFAULT_SPACE.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.End
+            ) {
+                val modifier: Modifier = Modifier.padding(bottom = DEFAULT_SPACE.dp)
+                val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
+                Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(modifier = modifier, title = "Job role: ", value = item.jobRole ?: NoString.str, titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Department: ", value = department, titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Email: ", value = StringUtils.getMail(item.email), titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Phone num.: ", value = StringUtils.getMail(item.phoneNumber.toString()), titleWight = 0.3f)
+                item.roles?.forEach { ContentWithTitle(modifier = modifier, title = "System role: ", value = it, titleWight = 0.3f) }
+                    ?: ContentWithTitle(modifier = modifier, title = "System role: ", value = NoString.str, titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Email verified: ", value = item.isEmailVerified.toString(), titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Account expired: ", value = item.accountNonExpired.toString(), titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Account locked: ", value = item.accountNonLocked.toString(), titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Credentials expired: ", value = item.credentialsNonExpired.toString(), titleWight = 0.3f)
+                ContentWithTitle(modifier = modifier, title = "Enabled: ", value = item.enabled.toString(), titleWight = 0.3f)
+                if (!item.restApiUrl.isNullOrEmpty()) {
+                    val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.errorContainer
+                    RecordActionTextBtn(
+                        text = "Remove user",
+                        onClick = { onClickRemove(item.email) },
+                        colors = Pair(ButtonDefaults.textButtonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)), null),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    )
+                } else {
+                    val containerColor = if (item.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiary
+                    RecordActionTextBtn(
+                        text = "Authorize user",
+                        onClick = { onClickAuthorize(item.email) },
+                        colors = Pair(ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor)), null),
+                        elevation = ButtonDefaults.buttonElevation(4.dp)
+                    )
+                }
             }
         }
     }
