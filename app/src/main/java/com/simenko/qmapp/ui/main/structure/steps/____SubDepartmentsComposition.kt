@@ -55,6 +55,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
@@ -92,7 +93,7 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
         }
         Divider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
-            modifier = Modifier.padding(top = (Constants.DEFAULT_SPACE / 2).dp, end = Constants.DEFAULT_SPACE.dp, bottom = Constants.DEFAULT_SPACE.dp),
+            modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             onClick = { onClickAddLambda(departmentVisibility.first.num) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
@@ -134,7 +135,7 @@ fun SubDepartmentCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(all = (Constants.DEFAULT_SPACE / 2).dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(subDepartment.id) },
@@ -151,7 +152,7 @@ fun SubDepartmentCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(horizontal = Constants.DEFAULT_SPACE.dp, vertical = (Constants.DEFAULT_SPACE / 2).dp)
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(subDepartment.id) { detectTapGestures(onDoubleTap = { onClickActions(subDepartment.id) }) }
@@ -179,12 +180,12 @@ fun SubDepartment(
     }
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
-        Row(modifier = Modifier.padding(all = Constants.DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(0.72f)) {
-                Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     HeaderWithTitle(modifier = Modifier.weight(0.15f), titleFirst = false, titleWight = 0f, text = subDepartment.subDepOrder?.toString() ?: NoString.str)
-                    Spacer(modifier = Modifier.width(Constants.DEFAULT_SPACE.dp))
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                     HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.50f, title = "Sub department:", text = subDepartment.subDepAbbr ?: NoString.str)
                 }
             }
@@ -213,9 +214,9 @@ fun SubDepartmentDetails(
     subDepartment: DomainSubDepartment
 ) {
     if (subDepartment.detailsVisibility) {
-        Column(modifier = Modifier.padding(all = Constants.DEFAULT_SPACE.dp)) {
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Complete name:", value = subDepartment.subDepDesignation?: NoString.str, titleWight = 0.28f)
         }
         Channels(viewModel = viewModel)

@@ -14,7 +14,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.settingsNavigation
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
-import com.simenko.qmapp.ui.main.structure.steps.Departments
+import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
@@ -29,32 +29,32 @@ fun MainScreen(
             teamNavigation()
 
             composable(destination = Route.Main.CompanyStructure) {
-                val newOrderModel: CompanyStructureViewModel = hiltViewModel()
-                Departments(viewModel = newOrderModel)
+                val viewModel: CompanyStructureViewModel = hiltViewModel()
+                CompanyStructure(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
             }
 
             composable(destination = Route.Main.Inv) {
-                val invModel: InvestigationsViewModel = hiltViewModel()
+                val viewModel: InvestigationsViewModel = hiltViewModel()
                 if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
-                    invModel.enableScrollToCreatedRecord()
-                InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = invModel)
+                    viewModel.enableScrollToCreatedRecord()
+                InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel)
             }
 
             composable(destination = Route.Main.ProcessControl) {
-                val invModel: InvestigationsViewModel = hiltViewModel()
+                val viewModel: InvestigationsViewModel = hiltViewModel()
                 if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
-                    invModel.enableScrollToCreatedRecord()
-                InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = invModel)
+                    viewModel.enableScrollToCreatedRecord()
+                InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel)
             }
 
             composable(destination = Route.Main.OrderAddEdit) {
-                val newOrderModel: NewItemViewModel = hiltViewModel()
-                OrderForm(viewModel = newOrderModel)
+                val viewModel: NewItemViewModel = hiltViewModel()
+                OrderForm(viewModel = viewModel)
             }
 
             composable(destination = Route.Main.SubOrderAddEdit) {
-                val newOrderModel: NewItemViewModel = hiltViewModel()
-                SubOrderForm(viewModel = newOrderModel)
+                val viewModel: NewItemViewModel = hiltViewModel()
+                SubOrderForm(viewModel = viewModel)
             }
 
             settingsNavigation()
