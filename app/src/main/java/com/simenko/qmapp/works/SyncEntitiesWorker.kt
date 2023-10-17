@@ -44,7 +44,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
         runCatching {
             if (url != EmptyString.str) {
-                invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.getCompleteOrdersRange(), latestMillis, excludeMillis))
+                invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.completeOrdersRange(), latestMillis, excludeMillis))
             } else {
                 listOf()
             }

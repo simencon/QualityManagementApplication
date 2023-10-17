@@ -482,14 +482,14 @@ class InvestigationsViewModel @Inject constructor(
                 mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
-                        repository.getTasksBySubOrderId(subOrder.id).forEach {
+                        repository.tasksBySubOrderId(subOrder.id).forEach {
                             it.statusId = subOrder.statusId
                             it.completedById = subOrder.completedById
                             editTask(it)
                         }
                         repository.run { getSubOrder(subOrder) }.consumeEach { }
 
-                        val order = repository.getOrderById(subOrder.orderId)
+                        val order = repository.orderById(subOrder.orderId)
                         repository.run { getOrder(order) }.consumeEach {}
                     }
                 }
@@ -510,10 +510,10 @@ class InvestigationsViewModel @Inject constructor(
 
                         editTask(subOrderTask)
 
-                        val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+                        val subOrder = repository.subOrderById(subOrderTask.subOrderId)
                         repository.run { getSubOrder(subOrder) }.consumeEach { }
 
-                        val order = repository.getOrderById(subOrder.orderId)
+                        val order = repository.orderById(subOrder.orderId)
                         repository.run { getOrder(order) }.consumeEach { }
 
                     }
@@ -553,7 +553,7 @@ class InvestigationsViewModel @Inject constructor(
                                             /**
                                              * first find subOrder
                                              * */
-                                            val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+                                            val subOrder = repository.subOrderById(subOrderTask.subOrderId)
 
                                             /**
                                              * second - extract list of metrixes to record
@@ -567,7 +567,7 @@ class InvestigationsViewModel @Inject constructor(
                                             /**
                                              * third - generate the final list of result to record
                                              * */
-                                            repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
+                                            repository.samplesBySubOrderId(subOrder.id).forEach { sdIt ->
                                                 metrixesToRecord.forEach { mIt ->
                                                     listOfResults.add(
                                                         DomainResult(
