@@ -102,6 +102,8 @@ data class DomainSubDepartment(
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null,
     var channelsVisibility: Boolean = false,
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseSubDepartment>() {
     override fun getRecordId() = id

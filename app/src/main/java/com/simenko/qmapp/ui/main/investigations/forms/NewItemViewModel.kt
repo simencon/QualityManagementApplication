@@ -100,7 +100,7 @@ class NewItemViewModel @Inject constructor(
     val order: StateFlow<DomainOrder> get() = _order
 
     private fun loadOrder(id: Int) {
-        _order.value = repository.getOrderById(id)
+        _order.value = repository.orderById(id)
     }
 
     private fun setNewOrderForProcessControl() {
@@ -108,7 +108,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Order Type ------------------------------------------------------------------------------------------------------------------------------------
-    private val _orderTypes = repository.getOrderTypes
+    private val _orderTypes = repository.orderTypes
     val orderTypes: StateFlow<List<DomainOrdersType>> = _orderTypes.flatMapLatest { types ->
         _order.flatMapLatest { currentOrder ->
             val cpy = mutableListOf<DomainOrdersType>()
@@ -123,7 +123,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Order Reason ----------------------------------------------------------------------------------------------------------------------------------
-    private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
+    private val _orderReasons: Flow<List<DomainReason>> = repository.orderReasons
     val orderReasons: StateFlow<List<DomainReason>> = _orderReasons.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
             if (currentOrder.orderTypeId != NoRecord.num) {
@@ -195,9 +195,9 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
 
     private fun loadSubOrder(id: Int) {
-        val subOrder = repository.getSubOrderById(id)
-        val samples = repository.getSamplesBySubOrderId(id)
-        val tasks = repository.getTasksBySubOrderId(id)
+        val subOrder = repository.subOrderById(id)
+        val samples = repository.samplesBySubOrderId(id)
+        val tasks = repository.tasksBySubOrderId(id)
         _subOrder.value = _subOrder.value.copy(subOrder = subOrder, samples = samples.toMutableList(), subOrderTasks = tasks.toMutableList())
     }
 
