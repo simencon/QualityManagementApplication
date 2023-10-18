@@ -12,7 +12,6 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Event
@@ -33,6 +32,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -70,7 +70,7 @@ class CompanyStructureViewModel @Inject constructor(
     init {
         mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
             .setOnFabClickAction { onAddDepartmentClick() }
-            .setOnPullRefreshAction { syncCompanyStructureData() }
+            .setOnPullRefreshAction { updateCompanyStructureData() }
             .build()
     }
 
@@ -136,7 +136,6 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    val operationsVisibility = _linesVisibility.asStateFlow()
     val operations = _operations.flatMapLatest { operation ->
         _operationsVisibility.flatMapLatest { visibility ->
             val cyp = mutableListOf<DomainManufacturingOperationComplete>()
@@ -148,8 +147,25 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun syncCompanyStructureData() {
-        TODO("Not yet implemented")
+    private fun updateCompanyStructureData() {
+        viewModelScope.launch {
+            try {
+                mainPageHandler.updateLoadingState(Pair(true, null))
+
+                repository.syncTeamMembers()
+                repository.syncCompanies()
+                repository.syncDepartments()
+                repository.syncSubDepartments()
+                repository.syncChannels()
+                repository.syncLines()
+                repository.syncOperations()
+                repository.syncOperationsFlows()
+
+                mainPageHandler.updateLoadingState(Pair(false, null))
+            } catch (e: Exception) {
+                mainPageHandler.updateLoadingState(Pair(false, e.message))
+            }
+        }
     }
 
     /**
