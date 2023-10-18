@@ -7,7 +7,6 @@ import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
-import kotlin.reflect.jvm.internal.impl.types.TypeCheckerState.SupertypesPolicy.DoCustomTransform
 
 @Stable
 data class DomainEmployee(
@@ -163,8 +162,6 @@ data class DomainManufacturingOperation(
     var operationDesignation: String = NoString.str,
     var operationOrder: Int = NoRecord.num,
     var equipment: String? = null,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingOperation>() {
     override fun getRecordId() = id
@@ -232,6 +229,42 @@ data class DomainDepartmentComplete(
             department = department.toDatabaseModel(),
             depManager = depManager.toDatabaseModel(),
             company = company.toDatabaseModel()
+        )
+    }
+}
+
+data class DomainManufacturingOperationComplete(
+    val operation: DomainManufacturingOperation,
+    val previousOperations: List<DomainPreviousOperationComplete>,
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false,
+) : DomainBaseModel<DatabaseManufacturingOperationComplete>() {
+    data class DomainPreviousOperationComplete(
+        val id: Int,
+        val nextOperationId: Int,
+        val depAbbr: String?,
+        val subDepAbbr: String?,
+        val channelAbbr: String?,
+        val lineAbbr: String?,
+        val operationAbbr: String?,
+        val operationDesignation: String?,
+        val equipment: String?
+    ): DomainBaseModel<DatabaseManufacturingOperationComplete.DatabasePreviousOperationComplete>() {
+        override fun getRecordId(): Any = this.id
+        override fun getParentId(): Int = nextOperationId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel(): DatabaseManufacturingOperationComplete.DatabasePreviousOperationComplete
+            = ObjectTransformer(DomainPreviousOperationComplete::class, DatabaseManufacturingOperationComplete.DatabasePreviousOperationComplete::class).transform(this)
+    }
+
+    override fun getRecordId(): Any = operation.id
+    override fun getParentId(): Int = operation.lineId
+    override fun setIsSelected(value: Boolean) {}
+
+    override fun toDatabaseModel(): DatabaseManufacturingOperationComplete {
+        return DatabaseManufacturingOperationComplete(
+            operation = this.operation.toDatabaseModel(),
+            previousOperations = this.previousOperations.map { it.toDatabaseModel() }
         )
     }
 }

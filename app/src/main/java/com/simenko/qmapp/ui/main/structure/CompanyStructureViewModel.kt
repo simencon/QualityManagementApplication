@@ -13,6 +13,7 @@ import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -59,7 +60,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
     private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channelsBySubDepartment(it.first.num) }
     private val _lines = _channelsVisibility.flatMapLatest { repository.linesByChannel(it.first.num) }
-    private val _operations = _linesVisibility.flatMapLatest { repository.operationsByLine(it.first.num) }
+    private val _operations = _linesVisibility.flatMapLatest { repository.operationsCompleteByLine(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -138,8 +139,8 @@ class CompanyStructureViewModel @Inject constructor(
     val operationsVisibility = _linesVisibility.asStateFlow()
     val operations = _operations.flatMapLatest { operation ->
         _operationsVisibility.flatMapLatest { visibility ->
-            val cyp = mutableListOf<DomainManufacturingOperation>()
-            operation.forEach { cyp.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
+            val cyp = mutableListOf<DomainManufacturingOperationComplete>()
+            operation.forEach { cyp.add(it.copy(detailsVisibility = it.operation.id == visibility.first.num, isExpanded = it.operation.id == visibility.second.num)) }
             flow { emit(cyp) }
         }
     }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
