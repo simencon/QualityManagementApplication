@@ -43,6 +43,11 @@ class ManufacturingRepository @Inject constructor(
         it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
+    fun getOperationById(operationId: Int): DomainManufacturingOperationComplete {
+        database.operationDao.getRecordById(operationId.toString())
+        TODO("Not yet implemented")
+    }
+
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(database.companyDao) { service.getCompanies() }
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(database.jobRoleDao) { service.getJobRoles() }
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(database.departmentDao) { service.getDepartments() }

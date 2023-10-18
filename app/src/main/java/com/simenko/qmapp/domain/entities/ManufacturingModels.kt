@@ -234,8 +234,8 @@ data class DomainDepartmentComplete(
 }
 
 data class DomainManufacturingOperationComplete(
-    val operation: DomainManufacturingOperation,
-    val previousOperations: List<DomainPreviousOperationComplete>,
+    val operation: DomainManufacturingOperation = DomainManufacturingOperation(),
+    val previousOperations: List<DomainPreviousOperationComplete> = listOf(),
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false,
 ) : DomainBaseModel<DatabaseManufacturingOperationComplete>() {
