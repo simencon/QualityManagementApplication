@@ -50,9 +50,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperationComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -77,10 +78,9 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onOperationProductsClick(it) } }
 
     FlowRow(horizontalArrangement = Arrangement.End, verticalArrangement = Arrangement.Center) {
-        items.forEach { subDepartment ->
+        items.forEach { operation ->
             OperationCard(
-                viewModel = viewModel,
-                operation = subDepartment,
+                operation = operation,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
@@ -101,8 +101,7 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OperationCard(
-    viewModel: CompanyStructureViewModel,
-    operation: DomainManufacturingOperation,
+    operation: DomainManufacturingOperationComplete,
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
@@ -135,12 +134,12 @@ fun OperationCard(
         Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(operation.id) },
+                onClick = { onClickDelete(operation.operation.id) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(Pair(operation.lineId, operation.id)) },
+                onClick = { onClickEdit(Pair(operation.operation.lineId, operation.operation.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") },
             )
         }
@@ -152,10 +151,9 @@ fun OperationCard(
                 .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(operation.id) { detectTapGestures(onDoubleTap = { onClickActions(operation.id) }) }
+                .pointerInput(operation.operation.id) { detectTapGestures(onDoubleTap = { onClickActions(operation.operation.id) }) }
         ) {
             Operation(
-                viewModel = viewModel,
                 operation = operation,
                 onClickDetails = { onClickDetails(it) },
                 onClickProducts = { onClickProducts(it) }
@@ -166,8 +164,7 @@ fun OperationCard(
 
 @Composable
 fun Operation(
-    viewModel: CompanyStructureViewModel,
-    operation: DomainManufacturingOperation,
+    operation: DomainManufacturingOperationComplete,
     onClickDetails: (Int) -> Unit = {},
     onClickProducts: (Int) -> Unit
 ) {
@@ -179,42 +176,58 @@ fun Operation(
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {
             Column(modifier = Modifier.weight(0.60f)) {
-                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = operation.operationOrder.toString())
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = operation.operation.operationOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.39f, title = "Operation:", text = operation.operationAbbr)
+                HeaderWithTitle(titleWight = 0.34f, title = "Equipment:", text = operation.operation.equipment)
             }
-            StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(operation.id) }) {
+            StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(operation.operation.id) }) {
                 Text(
-                    text = "Products",
+                    text = "Functions",
                     style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(operation.id) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(operation.operation.id) }) {
                 Icon(
                     imageVector = if (operation.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (operation.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-        OperationDetails(viewModel = viewModel, operation = operation)
+        OperationDetails(operation = operation)
     }
 }
 
 @Composable
 fun OperationDetails(
-    viewModel: CompanyStructureViewModel,
-    operation: DomainManufacturingOperation
+    operation: DomainManufacturingOperationComplete
 ) {
     if (operation.detailsVisibility) {
-        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Comp. name:", value = operation.operationDesignation, titleWight = 0.23f)
+            ContentWithTitle(title = "Operation:", value = operation.operation.operationAbbr, titleWight = 0.23f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Equipment:", value = operation.equipment ?: NoString.str, titleWight = 0.23f)
+            ContentWithTitle(title = "Comp. name:", value = operation.operation.operationDesignation, titleWight = 0.23f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Previous operation/operations:", value = EmptyString.str, titleWight = 0.99f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            operation.previousOperations.let {
+                if (it.isEmpty())
+                    ContentWithTitle(Modifier.padding(bottom = DEFAULT_SPACE.dp), title = EmptyString.str, value = NoString.str, titleWight = 0.01f)
+                else
+                    it.forEach { previousOperation ->
+                        ContentWithTitle(
+                            Modifier.padding(bottom = DEFAULT_SPACE.dp),
+                            title = EmptyString.str,
+                            contentTextSize = 12.sp,
+                            value = "${previousOperation.depAbbr}/${previousOperation.subDepAbbr}/${previousOperation.channelAbbr}/${previousOperation.lineAbbr}/${previousOperation.equipment}(${previousOperation.operationAbbr})",
+                            titleWight = 0.01f
+                        )
+                    }
+            }
+
         }
-//        OperationsFlows(viewModel = viewModel)
     }
 }

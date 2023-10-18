@@ -343,3 +343,57 @@ data class DatabaseDepartmentsComplete(
         company = company.toDomainModel()
     )
 }
+
+@DatabaseView(
+    viewName = "manufacturingOperationsComplete",
+    value = " select * from `14_manufacturing_operations` as mo order by mo.operationOrder;"
+)
+data class DatabaseManufacturingOperationComplete(
+    @Embedded
+    val operation: DatabaseManufacturingOperation,
+    @Relation(
+        entity = DatabasePreviousOperationComplete::class,
+        parentColumn = "id",
+        entityColumn = "nextOperationId"
+    )
+    val previousOperations: List<DatabasePreviousOperationComplete>
+) : DatabaseBaseModel<Any?, DomainManufacturingOperationComplete> {
+    @DatabaseView(
+        viewName = "manufacturingOperationsFlowsComplete",
+        value = """
+        select mof.id, mof.currentOperationId as nextOperationId, d.depAbbr, sd.subDepAbbr, mc.channelAbbr, ml.lineAbbr, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment
+        from `14_14_manufacturing_operations_flow` as mof
+        inner join `14_manufacturing_operations` as pmo on mof.previousOperationId = pmo.id
+        inner join `13_manufacturing_lines` as ml on pmo.lineId = ml.id
+        inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
+        inner join `11_sub_departments` as sd on mc.subDepId = sd.id
+        inner join `10_departments` as d on sd.depId = d.id
+        order by pmo.operationOrder, ml.lineOrder, mc.channelOrder, sd.subDepOrder, d.depAbbr
+        """
+    )
+    data class DatabasePreviousOperationComplete(
+        val id: Int,
+        val nextOperationId: Int,
+        val depAbbr: String?,
+        val subDepAbbr: String?,
+        val channelAbbr: String?,
+        val lineAbbr: String?,
+        val operationAbbr: String?,
+        val operationDesignation: String?,
+        val equipment: String?
+    ) : DatabaseBaseModel<Any?, DomainManufacturingOperationComplete.DomainPreviousOperationComplete> {
+        override fun getRecordId(): Any = this.id
+        override fun toNetworkModel(): Any? = null
+        override fun toDomainModel(): DomainManufacturingOperationComplete.DomainPreviousOperationComplete =
+            ObjectTransformer(DatabasePreviousOperationComplete::class, DomainManufacturingOperationComplete.DomainPreviousOperationComplete::class).transform(this)
+    }
+
+    override fun getRecordId(): Any = this.operation.id
+    override fun toNetworkModel(): Any? = null
+    override fun toDomainModel(): DomainManufacturingOperationComplete {
+        return DomainManufacturingOperationComplete(
+            operation = this.operation.toDomainModel(),
+            previousOperations = this.previousOperations.map { it.toDomainModel() }
+        )
+    }
+}

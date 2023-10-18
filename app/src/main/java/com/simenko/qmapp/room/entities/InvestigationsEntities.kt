@@ -851,10 +851,7 @@ data class DatabaseSubOrderComplete constructor(
         departmentAbbr = department.depAbbr,
         channelAbbr = channel.channelAbbr,
         itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
-            StringUtils.concatTwoStrings3(
-                itemVersionComplete.itemComplete.key.componentKey,
-                itemVersionComplete.itemComplete.item.itemDesignation
-            ),
+            StringUtils.concatTwoStrings3(itemVersionComplete.itemComplete.key.componentKey, itemVersionComplete.itemComplete.item.itemDesignation),
             itemVersionComplete.itemVersion.versionDescription
         ),
         notificationReason = reason

@@ -35,9 +35,6 @@ abstract class ResultDao : DaoBaseModel<DatabaseResult>, DaoTimeDependentModel<D
     abstract override fun getRecordsByTimeRange(timeRange: Pair<Long, Long>): List<DatabaseResult>
 
     @Transaction
-    @Query(
-        "select r.* from `result_complete` r " +
-                "where r.taskId = :taskId and r.sampleId = :sampleId;"
-    )
+    @Query("select r.* from `result_complete` r where r.taskId = :taskId and r.sampleId = :sampleId;")
     abstract fun getRecordsByParentIdForUI(taskId: Int, sampleId: Int): Flow<List<DatabaseResultComplete>>
 }
