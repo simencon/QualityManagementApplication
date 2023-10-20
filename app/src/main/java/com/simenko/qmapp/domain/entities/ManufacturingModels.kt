@@ -179,8 +179,8 @@ data class DomainManufacturingLine(
 data class DomainManufacturingOperation(
     var id: Int = NoRecord.num,
     var lineId: Int = NoRecord.num,
-    var operationAbbr: String = NoString.str,
-    var operationDesignation: String = NoString.str,
+    var operationAbbr: String = EmptyString.str,
+    var operationDesignation: String = EmptyString.str,
     var operationOrder: Int = NoRecord.num,
     var equipment: String? = null,
     var isSelected: Boolean = false
