@@ -3,6 +3,8 @@ package com.simenko.qmapp.room.implementation.dao.manufacturing
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
+import com.simenko.qmapp.domain.entities.DomainManufacturingLine
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseManufacturingLine
 import kotlinx.coroutines.flow.Flow
@@ -23,4 +25,8 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
 
     @Query("SELECT * FROM `13_manufacturing_lines` ORDER BY lineOrder ASC")
     abstract fun getRecordsFlowForUI(): Flow<List<DatabaseManufacturingLine>>
+
+    @Transaction
+    @Query("SELECT * FROM manufacturingLinesComplete WHERE id = :id")
+    abstract fun getRecordCompleteById(id: Int): DomainManufacturingLine.DomainManufacturingLineComplete
 }

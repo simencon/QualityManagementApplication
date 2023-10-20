@@ -3,6 +3,10 @@ package com.simenko.qmapp.ui.user.registration.enterdetails
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.UserEditModeParameter
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
@@ -173,8 +177,3 @@ data class UserErrors(
     var emailError: Boolean = false,
     var passwordError: Boolean = false,
 )
-
-sealed class FillInState
-object FillInInitialState : FillInState()
-object FillInSuccess : FillInState()
-data class FillInError(val errorMsg: String) : FillInState()

@@ -11,7 +11,7 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.ui.main.main.TopScreenIntent
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.REGISTRATION_ROOT
+import com.simenko.qmapp.ui.navigation.REGISTRATION_ROUTE
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -88,7 +88,7 @@ class UserViewModel @Inject constructor(
 
     fun onStateIsUnregisteredState() {
         updateLoadingState(Pair(false, null))
-        appNavigator.tryNavigateTo(route = REGISTRATION_ROOT, popUpToId = 0, inclusive = true)
+        appNavigator.tryNavigateTo(route = REGISTRATION_ROUTE, popUpToId = 0, inclusive = true)
     }
 
     suspend fun onStateIsUserNeedToVerifyEmailState(msg: String) {

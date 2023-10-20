@@ -28,4 +28,8 @@ abstract class OperationDao: DaoBaseModel<DatabaseManufacturingOperation> {
     @Transaction
     @Query("select mo.* from manufacturingOperationsComplete mo where mo.lineId = :lineId;")
     abstract fun getRecordsByParentIdForUI(lineId: Int): Flow<List<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM manufacturingOperationsComplete WHERE id = :id")
+    abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete
 }

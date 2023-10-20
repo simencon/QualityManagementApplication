@@ -43,13 +43,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

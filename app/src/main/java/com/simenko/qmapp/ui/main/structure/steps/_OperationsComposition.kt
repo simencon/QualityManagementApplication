@@ -67,7 +67,7 @@ import kotlin.math.roundToInt
 @Composable
 fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
-    val departmentVisibility by viewModel.linesVisibility.collectAsStateWithLifecycle()
+    val linesVisibility by viewModel.linesVisibility.collectAsStateWithLifecycle()
     val items by viewModel.operations.collectAsStateWithLifecycle()
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(dId = SelectedNumber(it)) } }
@@ -92,7 +92,7 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            onClick = { onClickAddLambda(departmentVisibility.first.num) },
+            onClick = { onClickAddLambda(linesVisibility.first.num) },
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
         )
     }

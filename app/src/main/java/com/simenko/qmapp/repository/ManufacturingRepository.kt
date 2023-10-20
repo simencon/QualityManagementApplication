@@ -1,6 +1,7 @@
 package com.simenko.qmapp.repository
 
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineComplete
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
@@ -43,10 +44,6 @@ class ManufacturingRepository @Inject constructor(
         it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
-    fun getOperationById(operationId: Int): DomainManufacturingOperation.DomainManufacturingOperationComplete {
-        database.operationDao.getRecordById(operationId.toString())
-        TODO("Not yet implemented")
-    }
 
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(database.companyDao) { service.getCompanies() }
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(database.jobRoleDao) { service.getJobRoles() }
@@ -79,9 +76,11 @@ class ManufacturingRepository @Inject constructor(
     val channelsBySubDepartment: (Int) -> Flow<List<DomainManufacturingChannel>> = { flow { emit(database.channelDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val lines: Flow<List<DomainManufacturingLine>> = database.lineDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it) }
     val linesByChannel: (Int) -> Flow<List<DomainManufacturingLine>> = { flow { emit(database.lineDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val operations: Flow<List<DomainManufacturingOperation>> = database.operationDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val operationById: (Int)-> DomainManufacturingOperation.DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
     val operationsCompleteByLine: (Int) -> Flow<List<DomainManufacturingOperation.DomainManufacturingOperationComplete>> = { lineId ->
         database.operationDao.getRecordsByParentIdForUI(lineId).map { list -> list.map { it.toDomainModel() } }
     }

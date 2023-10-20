@@ -23,6 +23,11 @@ abstract class DomainBaseModel<out T> {
     abstract fun toDatabaseModel(): T
 }
 
+sealed class FillInState
+object FillInInitialState : FillInState()
+object FillInSuccess : FillInState()
+data class FillInError(val errorMsg: String) : FillInState()
+
 @JvmInline
 value class SelectedNumber(val num: Int)
 

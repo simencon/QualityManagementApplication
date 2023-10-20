@@ -29,51 +29,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
-import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
-import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.TrueFalseField
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OperationForm(
     modifier: Modifier = Modifier,
-    viewModel: UserViewModel
+    viewModel: OperationViewModel
 ) {
-    val user by viewModel.user.collectAsStateWithLifecycle()
-    LaunchedEffect(user) {
+    val operation by viewModel.operation.collectAsStateWithLifecycle()
+    LaunchedEffect(operation) {
         viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
-    val userRoles by viewModel.userRoles.collectAsStateWithLifecycle()
-    val userErrors by viewModel.userErrors.collectAsStateWithLifecycle()
-
-    val userEmployees by viewModel.userEmployees.collectAsStateWithLifecycle()
+    val fillInErrors by viewModel.fillInErrors.collectAsStateWithLifecycle()
 
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
-    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
+    var error by rememberSaveable { mutableStateOf(EmptyString.str) }
 
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
             when (state) {
-                is FillInSuccess -> viewModel.makeUser()
+                is FillInSuccess -> viewModel.makeRecord()
                 is FillInError -> error = state.errorMsg
-                is FillInInitialState -> error = UserError.NO_ERROR.error
+                is FillInInitialState -> error = EmptyString.str
             }
         }
     }
 
     val (userEmployeeFR) = FocusRequester.createRefs()
 
-    val isAddRoleDialogVisible by viewModel.isAddRoleDialogVisible.collectAsStateWithLifecycle()
+    val isAddPreviousOperationDialogVisible by viewModel.isAddPreviousOperationDialogVisible.collectAsStateWithLifecycle()
 
     Column(
         verticalArrangement = Arrangement.Top,
@@ -83,8 +78,8 @@ fun OperationForm(
             .padding(all = 0.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        if (isAddRoleDialogVisible)
-            AddRole(userModel = viewModel)
+//        if (isAddPreviousOperationDialogVisible)
+//            AddRole(userModel = viewModel)
 
         Column(
             verticalArrangement = Arrangement.Center,
@@ -92,17 +87,16 @@ fun OperationForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "User full name", body = user.fullName ?: NoString.str)
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "User job role", body = user.jobRole ?: NoString.str)
-            InfoLine(
-                modifier = modifier.padding(start = 0.dp),
-                title = "User department",
-                body = user.department + if (user.subDepartment.isNullOrEmpty()) EmptyString.str else "/${user.subDepartment}"
-            )
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = operation.lineComplete.depName ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = operation.lineComplete.subDepDesignation ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = operation.lineComplete.channelDesignation ?: NoString.str)
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = operation.lineComplete.lineDesignation)
+
+
             Spacer(modifier = Modifier.height(10.dp))
-            RecordFieldItemWithMenu(
+            /*RecordFieldItemWithMenu(
                 options = userEmployees,
-                isError = userErrors.teamMemberError,
+                isError = fillInErrors.teamMemberError,
                 onDropdownMenuItemClick = { viewModel.setUserEmployee(it) },
                 keyboardNavigation = Pair(userEmployeeFR) { userEmployeeFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
@@ -111,16 +105,16 @@ fun OperationForm(
             Spacer(modifier = Modifier.height(10.dp))
             RolesHeader(
                 userRoles = userRoles,
-                userRolesError = userErrors.rolesError,
+                userRolesError = fillInErrors.rolesError,
                 onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
                 onClickDelete = { viewModel.deleteUserRole(it) },
                 onClickAdd = { viewModel.setAddRoleDialogVisibility(true) }
             )
             Spacer(modifier = Modifier.height(10.dp))
             TrueFalseField(
-                user = user,
+                user = operation,
                 onSwitch = { viewModel.setUserIsEnabled(it) },
-                isError = userErrors.enabledError
+                isError = fillInErrors.enabledError
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != UserError.NO_ERROR.error)
@@ -130,7 +124,7 @@ fun OperationForm(
                     modifier = Modifier.padding(all = 5.dp),
                     textAlign = TextAlign.Center
                 )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))*/
         }
     }
 }
