@@ -14,6 +14,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.settingsNavigation
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
+import com.simenko.qmapp.ui.main.structure.companyStructureNavigation
 import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme
@@ -27,11 +28,7 @@ fun MainScreen(
     QMAppTheme {
         NavHost(navController = mainViewModel.navHostController, startDestination = Route.Main.Team) {
             teamNavigation()
-
-            composable(destination = Route.Main.CompanyStructure) {
-                val viewModel: CompanyStructureViewModel = hiltViewModel()
-                CompanyStructure(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
-            }
+            companyStructureNavigation(mainScreenPadding)
 
             composable(destination = Route.Main.Inv) {
                 val viewModel: InvestigationsViewModel = hiltViewModel()

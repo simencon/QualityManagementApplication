@@ -17,34 +17,28 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 
-const val LOGGED_OUT_ROOT = "logged_out"
-const val REGISTRATION_ROOT = "registration"
+const val LOGGED_OUT_ROUTE = "logged_out"
+const val REGISTRATION_ROUTE = "registration"
 const val MAIN_ROUTE = "main"
 const val TEAM_ROUTE = "team"
+const val COMPANY_STRUCTURE_ROUTE = "company_structure"
 const val SETTINGS_ROUTE = "settings"
 
 object NavRouteName {
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
-//    const val logged_out = "logged_out"
-
     const val initial_screen = "initial_screen"
 
-    //    const val registration = "registration"
     const val enter_details = "enter_details"
     const val terms_and_conditions = "terms_and_conditions"
 
     const val waiting_for_validation = "waiting_for_validation"
 
     const val log_in = "log_in"
-
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
-//    const val main = "main"
-
     const val company_profile = "company_profile"
 
-    //    const val team = "team"
     const val employees = "employees"
     const val employee_add_edit = "employee_add_edit"
     const val users = "users"
@@ -52,7 +46,8 @@ object NavRouteName {
     const val requests = "requests"
     const val authorize_user = "authorize_user"
 
-    const val company_structure = "company_structure"
+    const val structure_view = "structure_view"
+    const val operation_add_edit = "company_structure"
 
     const val company_products = "company_products"
 
@@ -101,9 +96,9 @@ sealed class Route(
     val deepLinks: List<NavDeepLink> = emptyList(),
     val route: String = EmptyString.str
 ) {
-    object LoggedOut : Route(link = LOGGED_OUT_ROOT) {
-        object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROOT)
-        object Registration : Route(link = REGISTRATION_ROOT, route = LOGGED_OUT_ROOT) {
+    object LoggedOut : Route(link = LOGGED_OUT_ROUTE) {
+        object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROUTE)
+        object Registration : Route(link = REGISTRATION_ROUTE, route = LOGGED_OUT_ROUTE) {
             object EnterDetails : Route(
                 link = "${NavRouteName.enter_details}${arg(NavArguments.userEditMode)}",
                 arguments = listOf(
@@ -112,7 +107,7 @@ sealed class Route(
                         defaultValue = false
                     }
                 ),
-                route = REGISTRATION_ROOT
+                route = REGISTRATION_ROUTE
             )
 
             object TermsAndConditions : Route(
@@ -124,7 +119,7 @@ sealed class Route(
                         nullable = true
                     }
                 ),
-                route = REGISTRATION_ROOT
+                route = REGISTRATION_ROUTE
             )
         }
 
@@ -137,10 +132,10 @@ sealed class Route(
                     nullable = true
                 }
             ),
-            route = LOGGED_OUT_ROOT
+            route = LOGGED_OUT_ROUTE
         )
 
-        object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROOT)
+        object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROUTE)
     }
 
     object Main : Route(link = MAIN_ROUTE) {
@@ -225,40 +220,63 @@ sealed class Route(
             )
         }
 
-        object CompanyStructure : Route(
-            link = NavRouteName.company_structure +
-                    "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}",
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = "${NavArguments.domain}/$MAIN_ROUTE/${NavRouteName.company_structure}?" +
-                            "${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}"
-                    action = Intent.ACTION_VIEW
-                }
-            ),
-            arguments = listOf(
-                navArgument(NavArguments.departmentId) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.subOrderId) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.channelId) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.lineId) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                },
-                navArgument(NavArguments.operationId) {
-                    type = NavType.IntType
-                    defaultValue = NoRecord.num
-                }
-            ),
-            route = MAIN_ROUTE
-        )
+        object CompanyStructure: Route(link = COMPANY_STRUCTURE_ROUTE, route = MAIN_ROUTE) {
+            object StructureView : Route(
+                link = NavRouteName.structure_view +
+                        "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}",
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/${NavRouteName.structure_view}" +
+                                "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(NavArguments.departmentId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.subOrderId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.channelId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.lineId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.operationId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                ),
+                route = COMPANY_STRUCTURE_ROUTE
+            )
+
+            object OperationAddEdit : Route(
+                link = "${NavRouteName.operation_add_edit}${arg(NavArguments.lineId)}${arg(NavArguments.operationId)}",
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.operation_add_edit}${arg(NavArguments.lineId)}${arg(NavArguments.operationId)}"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(NavArguments.lineId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.operationId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                ),
+                route = COMPANY_STRUCTURE_ROUTE
+            )
+        }
 
         object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
         object Inv : Route(

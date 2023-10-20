@@ -114,7 +114,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onDrawerMenuCompanyStructureSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.link, popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
     }
 
     fun onDrawerMenuInvSelected() {

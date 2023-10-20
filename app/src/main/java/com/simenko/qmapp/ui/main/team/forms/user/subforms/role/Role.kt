@@ -41,13 +41,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
 import java.util.Locale
 
 @Composable

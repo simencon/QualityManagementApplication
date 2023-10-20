@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.EmployeeIdParameter
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
@@ -18,10 +22,6 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

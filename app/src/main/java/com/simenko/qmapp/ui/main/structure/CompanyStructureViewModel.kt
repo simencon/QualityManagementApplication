@@ -8,6 +8,7 @@ import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.di.OperationIdParameter
 import com.simenko.qmapp.di.SubDepartmentIdParameter
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
@@ -20,6 +21,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -239,11 +241,11 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onAddOperationClick(it: Int) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
     fun onEditOperationClick(it: Pair<Int, Int>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
     fun onOperationProductsClick(it: Int) {
