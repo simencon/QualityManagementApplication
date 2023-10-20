@@ -6,8 +6,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseManufacturingOperation
-import com.simenko.qmapp.room.entities.DatabaseManufacturingOperationComplete
-import com.simenko.qmapp.room.entities.DatabaseResultComplete
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -29,5 +27,5 @@ abstract class OperationDao: DaoBaseModel<DatabaseManufacturingOperation> {
 
     @Transaction
     @Query("select mo.* from manufacturingOperationsComplete mo where mo.lineId = :lineId;")
-    abstract fun getRecordsByParentIdForUI(lineId: Int): Flow<List<DatabaseManufacturingOperationComplete>>
+    abstract fun getRecordsByParentIdForUI(lineId: Int): Flow<List<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>>
 }

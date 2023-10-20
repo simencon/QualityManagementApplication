@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.di.OperationIdParameter
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState

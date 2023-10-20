@@ -152,6 +152,27 @@ data class DomainManufacturingLine(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
+
+    data class DomainManufacturingLineComplete(
+        val departmentId: Int = NoRecord.num,
+        val depAbbr: String? = null,
+        val depName: String? = null,
+        val subDepartmentId: Int = NoRecord.num,
+        val subDepAbbr: String? = null,
+        val subDepDesignation: String? = null,
+        val channelId: Int = NoRecord.num,
+        val channelAbbr: String? = null,
+        val channelDesignation: String? = null,
+        val id: Int = NoRecord.num,
+        val lineAbbr: String? = null,
+        val lineDesignation: String = EmptyString.str
+    ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineComplete>() {
+        override fun getRecordId() = this.id
+        override fun getParentId() = this.departmentId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineComplete =
+            ObjectTransformer(DomainManufacturingLineComplete::class, DatabaseManufacturingLine.DatabaseManufacturingLineComplete::class).transform(this)
+    }
 }
 
 @Stable
@@ -171,6 +192,26 @@ data class DomainManufacturingOperation(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingOperation::class, DatabaseManufacturingOperation::class).transform(this)
+
+    data class DomainManufacturingOperationComplete(
+        val operation: DomainManufacturingOperation = DomainManufacturingOperation(),
+        val lineComplete: DomainManufacturingLine.DomainManufacturingLineComplete = DomainManufacturingLine.DomainManufacturingLineComplete(),
+        val previousOperations: List<DomainOperationsFlow.DomainOperationsFlowComplete> = listOf(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false,
+    ) : DomainBaseModel<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>() {
+        override fun getRecordId(): Any = operation.id
+        override fun getParentId(): Int = operation.lineId
+        override fun setIsSelected(value: Boolean) {}
+
+        override fun toDatabaseModel(): DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete {
+            return DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete(
+                operation = this.operation.toDatabaseModel(),
+                lineComplete = this.lineComplete.toDatabaseModel(),
+                previousOperations = this.previousOperations.map { it.toDatabaseModel() }
+            )
+        }
+    }
 }
 
 data class DomainOperationsFlow(
@@ -182,6 +223,24 @@ data class DomainOperationsFlow(
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
+
+    data class DomainOperationsFlowComplete(
+        val id: Int,
+        val currentOperationId: Int,
+        val depAbbr: String?,
+        val subDepAbbr: String?,
+        val channelAbbr: String?,
+        val lineAbbr: String?,
+        val operationAbbr: String?,
+        val operationDesignation: String?,
+        val equipment: String?
+    ): DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
+        override fun getRecordId(): Any = this.id
+        override fun getParentId(): Int = currentOperationId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel(): DatabaseOperationsFlow.DatabaseOperationsFlowComplete
+                = ObjectTransformer(DomainOperationsFlowComplete::class, DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class).transform(this)
+    }
 }
 
 @Stable
@@ -229,42 +288,6 @@ data class DomainDepartmentComplete(
             department = department.toDatabaseModel(),
             depManager = depManager.toDatabaseModel(),
             company = company.toDatabaseModel()
-        )
-    }
-}
-
-data class DomainManufacturingOperationComplete(
-    val operation: DomainManufacturingOperation = DomainManufacturingOperation(),
-    val previousOperations: List<DomainPreviousOperationComplete> = listOf(),
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false,
-) : DomainBaseModel<DatabaseManufacturingOperationComplete>() {
-    data class DomainPreviousOperationComplete(
-        val id: Int,
-        val nextOperationId: Int,
-        val depAbbr: String?,
-        val subDepAbbr: String?,
-        val channelAbbr: String?,
-        val lineAbbr: String?,
-        val operationAbbr: String?,
-        val operationDesignation: String?,
-        val equipment: String?
-    ): DomainBaseModel<DatabaseManufacturingOperationComplete.DatabasePreviousOperationComplete>() {
-        override fun getRecordId(): Any = this.id
-        override fun getParentId(): Int = nextOperationId
-        override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseManufacturingOperationComplete.DatabasePreviousOperationComplete
-            = ObjectTransformer(DomainPreviousOperationComplete::class, DatabaseManufacturingOperationComplete.DatabasePreviousOperationComplete::class).transform(this)
-    }
-
-    override fun getRecordId(): Any = operation.id
-    override fun getParentId(): Int = operation.lineId
-    override fun setIsSelected(value: Boolean) {}
-
-    override fun toDatabaseModel(): DatabaseManufacturingOperationComplete {
-        return DatabaseManufacturingOperationComplete(
-            operation = this.operation.toDatabaseModel(),
-            previousOperations = this.previousOperations.map { it.toDatabaseModel() }
         )
     }
 }

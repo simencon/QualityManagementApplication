@@ -43,7 +43,7 @@ class ManufacturingRepository @Inject constructor(
         it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
-    fun getOperationById(operationId: Int): DomainManufacturingOperationComplete {
+    fun getOperationById(operationId: Int): DomainManufacturingOperation.DomainManufacturingOperationComplete {
         database.operationDao.getRecordById(operationId.toString())
         TODO("Not yet implemented")
     }
@@ -82,7 +82,7 @@ class ManufacturingRepository @Inject constructor(
     val linesByChannel: (Int) -> Flow<List<DomainManufacturingLine>> = { flow { emit(database.lineDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val operations: Flow<List<DomainManufacturingOperation>> = database.operationDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
-    val operationsCompleteByLine: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { lineId ->
+    val operationsCompleteByLine: (Int) -> Flow<List<DomainManufacturingOperation.DomainManufacturingOperationComplete>> = { lineId ->
         database.operationDao.getRecordsByParentIdForUI(lineId).map { list -> list.map { it.toDomainModel() } }
     }
 
