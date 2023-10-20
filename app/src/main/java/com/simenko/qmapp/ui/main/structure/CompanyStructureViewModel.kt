@@ -12,7 +12,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -138,7 +138,7 @@ class CompanyStructureViewModel @Inject constructor(
 
     val operations = _operations.flatMapLatest { operation ->
         _operationsVisibility.flatMapLatest { visibility ->
-            val cyp = mutableListOf<DomainManufacturingOperationComplete>()
+            val cyp = mutableListOf<DomainManufacturingOperation.DomainManufacturingOperationComplete>()
             operation.forEach { cyp.add(it.copy(detailsVisibility = it.operation.id == visibility.first.num, isExpanded = it.operation.id == visibility.second.num)) }
             flow { emit(cyp) }
         }

@@ -53,7 +53,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
