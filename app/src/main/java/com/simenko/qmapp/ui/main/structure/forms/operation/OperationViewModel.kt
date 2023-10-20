@@ -59,6 +59,28 @@ class OperationViewModel @Inject constructor(
     /**
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun setOperationOrder(it: Int) {
+        _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(operationOrder = it))
+        _fillInErrors.value = _fillInErrors.value.copy(operationOrderError = false)
+        _fillInState.value = FillInInitialState
+    }
+    fun setOperationAbbr(it: String) {
+        _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(operationAbbr = it))
+        _fillInErrors.value = _fillInErrors.value.copy(operationAbbrError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    fun setOperationDesignation(it: String) {
+        _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(operationDesignation = it))
+        _fillInErrors.value = _fillInErrors.value.copy(operationDesignationError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    fun setOperationEquipment(it: String) {
+        _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(equipment = it))
+        _fillInErrors.value = _fillInErrors.value.copy(operationEquipmentError = false)
+        _fillInState.value = FillInInitialState
+    }
 
     private val _isAddPreviousOperationDialogVisible = MutableStateFlow(false)
     val isAddPreviousOperationDialogVisible = _isAddPreviousOperationDialogVisible.asStateFlow()
@@ -83,7 +105,8 @@ class OperationViewModel @Inject constructor(
 }
 
 data class FillInErrors(
-    var teamMemberError: Boolean = false,
-    var rolesError: Boolean = false,
-    var enabledError: Boolean = false
+    var operationOrderError: Boolean = false,
+    var operationAbbrError: Boolean = false,
+    var operationDesignationError: Boolean = false,
+    var operationEquipmentError: Boolean = false
 )
