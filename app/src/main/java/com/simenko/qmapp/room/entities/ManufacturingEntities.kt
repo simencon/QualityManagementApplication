@@ -344,7 +344,7 @@ data class DatabaseOperationsFlow(
     @DatabaseView(
         viewName = "operationsFlowsComplete",
         value = """
-        select mof.id, mof.currentOperationId, d.depAbbr, sd.subDepAbbr, mc.channelAbbr, ml.lineAbbr, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment
+        select mof.id, mof.currentOperationId, mof.previousOperationId, d.depAbbr, sd.subDepAbbr, mc.channelAbbr, ml.lineAbbr, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment
         from `14_14_manufacturing_operations_flow` as mof
         inner join `14_manufacturing_operations` as pmo on mof.previousOperationId = pmo.id
         inner join `13_manufacturing_lines` as ml on pmo.lineId = ml.id
@@ -357,6 +357,7 @@ data class DatabaseOperationsFlow(
     data class DatabaseOperationsFlowComplete(
         val id: Int,
         val currentOperationId: Int,
+        val previousOperationId: Int,
         val depAbbr: String?,
         val subDepAbbr: String?,
         val channelAbbr: String?,
