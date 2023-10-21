@@ -7,6 +7,7 @@ object Constants {
 
     val CARDS_PADDING: PaddingValues = PaddingValues(all = 2.dp)
     const val DEFAULT_SPACE = 6
+    const val FAB_HEIGHT = 72
     const val ACTION_ITEM_SIZE = 45
     const val CARD_OFFSET = 45f//135f
     const val TOP_TAB_ROW_HEIGHT = 40

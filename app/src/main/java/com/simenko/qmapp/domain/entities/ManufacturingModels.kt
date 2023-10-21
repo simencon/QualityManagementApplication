@@ -198,7 +198,7 @@ data class DomainManufacturingOperation(
         val lineComplete: DomainManufacturingLine.DomainManufacturingLineComplete = DomainManufacturingLine.DomainManufacturingLineComplete(),
         val previousOperations: List<DomainOperationsFlow.DomainOperationsFlowComplete> = listOf(),
         var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false,
+        var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>() {
         override fun getRecordId(): Any = operation.id
         override fun getParentId(): Int = operation.lineId
@@ -233,9 +233,11 @@ data class DomainOperationsFlow(
         val lineAbbr: String?,
         val operationAbbr: String?,
         val operationDesignation: String?,
-        val equipment: String?
+        val equipment: String?,
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
     ): DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
-        override fun getRecordId(): Any = this.id
+        override fun getRecordId(): Int = this.id
         override fun getParentId(): Int = currentOperationId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel(): DatabaseOperationsFlow.DatabaseOperationsFlowComplete
