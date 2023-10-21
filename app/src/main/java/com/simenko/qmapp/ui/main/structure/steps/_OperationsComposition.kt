@@ -178,7 +178,7 @@ fun Operation(
             Column(modifier = Modifier.weight(0.60f)) {
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = operation.operation.operationOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.34f, title = "Equipment:", text = operation.operation.equipment)
+                HeaderWithTitle(titleWight = 0.34f, title = "Equipment:", text = operation.operation.equipment.let { if(it.isNullOrEmpty()) NoString.str else it })
             }
             StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(operation.operation.id) }) {
                 Text(

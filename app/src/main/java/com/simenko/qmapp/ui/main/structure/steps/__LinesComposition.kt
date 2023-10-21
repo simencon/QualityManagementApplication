@@ -92,11 +92,12 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
         item {
             Divider(modifier = Modifier.height(0.dp))
             FloatingActionButton(
-                modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
+                modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = (DEFAULT_SPACE / 2).dp, bottom = DEFAULT_SPACE.dp),
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 onClick = { onClickAddLambda(channelVisibility.first.num) },
                 content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
             )
+            Spacer(modifier = Modifier.height((Constants.FAB_HEIGHT).dp))
         }
     }
 }

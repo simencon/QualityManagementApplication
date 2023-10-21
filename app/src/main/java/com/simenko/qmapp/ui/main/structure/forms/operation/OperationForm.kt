@@ -13,8 +13,6 @@ import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,23 +26,19 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInError
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.repository.UserError
+import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
-import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
-import com.simenko.qmapp.ui.main.team.forms.user.subforms.TrueFalseField
+import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.PreviousOperationHeader
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -132,37 +126,15 @@ fun OperationForm(
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
                 contentDescription = Triple(Icons.Default.Construction, "Operation equipment", "Enter operation equipment")
             )
-            /*RecordFieldItemWithMenu(
-                options = userEmployees,
-                isError = fillInErrors.teamMemberError,
-                onDropdownMenuItemClick = { viewModel.setUserEmployee(it) },
-                keyboardNavigation = Pair(userEmployeeFR) { userEmployeeFR.requestFocus() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Default.Person, "Company employee", "Select company employee"),
-            )
             Spacer(modifier = Modifier.height(10.dp))
-            RolesHeader(
-                userRoles = userRoles,
-                userRolesError = fillInErrors.rolesError,
-                onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
-                onClickDelete = { viewModel.deleteUserRole(it) },
-                onClickAdd = { viewModel.setAddRoleDialogVisibility(true) }
+            PreviousOperationHeader(
+                previousOperations = operation.previousOperations,
+                userRolesError = fillInErrors.previousOperationsError,
+                onClickActions = { viewModel.setPreviousOperationVisibility(aId = SelectedNumber(it)) },
+                onClickDelete = { viewModel.deletePreviousOperation(it) },
+                onClickAdd = { viewModel.setPreviousOperationDialogVisibility(true) }
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            TrueFalseField(
-                user = operation,
-                onSwitch = { viewModel.setUserIsEnabled(it) },
-                isError = fillInErrors.enabledError
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            if (error != UserError.NO_ERROR.error)
-                Text(
-                    text = error,
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                    modifier = Modifier.padding(all = 5.dp),
-                    textAlign = TextAlign.Center
-                )
-            Spacer(modifier = Modifier.height(10.dp))*/
+            Spacer(modifier = Modifier.height((FAB_HEIGHT + DEFAULT_SPACE).dp))
         }
     }
 }

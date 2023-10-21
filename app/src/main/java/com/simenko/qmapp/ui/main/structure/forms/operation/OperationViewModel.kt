@@ -7,21 +7,32 @@ import com.simenko.qmapp.di.OperationIdParameter
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.DomainOperationsFlow
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class OperationViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
@@ -31,7 +42,7 @@ class OperationViewModel @Inject constructor(
     @OperationIdParameter private val operationId: Int
 ) : ViewModel() {
     private val _operation = MutableStateFlow(DomainManufacturingOperationComplete())
-    val operation get() = _operation.asStateFlow()
+
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -56,14 +67,29 @@ class OperationViewModel @Inject constructor(
             lineComplete = repository.lineById(lineId)
         )
     }
+
     /**
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
+    private val _previousOperationsVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    fun setPreviousOperationVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _previousOperationsVisibility.value = _previousOperationsVisibility.value.setVisibility(dId, aId)
+    }
+
+    val operation = _operation.flatMapLatest { operation ->
+        _previousOperationsVisibility.flatMapLatest { visibility ->
+            val cpy = mutableListOf<DomainOperationsFlow.DomainOperationsFlowComplete>()
+            operation.previousOperations.forEach { cpy.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
+            flow { emit(operation.copy(previousOperations = cpy)) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DomainManufacturingOperationComplete())
+
     fun setOperationOrder(it: Int) {
         _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(operationOrder = it))
         _fillInErrors.value = _fillInErrors.value.copy(operationOrderError = false)
         _fillInState.value = FillInInitialState
     }
+
     fun setOperationAbbr(it: String) {
         _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(operationAbbr = it))
         _fillInErrors.value = _fillInErrors.value.copy(operationAbbrError = false)
@@ -84,9 +110,10 @@ class OperationViewModel @Inject constructor(
 
     private val _isAddPreviousOperationDialogVisible = MutableStateFlow(false)
     val isAddPreviousOperationDialogVisible = _isAddPreviousOperationDialogVisible.asStateFlow()
-    fun setAddRoleDialogVisibility(value: Boolean) {
+    fun setPreviousOperationDialogVisibility(value: Boolean) {
         _isAddPreviousOperationDialogVisible.value = value
     }
+
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -102,11 +129,15 @@ class OperationViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    fun deletePreviousOperation(it: Int) {
+        TODO("Not yet implemented")
+    }
 }
 
 data class FillInErrors(
     var operationOrderError: Boolean = false,
     var operationAbbrError: Boolean = false,
     var operationDesignationError: Boolean = false,
-    var operationEquipmentError: Boolean = false
+    var operationEquipmentError: Boolean = false,
+    var previousOperationsError: Boolean = false
 )
