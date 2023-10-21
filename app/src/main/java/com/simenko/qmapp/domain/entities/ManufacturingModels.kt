@@ -225,15 +225,16 @@ data class DomainOperationsFlow(
     override fun toDatabaseModel() = ObjectTransformer(DomainOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
 
     data class DomainOperationsFlowComplete(
-        val id: Int,
-        val currentOperationId: Int,
-        val depAbbr: String?,
-        val subDepAbbr: String?,
-        val channelAbbr: String?,
-        val lineAbbr: String?,
-        val operationAbbr: String?,
-        val operationDesignation: String?,
-        val equipment: String?,
+        val id: Int = NoRecord.num,
+        val currentOperationId: Int = NoRecord.num,
+        val previousOperationId: Int = NoRecord.num,
+        val depAbbr: String? = null,
+        val subDepAbbr: String? = null,
+        val channelAbbr: String? = null,
+        val lineAbbr: String? = null,
+        val operationAbbr: String? = null,
+        val operationDesignation: String? = null,
+        val equipment: String? = null,
         var detailsVisibility: Boolean = false,
         var isExpanded: Boolean = false
     ): DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
