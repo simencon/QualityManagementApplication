@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.team.forms.user.subforms.role
+package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous_operation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,50 +44,57 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInError
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccess
-import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
+import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
 import java.util.Locale
 
 @Composable
-fun AddRole(
-    userModel: UserViewModel,
+fun AddPreviousOperation(
+    operationViewModel: OperationViewModel,
     modifier: Modifier = Modifier
 ) {
-    val viewModel: RoleViewModel = hiltViewModel()
+    val viewModel: PreviousOperationViewModel = hiltViewModel()
 
-    val user by userModel.user.collectAsStateWithLifecycle()
+    val operation by operationViewModel.operation.collectAsStateWithLifecycle()
 
-    LaunchedEffect(user) { viewModel.setUser(user) }
+    LaunchedEffect(operation) {
+        viewModel.setOperationWithFlow(Pair(operation.operation.id, operation.previousOperations))
+    }
 
-    val functions by viewModel.roleFunctions.collectAsStateWithLifecycle()
-    val levels by viewModel.roleLevels.collectAsStateWithLifecycle()
-    val accesses by viewModel.roleAccesses.collectAsStateWithLifecycle()
+    val departments by viewModel.availableDepartments.collectAsStateWithLifecycle()
+    val subDepartments by viewModel.availableSubDepartments.collectAsStateWithLifecycle()
+    val channels by viewModel.availableChannels.collectAsStateWithLifecycle()
+    val lines by viewModel.availableLines.collectAsStateWithLifecycle()
+    val operations by viewModel.availableOperations.collectAsStateWithLifecycle()
 
-    val userRoleToAdd by viewModel.userRoleToAdd.collectAsStateWithLifecycle()
-    val userRoleToAddErrors by viewModel.userRoleToAddErrors.collectAsStateWithLifecycle()
-    var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
+    val operationToAdd by viewModel.operationToAdd.collectAsStateWithLifecycle()
+    val fillInErrors by viewModel.operationToAddErrors.collectAsStateWithLifecycle()
+    var error by rememberSaveable { mutableStateOf(EmptyString.str) }
 
     val onDismissLambda = remember {
         {
-            userModel.setAddRoleDialogVisibility(false)
-            viewModel.clearUserRoleToAdd()
-            viewModel.clearUserRoleToAddErrors()
+            operationViewModel.setPreviousOperationDialogVisibility(false)
+            viewModel.clearOperationToAdd()
+            viewModel.clearOperationToAddErrors()
         }
     }
 
-    val onAddClickLambda = remember {{
-        userModel.addUserRole(userRoleToAdd)
-        userModel.setAddRoleDialogVisibility(false)
-        viewModel.clearUserRoleToAdd()
-        viewModel.clearUserRoleToAddErrors()
-    }}
+    val onAddClickLambda = remember {
+        {
+//            operationViewModel.addPreviousOperation(operationToAdd)
+            operationViewModel.setPreviousOperationDialogVisibility(false)
+            viewModel.clearOperationToAdd()
+            viewModel.clearOperationToAddErrors()
+        }
+    }
 
-    val fillInState by viewModel.roleFillInState.collectAsStateWithLifecycle()
+    val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     fillInState.let { state ->
         when (state) {
             is FillInSuccess -> onAddClickLambda()
@@ -110,14 +118,20 @@ fun AddRole(
                 modifier.background(MaterialTheme.colorScheme.onPrimary),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Section(title = "Select role function", isError = userRoleToAddErrors.first) {
-                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), functions) { viewModel.setRoleFunction(it) }
+                Section(title = "Select department", isError = fillInErrors.departmentError) {
+                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), departments) { viewModel.selectDepId(it) }
                 }
-                Section(title = "Select role level", isError = userRoleToAddErrors.second) {
-                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), levels) { viewModel.setRoleLevel(it) }
+                Section(title = "Select sub department", isError = fillInErrors.subDepartmentError) {
+                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), subDepartments) { viewModel.selectSubDepId(it) }
                 }
-                Section(title = "Select access level", isError = userRoleToAddErrors.third, withDivider = false) {
-                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), accesses) { viewModel.setRoleAccess(it) }
+                Section(title = "Select channel", isError = fillInErrors.channelError) {
+                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), channels) { viewModel.selectedChannelId(it) }
+                }
+                Section(title = "Select line", isError = fillInErrors.lineError) {
+                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), lines) { viewModel.selectedLineId(it) }
+                }
+                Section(title = "Select operation", isError = fillInErrors.operationError, withDivider = false) {
+                    SelectionGrid(modifier = Modifier.padding(top = 0.dp), operations) { viewModel.selectedOperationId(it) }
                 }
                 if (error != UserError.NO_ERROR.error) {
                     Text(
@@ -203,20 +217,20 @@ fun Section(
 @Composable
 fun SelectionGrid(
     modifier: Modifier = Modifier,
-    items: List<Pair<String, Boolean>>,
-    onSelect: (String) -> Unit
+    items: List<Triple<Int, String, Boolean>>,
+    onSelect: (Int) -> Unit
 ) {
     val gritState = rememberLazyGridState()
-    var currentItem by rememberSaveable { mutableStateOf(NoRecordStr.str) }
+    var currentItem by rememberSaveable { mutableIntStateOf(NoRecord.num) }
 
     LaunchedEffect(items) {
-        items.find { it.second }?.let {
+        items.find { it.third }?.let {
             currentItem = it.first
         }
     }
 
     LaunchedEffect(currentItem) {
-        if (currentItem != NoRecordStr.str)
+        if (currentItem != NoRecord.num)
             gritState.scrollToSelectedItem(
                 list = items.map { it.first }.toList(),
                 selectedId = currentItem,
@@ -239,12 +253,12 @@ fun SelectionGrid(
 
 @Composable
 fun ItemToSelect(
-    item: Pair<String, Boolean>,
-    onClick: (String) -> Unit
+    item: Triple<Int, String, Boolean>,
+    onClick: (Int) -> Unit
 ) {
     val btnColors = ButtonDefaults.buttonColors(
-        contentColor = if (item.second) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
-        containerColor = if (item.second) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+        contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+        containerColor = if (item.third) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
     )
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -256,6 +270,6 @@ fun ItemToSelect(
                 .width(224.dp)
                 .height(56.dp),
             onClick = { onClick(item.first) }
-        ) { Text(text = item.first) }
+        ) { Text(text = item.second) }
     }
 }

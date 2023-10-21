@@ -224,7 +224,10 @@ data class DatabaseManufacturingLine(
     @DatabaseView(
         viewName = "manufacturingLinesComplete",
         value = """
-        select d.id as departmentId, d.depAbbr, d.depName, sd.id as subDepartmentId, sd.subDepAbbr, sd.subDepDesignation, mc.id as channelId, mc.channelAbbr, mc.channelDesignation, ml.id, ml.lineAbbr, ml.lineDesignation 
+        select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
+        sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, 
+        mc.id as channelId, mc.channelOrder, mc.channelAbbr, mc.channelDesignation, 
+        ml.id, ml.lineAbbr, ml.lineOrder, ml.lineDesignation 
         from `13_manufacturing_lines` as ml
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
@@ -234,15 +237,19 @@ data class DatabaseManufacturingLine(
     )
     data class DatabaseManufacturingLineComplete(
         val departmentId: Int,
+        val depOrder: Int,
         val depAbbr: String?,
         val depName: String?,
         val subDepartmentId: Int,
+        val subDepOrder: Int,
         val subDepAbbr: String?,
         val subDepDesignation: String?,
         val channelId: Int,
+        val channelOrder: Int,
         val channelAbbr: String?,
         val channelDesignation: String?,
         val id: Int,
+        val lineOrder: Int,
         val lineAbbr: String?,
         val lineDesignation: String
     ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineComplete> {
@@ -344,27 +351,39 @@ data class DatabaseOperationsFlow(
     @DatabaseView(
         viewName = "operationsFlowsComplete",
         value = """
-        select mof.id, mof.currentOperationId, mof.previousOperationId, d.depAbbr, sd.subDepAbbr, mc.channelAbbr, ml.lineAbbr, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment
+        select mof.id, mof.currentOperationId, mof.previousOperationId, pmo.operationOrder, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment, 
+        d.id as depId, d.depOrder, d.depAbbr, 
+        sd.id as subDepId, sd.subDepOrder, sd.subDepAbbr, 
+        mc.id as channelId, mc.channelOrder, mc.channelAbbr, 
+        ml.id as lineId, ml.lineOrder, ml.lineAbbr
         from `14_14_manufacturing_operations_flow` as mof
         inner join `14_manufacturing_operations` as pmo on mof.previousOperationId = pmo.id
         inner join `13_manufacturing_lines` as ml on pmo.lineId = ml.id
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
         inner join `10_departments` as d on sd.depId = d.id
-        order by pmo.operationOrder, ml.lineOrder, mc.channelOrder, sd.subDepOrder, d.depAbbr
         """
     )
     data class DatabaseOperationsFlowComplete(
         val id: Int,
         val currentOperationId: Int,
         val previousOperationId: Int,
-        val depAbbr: String?,
-        val subDepAbbr: String?,
-        val channelAbbr: String?,
-        val lineAbbr: String?,
+        val operationOrder: Int,
         val operationAbbr: String?,
         val operationDesignation: String?,
-        val equipment: String?
+        val equipment: String?,
+        val depId: Int,
+        val depOrder: Int,
+        val depAbbr: String?,
+        val subDepId: Int,
+        val subDepOrder: Int,
+        val subDepAbbr: String?,
+        val channelId: Int,
+        val channelOrder: Int,
+        val channelAbbr: String?,
+        val lineId: Int,
+        val lineOrder: Int,
+        val lineAbbr: String?,
     ) : DatabaseBaseModel<Any?, DomainOperationsFlow.DomainOperationsFlowComplete> {
         override fun getRecordId(): Any = this.id
         override fun toNetworkModel(): Any? = null

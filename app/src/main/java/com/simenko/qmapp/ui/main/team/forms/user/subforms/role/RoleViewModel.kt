@@ -104,7 +104,7 @@ class RoleViewModel @Inject constructor(
     private val _roleFillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val roleFillInState get() = _roleFillInState.asStateFlow()
 
-    fun validateUserRoleInput(userRole: Triple<String, String, String> = _userRoleToAdd.value) {
+    fun validateInput(userRole: Triple<String, String, String> = _userRoleToAdd.value) {
         val errorMsg = buildString {
             if (userRole.first == NoRecordStr.str) {
                 _userRoleToAddErrors.value = _userRoleToAddErrors.value.copy(first = true)
