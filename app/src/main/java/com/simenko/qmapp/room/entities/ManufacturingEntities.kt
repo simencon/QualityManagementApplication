@@ -227,7 +227,7 @@ data class DatabaseManufacturingLine(
         select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
         sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, 
         mc.id as channelId, mc.channelOrder, mc.channelAbbr, mc.channelDesignation, 
-        ml.id, ml.lineAbbr, ml.lineOrder, ml.lineDesignation 
+        ml.id, ml.lineOrder, ml.lineAbbr, ml.lineDesignation 
         from `13_manufacturing_lines` as ml
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id

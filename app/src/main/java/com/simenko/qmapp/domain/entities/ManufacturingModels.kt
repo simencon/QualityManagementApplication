@@ -248,14 +248,53 @@ data class DomainOperationsFlow(
         val lineId: Int = NoRecord.num,
         val lineOrder: Int = NoRecord.num,
         val lineAbbr: String? = null,
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        val detailsVisibility: Boolean = false,
+        val isExpanded: Boolean = false,
+        val toBeDeleted: Boolean = false
     ): DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
         override fun getRecordId(): Int = this.id
         override fun getParentId(): Int = currentOperationId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel(): DatabaseOperationsFlow.DatabaseOperationsFlowComplete
                 = ObjectTransformer(DomainOperationsFlowComplete::class, DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class).transform(this)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as DomainOperationsFlowComplete
+
+            if (id != other.id) return false
+            if (currentOperationId != other.currentOperationId) return false
+            if (previousOperationId != other.previousOperationId) return false
+            if (operationOrder != other.operationOrder) return false
+            if (operationAbbr != other.operationAbbr) return false
+            if (operationDesignation != other.operationDesignation) return false
+            if (equipment != other.equipment) return false
+            if (depId != other.depId) return false
+            if (depOrder != other.depOrder) return false
+            if (depAbbr != other.depAbbr) return false
+            if (subDepId != other.subDepId) return false
+            if (subDepOrder != other.subDepOrder) return false
+            if (subDepAbbr != other.subDepAbbr) return false
+            if (channelId != other.channelId) return false
+            if (channelOrder != other.channelOrder) return false
+            if (channelAbbr != other.channelAbbr) return false
+            if (lineId != other.lineId) return false
+            if (lineOrder != other.lineOrder) return false
+            if (lineAbbr != other.lineAbbr) return false
+            if (detailsVisibility != other.detailsVisibility) return false
+            if (isExpanded != other.isExpanded) return false
+            if (toBeDeleted != other.toBeDeleted) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = currentOperationId
+            result = 31 * result + previousOperationId
+            return result
+        }
     }
 }
 

@@ -9,10 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Construction
-import androidx.compose.material.icons.filled.Fingerprint
-import androidx.compose.material.icons.filled.FormatListNumbered
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.FormatListNumbered
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PrecisionManufacturing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -104,28 +103,28 @@ fun OperationForm(
                 },
                 keyboardNavigation = Pair(orderFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
-                contentDescription = Triple(Icons.Default.FormatListNumbered, "Operation order", "Enter operation order"),
+                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter operation order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(operation.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
-                contentDescription = Triple(Icons.Default.Fingerprint, "Operation id", "Enter operation id"),
+                contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter operation id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(operation.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
-                contentDescription = Triple(Icons.Default.Info, "Operation complete name", "Enter operation complete name"),
+                contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter operation complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(operation.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
                 keyboardNavigation = Pair(equipmentFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
-                contentDescription = Triple(Icons.Default.Construction, "Operation equipment", "Enter operation equipment")
+                contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter operation equipment")
             )
             Spacer(modifier = Modifier.height(10.dp))
             PreviousOperationHeader(

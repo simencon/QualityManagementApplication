@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.LowPriority
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -86,7 +86,7 @@ fun PreviousOperationHeader(
             Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     modifier = Modifier.padding(all = 12.dp),
-                    imageVector = Icons.Default.AdminPanelSettings,
+                    imageVector = Icons.Outlined.LowPriority,
                     contentDescription = "Previous operations",
                     tint = tint
                 )
@@ -188,7 +188,7 @@ fun PreviousOperationCard(
         Row(Modifier.padding(all = (Constants.DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(previousOperation.getRecordId()) },
+                onClick = { onClickDelete(previousOperation.hashCode()) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
         }
@@ -201,7 +201,7 @@ fun PreviousOperationCard(
                 .padding(horizontal = Constants.DEFAULT_SPACE.dp, vertical = (Constants.DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(previousOperation.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(previousOperation.getRecordId()) }) }
+                .pointerInput(previousOperation.hashCode()) { detectTapGestures(onDoubleTap = { onClickActions(previousOperation.hashCode()) }) }
         ) {
             PreviousOperation(item = previousOperation)
         }
