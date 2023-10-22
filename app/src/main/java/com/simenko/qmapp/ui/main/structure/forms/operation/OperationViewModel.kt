@@ -79,7 +79,8 @@ class OperationViewModel @Inject constructor(
     val operation = _operation.flatMapLatest { operation ->
         _previousOperationsVisibility.flatMapLatest { visibility ->
             val cpy = mutableListOf<DomainOperationsFlow.DomainOperationsFlowComplete>()
-            operation.previousOperations.forEach { cpy.add(it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num)) }
+            operation.previousOperations.filter { !it.toBeDeleted }
+                .forEach { cpy.add(it.copy(detailsVisibility = it.hashCode() == visibility.first.num, isExpanded = it.hashCode() == visibility.second.num)) }
             flow { emit(operation.copy(previousOperations = cpy)) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DomainManufacturingOperationComplete())
@@ -114,6 +115,21 @@ class OperationViewModel @Inject constructor(
         _isAddPreviousOperationDialogVisible.value = value
     }
 
+    fun addPreviousOperation(operationToAdd: DomainOperationsFlow.DomainOperationsFlowComplete) {
+        val previousOperations = this._operation.value.previousOperations.toMutableList().also { it.add(operationToAdd) }
+        this._operation.value = this._operation.value.copy(previousOperations = previousOperations)
+    }
+
+    fun deletePreviousOperation(id: Int) {
+        val previousOperations = this._operation.value.previousOperations.toMutableList().also { list ->
+            list.find { it.hashCode() == id }?.let { toBeDeleted ->
+                list.remove(toBeDeleted)
+                list.add(toBeDeleted.copy(toBeDeleted = true))
+            }
+        }
+        this._operation.value = this._operation.value.copy(previousOperations = previousOperations)
+    }
+
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -126,10 +142,6 @@ class OperationViewModel @Inject constructor(
     }
 
     fun makeRecord() {
-        TODO("Not yet implemented")
-    }
-
-    fun deletePreviousOperation(it: Int) {
         TODO("Not yet implemented")
     }
 }

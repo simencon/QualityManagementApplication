@@ -64,7 +64,7 @@ fun AddPreviousOperation(
     val operation by operationViewModel.operation.collectAsStateWithLifecycle()
 
     LaunchedEffect(operation) {
-        viewModel.setOperationWithFlow(Pair(operation.operation.id, operation.previousOperations))
+        viewModel.setOperationWithFlow(operation)
     }
 
     val departments by viewModel.availableDepartments.collectAsStateWithLifecycle()
@@ -80,16 +80,14 @@ fun AddPreviousOperation(
     val onDismissLambda = remember {
         {
             operationViewModel.setPreviousOperationDialogVisibility(false)
-            viewModel.clearOperationToAdd()
             viewModel.clearOperationToAddErrors()
         }
     }
 
     val onAddClickLambda = remember {
         {
-//            operationViewModel.addPreviousOperation(operationToAdd)
+            operationViewModel.addPreviousOperation(operationToAdd)
             operationViewModel.setPreviousOperationDialogVisibility(false)
-            viewModel.clearOperationToAdd()
             viewModel.clearOperationToAddErrors()
         }
     }

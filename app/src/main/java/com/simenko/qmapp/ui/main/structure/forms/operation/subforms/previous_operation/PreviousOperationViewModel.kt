@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainOperationsFlow.DomainOperationsFlowComplete
 import com.simenko.qmapp.repository.ManufacturingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,169 +39,143 @@ class PreviousOperationViewModel @Inject constructor(
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
-    fun clearOperationToAdd() {
-        _operationToAdd.value = DomainOperationsFlowComplete()
-        _selectedDepId.value = NoRecord.num
-        _selectedSubDepId.value = NoRecord.num
-        _selectedChannelId.value = NoRecord.num
-        _selectedLineId.value = NoRecord.num
-        _selectedOperationId.value = NoRecord.num
-    }
 
     fun clearOperationToAddErrors() {
         _operationToAddErrors.value = FillInErrors()
         _fillInState.value = FillInInitialState
     }
 
-    private val _operationWithFlow = MutableStateFlow(Pair(NoRecord.num, listOf<DomainOperationsFlowComplete>()))
-    fun setOperationWithFlow(operationWithFlow: Pair<Int, List<DomainOperationsFlowComplete>>) {
-        this._operationWithFlow.value = operationWithFlow
+    private val _previousOperations = MutableStateFlow(listOf<DomainOperationsFlowComplete>())
+    fun setOperationWithFlow(operation: DomainManufacturingOperationComplete) {
+        this._previousOperations.value = operation.previousOperations
+        this._operationToAdd.value = DomainOperationsFlowComplete().copy(
+            currentOperationId = operation.operation.id,
+            depId = operation.lineComplete.departmentId,
+            subDepId = operation.lineComplete.subDepartmentId,
+            channelId = operation.lineComplete.channelId,
+            lineId = operation.lineComplete.id
+        )
     }
 
     private val _operations = repository.operationsComplete.flatMapLatest { operations ->
-        _operationWithFlow.flatMapLatest { addedOperations ->
-            flow { emit(operations.filter { operation -> operation.operation.id !in addedOperations.second.map { it.previousOperationId } }.toList()) }
+        _previousOperations.flatMapLatest { addedOperations ->
+            flow { emit(operations.filter { operation -> operation.operation.id !in addedOperations.map { it.previousOperationId } }.toList()) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * (recId, name, isSelected)
      * */
-    private val _selectedDepId = MutableStateFlow(NoRecord.num)
     val selectDepId: (Int) -> Unit = {
-        if (it != _selectedDepId.value) {
-            _selectedDepId.value = it
-
-            _selectedOperationId.value = NoRecord.num
-            _selectedLineId.value = NoRecord.num
-            _selectedChannelId.value = NoRecord.num
-            _selectedSubDepId.value = NoRecord.num
+        if (it != _operationToAdd.value.depId) {
+            _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = NoRecord.num, channelId = NoRecord.num, subDepId = NoRecord.num, depId = it)
 
             _operationToAddErrors.value = _operationToAddErrors.value.copy(departmentError = false)
             _fillInState.value = FillInInitialState
         }
     }
     val availableDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
-        _selectedDepId.flatMapLatest { recId ->
+        _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.map { Triple(it.lineComplete.departmentId, it.lineComplete.depAbbr ?: NoString.str, it.lineComplete.channelOrder) }.toSet().sortedBy { it.third }.map {
-                        Triple(it.first, it.second, it.first == recId)
-                    }
+                    operations.asSequence()
+                        .map { Triple(it.lineComplete.departmentId, it.lineComplete.depAbbr ?: NoString.str, it.lineComplete.depOrder) }.toSet().sortedBy { it.third }.map {
+                            Triple(it.first, it.second, it.first == record.depId)
+                        }.toList()
                 )
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _selectedSubDepId = MutableStateFlow(NoRecord.num)
     val selectSubDepId: (Int) -> Unit = {
-        if (it != _selectedSubDepId.value) {
-            _selectedSubDepId.value = it
-
-            _selectedOperationId.value = NoRecord.num
-            _selectedLineId.value = NoRecord.num
-            _selectedChannelId.value = NoRecord.num
+        if (it != _operationToAdd.value.subDepId) {
+            _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = NoRecord.num, channelId = NoRecord.num, subDepId = it)
 
             _operationToAddErrors.value = _operationToAddErrors.value.copy(subDepartmentError = false)
             _fillInState.value = FillInInitialState
         }
     }
     val availableSubDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
-        _selectedDepId.flatMapLatest { parentId ->
-            _selectedSubDepId.flatMapLatest { recId ->
-                flow {
-                    emit(
-                        operations.filter { it.lineComplete.departmentId == parentId }.map { Pair(it.lineComplete.subDepartmentId, it.lineComplete.subDepAbbr ?: NoString.str) }.toSet().map {
-                            Triple(it.first, it.second, it.first == recId)
-                        }
-                    )
-                }
+        _operationToAdd.flatMapLatest { record ->
+            flow {
+                emit(
+                    operations.asSequence().filter { it.lineComplete.departmentId == record.depId }
+                        .map { Triple(it.lineComplete.subDepartmentId, it.lineComplete.subDepAbbr ?: NoString.str, it.lineComplete.subDepOrder) }.toSet().sortedBy { it.third }.map {
+                            Triple(it.first, it.second, it.first == record.subDepId)
+                        }.toList()
+                )
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _selectedChannelId = MutableStateFlow(NoRecord.num)
     val selectedChannelId: (Int) -> Unit = {
-        if (it != _selectedChannelId.value) {
-            _selectedChannelId.value = it
-
-            _selectedOperationId.value = NoRecord.num
-            _selectedLineId.value = NoRecord.num
+        if (it != _operationToAdd.value.channelId) {
+            _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = NoRecord.num, channelId = it)
 
             _operationToAddErrors.value = _operationToAddErrors.value.copy(channelError = false)
             _fillInState.value = FillInInitialState
         }
     }
     val availableChannels: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
-        _selectedSubDepId.flatMapLatest { parentId ->
-            _selectedChannelId.flatMapLatest { recId ->
-                flow {
-                    emit(
-                        operations.filter { it.lineComplete.subDepartmentId == parentId }.map { Pair(it.lineComplete.channelId, it.lineComplete.channelAbbr ?: NoString.str) }.toSet().map {
-                            Triple(it.first, it.second, it.first == recId)
-                        }
-                    )
-                }
+        _operationToAdd.flatMapLatest { record ->
+            flow {
+                emit(
+                    operations.asSequence().filter { it.lineComplete.subDepartmentId == record.subDepId }
+                        .map { Triple(it.lineComplete.channelId, it.lineComplete.channelAbbr ?: NoString.str, it.lineComplete.channelOrder) }.toSet().sortedBy { it.third }.map {
+                            Triple(it.first, it.second, it.first == record.channelId)
+                        }.toList()
+                )
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _selectedLineId = MutableStateFlow(NoRecord.num)
     val selectedLineId: (Int) -> Unit = {
-        if (it != _selectedLineId.value) {
-            _selectedLineId.value = it
-
-            _selectedOperationId.value = NoRecord.num
+        if (it != _operationToAdd.value.lineId) {
+            _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = it)
 
             _operationToAddErrors.value = _operationToAddErrors.value.copy(lineError = false)
             _fillInState.value = FillInInitialState
         }
     }
     val availableLines: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
-        _selectedChannelId.flatMapLatest { parentId ->
-            _selectedLineId.flatMapLatest { recId ->
-                flow {
-                    emit(
-                        operations.filter { it.lineComplete.channelId == parentId }.map { Pair(it.lineComplete.id, it.lineComplete.lineAbbr ?: NoString.str) }.toSet().map {
-                            Triple(it.first, it.second, it.first == recId)
-                        }
-                    )
-                }
+        _operationToAdd.flatMapLatest { record ->
+            flow {
+                emit(
+                    operations.asSequence().filter { it.lineComplete.channelId == record.channelId }
+                        .map { Triple(it.lineComplete.id, it.lineComplete.lineAbbr ?: NoString.str, it.lineComplete.lineOrder) }.toSet().sortedBy { it.third }.map {
+                            Triple(it.first, it.second, it.first == record.lineId)
+                        }.toList()
+                )
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    private val _selectedOperationId = MutableStateFlow(NoRecord.num)
     val selectedOperationId: (Int) -> Unit = {
-        if (it != _selectedOperationId.value) {
-            _selectedOperationId.value = it
+        if (it != _operationToAdd.value.previousOperationId) {
+            _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = it)
 
             _operationToAddErrors.value = _operationToAddErrors.value.copy(operationError = false)
             _fillInState.value = FillInInitialState
         }
     }
     val availableOperations: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
-        _selectedLineId.flatMapLatest { parentId ->
-            _selectedOperationId.flatMapLatest { recId ->
-                _operationWithFlow.flatMapLatest { operationWithFlow ->
-                    flow {
-                        emit(
-                            operations.filter { it.lineComplete.id == parentId }.toSet().map {
-                                if (it.operation.id == recId) _operationToAdd.value = DomainOperationsFlowComplete().copy(
-                                    currentOperationId = operationWithFlow.first,
-                                    previousOperationId = recId,
-                                    depAbbr = it.lineComplete.depAbbr,
-                                    subDepAbbr = it.lineComplete.subDepAbbr,
-                                    channelAbbr = it.lineComplete.channelAbbr,
-                                    lineAbbr = it.lineComplete.lineAbbr,
-                                    operationAbbr = it.operation.operationAbbr,
-                                    operationDesignation = it.operation.operationDesignation,
-                                    equipment = it.operation.equipment
-                                )
-                                Triple(it.operation.id, concatTwoStrings1(it.operation.equipment, it.operation.operationAbbr), it.operation.id == recId)
-                            }
-                        )
-                    }
+        _operationToAdd.flatMapLatest { record ->
+            _previousOperations.flatMapLatest { operationWithFlow ->
+                flow {
+                    emit(
+                        operations.filter { it.lineComplete.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
+                            if (it.operation.id == record.previousOperationId) _operationToAdd.value = _operationToAdd.value.copy(
+                                depAbbr = it.lineComplete.depAbbr,
+                                subDepAbbr = it.lineComplete.subDepAbbr,
+                                channelAbbr = it.lineComplete.channelAbbr,
+                                lineAbbr = it.lineComplete.lineAbbr,
+                                operationAbbr = it.operation.operationAbbr,
+                                operationDesignation = it.operation.operationDesignation,
+                                equipment = it.operation.equipment
+                            )
+                            Triple(it.operation.id, concatTwoStrings1(it.operation.equipment, it.operation.operationAbbr), it.operation.id == record.previousOperationId)
+                        }
+                    )
                 }
             }
         }
@@ -208,24 +183,24 @@ class PreviousOperationViewModel @Inject constructor(
 
     fun validateInput() {
         val errorMsg = buildString {
-            if (_selectedDepId.value == NoRecord.num) {
-                _operationToAddErrors.value = _operationToAddErrors.value.copy(departmentError  = true)
+            if (_operationToAdd.value.depId == NoRecord.num) {
+                _operationToAddErrors.value = _operationToAddErrors.value.copy(departmentError = true)
                 append("Department is mandatory\n")
             }
-            if (_selectedSubDepId.value == NoRecord.num) {
-                _operationToAddErrors.value = _operationToAddErrors.value.copy(subDepartmentError  = true)
+            if (_operationToAdd.value.subDepId == NoRecord.num) {
+                _operationToAddErrors.value = _operationToAddErrors.value.copy(subDepartmentError = true)
                 append("Sub department is mandatory\n")
             }
-            if (_selectedChannelId.value == NoRecord.num) {
-                _operationToAddErrors.value = _operationToAddErrors.value.copy(channelError  = true)
+            if (_operationToAdd.value.channelId == NoRecord.num) {
+                _operationToAddErrors.value = _operationToAddErrors.value.copy(channelError = true)
                 append("Channel is mandatory\n")
             }
-            if (_selectedLineId.value == NoRecord.num) {
-                _operationToAddErrors.value = _operationToAddErrors.value.copy(lineError  = true)
+            if (_operationToAdd.value.lineId == NoRecord.num) {
+                _operationToAddErrors.value = _operationToAddErrors.value.copy(lineError = true)
                 append("Line is mandatory\n")
             }
-            if (_selectedOperationId.value == NoRecord.num) {
-                _operationToAddErrors.value = _operationToAddErrors.value.copy(operationError  = true)
+            if (_operationToAdd.value.previousOperationId == NoRecord.num) {
+                _operationToAddErrors.value = _operationToAddErrors.value.copy(operationError = true)
                 append("Operation is mandatory\n")
             }
         }
