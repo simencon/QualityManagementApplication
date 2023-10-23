@@ -68,11 +68,11 @@ fun AddPreviousOperation(
         viewModel.setOperationWithFlow(operation)
     }
 
-    val departments by viewModel.availableDepartments.collectAsStateWithLifecycle()
-    val subDepartments by viewModel.availableSubDepartments.collectAsStateWithLifecycle()
-    val channels by viewModel.availableChannels.collectAsStateWithLifecycle()
-    val lines by viewModel.availableLines.collectAsStateWithLifecycle()
-    val operations by viewModel.availableOperations.collectAsStateWithLifecycle()
+    val departments by viewModel.availableDepartments.collectAsStateWithLifecycle(listOf())
+    val subDepartments by viewModel.availableSubDepartments.collectAsStateWithLifecycle(listOf())
+    val channels by viewModel.availableChannels.collectAsStateWithLifecycle(listOf())
+    val lines by viewModel.availableLines.collectAsStateWithLifecycle(listOf())
+    val operations by viewModel.availableOperations.collectAsStateWithLifecycle(listOf())
 
     val operationToAdd by viewModel.operationToAdd.collectAsStateWithLifecycle()
     val fillInErrors by viewModel.operationToAddErrors.collectAsStateWithLifecycle()
