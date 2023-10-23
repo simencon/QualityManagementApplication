@@ -38,6 +38,7 @@ import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
@@ -52,8 +53,8 @@ fun OperationForm(
     modifier: Modifier = Modifier,
     viewModel: OperationViewModel
 ) {
-    val operation by viewModel.operation.collectAsStateWithLifecycle()
-    LaunchedEffect(operation) {
+    val opComplete by viewModel.operationComplete.collectAsStateWithLifecycle(DomainManufacturingOperationComplete())
+    LaunchedEffect(opComplete) {
         viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
@@ -97,43 +98,43 @@ fun OperationForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(operation.lineComplete.depAbbr, operation.lineComplete.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(operation.lineComplete.subDepAbbr, operation.lineComplete.subDepDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(operation.lineComplete.channelAbbr, operation.lineComplete.channelDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(operation.lineComplete.lineAbbr, operation.lineComplete.lineDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(opComplete.lineComplete.depAbbr, opComplete.lineComplete.depName))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(opComplete.lineComplete.subDepAbbr, opComplete.lineComplete.subDepDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(opComplete.lineComplete.channelAbbr, opComplete.lineComplete.channelDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineComplete.lineAbbr, opComplete.lineComplete.lineDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(operation.operation.operationOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
-                    viewModel.setOperationOrder(it.toInt())
+                valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
+                    viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
-                keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
+                keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter operation order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(operation.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
+                valueParam = Triple(opComplete.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter operation id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(operation.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
+                valueParam = Triple(opComplete.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { equipmentFR.requestFocus() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter operation complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(operation.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
+                valueParam = Triple(opComplete.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
                 keyboardNavigation = Pair(equipmentFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter operation equipment")
             )
             Spacer(modifier = Modifier.height(10.dp))
             PreviousOperationHeader(
-                previousOperations = operation.previousOperations,
+                previousOperations = opComplete.previousOperations,
                 userRolesError = fillInErrors.previousOperationsError,
                 onClickActions = { viewModel.setPreviousOperationVisibility(aId = SelectedNumber(it)) },
                 onClickDelete = { viewModel.deletePreviousOperation(it) },
@@ -142,7 +143,9 @@ fun OperationForm(
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)
                 Text(
-                    modifier = Modifier.padding(all = 5.dp).width(320.dp),
+                    modifier = Modifier
+                        .padding(all = 5.dp)
+                        .width(320.dp),
                     text = error,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
                     textAlign = TextAlign.Center

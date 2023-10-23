@@ -49,6 +49,7 @@ import com.simenko.qmapp.domain.FillInError
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationViewModel
@@ -61,7 +62,7 @@ fun AddPreviousOperation(
 ) {
     val viewModel: PreviousOperationViewModel = hiltViewModel()
 
-    val operation by operationViewModel.operation.collectAsStateWithLifecycle()
+    val operation by operationViewModel.operationComplete.collectAsStateWithLifecycle(DomainManufacturingOperationComplete())
 
     LaunchedEffect(operation) {
         viewModel.setOperationWithFlow(operation)

@@ -69,7 +69,7 @@ fun Channels(
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
     val subDepartmentVisibility by viewModel.subDepartmentsVisibility.collectAsStateWithLifecycle()
-    val items by viewModel.channels.collectAsStateWithLifecycle()
+    val items by viewModel.channels.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setChannelsVisibility(aId = SelectedNumber(it)) } }

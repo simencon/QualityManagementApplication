@@ -68,7 +68,7 @@ import kotlin.math.roundToInt
 fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
     val departmentVisibility by viewModel.departmentsVisibility.collectAsStateWithLifecycle()
-    val items by viewModel.subDepartments.collectAsStateWithLifecycle()
+    val items by viewModel.subDepartments.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setSubDepartmentsVisibility(aId = SelectedNumber(it)) } }

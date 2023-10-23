@@ -26,13 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -81,14 +77,14 @@ class OperationViewModel @Inject constructor(
         _previousOperationsVisibility.value = _previousOperationsVisibility.value.setVisibility(dId, aId)
     }
 
-    val operation = _operation.flatMapLatest { operation ->
+    val operationComplete = _operation.flatMapLatest { operation ->
         _previousOperationsVisibility.flatMapLatest { visibility ->
-            val cpy = mutableListOf<DomainOperationsFlow.DomainOperationsFlowComplete>()
-            operation.previousOperations.filter { !it.toBeDeleted }
-                .forEach { cpy.add(it.copy(detailsVisibility = it.hashCode() == visibility.first.num, isExpanded = it.hashCode() == visibility.second.num)) }
-            flow { emit(operation.copy(previousOperations = cpy)) }
+            val previousOperations = operation.previousOperations.filter { !it.toBeDeleted }.map {
+                it.copy(detailsVisibility = it.hashCode() == visibility.first.num, isExpanded = it.hashCode() == visibility.second.num)
+            }
+            flow { emit(operation.copy(previousOperations = previousOperations)) }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DomainManufacturingOperationComplete())
+    }
 
     fun setOperationOrder(it: Int) {
         _operation.value = _operation.value.copy(operation = _operation.value.operation.copy(operationOrder = it))
