@@ -68,7 +68,7 @@ import kotlin.math.roundToInt
 fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
     val linesVisibility by viewModel.linesVisibility.collectAsStateWithLifecycle()
-    val items by viewModel.operations.collectAsStateWithLifecycle()
+    val items by viewModel.operations.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(aId = SelectedNumber(it)) } }

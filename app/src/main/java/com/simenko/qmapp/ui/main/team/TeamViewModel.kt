@@ -88,11 +88,11 @@ class TeamViewModel @Inject constructor(
     private val _isScrollingEnabled = MutableStateFlow(false)
     val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
 
-    val scrollToRecord: StateFlow<Pair<Event<Int>, Event<String>>?> = _createdRecord.flatMapLatest { record ->
+    val scrollToRecord: Flow<Pair<Event<Int>, Event<String>>?> = _createdRecord.flatMapLatest { record ->
         _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
             if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
         }
-    }.flowOn(Dispatchers.Default).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+    }
 
     val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
 
@@ -114,13 +114,12 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    val employees: SharedFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { employees ->
+    val employees = _employees.flatMapLatest { employees ->
         _employeesVisibility.flatMapLatest { visibility ->
-            val cpy = mutableListOf<DomainEmployeeComplete>()
-            employees.forEach { cpy.add(it.copy(detailsVisibility = it.teamMember.id == visibility.first.num, isExpanded = it.teamMember.id == visibility.second.num)) }
+            val cpy = employees.map { it.copy(detailsVisibility = it.teamMember.id == visibility.first.num, isExpanded = it.teamMember.id == visibility.second.num) }
             flow { emit(cpy) }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
         mainPageHandler.updateLoadingState(Pair(true, null))
@@ -154,13 +153,12 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    val users: StateFlow<List<DomainUser>> = _users.flatMapLatest { users ->
+    val users = _users.flatMapLatest { users ->
         _usersVisibility.flatMapLatest { visibility ->
-            val cpy = mutableListOf<DomainUser>()
-            users.forEach { cpy.add(it.copy(detailsVisibility = it.email == visibility.first.str, isExpanded = it.email == visibility.second.str)) }
+            val cpy = users.map { it.copy(detailsVisibility = it.email == visibility.first.str, isExpanded = it.email == visibility.second.str) }
             flow { emit(cpy) }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     private val _isRemoveUserDialogVisible = MutableStateFlow(false)
     val isRemoveUserDialogVisible get() = _isRemoveUserDialogVisible.asStateFlow()

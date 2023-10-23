@@ -66,7 +66,7 @@ fun Departments(
     modifier: Modifier = Modifier,
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
-    val items by viewModel.departments.collectAsStateWithLifecycle()
+    val items by viewModel.departments.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }

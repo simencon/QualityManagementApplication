@@ -47,7 +47,7 @@ fun Employees(
     onClickEdit: (Int) -> Unit
 ) {
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
-    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle()
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 

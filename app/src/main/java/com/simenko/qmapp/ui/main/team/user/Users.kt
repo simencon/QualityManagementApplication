@@ -50,7 +50,7 @@ fun Users(
     viewModel: TeamViewModel = hiltViewModel(),
     isUsersPage: Boolean
 ) {
-    val items by viewModel.users.collectAsStateWithLifecycle()
+    val items by viewModel.users.collectAsStateWithLifecycle(listOf())
     val currentUserVisibility by viewModel.currentUserVisibility.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -59,7 +59,7 @@ fun Users(
     }
 
     val isRemoveUserDialogVisible by viewModel.isRemoveUserDialogVisible.collectAsStateWithLifecycle()
-    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle()
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
     val onClickDetailsLambda: (String) -> Unit = { viewModel.setUsersVisibility(dId = SelectedString(it)) }
     val onClickActionsLambda = remember<(String) -> Unit> { { if (isUsersPage) viewModel.setUsersVisibility(aId = SelectedString(it)) } }
