@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -13,12 +12,10 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,10 +41,10 @@ import com.simenko.qmapp.utils.StringUtils
 fun ResultsComposition(
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val currentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
-    val currentSample by invModel.currentSampleDetails.observeAsState()
+    val tasksVisibility by invModel.tasksVisibility.collectAsStateWithLifecycle()
+    val currentSample by invModel.samplesVisibility.collectAsStateWithLifecycle()
 
-    val items by invModel.resultsSF.collectAsState(initial = listOf())
+    val items by invModel.results.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setResultsVisibility(dId = SelectedNumber(it)) } }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> { { invModel.editResult(it.result) } }
@@ -55,7 +52,7 @@ fun ResultsComposition(
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow {
             items.forEach { result ->
-                if (result.result.taskId == currentSubOrderTask.num && result.result.sampleId == currentSample?.num) {
+                if (result.result.taskId == tasksVisibility.first.num && result.result.sampleId == currentSample.first.num) {
                     ResultCard(
                         result = result,
                         onSelect = { onClickDetailsLambda(it) },

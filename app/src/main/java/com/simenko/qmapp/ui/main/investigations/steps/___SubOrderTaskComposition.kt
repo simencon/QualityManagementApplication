@@ -44,7 +44,7 @@ fun SubOrderTasksFlowColumn(
     invModel: InvestigationsViewModel = hiltViewModel(),
     parentId: Int = 0,
 ) {
-    val items by invModel.tasks.collectAsStateWithLifecycle()
+    val items by invModel.tasks.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(aId = SelectedNumber(it)) } }

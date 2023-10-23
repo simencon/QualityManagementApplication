@@ -19,7 +19,7 @@ fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
+    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle(null)
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {

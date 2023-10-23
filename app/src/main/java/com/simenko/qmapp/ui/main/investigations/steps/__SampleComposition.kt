@@ -37,8 +37,8 @@ fun SampleComposition(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val observeCurrentSubOrderTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
-    val items by invModel.samplesSF.collectAsStateWithLifecycle(listOf())
+    val tasksVisibility by invModel.tasksVisibility.collectAsStateWithLifecycle()
+    val items by invModel.samples.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(DomainSampleComplete) -> Unit> { { invModel.setSamplesVisibility(dId = SelectedNumber(it.sample.id)) } }
 
@@ -46,7 +46,7 @@ fun SampleComposition(
 
     LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.sampleResult.id.toString() + "_" + (it.sampleResult.taskId ?: 0).toString() }) { sample ->
-            if (sample.sampleResult.taskId == observeCurrentSubOrderTask.num) {
+            if (sample.sampleResult.taskId == tasksVisibility.first.num) {
                 SampleCard(
                     appModel = invModel,
                     sample = sample,

@@ -35,7 +35,7 @@ fun InvestigationsMainComposition(
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - TOP_TAB_ROW_HEIGHT.dp
 
-    val currentTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
+    val tasksVisibility by invModel.tasksVisibility.collectAsStateWithLifecycle()
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -87,8 +87,8 @@ fun InvestigationsMainComposition(
         invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true)
     }
 
-    LaunchedEffect(currentTask) {
-        when (currentTask == NoRecord) {
+    LaunchedEffect(tasksVisibility) {
+        when (tasksVisibility.first == NoRecord) {
             true -> {
                 if (screenWidth <= limitToResize) animateScroll(0)
                 updateSizes(0)
@@ -116,7 +116,7 @@ fun InvestigationsMainComposition(
             else
                 Orders(modifier = Modifier.width(screenSizes.second), invModel = invModel)
 
-            if (currentTask != NoRecord)
+            if (tasksVisibility.first != NoRecord)
                 SampleComposition(modifier = Modifier.width(screenSizes.third), invModel = invModel)
         }
 

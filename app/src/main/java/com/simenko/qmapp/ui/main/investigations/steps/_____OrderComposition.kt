@@ -46,8 +46,8 @@ fun Orders(
     modifier: Modifier = Modifier,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle()
-    val items by invModel.orders.collectAsStateWithLifecycle()
+    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle(null)
+    val items by invModel.orders.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(aId = SelectedNumber(it)) } }
