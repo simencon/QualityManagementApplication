@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.domain.FillInError
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -19,12 +18,9 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -66,7 +62,7 @@ class PreviousOperationViewModel @Inject constructor(
                 }
             }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.Default)
 
     /**
      * (recId, name, isSelected)
@@ -79,7 +75,7 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableDepartments: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
@@ -90,7 +86,7 @@ class PreviousOperationViewModel @Inject constructor(
                 )
             }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.Default)
 
     val selectSubDepId: (Int) -> Unit = {
         if (it != _operationToAdd.value.subDepId) {
@@ -100,7 +96,7 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableSubDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableSubDepartments: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
@@ -111,7 +107,7 @@ class PreviousOperationViewModel @Inject constructor(
                 )
             }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.Default)
 
     val selectedChannelId: (Int) -> Unit = {
         if (it != _operationToAdd.value.channelId) {
@@ -121,7 +117,7 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableChannels: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableChannels: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
@@ -132,7 +128,7 @@ class PreviousOperationViewModel @Inject constructor(
                 )
             }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.Default)
 
     val selectedLineId: (Int) -> Unit = {
         if (it != _operationToAdd.value.lineId) {
@@ -142,7 +138,7 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableLines: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableLines: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
@@ -153,7 +149,7 @@ class PreviousOperationViewModel @Inject constructor(
                 )
             }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.Default)
 
     val selectedOperationId: (Int) -> Unit = {
         if (it != _operationToAdd.value.previousOperationId) {
@@ -163,7 +159,7 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableOperations: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableOperations: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
@@ -182,7 +178,7 @@ class PreviousOperationViewModel @Inject constructor(
                 )
             }
         }
-    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.Default)
 
     fun validateInput() {
         val errorMsg = buildString {
