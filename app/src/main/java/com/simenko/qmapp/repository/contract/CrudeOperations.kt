@@ -6,7 +6,6 @@ import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.retrofit.entities.NetworkErrorBody
-import com.simenko.qmapp.retrofit.entities.NetworkOrder
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.room.contract.StatusHolderModel
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -114,60 +113,36 @@ class CrudeOperations @Inject constructor(
         val result = mutableListOf<NotificationData>()
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
-            val ntSubOrders = serviceGetRecordsByTimeRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, sub orders not available.")
+            val ntOrders = serviceGetRecordsByTimeRange(timeRange).run {
+                if (isSuccessful) body()?.map { it.toDatabaseModel() } ?: listOf() else throw IOException("Network error, sub orders not available.")
             }
-            val dbSubOrders = dao.getRecordsByTimeRange(timeRange)
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        recordExists = true
-                        return@byBlock2
+            val dbOrders = dao.getRecordsByTimeRange(timeRange)
+
+            ntOrders.subtract(dbOrders.toSet()).let { it1 ->
+                it1.filter { it2 -> it2.getRecordId() !in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToInsert ->
+                    dao.insertRecords(listToInsert)
+                    listToInsert.forEach { record ->
+                        daoReadDetailedRecordById(record.getRecordId().toString().toInt())?.let { recordComplete ->
+                            result.add(recordComplete.toNotificationData(NotificationReasons.CREATED))
+                        }
                     }
                 }
-                if (!recordExists) {
-                    dao.insertRecord(ntIt.toDatabaseModel())
-                    daoReadDetailedRecordById(ntIt.getRecordId().toString().toInt())?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.CREATED)
-                        )
-                    }
-                }
-            }
-            ntSubOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbSubOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    dao.updateRecord(ntIt.toDatabaseModel())
-                    daoReadDetailedRecordById(ntIt.getRecordId().toString().toInt())?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.CHANGED)
-                        )
+                it1.filter { it2 -> it2.getRecordId() in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToUpdate ->
+                    dao.updateRecords(listToUpdate)
+                    listToUpdate.forEach { record ->
+                        daoReadDetailedRecordById(record.getRecordId().toString().toInt())?.let { recordComplete ->
+                            result.add(recordComplete.toNotificationData(NotificationReasons.CHANGED))
+                        }
                     }
                 }
             }
-            dbSubOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntSubOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        recordExists = true
-                        return@byBlock2
+
+            dbOrders.subtract(ntOrders.toSet()).filter { it1 -> it1.getRecordId() !in ntOrders.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
+                dao.deleteRecords(listToDelete)
+                listToDelete.forEach { record ->
+                    daoReadDetailedRecordById(record.getRecordId().toString().toInt())?.let { recordComplete ->
+                        result.add(recordComplete.toNotificationData(NotificationReasons.DELETED))
                     }
-                }
-                if (!recordExists) {
-                    daoReadDetailedRecordById(dbIt.getRecordId().toString().toInt())?.let {
-                        result.add(
-                            it.toNotificationData(NotificationReasons.DELETED)
-                        )
-                    }
-                    dao.deleteRecord(dbIt)
                 }
             }
         }
@@ -186,45 +161,21 @@ class CrudeOperations @Inject constructor(
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
             val ntOrders = serviceGetRecordsByTimeRange(timeRange).run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
+                if (isSuccessful) body()?.map { it.toDatabaseModel() } ?: listOf() else throw IOException("Network error, orders not available.")
             }
             val dbOrders = dao.getRecordsByTimeRange(timeRange)
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        recordExists = true
-                        return@byBlock2
-                    }
+
+            ntOrders.subtract(dbOrders.toSet()).let { it1 ->
+                it1.filter { it2 -> it2.getRecordId() !in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToInsert ->
+                    dao.insertRecords(listToInsert)
                 }
-                if (!recordExists) {
-                    dao.insertRecord(ntIt.toDatabaseModel())
+                it1.filter { it2 -> it2.getRecordId() in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToUpdate ->
+                    dao.updateRecords(listToUpdate)
                 }
             }
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    dao.updateRecord(ntIt.toDatabaseModel())
-                }
-            }
-            dbOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    dao.deleteRecord(dbIt)
-                }
+
+            dbOrders.subtract(ntOrders.toSet()).filter { it1 -> it1.getRecordId() !in ntOrders.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
+                dao.deleteRecords(listToDelete)
             }
         }
     }
@@ -240,45 +191,21 @@ class CrudeOperations @Inject constructor(
         withContext(Dispatchers.IO) {
             userRepository.refreshTokenIfNecessary()
             val ntOrders = serviceGetRecords().run {
-                if (isSuccessful) body() ?: listOf() else throw IOException("Network error, orders not available.")
+                if (isSuccessful) body()?.map { it.toDatabaseModel() } ?: listOf() else throw IOException("Network error, orders not available.")
             }
             val dbOrders = dao.getRecords()
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordExists = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        recordExists = true
-                        return@byBlock2
-                    }
+
+            ntOrders.subtract(dbOrders.toSet()).let { it1 ->
+                it1.filter { it2 -> it2.getRecordId() !in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToInsert ->
+                    dao.insertRecords(listToInsert)
                 }
-                if (!recordExists) {
-                    dao.insertRecord(ntIt.toDatabaseModel())
+                it1.filter { it2 -> it2.getRecordId() in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToUpdate ->
+                    dao.updateRecords(listToUpdate)
                 }
             }
-            ntOrders.forEach byBlock1@{ ntIt ->
-                var recordStatusChanged = false
-                dbOrders.forEach byBlock2@{ dbIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        if (dbIt != ntIt.toDatabaseModel())
-                            recordStatusChanged = true
-                        return@byBlock2
-                    }
-                }
-                if (recordStatusChanged) {
-                    dao.updateRecord(ntIt.toDatabaseModel())
-                }
-            }
-            dbOrders.forEach byBlock1@{ dbIt ->
-                var recordExists = false
-                ntOrders.forEach byBlock2@{ ntIt ->
-                    if (ntIt.getRecordId() == dbIt.getRecordId()) {
-                        recordExists = true
-                        return@byBlock2
-                    }
-                }
-                if (!recordExists) {
-                    dao.deleteRecord(dbIt)
-                }
+
+            dbOrders.subtract(ntOrders.toSet()).filter { it1 -> it1.getRecordId() !in ntOrders.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
+                dao.deleteRecords(listToDelete)
             }
         }
     }

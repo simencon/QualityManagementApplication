@@ -23,11 +23,17 @@ abstract class DomainBaseModel<out T> {
     abstract fun toDatabaseModel(): T
 }
 
+sealed class FillInState
+object FillInInitialState : FillInState()
+object FillInSuccess : FillInState()
+data class FillInError(val errorMsg: String) : FillInState()
+
 @JvmInline
 value class SelectedNumber(val num: Int)
 
 val NoRecord = SelectedNumber(-1)
 val ZeroValue = SelectedNumber(0)
+val StatusDoneId = SelectedNumber(3)
 val ProcessControlOrderTypeId = SelectedNumber(3)
 
 val FirstTabId = NoRecord
@@ -44,15 +50,5 @@ val FalseStr = SelectedString("false")
 val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
 
-val EmployeeId = SelectedString("employeeId")
-val UserId = SelectedString("userId")
 
-val ToProcessControlScreen = SelectedString("investigationsKey")
-
-val OrderId = SelectedString("orderId")
-val SubOrderId = SelectedString("subOrderId")
-
-val SubOrderAddEditMode = SelectedString("subOrderAddEditMode")
-
-val UserEditMode = SelectedString("userEditMode")
 

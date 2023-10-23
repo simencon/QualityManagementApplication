@@ -46,16 +46,33 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
 
     @Transaction
     @Query(
-        "select * from( select * from  `12_orders` o where o.createdDate >=:lastVisibleCreateDate " +
-                "order by o.createdDate asc limit :safetyGap +:totalVisible) " +
-                "union " +
-                "select * from (select * from  `12_orders` o where o.createdDate <:lastVisibleCreateDate " +
-                "order by o.createdDate desc limit :safetyGap) " +
-                "order by createdDate desc"
+        """
+            select * from(
+            select * from  `12_orders` o
+            where (o.createdDate >=:lastVisibleCreateDate)
+            and (:orderTypeId = -1 or o.orderTypeId = :orderTypeId)
+            and (:orderStatusId = -1 or o.statusId = :orderStatusId)
+            and (:orderNumber = '' or o.orderNumber like :orderNumber)
+            order by o.createdDate asc limit :safetyGap +:totalVisible
+            )
+            union
+            select * from (
+            select * from  `12_orders` o
+            where (o.createdDate <:lastVisibleCreateDate)
+            and (:orderTypeId = -1 or o.orderTypeId = :orderTypeId)
+            and (:orderStatusId = -1 or o.statusId = :orderStatusId)
+            and (:orderNumber = '' or o.orderNumber like :orderNumber)
+            order by o.createdDate desc limit :safetyGap
+            )
+            order by createdDate desc
+        """
     )
-    abstract fun ordersListByLastVisibleIdForUI(
+    abstract fun getRecordsByTimeRangeForUI(
         lastVisibleCreateDate: Long,
         safetyGap: Int = UI_SAFETY_GAP,
-        totalVisible: Int = UI_TOTAL_VISIBLE
+        totalVisible: Int = UI_TOTAL_VISIBLE,
+        orderTypeId: Int,
+        orderStatusId: Int,
+        orderNumber: String
     ): Flow<List<DatabaseOrderComplete>>
 }

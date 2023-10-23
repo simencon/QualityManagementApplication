@@ -17,6 +17,12 @@ object StringUtils {
     }
 
     @JvmStatic
+    fun getWithSpacesTitle(original: String?): String {
+        val str = original?.replace("_", " ") ?: "-"
+        return str.substring(0, 1).uppercase() + str.substring(1).lowercase()
+    }
+
+    @JvmStatic
     fun getMail(original: String?): String {
         return if (!original.isNullOrEmpty()) {
             original.split("#mailto:").toTypedArray()[0]

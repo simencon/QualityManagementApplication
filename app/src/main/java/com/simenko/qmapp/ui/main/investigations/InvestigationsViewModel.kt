@@ -1,77 +1,116 @@
 package com.simenko.qmapp.ui.main.investigations
 
-import android.util.Log
-import androidx.compose.material3.FabPosition
+import android.content.Context
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
+import com.simenko.qmapp.BaseApplication
+import com.simenko.qmapp.di.OrderIdParameter
+import com.simenko.qmapp.di.IsProcessControlOnlyParameter
+import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.dialogs.DialogInput
-import com.simenko.qmapp.ui.main.AddEditMode
-import com.simenko.qmapp.ui.main.CreatedRecord
-import com.simenko.qmapp.ui.main.ProgressTabs
-import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.main.main.MainPageHandler
+import com.simenko.qmapp.ui.main.main.content.InvestigationsActions
+import com.simenko.qmapp.ui.main.main.content.Page
+import com.simenko.qmapp.ui.main.main.content.ProcessControlActions
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.BaseFilter
+import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvStatuses
-import com.simenko.qmapp.utils.InvestigationsUtils.filterByStatusAndNumber
-import com.simenko.qmapp.utils.InvestigationsUtils.filterSubOrderByStatusAndNumber
 import com.simenko.qmapp.utils.InvestigationsUtils.getDetailedOrdersRange
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import com.simenko.qmapp.utils.OrdersFilter
 import com.simenko.qmapp.utils.SubOrdersFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
 
-private const val TAG = "InvestigationsViewModel"
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class InvestigationsViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
+    private val mainPageState: MainPageState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository
+    private val repository: InvestigationsRepository,
+    @ApplicationContext context: Context,
+    @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
+    @OrderIdParameter private val orderId: Int,
+    @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
+    private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(orderId), Event(subOrderId)))
+    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
+    private val _ordersVisibility = MutableStateFlow(Pair(SelectedNumber(orderId), NoRecord))
+    private val _subOrdersVisibility = MutableStateFlow(Pair(SelectedNumber(subOrderId), NoRecord))
+    private val _tasksVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _samplesVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
+    private val _resultsVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
 
-    companion object {
-        fun getStatus(status: String): SelectedNumber {
-            return when (status) {
-                ProgressTabs.ALL.name -> NoRecord
-                ProgressTabs.TO_DO.name -> SelectedNumber(1)
-                ProgressTabs.IN_PROGRESS.name -> SelectedNumber(2)
-                ProgressTabs.DONE.name -> SelectedNumber(3)
-                else -> NoRecord
-            }
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    var mainPageHandler: MainPageHandler? = null
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            setLastVisibleItemKey(if (orderId == NoRecord.num) repository.latestLocalOrderId() else orderId)
+            mainPageHandler = MainPageHandler.Builder(if (isPcOnly == true) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
+                .setOnSearchClickAction { if (isPcOnly == true) setSubOrdersFilter(it) else setOrdersFilter(it) }
+                .setOnTabSelectAction { if (isPcOnly == true) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
+                .setOnFabClickAction { if (isPcOnly == true) onAddProcessControlClick() else onAddInvClick() }
+                .setOnPullRefreshAction { uploadNewInvestigations() }
+                .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
+                .setOnActionItemClickAction {
+                    if (it == InvestigationsActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                    if (it == ProcessControlActions.SYNC_INVESTIGATIONS) (context as BaseApplication).setupOneTimeSync()
+                }
+                .build()
         }
     }
 
-    private lateinit var _navController: NavHostController
-    val navController get() = _navController
-    fun initNavController(controller: NavHostController) {
-        this._navController = controller
+    private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
+    val selectedTabIndex
+        get() = if (isPcOnly == true) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num
+
+    /**
+     * Navigation -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    private fun onAddInvClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
     }
 
-    private lateinit var mainActivityViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this.mainActivityViewModel = viewModel
+    fun onEditInvClick(orderId: Int) {
+        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(orderId.toString()))
     }
 
-    fun setAddEditMode(mode: AddEditMode) {
-        mainActivityViewModel.setAddEditMode(mode)
+    fun onAddSubOrderClick(orderId: Int) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(orderId.toString(), NoRecordStr.str, FalseStr.str))
     }
 
-    private val _isLoadingInProgress: StateFlow<Boolean>
-        get() = if (this::mainActivityViewModel.isInitialized) mainActivityViewModel.isLoadingInProgress else MutableStateFlow(false)
+    fun onEditSubOrderClick(record: Pair<Int, Int>) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), FalseStr.str))
+    }
 
-    fun onListEnd(position: FabPosition) {
-        mainActivityViewModel.onListEnd(position)
+    private fun onAddProcessControlClick() {
+        appNavigator.tryNavigateTo(route = Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
+    }
+
+    fun onEditProcessControlClick(record: Pair<Int, Int>) {
+        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), TrueStr.str))
     }
 
     private val _isStatusUpdateDialogVisible = MutableLiveData(false)
@@ -100,92 +139,36 @@ class InvestigationsViewModel @Inject constructor(
         _selectedStatus.value = statusId
     }
 
-    val invStatuses: StateFlow<List<DomainOrdersStatus>> =
-        _invStatuses.flatMapLatest { statuses ->
-            _selectedStatus.flatMapLatest { selectedStatus ->
-                val cpy = mutableListOf<DomainOrdersStatus>()
-                statuses.forEach {
-                    cpy.add(it.copy(isSelected = it.id == selectedStatus.num))
-                }
-                flow { emit(cpy) }
-            }
+    val invStatuses = _invStatuses.flatMapLatest { statuses ->
+        _selectedStatus.flatMapLatest { selectedStatus ->
+            val cpy = statuses.map { it.copy(isSelected = it.id == selectedStatus.num) }
+            flow { emit(cpy) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
-    private val _employees: Flow<List<DomainEmployeeComplete>> = manufacturingRepository.employeesComplete
-    val employees: StateFlow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
+    private val _employees = manufacturingRepository.employeesComplete(EmployeesFilter())
+    val employees: Flow<List<DomainEmployeeComplete>> = _employees.flatMapLatest { team ->
         flow { emit(team) }
-    }
-        .flowOn(Dispatchers.IO)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     /**
      * Handling scrolling to just created record-------------------------------------------------
      * */
-    private val _createdRecord = MutableStateFlow(CreatedRecord())
-    val createdRecord: StateFlow<CreatedRecord> = _createdRecord.flatMapLatest { record ->
-        _ordersSF.flatMapLatest { ordersList ->
-            _subOrdersSF.flatMapLatest { subOrdersList ->
+    private val _isScrollingEnabled = MutableStateFlow(false)
+    val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
 
-                val recordToEmit =
-                    if (
-                        (record.orderId != NoRecord.num) && (record.subOrderId != NoRecord.num) &&
-                        (ordersList.find { it.order.id == record.orderId } != null) && (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
-                    )
-                        record
-                    else if (
-                        (record.orderId != NoRecord.num) && (record.subOrderId == NoRecord.num) &&
-                        (ordersList.find { it.order.id == record.orderId } != null)
-                    )
-                        record
-                    else if (
-                        (record.orderId == NoRecord.num) && (record.subOrderId != NoRecord.num) &&
-                        (subOrdersList.find { it.subOrder.id == record.subOrderId } != null)
-                    )
-                        record
-                    else
-                        CreatedRecord()
-
-                flow { emit(recordToEmit) }
-            }
+    val scrollToRecord = _createdRecord.flatMapLatest { record ->
+        _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
+            if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
         }
-    }
-        .flowOn(Dispatchers.Default)
-        .conflate()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), CreatedRecord())
+    }.flowOn(Dispatchers.Default)
 
-    fun setCreatedRecord(
-        orderId: Int = NoRecord.num,
-        subOrderId: Int = NoRecord.num
-    ) {
-        _createdRecord.value = CreatedRecord(
-            if (orderId != NoRecord.num) orderId else _createdRecord.value.orderId,
-            if (subOrderId != NoRecord.num) subOrderId else _createdRecord.value.subOrderId
-        )
-    }
-
-    fun resetCreatedOrderId() {
-        _createdRecord.value = CreatedRecord(NoRecord.num, _createdRecord.value.subOrderId)
-    }
-
-    fun resetCreatedSubOrderId() {
-        _createdRecord.value = CreatedRecord(_createdRecord.value.orderId, NoRecord.num)
-    }
-    /**
-     * Handling scrolling to just created record-------------------------------------------------
-     * */
+    val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
 
     /**
      * Operations with orders ______________________________________________________________
      * */
-
-    private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
-
     fun setLastVisibleItemKey(key: Any) {
-        Log.d(TAG, "setLastVisibleItemKey: $key")
         _lastVisibleItemKey.value = key
     }
 
@@ -194,78 +177,50 @@ class InvestigationsViewModel @Inject constructor(
 //        MutableStateFlow(Pair(NoRecord.num.toLong(), NoRecord.num.toLong()))
         MutableStateFlow(Pair(1691991128021L, Instant.now().toEpochMilli()))
 
-    private val _ordersSF: Flow<List<DomainOrderComplete>> =
-        _lastVisibleItemKey.flatMapLatest { key ->
-            repository.ordersListByLastVisibleId(key as Int)
+    private val _orders: StateFlow<List<DomainOrderComplete>> = _lastVisibleItemKey.flatMapLatest { key ->
+        _currentOrdersFilter.flatMapLatest { filter ->
+            repository.ordersListByLastVisibleId(key as Int, filter)
         }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
     /**
      * Visibility operations
      * */
-    private val _currentOrderVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
-    fun setCurrentOrderVisibility(
-        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
-    ) {
-        _currentOrderVisibility.value = _currentOrderVisibility.value.setVisibility(dId, aId)
+    fun setOrdersVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _ordersVisibility.value = _ordersVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * Filtering operations
      * */
     private val _currentOrdersFilter = MutableStateFlow(OrdersFilter())
-    fun setCurrentOrdersFilter(
-        type: SelectedNumber = NoRecord,
-        status: SelectedNumber = NoRecord,
-        number: SelectedString = NoString
-    ) {
-        _currentOrdersFilter.value = OrdersFilter(
-            type.num,
-            status.num,
-            if (number != NoString) number.str else _currentOrdersFilter.value.orderNumber
+    private fun setOrdersFilter(filter: BaseFilter) {
+        val current = _currentOrdersFilter.value
+        _currentOrdersFilter.value = _currentOrdersFilter.value.copy(
+            typeId = filter.typeId ?: current.typeId,
+            statusId = filter.statusId ?: current.statusId,
+            stringToSearch = filter.stringToSearch ?: current.stringToSearch,
         )
     }
 
     /**
      * The result flow
      * */
-    val ordersSF: StateFlow<List<DomainOrderComplete>> =
-        _isLoadingInProgress.flatMapLatest { isLoading ->
-            _ordersSF.flatMapLatest { orders ->
-                _currentOrderVisibility.flatMapLatest { visibility ->
-                    _currentOrdersFilter.flatMapLatest { filter ->
-
-                        if (visibility.first == NoRecord) {
-                            setCurrentSubOrderVisibility(dId = _currentSubOrderVisibility.value.first)
-                            setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                            setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                        }
-
-                        val cyp = mutableListOf<DomainOrderComplete>()
-                        orders
-                            .filterByStatusAndNumber(filter)
-                            .forEach {
-                                cyp.add(
-                                    it.copy(
-                                        detailsVisibility = it.order.id == visibility.first.num,
-                                        isExpanded = it.order.id == visibility.second.num
-                                    )
-                                )
-                            }
-                        _currentOrdersRange.value = cyp.getDetailedOrdersRange()
-                        if (!isLoading)
-                            uploadOlderInvestigations(_currentOrdersRange.value.first)
-                        flow {
-                            emit(
-                                cyp
-                            )
-                        }
-                    }
+    val orders = _isLoadingInProgress.flatMapLatest { isLoading ->
+        _orders.flatMapLatest { orders ->
+            _ordersVisibility.flatMapLatest { visibility ->
+                if (visibility.first == NoRecord) {
+                    setSubOrdersVisibility(dId = _subOrdersVisibility.value.first)
+                    setTasksVisibility(dId = _tasksVisibility.value.first)
+                    setSamplesVisibility(dId = _samplesVisibility.value.first)
                 }
+                val cyp = orders.map { it.copy(detailsVisibility = it.order.id == visibility.first.num, isExpanded = it.order.id == visibility.second.num) }
+                _currentOrdersRange.value = cyp.getDetailedOrdersRange()
+                if (!isLoading) uploadOlderInvestigations(_currentOrdersRange.value.first)
+                flow { emit(cyp) }
             }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     /**
      * REST operations
@@ -277,9 +232,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteOrder(orderId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -295,85 +250,59 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with sub orders __________________________________________________________
      * */
-    private val _subOrdersSF: Flow<List<DomainSubOrderComplete>> =
-        _currentOrdersRange.flatMapLatest { ordersRange ->
-            repository.subOrdersRangeList(ordersRange)
+    private val _subOrdersSF: Flow<List<DomainSubOrderComplete>> = _currentOrdersRange.flatMapLatest { ordersRange ->
+        _currentSubOrdersFilter.flatMapLatest { filter ->
+            repository.subOrdersRangeList(ordersRange, filter)
         }
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentSubOrderVisibility =
-        MutableStateFlow(Pair(NoRecord, NoRecord))
-
-    fun setCurrentSubOrderVisibility(
-        dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord
-    ) {
-        _currentSubOrderVisibility.value = _currentSubOrderVisibility.value.setVisibility(dId, aId)
+    fun setSubOrdersVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _subOrdersVisibility.value = _subOrdersVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * Filtering operations
      * */
     private val _currentSubOrdersFilter = MutableStateFlow(SubOrdersFilter())
-    fun setCurrentSubOrdersFilter(
-        type: SelectedNumber = NoRecord,
-        status: SelectedNumber = NoRecord,
-        number: SelectedString = NoString
-    ) {
-        _currentSubOrdersFilter.value = SubOrdersFilter(
-            type.num,
-            status.num,
-            if (number != NoString) number.str else _currentSubOrdersFilter.value.orderNumber
+    fun setSubOrdersFilter(filter: BaseFilter) {
+        val current = _currentSubOrdersFilter.value
+        _currentSubOrdersFilter.value = _currentSubOrdersFilter.value.copy(
+            typeId = filter.typeId ?: current.typeId,
+            statusId = filter.statusId ?: current.statusId,
+            stringToSearch = filter.stringToSearch ?: current.stringToSearch,
         )
     }
 
     /**
      * The result flow
      * */
-    val subOrdersSF: StateFlow<List<DomainSubOrderComplete>> =
-        _subOrdersSF.flatMapLatest { subOrders ->
-            _currentSubOrderVisibility.flatMapLatest { visibility ->
-                _currentSubOrdersFilter.flatMapLatest { filter ->
-
-                    if (visibility.first == NoRecord) {
-                        setCurrentTaskVisibility(dId = _currentTaskVisibility.value.first)
-                        setCurrentSampleVisibility(dId = _currentSampleVisibility.value.first)
-                    }
-
-                    val cyp = mutableListOf<DomainSubOrderComplete>()
-                    subOrders
-                        .filterSubOrderByStatusAndNumber(filter)
-                        .forEach {
-                            cyp.add(
-                                it.copy(
-                                    detailsVisibility = it.subOrder.id == visibility.first.num,
-                                    isExpanded = it.subOrder.id == visibility.second.num
-                                )
-                            )
-                        }
-
-                    flow { emit(cyp) }
-                }
+    val subOrdersSF = _subOrdersSF.flatMapLatest { subOrders ->
+        _subOrdersVisibility.flatMapLatest { visibility ->
+            if (visibility.first == NoRecord) {
+                setTasksVisibility(dId = _tasksVisibility.value.first)
+                setSamplesVisibility(dId = _samplesVisibility.value.first)
             }
+            val cyp = subOrders.map { it.copy(detailsVisibility = it.subOrder.id == visibility.first.num, isExpanded = it.subOrder.id == visibility.second.num) }
+            flow { emit(cyp) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     /**
      * REST operations
      * */
-    fun deleteSubOrder(subOrderId: Int) {
+    fun onDeleteSubOrderClick(subOrderId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
                     deleteSubOrder(subOrderId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -389,51 +318,28 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with tasks __________________________________________________________
      * */
-    private val _tasksSF: Flow<List<DomainSubOrderTaskComplete>> =
-        _currentSubOrderVisibility.flatMapLatest { subOrdersIds ->
-            repository.tasksRangeList(subOrdersIds.first.num)
-        }
+    private val _tasks: Flow<List<DomainSubOrderTaskComplete>> = _subOrdersVisibility.flatMapLatest { subOrdersIds ->
+        repository.tasksRangeList(subOrdersIds.first.num)
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentTaskVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(NoRecord, NoRecord))
-    fun setCurrentTaskVisibility(
-        dId: SelectedNumber = NoRecord,
-        aId: SelectedNumber = NoRecord
-    ) {
-        _currentTaskVisibility.value = _currentTaskVisibility.value.setVisibility(dId, aId)
+    fun setTasksVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _tasksVisibility.value = _tasksVisibility.value.setVisibility(dId, aId)
     }
 
-    val currentTaskDetails: StateFlow<SelectedNumber>
-        get() = _currentTaskVisibility.flatMapLatest {
-            flow { emit(it.first) }
-        }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _currentTaskVisibility.value.first)
+    val tasksVisibility = _tasksVisibility.asStateFlow()
 
     /**
      * The result flow
      * */
-    val tasksSF: StateFlow<List<DomainSubOrderTaskComplete>> =
-        _tasksSF.flatMapLatest { tasks ->
-            _currentTaskVisibility.flatMapLatest { visibility ->
-                val cyp = mutableListOf<DomainSubOrderTaskComplete>()
-                tasks.forEach {
-                    cyp.add(
-                        it.copy(
-                            detailsVisibility = it.subOrderTask.id == visibility.first.num,
-                            isExpanded = it.subOrderTask.id == visibility.second.num
-                        )
-                    )
-                }
-                flow { emit(cyp) }
-            }
+    val tasks = _tasks.flatMapLatest { tasks ->
+        _tasksVisibility.flatMapLatest { visibility ->
+            val cyp = tasks.map { it.copy(detailsVisibility = it.subOrderTask.id == visibility.first.num, isExpanded = it.subOrderTask.id == visibility.second.num) }
+            flow { emit(cyp) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     /**
      * REST operations
@@ -445,9 +351,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteSubOrderTask(taskId).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -459,14 +365,14 @@ class InvestigationsViewModel @Inject constructor(
     fun syncTasks() {
         viewModelScope.launch {
             try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
                 repository.syncSubOrderTasks(_currentOrdersRange.value)
                 repository.syncResults(_currentOrdersRange.value)
 
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: IOException) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -478,48 +384,28 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with samples __________________________________________________________
      * */
-    private val _samplesSF: Flow<List<DomainSampleComplete>> =
-        _currentSubOrderVisibility.flatMapLatest { subOrderId ->
-            repository.samplesRangeList(subOrderId.first.num)
-        }
+    private val _samples = _subOrdersVisibility.flatMapLatest { subOrderId ->
+        repository.samplesRangeList(subOrderId.first.num)
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentSampleVisibility =
-        MutableStateFlow(Pair(NoRecord, NoRecord))
-
-    fun setCurrentSampleVisibility(
-        dId: SelectedNumber = NoRecord,
-        aId: SelectedNumber = NoRecord
-    ) {
-        _currentSampleVisibility.value = _currentSampleVisibility.value.setVisibility(dId, aId)
+    fun setSamplesVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _samplesVisibility.value = _samplesVisibility.value.setVisibility(dId, aId)
     }
 
-    val currentSampleDetails: LiveData<SelectedNumber> = _currentSampleVisibility.flatMapLatest {
-        flow { emit(it.first) }
-    }.asLiveData()
+    val samplesVisibility get() = _samplesVisibility.asStateFlow()
 
     /**
      * The result flow
      * */
-    val samplesSF: StateFlow<List<DomainSampleComplete>> =
-        _samplesSF.flatMapLatest { samples ->
-            _currentSampleVisibility.flatMapLatest { visibility ->
-                val cpy = mutableListOf<DomainSampleComplete>()
-                samples.forEach {
-                    cpy.add(
-                        it.copy(
-                            detailsVisibility = it.sample.id == visibility.first.num
-                        )
-                    )
-                }
-                flow { emit(cpy) }
-            }
+    val samples = _samples.flatMapLatest { samples ->
+        _samplesVisibility.flatMapLatest { visibility ->
+            val cpy = samples.map { it.copy(detailsVisibility = it.sample.id == visibility.first.num) }
+            flow { emit(cpy) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     /**
      * REST operations
@@ -534,48 +420,28 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Operations with results __________________________________________________________
      * */
-    private val _resultsSF: Flow<List<DomainResultComplete>> =
-        _currentTaskVisibility.flatMapLatest { taskIds ->
-            _currentSampleVisibility.flatMapLatest { sampleIds ->
-                repository.resultsRangeList(taskIds.first.num, sampleIds.first.num)
-            }
+    private val _results: Flow<List<DomainResultComplete>> = _tasksVisibility.flatMapLatest { taskIds ->
+        _samplesVisibility.flatMapLatest { sampleIds ->
+            repository.resultsRangeList(taskIds.first.num, sampleIds.first.num)
         }
+    }
 
     /**
      * Visibility operations
      * */
-    private val _currentResultVisibility =
-        MutableStateFlow(Pair(NoRecord, NoRecord))
-
-    fun setCurrentResultVisibility(
-        dId: SelectedNumber = NoRecord,
-        aId: SelectedNumber = NoRecord
-    ) {
-        _currentResultVisibility.value = _currentResultVisibility.value.setVisibility(dId, aId)
+    fun setResultsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _resultsVisibility.value = _resultsVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * The result flow
      * */
-    val resultsSF: StateFlow<List<DomainResultComplete>> =
-        _resultsSF.flatMapLatest { results ->
-            _currentResultVisibility.flatMapLatest { visibility ->
-                val cpy = mutableListOf<DomainResultComplete>()
-
-                results.forEach {
-                    cpy.add(
-                        it.copy(
-                            detailsVisibility = it.result.id == visibility.first.num
-                        )
-                    )
-                }
-
-                flow { emit(cpy) }
-            }
+    val results = _results.flatMapLatest { results ->
+        _resultsVisibility.flatMapLatest { visibility ->
+            val cpy = results.map { it.copy(detailsVisibility = it.result.id == visibility.first.num) }
+            flow { emit(cpy) }
         }
-            .flowOn(Dispatchers.IO)
-            .conflate()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+    }.flowOn(Dispatchers.IO)
 
     /**
      * End of operations with results _______________________________________________________
@@ -588,9 +454,9 @@ class InvestigationsViewModel @Inject constructor(
                     deleteResults(task.id).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
@@ -602,24 +468,24 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrder(subOrder: DomainSubOrder) {
         viewModelScope.launch {
             try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
-                        repository.getTasksBySubOrderId(subOrder.id).forEach {
+                        repository.tasksBySubOrderId(subOrder.id).forEach {
                             it.statusId = subOrder.statusId
                             it.completedById = subOrder.completedById
                             editTask(it)
                         }
                         repository.run { getSubOrder(subOrder) }.consumeEach { }
 
-                        val order = repository.getOrderById(subOrder.orderId)
+                        val order = repository.orderById(subOrder.orderId)
                         repository.run { getOrder(order) }.consumeEach {}
                     }
                 }
                 hideStatusUpdateDialog()
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: IOException) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -627,24 +493,24 @@ class InvestigationsViewModel @Inject constructor(
     fun editSubOrderTask(subOrderTask: DomainSubOrderTask) {
         viewModelScope.launch {
             try {
-                mainActivityViewModel.updateLoadingState(Pair(true, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                 withContext(Dispatchers.IO) {
                     runBlocking {
 
                         editTask(subOrderTask)
 
-                        val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+                        val subOrder = repository.subOrderById(subOrderTask.subOrderId)
                         repository.run { getSubOrder(subOrder) }.consumeEach { }
 
-                        val order = repository.getOrderById(subOrder.orderId)
+                        val order = repository.orderById(subOrder.orderId)
                         repository.run { getOrder(order) }.consumeEach { }
 
                     }
                 }
                 hideStatusUpdateDialog()
-                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
             } catch (e: IOException) {
-                mainActivityViewModel.updateLoadingState(Pair(false, e.message))
+                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
             }
         }
     }
@@ -676,7 +542,7 @@ class InvestigationsViewModel @Inject constructor(
                                             /**
                                              * first find subOrder
                                              * */
-                                            val subOrder = repository.getSubOrderById(subOrderTask.subOrderId)
+                                            val subOrder = repository.subOrderById(subOrderTask.subOrderId)
 
                                             /**
                                              * second - extract list of metrixes to record
@@ -690,7 +556,7 @@ class InvestigationsViewModel @Inject constructor(
                                             /**
                                              * third - generate the final list of result to record
                                              * */
-                                            repository.getSamplesBySubOrderId(subOrder.id).forEach { sdIt ->
+                                            repository.samplesBySubOrderId(subOrder.id).forEach { sdIt ->
                                                 metrixesToRecord.forEach { mIt ->
                                                     listOfResults.add(
                                                         DomainResult(
@@ -710,7 +576,7 @@ class InvestigationsViewModel @Inject constructor(
                                                     when (resource.status) {
                                                         Status.LOADING -> {}
                                                         Status.SUCCESS -> {}
-                                                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                                     }
                                                 }
                                             }
@@ -729,14 +595,14 @@ class InvestigationsViewModel @Inject constructor(
                                         when (resource.status) {
                                             Status.LOADING -> {}
                                             Status.SUCCESS -> {}
-                                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                         }
                                     }
                                 }
                             }
                         }
 
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
@@ -748,9 +614,9 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { updateResult(result) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                        Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
@@ -758,12 +624,12 @@ class InvestigationsViewModel @Inject constructor(
         }
     }
 
-    fun uploadNewInvestigations() {
+    private fun uploadNewInvestigations() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.run { getRemoteLatestOrderDate() }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> {
                             resource.data?.also {
                                 repository.run { uploadNewInvestigations(it.toLong()) }.consumeEach { event ->
@@ -774,17 +640,17 @@ class InvestigationsViewModel @Inject constructor(
                                                 resource.data?.let {
                                                     if (it.isNotEmpty()) setLastVisibleItemKey(repository.latestLocalOrderId())
                                                 }
-                                                mainActivityViewModel.updateLoadingState(Pair(false, null))
+                                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                             }
 
-                                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                         }
                                     }
                                 }
-                            } ?: mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            } ?: mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                         }
 
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
@@ -796,24 +662,18 @@ class InvestigationsViewModel @Inject constructor(
             repository.run { uploadOldInvestigations(earliestOrderDate) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
-                        Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                         Status.SUCCESS -> {
                             resource.data?.let {
-                                if (it.isNotEmpty()) setLastVisibleItemKey(ordersSF.value[ordersSF.value.lastIndex - 1].order.id)
+                                if (it.isNotEmpty()) setLastVisibleItemKey(_orders.value[_orders.value.lastIndex - 1].order.id)
                             }
-                            mainActivityViewModel.updateLoadingState(Pair(false, null))
+                            mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                         }
 
-                        Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                        Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                     }
                 }
             }
-        }
-    }
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            setLastVisibleItemKey(repository.latestLocalOrderId())
         }
     }
 }

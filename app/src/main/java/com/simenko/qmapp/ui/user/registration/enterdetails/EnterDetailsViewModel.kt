@@ -1,10 +1,20 @@
 package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.di.UserEditModeParameter
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
+import com.simenko.qmapp.ui.main.main.MainPageHandler
+import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.content.Page
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,17 +22,38 @@ import javax.inject.Inject
 
 private const val MIN_LENGTH = 6
 
-/**
- * EnterDetailsViewModel is the ViewModel that [EnterDetailsFragment] uses to
- * obtain to validate user's input data.
- */
 @HiltViewModel
-class EnterDetailsViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
+class EnterDetailsViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
+    private val mainPageState: MainPageState,
+    private val userRepository: UserRepository,
+    @UserEditModeParameter private val userEditMode: Boolean
+) : ViewModel() {
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val mainPageHandler: MainPageHandler
+    init {
+        mainPageHandler = MainPageHandler.Builder(if(userEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
+            .setOnNavMenuClickAction {
+                appNavigator.navigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
+            }
+            .setOnFabClickAction { this.validateInput() }
+            .setOnPullRefreshAction { this.updateUserData() }
+            .build()
+    }
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    private fun updateUserData() {
+        userRepository.updateUserData()
+    }
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
-    fun resetToInitialState() {
+    private fun resetToInitialState() {
         _fillInState.value = FillInInitialState
     }
+
     val fillInState: StateFlow<FillInState> get() = _fillInState
 
     private var _rawPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy())
@@ -97,6 +128,30 @@ class EnterDetailsViewModel @Inject constructor(private val userRepository: User
     fun initRawUser() {
         userRepository.rawUser = _rawPrinciple.value
     }
+
+    fun onFillInSuccess(fullName: String) {
+        initRawUser()
+        resetToInitialState()
+        appNavigator.tryNavigateTo(Route.LoggedOut.Registration.TermsAndConditions.withArgs(fullName))
+    }
+
+    fun onLogInClick() {
+        appNavigator.tryNavigateTo(Route.LoggedOut.LogIn.link)
+    }
+
+    fun onSaveUserDataClick() {
+        userRepository.rawUser?.let {
+            mainPageHandler.updateLoadingState(Pair(true, null))
+            userRepository.editUserData(it).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    mainPageHandler.updateLoadingState(Pair(false, null))
+                    appNavigator.tryNavigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
+                } else {
+                    mainPageHandler.updateLoadingState(Pair(false, task.exception?.message))
+                }
+            }
+        }
+    }
 }
 
 fun Long.phoneNumberToString(): String = if (this == NoRecord.num.toLong()) "" else this.toString()
@@ -122,8 +177,3 @@ data class UserErrors(
     var emailError: Boolean = false,
     var passwordError: Boolean = false,
 )
-
-sealed class FillInState
-object FillInInitialState : FillInState()
-object FillInSuccess : FillInState()
-data class FillInError(val errorMsg: String) : FillInState()

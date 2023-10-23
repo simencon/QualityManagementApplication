@@ -11,11 +11,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.createMainActivityIntent
 import com.simenko.qmapp.utils.InvestigationsUtils.getPeriodToSync
 import com.simenko.qmapp.utils.NotificationData
@@ -45,7 +44,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
         runCatching {
             if (url != EmptyString.str) {
-                invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.getCompleteOrdersRange(), latestMillis, excludeMillis))
+                invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.completeOrdersRange(), latestMillis, excludeMillis))
             } else {
                 listOf()
             }
@@ -73,7 +72,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @SuppressLint("MissingPermission")
     fun makeNotification(notificationData: NotificationData) {
-        val intent = createMainActivityIntent(context, Screen.Main.Inv.withArgs(FalseStr.str, notificationData.orderId.toString(), notificationData.subOrderId.toString()))
+        val intent = createMainActivityIntent(context, Route.Main.Inv.withOpts(notificationData.orderId.toString(), notificationData.subOrderId.toString()))
 
         var title: String
         var msg: String

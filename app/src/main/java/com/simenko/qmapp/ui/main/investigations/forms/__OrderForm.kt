@@ -23,27 +23,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.ui.main.investigations.forms.steps.CustomersSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.InitiatorsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.TypesSelection
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.Locale
 
 @Composable
 fun OrderForm(
     modifier: Modifier = Modifier,
-    orderId: Int
+    viewModel: NewItemViewModel = hiltViewModel()
 ) {
-    val viewModel: NewItemViewModel = hiltViewModel()
-    LaunchedEffect(orderId) {
-        if (orderId != NoRecord.num) {
-            withContext(Dispatchers.Default) {
-                viewModel.loadOrder(orderId)
-            }
-        }
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
     Box {

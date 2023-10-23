@@ -27,39 +27,29 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
-import com.simenko.qmapp.ui.main.settings.InfoLine
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.TrueFalseField
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun UserForm(modifier: Modifier = Modifier, userId: String) {
-    val viewModel: UserViewModel = hiltViewModel()
-
+fun UserForm(
+    modifier: Modifier = Modifier,
+    viewModel: UserViewModel
+) {
     val user by viewModel.user.collectAsStateWithLifecycle()
-    LaunchedEffect(key1 = userId) {
-        if (user.email == NoRecordStr.str)
-            withContext(Dispatchers.Default) {
-                if (userId != NoRecordStr.str) {
-                    viewModel.clearNotificationIfExists(userId)
-                    viewModel.loadUser(userId)
-                }
-            }
+    LaunchedEffect(user) {
+        viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
     val userRoles by viewModel.userRoles.collectAsStateWithLifecycle()
@@ -70,11 +60,13 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    fillInState.let { state ->
-        when (state) {
-            is FillInSuccess -> viewModel.makeUser(user)
-            is FillInError -> error = state.errorMsg
-            is FillInInitialState -> error = UserError.NO_ERROR.error
+    LaunchedEffect(fillInState) {
+        fillInState.let { state ->
+            when (state) {
+                is FillInSuccess -> viewModel.makeUser()
+                is FillInError -> error = state.errorMsg
+                is FillInInitialState -> error = UserError.NO_ERROR.error
+            }
         }
     }
 
@@ -117,7 +109,6 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             )
             Spacer(modifier = Modifier.height(10.dp))
             RolesHeader(
-                modifier = Modifier.padding(Constants.CARDS_PADDING),
                 userRoles = userRoles,
                 userRolesError = userErrors.rolesError,
                 onClickActions = { viewModel.setCurrentUserRoleVisibility(aId = SelectedString(it)) },
@@ -126,7 +117,6 @@ fun UserForm(modifier: Modifier = Modifier, userId: String) {
             )
             Spacer(modifier = Modifier.height(10.dp))
             TrueFalseField(
-                modifier = Modifier.padding(Constants.CARDS_PADDING),
                 user = user,
                 onSwitch = { viewModel.setUserIsEnabled(it) },
                 isError = userErrors.enabledError

@@ -1,7 +1,6 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -16,14 +15,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
@@ -31,105 +26,60 @@ import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
-import com.simenko.qmapp.other.Constants.CARDS_PADDING
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.StatusWithPercentage
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
-import com.simenko.qmapp.utils.StringUtils.getMillisecondsDate
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.*
-import kotlin.math.round
 import kotlin.math.roundToInt
-
-private const val TAG = "OrderComposition"
 
 @Composable
 fun Orders(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-    Log.d(TAG, "InvestigationsViewModel: $invModel")
+    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle(null)
+    val items by invModel.orders.collectAsStateWithLifecycle(listOf())
 
-    val createdRecord by invModel.createdRecord.collectAsStateWithLifecycle(CreatedRecord())
-
-    val items by invModel.ordersSF.collectAsStateWithLifecycle(listOf())
-
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setCurrentOrderVisibility(aId = SelectedNumber(it)) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> {
-        {
-            invModel.setAddEditMode(AddEditMode.EDIT_ORDER)
-            invModel.navController.navigate(Screen.Main.OrderAddEdit.withArgs(it.toString()))
-        }
-    }
+    val onClickEditLambda = remember<(Int) -> Unit> { { invModel.onEditInvClick(it) } }
 
     val listState = rememberLazyListState()
-
-    val needScrollToItem by remember {
-        derivedStateOf {
-            createdRecord.orderId != NoRecord.num
-        }
-    }
-
-    if (needScrollToItem) {
-        val coroutineScope = rememberCoroutineScope()
-        SideEffect {
-            coroutineScope.launch {
-
-                listState.scrollToSelectedItem(
-                    list = items.map { it.order.id }.toList(),
-                    selectedId = createdRecord.orderId
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord?.let { record ->
+            record.first.getContentIfNotHandled()?.let { orderId ->
+                invModel.channel.trySend(
+                    this.launch { listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId) }
                 )
-
-                delay(25)
-
-                val order = items.find {
-                    it.order.id == createdRecord.orderId
-                }
-
-                if (order != null) {
-                    if (!order.detailsVisibility)
-                        onClickDetailsLambda(order.order.id)
-                    invModel.resetCreatedOrderId()
-                }
             }
         }
     }
-
-    val lastVisibleItemKey by remember {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key
-        }
+    val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
+    LaunchedEffect(lastItemIsVisible) {
+        if (lastItemIsVisible) invModel.mainPageHandler?.onListEnd?.invoke(true) else invModel.mainPageHandler?.onListEnd?.invoke(false)
     }
 
-    if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
-
-    val lastItemIsVisible by remember {
-        derivedStateOf {
-            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
-        }
+    val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key } }
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
     }
 
-    if (lastItemIsVisible) invModel.onListEnd(FabPosition.Center) else invModel.onListEnd(FabPosition.End)
-
-    LazyColumn(
-        modifier = modifier,
-        state = listState
-    ) {
+    LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.order.id }) { order ->
-            Log.d(TAG, "OrdersLog: ${order.order.orderNumber}")
             OrderCard(
+                invModel = invModel,
                 order = order,
                 onClickDetails = { onClickDetailsLambda(it) },
-                modifier = modifier.padding(CARDS_PADDING),
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) }
@@ -141,27 +91,22 @@ fun Orders(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun OrderCard(
-    modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel(),
     order: DomainOrderComplete = DomainOrderComplete(),
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    Log.d(TAG, "OrderCardLog: ${order.order.orderNumber}")
-    val transitionState = remember {
-        MutableTransitionState(order.isExpanded).apply {
-            targetState = !order.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(order.isExpanded).apply { targetState = !order.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
-        targetValueByState = { if (order.isExpanded) CARD_OFFSET.dp() else 0f },
+        targetValueByState = { (if (order.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
     )
+
     val containerColor = when (order.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
         false -> MaterialTheme.colorScheme.surfaceVariant
@@ -176,7 +121,7 @@ fun OrderCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(order.order.id) },
@@ -194,36 +139,16 @@ fun OrderCard(
             colors = CardDefaults.cardColors(containerColor = containerColor),
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
-            modifier = modifier
+            modifier = Modifier
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(order.order.id) {
-                    detectTapGestures(
-                        onDoubleTap = { onClickActions(order.order.id) }
-                    )
-                }
+                .pointerInput(order.order.id) { detectTapGestures(onDoubleTap = { onClickActions(order.order.id) }) }
         ) {
             Order(
-                modifier = modifier,
-
-                orderId = order.order.id,
-
-                orderNumber = order.order.orderNumber.toString(),
-                statusId = order.order.statusId,
-                statusDescription = order.orderStatus.statusDescription ?: "-",
-                isOk = order.orderResult.isOk ?: true,
-                total = order.orderResult.total,
-                good = order.orderResult.good,
-                typeDescription = order.orderType.typeDescription ?: "-",
-                reasonFormalDescript = order.orderReason.reasonFormalDescript ?: "-",
-                customerDepAbbr = order.customer.depAbbr ?: "-",
-
-                detailsVisibility = order.detailsVisibility,
-                placerFullName = order.orderPlacer.fullName,
-                createdDate = order.order.createdDate,
-                completedDate = order.order.completedDate,
-
-                onClickDetails = { it -> onClickDetails(it) }
+                invModel = invModel,
+                order = order,
+                onClickDetails = { onClickDetails(it) }
             )
         }
     }
@@ -231,208 +156,78 @@ fun OrderCard(
 
 @Composable
 fun Order(
-    modifier: Modifier = Modifier,
-
-    orderId: Int = 0,
-
-    orderNumber: String = "",
-    statusId: Int = 0,
-    statusDescription: String = "",
-    isOk: Boolean = true,
-    total: Int? = 1,
-    good: Int? = 1,
-    typeDescription: String = "",
-    reasonFormalDescript: String = "",
-    customerDepAbbr: String = "",
-
-    detailsVisibility: Boolean = false,
-    placerFullName: String = "",
-    createdDate: Long = getMillisecondsDate("2022-12-15T22:24:43.666+02:00")!!,
-    completedDate: Long? = getMillisecondsDate("2022-12-15T22:24:43.666+02:00"),
+    invModel: InvestigationsViewModel = hiltViewModel(),
+    order: DomainOrderComplete,
     onClickDetails: (Int) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
-            .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(top = 0.dp, start = 4.dp, end = 4.dp, bottom = 0.dp)
-                    .weight(0.90f),
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        top = 0.dp,
-                        start = 0.dp,
-                        end = 0.dp,
-                        bottom = 4.dp
-                    ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Num.:",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(0.90f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HeaderWithTitle(modifier = Modifier.weight(0.26f), titleWight = 0.42f, title = "Num.:", text = order.order.orderNumber.toString())
+                    HeaderWithTitle(
                         modifier = Modifier
-                            .weight(weight = 0.11f)
-                            .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = orderNumber,
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.15f)
-                            .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Text(
-                        text = "Status:",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontSize = 10.sp
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .weight(weight = 0.13f)
-                            .padding(top = 5.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                    )
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 0.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-                            .weight(weight = 0.61f),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(start = DEFAULT_SPACE.dp)
+                            .weight(0.74f),
+                        titleWight = 0.18f,
+                        title = "Status:"
                     ) {
-                        Text(
-                            text = statusDescription,
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                        StatusWithPercentage(
+                            status = Pair(order.order.statusId, order.orderStatus.statusDescription),
+                            result = Triple(order.orderResult.isOk, order.orderResult.total, order.orderResult.good)
                         )
-                        if (statusId == 3) {
-                            Text(
-                                text = "(",
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Icon(
-                                imageVector = if (isOk) Icons.Filled.Check else Icons.Filled.Close,
-                                contentDescription = if (isOk) {
-                                    stringResource(R.string.show_less)
-                                } else {
-                                    stringResource(R.string.show_more)
-                                },
-                                modifier = Modifier.padding(
-                                    top = 0.dp,
-                                    start = 0.dp,
-                                    end = 0.dp,
-                                    bottom = 0.dp
-                                ),
-                                tint = if (isOk) {
-                                    Color.Green
-                                } else {
-                                    Color.Red
-                                },
-                            )
-                            val conformity = (total?.toFloat()?.let {
-                                good?.toFloat()
-                                    ?.div(it)
-                            }?.times(100)) ?: 0.0f
-
-                            Text(
-                                text = when {
-                                    !conformity.isNaN() -> {
-                                        (round(conformity * 10) / 10).toString() + "%"
-                                    }
-
-                                    else -> {
-                                        ""
-                                    }
-                                },
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                            Text(
-                                text = ")",
-                                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Start,
-                                modifier = Modifier
-                                    .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-                            )
-                        }
                     }
                 }
-                TopLevelSingleRecordHeader("Type/reason:", StringUtils.concatTwoStrings(typeDescription, reasonFormalDescript))
-                TopLevelSingleRecordHeader("Customer:", customerDepAbbr)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(
+                    title = "Type/reason:",
+                    value = StringUtils.concatTwoStrings(order.orderType.typeDescription ?: NoString.str, order.orderReason.reasonFormalDescript ?: NoString.str),
+                    titleWight = 0.22f
+                )
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Customer:", value = order.customer.depAbbr ?: NoString.str, titleWight = 0.22f)
             }
             IconButton(
-                onClick = { onClickDetails(orderId) },
-                modifier = Modifier
-                    .weight(weight = 0.10f)
-                    .padding(0.dp)
-                    .fillMaxWidth()
+                onClick = { onClickDetails(order.order.id) },
+                modifier = Modifier.weight(weight = 0.10f)
             ) {
                 Icon(
-                    imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (detailsVisibility) {
-                        stringResource(R.string.show_less)
-                    } else {
-                        stringResource(R.string.show_more)
-                    },
-                    modifier = Modifier.padding(0.dp)
+                    imageVector = if (order.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (order.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-
         OrderDetails(
-            modifier = modifier,
-            orderId = orderId,
-            detailsVisibility = detailsVisibility,
-            placerFullName = placerFullName,
-            createdDate = createdDate,
-            completedDate = completedDate
+            invModel = invModel,
+            orderId = order.order.id,
+            detailsVisibility = order.detailsVisibility,
+            placerFullName = order.orderPlacer.fullName,
+            createdDate = order.order.createdDate,
+            completedDate = order.order.completedDate
         )
     }
 }
 
 @Composable
 fun OrderDetails(
-    modifier: Modifier = Modifier,
+    invModel: InvestigationsViewModel = hiltViewModel(),
     orderId: Int = NoRecord.num,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
     createdDate: Long = NoRecord.num.toLong(),
     completedDate: Long? = null
 ) {
-
     if (detailsVisibility) {
-        Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        TopLevelSingleRecordDetails("Initiated by:", placerFullName, modifier)
-        TopLevelSingleRecordDetails("Initiation date:", getStringDate(createdDate) ?: NoString.str, modifier)
-        TopLevelSingleRecordDetails("Completion date:", getStringDate(completedDate) ?: NoString.str, modifier)
-        SubOrdersFlowColumn(modifier = Modifier, parentId = orderId)
+        Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            ContentWithTitle(title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
+            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
+        }
+        SubOrders(invModel = invModel, parentId = orderId)
     }
 }

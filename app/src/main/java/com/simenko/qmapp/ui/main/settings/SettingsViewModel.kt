@@ -1,33 +1,47 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
+import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.main.AddEditMode
-import com.simenko.qmapp.ui.main.MainActivityViewModel
-import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
+import com.simenko.qmapp.ui.main.main.MainPageHandler
+import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.content.Page
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-/**
- * SettingsViewModel is the ViewModel that [SettingsFragment] uses to handle complex logic.
- */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
+    private val mainPageState: MainPageState,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    private lateinit var _mainViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this._mainViewModel = viewModel
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val mainPageHandler: MainPageHandler
+
+    init {
+        mainPageHandler = MainPageHandler.Builder(Page.ACCOUNT_SETTINGS, mainPageState)
+            .setOnPullRefreshAction { this.updateUserData() }
+            .build()
     }
 
-    fun setAddEditMode(addEditMode: AddEditMode) {
-        _mainViewModel.setAddEditMode(addEditMode)
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun onUserDataEditClick() {
+        appNavigator.tryNavigateTo(Route.Main.Settings.EditUserDetails.withArgs(TrueStr.str))
     }
 
+    /**
+     * -----------------------------------------------------------------------------------------------------------------------------------------------
+     * */
     private val _isApproveActionVisible = MutableStateFlow(false)
     val isApproveActionVisible: StateFlow<Boolean> = _isApproveActionVisible
     fun hideActionApproveDialog() {
@@ -42,41 +56,22 @@ class SettingsViewModel @Inject constructor(
     val userLocalData: Principle get() = userRepository.user
 
     fun clearLoadingState(error: String? = null) {
-        _mainViewModel.updateLoadingState(Pair(false, error))
+        mainPageHandler.updateLoadingState(Pair(false, error))
         userRepository.clearErrorMessage()
     }
 
     fun logout() {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Pair(true, null))
         userRepository.logout()
     }
 
     fun deleteAccount(userEmail: String, password: String) {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+        mainPageHandler.updateLoadingState(Pair(true, null))
         userRepository.deleteAccount(userEmail, password)
     }
 
-    fun updateUserData() {
-        _mainViewModel.updateLoadingState(Pair(true, null))
+    private fun updateUserData() {
+        mainPageHandler.updateLoadingState(Pair(true, null))
         userRepository.updateUserData()
-    }
-
-    private lateinit var _userDetailsModel: EnterDetailsViewModel
-
-    fun initUserDetailsModel(model: EnterDetailsViewModel) {
-        this._userDetailsModel = model
-    }
-
-    var validateUserData: () -> Unit = {}
-
-    fun editUserData() {
-        _mainViewModel.updateLoadingState(Pair(true, null))
-        userRepository.rawUser?.let {
-            userRepository.editUserData(it)
-        }
-    }
-
-    fun updateFcmToken() {
-        userRepository.updateFcmToken(userRepository.user.email)
     }
 }

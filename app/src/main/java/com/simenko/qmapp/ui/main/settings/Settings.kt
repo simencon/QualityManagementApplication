@@ -39,18 +39,22 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedInState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.dialogs.ApproveAction
 
 @Composable
 fun Settings(
+    viewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
     onLogOut: () -> Unit,
     onEditUserData: () -> Unit
 ) {
-    val viewModel: SettingsViewModel = hiltViewModel()
-    val userState by viewModel.userState.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler.setupMainPage(0, false)
+    }
 
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
     LaunchedEffect(userState) {
         userState.let {
             when (it) {
@@ -63,7 +67,6 @@ fun Settings(
                 is UserLoggedOutState, is UnregisteredState, is UserNeedToVerifyEmailState, is UserAuthoritiesNotVerifiedState -> onLogOut()
                 is UserLoggedInState, NoState -> viewModel.clearLoadingState()
             }
-            println("Settings $it")
         }
     }
 
@@ -113,9 +116,11 @@ fun Settings(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier.padding(all = 0.dp)
         ) {
-            Spacer(modifier = Modifier
-                .width(320.dp)
-                .height(0.dp))
+            Spacer(
+                modifier = Modifier
+                    .width(320.dp)
+                    .height(0.dp)
+            )
             InfoLine(modifier = modifier.padding(start = 15.dp), title = "Job role", body = viewModel.userLocalData.jobRole)
             InfoLine(
                 modifier = modifier.padding(start = 15.dp),
@@ -153,11 +158,6 @@ fun Settings(
                 MaterialTheme.colorScheme.onErrorContainer
             )
         )
-        RecordActionTextBtn(
-            text = "Play with fcm token",
-            onClick = { viewModel.updateFcmToken() },
-            colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary)
-        )
     }
 
     if (approveActionDialogVisibility) {
@@ -169,34 +169,12 @@ fun Settings(
     }
 }
 
-@Composable
-fun InfoLine(
-    modifier: Modifier,
-    title: String,
-    body: String
-) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-    )
-    Text(
-        text = body,
-        style = MaterialTheme.typography.bodyMedium,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = modifier
-    )
-    Spacer(modifier = Modifier.height(5.dp))
-}
-
 @Preview(name = "Lite Mode Settings", showBackground = true, widthDp = 360)
 @Composable
 fun SettingsPreview() {
     QMAppTheme {
         Settings(
+            viewModel = hiltViewModel(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(all = 0.dp),

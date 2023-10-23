@@ -10,8 +10,6 @@ import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.ObjectTransformer
 import com.simenko.qmapp.utils.StringUtils
 
-//    @ColumnInfo(name = "nameInTable")
-
 @Entity(
     tableName = "1_1_inputForMeasurementRegister",
     primaryKeys = [
@@ -853,10 +851,7 @@ data class DatabaseSubOrderComplete constructor(
         departmentAbbr = department.depAbbr,
         channelAbbr = channel.channelAbbr,
         itemTypeCompleteDesignation = StringUtils.concatTwoStrings1(
-            StringUtils.concatTwoStrings3(
-                itemVersionComplete.itemComplete.key.componentKey,
-                itemVersionComplete.itemComplete.item.itemDesignation
-            ),
+            StringUtils.concatTwoStrings3(itemVersionComplete.itemComplete.key.componentKey, itemVersionComplete.itemComplete.item.itemDesignation),
             itemVersionComplete.itemVersion.versionDescription
         ),
         notificationReason = reason

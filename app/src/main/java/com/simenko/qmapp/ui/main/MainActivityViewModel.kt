@@ -1,83 +1,137 @@
 package com.simenko.qmapp.ui.main
 
-import androidx.compose.material3.FabPosition
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.repository.UserRepository
+import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.TopScreenIntent
+import com.simenko.qmapp.ui.main.main.setup.FabSetup
+import com.simenko.qmapp.ui.main.main.setup.PullRefreshSetup
+import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
+import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
+import com.simenko.qmapp.ui.main.main.content.Common
+import com.simenko.qmapp.ui.main.main.content.MenuItem
+import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
+    private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository
+    private val repository: InvestigationsRepository,
+    val navHostController: NavHostController
 ) : ViewModel() {
     val userInfo get() = userRepository.user
 
-    private val _isLoadingInProgress = MutableStateFlow(false)
-    val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
-    private val _isErrorMessage = MutableStateFlow<String?>(null)
-    val isErrorMessage: StateFlow<String?> get() = _isErrorMessage
+    /**
+     * Top bar state holders -------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _topBarSetup = MutableStateFlow(TopBarSetup())
+    val topBarSetup get() = _topBarSetup.asStateFlow()
 
-    fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _isLoadingInProgress.value = state.first
-        _isErrorMessage.value = state.second
+    /**
+     * Top tabs state holders ------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _topTabsSetup = MutableStateFlow(TopTabsSetup())
+    val topTabsSetup get() = _topTabsSetup.asStateFlow()
+
+    /**
+     * FAB state holders -----------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _fabSetup = MutableStateFlow(FabSetup())
+    val fabSetup get() = _fabSetup.asStateFlow()
+
+    /**
+     * Full refresh holders --------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _pullRefreshSetup = MutableStateFlow(PullRefreshSetup())
+    val pullRefreshSetup get() = _pullRefreshSetup.asStateFlow()
+
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    init {
+        subscribeMainScreenSetupEvents(mainPageState.topScreenChannel.receiveAsFlow())
+        appNavigator.navigationChannel.receiveAsFlow().subscribeNavigationEvents(viewModelScope, navHostController)
     }
 
-    fun onNetworkErrorShown() {
-        _isLoadingInProgress.value = false
-        _isErrorMessage.value = null
-    }
-
-    private val _fabPosition: MutableStateFlow<FabPosition> = MutableStateFlow(FabPosition.End)
-    val fabPosition: StateFlow<FabPosition> get() = _fabPosition
-
-    fun onListEnd(position: FabPosition) {
-        _fabPosition.value = position
-    }
-
-    private val _selectedDrawerMenuItemId: MutableStateFlow<String> = MutableStateFlow(MenuItem.getStartingDrawerMenuItem().id)
-    val selectedDrawerMenuItemId: StateFlow<String> get() = _selectedDrawerMenuItemId
-    fun setDrawerMenuItemId(id: String) {
-        this._selectedDrawerMenuItemId.value = id
-    }
-
-    private val _addEditMode: MutableStateFlow<Int> = MutableStateFlow(AddEditMode.NO_MODE.ordinal)
-    val addEditMode: StateFlow<Int> get() = _addEditMode
-    fun setAddEditMode(mode: AddEditMode) {
-        this._addEditMode.value = mode.ordinal
-    }
-
-    private val _badgeItem = Triple(0, Color.Red, Color.White)
-    private val _topBadgeCounts: MutableStateFlow<List<Triple<Int, Color, Color>>> = MutableStateFlow(listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem))
-    val topBadgeCounts: StateFlow<List<Triple<Int, Color, Color>>> get() = _topBadgeCounts
-    fun setTopBadgesCount(index: Int, badgeCount: Int, bg: Color, cnt: Color) {
-        if (index < 4) {
-            var i = 0
-            _topBadgeCounts.value = _topBadgeCounts.value.map { if (index == i++) Triple(badgeCount, bg, cnt) else it }.toList()
+    private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {
+        viewModelScope.launch {
+            combine(intents, _topTabsSetup, _fabSetup, _pullRefreshSetup) { intent, topTabsSetup, fabSetup, pullRefreshSetup ->
+                handleEvent(intent, topTabsSetup, fabSetup, pullRefreshSetup)
+            }.collect()
         }
     }
 
-    fun resetTopBadgesCount() {
-        _topBadgeCounts.value = listOf(_badgeItem, _badgeItem, _badgeItem, _badgeItem)
+    private fun handleEvent(intent: TopScreenIntent, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+        when (intent) {
+            is TopScreenIntent.MainPageSetup -> setupMainPage(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
+            is TopScreenIntent.TabBadgesState -> topTabsSetup.updateBadgeContent(intent.state)
+            is TopScreenIntent.SelectedTabState -> topTabsSetup.setSelectedTab(intent.state)
+            is TopScreenIntent.FabVisibilityState -> fabSetup.setFabVisibility(intent.state)
+            is TopScreenIntent.EndOfListState -> fabSetup.onEndOfList(intent.state)
+            is TopScreenIntent.LoadingState -> pullRefreshSetup.updateLoadingState(intent.state)
+        }
     }
 
+    private fun setupMainPage(topBarSetup: TopBarSetup, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+        this._topBarSetup.value = topBarSetup
+        val currentOnActionItemClick: ((MenuItem) -> Unit)? = topBarSetup.onActionItemClick
+        topBarSetup.onActionItemClick = {
+            currentOnActionItemClick?.invoke(it)
+            if (it == Common.UPLOAD_MASTER_DATA) refreshMasterDataFromRepository()
+        }
+        this._topTabsSetup.value = topTabsSetup
+        this._fabSetup.value = fabSetup
+        this._pullRefreshSetup.value = pullRefreshSetup
+    }
 
-    fun refreshMasterDataFromRepository() = viewModelScope.launch {
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun onDrawerMenuTeamSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.Team.link, popUpToRoute = Route.Main.Team.route, inclusive = true)
+    }
+
+    fun onDrawerMenuCompanyStructureSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.link, popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+    }
+
+    fun onDrawerMenuInvSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.Inv.withOpts(), popUpToRoute = Route.Main.Inv.route, inclusive = true)
+    }
+
+    fun onDrawerMenuProcessControlSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.ProcessControl.withOpts(), popUpToRoute = Route.Main.ProcessControl.route, inclusive = true)
+    }
+
+    fun onDrawerMenuSettingsSelected() {
+        appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
+    }
+
+    private fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
-            updateLoadingState(Pair(true, null))
+            pullRefreshSetup.value.updateLoadingState(Pair(true, null))
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
@@ -119,9 +173,9 @@ class MainActivityViewModel @Inject constructor(
             repository.syncInvestigationTypes()
             repository.syncResultsDecryptions()
 
-            updateLoadingState(Pair(false, null))
+            pullRefreshSetup.value.updateLoadingState(Pair(false, null))
         } catch (e: Exception) {
-            updateLoadingState(Pair(false, e.message))
+            pullRefreshSetup.value.updateLoadingState(Pair(false, e.message))
         }
     }
 }

@@ -34,18 +34,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LogIn() {
-    val viewModel: LoginViewModel = hiltViewModel()
+fun LogIn(
+    viewModel: LoginViewModel
+) {
     val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     val principle by viewModel.loggedOutPrinciple.collectAsStateWithLifecycle()

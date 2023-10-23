@@ -9,6 +9,7 @@ import com.simenko.qmapp.other.Constants.MANUFACTURING_OPERATIONS
 import com.simenko.qmapp.other.Constants.MANUFACTURING_OPERATIONS_FLOWS
 import com.simenko.qmapp.other.Constants.SUB_DEPARTMENTS
 import com.simenko.qmapp.other.Constants.EMPLOYEES
+import com.simenko.qmapp.other.Constants.RECORDS
 import com.simenko.qmapp.retrofit.entities.*
 import retrofit2.Response
 import retrofit2.http.*
@@ -48,6 +49,22 @@ interface ManufacturingService {
     @GET(MANUFACTURING_OPERATIONS)
     suspend fun getManufacturingOperations(): Response<List<NetworkManufacturingOperation>>
 
+    @POST(MANUFACTURING_OPERATIONS)
+    suspend fun insertManufacturingOperation(@Body teamMember: NetworkManufacturingOperation): Response<NetworkManufacturingOperation>
+
+    @DELETE("$MANUFACTURING_OPERATIONS/{id}")
+    suspend fun deleteManufacturingOperation(@Path("id") id: Int): Response<NetworkManufacturingOperation>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$MANUFACTURING_OPERATIONS/{id}")
+    suspend fun editManufacturingOperation(@Path("id") id: Int, @Body body: NetworkManufacturingOperation): Response<NetworkManufacturingOperation>
+
     @GET(MANUFACTURING_OPERATIONS_FLOWS)
     suspend fun getOperationsFlows(): Response<List<NetworkOperationsFlow>>
+
+    @POST("${MANUFACTURING_OPERATIONS_FLOWS}/${RECORDS}")
+    suspend fun createOpFlows(@Body records: List<NetworkOperationsFlow>): Response<List<NetworkOperationsFlow>>
+
+    @HTTP(method = "DELETE", path = "${MANUFACTURING_OPERATIONS_FLOWS}/$RECORDS", hasBody = true)
+    suspend fun deleteOpFlows(@Body records: List<NetworkOperationsFlow>): Response<List<NetworkOperationsFlow>>
 }

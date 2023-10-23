@@ -25,30 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.simenko.qmapp.R
-import com.simenko.qmapp.repository.NoState
-import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
-import com.simenko.qmapp.repository.UserErrorState
-import com.simenko.qmapp.repository.UnregisteredState
-import com.simenko.qmapp.repository.UserLoggedInState
-import com.simenko.qmapp.repository.UserLoggedOutState
-import com.simenko.qmapp.repository.UserNeedToVerifyEmailState
-import com.simenko.qmapp.repository.UserRepository
-import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.createMainActivityIntent
+import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.ui.user.login.LoginViewModel
-import com.simenko.qmapp.ui.user.registration.RegistrationViewModel
-import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
-import com.simenko.qmapp.ui.user.verification.WaitingForVerificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import java.util.Locale
-import javax.inject.Inject
 
 fun createLoginActivityIntent(
     context: Context
@@ -61,15 +43,7 @@ fun createLoginActivityIntent(
 @OptIn(ExperimentalMaterialApi::class)
 @AndroidEntryPoint
 class UserActivity : ComponentActivity() {
-    @Inject
-    lateinit var userRepository: UserRepository
-    val viewModel: UserViewModel by viewModels()
-    private lateinit var regModel: RegistrationViewModel
-    private lateinit var enterDetModel: EnterDetailsViewModel
-    private lateinit var verificationModel: WaitingForVerificationViewModel
-    private lateinit var loginModel: LoginViewModel
-
-    private lateinit var navController: NavHostController
+    private val userViewModel: UserViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,51 +51,7 @@ class UserActivity : ComponentActivity() {
 
         setContent {
             QMAppTheme {
-                val observerLoadingProcess by viewModel.isLoadingInProgress.collectAsStateWithLifecycle()
-
-                navController = rememberNavController()
-                val userState by viewModel.userState.collectAsStateWithLifecycle()
-
-                LaunchedEffect(userState) {
-                    userState.let { state ->
-                        when (state) {
-                            is NoState -> {
-                                navController.navigate(Screen.LoggedOut.InitialScreen.route) { popUpTo(0) { inclusive = true } }
-                                viewModel.updateCurrentUserState()
-                            }
-
-                            is UnregisteredState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.Registration.route) { popUpTo(0) { inclusive = true } }
-                            }
-
-                            is UserNeedToVerifyEmailState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
-                                delay(5000)
-                                viewModel.updateCurrentUserState()
-                            }
-
-                            is UserAuthoritiesNotVerifiedState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.WaitingForValidation.withArgs(state.msg)) { popUpTo(0) { inclusive = true } }
-                                delay(5000)
-                                viewModel.updateCurrentUserState()
-                            }
-
-                            is UserLoggedOutState -> {
-                                viewModel.updateLoadingState(Pair(false, null))
-                                navController.navigate(Screen.LoggedOut.LogIn.route) { popUpTo(0) { inclusive = true } }
-                            }
-
-                            is UserLoggedInState -> {
-                                ContextCompat.startActivity(navController.context, createMainActivityIntent(navController.context), null)
-                            }
-
-                            is UserErrorState -> {}
-                        }
-                    }
-                }
+                val observerLoadingProcess by userViewModel.isLoadingInProgress.collectAsStateWithLifecycle()
 
                 Scaffold(
                     topBar = {
@@ -152,10 +82,7 @@ class UserActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(it)
                         ) {
-                            Navigation(
-                                navController,
-                                Screen.LoggedOut.InitialScreen.route
-                            )
+                            InitialScreen(userViewModel = userViewModel)
                         }
                         PullRefreshIndicator(
                             refreshing = observerLoadingProcess,
@@ -170,24 +97,5 @@ class UserActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    fun initRegModel(regModel: RegistrationViewModel) {
-        this.regModel = regModel
-        this.regModel.initUserViewModel(viewModel)
-    }
-
-    fun initEnterDetModel(enterDetModel: EnterDetailsViewModel) {
-        this.enterDetModel = enterDetModel
-    }
-
-    fun initVerificationModel(verificationModel: WaitingForVerificationViewModel) {
-        this.verificationModel = verificationModel
-        this.verificationModel.initUserViewModel(viewModel)
-    }
-
-    fun initLoginModel(loginModel: LoginViewModel) {
-        this.loginModel = loginModel
-        this.loginModel.initUserViewModel(viewModel)
     }
 }

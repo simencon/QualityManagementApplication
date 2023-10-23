@@ -16,10 +16,14 @@ import androidx.work.*
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
+import com.simenko.qmapp.receivers.NotificationActionsReceiver
 import com.simenko.qmapp.repository.SystemRepository
 import com.simenko.qmapp.services.MessagingService
-import com.simenko.qmapp.ui.Screen
+import com.simenko.qmapp.ui.navigation.NavArguments
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.MainActivity
+import com.simenko.qmapp.ui.navigation.NavRouteName
+import com.simenko.qmapp.ui.navigation.TEAM_ROUTE
 import com.simenko.qmapp.works.WorkerKeys.ACTION
 import com.simenko.qmapp.works.WorkerKeys.BODY
 import com.simenko.qmapp.works.WorkerKeys.EMAIL
@@ -66,24 +70,29 @@ class NewNotificationWorker @AssistedInject constructor(
             }
         }
     }
+
     private fun makeNotification(message: Data) {
 
         when (message.getString(ACTION)) {
             MessagingService.ActionType.NEW_USER_REGISTERED.actionName -> {
                 message.getString(EMAIL)?.let {
-                    val intent = Intent(
-                        Intent.ACTION_VIEW,
-                        "${Screen.Domain.route}/${Screen.Main.Team.route}/${Screen.Main.Team.UserEdit.route}/$it".toUri(),
-                        context,
-                        MainActivity::class.java
-                    )
-                    println("MessagingService - $intent")
+                    val remindMeLaterIntent = Intent(context, NotificationActionsReceiver::class.java).apply {
+                        action = getString(context, R.string.REMIND_LATER_ACTION)
+                        putExtra(TITLE, message.getString(TITLE))
+                        putExtra(BODY, message.getString(BODY))
+                        putExtra(ACTION, message.getString(ACTION))
+                        putExtra(EMAIL, message.getString(EMAIL))
+                    }
+                    val remindMeLaterPendingIntent = PendingIntent.getBroadcast(context, Objects.hash(it), remindMeLaterIntent, PendingIntent.FLAG_IMMUTABLE)
 
+                    val intent = Intent(context, MainActivity::class.java).apply {
+                        action = Intent.ACTION_VIEW
+                        data = "${NavArguments.domain}/$TEAM_ROUTE/${NavRouteName.requests}/${Route.Main.Team.AuthorizeUser.withArgs(it)}".toUri()
+                    }
                     val pendingIntent = TaskStackBuilder.create(context).run {
                         addNextIntentWithParentStack(intent)
                         getPendingIntent(Objects.hash(it), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
                     }
-                    println("MessagingService - $pendingIntent")
 
                     val builder: NotificationCompat.Builder = NotificationCompat.Builder(applicationContext, SYNC_NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.mipmap.ic_launcher)
@@ -93,7 +102,7 @@ class NewNotificationWorker @AssistedInject constructor(
                         .setAutoCancel(true)
                         .setOnlyAlertOnce(true)
                         .addAction(R.drawable.ic_person_add, getString(context, R.string.authorize), pendingIntent)
-                        .addAction(R.drawable.ic_watch_later, getString(context, R.string.remind_later), pendingIntent)
+                        .addAction(R.drawable.ic_watch_later, getString(context, R.string.remind_later), remindMeLaterPendingIntent)
 
                     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                         return
