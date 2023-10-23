@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PrecisionManufacturing
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,7 +28,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInError
@@ -101,29 +106,29 @@ fun OperationForm(
                 valueParam = Triple(operation.operation.operationOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
                     viewModel.setOperationOrder(it.toInt())
                 },
-                keyboardNavigation = Pair(orderFR) { keyboardController?.hide() },
+                keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter operation order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(operation.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
-                keyboardNavigation = Pair(abbreviationFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
+                keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter operation id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(operation.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
-                keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
+                keyboardNavigation = Pair(designationFR) { equipmentFR.requestFocus() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter operation complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(operation.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
                 keyboardNavigation = Pair(equipmentFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Text, ImeAction.Done),
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter operation equipment")
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -134,6 +139,14 @@ fun OperationForm(
                 onClickDelete = { viewModel.deletePreviousOperation(it) },
                 onClickAdd = { viewModel.setPreviousOperationDialogVisibility(true) }
             )
+            Spacer(modifier = Modifier.height(10.dp))
+            if (error != EmptyString.str)
+                Text(
+                    modifier = Modifier.padding(all = 5.dp).width(320.dp),
+                    text = error,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
+                    textAlign = TextAlign.Center
+                )
             Spacer(modifier = Modifier.height((FAB_HEIGHT + DEFAULT_SPACE).dp))
         }
     }

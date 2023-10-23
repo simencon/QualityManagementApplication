@@ -41,10 +41,6 @@ class ManufacturingRepository @Inject constructor(
         responseHandlerForSingleRecord(taskExecutor = { service.editEmployee(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.employeeDao.updateRecord(r) }
     }
 
-    fun getEmployeeById(id: Int) = database.employeeDao.getRecordById(id.toString()).let {
-        it?.toDomainModel() ?: throw IOException("no such employee in local DB")
-    }
-
 
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(database.companyDao) { service.getCompanies() }
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(database.jobRoleDao) { service.getJobRoles() }
@@ -52,13 +48,37 @@ class ManufacturingRepository @Inject constructor(
     suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(database.subDepartmentDao) { service.getSubDepartments() }
     suspend fun syncChannels() = crudeOperations.syncRecordsAll(database.channelDao) { service.getManufacturingChannels() }
     suspend fun syncLines() = crudeOperations.syncRecordsAll(database.lineDao) { service.getManufacturingLines() }
+
+
     suspend fun syncOperations() = crudeOperations.syncRecordsAll(database.operationDao) { service.getManufacturingOperations() }
+    fun CoroutineScope.deleteOperation(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingOperation>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingOperation(id) }) { r -> database.operationDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertOperation(record: DomainManufacturingOperation) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertManufacturingOperation(record.toDatabaseModel().toNetworkModel()) }) { r -> database.operationDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateOperation(record: DomainManufacturingOperation) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.editManufacturingOperation(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.operationDao.updateRecord(r) }
+    }
+
+
     suspend fun syncOperationsFlows() = crudeOperations.syncRecordsAll(database.operationsFlowDao) { service.getOperationsFlows() }
+    fun CoroutineScope.deleteOpFlows(records: List<DomainOperationsFlow>) = crudeOperations.run {
+        responseHandlerForListOfRecords(taskExecutor = { service.deleteOpFlows(records.map { it.toDatabaseModel().toNetworkModel() }) }) { r -> database.operationsFlowDao.deleteRecords(r) }
+    }
+    fun CoroutineScope.insertOpFlows(records: List<DomainOperationsFlow>) = crudeOperations.run {
+        responseHandlerForListOfRecords(taskExecutor = { service.createOpFlows(records.map { it.toDatabaseModel().toNetworkModel() }) }) { r -> database.operationsFlowDao.insertRecords(r) }
+    }
 
     /**
      * Connecting with LiveData for ViewModel
      */
     val employees: Flow<List<DomainEmployee>> = database.employeeDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val employeeById: (Int) -> DomainEmployee = { id ->
+        database.employeeDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
+    }
     val employeesComplete: (EmployeesFilter) -> Flow<List<DomainEmployeeComplete>> = { filter ->
         database.employeeDao.getRecordsCompleteFlowForUI("%${filter.stringToSearch}%").map { list -> list.map { it.toDomainModel() } }
     }
@@ -82,7 +102,7 @@ class ManufacturingRepository @Inject constructor(
 
     val operations: Flow<List<DomainManufacturingOperation>> = database.operationDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
     val operationsComplete: Flow<List<DomainManufacturingOperationComplete>> = database.operationDao.getRecordsComplete().map { list -> list.map { it.toDomainModel() } }
-    val operationById: (Int)-> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
+    val operationById: (Int) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
     val operationsCompleteByLine: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { lineId ->
         database.operationDao.getRecordsByParentIdForUI(lineId).map { list -> list.map { it.toDomainModel() } }
     }

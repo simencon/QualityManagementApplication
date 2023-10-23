@@ -50,7 +50,7 @@ class EmployeeViewModel @Inject constructor(
 ) : ViewModel() {
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
     private fun loadEmployee(id: Int) {
-        _employee.value = repository.getEmployeeById(id)
+        _employee.value = repository.employeeById(id)
     }
 
     /**
