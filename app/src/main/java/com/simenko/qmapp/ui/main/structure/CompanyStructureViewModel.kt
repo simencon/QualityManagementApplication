@@ -16,6 +16,7 @@ import com.simenko.qmapp.domain.entities.DomainManufacturingLine
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -26,6 +27,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +37,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -237,7 +240,21 @@ class CompanyStructureViewModel @Inject constructor(
     }
 
     fun onDeleteOperationClick(it: Int) {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.run {
+                    deleteOperation(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onAddOperationClick(it: Int) {

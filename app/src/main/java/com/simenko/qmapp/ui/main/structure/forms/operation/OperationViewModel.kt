@@ -4,22 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.di.OperationIdParameter
+import com.simenko.qmapp.domain.FillInError
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainOperationsFlow
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,7 +68,7 @@ class OperationViewModel @Inject constructor(
 
     private fun prepareOperation(lineId: Int) {
         _operation.value = DomainManufacturingOperationComplete(
-            operation = DomainManufacturingOperation(),
+            operation = DomainManufacturingOperation(lineId = lineId),
             lineComplete = repository.lineById(lineId)
         )
     }
@@ -138,11 +143,111 @@ class OperationViewModel @Inject constructor(
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
-        TODO("Not yet implemented")
+        val errorMsg = buildString {
+            if (_operation.value.operation.operationOrder == NoRecord.num) {
+                _fillInErrors.value = _fillInErrors.value.copy(operationOrderError = true)
+                append("Operation order field is mandatory\n")
+            }
+            if (_operation.value.operation.operationAbbr.isEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(operationAbbrError = true)
+                append("Operation ID field is mandatory\n")
+            }
+            if (_operation.value.operation.operationDesignation.isEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(operationDesignationError = true)
+                append("Operation complete name field is mandatory\n")
+            }
+            if (_operation.value.operation.equipment.isNullOrEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(operationEquipmentError = true)
+                append("Operation equipment field is mandatory\n")
+            }
+            if (_operation.value.previousOperations.none { !it.toBeDeleted }) {
+                _fillInErrors.value = _fillInErrors.value.copy(previousOperationsError = true)
+                append("Operation must have at leas one previous operation\n")
+            }
+        }
+
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg) else _fillInState.value = FillInSuccess
     }
 
-    fun makeRecord() {
-        TODO("Not yet implemented")
+    fun makeRecord() = viewModelScope.launch {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            repository.run { if (operationId == NoRecord.num) insertOperation(_operation.value.operation) else updateOperation(_operation.value.operation) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> insertOperationsFlows(resource.data?.id)
+                        Status.ERROR -> {
+                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                            _fillInState.value = FillInInitialState
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun insertOperationsFlows(id: Int?) = viewModelScope.launch {
+        withContext(Dispatchers.IO) {
+            id?.let { id ->
+                val listToInsert = _operation.value.previousOperations.filter { it.id == NoRecord.num && !it.toBeDeleted }.map { it.toSimplestModel().copy(currentOperationId = id) }
+                if (listToInsert.isNotEmpty())
+                    repository.run {
+                        insertOpFlows(listToInsert).consumeEach { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> deleteOperationsFlows(id)
+                                    Status.ERROR -> {
+                                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                        _fillInState.value = FillInInitialState
+                                    }
+                                }
+                            }
+                        }
+                    }
+                else
+                    deleteOperationsFlows(id)
+            }
+        }
+    }
+
+    private fun deleteOperationsFlows(id: Int?) = viewModelScope.launch {
+        withContext(Dispatchers.IO) {
+            _operation.value.previousOperations.filter { it.toBeDeleted }.map { it.toSimplestModel() }.let { listToDelete ->
+                if (listToDelete.isNotEmpty())
+                    repository.run {
+                        deleteOpFlows(listToDelete).consumeEach { event ->
+                            event.getContentIfNotHandled()?.let { resource ->
+                                when (resource.status) {
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> navBackToRecord(id)
+                                    Status.ERROR -> {
+                                        mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                        _fillInState.value = FillInInitialState
+                                    }
+                                }
+                            }
+                        }
+                    }
+                else
+                    navBackToRecord(id)
+            }
+        }
+    }
+
+    private suspend fun navBackToRecord(id: Int?) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        withContext(Dispatchers.Main) {
+            id?.let {
+                val depId = _operation.value.lineComplete.departmentId.toString()
+                val subDepId = _operation.value.lineComplete.subDepartmentId.toString()
+                val chId = _operation.value.lineComplete.channelId.toString()
+                val lineId = _operation.value.lineComplete.id.toString()
+                val opId = it.toString()
+                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(depId, subDepId, chId, lineId, opId), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+            }
+        }
     }
 }
 

@@ -258,6 +258,8 @@ data class DomainOperationsFlow(
         override fun toDatabaseModel(): DatabaseOperationsFlow.DatabaseOperationsFlowComplete
                 = ObjectTransformer(DomainOperationsFlowComplete::class, DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class).transform(this)
 
+        fun toSimplestModel(): DomainOperationsFlow = DomainOperationsFlow(id = this.id, currentOperationId = this.currentOperationId, previousOperationId = this.previousOperationId)
+
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

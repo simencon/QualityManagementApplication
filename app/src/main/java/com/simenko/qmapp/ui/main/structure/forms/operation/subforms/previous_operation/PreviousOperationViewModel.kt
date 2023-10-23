@@ -59,7 +59,9 @@ class PreviousOperationViewModel @Inject constructor(
 
     private val _operations = repository.operationsComplete.flatMapLatest { operations ->
         _previousOperations.flatMapLatest { addedOperations ->
-            flow { emit(operations.filter { operation -> operation.operation.id !in addedOperations.map { it.previousOperationId } }.toList()) }
+            _operationToAdd.flatMapLatest { toAdd ->
+                flow { emit(operations.filter { operation -> operation.operation.id !in addedOperations.map { it.previousOperationId } && operation.operation.id != toAdd.currentOperationId }.toList()) }
+            }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
