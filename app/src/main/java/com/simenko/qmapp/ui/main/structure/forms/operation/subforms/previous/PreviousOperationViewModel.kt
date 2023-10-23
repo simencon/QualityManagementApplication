@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous_operation
+package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,7 +60,10 @@ class PreviousOperationViewModel @Inject constructor(
     private val _operations = repository.operationsComplete.flatMapLatest { operations ->
         _previousOperations.flatMapLatest { addedOperations ->
             _operationToAdd.flatMapLatest { toAdd ->
-                flow { emit(operations.filter { operation -> operation.operation.id !in addedOperations.map { it.previousOperationId } && operation.operation.id != toAdd.currentOperationId }.toList()) }
+                flow {
+                    emit(operations.filter { operation -> operation.operation.id !in addedOperations.map { it.previousOperationId } && operation.operation.id != toAdd.currentOperationId }
+                        .toList())
+                }
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
@@ -162,23 +165,21 @@ class PreviousOperationViewModel @Inject constructor(
     }
     val availableOperations: StateFlow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
-            _previousOperations.flatMapLatest { operationWithFlow ->
-                flow {
-                    emit(
-                        operations.filter { it.lineComplete.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
-                            if (it.operation.id == record.previousOperationId) _operationToAdd.value = _operationToAdd.value.copy(
-                                depAbbr = it.lineComplete.depAbbr,
-                                subDepAbbr = it.lineComplete.subDepAbbr,
-                                channelAbbr = it.lineComplete.channelAbbr,
-                                lineAbbr = it.lineComplete.lineAbbr,
-                                operationAbbr = it.operation.operationAbbr,
-                                operationDesignation = it.operation.operationDesignation,
-                                equipment = it.operation.equipment
-                            )
-                            Triple(it.operation.id, concatTwoStrings1(it.operation.equipment, it.operation.operationAbbr), it.operation.id == record.previousOperationId)
-                        }
-                    )
-                }
+            flow {
+                emit(
+                    operations.filter { it.lineComplete.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
+                        if (it.operation.id == record.previousOperationId) _operationToAdd.value = record.copy(
+                            depAbbr = it.lineComplete.depAbbr,
+                            subDepAbbr = it.lineComplete.subDepAbbr,
+                            channelAbbr = it.lineComplete.channelAbbr,
+                            lineAbbr = it.lineComplete.lineAbbr,
+                            operationAbbr = it.operation.operationAbbr,
+                            operationDesignation = it.operation.operationDesignation,
+                            equipment = it.operation.equipment
+                        )
+                        Triple(it.operation.id, concatTwoStrings1(it.operation.equipment, it.operation.operationAbbr), it.operation.id == record.previousOperationId)
+                    }
+                )
             }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())

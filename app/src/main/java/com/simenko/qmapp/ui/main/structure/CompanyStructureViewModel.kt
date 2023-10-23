@@ -100,6 +100,10 @@ class CompanyStructureViewModel @Inject constructor(
     val departmentsVisibility = _departmentsVisibility.asStateFlow()
     val departments = _departments.flatMapLatest { departments ->
         _departmentsVisibility.flatMapLatest { visibility ->
+            _subDepartmentsVisibility.value.first.let { if (it != NoRecord) setSubDepartmentsVisibility(dId = it) }
+            _channelsVisibility.value.first.let { if (it != NoRecord) setChannelsVisibility(dId = it) }
+            _linesVisibility.value.first.let { if (it != NoRecord) setLinesVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord) setOperationsVisibility(dId = it) }
             val cpy = departments.map { it.copy(detailsVisibility = it.department.id == visibility.first.num, isExpanded = it.department.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -108,6 +112,9 @@ class CompanyStructureViewModel @Inject constructor(
     val subDepartmentsVisibility = _subDepartmentsVisibility.asStateFlow()
     val subDepartments = _subDepartments.flatMapLatest { subDepartment ->
         _subDepartmentsVisibility.flatMapLatest { visibility ->
+            _channelsVisibility.value.first.let { if (it != NoRecord) setChannelsVisibility(dId = it) }
+            _linesVisibility.value.first.let { if (it != NoRecord) setLinesVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord) setOperationsVisibility(dId = it) }
             val cpy = subDepartment.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -116,6 +123,8 @@ class CompanyStructureViewModel @Inject constructor(
     val channelsVisibility = _channelsVisibility.asStateFlow()
     val channels = _channels.flatMapLatest { channel ->
         _channelsVisibility.flatMapLatest { visibility ->
+            _linesVisibility.value.first.let { if (it != NoRecord) setLinesVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord) setOperationsVisibility(dId = it) }
             val cpy = channel.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -124,6 +133,7 @@ class CompanyStructureViewModel @Inject constructor(
     val linesVisibility = _linesVisibility.asStateFlow()
     val lines = _lines.flatMapLatest { line ->
         _linesVisibility.flatMapLatest { visibility ->
+            _operationsVisibility.value.first.let { if (it != NoRecord) setOperationsVisibility(dId = it) }
             val cpy = line.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -139,6 +149,24 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun onDeleteOperationClick(it: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.run {
+                    deleteOperation(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun updateCompanyStructureData() {
         viewModelScope.launch {
             try {
@@ -225,24 +253,6 @@ class CompanyStructureViewModel @Inject constructor(
 
     fun onLineProductsClick(it: Int) {
         TODO("Not yet implemented")
-    }
-
-    fun onDeleteOperationClick(it: Int) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                repository.run {
-                    deleteOperation(it).consumeEach { event ->
-                        event.getContentIfNotHandled()?.let { resource ->
-                            when (resource.status) {
-                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
-                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     fun onAddOperationClick(it: Int) {

@@ -44,7 +44,7 @@ import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.PreviousOperationHeader
-import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous_operation.AddPreviousOperation
+import com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous.AddPreviousOperation
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @OptIn(ExperimentalComposeUiApi::class)

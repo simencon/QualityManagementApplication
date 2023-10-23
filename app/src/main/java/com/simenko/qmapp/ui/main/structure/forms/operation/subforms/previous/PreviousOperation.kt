@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous_operation
+package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
