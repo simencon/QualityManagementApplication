@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,14 +35,14 @@ import com.simenko.qmapp.ui.common.RecordActionTextBtn
 
 @Composable
 fun TermsAndConditions(
-    regModel: RegistrationViewModel,
+    viewModel: RegistrationViewModel,
     user: String? = null,
     onDismiss: () -> Unit,
     onChangeEmail: () -> Unit,
     onLogin: () -> Unit
 ) {
-    val userState by regModel.userState.collectAsStateWithLifecycle()
-    val userExistDialogVisibility by regModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
+    val userExistDialogVisibility by viewModel.isUserExistDialogVisible.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf("") }
 
@@ -49,14 +51,17 @@ fun TermsAndConditions(
             if (state is UserErrorState) {
                 error = state.error ?: UserError.UNKNOWN_ERROR.error
                 if (state.error == UserError.USER_EXISTS.error) {
-                    regModel.showUserExistDialog()
+                    viewModel.showUserExistDialog()
                 }
             }
         }
-        regModel.updateLoadingState(Pair(false, null))
+        viewModel.updateLoadingState(Pair(false, null))
     }
 
-    Box {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -96,7 +101,7 @@ fun TermsAndConditions(
             Spacer(modifier = Modifier.height(10.dp))
             RecordActionTextBtn(
                 text = "Register",
-                onClick = { regModel.registerUser() },
+                onClick = { viewModel.registerUser() },
                 colors = Pair(ButtonDefaults.textButtonColors(), MaterialTheme.colorScheme.primary),
             )
         }
@@ -114,7 +119,7 @@ fun TermsAndConditions(
 fun TermsAndConditionsPreview() {
     QMAppTheme {
         TermsAndConditions(
-            regModel = hiltViewModel(),
+            viewModel = hiltViewModel(),
             onDismiss = {},
             onChangeEmail = {},
             onLogin = {}

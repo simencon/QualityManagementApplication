@@ -3,7 +3,9 @@ package com.simenko.qmapp.room.implementation.dao.manufacturing
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import com.simenko.qmapp.room.entities.DatabaseDepartmentsComplete
 import com.simenko.qmapp.room.entities.DatabaseSubDepartment
 import kotlinx.coroutines.flow.Flow
 

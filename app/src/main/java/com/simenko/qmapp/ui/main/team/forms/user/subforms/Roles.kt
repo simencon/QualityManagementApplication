@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -47,7 +48,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,7 +56,8 @@ import androidx.compose.ui.unit.dp
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordHeader
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
@@ -64,7 +65,6 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RolesHeader(
-    modifier: Modifier,
     userRoles: List<DomainUserRole>,
     userRolesError: Boolean,
     onClickActions: (String) -> Unit,
@@ -82,17 +82,9 @@ fun RolesHeader(
             .clickable { detailsVisibility = !detailsVisibility }
     ) {
         Column(
-            modifier = Modifier.animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     modifier = Modifier.padding(all = 12.dp),
                     imageVector = Icons.Default.AdminPanelSettings,
@@ -105,16 +97,13 @@ fun RolesHeader(
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = modifier
+                    modifier = Modifier
                         .weight(1f)
                         .padding(start = 3.dp)
                 )
 
                 val tClr = if (userRolesError)
-                    IconButtonDefaults.iconToggleButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                        checkedContentColor = MaterialTheme.colorScheme.error
-                    )
+                    IconButtonDefaults.iconToggleButtonColors(contentColor = MaterialTheme.colorScheme.error, checkedContentColor = MaterialTheme.colorScheme.error)
                 else
                     IconButtonDefaults.iconToggleButtonColors()
 
@@ -123,15 +112,12 @@ fun RolesHeader(
                 }
             }
             if (detailsVisibility) {
-                Column(modifier = modifier) {
-                    Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-                    RolesFlow(
-                        userRoles = userRoles,
-                        onClickActions = onClickActions,
-                        onClickDelete = onClickDelete,
-                        onClickAdd = onClickAdd
-                    )
-                }
+                RolesFlow(
+                    userRoles = userRoles,
+                    onClickActions = onClickActions,
+                    onClickDelete = onClickDelete,
+                    onClickAdd = onClickAdd
+                )
             }
         }
     }
@@ -145,19 +131,24 @@ fun RolesFlow(
     onClickDelete: (String) -> Unit,
     onClickAdd: () -> Unit
 ) {
-    Column(modifier = Modifier.padding(all = 2.dp), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        FlowRow(modifier = Modifier.padding(vertical = 2.dp)) {
+    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+        Divider(
+            modifier = Modifier
+                .height(1.dp)
+                .padding(horizontal = DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
+        )
+        Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
+        FlowRow {
             userRoles.forEach { role ->
                 RoleCard(
                     role = role,
-                    cardOffset = (CARD_OFFSET / 2).dp(),
                     onClickActions = { onClickActions(it) },
                     onClickDelete = { onClickDelete(it) }
                 )
             }
         }
-        Divider(thickness = 0.dp, color = Color.Transparent)
         FloatingActionButton(
+            modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             onClick = onClickAdd,
             content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
@@ -169,22 +160,16 @@ fun RolesFlow(
 @Composable
 fun RoleCard(
     role: DomainUserRole,
-    cardOffset: Float,
     onClickActions: (String) -> Unit,
     onClickDelete: (String) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(role.isExpanded).apply {
-            targetState = !role.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(role.isExpanded).apply { targetState = !role.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (role.isExpanded) cardOffset else 0f },
+        targetValueByState = { (if (role.isExpanded) CARD_OFFSET else 0f).dp() },
     )
 
     val containerColor = when (role.isExpanded) {
@@ -200,13 +185,8 @@ fun RoleCard(
         }
     }
 
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp)
-    ) {
-
-        Row {
+    Box(Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(role.getRecordId()) },
@@ -219,13 +199,10 @@ fun RoleCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
+                .padding(horizontal = DEFAULT_SPACE.dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(role.getRecordId()) {
-                    detectTapGestures(
-                        onDoubleTap = { onClickActions(role.getRecordId()) }
-                    )
-                }
+                .pointerInput(role.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(role.getRecordId()) }) }
         ) {
             Role(item = role)
         }
@@ -234,10 +211,9 @@ fun RoleCard(
 
 @Composable
 fun Role(item: DomainUserRole) {
-    Column(
-        modifier = Modifier.padding(start = 4.dp),
-    ) {
-        TopLevelSingleRecordHeader("Function / Role level:", concatTwoStrings(item.function, item.roleLevel), 0.35f)
-        TopLevelSingleRecordHeader("Access level:", item.accessLevel, 0.35f)
+    Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+        ContentWithTitle(title = "Function / Role level:", value = concatTwoStrings(item.function, item.roleLevel), titleWight = 0.35f)
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        ContentWithTitle(title = "Access level:", value = item.accessLevel, titleWight = 0.35f)
     }
 }

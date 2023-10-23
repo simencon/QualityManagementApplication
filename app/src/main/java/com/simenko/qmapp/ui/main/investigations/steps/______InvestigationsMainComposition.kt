@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.investigations.steps
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
@@ -26,16 +28,14 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun InvestigationsMainComposition(
-    modifier: Modifier = Modifier,
-    processControlOnly: Boolean = false,
+    mainScreenPadding: PaddingValues,
+    invModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val invModel: InvestigationsViewModel = hiltViewModel()
-
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-    val screenHeight = configuration.screenHeightDp.dp
+    val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - TOP_TAB_ROW_HEIGHT.dp
 
-    val currentTask by invModel.currentTaskDetails.collectAsStateWithLifecycle()
+    val tasksVisibility by invModel.tasksVisibility.collectAsStateWithLifecycle()
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -83,8 +83,12 @@ fun InvestigationsMainComposition(
         )
     }
 
-    LaunchedEffect(currentTask) {
-        when (currentTask == NoRecord) {
+    LaunchedEffect(Unit) {
+        invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true)
+    }
+
+    LaunchedEffect(tasksVisibility) {
+        when (tasksVisibility.first == NoRecord) {
             true -> {
                 if (screenWidth <= limitToResize) animateScroll(0)
                 updateSizes(0)
@@ -99,23 +103,21 @@ fun InvestigationsMainComposition(
         }
     }
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState)
+                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            if (processControlOnly)
-                SubOrdersStandAlone(modifier = modifier.width(screenSizes.second))
+            if (invModel.isPcOnly == true)
+                SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), invModel = invModel)
             else
-                Orders(
-                    modifier = modifier.width(screenSizes.second)
-                )
+                Orders(modifier = Modifier.width(screenSizes.second), invModel = invModel)
 
-            if (currentTask != NoRecord)
-                SampleComposition(modifier = modifier.width(screenSizes.third))
+            if (tasksVisibility.first != NoRecord)
+                SampleComposition(modifier = Modifier.width(screenSizes.third), invModel = invModel)
         }
 
         if (showStatusChangeDialog.value == true)

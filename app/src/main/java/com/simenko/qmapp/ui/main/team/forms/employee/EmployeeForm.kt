@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -43,26 +44,21 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
-    val viewModel: EmployeeViewModel = hiltViewModel()
-
-    LaunchedEffect(key1 = employeeId) {
-        withContext(Dispatchers.Default) {
-            if (employeeId != NoRecord.num)
-                viewModel.loadEmployee(employeeId)
-        }
+fun EmployeeForm(
+    modifier: Modifier = Modifier,
+    viewModel: EmployeeViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler.setupMainPage(0, true)
     }
 
     val employee by viewModel.employee.collectAsStateWithLifecycle()
@@ -76,11 +72,13 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    fillInState.let { state ->
-        when (state) {
-            is FillInSuccess -> viewModel.makeEmployee(employee)
-            is FillInError -> error = state.errorMsg
-            is FillInInitialState -> error = UserError.NO_ERROR.error
+    LaunchedEffect(fillInState) {
+        fillInState.let { state ->
+            when (state) {
+                is FillInSuccess -> viewModel.makeEmployee()
+                is FillInError -> error = state.errorMsg
+                is FillInInitialState -> error = UserError.NO_ERROR.error
+            }
         }
     }
 
@@ -184,9 +182,9 @@ fun EmployeeForm(modifier: Modifier = Modifier, employeeId: Int) {
         Spacer(modifier = Modifier.height(10.dp))
         if (error != UserError.NO_ERROR.error)
             Text(
+                modifier = Modifier.padding(all = 5.dp).width(320.dp),
                 text = error,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                modifier = Modifier.padding(all = 5.dp),
                 textAlign = TextAlign.Center
             )
     }

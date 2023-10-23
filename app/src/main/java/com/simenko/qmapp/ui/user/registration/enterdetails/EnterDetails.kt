@@ -44,27 +44,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.repository.UserError
-import com.simenko.qmapp.ui.Screen
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
-    navController: NavHostController = rememberNavController(),
-    editMode: Boolean,
-    userDetailsModel: EnterDetailsViewModel? = null,
-    editUserData: () -> Unit = {}
+    viewModel: EnterDetailsViewModel,
+    editMode: Boolean = false
 ) {
-    val viewModel: EnterDetailsViewModel = userDetailsModel.let {
-        it ?: hiltViewModel()
-    }
-
     val rawPrinciple by viewModel.rawPrinciple.collectAsStateWithLifecycle()
     val rawPrincipleErrors by viewModel.rawPrincipleErrors.collectAsStateWithLifecycle()
 
@@ -73,18 +66,21 @@ fun EnterDetails(
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    fillInState.let { state ->
-        when (state) {
-            is FillInSuccess ->
-                if (!editMode) {
-                    viewModel.initRawUser()
-                    navController.navigate(Screen.LoggedOut.Registration.TermsAndConditions.withArgs(rawPrinciple.email))
-                } else {
-                    viewModel.initRawUser()
-                    editUserData()
-                }
-            is FillInError -> error = state.errorMsg
-            is FillInInitialState -> {}
+    LaunchedEffect(fillInState) {
+        fillInState.let { state ->
+            println("EnterDetails - fillInState: $state")
+            when (state) {
+                is FillInSuccess ->
+                    if (!editMode) {
+                        viewModel.onFillInSuccess(rawPrinciple.email)
+                    } else {
+                        viewModel.initRawUser()
+                        viewModel.onSaveUserDataClick()
+                    }
+
+                is FillInError -> error = state.errorMsg
+                is FillInInitialState -> {}
+            }
         }
     }
 
@@ -98,7 +94,10 @@ fun EnterDetails(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(Unit) { focusRequesterUserName.requestFocus() }
+    LaunchedEffect(Unit) {
+        viewModel.mainPageHandler.setupMainPage(0, editMode)
+        focusRequesterUserName.requestFocus()
+    }
 
     val columnState = rememberScrollState()
 
@@ -215,7 +214,7 @@ fun EnterDetails(
         if (!editMode)
             RecordActionTextBtn(
                 text = "Log in",
-                onClick = { navController.navigate(Screen.LoggedOut.LogIn.route) },
+                onClick = { viewModel.onLogInClick() },
                 colors = Pair(
                     ButtonDefaults.textButtonColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,

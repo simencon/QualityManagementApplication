@@ -28,5 +28,5 @@ abstract class DepartmentDao: DaoBaseModel<DatabaseDepartment> {
 
     @Transaction
     @Query("select * from `10_departments` order by depOrder")
-    abstract fun getRecordsDetailedFlowForUI(): LiveData<List<DatabaseDepartmentsComplete>>
+    abstract fun getRecordsComplete(): Flow<List<DatabaseDepartmentsComplete>>
 }

@@ -14,7 +14,6 @@ import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.time.Duration
 import javax.inject.Inject
 
@@ -34,14 +33,6 @@ class BaseApplication : Application(), Configuration.Provider {
         )
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(notificationChannel)
-
-        delayedInit()
-    }
-
-    private fun delayedInit() {
-        applicationScope.launch {
-            setupRecurringWork()
-        }
     }
 
     override fun getWorkManagerConfiguration(): Configuration {
@@ -50,38 +41,37 @@ class BaseApplication : Application(), Configuration.Provider {
             .build()
     }
 
-    private fun createSyncWork(syncPeriod: SyncPeriods, repetition: Duration) {
-        val work = PeriodicWorkRequestBuilder<SyncEntitiesWorker>(repetition)
-            .setInputData(
-                Data.Builder()
-                    .putLong(LATEST_MILLIS, syncPeriod.latestMillis)
-                    .putLong(EXCLUDE_MILLIS, syncPeriod.excludeMillis)
-                    .build()
-            )
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(
-                        NetworkType.CONNECTED
-                    )
-                    .build()
-            )
-            .setInitialDelay(repetition)
-            .build()
-
-        WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
-            syncPeriod.name,
-            ExistingPeriodicWorkPolicy.KEEP,
-            work
-        )
+    fun setupOneTimeSync() {
+        scheduleOneTimeSyncWork(SyncPeriods.LAST_HOUR, Duration.ofSeconds(0L))
+        scheduleOneTimeSyncWork(SyncPeriods.LAST_DAY, Duration.ofSeconds(0L))
+        scheduleOneTimeSyncWork(SyncPeriods.LAST_WEEK, Duration.ofSeconds(0L))
+        scheduleOneTimeSyncWork(SyncPeriods.LAST_MONTH, Duration.ofSeconds(0L))
+        scheduleOneTimeSyncWork(SyncPeriods.LAST_QUARTER, Duration.ofSeconds(0L))
+        scheduleOneTimeSyncWork(SyncPeriods.LAST_YEAR, Duration.ofSeconds(0L))
+        scheduleOneTimeSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofSeconds(0L))
     }
 
-    private fun setupRecurringWork() {
-        createSyncWork(SyncPeriods.LAST_HOUR, Duration.ofMinutes(60))
-        createSyncWork(SyncPeriods.LAST_DAY, Duration.ofHours(24))
-        createSyncWork(SyncPeriods.LAST_WEEK, Duration.ofDays(7))
-        createSyncWork(SyncPeriods.LAST_MONTH, Duration.ofDays(7))
-        createSyncWork(SyncPeriods.LAST_QUARTER, Duration.ofDays(7))
-        createSyncWork(SyncPeriods.LAST_YEAR, Duration.ofDays(7))
-        createSyncWork(SyncPeriods.COMPLETE_PERIOD, Duration.ofDays(7))
+    private fun scheduleOneTimeSyncWork(syncPeriod: SyncPeriods, initialDelay: Duration) {
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniqueWork("${syncPeriod.name}_oneTime", ExistingWorkPolicy.KEEP, prepareOneTimeSyncWork(syncPeriod, initialDelay))
+    }
+
+    companion object {
+        private fun prepareOneTimeSyncWork(syncPeriod: SyncPeriods, initialDelay: Duration): OneTimeWorkRequest {
+            return OneTimeWorkRequestBuilder<SyncEntitiesWorker>()
+                .setInputData(
+                    Data.Builder()
+                        .putLong(LATEST_MILLIS, syncPeriod.latestMillis)
+                        .putLong(EXCLUDE_MILLIS, syncPeriod.excludeMillis)
+                        .build()
+                )
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .setInitialDelay(initialDelay)
+                .build()
+        }
     }
 }

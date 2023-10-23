@@ -1,16 +1,20 @@
 package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.lifecycle.*
-import androidx.navigation.NavHostController
+import com.simenko.qmapp.di.IsProcessControlOnlyParameter
+import com.simenko.qmapp.di.OrderIdParameter
+import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
-import com.simenko.qmapp.ui.Screen
-import com.simenko.qmapp.ui.main.AddEditMode
-import com.simenko.qmapp.ui.main.MainActivityViewModel
+import com.simenko.qmapp.ui.main.main.MainPageHandler
+import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.content.Page
+import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -29,49 +33,82 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class NewItemViewModel @Inject constructor(
+    private val appNavigator: AppNavigator,
+    private val mainPageState: MainPageState,
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
-    private val repository: InvestigationsRepository
+    private val repository: InvestigationsRepository,
+    @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
+    @OrderIdParameter private val orderId: Int,
+    @SubOrderIdParameter private val subOrderId: Int
 ) : ViewModel() {
-    private lateinit var navController: NavHostController
-    fun initNavController(controller: NavHostController) {
-        this.navController = controller
-    }
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    var mainPageHandler: MainPageHandler? = null
+        private set
 
-    private lateinit var mainActivityViewModel: MainActivityViewModel
-    fun initMainActivityViewModel(viewModel: MainActivityViewModel) {
-        this.mainActivityViewModel = viewModel
-    }
-
-    fun setAddEditMode(mode: AddEditMode) {
-        mainActivityViewModel.setAddEditMode(mode)
+    init {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                println("NewItemViewModel - init - isPcOnly: $isPcOnly")
+                println("NewItemViewModel - init - orderId: $orderId")
+                println("NewItemViewModel - init - subOrderId: $subOrderId")
+                val pageWithMakeAction =
+                    if (isPcOnly == null) {
+                        if (orderId == NoRecord.num) {
+                            Pair(Page.ADD_ORDER) { makeOrder(true) }
+                        } else {
+                            loadOrder(orderId)
+                            Pair(Page.EDIT_ORDER) { makeOrder(false) }
+                        }
+                    } else {
+                        if (isPcOnly == true) {
+                            if (subOrderId == NoRecord.num) {
+                                setNewOrderForProcessControl()
+                                Pair(Page.ADD_SUB_ORDER_SA) { makeOrderWithSubOrder(true) }
+                            } else {
+                                loadOrder(orderId)
+                                loadSubOrder(subOrderId)
+                                Pair(Page.EDIT_SUB_ORDER_SA) { makeOrderWithSubOrder(false) }
+                            }
+                        } else {
+                            if (subOrderId == NoRecord.num) {
+                                loadOrder(orderId)
+                                Pair(Page.ADD_SUB_ORDER) { makeSubOrder(true) }
+                            } else {
+                                loadOrder(orderId)
+                                loadSubOrder(subOrderId)
+                                Pair(Page.EDIT_SUB_ORDER) { makeSubOrder(false) }
+                            }
+                        }
+                    }
+                mainPageHandler = MainPageHandler.Builder(pageWithMakeAction.first, mainPageState)
+                    .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                    .setOnFabClickAction { pageWithMakeAction.second() }
+                    .build()
+            }
+        }
     }
 
     /**
      * Order logic -----------------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _subOrderStandAlone: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val subOrderStandAlone: StateFlow<Boolean> get() = _subOrderStandAlone
-    fun setSubOrderStandAlone(value: Boolean) {
-        _subOrderStandAlone.value = value
-    }
-
-
     private val _order: MutableStateFlow<DomainOrder> = MutableStateFlow(
         DomainOrder().copy(statusId = InvStatuses.TO_DO.statusId)
     )
     val order: StateFlow<DomainOrder> get() = _order
 
-    fun loadOrder(id: Int) {
-        _order.value = repository.getOrderById(id)
+    private fun loadOrder(id: Int) {
+        _order.value = repository.orderById(id)
     }
 
-    fun setNewOrderForProcessControl() {
+    private fun setNewOrderForProcessControl() {
         _order.value = _order.value.copy(orderTypeId = 3/*Process Control*/, customerId = 4/*УЯк*/, orderedById = 18/*Роман Семенишин*/)
     }
 
     // Order Type ------------------------------------------------------------------------------------------------------------------------------------
-    private val _orderTypes = repository.getOrderTypes
+    private val _orderTypes = repository.orderTypes
     val orderTypes: StateFlow<List<DomainOrdersType>> = _orderTypes.flatMapLatest { types ->
         _order.flatMapLatest { currentOrder ->
             val cpy = mutableListOf<DomainOrdersType>()
@@ -86,7 +123,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Order Reason ----------------------------------------------------------------------------------------------------------------------------------
-    private val _orderReasons: Flow<List<DomainReason>> = repository.getOrderReasons
+    private val _orderReasons: Flow<List<DomainReason>> = repository.orderReasons
     val orderReasons: StateFlow<List<DomainReason>> = _orderReasons.flatMapLatest { reasons ->
         _order.flatMapLatest { currentOrder ->
             if (currentOrder.orderTypeId != NoRecord.num) {
@@ -100,7 +137,7 @@ class NewItemViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun selectOrderReason(id: Int) {
-        if (_order.value.reasonId != id && !_subOrderStandAlone.value)
+        if (_order.value.reasonId != id && isPcOnly != true)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
         else if (_order.value.reasonId != id)
             _order.value = _order.value.copy(reasonId = id)
@@ -157,10 +194,10 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
 
-    fun loadSubOrder(id: Int) {
-        val subOrder = repository.getSubOrderById(id)
-        val samples = repository.getSamplesBySubOrderId(id)
-        val tasks = repository.getTasksBySubOrderId(id)
+    private fun loadSubOrder(id: Int) {
+        val subOrder = repository.subOrderById(id)
+        val samples = repository.samplesBySubOrderId(id)
+        val tasks = repository.tasksBySubOrderId(id)
         _subOrder.value = _subOrder.value.copy(subOrder = subOrder, samples = samples.toMutableList(), subOrderTasks = tasks.toMutableList())
     }
 
@@ -516,87 +553,96 @@ class NewItemViewModel @Inject constructor(
     /**
      * Data Base/REST API Operations --------------------------------------------------------------------------------------------------------------------------
      * */
-    fun makeOrder(newRecord: Boolean = true) {
+    private fun makeOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(_order.value))
             viewModelScope.launch(Dispatchers.IO) {
                 with(repository) { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                             Status.SUCCESS -> {
-                                mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                setAddEditMode(AddEditMode.NO_MODE)
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                 withContext(Dispatchers.Main) {
-                                    navController.navigate(Screen.Main.Inv.withArgs(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str)) {
-                                        popUpTo(0)
-                                    }
+                                    appNavigator.tryNavigateTo(
+                                        route = Route.Main.Inv.withOpts(FalseStr.str, resource.data?.id.toString(), NoRecordStr.str),
+                                        popUpToRoute = Route.Main.Inv.route,
+                                        inclusive = true
+                                    )
                                 }
                             }
 
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                         }
                     }
                 }
             }
         else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
-    fun makeNewOrderWithSubOrder(newRecord: Boolean = true) {
+    private fun makeOrderWithSubOrder(newRecord: Boolean = true) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertOrder(_order.value) else updateOrder(_order.value) }.consumeEach { event ->
                     event.getContentIfNotHandled()?.let { resource ->
                         when (resource.status) {
-                            Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
 
                             Status.SUCCESS -> {
                                 resource.data?.let {
                                     _order.value = it
                                     _subOrder.value.order = it
                                     _subOrder.value.subOrder.orderId = it.id
-                                    makeSubOrder(TrueStr.str, newRecord)
+                                    makeSubOrder(newRecord, true)
                                 }
                             }
 
-                            Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                            Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                         }
                     }
                 }
             }
         else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
-    fun makeSubOrder(pcOnly: String, newRecord: Boolean = true) {
+    private fun makeSubOrder(newRecord: Boolean = true, pcOnly: Boolean = false) {
         if (checkIfPossibleToSave(Triple(_order.value, _subOrder.value.subOrder, _subOrder.value.subOrderTasks.filter { !it.toBeDeleted }.size)))
             viewModelScope.launch(Dispatchers.IO) {
                 repository.run { if (newRecord) insertSubOrder(_subOrder.value.subOrder) else updateSubOrder(subOrder.value.subOrder) }
                     .consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
+                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
                                 Status.SUCCESS -> {
                                     resource.data?.let {
                                         postDeleteSubOrderTasks(it.id)
                                         postDeleteSamples(it.id)
                                     }
-                                    mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    setAddEditMode(AddEditMode.NO_MODE)
+                                    mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
                                     withContext(Dispatchers.Main) {
-                                        navController.navigate(
-                                            Screen.Main.Inv.withArgs(pcOnly, resource.data?.orderId.toString(), resource.data?.id.toString())
-                                        ) { popUpTo(0) }
+                                        if (pcOnly)
+                                            appNavigator.tryNavigateTo(
+                                                route = Route.Main.ProcessControl.withOpts(TrueStr.str, resource.data?.orderId.toString(), resource.data?.id.toString()),
+                                                popUpToRoute = Route.Main.ProcessControl.route,
+                                                inclusive = true
+                                            )
+                                        else
+                                            appNavigator.tryNavigateTo(
+                                                route = Route.Main.Inv.withOpts(FalseStr.str, resource.data?.orderId.toString(), resource.data?.id.toString()),
+                                                popUpToRoute = Route.Main.Inv.route,
+                                                inclusive = true
+                                            )
                                     }
                                 }
 
-                                Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                             }
                         }
                     }
             }
         else
-            mainActivityViewModel.updateLoadingState(Pair(false, "Fill in all field before save!"))
+            mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
     private suspend fun postDeleteSamples(subOrderId: Int) {
@@ -610,9 +656,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -621,9 +667,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertSamples(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -644,9 +690,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) deleteTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }
@@ -655,9 +701,9 @@ class NewItemViewModel @Inject constructor(
                         if (it.isNotEmpty()) insertTasks(it).consumeEach { event ->
                             event.getContentIfNotHandled()?.let { resource ->
                                 when (resource.status) {
-                                    Status.LOADING -> mainActivityViewModel.updateLoadingState(Pair(true, null))
-                                    Status.SUCCESS -> mainActivityViewModel.updateLoadingState(Pair(false, null))
-                                    Status.ERROR -> mainActivityViewModel.updateLoadingState(Pair(false, resource.message))
+                                    Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                                    Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                                    Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
                                 }
                             }
                         }

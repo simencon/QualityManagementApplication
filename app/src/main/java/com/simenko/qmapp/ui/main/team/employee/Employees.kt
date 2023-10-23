@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
@@ -28,53 +27,50 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordDetails
-import com.simenko.qmapp.ui.common.TopLevelSingleRecordMainHeader
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.ui.common.ContentWithTitle
+import com.simenko.qmapp.ui.common.SimpleRecordHeader
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun EmployeeComposition(
+fun Employees(
     viewModel: TeamViewModel = hiltViewModel(),
     onClickEdit: (Int) -> Unit
 ) {
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
-    val selectedRecord by viewModel.selectedEmployeeRecord.collectAsStateWithLifecycle()
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
-    val onClickDetailsLambda: (Int) -> Unit = { viewModel.setCurrentEmployeeVisibility(dId = SelectedNumber(it)) }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setCurrentEmployeeVisibility(aId = SelectedNumber(it)) } }
+    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+
+    val onClickDetailsLambda: (Int) -> Unit = { viewModel.setEmployeesVisibility(dId = SelectedNumber(it)) }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setEmployeesVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteEmployee(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
 
     val listState = rememberLazyListState()
-
-    LaunchedEffect(selectedRecord) {
-        selectedRecord.getContentIfNotHandled()?.let { recordId ->
-            if (recordId != NoRecord.num) {
-                listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = recordId)
-                delay(25)
-                items.find { it.teamMember.id == recordId }?.let { if (!it.detailsVisibility) onClickDetailsLambda(it.teamMember.id) }
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord?.let { record ->
+            record.first.getContentIfNotHandled()?.let { employeeId ->
+                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.teamMember.id }.toList(), selectedId = employeeId) })
             }
         }
     }
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
+    LaunchedEffect(lastItemIsVisible) {
+        if (lastItemIsVisible) viewModel.mainPageHandler.onListEnd(true) else viewModel.mainPageHandler.onListEnd(false)
+    }
 
-    if (lastItemIsVisible) viewModel.onListEnd(FabPosition.Center) else viewModel.onListEnd(FabPosition.End)
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        state = listState
-    ) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
         items(items = items, key = { it.teamMember.id }) { teamMember ->
             EmployeeCard(
                 teamMember = teamMember,
@@ -96,24 +92,18 @@ fun EmployeeCard(
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Int) -> Unit
 ) {
-    val transitionState = remember {
-        MutableTransitionState(teamMember.isExpanded).apply {
-            targetState = !teamMember.isExpanded
-        }
-    }
-
+    val transitionState = remember { MutableTransitionState(teamMember.isExpanded).apply { targetState = !teamMember.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
 
     val offsetTransition by transition.animateFloat(
         label = "cardOffsetTransition",
         transitionSpec = { tween(durationMillis = Constants.ANIMATION_DURATION) },
-        targetValueByState = { if (teamMember.isExpanded) CARD_OFFSET.dp() else 0f },
+        targetValueByState = { (if (teamMember.isExpanded) CARD_OFFSET * 2 else 0f).dp() },
     )
     val containerColor = when (teamMember.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
         false -> MaterialTheme.colorScheme.surfaceVariant
     }
-
     val borderColor = when (teamMember.detailsVisibility) {
         true -> MaterialTheme.colorScheme.outline
         false -> when (teamMember.isExpanded) {
@@ -123,13 +113,12 @@ fun EmployeeCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(horizontal = 3.dp, vertical = 3.dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(teamMember.teamMember.id) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
-
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickEdit(teamMember.teamMember.id) },
@@ -141,17 +130,11 @@ fun EmployeeCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = Modifier
-                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(teamMember.teamMember.id) {
-                    detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) })
-                },
+                .pointerInput(teamMember.teamMember.id) { detectTapGestures(onDoubleTap = { onDoubleClick(teamMember.teamMember.id) }) },
         ) {
-            Employee(
-                item = teamMember,
-                onClickDetails = onClickDetails,
-                modifier = Modifier.padding(Constants.CARDS_PADDING)
-            )
+            Employee(item = teamMember, onClickDetails = onClickDetails)
         }
     }
 }
@@ -159,23 +142,21 @@ fun EmployeeCard(
 @Composable
 fun Employee(
     item: DomainEmployeeComplete,
-    onClickDetails: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    onClickDetails: (Int) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
-    ) {
-        TopLevelSingleRecordMainHeader(modifier, item, item.detailsVisibility, { onClickDetails(it.toInt()) })
+    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        SimpleRecordHeader(item, item.detailsVisibility) { onClickDetails(it.toInt()) }
         if (item.detailsVisibility) {
-            val dep =
-                item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
-            Divider(modifier = modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            TopLevelSingleRecordDetails("Job role:", item.teamMember.jobRole, modifier, 0.2f)
-            TopLevelSingleRecordDetails("Department:", dep, modifier, 0.2f)
-            TopLevelSingleRecordDetails("Email:", StringUtils.getMail(item.teamMember.email), modifier, 0.2f)
+            Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+                val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
+                Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Department:", value = dep, titleWight = 0.2f)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                ContentWithTitle(title = "Email:", value = StringUtils.getMail(item.teamMember.email), titleWight = 0.2f)
+            }
         }
     }
 }

@@ -5,6 +5,8 @@ import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
+import com.simenko.qmapp.utils.OrdersFilter
+import com.simenko.qmapp.utils.UsersFilter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -48,13 +50,9 @@ class SystemRepository @Inject constructor(
         it?.toDomainModel() ?: throw IOException("no such employee in local DB")
     }
 
-    val users: Flow<List<DomainUser>> =
-        database.userDao.getRecordsFlowForUI().map { list ->
-            list.map { it.toDomainModel() }
-        }
+    val users: (filter: UsersFilter) -> Flow<List<DomainUser>> = { filter ->
+        database.userDao.getRecordsFlowForUI(filter.newUsers, "%${filter.stringToSearch}%").map { list -> list.map { it.toDomainModel() } }
+    }
 
-    val userRoles: Flow<List<DomainUserRole>> =
-        database.userRoleDao.getRecordsFlowForUI().map { list ->
-            list.map { it.toDomainModel() }
-        }
+    val userRoles: Flow<List<DomainUserRole>> = database.userRoleDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
 }

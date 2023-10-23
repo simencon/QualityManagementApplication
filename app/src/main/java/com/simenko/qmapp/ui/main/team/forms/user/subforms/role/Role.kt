@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,13 +43,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInSuccess
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.repository.UserError
-import com.simenko.qmapp.ui.dialogs.scrollToSelectedStringItem
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInError
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInInitialState
-import com.simenko.qmapp.ui.user.registration.enterdetails.FillInSuccess
 import java.util.Locale
 
 @Composable
@@ -59,9 +61,7 @@ fun AddRole(
 
     val user by userModel.user.collectAsStateWithLifecycle()
 
-    LaunchedEffect(user) {
-        viewModel.setUser(user)
-    }
+    LaunchedEffect(user) { viewModel.setUser(user) }
 
     val functions by viewModel.roleFunctions.collectAsStateWithLifecycle()
     val levels by viewModel.roleLevels.collectAsStateWithLifecycle()
@@ -100,8 +100,10 @@ fun AddRole(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Card(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(10.dp, 10.dp, 10.dp, 10.dp),
             shape = RoundedCornerShape(10.dp),
-            modifier = Modifier.padding(10.dp, 10.dp, 10.dp, 10.dp),
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Column(
@@ -156,7 +158,7 @@ fun AddRole(
                     )
                     TextButton(
                         modifier = Modifier.weight(1f),
-                        onClick = { viewModel.validateUserRoleInput() },
+                        onClick = { viewModel.validateInput() },
                         colors = ButtonDefaults.textButtonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -215,7 +217,7 @@ fun SelectionGrid(
 
     LaunchedEffect(currentItem) {
         if (currentItem != NoRecordStr.str)
-            gritState.scrollToSelectedStringItem(
+            gritState.scrollToSelectedItem(
                 list = items.map { it.first }.toList(),
                 selectedId = currentItem,
             )

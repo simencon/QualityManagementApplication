@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -33,9 +34,11 @@ import com.simenko.qmapp.repository.UserAuthoritiesNotVerifiedState
 import com.simenko.qmapp.repository.UserError
 
 @Composable
-fun WaitingForVerification(message: String? = null) {
-    val waitingForVerificationViewModel: WaitingForVerificationViewModel = hiltViewModel()
-    val userState by waitingForVerificationViewModel.userState.collectAsStateWithLifecycle()
+fun WaitingForVerification(
+    viewModel: WaitingForVerificationViewModel,
+    message: String? = null
+) {
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
 
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
     var msg by rememberSaveable { mutableStateOf("Please check your email box") }
@@ -55,7 +58,11 @@ fun WaitingForVerification(message: String? = null) {
     }
 
     LaunchedEffect(Unit) { message?.let { msg = message } }
-    Box {
+    
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -82,7 +89,7 @@ fun WaitingForVerification(message: String? = null) {
                 modifier = Modifier.width(150.dp),
                 onClick = {
                     msg = UserError.NO_ERROR.error
-                    waitingForVerificationViewModel.resendVerificationEmail()
+                    viewModel.resendVerificationEmail()
                 },
                 content = {
                     Text(
@@ -112,6 +119,6 @@ fun WaitingForVerification(message: String? = null) {
 @Composable
 fun WaitingForVerificationPreview() {
     QMAppTheme {
-        WaitingForVerification()
+        WaitingForVerification(viewModel = hiltViewModel())
     }
 }

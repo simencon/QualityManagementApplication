@@ -176,7 +176,7 @@ fun StatusUpdateDialog(
                         )
                     ) {
                         Text(
-                            text = "Cansel",
+                            text = "Cancel",
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )

@@ -1,20 +1,23 @@
 package com.simenko.qmapp.ui.common
 
-import android.graphics.Rect
-import android.view.ViewTreeObserver
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.Search
@@ -35,10 +38,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,19 +52,23 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import kotlin.math.round
 
 @Composable
 fun RecordFieldItem(
@@ -212,36 +218,6 @@ fun RecordFieldItemWithMenu(
     }
 }
 
-enum class Keyboard {
-    Opened, Closed
-}
-
-@Composable
-fun keyboardAsState(): State<Keyboard> {
-    val keyboardState = remember { mutableStateOf(Keyboard.Closed) }
-    val view = LocalView.current
-    DisposableEffect(view) {
-        val onGlobalListener = ViewTreeObserver.OnGlobalLayoutListener {
-            val rect = Rect()
-            view.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = view.rootView.height
-            val keypadHeight = screenHeight - rect.bottom
-            keyboardState.value = if (keypadHeight > screenHeight * 0.15) {
-                Keyboard.Opened
-            } else {
-                Keyboard.Closed
-            }
-        }
-        view.viewTreeObserver.addOnGlobalLayoutListener(onGlobalListener)
-
-        onDispose {
-            view.viewTreeObserver.removeOnGlobalLayoutListener(onGlobalListener)
-        }
-    }
-
-    return keyboardState
-}
-
 @Composable
 fun RecordActionTextBtn(
     text: String,
@@ -258,9 +234,7 @@ fun RecordActionTextBtn(
                 text = text,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp),
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .padding(all = 0.dp)
+                overflow = TextOverflow.Ellipsis
             )
         },
         colors = colors.first,
@@ -272,15 +246,32 @@ fun RecordActionTextBtn(
 }
 
 @Composable
-fun <T> TopLevelSingleRecordMainHeader(
-    modifier: Modifier,
+fun InfoLine(modifier: Modifier, title: String, body: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.width(320.dp)
+    )
+    Text(
+        text = body,
+        style = MaterialTheme.typography.bodyMedium,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.width(320.dp)
+    )
+    Spacer(modifier = Modifier.height(5.dp))
+}
+
+@Composable
+fun <T> SimpleRecordHeader(
     value: DomainBaseModel<T>,
     detailsVisibility: Boolean,
-    onClick: (String) -> Unit,
-    title: String? = null
+    onClick: (String) -> Unit
 ) {
     Row(
-        modifier = modifier,
+        modifier = Modifier.padding(start = 8.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -297,26 +288,95 @@ fun <T> TopLevelSingleRecordMainHeader(
         IconButton(onClick = { onClick(value.getRecordId().toString()) }) {
             Icon(
                 imageVector = if (detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = if (detailsVisibility) {
-                    stringResource(R.string.show_less)
-                } else {
-                    stringResource(R.string.show_more)
-                }
+                contentDescription = if (detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
             )
         }
     }
 }
 
 @Composable
-fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float = 0.22f) {
+fun HeaderWithTitle(
+    modifier: Modifier = Modifier,
+    titleFirst: Boolean = true,
+    titleTextSize: TextUnit = 10.sp,
+    titleWight: Float,
+    title: String? = null,
+    textTextSize: TextUnit = 14.sp,
+    text: String? = null,
+    content: @Composable (() -> Unit)? = null,
+) {
     Row(
-        modifier = Modifier.padding(
-            top = 0.dp,
-            start = 0.dp,
-            end = 0.dp,
-            bottom = 4.dp
-        ),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        if (titleFirst)
+            title?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = titleWight)
+                )
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+            }
+        text?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = textTextSize),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(weight = 1f - titleWight)
+            )
+        }
+        content?.let {
+            Row(
+                modifier = Modifier.weight(weight = 1 - titleWight),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                it()
+            }
+        }
+        if (!titleFirst)
+            title?.let {
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = titleTextSize),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = titleWight)
+                )
+            }
+    }
+}
+
+@Composable
+fun StatusChangeBtn(
+    modifier: Modifier,
+    containerColor: Color,
+    onClick: () -> Unit,
+    content: @Composable (() -> Unit),
+) {
+    TextButton(
+        modifier = modifier,
+        onClick = onClick,
+        content = { content() },
+        enabled = true,
+        shape = MaterialTheme.shapes.medium,
+        elevation = ButtonDefaults.buttonElevation(4.dp),
+        border = null,
+        colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
+    )
+}
+
+@Composable
+fun ContentWithTitle(modifier: Modifier = Modifier, title: String, contentTextSize: TextUnit = 14.sp, value: String, titleWight: Float) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start
     ) {
         Text(
             text = title,
@@ -325,102 +385,66 @@ fun TopLevelSingleRecordHeader(title: String, value: String, titleWight: Float =
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(weight = titleWight)
-                .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = contentTextSize),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .weight(weight = 1 - titleWight)
-                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
+                .padding(start = DEFAULT_SPACE.dp)
+                .weight(weight = 1f - titleWight)
         )
     }
 }
 
 @Composable
-fun TopLevelSingleRecordDetails(title: String, value: String, modifier: Modifier, titleWight: Float = 0.35f) {
-    Row(
-        modifier = modifier.padding(start = 8.dp),
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.Bottom
-    ) {
+fun StatusWithPercentage(
+    status: Pair<Int, String?>,
+    result: Triple<Boolean?, Int?, Int?>,
+    onlyInt: Boolean = false,
+    percentageTextSize: TextUnit = 12.sp
+) {
+    if (status.second != EmptyString.str)
         Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+            text = status.second ?: NoString.str,
+            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    if (status.first == 3) {
+        if (status.second != EmptyString.str)
+            Text(
+                text = "(",
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(start = DEFAULT_SPACE.dp)
+            )
+        Icon(
+            imageVector = if (result.first != false) Icons.Filled.Check else Icons.Filled.Close,
+            contentDescription = if (result.first != false) stringResource(R.string.show_less) else stringResource(R.string.show_more),
+            modifier = Modifier.height(20.dp),
+            tint = if (result.first != false) Color.Green else Color.Red,
+        )
+        val conformity = (result.second?.toFloat()?.let { result.third?.toFloat()?.div(it) }?.times(100)) ?: 0.0f
+        Text(
+            text = if (!conformity.isNaN()) (round(conformity * 10) / 10).let { (if (onlyInt) it.toInt() else it).toString() + "%" } else "",
+            style = MaterialTheme.typography.titleSmall.copy(fontSize = percentageTextSize),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = titleWight)
+            textAlign = TextAlign.Start,
+            modifier = Modifier.padding(start = DEFAULT_SPACE.dp)
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 1 - titleWight)
-                .padding(start = 3.dp)
-        )
-    }
-}
-
-@Composable
-fun SecondLevelSingleRecordHeader(title: String, value: String) {
-    Row(
-        modifier = Modifier.padding(
-            top = 0.dp,
-            start = 0.dp,
-            end = 0.dp,
-            bottom = 4.dp
-        ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.20f)
-                .padding(top = 7.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.80f)
-                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-        )
-    }
-}
-
-@Composable
-fun SecondLevelSingleRecordDetails(title: String, value: String) {
-    Row(
-        modifier = Modifier.padding(top = 0.dp, start = 8.dp, end = 0.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.22f)
-                .padding(top = 5.dp, start = 0.dp, end = 0.dp, bottom = 0.dp)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(weight = 0.78f)
-                .padding(top = 0.dp, start = 3.dp, end = 0.dp, bottom = 0.dp)
-        )
+        if (status.second != EmptyString.str)
+            Text(
+                text = ")",
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(start = DEFAULT_SPACE.dp)
+            )
     }
 }

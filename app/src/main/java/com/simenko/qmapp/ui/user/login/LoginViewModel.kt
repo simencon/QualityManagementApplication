@@ -5,7 +5,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
 import com.simenko.qmapp.storage.Principle
-import com.simenko.qmapp.ui.user.UserViewModel
+import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.user.registration.enterdetails.UserErrors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,21 +13,19 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val userRepository: UserRepository) : ViewModel() {
-    private lateinit var _userViewModel: UserViewModel
-    fun initUserViewModel(model: UserViewModel) {
-        _userViewModel = model
-    }
-
+class LoginViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    private val mainPageState: MainPageState
+) : ViewModel() {
     fun updateLoadingState(state: Pair<Boolean, String?>) {
-        _userViewModel.updateLoadingState(state)
+        mainPageState.trySendLoadingState(state)
     }
 
     private var _loggedOutPrinciple: MutableStateFlow<Principle> = MutableStateFlow(userRepository.user.copy(password = EmptyString.str))
     private var _loggedOutPrincipleErrors: MutableStateFlow<UserErrors> = MutableStateFlow(UserErrors())
     val loggedOutPrinciple: StateFlow<Principle> get() = _loggedOutPrinciple
     val loggedOutPrincipleErrors: StateFlow<UserErrors> get() = _loggedOutPrincipleErrors
-    val userState: StateFlow<UserState> get() = _userViewModel.userState
+    val userState: StateFlow<UserState> get() = userRepository.userState
 
     fun setEmail(value: String) {
         _loggedOutPrinciple.value = _loggedOutPrinciple.value.copy(email = value)
@@ -40,12 +38,12 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     fun login(username: String, password: String) {
-        _userViewModel.updateLoadingState(Pair(true, null))
+        updateLoadingState(Pair(true, null))
         userRepository.loginUser(username, password)
     }
 
     fun sendResetPasswordEmail(email: String) {
-        _userViewModel.updateLoadingState(Pair(true, null))
+        updateLoadingState(Pair(true, null))
         userRepository.sendResetPasswordEmail(email)
     }
 }
