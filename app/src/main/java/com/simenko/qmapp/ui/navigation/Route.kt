@@ -236,7 +236,7 @@ sealed class Route(
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     },
-                    navArgument(NavArguments.subOrderId) {
+                    navArgument(NavArguments.subDepartmentId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     },

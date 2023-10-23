@@ -232,7 +232,7 @@ data class DatabaseManufacturingLine(
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
         inner join `10_departments` as d on sd.depId = d.id
-        order by ml.lineOrder, mc.channelOrder, sd.subDepOrder, d.depAbbr
+        order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder;
         """
     )
     data class DatabaseManufacturingLineComplete(
@@ -362,6 +362,7 @@ data class DatabaseOperationsFlow(
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
         inner join `10_departments` as d on sd.depId = d.id
+        order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder, pmo.operationOrder;
         """
     )
     data class DatabaseOperationsFlowComplete(

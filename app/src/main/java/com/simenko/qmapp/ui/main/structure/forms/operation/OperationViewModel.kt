@@ -117,8 +117,16 @@ class OperationViewModel @Inject constructor(
     }
 
     fun addPreviousOperation(operationToAdd: DomainOperationsFlow.DomainOperationsFlowComplete) {
-        val previousOperations = this._operation.value.previousOperations.toMutableList().also { it.add(operationToAdd) }
-        this._operation.value = this._operation.value.copy(previousOperations = previousOperations)
+        val list = _operation.value.previousOperations.find { it.currentOperationId == operationToAdd.currentOperationId && it.previousOperationId == operationToAdd.previousOperationId }?.let {
+            _operation.value.previousOperations.toMutableList().also { list ->
+                list.remove(it)
+                list.add(it.copy(toBeDeleted = false))
+            }
+        } ?: this._operation.value.previousOperations.toMutableList().also { it.add(operationToAdd) }
+
+        this._operation.value = this._operation.value.copy(previousOperations = list)
+        _fillInErrors.value = _fillInErrors.value.copy(previousOperationsError = false)
+        _fillInState.value = FillInInitialState
     }
 
     fun deletePreviousOperation(id: Int) {
@@ -158,7 +166,7 @@ class OperationViewModel @Inject constructor(
             }
             if (_operation.value.previousOperations.none { !it.toBeDeleted }) {
                 _fillInErrors.value = _fillInErrors.value.copy(previousOperationsError = true)
-                append("Operation must have at leas one previous operation\n")
+                append("Operation must have at least one previous operation\n")
             }
         }
 
@@ -241,7 +249,11 @@ class OperationViewModel @Inject constructor(
                 val chId = _operation.value.lineComplete.channelId.toString()
                 val lineId = _operation.value.lineComplete.id.toString()
                 val opId = it.toString()
-                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(depId, subDepId, chId, lineId, opId), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId, lineId, opId),
+                    popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
+                    inclusive = true
+                )
             }
         }
     }
