@@ -5,38 +5,43 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.DomainSubOrderComplete
 import com.simenko.qmapp.ui.dialogs.*
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
 import com.simenko.qmapp.utils.BaseFilter
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.*
 
 @Composable
 fun SubOrdersStandAlone(
     modifier: Modifier = Modifier,
-    invModel: InvestigationsViewModel = hiltViewModel()
+    viewModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle(null)
-    val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
+    val items by viewModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
     LaunchedEffect(Unit) {
-        invModel.setSubOrdersFilter(BaseFilter(typeId = ProcessControlOrderTypeId.num))
+        viewModel.setSubOrdersFilter(BaseFilter(typeId = ProcessControlOrderTypeId.num))
     }
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.onDeleteSubOrderClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditProcessControlClick(it) } }
+    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteSubOrderClick(it) } }
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditProcessControlClick(it) } }
+    val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> { { so, completedById -> viewModel.showStatusUpdateDialog(currentSubOrder = so, performerId = completedById) } }
 
-    val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
-        { subOrderComplete, completedById ->
-            invModel.showStatusUpdateDialog(
-                currentSubOrder = subOrderComplete,
-                performerId = completedById
-            )
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when(lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            else -> {}
         }
     }
 
@@ -44,7 +49,7 @@ fun SubOrdersStandAlone(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.second.getContentIfNotHandled()?.let { subOrderId ->
-                invModel.channel.trySend(
+                viewModel.channel.trySend(
                     this.launch {
                         listState.scrollToSelectedItem(list = items.map { it.subOrder.id }.toList(), selectedId = subOrderId)
                     }
@@ -55,12 +60,12 @@ fun SubOrdersStandAlone(
 
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) invModel.mainPageHandler?.onListEnd?.invoke(true) else invModel.mainPageHandler?.onListEnd?.invoke(false)
+        if (lastItemIsVisible) viewModel.mainPageHandler?.onListEnd?.invoke(true) else viewModel.mainPageHandler?.onListEnd?.invoke(false)
     }
 
     val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key } }
     LaunchedEffect(listState.isScrollInProgress) {
-        if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
+        if (!listState.isScrollInProgress) lastVisibleItemKey?.let { viewModel.setLastVisibleItemKey(it) }
     }
 
     LazyColumn(
@@ -69,7 +74,7 @@ fun SubOrdersStandAlone(
     ) {
         items(items = items, key = { it.subOrder.id }) { subOrder ->
             SubOrderCard(
-                invModel = invModel,
+                invModel = viewModel,
                 processControlOnly = true,
                 subOrder = subOrder,
                 onClickDetails = { onClickDetailsLambda(it) },

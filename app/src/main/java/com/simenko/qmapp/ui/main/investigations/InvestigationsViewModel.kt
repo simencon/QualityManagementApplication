@@ -154,12 +154,12 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Handling scrolling to just created record-------------------------------------------------
      * */
-    private val _isScrollingEnabled = MutableStateFlow(false)
-    val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
+    private val _isComposed = MutableStateFlow(false)
+    val setIsComposed: (Boolean) -> Unit = { _isComposed.value = it }
 
     val scrollToRecord = _createdRecord.flatMapLatest { record ->
-        _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
-            if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
+        _isComposed.flatMapLatest { isComposed ->
+            if (isComposed) flow { emit(record) } else flow { emit(null) }
         }
     }.flowOn(Dispatchers.Default)
 
