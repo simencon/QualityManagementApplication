@@ -107,20 +107,19 @@ class ManufacturingRepository @Inject constructor(
     val departmentsComplete: Flow<List<DomainDepartmentComplete>> = database.departmentDao.getRecordsComplete().map { list -> list.map { it.toDomainModel() } }
 
     val subDepartments: Flow<List<DomainSubDepartment>> = database.subDepartmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordCompleteById(it) }
     val subDepartmentsByDepartment: (Int) -> Flow<List<DomainSubDepartment>> = { flow { emit(database.subDepartmentDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
-    val channels: Flow<List<DomainManufacturingChannel>> = database.channelDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
-    val channelById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordCompleteById(it) }
-    val channelsBySubDepartment: (Int) -> Flow<List<DomainManufacturingChannel>> = { flow { emit(database.channelDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
+    val channels: (Int) -> Flow<List<DomainManufacturingChannel>> = {pId -> database.channelDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val channelWithParentsById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }
+    val channelById: (Int) -> DomainManufacturingChannel.DomainManufacturingChannelComplete = { database.channelDao.getRecordCompleteById(it).toDomainModel() }
 
     val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId -> database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
-    val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it) }
+    val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it).toDomainModel() }
     val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
 
     val operations: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { pId -> database.operationDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
-    val operationsComplete: Flow<List<DomainManufacturingOperationComplete>> = database.operationDao.getRecordsComplete().map { list -> list.map { it.toDomainModel() } }
     val operationById: (Int) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
-
 
     val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
 }

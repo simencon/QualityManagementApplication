@@ -46,14 +46,14 @@ class PreviousOperationViewModel @Inject constructor(
         this._previousOperations.value = operation.previousOperations
         this._operationToAdd.value = DomainOperationsFlowComplete().copy(
             currentOperationId = operation.operation.id,
-            depId = operation.lineComplete.departmentId,
-            subDepId = operation.lineComplete.subDepartmentId,
-            channelId = operation.lineComplete.channelId,
-            lineId = operation.lineComplete.id
+            depId = operation.lineWithParents.departmentId,
+            subDepId = operation.lineWithParents.subDepartmentId,
+            channelId = operation.lineWithParents.channelId,
+            lineId = operation.lineWithParents.id
         )
     }
 
-    private val _operations = repository.operationsComplete.flatMapLatest { operations ->
+    private val _operations = repository.operations(NoRecord.num).flatMapLatest { operations ->
         _previousOperations.flatMapLatest { addedOperations ->
             _operationToAdd.flatMapLatest { toAdd ->
                 flow {
@@ -80,7 +80,7 @@ class PreviousOperationViewModel @Inject constructor(
             flow {
                 emit(
                     operations.asSequence()
-                        .map { Triple(it.lineComplete.departmentId, it.lineComplete.depAbbr ?: NoString.str, it.lineComplete.depOrder) }.toSet().sortedBy { it.third }.map {
+                        .map { Triple(it.lineWithParents.departmentId, it.lineWithParents.depAbbr ?: NoString.str, it.lineWithParents.depOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.depId)
                         }.toList()
                 )
@@ -100,8 +100,8 @@ class PreviousOperationViewModel @Inject constructor(
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.asSequence().filter { it.lineComplete.departmentId == record.depId }
-                        .map { Triple(it.lineComplete.subDepartmentId, it.lineComplete.subDepAbbr ?: NoString.str, it.lineComplete.subDepOrder) }.toSet().sortedBy { it.third }.map {
+                    operations.asSequence().filter { it.lineWithParents.departmentId == record.depId }
+                        .map { Triple(it.lineWithParents.subDepartmentId, it.lineWithParents.subDepAbbr ?: NoString.str, it.lineWithParents.subDepOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.subDepId)
                         }.toList()
                 )
@@ -121,8 +121,8 @@ class PreviousOperationViewModel @Inject constructor(
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.asSequence().filter { it.lineComplete.subDepartmentId == record.subDepId }
-                        .map { Triple(it.lineComplete.channelId, it.lineComplete.channelAbbr ?: NoString.str, it.lineComplete.channelOrder) }.toSet().sortedBy { it.third }.map {
+                    operations.asSequence().filter { it.lineWithParents.subDepartmentId == record.subDepId }
+                        .map { Triple(it.lineWithParents.channelId, it.lineWithParents.channelAbbr ?: NoString.str, it.lineWithParents.channelOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.channelId)
                         }.toList()
                 )
@@ -142,8 +142,8 @@ class PreviousOperationViewModel @Inject constructor(
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.asSequence().filter { it.lineComplete.channelId == record.channelId }
-                        .map { Triple(it.lineComplete.id, it.lineComplete.lineAbbr ?: NoString.str, it.lineComplete.lineOrder) }.toSet().sortedBy { it.third }.map {
+                    operations.asSequence().filter { it.lineWithParents.channelId == record.channelId }
+                        .map { Triple(it.lineWithParents.id, it.lineWithParents.lineAbbr ?: NoString.str, it.lineWithParents.lineOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.lineId)
                         }.toList()
                 )
@@ -163,12 +163,12 @@ class PreviousOperationViewModel @Inject constructor(
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.filter { it.lineComplete.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
+                    operations.filter { it.lineWithParents.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
                         if (it.operation.id == record.previousOperationId) _operationToAdd.value = record.copy(
-                            depAbbr = it.lineComplete.depAbbr,
-                            subDepAbbr = it.lineComplete.subDepAbbr,
-                            channelAbbr = it.lineComplete.channelAbbr,
-                            lineAbbr = it.lineComplete.lineAbbr,
+                            depAbbr = it.lineWithParents.depAbbr,
+                            subDepAbbr = it.lineWithParents.subDepAbbr,
+                            channelAbbr = it.lineWithParents.channelAbbr,
+                            lineAbbr = it.lineWithParents.lineAbbr,
                             operationAbbr = it.operation.operationAbbr,
                             operationDesignation = it.operation.operationDesignation,
                             equipment = it.operation.equipment

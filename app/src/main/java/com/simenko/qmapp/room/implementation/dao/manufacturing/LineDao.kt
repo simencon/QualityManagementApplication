@@ -32,7 +32,7 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
 
     @Transaction
     @Query("SELECT * FROM manufacturingLinesWithParents WHERE id = :id")
-    abstract fun getRecordWithParentsById(id: Int): DomainManufacturingLine.DomainManufacturingLineWithParents
+    abstract fun getRecordWithParentsById(id: Int): DatabaseManufacturingLine.DatabaseManufacturingLineWithParents
 
     @Transaction
     @Query("SELECT * FROM manufacturingLinesComplete WHERE id = :id")

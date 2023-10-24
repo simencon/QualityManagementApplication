@@ -23,10 +23,18 @@ abstract class ChannelDao: DaoBaseModel<DatabaseManufacturingChannel> {
     @Query("SELECT * FROM `12_manufacturing_channels` ORDER BY channelOrder ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseManufacturingChannel>>
 
-    @Query("SELECT * FROM `12_manufacturing_channels` ORDER BY channelOrder ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseManufacturingChannel>>
+    @Query("""
+        SELECT * FROM `12_manufacturing_channels` as mc
+        WHERE (:parentId = -1 or mc.subDepId = :parentId)
+        ORDER BY channelOrder ASC
+    """)
+    abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseManufacturingChannel>>
 
     @Transaction
     @Query("SELECT * FROM manufacturingChannelsWithParents WHERE id = :id")
-    abstract fun getRecordCompleteById(id: Int): DomainManufacturingChannel.DomainManufacturingChannelWithParents
+    abstract fun getRecordWithParentsById(id: Int): DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents
+
+    @Transaction
+    @Query("SELECT * FROM manufacturingChannelsComplete WHERE id = :id")
+    abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete
 }

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
@@ -112,15 +111,32 @@ data class DomainSubDepartment(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainSubDepartment::class, DatabaseSubDepartment::class).transform(this)
+
+    data class DomainSubDepartmentWithParents(
+        val departmentId: Int = NoRecord.num,
+        val depOrder: Int = NoRecord.num,
+        val depAbbr: String? = null,
+        val depName: String? = null,
+        val id: Int = NoRecord.num,
+        val subDepOrder: Int = NoRecord.num,
+        val subDepAbbr: String? = null,
+        val subDepDesignation: String? = null
+    ) : DomainBaseModel<DatabaseSubDepartment.DatabaseSubDepartmentWithParents>() {
+        override fun getRecordId() = this.id
+        override fun getParentId() = this.departmentId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel(): DatabaseSubDepartment.DatabaseSubDepartmentWithParents =
+            ObjectTransformer(DomainSubDepartmentWithParents::class, DatabaseSubDepartment.DatabaseSubDepartmentWithParents::class).transform(this)
+    }
 }
 
 @Stable
 data class DomainManufacturingChannel(
     var id: Int = NoRecord.num,
     var subDepId: Int = NoRecord.num,
-    var channelAbbr: String? = null,
-    var channelDesignation: String? = null,
-    var channelOrder: Int? = null,
+    var channelAbbr: String? = EmptyString.str,
+    var channelDesignation: String? = EmptyString.str,
+    var channelOrder: Int? = NoRecord.num,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false,
     var isSelected: Boolean = false
@@ -132,6 +148,24 @@ data class DomainManufacturingChannel(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
+
+    data class DomainManufacturingChannelComplete(
+        val channel: DomainManufacturingChannel = DomainManufacturingChannel(),
+        val subDepartmentWithParents: DomainSubDepartment.DomainSubDepartmentWithParents = DomainSubDepartment.DomainSubDepartmentWithParents(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete>() {
+        override fun getRecordId(): Any = channel.id
+        override fun getParentId(): Int = channel.subDepId
+        override fun setIsSelected(value: Boolean) {}
+
+        override fun toDatabaseModel(): DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete {
+            return DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete(
+                channel = this.channel.toDatabaseModel(),
+                subDepartmentWithParents = this.subDepartmentWithParents.toDatabaseModel()
+            )
+        }
+    }
 
     data class DomainManufacturingChannelWithParents(
         val departmentId: Int = NoRecord.num,
@@ -148,7 +182,7 @@ data class DomainManufacturingChannel(
         val channelDesignation: String? = null
     ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents>() {
         override fun getRecordId() = this.id
-        override fun getParentId() = this.departmentId
+        override fun getParentId() = this.subDepartmentId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel(): DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents =
             ObjectTransformer(DomainManufacturingChannelWithParents::class, DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents::class).transform(this)
@@ -201,7 +235,7 @@ data class DomainManufacturingLine(
 
     data class DomainManufacturingLineComplete(
         val line: DomainManufacturingLine = DomainManufacturingLine(),
-        val channelComplete: DomainManufacturingChannel.DomainManufacturingChannelWithParents = DomainManufacturingChannel.DomainManufacturingChannelWithParents(),
+        val channelWithParents: DomainManufacturingChannel.DomainManufacturingChannelWithParents = DomainManufacturingChannel.DomainManufacturingChannelWithParents(),
         var detailsVisibility: Boolean = false,
         var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineComplete>() {
@@ -212,7 +246,7 @@ data class DomainManufacturingLine(
         override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineComplete {
             return DatabaseManufacturingLine.DatabaseManufacturingLineComplete(
                 line = this.line.toDatabaseModel(),
-                channelComplete = this.channelComplete.toDatabaseModel()
+                channelWithParents = this.channelWithParents.toDatabaseModel()
             )
         }
     }
@@ -238,7 +272,7 @@ data class DomainManufacturingOperation(
 
     data class DomainManufacturingOperationComplete(
         val operation: DomainManufacturingOperation = DomainManufacturingOperation(),
-        val lineComplete: DomainManufacturingLine.DomainManufacturingLineWithParents = DomainManufacturingLine.DomainManufacturingLineWithParents(),
+        val lineWithParents: DomainManufacturingLine.DomainManufacturingLineWithParents = DomainManufacturingLine.DomainManufacturingLineWithParents(),
         val previousOperations: List<DomainOperationsFlow.DomainOperationsFlowComplete> = listOf(),
         var detailsVisibility: Boolean = false,
         var isExpanded: Boolean = false
@@ -250,7 +284,7 @@ data class DomainManufacturingOperation(
         override fun toDatabaseModel(): DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete {
             return DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete(
                 operation = this.operation.toDatabaseModel(),
-                lineComplete = this.lineComplete.toDatabaseModel(),
+                lineWithParents = this.lineWithParents.toDatabaseModel(),
                 previousOperations = this.previousOperations.map { it.toDatabaseModel() }
             )
         }

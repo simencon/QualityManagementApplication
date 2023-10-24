@@ -170,6 +170,32 @@ data class DatabaseSubDepartment(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubDepartment::class, NetworkSubDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
+
+    @DatabaseView(
+        viewName = "subDepartmentWithParents",
+        value = """
+        select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
+        sd.id, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation
+        from `11_sub_departments` as sd
+        inner join `10_departments` as d on sd.depId = d.id
+        order by d.depOrder, sd.subDepOrder;
+        """
+    )
+    data class DatabaseSubDepartmentWithParents(
+        val departmentId: Int,
+        val depOrder: Int,
+        val depAbbr: String?,
+        val depName: String?,
+        val id: Int,
+        val subDepOrder: Int,
+        val subDepAbbr: String?,
+        val subDepDesignation: String?,
+    ) : DatabaseBaseModel<Any?, DomainSubDepartment.DomainSubDepartmentWithParents> {
+        override fun getRecordId() = this.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel(): DomainSubDepartment.DomainSubDepartmentWithParents =
+            ObjectTransformer(DatabaseSubDepartmentWithParents::class, DomainSubDepartment.DomainSubDepartmentWithParents::class).transform(this)
+    }
 }
 
 @Entity(
@@ -195,6 +221,30 @@ data class DatabaseManufacturingChannel(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingChannel::class, NetworkManufacturingChannel::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
+
+    @DatabaseView(
+        viewName = "manufacturingChannelsComplete",
+        value = " select * from `12_manufacturing_channels` as mc order by mc.channelOrder;"
+    )
+    data class DatabaseManufacturingChannelComplete(
+        @Embedded
+        val channel: DatabaseManufacturingChannel,
+        @Relation(
+            entity = DatabaseSubDepartment.DatabaseSubDepartmentWithParents::class,
+            parentColumn = "subDepId",
+            entityColumn = "id"
+        )
+        val subDepartmentWithParents: DatabaseSubDepartment.DatabaseSubDepartmentWithParents,
+    ) : DatabaseBaseModel<Any?, DomainManufacturingChannel.DomainManufacturingChannelComplete> {
+        override fun getRecordId(): Any = this.channel.id
+        override fun toNetworkModel(): Any? = null
+        override fun toDomainModel(): DomainManufacturingChannel.DomainManufacturingChannelComplete {
+            return DomainManufacturingChannel.DomainManufacturingChannelComplete(
+                channel = this.channel.toDomainModel(),
+                subDepartmentWithParents = this.subDepartmentWithParents.toDomainModel()
+            )
+        }
+    }
 
     @DatabaseView(
         viewName = "manufacturingChannelsWithParents",
@@ -265,14 +315,14 @@ data class DatabaseManufacturingLine(
             parentColumn = "chId",
             entityColumn = "id"
         )
-        val channelComplete: DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents,
+        val channelWithParents: DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents,
     ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineComplete> {
         override fun getRecordId(): Any = this.line.id
         override fun toNetworkModel(): Any? = null
         override fun toDomainModel(): DomainManufacturingLine.DomainManufacturingLineComplete {
             return DomainManufacturingLine.DomainManufacturingLineComplete(
                 line = this.line.toDomainModel(),
-                channelComplete = this.channelComplete.toDomainModel()
+                channelWithParents = this.channelWithParents.toDomainModel()
             )
         }
     }
@@ -353,7 +403,7 @@ data class DatabaseManufacturingOperation(
             parentColumn = "lineId",
             entityColumn = "id"
         )
-        val lineComplete: DatabaseManufacturingLine.DatabaseManufacturingLineWithParents,
+        val lineWithParents: DatabaseManufacturingLine.DatabaseManufacturingLineWithParents,
         @Relation(
             entity = DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class,
             parentColumn = "id",
@@ -366,7 +416,7 @@ data class DatabaseManufacturingOperation(
         override fun toDomainModel(): DomainManufacturingOperation.DomainManufacturingOperationComplete {
             return DomainManufacturingOperation.DomainManufacturingOperationComplete(
                 operation = this.operation.toDomainModel(),
-                lineComplete = this.lineComplete.toDomainModel(),
+                lineWithParents = this.lineWithParents.toDomainModel(),
                 previousOperations = this.previousOperations.map { it.toDomainModel() }
             )
         }

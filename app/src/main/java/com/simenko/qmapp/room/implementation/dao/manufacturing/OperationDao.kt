@@ -32,8 +32,4 @@ abstract class OperationDao: DaoBaseModel<DatabaseManufacturingOperation> {
     @Transaction
     @Query("SELECT * FROM manufacturingOperationsComplete WHERE id = :id")
     abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete
-
-    @Transaction
-    @Query("SELECT * FROM `manufacturingOperationsComplete`")
-    abstract fun getRecordsComplete(): Flow<List<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>>
 }

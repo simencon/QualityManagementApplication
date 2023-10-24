@@ -88,9 +88,9 @@ fun LineForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(lnComplete.channelComplete.depAbbr, lnComplete.channelComplete.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(lnComplete.channelComplete.subDepAbbr, lnComplete.channelComplete.subDepDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(lnComplete.channelComplete.channelAbbr, lnComplete.channelComplete.channelDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(lnComplete.channelWithParents.depAbbr, lnComplete.channelWithParents.depName))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(lnComplete.channelWithParents.subDepAbbr, lnComplete.channelWithParents.subDepDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(lnComplete.channelWithParents.channelAbbr, lnComplete.channelWithParents.channelDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(lnComplete.line.lineOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.lineOrderError) {

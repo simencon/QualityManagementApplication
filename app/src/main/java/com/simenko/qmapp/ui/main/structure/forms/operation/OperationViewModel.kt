@@ -65,7 +65,7 @@ class OperationViewModel @Inject constructor(
     private fun prepareOperation(lineId: Int) {
         _operation.value = DomainManufacturingOperationComplete(
             operation = DomainManufacturingOperation(lineId = lineId),
-            lineComplete = repository.lineWithParentsById(lineId)
+            lineWithParents = repository.lineWithParentsById(lineId)
         )
     }
 
@@ -244,10 +244,10 @@ class OperationViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val depId = _operation.value.lineComplete.departmentId.toString()
-                val subDepId = _operation.value.lineComplete.subDepartmentId.toString()
-                val chId = _operation.value.lineComplete.channelId.toString()
-                val lineId = _operation.value.lineComplete.id.toString()
+                val depId = _operation.value.lineWithParents.departmentId.toString()
+                val subDepId = _operation.value.lineWithParents.subDepartmentId.toString()
+                val chId = _operation.value.lineWithParents.channelId.toString()
+                val lineId = _operation.value.lineWithParents.id.toString()
                 val opId = it.toString()
                 appNavigator.tryNavigateTo(
                     route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId, lineId, opId),

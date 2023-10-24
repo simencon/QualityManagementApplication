@@ -64,7 +64,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
     private val _departments = repository.departmentsComplete
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
-    private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channelsBySubDepartment(it.first.num) }
+    private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channels(it.first.num) }
     private val _lines = _channelsVisibility.flatMapLatest { repository.lines(it.first.num) }
     private val _operations = _linesVisibility.flatMapLatest { repository.operations(it.first.num) }
 
