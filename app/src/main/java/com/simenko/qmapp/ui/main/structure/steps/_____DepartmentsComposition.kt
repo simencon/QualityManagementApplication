@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,17 +35,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoString
@@ -57,8 +59,12 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
+import com.simenko.qmapp.ui.main.main.content.observeAsState
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
+import com.simenko.qmapp.ui.main.structure.CompositionStage
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -67,6 +73,7 @@ fun Departments(
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
     val items by viewModel.departments.collectAsStateWithLifecycle(listOf())
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
@@ -74,7 +81,25 @@ fun Departments(
     val onClickEditLambda = remember<(Int) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when(lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setCompositionStage(CompositionStage.COMPOSED)
+            Lifecycle.Event.ON_STOP -> viewModel.setCompositionStage(CompositionStage.NOT_COMPOSED)
+            else -> {}
+        }
+    }
+
     val listState = rememberLazyListState()
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord?.let { record ->
+            record.departmentId.getContentIfNotHandled()?.let { departmentId ->
+                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.department.id }.toList(), selectedId = departmentId) })
+                viewModel.setCompositionStage(CompositionStage.NAVIGATED)
+            }
+        }
+    }
 
     LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.department.id }) { department ->

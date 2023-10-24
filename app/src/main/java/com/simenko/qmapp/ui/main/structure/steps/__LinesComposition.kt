@@ -38,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -58,8 +59,10 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
@@ -67,6 +70,7 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
 
     val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.lines.collectAsStateWithLifecycle(listOf())
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
@@ -76,6 +80,13 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
     val listState = rememberLazyListState()
+    LaunchedEffect(scrollToRecord) {
+        scrollToRecord?.let { record ->
+            record.lineId.getContentIfNotHandled()?.let { lineId ->
+                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.id }.toList(), selectedId = lineId) })
+            }
+        }
+    }
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         items(items = items, key = { it.id }) { line ->
