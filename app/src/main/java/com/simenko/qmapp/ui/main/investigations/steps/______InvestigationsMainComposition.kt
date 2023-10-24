@@ -112,9 +112,9 @@ fun InvestigationsMainComposition(
                 .height(screenHeight)
         ) {
             if (invModel.isPcOnly == true)
-                SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), invModel = invModel)
+                SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), viewModel = invModel)
             else
-                Orders(modifier = Modifier.width(screenSizes.second), invModel = invModel)
+                Orders(modifier = Modifier.width(screenSizes.second), viewModel = invModel)
 
             if (tasksVisibility.first != NoRecord)
                 SampleComposition(modifier = Modifier.width(screenSizes.third), invModel = invModel)

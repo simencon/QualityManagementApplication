@@ -13,9 +13,7 @@ import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.ui.main.investigations.forms.OrderForm
 import com.simenko.qmapp.ui.main.investigations.forms.SubOrderForm
 import com.simenko.qmapp.ui.main.settings.settingsNavigation
-import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.ui.main.structure.companyStructureNavigation
-import com.simenko.qmapp.ui.main.structure.steps.CompanyStructure
 import com.simenko.qmapp.ui.main.team.teamNavigation
 import com.simenko.qmapp.ui.theme.QMAppTheme
 
@@ -32,15 +30,11 @@ fun MainScreen(
 
             composable(destination = Route.Main.Inv) {
                 val viewModel: InvestigationsViewModel = hiltViewModel()
-                if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
-                    viewModel.enableScrollToCreatedRecord()
                 InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel)
             }
 
             composable(destination = Route.Main.ProcessControl) {
                 val viewModel: InvestigationsViewModel = hiltViewModel()
-                if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED)
-                    viewModel.enableScrollToCreatedRecord()
                 InvestigationsMainComposition(mainScreenPadding = mainScreenPadding, invModel = viewModel)
             }
 
