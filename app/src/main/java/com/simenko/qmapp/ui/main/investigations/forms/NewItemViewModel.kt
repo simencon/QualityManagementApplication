@@ -322,7 +322,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Channel -----------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels
+    private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels(NoRecord.num)
     val subOrderChannels: StateFlow<List<DomainManufacturingChannel>> = _subOrderChannels.flatMapLatest { channels ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->

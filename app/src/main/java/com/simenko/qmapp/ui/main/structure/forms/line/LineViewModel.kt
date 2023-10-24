@@ -58,7 +58,7 @@ class LineViewModel @Inject constructor(
     private fun prepareLine(channelId: Int) {
         _line.value = DomainManufacturingLineComplete(
             line = DomainManufacturingLine(chId = channelId),
-            channelComplete = repository.channelById(channelId)
+            channelWithParents = repository.channelWithParentsById(channelId)
         )
     }
 
@@ -133,9 +133,9 @@ class LineViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val depId = _line.value.channelComplete.departmentId.toString()
-                val subDepId = _line.value.channelComplete.subDepartmentId.toString()
-                val chId = _line.value.channelComplete.id.toString()
+                val depId = _line.value.channelWithParents.departmentId.toString()
+                val subDepId = _line.value.channelWithParents.subDepartmentId.toString()
+                val chId = _line.value.channelWithParents.id.toString()
                 val lineId = it.toString()
                 appNavigator.tryNavigateTo(
                     route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId, lineId),

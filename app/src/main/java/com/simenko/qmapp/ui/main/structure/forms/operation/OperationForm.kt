@@ -98,10 +98,10 @@ fun OperationForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(opComplete.lineComplete.depAbbr, opComplete.lineComplete.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(opComplete.lineComplete.subDepAbbr, opComplete.lineComplete.subDepDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(opComplete.lineComplete.channelAbbr, opComplete.lineComplete.channelDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineComplete.lineAbbr, opComplete.lineComplete.lineDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(opComplete.lineWithParents.depAbbr, opComplete.lineWithParents.depName))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(opComplete.lineWithParents.subDepAbbr, opComplete.lineWithParents.subDepDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(opComplete.lineWithParents.channelAbbr, opComplete.lineWithParents.channelDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineWithParents.lineAbbr, opComplete.lineWithParents.lineDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
