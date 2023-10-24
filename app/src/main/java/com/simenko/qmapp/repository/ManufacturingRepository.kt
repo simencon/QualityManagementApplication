@@ -1,8 +1,10 @@
 package com.simenko.qmapp.repository
 
 import com.simenko.qmapp.domain.entities.*
-import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineComplete
+import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineWithParents
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.contract.CrudeOperations
@@ -94,10 +96,12 @@ class ManufacturingRepository @Inject constructor(
     val subDepartmentsByDepartment: (Int) -> Flow<List<DomainSubDepartment>> = { flow { emit(database.subDepartmentDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val channels: Flow<List<DomainManufacturingChannel>> = database.channelDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val channelById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordCompleteById(it) }
     val channelsBySubDepartment: (Int) -> Flow<List<DomainManufacturingChannel>> = { flow { emit(database.channelDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val lines: Flow<List<DomainManufacturingLine>> = database.lineDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
-    val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it) }
+    val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it) }
+    val lineCompleteById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
     val linesByChannel: (Int) -> Flow<List<DomainManufacturingLine>> = { flow { emit(database.lineDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val operations: Flow<List<DomainManufacturingOperation>> = database.operationDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }

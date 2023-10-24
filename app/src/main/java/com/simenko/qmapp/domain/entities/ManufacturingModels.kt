@@ -132,6 +132,27 @@ data class DomainManufacturingChannel(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingChannel::class, DatabaseManufacturingChannel::class).transform(this)
+
+    data class DomainManufacturingChannelWithParents(
+        val departmentId: Int = NoRecord.num,
+        val depOrder: Int = NoRecord.num,
+        val depAbbr: String? = null,
+        val depName: String? = null,
+        val subDepartmentId: Int = NoRecord.num,
+        val subDepOrder: Int = NoRecord.num,
+        val subDepAbbr: String? = null,
+        val subDepDesignation: String? = null,
+        val id: Int = NoRecord.num,
+        val channelOrder: Int = NoRecord.num,
+        val channelAbbr: String? = null,
+        val channelDesignation: String? = null
+    ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents>() {
+        override fun getRecordId() = this.id
+        override fun getParentId() = this.departmentId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel(): DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents =
+            ObjectTransformer(DomainManufacturingChannelWithParents::class, DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents::class).transform(this)
+    }
 }
 
 @Stable
@@ -153,7 +174,7 @@ data class DomainManufacturingLine(
 
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
 
-    data class DomainManufacturingLineComplete(
+    data class DomainManufacturingLineWithParents(
         val departmentId: Int = NoRecord.num,
         val depOrder: Int = NoRecord.num,
         val depAbbr: String? = null,
@@ -170,12 +191,30 @@ data class DomainManufacturingLine(
         val lineOrder: Int = NoRecord.num,
         val lineAbbr: String? = null,
         val lineDesignation: String = EmptyString.str
-    ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineComplete>() {
+    ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineWithParents>() {
         override fun getRecordId() = this.id
         override fun getParentId() = this.departmentId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineComplete =
-            ObjectTransformer(DomainManufacturingLineComplete::class, DatabaseManufacturingLine.DatabaseManufacturingLineComplete::class).transform(this)
+        override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineWithParents =
+            ObjectTransformer(DomainManufacturingLineWithParents::class, DatabaseManufacturingLine.DatabaseManufacturingLineWithParents::class).transform(this)
+    }
+
+    data class DomainManufacturingLineComplete(
+        val line: DomainManufacturingLine = DomainManufacturingLine(),
+        val channelComplete: DomainManufacturingChannel.DomainManufacturingChannelWithParents = DomainManufacturingChannel.DomainManufacturingChannelWithParents(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineComplete>() {
+        override fun getRecordId(): Any = line.id
+        override fun getParentId(): Int = line.chId
+        override fun setIsSelected(value: Boolean) {}
+
+        override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineComplete {
+            return DatabaseManufacturingLine.DatabaseManufacturingLineComplete(
+                line = this.line.toDatabaseModel(),
+                channelComplete = this.channelComplete.toDatabaseModel()
+            )
+        }
     }
 }
 
@@ -199,7 +238,7 @@ data class DomainManufacturingOperation(
 
     data class DomainManufacturingOperationComplete(
         val operation: DomainManufacturingOperation = DomainManufacturingOperation(),
-        val lineComplete: DomainManufacturingLine.DomainManufacturingLineComplete = DomainManufacturingLine.DomainManufacturingLineComplete(),
+        val lineComplete: DomainManufacturingLine.DomainManufacturingLineWithParents = DomainManufacturingLine.DomainManufacturingLineWithParents(),
         val previousOperations: List<DomainOperationsFlow.DomainOperationsFlowComplete> = listOf(),
         var detailsVisibility: Boolean = false,
         var isExpanded: Boolean = false
