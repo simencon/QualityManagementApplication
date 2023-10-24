@@ -98,6 +98,9 @@ enum class Page(
     ADD_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
     EDIT_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
 
+    ADD_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),
+
     ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
     EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
     ADD_SUB_ORDER(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Add new sub order", null, null, null, null, Icons.Filled.Save, null),

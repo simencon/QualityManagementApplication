@@ -195,6 +195,38 @@ data class DatabaseManufacturingChannel(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingChannel::class, NetworkManufacturingChannel::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
+
+    @DatabaseView(
+        viewName = "manufacturingChannelsWithParents",
+        value = """
+        select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
+        sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, 
+        mc.id, mc.channelOrder, mc.channelAbbr, mc.channelDesignation
+        from `12_manufacturing_channels` as mc
+        inner join `11_sub_departments` as sd on mc.subDepId = sd.id
+        inner join `10_departments` as d on sd.depId = d.id
+        order by d.depOrder, sd.subDepOrder, mc.channelOrder;
+        """
+    )
+    data class DatabaseManufacturingChannelWithParents(
+        val departmentId: Int,
+        val depOrder: Int,
+        val depAbbr: String?,
+        val depName: String?,
+        val subDepartmentId: Int,
+        val subDepOrder: Int,
+        val subDepAbbr: String?,
+        val subDepDesignation: String?,
+        val id: Int,
+        val channelOrder: Int,
+        val channelAbbr: String?,
+        val channelDesignation: String?
+    ) : DatabaseBaseModel<Any?, DomainManufacturingChannel.DomainManufacturingChannelWithParents> {
+        override fun getRecordId() = this.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel(): DomainManufacturingChannel.DomainManufacturingChannelWithParents =
+            ObjectTransformer(DatabaseManufacturingChannelWithParents::class, DomainManufacturingChannel.DomainManufacturingChannelWithParents::class).transform(this)
+    }
 }
 
 @Entity(
@@ -223,6 +255,30 @@ data class DatabaseManufacturingLine(
 
     @DatabaseView(
         viewName = "manufacturingLinesComplete",
+        value = " select * from `13_manufacturing_lines` as ml order by ml.lineOrder;"
+    )
+    data class DatabaseManufacturingLineComplete(
+        @Embedded
+        val line: DatabaseManufacturingLine,
+        @Relation(
+            entity = DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents::class,
+            parentColumn = "chId",
+            entityColumn = "id"
+        )
+        val channelComplete: DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents,
+    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineComplete> {
+        override fun getRecordId(): Any = this.line.id
+        override fun toNetworkModel(): Any? = null
+        override fun toDomainModel(): DomainManufacturingLine.DomainManufacturingLineComplete {
+            return DomainManufacturingLine.DomainManufacturingLineComplete(
+                line = this.line.toDomainModel(),
+                channelComplete = this.channelComplete.toDomainModel()
+            )
+        }
+    }
+
+    @DatabaseView(
+        viewName = "manufacturingLinesWithParents",
         value = """
         select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
         sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, 
@@ -235,7 +291,7 @@ data class DatabaseManufacturingLine(
         order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder;
         """
     )
-    data class DatabaseManufacturingLineComplete(
+    data class DatabaseManufacturingLineWithParents(
         val departmentId: Int,
         val depOrder: Int,
         val depAbbr: String?,
@@ -252,11 +308,11 @@ data class DatabaseManufacturingLine(
         val lineOrder: Int,
         val lineAbbr: String?,
         val lineDesignation: String
-    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineComplete> {
+    ) : DatabaseBaseModel<Any?, DomainManufacturingLine.DomainManufacturingLineWithParents> {
         override fun getRecordId() = this.id
         override fun toNetworkModel() = null
-        override fun toDomainModel(): DomainManufacturingLine.DomainManufacturingLineComplete =
-            ObjectTransformer(DatabaseManufacturingLineComplete::class, DomainManufacturingLine.DomainManufacturingLineComplete::class).transform(this)
+        override fun toDomainModel(): DomainManufacturingLine.DomainManufacturingLineWithParents =
+            ObjectTransformer(DatabaseManufacturingLineWithParents::class, DomainManufacturingLine.DomainManufacturingLineWithParents::class).transform(this)
     }
 }
 
@@ -293,11 +349,11 @@ data class DatabaseManufacturingOperation(
         @Embedded
         val operation: DatabaseManufacturingOperation,
         @Relation(
-            entity = DatabaseManufacturingLine.DatabaseManufacturingLineComplete::class,
+            entity = DatabaseManufacturingLine.DatabaseManufacturingLineWithParents::class,
             parentColumn = "lineId",
             entityColumn = "id"
         )
-        val lineComplete: DatabaseManufacturingLine.DatabaseManufacturingLineComplete,
+        val lineComplete: DatabaseManufacturingLine.DatabaseManufacturingLineWithParents,
         @Relation(
             entity = DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class,
             parentColumn = "id",

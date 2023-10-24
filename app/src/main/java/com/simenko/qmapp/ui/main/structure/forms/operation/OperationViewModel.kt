@@ -65,7 +65,7 @@ class OperationViewModel @Inject constructor(
     private fun prepareOperation(lineId: Int) {
         _operation.value = DomainManufacturingOperationComplete(
             operation = DomainManufacturingOperation(lineId = lineId),
-            lineComplete = repository.lineById(lineId)
+            lineComplete = repository.lineWithParentsById(lineId)
         )
     }
 

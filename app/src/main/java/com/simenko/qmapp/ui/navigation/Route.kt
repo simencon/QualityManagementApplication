@@ -35,6 +35,7 @@ object NavRouteName {
     const val waiting_for_validation = "waiting_for_validation"
 
     const val log_in = "log_in"
+
     //--------------------------------------------------------------------
     //--------------------------------------------------------------------
     const val company_profile = "company_profile"
@@ -47,7 +48,8 @@ object NavRouteName {
     const val authorize_user = "authorize_user"
 
     const val structure_view = "structure_view"
-    const val operation_add_edit = "company_structure"
+    const val line_add_edit = "line_add_edit"
+    const val operation_add_edit = "operation_add_edit"
 
     const val company_products = "company_products"
 
@@ -96,10 +98,10 @@ sealed class Route(
     val deepLinks: List<NavDeepLink> = emptyList(),
     val route: String = EmptyString.str
 ) {
-    object LoggedOut : Route(link = LOGGED_OUT_ROUTE) {
-        object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROUTE)
-        object Registration : Route(link = REGISTRATION_ROUTE, route = LOGGED_OUT_ROUTE) {
-            object EnterDetails : Route(
+    data object LoggedOut : Route(link = LOGGED_OUT_ROUTE) {
+        data object InitialScreen : Route(link = NavRouteName.initial_screen, route = LOGGED_OUT_ROUTE)
+        data object Registration : Route(link = REGISTRATION_ROUTE, route = LOGGED_OUT_ROUTE) {
+            data object EnterDetails : Route(
                 link = "${NavRouteName.enter_details}${arg(NavArguments.userEditMode)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.userEditMode) {
@@ -110,7 +112,7 @@ sealed class Route(
                 route = REGISTRATION_ROUTE
             )
 
-            object TermsAndConditions : Route(
+            data object TermsAndConditions : Route(
                 link = "${NavRouteName.terms_and_conditions}/{${NavArguments.fullName}}",
                 arguments = listOf(
                     navArgument(name = NavArguments.fullName) {
@@ -123,7 +125,7 @@ sealed class Route(
             )
         }
 
-        object WaitingForValidation : Route(
+        data object WaitingForValidation : Route(
             link = "${NavRouteName.waiting_for_validation}/{${NavArguments.message}}",
             arguments = listOf(
                 navArgument(NavArguments.message) {
@@ -135,13 +137,13 @@ sealed class Route(
             route = LOGGED_OUT_ROUTE
         )
 
-        object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROUTE)
+        data object LogIn : Route(link = NavRouteName.log_in, route = LOGGED_OUT_ROUTE)
     }
 
-    object Main : Route(link = MAIN_ROUTE) {
-        object CompanyProfile : Route(link = NavRouteName.company_profile, route = MAIN_ROUTE)
-        object Team : Route(link = TEAM_ROUTE, route = MAIN_ROUTE) {
-            object Employees : Route(
+    data object Main : Route(link = MAIN_ROUTE) {
+        data object CompanyProfile : Route(link = NavRouteName.company_profile, route = MAIN_ROUTE)
+        data object Team : Route(link = TEAM_ROUTE, route = MAIN_ROUTE) {
+            data object Employees : Route(
                 link = "${NavRouteName.employees}${arg(NavArguments.employeeId)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.employeeId) {
@@ -152,7 +154,7 @@ sealed class Route(
                 route = TEAM_ROUTE
             )
 
-            object EmployeeAddEdit : Route(
+            data object EmployeeAddEdit : Route(
                 link = "${NavRouteName.employee_add_edit}${arg(NavArguments.employeeId)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.employeeId) {
@@ -163,7 +165,7 @@ sealed class Route(
                 route = TEAM_ROUTE
             )
 
-            object Users : Route(
+            data object Users : Route(
                 link = "${NavRouteName.users}${arg(NavArguments.userId)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.userId) {
@@ -174,7 +176,7 @@ sealed class Route(
                 route = TEAM_ROUTE
             )
 
-            object EditUser : Route(
+            data object EditUser : Route(
                 link = "${NavRouteName.edit_user}${arg(NavArguments.userId)}",
                 deepLinks = listOf(
                     navDeepLink {
@@ -191,7 +193,7 @@ sealed class Route(
                 route = TEAM_ROUTE
             )
 
-            object Requests : Route(
+            data object Requests : Route(
                 link = "${NavRouteName.requests}${arg(NavArguments.userId)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.userId) {
@@ -202,7 +204,7 @@ sealed class Route(
                 route = TEAM_ROUTE
             )
 
-            object AuthorizeUser : Route(
+            data object AuthorizeUser : Route(
                 link = "${NavRouteName.authorize_user}${arg(NavArguments.userId)}",
                 deepLinks = listOf(
                     navDeepLink {
@@ -220,8 +222,8 @@ sealed class Route(
             )
         }
 
-        object CompanyStructure: Route(link = COMPANY_STRUCTURE_ROUTE, route = MAIN_ROUTE) {
-            object StructureView : Route(
+        data object CompanyStructure : Route(link = COMPANY_STRUCTURE_ROUTE, route = MAIN_ROUTE) {
+            data object StructureView : Route(
                 link = NavRouteName.structure_view +
                         "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}",
                 deepLinks = listOf(
@@ -256,7 +258,7 @@ sealed class Route(
                 route = COMPANY_STRUCTURE_ROUTE
             )
 
-            object OperationAddEdit : Route(
+            data object OperationAddEdit : Route(
                 link = "${NavRouteName.operation_add_edit}${arg(NavArguments.lineId)}${arg(NavArguments.operationId)}",
                 deepLinks = listOf(
                     navDeepLink {
@@ -276,10 +278,31 @@ sealed class Route(
                 ),
                 route = COMPANY_STRUCTURE_ROUTE
             )
+
+            data object LineAddEdit : Route(
+                link = "${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}",
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(NavArguments.channelId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.lineId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                ),
+                route = COMPANY_STRUCTURE_ROUTE
+            )
         }
 
-        object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
-        object Inv : Route(
+        data object CompanyProducts : Route(link = NavRouteName.company_products, route = MAIN_ROUTE)
+        data object Inv : Route(
             link = "${NavRouteName.all_investigations}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
                 navArgument(NavArguments.isProcessControlOnly) {
@@ -298,7 +321,7 @@ sealed class Route(
             route = MAIN_ROUTE
         )
 
-        object ProcessControl : Route(
+        data object ProcessControl : Route(
             link = "${NavRouteName.process_control}?${opt(NavArguments.isProcessControlOnly)}&${opt(NavArguments.orderId)}&${opt(NavArguments.subOrderId)}",
             arguments = listOf(
                 navArgument(NavArguments.isProcessControlOnly) {
@@ -317,7 +340,7 @@ sealed class Route(
             route = MAIN_ROUTE
         )
 
-        object OrderAddEdit : Route(
+        data object OrderAddEdit : Route(
             link = "${NavRouteName.order_add_edit}${arg(NavArguments.orderId)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
@@ -328,7 +351,7 @@ sealed class Route(
             route = MAIN_ROUTE
         )
 
-        object SubOrderAddEdit : Route(
+        data object SubOrderAddEdit : Route(
             link = "${NavRouteName.sub_order_add_edit}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}${arg(NavArguments.isProcessControlOnly)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
@@ -347,11 +370,11 @@ sealed class Route(
             route = MAIN_ROUTE
         )
 
-        object ScrapLevel : Route(link = NavRouteName.scrap_level, route = MAIN_ROUTE)
+        data object ScrapLevel : Route(link = NavRouteName.scrap_level, route = MAIN_ROUTE)
 
-        object Settings : Route(link = SETTINGS_ROUTE, route = MAIN_ROUTE) {
-            object UserDetails : Route(link = NavRouteName.user_details, route = SETTINGS_ROUTE)
-            object EditUserDetails : Route(
+        data object Settings : Route(link = SETTINGS_ROUTE, route = MAIN_ROUTE) {
+            data object UserDetails : Route(link = NavRouteName.user_details, route = SETTINGS_ROUTE)
+            data object EditUserDetails : Route(
                 link = "${NavRouteName.edit_user_details}${arg(NavArguments.userEditMode)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.userEditMode) {
