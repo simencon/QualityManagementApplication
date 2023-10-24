@@ -45,6 +45,13 @@ interface ManufacturingService {
 
     @GET(MANUFACTURING_LINES)
     suspend fun getManufacturingLines(): Response<List<NetworkManufacturingLine>>
+    @POST(MANUFACTURING_LINES)
+    suspend fun insertManufacturingLine(@Body value: NetworkManufacturingLine): Response<NetworkManufacturingLine>
+    @DELETE("$MANUFACTURING_LINES/{id}")
+    suspend fun deleteManufacturingLine(@Path("id") id: Int): Response<NetworkManufacturingLine>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$MANUFACTURING_LINES/{id}")
+    suspend fun editManufacturingLine(@Path("id") id: Int, @Body body: NetworkManufacturingLine): Response<NetworkManufacturingLine>
 
     @GET(MANUFACTURING_OPERATIONS)
     suspend fun getManufacturingOperations(): Response<List<NetworkManufacturingOperation>>

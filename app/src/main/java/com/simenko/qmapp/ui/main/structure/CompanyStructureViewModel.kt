@@ -170,6 +170,24 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun onDeleteLineClick(it: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.run {
+                    deleteLine(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun onDeleteOperationClick(it: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -260,16 +278,12 @@ class CompanyStructureViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onDeleteLineClick(it: Int) {
-        TODO("Not yet implemented")
-    }
-
     fun onAddLineClick(it: Int) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
     fun onEditLineClick(it: Pair<Int, Int>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
     fun onLineProductsClick(it: Int) {
@@ -287,10 +301,4 @@ class CompanyStructureViewModel @Inject constructor(
     fun onOperationProductsClick(it: Int) {
         TODO("Not yet implemented")
     }
-}
-
-enum class CompositionStage {
-    NOT_COMPOSED,
-    COMPOSED,
-    NAVIGATED
 }
