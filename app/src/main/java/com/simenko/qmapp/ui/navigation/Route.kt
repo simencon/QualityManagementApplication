@@ -48,6 +48,7 @@ object NavRouteName {
     const val authorize_user = "authorize_user"
 
     const val structure_view = "structure_view"
+    const val channel_add_edit = "channel_add_edit"
     const val line_add_edit = "line_add_edit"
     const val operation_add_edit = "operation_add_edit"
 
@@ -257,6 +258,46 @@ sealed class Route(
                 ),
                 route = COMPANY_STRUCTURE_ROUTE
             )
+            data object LineAddEdit : Route(
+                link = "${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}",
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(NavArguments.channelId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.lineId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                ),
+                route = COMPANY_STRUCTURE_ROUTE
+            )
+            data object ChannelAddEdit : Route(
+                link = "${NavRouteName.channel_add_edit}${arg(NavArguments.subDepartmentId)}${arg(NavArguments.channelId)}",
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.channel_add_edit}${arg(NavArguments.subDepartmentId)}${arg(NavArguments.channelId)}"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(NavArguments.subDepartmentId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.channelId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                ),
+                route = COMPANY_STRUCTURE_ROUTE
+            )
 
             data object OperationAddEdit : Route(
                 link = "${NavRouteName.operation_add_edit}${arg(NavArguments.lineId)}${arg(NavArguments.operationId)}",
@@ -272,27 +313,6 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.operationId) {
-                        type = NavType.IntType
-                        defaultValue = NoRecord.num
-                    }
-                ),
-                route = COMPANY_STRUCTURE_ROUTE
-            )
-
-            data object LineAddEdit : Route(
-                link = "${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}",
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}"
-                        action = Intent.ACTION_VIEW
-                    }
-                ),
-                arguments = listOf(
-                    navArgument(NavArguments.channelId) {
-                        type = NavType.IntType
-                        defaultValue = NoRecord.num
-                    },
-                    navArgument(NavArguments.lineId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }

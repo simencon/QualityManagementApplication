@@ -95,11 +95,14 @@ enum class Page(
     AUTHORIZE_USER(Route.Main.Team.AuthorizeUser.link, Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, Icons.Filled.Save, null),
     EDIT_USER(Route.Main.Team.EditUser.link, Icons.Filled.ArrowBack, "Edit user", null, null, null, null, Icons.Filled.Save, null),
 
-    ADD_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
-    EDIT_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
+    ADD_CHANNEL(Route.Main.CompanyStructure.ChannelAddEdit.link, Icons.Filled.ArrowBack, "Add new channel", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_CHANNEL(Route.Main.CompanyStructure.ChannelAddEdit.link, Icons.Filled.ArrowBack, "Edit channel", null, null, null, null, Icons.Filled.Save, null),
 
     ADD_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
     EDIT_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
 
     ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
     EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
