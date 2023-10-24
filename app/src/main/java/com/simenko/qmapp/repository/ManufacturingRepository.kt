@@ -48,7 +48,18 @@ class ManufacturingRepository @Inject constructor(
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(database.jobRoleDao) { service.getJobRoles() }
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(database.departmentDao) { service.getDepartments() }
     suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(database.subDepartmentDao) { service.getSubDepartments() }
+
+
     suspend fun syncChannels() = crudeOperations.syncRecordsAll(database.channelDao) { service.getManufacturingChannels() }
+    fun CoroutineScope.deleteChannel(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingChannel>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingChannel(id) }) { r -> database.channelDao.deleteRecord(r) }
+    }
+    fun CoroutineScope.insertChannel(record: DomainManufacturingChannel) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertManufacturingChannel(record.toDatabaseModel().toNetworkModel()) }) { r -> database.channelDao.insertRecord(r) }
+    }
+    fun CoroutineScope.updateChannel(record: DomainManufacturingChannel) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.editManufacturingChannel(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.channelDao.updateRecord(r) }
+    }
 
 
     suspend fun syncLines() = crudeOperations.syncRecordsAll(database.lineDao) { service.getManufacturingLines() }

@@ -170,6 +170,24 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun onDeleteChannelClick(it: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.run {
+                    deleteChannel(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun onDeleteLineClick(it: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -262,16 +280,12 @@ class CompanyStructureViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onDeleteChannelClick(it: Int) {
-        TODO("Not yet implemented")
-    }
-
     fun onAddChannelClick(it: Int) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
     fun onEditChannelClick(it: Pair<Int, Int>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
     fun onChannelProductsClick(it: Int) {

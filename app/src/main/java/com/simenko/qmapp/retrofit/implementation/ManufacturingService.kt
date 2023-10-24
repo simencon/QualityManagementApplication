@@ -42,6 +42,14 @@ interface ManufacturingService {
 
     @GET(MANUFACTURING_CHANNELS)
     suspend fun getManufacturingChannels(): Response<List<NetworkManufacturingChannel>>
+    @POST(MANUFACTURING_CHANNELS)
+    suspend fun insertManufacturingChannel(@Body value: NetworkManufacturingChannel): Response<NetworkManufacturingChannel>
+    @DELETE("$MANUFACTURING_CHANNELS/{id}")
+    suspend fun deleteManufacturingChannel(@Path("id") id: Int): Response<NetworkManufacturingChannel>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$MANUFACTURING_CHANNELS/{id}")
+    suspend fun editManufacturingChannel(@Path("id") id: Int, @Body body: NetworkManufacturingChannel): Response<NetworkManufacturingChannel>
+
 
     @GET(MANUFACTURING_LINES)
     suspend fun getManufacturingLines(): Response<List<NetworkManufacturingLine>>
@@ -52,6 +60,7 @@ interface ManufacturingService {
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$MANUFACTURING_LINES/{id}")
     suspend fun editManufacturingLine(@Path("id") id: Int, @Body body: NetworkManufacturingLine): Response<NetworkManufacturingLine>
+
 
     @GET(MANUFACTURING_OPERATIONS)
     suspend fun getManufacturingOperations(): Response<List<NetworkManufacturingOperation>>
@@ -65,6 +74,7 @@ interface ManufacturingService {
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$MANUFACTURING_OPERATIONS/{id}")
     suspend fun editManufacturingOperation(@Path("id") id: Int, @Body body: NetworkManufacturingOperation): Response<NetworkManufacturingOperation>
+
 
     @GET(MANUFACTURING_OPERATIONS_FLOWS)
     suspend fun getOperationsFlows(): Response<List<NetworkOperationsFlow>>
