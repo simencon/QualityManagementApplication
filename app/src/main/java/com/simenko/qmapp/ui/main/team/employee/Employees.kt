@@ -22,9 +22,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.SelectedNumber
@@ -38,6 +40,7 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -55,6 +58,16 @@ fun Employees(
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setEmployeesVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteEmployee(it) } }
     val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
+
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when(lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            else -> {}
+        }
+    }
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {

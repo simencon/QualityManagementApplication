@@ -1,9 +1,6 @@
 package com.simenko.qmapp.ui.main.team
 
-import androidx.compose.animation.EnterExitState
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavGraphBuilder
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.main.team.employee.Employees
@@ -15,14 +12,10 @@ import com.simenko.qmapp.ui.main.team.user.Users
 import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
 
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.teamNavigation() {
     navigation(startDestination = Route.Main.Team.Employees) {
         composable(destination = Route.Main.Team.Employees) {
             val teamModel: TeamViewModel = hiltViewModel()
-            if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                teamModel.enableScrollToCreatedRecord()
-            }
             Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeAddEdictClick(id) })
         }
         composable(destination = Route.Main.Team.EmployeeAddEdit) {
@@ -31,16 +24,10 @@ fun NavGraphBuilder.teamNavigation() {
         }
         composable(destination = Route.Main.Team.Users) {
             val teamModel: TeamViewModel = hiltViewModel()
-            if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                teamModel.enableScrollToCreatedRecord()
-            }
             Users(viewModel = teamModel, isUsersPage = true)
         }
         composable(destination = Route.Main.Team.Requests) {
             val teamModel: TeamViewModel = hiltViewModel()
-            if (!transition.isRunning && transition.currentState == EnterExitState.Visible && it.lifecycle.currentState == Lifecycle.State.RESUMED) {
-                teamModel.enableScrollToCreatedRecord()
-            }
             Users(viewModel = teamModel, isUsersPage = false)
         }
         editUser(Route.Main.Team.AuthorizeUser)

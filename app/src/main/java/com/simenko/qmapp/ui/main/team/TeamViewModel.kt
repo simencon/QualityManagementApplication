@@ -85,12 +85,12 @@ class TeamViewModel @Inject constructor(
     /**
      * Common for employees and users ----------------------------------------------------------------------------------------------------------------
      * */
-    private val _isScrollingEnabled = MutableStateFlow(false)
-    val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
+    private val _isComposed = MutableStateFlow(false)
+    val setIsComposed: (Boolean) -> Unit = { _isComposed.value = it }
 
     val scrollToRecord: Flow<Pair<Event<Int>, Event<String>>?> = _createdRecord.flatMapLatest { record ->
-        _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
-            if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
+        _isComposed.flatMapLatest { isComposed ->
+            if (isComposed) flow { emit(record) } else flow { emit(null) }
         }
     }
 
