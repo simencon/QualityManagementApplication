@@ -28,8 +28,6 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
@@ -422,21 +420,4 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
             }
         }
     }
-}
-
-@Composable
-fun Lifecycle.observeAsState(): State<Lifecycle.Event> {
-    val state = remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
-    DisposableEffect(this) {
-        val observer = LifecycleEventObserver { _, event ->
-            state.value = event
-        }
-        this@observeAsState.addObserver(observer)
-        onDispose {
-            this@observeAsState.removeObserver(observer)
-        }
-    }
-    return state
-//    Usage
-//    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 }
