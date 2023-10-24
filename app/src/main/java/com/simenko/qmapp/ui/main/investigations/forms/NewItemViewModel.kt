@@ -6,6 +6,7 @@ import com.simenko.qmapp.di.OrderIdParameter
 import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -359,7 +360,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Line --------------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines
+    private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines(NoRecord.num)
     val subOrderLines: StateFlow<List<DomainManufacturingLine>> = _subOrderLines.flatMapLatest { lines ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -432,7 +433,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Operation ---------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderOperations: Flow<List<DomainManufacturingOperation>> = manufacturingRepository.operations
+    private val _subOrderOperations: Flow<List<DomainManufacturingOperationComplete>> = manufacturingRepository.operations(NoRecord.num)
     val subOrderOperations: StateFlow<List<DomainManufacturingOperation>> = _subOrderOperations.flatMapLatest { operations ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -441,8 +442,8 @@ class NewItemViewModel @Inject constructor(
                         .sortedBy { it.operationOrder }.map { it.operationId }.toSet()
                     val cpy = mutableListOf<DomainManufacturingOperation>()
                     ids.forEach { id ->
-                        operations.findLast { it.id == id }?.let {
-                            cpy.add(it.copy(isSelected = it.id == so.subOrder.operationId))
+                        operations.findLast { it.operation.id == id }?.let {
+                            cpy.add(it.operation.copy(isSelected = it.operation.id == so.subOrder.operationId))
                         }
                     }
                     flow { emit(cpy) }

@@ -159,8 +159,8 @@ data class DomainManufacturingChannel(
 data class DomainManufacturingLine(
     var id: Int = NoRecord.num,
     var chId: Int = NoRecord.num,
-    var lineAbbr: String = NoString.str,
-    var lineDesignation: String = NoString.str,
+    var lineAbbr: String = EmptyString.str,
+    var lineDesignation: String = EmptyString.str,
     var lineOrder: Int = NoRecord.num,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false,

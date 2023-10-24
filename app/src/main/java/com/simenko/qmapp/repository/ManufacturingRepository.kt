@@ -55,9 +55,11 @@ class ManufacturingRepository @Inject constructor(
     fun CoroutineScope.deleteLine(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingLine>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingLine(id) }) { r -> database.lineDao.deleteRecord(r) }
     }
+
     fun CoroutineScope.insertLine(record: DomainManufacturingLine) = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.insertManufacturingLine(record.toDatabaseModel().toNetworkModel()) }) { r -> database.lineDao.insertRecord(r) }
     }
+
     fun CoroutineScope.updateLine(record: DomainManufacturingLine) = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.editManufacturingLine(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.lineDao.updateRecord(r) }
     }
@@ -81,6 +83,7 @@ class ManufacturingRepository @Inject constructor(
     fun CoroutineScope.deleteOpFlows(records: List<DomainOperationsFlow>) = crudeOperations.run {
         responseHandlerForListOfRecords(taskExecutor = { service.deleteOpFlows(records.map { it.toDatabaseModel().toNetworkModel() }) }) { r -> database.operationsFlowDao.deleteRecords(r) }
     }
+
     fun CoroutineScope.insertOpFlows(records: List<DomainOperationsFlow>) = crudeOperations.run {
         responseHandlerForListOfRecords(taskExecutor = { service.createOpFlows(records.map { it.toDatabaseModel().toNetworkModel() }) }) { r -> database.operationsFlowDao.insertRecords(r) }
     }
@@ -110,17 +113,14 @@ class ManufacturingRepository @Inject constructor(
     val channelById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordCompleteById(it) }
     val channelsBySubDepartment: (Int) -> Flow<List<DomainManufacturingChannel>> = { flow { emit(database.channelDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
-    val lines: Flow<List<DomainManufacturingLine>> = database.lineDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId -> database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it) }
-    val lineCompleteById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
-    val linesByChannel: (Int) -> Flow<List<DomainManufacturingLine>> = { flow { emit(database.lineDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
+    val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
 
-    val operations: Flow<List<DomainManufacturingOperation>> = database.operationDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val operations: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { pId -> database.operationDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val operationsComplete: Flow<List<DomainManufacturingOperationComplete>> = database.operationDao.getRecordsComplete().map { list -> list.map { it.toDomainModel() } }
     val operationById: (Int) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
-    val operationsCompleteByLine: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { lineId ->
-        database.operationDao.getRecordsByParentIdForUI(lineId).map { list -> list.map { it.toDomainModel() } }
-    }
+
 
     val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
 }

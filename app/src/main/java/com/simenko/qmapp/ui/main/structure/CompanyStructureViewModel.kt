@@ -65,8 +65,8 @@ class CompanyStructureViewModel @Inject constructor(
     private val _departments = repository.departmentsComplete
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
     private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channelsBySubDepartment(it.first.num) }
-    private val _lines = _channelsVisibility.flatMapLatest { repository.linesByChannel(it.first.num) }
-    private val _operations = _linesVisibility.flatMapLatest { repository.operationsCompleteByLine(it.first.num) }
+    private val _lines = _channelsVisibility.flatMapLatest { repository.lines(it.first.num) }
+    private val _operations = _linesVisibility.flatMapLatest { repository.operations(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------

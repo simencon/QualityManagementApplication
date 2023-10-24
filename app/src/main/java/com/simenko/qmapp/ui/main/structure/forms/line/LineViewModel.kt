@@ -46,7 +46,7 @@ class LineViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (lineId == NoRecord.num) prepareLine(channelId) else _line.value = repository.lineCompleteById(lineId)
+                if (lineId == NoRecord.num) prepareLine(channelId) else _line.value = repository.lineById(lineId)
                 mainPageHandler = MainPageHandler.Builder(if (lineId == NoRecord.num) Page.ADD_LINE else Page.EDIT_LINE, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
