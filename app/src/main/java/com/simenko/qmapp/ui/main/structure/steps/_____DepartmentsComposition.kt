@@ -83,7 +83,8 @@ fun Departments(
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        when(lifecycleState.value) {
+        println("Departments - lifecycleState: ${lifecycleState.value}")
+        when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
             else -> {}

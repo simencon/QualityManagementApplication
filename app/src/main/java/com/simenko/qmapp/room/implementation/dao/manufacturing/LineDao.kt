@@ -23,8 +23,12 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
     @Query("SELECT * FROM `13_manufacturing_lines` ORDER BY lineOrder ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseManufacturingLine>>
 
-    @Query("SELECT * FROM `13_manufacturing_lines` ORDER BY lineOrder ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseManufacturingLine>>
+    @Query("""
+        SELECT * FROM `13_manufacturing_lines` as ml 
+        WHERE(:parentId = -1 OR ml.chId = :parentId)
+        ORDER BY lineOrder ASC;
+    """)
+    abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseManufacturingLine>>
 
     @Transaction
     @Query("SELECT * FROM manufacturingLinesWithParents WHERE id = :id")

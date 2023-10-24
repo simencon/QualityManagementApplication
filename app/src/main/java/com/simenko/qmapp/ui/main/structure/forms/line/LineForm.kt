@@ -72,7 +72,6 @@ fun LineForm(
     val (orderFR) = FocusRequester.createRefs()
     val (abbreviationFR) = FocusRequester.createRefs()
     val (designationFR) = FocusRequester.createRefs()
-
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(

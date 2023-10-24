@@ -22,12 +22,12 @@ abstract class OperationDao: DaoBaseModel<DatabaseManufacturingOperation> {
     @Query("SELECT * FROM `14_manufacturing_operations` ORDER BY operationOrder ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseManufacturingOperation>>
 
-    @Query("SELECT * FROM `14_manufacturing_operations` ORDER BY operationOrder ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseManufacturingOperation>>
-
     @Transaction
-    @Query("select mo.* from manufacturingOperationsComplete mo where mo.lineId = :lineId;")
-    abstract fun getRecordsByParentIdForUI(lineId: Int): Flow<List<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>>
+    @Query("""
+        select mo.* from manufacturingOperationsComplete mo 
+        where(:lineId = -1 or mo.lineId = :lineId)
+    """)
+    abstract fun getRecordsFlowForUI(lineId: Int): Flow<List<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>>
 
     @Transaction
     @Query("SELECT * FROM manufacturingOperationsComplete WHERE id = :id")
