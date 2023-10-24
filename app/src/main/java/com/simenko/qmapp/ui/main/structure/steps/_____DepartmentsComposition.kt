@@ -60,10 +60,9 @@ import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
-import com.simenko.qmapp.ui.main.main.content.observeAsState
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
-import com.simenko.qmapp.ui.main.structure.CompositionStage
 import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -85,8 +84,8 @@ fun Departments(
 
     LaunchedEffect(lifecycleState.value) {
         when(lifecycleState.value) {
-            Lifecycle.Event.ON_RESUME -> viewModel.setCompositionStage(CompositionStage.COMPOSED)
-            Lifecycle.Event.ON_STOP -> viewModel.setCompositionStage(CompositionStage.NOT_COMPOSED)
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
             else -> {}
         }
     }
@@ -96,7 +95,6 @@ fun Departments(
         scrollToRecord?.let { record ->
             record.departmentId.getContentIfNotHandled()?.let { departmentId ->
                 viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.department.id }.toList(), selectedId = departmentId) })
-                viewModel.setCompositionStage(CompositionStage.NAVIGATED)
             }
         }
     }
