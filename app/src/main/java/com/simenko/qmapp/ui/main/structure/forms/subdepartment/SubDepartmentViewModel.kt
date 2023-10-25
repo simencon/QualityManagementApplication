@@ -131,10 +131,11 @@ class SubDepartmentViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
+                val companyId = _subDepartment.value.department.companyId.toString()
                 val depId = _subDepartment.value.department.id.toString()
                 val subDepId = it.toString()
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId),
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId),
                     popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
                     inclusive = true
                 )

@@ -1,6 +1,8 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
+import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
@@ -198,14 +200,19 @@ data class DatabaseSubDepartment(
     @DatabaseView(
         viewName = "subDepartmentWithParents",
         value = """
-        select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
+        select c.id as companyId, c.companyOrder, c.companyName,
+        d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
         sd.id, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation
         from `11_sub_departments` as sd
         inner join `10_departments` as d on sd.depId = d.id
+        inner join `0_companies` as c on d.companyId = c.id
         order by d.depOrder, sd.subDepOrder;
         """
     )
     data class DatabaseSubDepartmentWithParents(
+        val companyId: Int,
+        val companyOrder: Int,
+        val companyName: String,
         val departmentId: Int,
         val depOrder: Int,
         val depAbbr: String?,
@@ -273,16 +280,21 @@ data class DatabaseManufacturingChannel(
     @DatabaseView(
         viewName = "manufacturingChannelsWithParents",
         value = """
-        select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
+        select c.id as companyId, c.companyOrder, c.companyName,
+        d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
         sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, 
         mc.id, mc.channelOrder, mc.channelAbbr, mc.channelDesignation
         from `12_manufacturing_channels` as mc
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
         inner join `10_departments` as d on sd.depId = d.id
+        inner join `0_companies` as c on d.companyId = c.id
         order by d.depOrder, sd.subDepOrder, mc.channelOrder;
         """
     )
     data class DatabaseManufacturingChannelWithParents(
+        val companyId: Int,
+        val companyOrder: Int,
+        val companyName: String,
         val departmentId: Int,
         val depOrder: Int,
         val depAbbr: String?,
@@ -354,7 +366,8 @@ data class DatabaseManufacturingLine(
     @DatabaseView(
         viewName = "manufacturingLinesWithParents",
         value = """
-        select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
+        select c.id as companyId, c.companyOrder, c.companyName,
+        d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 
         sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, 
         mc.id as channelId, mc.channelOrder, mc.channelAbbr, mc.channelDesignation, 
         ml.id, ml.lineOrder, ml.lineAbbr, ml.lineDesignation 
@@ -362,10 +375,14 @@ data class DatabaseManufacturingLine(
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
         inner join `10_departments` as d on sd.depId = d.id
+        inner join `0_companies` as c on d.companyId = c.id
         order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder;
         """
     )
     data class DatabaseManufacturingLineWithParents(
+        val companyId: Int,
+        val companyOrder: Int,
+        val companyName: String,
         val departmentId: Int,
         val depOrder: Int,
         val depAbbr: String?,
@@ -482,6 +499,7 @@ data class DatabaseOperationsFlow(
         viewName = "operationsFlowsComplete",
         value = """
         select mof.id, mof.currentOperationId, mof.previousOperationId, pmo.operationOrder, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment, 
+        c.id as companyId, c.companyOrder, c.companyName, 
         d.id as depId, d.depOrder, d.depAbbr, 
         sd.id as subDepId, sd.subDepOrder, sd.subDepAbbr, 
         mc.id as channelId, mc.channelOrder, mc.channelAbbr, 
@@ -492,6 +510,7 @@ data class DatabaseOperationsFlow(
         inner join `12_manufacturing_channels` as mc on ml.chId = mc.id
         inner join `11_sub_departments` as sd on mc.subDepId = sd.id
         inner join `10_departments` as d on sd.depId = d.id
+        inner join `0_companies` as c on d.companyId = c.id
         order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder, pmo.operationOrder;
         """
     )
@@ -503,6 +522,9 @@ data class DatabaseOperationsFlow(
         val operationAbbr: String?,
         val operationDesignation: String?,
         val equipment: String?,
+        val companyId: Int,
+        val companyOrder: Int,
+        val companyName: String,
         val depId: Int,
         val depOrder: Int,
         val depAbbr: String?,

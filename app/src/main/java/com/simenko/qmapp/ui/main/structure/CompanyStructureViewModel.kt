@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.ChannelIdParameter
+import com.simenko.qmapp.di.CompanyIdParameter
 import com.simenko.qmapp.di.DepartmentIdParameter
 import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.di.OperationIdParameter
@@ -47,6 +48,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
+    @CompanyIdParameter private val companyId: Int,
     @DepartmentIdParameter private val depId: Int,
     @SubDepartmentIdParameter private val subDepId: Int,
     @ChannelIdParameter private val channelId: Int,
@@ -62,7 +64,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _channelsVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))
     private val _linesVisibility = MutableStateFlow(Pair(SelectedNumber(lineId), NoRecord))
     private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
-    private val _departments = repository.departmentsComplete.flowOn(Dispatchers.IO)
+    private val _departments = repository.departmentsComplete(companyId).flowOn(Dispatchers.IO)
     private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }.flowOn(Dispatchers.IO)
     private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channels(it.first.num) }.flowOn(Dispatchers.IO)
     private val _lines = _channelsVisibility.flatMapLatest { repository.lines(it.first.num) }.flowOn(Dispatchers.IO)
@@ -75,7 +77,7 @@ class CompanyStructureViewModel @Inject constructor(
 
     init {
         mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
-            .setOnFabClickAction { onAddDepartmentClick() }
+            .setOnFabClickAction { onAddDepartmentClick(companyId) }
             .setOnPullRefreshAction { updateCompanyStructureData() }
             .build()
     }
@@ -270,11 +272,11 @@ class CompanyStructureViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    private fun onAddDepartmentClick() {
+    private fun onAddDepartmentClick(it: Int) {
         TODO("Not yet implemented")
     }
 
-    fun onEditDepartmentClick(it: Int) {
+    fun onEditDepartmentClick(it: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
@@ -130,14 +131,17 @@ data class DomainSubDepartment(
     }
 
     data class DomainSubDepartmentWithParents(
+        val companyId: Int = NoRecord.num,
+        val companyOrder: Int = NoRecord.num,
+        val companyName: String = NoString.str,
         val departmentId: Int = NoRecord.num,
         val depOrder: Int = NoRecord.num,
-        val depAbbr: String? = null,
-        val depName: String? = null,
+        val depAbbr: String? = NoString.str,
+        val depName: String? = NoString.str,
         val id: Int = NoRecord.num,
         val subDepOrder: Int = NoRecord.num,
-        val subDepAbbr: String? = null,
-        val subDepDesignation: String? = null
+        val subDepAbbr: String? = NoString.str,
+        val subDepDesignation: String? = NoString.str
     ) : DomainBaseModel<DatabaseSubDepartment.DatabaseSubDepartmentWithParents>() {
         override fun getRecordId() = this.id
         override fun getParentId() = this.departmentId
@@ -185,18 +189,21 @@ data class DomainManufacturingChannel(
     }
 
     data class DomainManufacturingChannelWithParents(
+        val companyId: Int = NoRecord.num,
+        val companyOrder: Int = NoRecord.num,
+        val companyName: String = EmptyString.str,
         val departmentId: Int = NoRecord.num,
         val depOrder: Int = NoRecord.num,
-        val depAbbr: String? = null,
-        val depName: String? = null,
+        val depAbbr: String? = EmptyString.str,
+        val depName: String? = EmptyString.str,
         val subDepartmentId: Int = NoRecord.num,
         val subDepOrder: Int = NoRecord.num,
-        val subDepAbbr: String? = null,
-        val subDepDesignation: String? = null,
+        val subDepAbbr: String? = EmptyString.str,
+        val subDepDesignation: String? = EmptyString.str,
         val id: Int = NoRecord.num,
         val channelOrder: Int = NoRecord.num,
-        val channelAbbr: String? = null,
-        val channelDesignation: String? = null
+        val channelAbbr: String? = EmptyString.str,
+        val channelDesignation: String? = EmptyString.str
     ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents>() {
         override fun getRecordId() = this.id
         override fun getParentId() = this.subDepartmentId
@@ -226,21 +233,24 @@ data class DomainManufacturingLine(
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
 
     data class DomainManufacturingLineWithParents(
+        val companyId: Int = NoRecord.num,
+        val companyOrder: Int = NoRecord.num,
+        val companyName: String = EmptyString.str,
         val departmentId: Int = NoRecord.num,
         val depOrder: Int = NoRecord.num,
-        val depAbbr: String? = null,
-        val depName: String? = null,
+        val depAbbr: String? = EmptyString.str,
+        val depName: String? = EmptyString.str,
         val subDepartmentId: Int = NoRecord.num,
         val subDepOrder: Int = NoRecord.num,
-        val subDepAbbr: String? = null,
-        val subDepDesignation: String? = null,
+        val subDepAbbr: String? = EmptyString.str,
+        val subDepDesignation: String? = EmptyString.str,
         val channelId: Int = NoRecord.num,
         val channelOrder: Int = NoRecord.num,
-        val channelAbbr: String? = null,
-        val channelDesignation: String? = null,
+        val channelAbbr: String? = EmptyString.str,
+        val channelDesignation: String? = EmptyString.str,
         val id: Int = NoRecord.num,
         val lineOrder: Int = NoRecord.num,
-        val lineAbbr: String? = null,
+        val lineAbbr: String? = EmptyString.str,
         val lineDesignation: String = EmptyString.str
     ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineWithParents>() {
         override fun getRecordId() = this.id
@@ -326,6 +336,9 @@ data class DomainOperationsFlow(
         val operationAbbr: String? = null,
         val operationDesignation: String? = null,
         val equipment: String? = null,
+        val companyId: Int,
+        val companyOrder: Int,
+        val companyName: String,
         val depId: Int = NoRecord.num,
         val depOrder: Int = NoRecord.num,
         val depAbbr: String? = null,
