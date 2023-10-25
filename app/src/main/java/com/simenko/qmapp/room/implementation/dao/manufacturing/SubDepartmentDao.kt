@@ -4,9 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.room.contract.DaoBaseModel
-import com.simenko.qmapp.room.entities.DatabaseDepartmentsComplete
 import com.simenko.qmapp.room.entities.DatabaseSubDepartment
 import kotlinx.coroutines.flow.Flow
 
@@ -28,5 +26,9 @@ abstract class SubDepartmentDao: DaoBaseModel<DatabaseSubDepartment> {
     abstract fun getRecordsFlowForUI(): Flow<List<DatabaseSubDepartment>>
     @Transaction
     @Query("SELECT * FROM subDepartmentWithParents WHERE id = :id")
-    abstract fun getRecordCompleteById(id: Int): DomainSubDepartment.DomainSubDepartmentWithParents
+    abstract fun getRecordWithParentsById(id: Int): DatabaseSubDepartment.DatabaseSubDepartmentWithParents
+
+    @Transaction
+    @Query("SELECT * FROM subDepartmentComplete WHERE id = :id")
+    abstract fun getRecordCompleteById(id: Int): DatabaseSubDepartment.DatabaseSubDepartmentComplete
 }

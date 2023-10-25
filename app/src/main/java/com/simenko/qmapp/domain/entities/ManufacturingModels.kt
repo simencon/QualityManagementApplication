@@ -96,10 +96,9 @@ data class DomainDepartment(
 data class DomainSubDepartment(
     var id: Int = NoRecord.num,
     var depId: Int = NoRecord.num,
-    var subDepAbbr: String? = null,
-    var subDepDesignation: String? = null,
-    var subDepOrder: Int? = null,
-    var channelsVisibility: Boolean = false,
+    var subDepAbbr: String? = EmptyString.str,
+    var subDepDesignation: String? = EmptyString.str,
+    var subDepOrder: Int? = NoRecord.num,
     var detailsVisibility: Boolean = false,
     var isExpanded: Boolean = false,
     var isSelected: Boolean = false
@@ -111,6 +110,24 @@ data class DomainSubDepartment(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainSubDepartment::class, DatabaseSubDepartment::class).transform(this)
+
+    data class DomainSubDepartmentComplete(
+        val subDepartment: DomainSubDepartment = DomainSubDepartment(),
+        val department: DomainDepartment = DomainDepartment(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseSubDepartment.DatabaseSubDepartmentComplete>() {
+        override fun getRecordId(): Any = subDepartment.id
+        override fun getParentId(): Int = subDepartment.depId
+        override fun setIsSelected(value: Boolean) {}
+
+        override fun toDatabaseModel(): DatabaseSubDepartment.DatabaseSubDepartmentComplete {
+            return DatabaseSubDepartment.DatabaseSubDepartmentComplete(
+                subDepartment = this.subDepartment.toDatabaseModel(),
+                department = this.department.toDatabaseModel()
+            )
+        }
+    }
 
     data class DomainSubDepartmentWithParents(
         val departmentId: Int = NoRecord.num,

@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.repository.UserError
@@ -63,8 +63,8 @@ fun UserForm(
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
             when (state) {
-                is FillInSuccess -> viewModel.makeUser()
-                is FillInError -> error = state.errorMsg
+                is FillInSuccessState -> viewModel.makeUser()
+                is FillInErrorState -> error = state.errorMsg
                 is FillInInitialState -> error = UserError.NO_ERROR.error
             }
         }

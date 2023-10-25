@@ -1,10 +1,10 @@
 package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -203,8 +203,8 @@ class PreviousOperationViewModel @Inject constructor(
                 append("Operation is mandatory\n")
             }
         }
-        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
-        else _fillInState.value = FillInSuccess
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg)
+        else _fillInState.value = FillInSuccessState
     }
 }
 

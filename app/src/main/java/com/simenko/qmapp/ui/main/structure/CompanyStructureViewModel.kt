@@ -170,6 +170,24 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun onDeleteSubDepartmentClick(it: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.run {
+                    deleteSubDepartment(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun onDeleteChannelClick(it: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -264,16 +282,12 @@ class CompanyStructureViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onDeleteSubDepartmentClick(it: Int) {
-        TODO("Not yet implemented")
-    }
-
     fun onAddSubDepartmentClick(it: Int) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
     fun onEditSubDepartmentClick(it: Pair<Int, Int>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
     fun onSubDepartmentProductsClick(it: Int) {

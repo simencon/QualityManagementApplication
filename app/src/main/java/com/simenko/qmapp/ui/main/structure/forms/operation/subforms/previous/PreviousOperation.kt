@@ -45,9 +45,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.repository.UserError
@@ -96,8 +96,8 @@ fun AddPreviousOperation(
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> onAddClickLambda()
-            is FillInError -> error = state.errorMsg
+            is FillInSuccessState -> onAddClickLambda()
+            is FillInErrorState -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
     }

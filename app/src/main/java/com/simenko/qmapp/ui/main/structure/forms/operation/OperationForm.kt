@@ -33,9 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -66,8 +66,8 @@ fun OperationForm(
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
             when (state) {
-                is FillInSuccess -> viewModel.makeRecord()
-                is FillInError -> error = state.errorMsg
+                is FillInSuccessState -> viewModel.makeRecord()
+                is FillInErrorState -> error = state.errorMsg
                 is FillInInitialState -> error = EmptyString.str
             }
         }
@@ -109,28 +109,28 @@ fun OperationForm(
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter operation order"),
+                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter operation id"),
+                contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { equipmentFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter operation complete name"),
+                contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
                 keyboardNavigation = Pair(equipmentFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter operation equipment")
+                contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter equipment name")
             )
             Spacer(modifier = Modifier.height(10.dp))
             PreviousOperationHeader(

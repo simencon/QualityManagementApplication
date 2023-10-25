@@ -4,10 +4,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.UserIdParameter
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedString
@@ -167,8 +167,8 @@ class UserViewModel @Inject constructor(
             }
         }
 
-        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
-        else _fillInState.value = FillInSuccess
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg)
+        else _fillInState.value = FillInSuccessState
     }
 
     /**

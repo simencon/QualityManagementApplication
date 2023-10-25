@@ -2,10 +2,10 @@ package com.simenko.qmapp.ui.main.team.forms.user.subforms.role
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.repository.SystemRepository
@@ -119,7 +119,7 @@ class RoleViewModel @Inject constructor(
                 append("Access level is mandatory\n")
             }
         }
-        if (errorMsg.isNotEmpty()) _roleFillInState.value = FillInError(errorMsg)
-        else _roleFillInState.value = FillInSuccess
+        if (errorMsg.isNotEmpty()) _roleFillInState.value = FillInErrorState(errorMsg)
+        else _roleFillInState.value = FillInSuccessState
     }
 }
