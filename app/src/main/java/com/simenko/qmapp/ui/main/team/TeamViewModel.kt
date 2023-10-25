@@ -44,9 +44,9 @@ class TeamViewModel @Inject constructor(
     @UserIdParameter private val userId: String
 ) : ViewModel() {
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
-    private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }
+    private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }.flowOn(Dispatchers.IO)
     private val _currentUsersFilter = MutableStateFlow(UsersFilter())
-    private val _users: Flow<List<DomainUser>> = _currentUsersFilter.flatMapLatest { filter -> sRepository.users(filter) }
+    private val _users: Flow<List<DomainUser>> = _currentUsersFilter.flatMapLatest { filter -> sRepository.users(filter) }.flowOn(Dispatchers.IO)
     private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<String>>> = MutableStateFlow(Pair(Event(employeeId), Event(userId)))
     private val _employeesVisibility = MutableStateFlow(Pair(SelectedNumber(employeeId), NoRecord))
     private val _usersVisibility = MutableStateFlow(Pair(SelectedString(userId), NoRecordStr))
@@ -77,7 +77,7 @@ class TeamViewModel @Inject constructor(
                         Triple(users.size, Color.Green, Color.Black),
                         Triple(requests.size, Color.Red, Color.White)
                     )
-                }
+                }.flowOn(Dispatchers.IO)
             )
             .build()
     }
