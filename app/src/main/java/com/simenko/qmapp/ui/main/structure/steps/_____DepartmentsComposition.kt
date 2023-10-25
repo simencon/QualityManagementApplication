@@ -51,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
@@ -77,7 +78,7 @@ fun Departments(
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteDepartmentClick(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
@@ -124,7 +125,7 @@ fun DepartmentCard(
     onClickDetails: (Int) -> Unit,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int) -> Unit,
+    onClickEdit: (Pair<Int, Int>) -> Unit,
     onClickProducts: (Int) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(department.isExpanded).apply { targetState = !department.isExpanded } }
@@ -159,7 +160,7 @@ fun DepartmentCard(
 
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(department.department.id) },
+                onClick = { onClickEdit(Pair(department.department.companyId ?: NoRecord.num, department.department.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }

@@ -131,11 +131,12 @@ class ChannelViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
+                val companyId = _channel.value.subDepartmentWithParents.companyId.toString()
                 val depId = _channel.value.subDepartmentWithParents.departmentId.toString()
                 val subDepId = _channel.value.subDepartmentWithParents.id.toString()
                 val chId = it.toString()
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId),
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId, chId),
                     popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
                     inclusive = true
                 )

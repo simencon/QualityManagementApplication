@@ -133,12 +133,13 @@ class LineViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
+                val companyId = _line.value.channelWithParents.companyId.toString()
                 val depId = _line.value.channelWithParents.departmentId.toString()
                 val subDepId = _line.value.channelWithParents.subDepartmentId.toString()
                 val chId = _line.value.channelWithParents.id.toString()
                 val lineId = it.toString()
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId, lineId),
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId, chId, lineId),
                     popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
                     inclusive = true
                 )

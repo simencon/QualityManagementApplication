@@ -27,6 +27,10 @@ abstract class DepartmentDao: DaoBaseModel<DatabaseDepartment> {
     abstract fun getRecordsFlowForUI(): Flow<List<DatabaseDepartment>>
 
     @Transaction
-    @Query("select * from `10_departments` order by depOrder")
-    abstract fun getRecordsComplete(): Flow<List<DatabaseDepartmentsComplete>>
+    @Query("""
+        select * from `10_departments` as d
+        where (:parentId = -1 or d.companyId = :parentId)
+        order by depOrder;
+        """)
+    abstract fun getRecordsComplete(parentId: Int): Flow<List<DatabaseDepartmentsComplete>>
 }
