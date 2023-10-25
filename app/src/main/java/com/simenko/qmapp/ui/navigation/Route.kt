@@ -83,6 +83,7 @@ object NavArguments {
     const val employeeId = "employeeId"
     const val userId = "userId"
 
+    const val companyId = "departmentId"
     const val departmentId = "departmentId"
     const val subDepartmentId = "subDepartmentId"
     const val channelId = "channelId"
@@ -227,15 +228,21 @@ sealed class Route(
         data object CompanyStructure : Route(link = COMPANY_STRUCTURE_ROUTE, route = MAIN_ROUTE) {
             data object StructureView : Route(
                 link = NavRouteName.structure_view +
-                        "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}",
+                        "?${opt(NavArguments.companyId)}&${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}" +
+                        "&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}",
                 deepLinks = listOf(
                     navDeepLink {
                         uriPattern = "${NavArguments.domain}/${NavRouteName.structure_view}" +
-                                "?${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}"
+                                "?${opt(NavArguments.companyId)}&${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}" +
+                                "&${opt(NavArguments.channelId)}&${opt(NavArguments.lineId)}&${opt(NavArguments.operationId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),
                 arguments = listOf(
+                    navArgument(NavArguments.companyId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
                     navArgument(NavArguments.departmentId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
@@ -253,6 +260,26 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.operationId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    }
+                ),
+                route = COMPANY_STRUCTURE_ROUTE
+            )
+            data object DepartmentAddEdit : Route(
+                link = "${NavRouteName.sub_department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}",
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.sub_department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}"
+                        action = Intent.ACTION_VIEW
+                    }
+                ),
+                arguments = listOf(
+                    navArgument(NavArguments.companyId) {
+                        type = NavType.IntType
+                        defaultValue = NoRecord.num
+                    },
+                    navArgument(NavArguments.departmentId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }
