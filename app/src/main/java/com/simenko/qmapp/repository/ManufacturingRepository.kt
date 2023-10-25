@@ -47,16 +47,31 @@ class ManufacturingRepository @Inject constructor(
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(database.companyDao) { service.getCompanies() }
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(database.jobRoleDao) { service.getJobRoles() }
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(database.departmentDao) { service.getDepartments() }
+
+
     suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(database.subDepartmentDao) { service.getSubDepartments() }
+    fun CoroutineScope.deleteSubDepartment(id: Int): ReceiveChannel<Event<Resource<DomainSubDepartment>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.deleteSubDepartment(id) }) { r -> database.subDepartmentDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertSubDepartment(record: DomainSubDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertSubDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.subDepartmentDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateSubDepartment(record: DomainSubDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.editSubDepartment(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.subDepartmentDao.updateRecord(r) }
+    }
 
 
     suspend fun syncChannels() = crudeOperations.syncRecordsAll(database.channelDao) { service.getManufacturingChannels() }
     fun CoroutineScope.deleteChannel(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingChannel>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingChannel(id) }) { r -> database.channelDao.deleteRecord(r) }
     }
+
     fun CoroutineScope.insertChannel(record: DomainManufacturingChannel) = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.insertManufacturingChannel(record.toDatabaseModel().toNetworkModel()) }) { r -> database.channelDao.insertRecord(r) }
     }
+
     fun CoroutineScope.updateChannel(record: DomainManufacturingChannel) = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.editManufacturingChannel(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.channelDao.updateRecord(r) }
     }
@@ -116,12 +131,15 @@ class ManufacturingRepository @Inject constructor(
 
     val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
     val departmentsComplete: Flow<List<DomainDepartmentComplete>> = database.departmentDao.getRecordsComplete().map { list -> list.map { it.toDomainModel() } }
+    val departmentById: (Int) -> DomainDepartment = { id -> database.departmentDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") } }
 
     val subDepartments: Flow<List<DomainSubDepartment>> = database.subDepartmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
-    val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordCompleteById(it) }
+    val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }
+    val subDepartmentById: (Int) -> DomainSubDepartment.DomainSubDepartmentComplete = { database.subDepartmentDao.getRecordCompleteById(it).toDomainModel() }
+
     val subDepartmentsByDepartment: (Int) -> Flow<List<DomainSubDepartment>> = { flow { emit(database.subDepartmentDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
-    val channels: (Int) -> Flow<List<DomainManufacturingChannel>> = {pId -> database.channelDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val channels: (Int) -> Flow<List<DomainManufacturingChannel>> = { pId -> database.channelDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val channelWithParentsById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }
     val channelById: (Int) -> DomainManufacturingChannel.DomainManufacturingChannelComplete = { database.channelDao.getRecordCompleteById(it).toDomainModel() }
 

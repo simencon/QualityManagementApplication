@@ -24,9 +24,9 @@ abstract class DomainBaseModel<out T> {
 }
 
 sealed class FillInState
-object FillInInitialState : FillInState()
-object FillInSuccess : FillInState()
-data class FillInError(val errorMsg: String) : FillInState()
+data object FillInInitialState : FillInState()
+data object FillInSuccessState : FillInState()
+data class FillInErrorState(val errorMsg: String) : FillInState()
 
 @JvmInline
 value class SelectedNumber(val num: Int)

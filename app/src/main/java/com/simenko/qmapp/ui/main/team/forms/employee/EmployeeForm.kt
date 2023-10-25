@@ -44,9 +44,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
@@ -75,8 +75,8 @@ fun EmployeeForm(
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
             when (state) {
-                is FillInSuccess -> viewModel.makeEmployee()
-                is FillInError -> error = state.errorMsg
+                is FillInSuccessState -> viewModel.makeEmployee()
+                is FillInErrorState -> error = state.errorMsg
                 is FillInInitialState -> error = UserError.NO_ERROR.error
             }
         }

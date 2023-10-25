@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
@@ -62,8 +62,8 @@ fun ChannelForm(
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
             when (state) {
-                is FillInSuccess -> viewModel.makeRecord()
-                is FillInError -> error = state.errorMsg
+                is FillInSuccessState -> viewModel.makeRecord()
+                is FillInErrorState -> error = state.errorMsg
                 is FillInInitialState -> error = EmptyString.str
             }
         }
@@ -97,21 +97,21 @@ fun ChannelForm(
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Line order", "Enter line order"),
+                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Channel order", "Enter order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(cnComplete.channel.channelAbbr?: EmptyString.str, fillInErrors.channelAbbrError) { viewModel.setChannelAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Line id", "Enter line id"),
+                contentDescription = Triple(Icons.Outlined.Info, "Channel id", "Enter id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(cnComplete.channel.channelDesignation?: EmptyString.str, fillInErrors.channelDesignationError) { viewModel.setChannelDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Info, "Line complete name", "Enter line complete name"),
+                contentDescription = Triple(Icons.Outlined.Info, "Channel complete name", "Enter complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)

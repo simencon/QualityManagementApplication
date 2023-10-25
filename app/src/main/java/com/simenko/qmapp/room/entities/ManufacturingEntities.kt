@@ -172,6 +172,30 @@ data class DatabaseSubDepartment(
     override fun toDomainModel() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
 
     @DatabaseView(
+        viewName = "subDepartmentComplete",
+        value = " select * from `11_sub_departments` as sd order by sd.subDepOrder;"
+    )
+    data class DatabaseSubDepartmentComplete(
+        @Embedded
+        val subDepartment: DatabaseSubDepartment,
+        @Relation(
+            entity = DatabaseDepartment::class,
+            parentColumn = "depId",
+            entityColumn = "id"
+        )
+        val department: DatabaseDepartment,
+    ) : DatabaseBaseModel<Any?, DomainSubDepartment.DomainSubDepartmentComplete> {
+        override fun getRecordId(): Any = this.subDepartment.id
+        override fun toNetworkModel(): Any? = null
+        override fun toDomainModel(): DomainSubDepartment.DomainSubDepartmentComplete {
+            return DomainSubDepartment.DomainSubDepartmentComplete(
+                subDepartment = this.subDepartment.toDomainModel(),
+                department = this.department.toDomainModel()
+            )
+        }
+    }
+
+    @DatabaseView(
         viewName = "subDepartmentWithParents",
         value = """
         select d.id as departmentId, d.depOrder, d.depAbbr, d.depName, 

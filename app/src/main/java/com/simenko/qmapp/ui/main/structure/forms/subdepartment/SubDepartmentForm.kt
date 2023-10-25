@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.structure.forms.line
+package com.simenko.qmapp.ui.main.structure.forms.subdepartment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,7 +36,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.entities.DomainManufacturingLine
+import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
@@ -45,12 +45,12 @@ import com.simenko.qmapp.utils.StringUtils.concatTwoStrings
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LineForm(
+fun SubDepartmentForm(
     modifier: Modifier = Modifier,
-    viewModel: LineViewModel
+    viewModel: SubDepartmentViewModel
 ) {
-    val lnComplete by viewModel.line.collectAsStateWithLifecycle(DomainManufacturingLine.DomainManufacturingLineComplete())
-    LaunchedEffect(lnComplete) {
+    val sdComplete by viewModel.subDepartment.collectAsStateWithLifecycle(DomainSubDepartment.DomainSubDepartmentComplete())
+    LaunchedEffect(sdComplete) {
         viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
 
@@ -88,31 +88,29 @@ fun LineForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(lnComplete.channelWithParents.depAbbr, lnComplete.channelWithParents.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(lnComplete.channelWithParents.subDepAbbr, lnComplete.channelWithParents.subDepDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(lnComplete.channelWithParents.channelAbbr, lnComplete.channelWithParents.channelDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(sdComplete.department.depAbbr, sdComplete.department.depName))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(lnComplete.line.lineOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.lineOrderError) {
-                    viewModel.setLineOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
+                valueParam = Triple(sdComplete.subDepartment.subDepOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.subDepartmentOrderError) {
+                    viewModel.setSubDepartmentOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Line order", "Enter order"),
+                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Sub department order", "Enter order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(lnComplete.line.lineAbbr, fillInErrors.lineAbbrError) { viewModel.setLineAbbr(it) },
+                valueParam = Triple(sdComplete.subDepartment.subDepAbbr?: EmptyString.str, fillInErrors.subDepartmentAbbrError) { viewModel.setSubDepartmentAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Line id", "Enter id"),
+                contentDescription = Triple(Icons.Outlined.Info, "Sub department id", "Enter id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(lnComplete.line.lineDesignation, fillInErrors.lineDesignationError) { viewModel.setLineDesignation(it) },
+                valueParam = Triple(sdComplete.subDepartment.subDepDesignation?: EmptyString.str, fillInErrors.subDepartmentDesignationError) { viewModel.setSubDepartmentDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Info, "Line complete name", "Enter complete name"),
+                contentDescription = Triple(Icons.Outlined.Info, "Sub dep. complete name", "Enter complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)

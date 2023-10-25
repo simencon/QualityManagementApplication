@@ -43,9 +43,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
@@ -89,8 +89,8 @@ fun AddRole(
     val fillInState by viewModel.roleFillInState.collectAsStateWithLifecycle()
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> onAddClickLambda()
-            is FillInError -> error = state.errorMsg
+            is FillInSuccessState -> onAddClickLambda()
+            is FillInErrorState -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
     }

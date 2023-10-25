@@ -1,15 +1,15 @@
-package com.simenko.qmapp.ui.main.structure.forms.channel
+package com.simenko.qmapp.ui.main.structure.forms.subdepartment
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ChannelIdParameter
+import com.simenko.qmapp.di.DepartmentIdParameter
 import com.simenko.qmapp.di.SubDepartmentIdParameter
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
+import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -27,14 +27,14 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class ChannelViewModel @Inject constructor(
+class SubDepartmentViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @SubDepartmentIdParameter private val subDepId: Int,
-    @ChannelIdParameter private val channelId: Int,
+    @DepartmentIdParameter private val depId: Int,
+    @SubDepartmentIdParameter private val subDepId: Int
 ) : ViewModel() {
-    private val _channel = MutableStateFlow(DomainManufacturingChannel.DomainManufacturingChannelComplete())
+    private val _subDepartment = MutableStateFlow(DomainSubDepartment.DomainSubDepartmentComplete())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -45,8 +45,8 @@ class ChannelViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (channelId == NoRecord.num) prepareLine(subDepId) else _channel.value = repository.channelById(channelId)
-                mainPageHandler = MainPageHandler.Builder(if (channelId == NoRecord.num) Page.ADD_CHANNEL else Page.EDIT_CHANNEL, mainPageState)
+                if (subDepId == NoRecord.num) prepareLine(depId) else _subDepartment.value = repository.subDepartmentById(subDepId)
+                mainPageHandler = MainPageHandler.Builder(if (subDepId == NoRecord.num) Page.ADD_SUB_DEPARTMENT else Page.EDIT_SUB_DEPARTMENT, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
                     .build()
@@ -54,33 +54,33 @@ class ChannelViewModel @Inject constructor(
         }
     }
 
-    private fun prepareLine(subDepId: Int) {
-        _channel.value = DomainManufacturingChannel.DomainManufacturingChannelComplete(
-            channel = DomainManufacturingChannel(subDepId = subDepId),
-            subDepartmentWithParents = repository.subDepartmentWithParentsById(subDepId)
+    private fun prepareLine(depId: Int) {
+        _subDepartment.value = DomainSubDepartment.DomainSubDepartmentComplete(
+            subDepartment = DomainSubDepartment(depId = depId),
+            department = repository.departmentById(depId)
         )
     }
 
     /**
      * UI State --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val channel get() = _channel.asStateFlow()
+    val subDepartment get() = _subDepartment.asStateFlow()
 
-    fun setChannelOrder(it: Int) {
-        _channel.value = _channel.value.copy(channel = _channel.value.channel.copy(channelOrder = it))
-        _fillInErrors.value = _fillInErrors.value.copy(channelOrderError = false)
+    fun setSubDepartmentOrder(it: Int) {
+        _subDepartment.value = _subDepartment.value.copy(subDepartment = _subDepartment.value.subDepartment.copy(subDepOrder = it))
+        _fillInErrors.value = _fillInErrors.value.copy(subDepartmentOrderError = false)
         _fillInState.value = FillInInitialState
     }
 
-    fun setChannelAbbr(it: String) {
-        _channel.value = _channel.value.copy(channel = _channel.value.channel.copy(channelAbbr = it))
-        _fillInErrors.value = _fillInErrors.value.copy(channelAbbrError = false)
+    fun setSubDepartmentAbbr(it: String) {
+        _subDepartment.value = _subDepartment.value.copy(subDepartment = _subDepartment.value.subDepartment.copy(subDepAbbr = it))
+        _fillInErrors.value = _fillInErrors.value.copy(subDepartmentAbbrError = false)
         _fillInState.value = FillInInitialState
     }
 
-    fun setChannelDesignation(it: String) {
-        _channel.value = _channel.value.copy(channel = _channel.value.channel.copy(channelDesignation = it))
-        _fillInErrors.value = _fillInErrors.value.copy(channelDesignationError = false)
+    fun setSubDepartmentDesignation(it: String) {
+        _subDepartment.value = _subDepartment.value.copy(subDepartment = _subDepartment.value.subDepartment.copy(subDepDesignation = it))
+        _fillInErrors.value = _fillInErrors.value.copy(subDepartmentDesignationError = false)
         _fillInState.value = FillInInitialState
     }
 
@@ -93,17 +93,17 @@ class ChannelViewModel @Inject constructor(
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
         val errorMsg = buildString {
-            if (_channel.value.channel.channelOrder == NoRecord.num) {
-                _fillInErrors.value = _fillInErrors.value.copy(channelOrderError = true)
-                append("Channel order field is mandatory\n")
+            if (_subDepartment.value.subDepartment.subDepOrder == NoRecord.num) {
+                _fillInErrors.value = _fillInErrors.value.copy(subDepartmentOrderError = true)
+                append("Sub department order field is mandatory\n")
             }
-            if (_channel.value.channel.channelAbbr.isNullOrEmpty()) {
-                _fillInErrors.value = _fillInErrors.value.copy(channelAbbrError = true)
-                append("Channel ID field is mandatory\n")
+            if (_subDepartment.value.subDepartment.subDepAbbr.isNullOrEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(subDepartmentAbbrError = true)
+                append("Sub department ID field is mandatory\n")
             }
-            if (_channel.value.channel.channelDesignation.isNullOrEmpty()) {
-                _fillInErrors.value = _fillInErrors.value.copy(channelDesignationError = true)
-                append("Channel complete name field is mandatory\n")
+            if (_subDepartment.value.subDepartment.subDepDesignation.isNullOrEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(subDepartmentDesignationError = true)
+                append("Sub department complete name field is mandatory\n")
             }
         }
         if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg) else _fillInState.value = FillInSuccessState
@@ -112,7 +112,7 @@ class ChannelViewModel @Inject constructor(
     fun makeRecord() = viewModelScope.launch {
         mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
         withContext(Dispatchers.IO) {
-            repository.run { if (channelId == NoRecord.num) insertChannel(_channel.value.channel) else updateChannel(_channel.value.channel) }.consumeEach { event ->
+            repository.run { if (subDepId == NoRecord.num) insertSubDepartment(_subDepartment.value.subDepartment) else updateSubDepartment(_subDepartment.value.subDepartment) }.consumeEach { event ->
                 event.getContentIfNotHandled()?.let { resource ->
                     when (resource.status) {
                         Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
@@ -131,11 +131,10 @@ class ChannelViewModel @Inject constructor(
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val depId = _channel.value.subDepartmentWithParents.departmentId.toString()
-                val subDepId = _channel.value.subDepartmentWithParents.id.toString()
-                val chId = it.toString()
+                val depId = _subDepartment.value.department.id.toString()
+                val subDepId = it.toString()
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId),
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId),
                     popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
                     inclusive = true
                 )
@@ -145,7 +144,7 @@ class ChannelViewModel @Inject constructor(
 }
 
 data class FillInErrors(
-    var channelOrderError: Boolean = false,
-    var channelAbbrError: Boolean = false,
-    var channelDesignationError: Boolean = false,
+    var subDepartmentOrderError: Boolean = false,
+    var subDepartmentAbbrError: Boolean = false,
+    var subDepartmentDesignationError: Boolean = false
 )
