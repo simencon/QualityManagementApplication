@@ -48,6 +48,7 @@ object NavRouteName {
     const val authorize_user = "authorize_user"
 
     const val structure_view = "structure_view"
+    const val department_add_edit = "department_add_edit"
     const val sub_department_add_edit = "sub_department_add_edit"
     const val channel_add_edit = "channel_add_edit"
     const val line_add_edit = "line_add_edit"
@@ -83,7 +84,7 @@ object NavArguments {
     const val employeeId = "employeeId"
     const val userId = "userId"
 
-    const val companyId = "departmentId"
+    const val companyId = "companyId"
     const val departmentId = "departmentId"
     const val subDepartmentId = "subDepartmentId"
     const val channelId = "channelId"
@@ -267,10 +268,10 @@ sealed class Route(
                 route = COMPANY_STRUCTURE_ROUTE
             )
             data object DepartmentAddEdit : Route(
-                link = "${NavRouteName.sub_department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}",
+                link = "${NavRouteName.department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}",
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.sub_department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}"
+                        uriPattern = "${NavArguments.domain}/$COMPANY_STRUCTURE_ROUTE/${NavRouteName.department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),

@@ -23,4 +23,7 @@ abstract class CompanyDao: DaoBaseModel<DatabaseCompany> {
 
     @Query("SELECT * FROM `0_companies` ORDER BY companyOrder ASC")
     abstract fun getRecordsFlowForUI(): Flow<List<DatabaseCompany>>
+
+    @Query("SELECT * FROM `0_companies` WHERE companyName = :name")
+    abstract fun getRecordByName(name: String): DatabaseCompany?
 }

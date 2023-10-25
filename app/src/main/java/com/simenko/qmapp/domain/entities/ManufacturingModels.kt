@@ -85,7 +85,7 @@ data class DomainDepartment(
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseDepartment>() {
     override fun getRecordId() = id
-    override fun getParentId() = companyId ?: 0
+    override fun getParentId() = companyId ?: NoRecord.num
     override fun setIsSelected(value: Boolean) {
         isSelected = value
     }
@@ -336,9 +336,9 @@ data class DomainOperationsFlow(
         val operationAbbr: String? = null,
         val operationDesignation: String? = null,
         val equipment: String? = null,
-        val companyId: Int,
-        val companyOrder: Int,
-        val companyName: String,
+        val companyId: Int = NoRecord.num,
+        val companyOrder: Int = NoRecord.num,
+        val companyName: String = EmptyString.str,
         val depId: Int = NoRecord.num,
         val depOrder: Int = NoRecord.num,
         val depAbbr: String? = null,
