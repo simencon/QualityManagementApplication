@@ -76,7 +76,7 @@ fun CompanyStructure(
         )
     }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.mainPageHandler?.setupMainPage?.invoke(0, true) }
 
     LaunchedEffect(channelVisibility) {
         when (channelVisibility.first == NoRecord) {

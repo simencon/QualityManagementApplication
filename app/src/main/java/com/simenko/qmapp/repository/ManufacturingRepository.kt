@@ -126,6 +126,7 @@ class ManufacturingRepository @Inject constructor(
     }
 
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
 
     val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
 

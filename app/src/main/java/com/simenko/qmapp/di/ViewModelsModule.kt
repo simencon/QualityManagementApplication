@@ -83,8 +83,9 @@ object ViewModelsModule {
     @Provides
     @CompanyIdParameter
     @ViewModelScoped
-    fun provideCompanyIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
-        savedStateHandle[NavArguments.departmentId] ?: NoRecord.num
+    fun provideCompanyIdParameterParameter(savedStateHandle: SavedStateHandle): Int {
+        return savedStateHandle[NavArguments.companyId] ?: NoRecord.num
+    }
 
     @Provides
     @DepartmentIdParameter
