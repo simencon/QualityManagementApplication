@@ -25,6 +25,10 @@ annotation class UserIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class CompanyIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class DepartmentIdParameter
 
 @Qualifier
@@ -75,6 +79,12 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideUserIdParameter(savedStateHandle: SavedStateHandle): String =
         savedStateHandle[NavArguments.userId] ?: NoRecordStr.str
+
+    @Provides
+    @CompanyIdParameter
+    @ViewModelScoped
+    fun provideCompanyIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.departmentId] ?: NoRecord.num
 
     @Provides
     @DepartmentIdParameter
