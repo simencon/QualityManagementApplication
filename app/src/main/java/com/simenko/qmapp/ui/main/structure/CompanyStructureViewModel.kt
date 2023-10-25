@@ -62,11 +62,11 @@ class CompanyStructureViewModel @Inject constructor(
     private val _channelsVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))
     private val _linesVisibility = MutableStateFlow(Pair(SelectedNumber(lineId), NoRecord))
     private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
-    private val _departments = repository.departmentsComplete
-    private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }
-    private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channels(it.first.num) }
-    private val _lines = _channelsVisibility.flatMapLatest { repository.lines(it.first.num) }
-    private val _operations = _linesVisibility.flatMapLatest { repository.operations(it.first.num) }
+    private val _departments = repository.departmentsComplete.flowOn(Dispatchers.IO)
+    private val _subDepartments = _departmentsVisibility.flatMapLatest { repository.subDepartmentsByDepartment(it.first.num) }.flowOn(Dispatchers.IO)
+    private val _channels = _subDepartmentsVisibility.flatMapLatest { repository.channels(it.first.num) }.flowOn(Dispatchers.IO)
+    private val _lines = _channelsVisibility.flatMapLatest { repository.lines(it.first.num) }.flowOn(Dispatchers.IO)
+    private val _operations = _linesVisibility.flatMapLatest { repository.operations(it.first.num) }.flowOn(Dispatchers.IO)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
