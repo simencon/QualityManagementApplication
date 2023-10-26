@@ -100,12 +100,16 @@ fun Departments(
     }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong("DEPARTMENTS_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+        initialFirstVisibleItemIndex = viewModel.storage.getLong("DEPARTMENTS_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
+        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong("DEPARTMENTS_LIST_OFFSET").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
     )
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
+            println("Departments saving position - index = $index")
+            println("Departments saving position - offset = ${listState.firstVisibleItemScrollOffset}")
             viewModel.storage.setLong("DEPARTMENTS_LIST_INDEX", index.toLong())
+            viewModel.storage.setLong("DEPARTMENTS_LIST_OFFSET", listState.firstVisibleItemScrollOffset.toLong())
         }
     }
 

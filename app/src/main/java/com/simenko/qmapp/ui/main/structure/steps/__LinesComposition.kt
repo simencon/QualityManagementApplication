@@ -99,17 +99,12 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
         }
     }
 
-    LaunchedEffect(key1 = Unit) {
-        println("saved position - index = ${viewModel.storage.getLong("LINES_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }}")
-    }
-
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = viewModel.storage.getLong("LINES_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
     )
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(5000L).collectLatest { index ->
-            println("saving position - index = $index")
             viewModel.storage.setLong("LINES_LIST_INDEX", index.toLong())
         }
     }
@@ -123,7 +118,6 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
 //    }
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        println("launched position - index = ${listState.firstVisibleItemIndex}")
         items(items = items, key = { it.id }) { line ->
             LineCard(
                 viewModel = viewModel,
