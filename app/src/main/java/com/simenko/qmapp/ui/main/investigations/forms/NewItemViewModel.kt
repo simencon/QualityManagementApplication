@@ -249,7 +249,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Sub Department ----------------------------------------------------------------------------------------------------------------------
-    private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments
+    private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments(NoRecord.num)
     val subOrderSubDepartments: StateFlow<List<DomainSubDepartment>> = _subOrderSubDepartments.flatMapLatest { subDepartments ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
