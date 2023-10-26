@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -54,6 +56,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainDepartment.DomainDepartmentComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
@@ -64,9 +67,13 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(FlowPreview::class)
 @Composable
 fun Departments(
     modifier: Modifier = Modifier,
@@ -81,6 +88,7 @@ fun Departments(
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
+
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
@@ -91,7 +99,16 @@ fun Departments(
         }
     }
 
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = viewModel.storage.getLong("DEPARTMENTS_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+    )
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
+            viewModel.storage.setLong("DEPARTMENTS_LIST_INDEX", index.toLong())
+        }
+    }
+
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.departmentId.getContentIfNotHandled()?.let { departmentId ->
@@ -101,7 +118,7 @@ fun Departments(
         }
     }
 
-    LazyColumn(modifier = modifier, state = listState) {
+    LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         items(items = items, key = { it.department.id }) { department ->
             DepartmentCard(
                 viewModel = viewModel,

@@ -15,6 +15,7 @@ import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
@@ -43,6 +44,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
+    val storage: Storage,
     @CompanyIdParameter private val companyId: Int,
     @DepartmentIdParameter private val depId: Int,
     @SubDepartmentIdParameter private val subDepId: Int,

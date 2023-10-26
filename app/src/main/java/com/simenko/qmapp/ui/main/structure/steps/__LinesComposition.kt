@@ -41,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -54,7 +55,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
@@ -65,9 +68,13 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(FlowPreview::class)
 @Composable
 fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
@@ -92,16 +99,31 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
         }
     }
 
-    val listState = rememberLazyListState()
-    LaunchedEffect(scrollToRecord) {
-        scrollToRecord?.let { record ->
-            record.lineId.getContentIfNotHandled()?.let { lineId ->
-                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.id }.toList(), selectedId = lineId) })
-            }
+    LaunchedEffect(key1 = Unit) {
+        println("saved position - index = ${viewModel.storage.getLong("LINES_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }}")
+    }
+
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = viewModel.storage.getLong("LINES_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+    )
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.debounce(5000L).collectLatest { index ->
+            println("saving position - index = $index")
+            viewModel.storage.setLong("LINES_LIST_INDEX", index.toLong())
         }
     }
 
+//    LaunchedEffect(scrollToRecord) {
+//        scrollToRecord?.let { record ->
+//            record.lineId.getContentIfNotHandled()?.let { lineId ->
+//                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.id }.toList(), selectedId = lineId) })
+//            }
+//        }
+//    }
+
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+        println("launched position - index = ${listState.firstVisibleItemIndex}")
         items(items = items, key = { it.id }) { line ->
             LineCard(
                 viewModel = viewModel,
