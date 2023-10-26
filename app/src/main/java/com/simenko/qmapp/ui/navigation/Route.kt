@@ -226,7 +226,7 @@ sealed class Route(
             )
         }
 
-        data object CompanyStructure : Route(link = COMPANY_STRUCTURE_ROUTE, route = MAIN_ROUTE) {
+        data object CompanyStructure : Route(link = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}", route = MAIN_ROUTE) {
             data object StructureView : Route(
                 link = NavRouteName.structure_view +
                         "?${opt(NavArguments.companyId)}&${opt(NavArguments.departmentId)}&${opt(NavArguments.subDepartmentId)}" +
@@ -265,7 +265,7 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     }
                 ),
-                route = COMPANY_STRUCTURE_ROUTE
+                route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
             data object DepartmentAddEdit : Route(
                 link = "${NavRouteName.department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}",
@@ -285,7 +285,7 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     }
                 ),
-                route = COMPANY_STRUCTURE_ROUTE
+                route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
             data object SubDepartmentAddEdit : Route(
                 link = "${NavRouteName.sub_department_add_edit}${arg(NavArguments.departmentId)}${arg(NavArguments.subDepartmentId)}",
@@ -305,7 +305,7 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     }
                 ),
-                route = COMPANY_STRUCTURE_ROUTE
+                route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
             data object ChannelAddEdit : Route(
                 link = "${NavRouteName.channel_add_edit}${arg(NavArguments.subDepartmentId)}${arg(NavArguments.channelId)}",
@@ -325,7 +325,7 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     }
                 ),
-                route = COMPANY_STRUCTURE_ROUTE
+                route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
             data object LineAddEdit : Route(
                 link = "${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}",
@@ -345,7 +345,7 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     }
                 ),
-                route = COMPANY_STRUCTURE_ROUTE
+                route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
 
             data object OperationAddEdit : Route(
@@ -366,7 +366,7 @@ sealed class Route(
                         defaultValue = NoRecord.num
                     }
                 ),
-                route = COMPANY_STRUCTURE_ROUTE
+                route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
         }
 
