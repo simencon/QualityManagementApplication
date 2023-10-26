@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -20,6 +21,7 @@ import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -114,7 +117,14 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onDrawerMenuCompanyStructureSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.link, popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+//                todo-me - companyId should be initially stored under user
+                val companyName = userRepository.user.company
+                val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
+                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(companyId), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+            }
+        }
     }
 
     fun onDrawerMenuInvSelected() {

@@ -1,8 +1,5 @@
 package com.simenko.qmapp.ui.main.structure
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.ChannelIdParameter
@@ -49,7 +46,6 @@ class CompanyStructureViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    userRepository: UserRepository,
     @CompanyIdParameter private var companyId: Int,
     @DepartmentIdParameter private val depId: Int,
     @SubDepartmentIdParameter private val subDepId: Int,
@@ -75,27 +71,13 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
-    var mainPageHandler: MainPageHandler? = null
-        private set
+    val mainPageHandler: MainPageHandler
 
     init {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-//                todo-me: find the way to pass companyId from the backstack!
-                if (companyId == NoRecord.num) {
-                    println("1 - CompanyStructureViewModel - companyId = $companyId")
-                    val companyName = userRepository.user.company
-                    companyId = repository.companyByName(companyName)?.id ?: NoRecord.num
-                    println("2 - CompanyStructureViewModel - companyId = $companyId")
-                } else {
-                    println("3 - CompanyStructureViewModel - companyId = $companyId")
-                }
-                mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
-                    .setOnFabClickAction { onAddDepartmentClick(companyId) }
-                    .setOnPullRefreshAction { updateCompanyStructureData() }
-                    .build()
-            }
-        }
+        mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
+            .setOnFabClickAction { onAddDepartmentClick(companyId) }
+            .setOnPullRefreshAction { updateCompanyStructureData() }
+            .build()
     }
 
     /**
@@ -195,9 +177,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteSubDepartment(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
                             }
                         }
                     }
@@ -213,9 +195,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteChannel(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
                             }
                         }
                     }
@@ -231,9 +213,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteLine(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
                             }
                         }
                     }
@@ -249,9 +231,9 @@ class CompanyStructureViewModel @Inject constructor(
                     deleteOperation(it).consumeEach { event ->
                         event.getContentIfNotHandled()?.let { resource ->
                             when (resource.status) {
-                                Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
-                                Status.SUCCESS -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
-                                Status.ERROR -> mainPageHandler?.updateLoadingState?.invoke(Pair(false, resource.message))
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
                             }
                         }
                     }
@@ -263,7 +245,7 @@ class CompanyStructureViewModel @Inject constructor(
     private fun updateCompanyStructureData() {
         viewModelScope.launch {
             try {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                mainPageHandler.updateLoadingState(Pair(true, null))
 
                 repository.syncTeamMembers()
                 repository.syncCompanies()
@@ -274,9 +256,9 @@ class CompanyStructureViewModel @Inject constructor(
                 repository.syncOperations()
                 repository.syncOperationsFlows()
 
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+                mainPageHandler.updateLoadingState(Pair(false, null))
             } catch (e: Exception) {
-                mainPageHandler?.updateLoadingState?.invoke(Pair(false, e.message))
+                mainPageHandler.updateLoadingState(Pair(false, e.message))
             }
         }
     }
