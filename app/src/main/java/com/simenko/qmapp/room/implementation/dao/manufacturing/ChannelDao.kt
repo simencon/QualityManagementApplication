@@ -30,11 +30,10 @@ abstract class ChannelDao: DaoBaseModel<DatabaseManufacturingChannel> {
     """)
     abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseManufacturingChannel>>
 
-    @Transaction
     @Query("SELECT * FROM manufacturingChannelsWithParents WHERE id = :id")
     abstract fun getRecordWithParentsById(id: Int): DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents
 
     @Transaction
-    @Query("SELECT * FROM manufacturingChannelsComplete WHERE id = :id")
+    @Query("SELECT * FROM `12_manufacturing_channels` AS mc WHERE id = :id ORDER BY mc.channelOrder;")
     abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete
 }

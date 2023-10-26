@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseDepartment
-import com.simenko.qmapp.room.entities.DatabaseDepartmentsComplete
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -32,5 +31,5 @@ abstract class DepartmentDao: DaoBaseModel<DatabaseDepartment> {
         where (:parentId = -1 or d.companyId = :parentId)
         order by depOrder;
         """)
-    abstract fun getRecordsComplete(parentId: Int): Flow<List<DatabaseDepartmentsComplete>>
+    abstract fun getRecordsComplete(parentId: Int): Flow<List<DatabaseDepartment.DatabaseDepartmentsComplete>>
 }

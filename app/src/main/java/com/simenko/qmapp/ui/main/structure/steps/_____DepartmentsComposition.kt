@@ -54,7 +54,7 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainDepartmentComplete
+import com.simenko.qmapp.domain.entities.DomainDepartment.DomainDepartmentComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle

@@ -91,6 +91,25 @@ data class DomainDepartment(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainDepartment::class, DatabaseDepartment::class).transform(this)
+
+    data class DomainDepartmentComplete(
+        val department: DomainDepartment = DomainDepartment(),
+        val depManager: DomainEmployee = DomainEmployee(),
+        val company: DomainCompany = DomainCompany(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseDepartment.DatabaseDepartmentsComplete>() {
+        override fun getRecordId() = department.id
+        override fun getParentId() = department.companyId ?: NoRecord.num
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel(): DatabaseDepartment.DatabaseDepartmentsComplete {
+            return DatabaseDepartment.DatabaseDepartmentsComplete(
+                department = department.toDatabaseModel(),
+                depManager = depManager.toDatabaseModel(),
+                company = company.toDatabaseModel()
+            )
+        }
+    }
 }
 
 @Stable
@@ -429,25 +448,6 @@ data class DomainEmployeeComplete(
             department = department?.toDatabaseModel(),
             subDepartment = subDepartment?.toDatabaseModel(),
             jobRole = jobRole?.toDatabaseModel()
-        )
-    }
-}
-
-data class DomainDepartmentComplete(
-    val department: DomainDepartment = DomainDepartment(),
-    val depManager: DomainEmployee = DomainEmployee(),
-    val company: DomainCompany = DomainCompany(),
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
-) : DomainBaseModel<DatabaseDepartmentsComplete>() {
-    override fun getRecordId() = department.id
-    override fun getParentId() = department.companyId ?: NoRecord.num
-    override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabaseDepartmentsComplete {
-        return DatabaseDepartmentsComplete(
-            department = department.toDatabaseModel(),
-            depManager = depManager.toDatabaseModel(),
-            company = company.toDatabaseModel()
         )
     }
 }

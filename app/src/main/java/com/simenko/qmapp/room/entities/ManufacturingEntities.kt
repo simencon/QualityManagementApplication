@@ -147,6 +147,31 @@ data class DatabaseDepartment constructor(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseDepartment::class, NetworkDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseDepartment::class, DomainDepartment::class).transform(this)
+
+    data class DatabaseDepartmentsComplete(
+        @Embedded
+        val department: DatabaseDepartment,
+        @Relation(
+            entity = DatabaseEmployee::class,
+            parentColumn = "depManager",
+            entityColumn = "id"
+        )
+        val depManager: DatabaseEmployee,
+        @Relation(
+            entity = DatabaseCompany::class,
+            parentColumn = "companyId",
+            entityColumn = "id"
+        )
+        val company: DatabaseCompany
+    ) : DatabaseBaseModel<Any?, DomainDepartment.DomainDepartmentComplete> {
+        override fun getRecordId() = department.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainDepartment.DomainDepartmentComplete(
+            department = department.toDomainModel(),
+            depManager = depManager.toDomainModel(),
+            company = company.toDomainModel()
+        )
+    }
 }
 
 @Entity(
@@ -172,11 +197,6 @@ data class DatabaseSubDepartment(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubDepartment::class, NetworkSubDepartment::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseSubDepartment::class, DomainSubDepartment::class).transform(this)
-
-    @DatabaseView(
-        viewName = "subDepartmentComplete",
-        value = " select * from `11_sub_departments` as sd order by sd.subDepOrder;"
-    )
     data class DatabaseSubDepartmentComplete(
         @Embedded
         val subDepartment: DatabaseSubDepartment,
@@ -252,11 +272,6 @@ data class DatabaseManufacturingChannel(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingChannel::class, NetworkManufacturingChannel::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingChannel::class, DomainManufacturingChannel::class).transform(this)
-
-    @DatabaseView(
-        viewName = "manufacturingChannelsComplete",
-        value = " select * from `12_manufacturing_channels` as mc order by mc.channelOrder;"
-    )
     data class DatabaseManufacturingChannelComplete(
         @Embedded
         val channel: DatabaseManufacturingChannel,
@@ -338,11 +353,6 @@ data class DatabaseManufacturingLine(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingLine::class, NetworkManufacturingLine::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingLine::class, DomainManufacturingLine::class).transform(this)
-
-    @DatabaseView(
-        viewName = "manufacturingLinesComplete",
-        value = " select * from `13_manufacturing_lines` as ml order by ml.lineOrder;"
-    )
     data class DatabaseManufacturingLineComplete(
         @Embedded
         val line: DatabaseManufacturingLine,
@@ -431,11 +441,6 @@ data class DatabaseManufacturingOperation(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingOperation::class, NetworkManufacturingOperation::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingOperation::class, DomainManufacturingOperation::class).transform(this)
-
-    @DatabaseView(
-        viewName = "manufacturingOperationsComplete",
-        value = " select * from `14_manufacturing_operations` as mo order by mo.operationOrder;"
-    )
     data class DatabaseManufacturingOperationComplete(
         @Embedded
         val operation: DatabaseManufacturingOperation,
@@ -581,30 +586,5 @@ data class DatabaseEmployeeComplete(
         department = department?.toDomainModel(),
         subDepartment = subDepartment?.toDomainModel(),
         jobRole = jobRole?.toDomainModel()
-    )
-}
-
-data class DatabaseDepartmentsComplete(
-    @Embedded
-    val department: DatabaseDepartment,
-    @Relation(
-        entity = DatabaseEmployee::class,
-        parentColumn = "depManager",
-        entityColumn = "id"
-    )
-    val depManager: DatabaseEmployee,
-    @Relation(
-        entity = DatabaseCompany::class,
-        parentColumn = "companyId",
-        entityColumn = "id"
-    )
-    val company: DatabaseCompany
-) : DatabaseBaseModel<Any?, DomainDepartmentComplete> {
-    override fun getRecordId() = department.id
-    override fun toNetworkModel() = null
-    override fun toDomainModel() = DomainDepartmentComplete(
-        department = department.toDomainModel(),
-        depManager = depManager.toDomainModel(),
-        company = company.toDomainModel()
     )
 }

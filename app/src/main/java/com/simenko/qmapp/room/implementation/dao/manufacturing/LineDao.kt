@@ -30,11 +30,10 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
     """)
     abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseManufacturingLine>>
 
-    @Transaction
     @Query("SELECT * FROM manufacturingLinesWithParents WHERE id = :id")
     abstract fun getRecordWithParentsById(id: Int): DatabaseManufacturingLine.DatabaseManufacturingLineWithParents
 
     @Transaction
-    @Query("SELECT * FROM manufacturingLinesComplete WHERE id = :id")
+    @Query("SELECT * FROM `13_manufacturing_lines` AS ml WHERE id = :id ORDER BY ml.lineOrder")
     abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingLine.DatabaseManufacturingLineComplete
 }

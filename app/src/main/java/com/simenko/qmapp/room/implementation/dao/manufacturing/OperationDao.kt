@@ -24,12 +24,13 @@ abstract class OperationDao: DaoBaseModel<DatabaseManufacturingOperation> {
 
     @Transaction
     @Query("""
-        select mo.* from manufacturingOperationsComplete mo 
+        select mo.* from `14_manufacturing_operations` as mo
         where(:lineId = -1 or mo.lineId = :lineId)
+        order by mo.operationOrder
     """)
     abstract fun getRecordsFlowForUI(lineId: Int): Flow<List<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>>
 
     @Transaction
-    @Query("SELECT * FROM manufacturingOperationsComplete WHERE id = :id")
+    @Query("SELECT * FROM `14_manufacturing_operations` WHERE id = :id")
     abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete
 }
