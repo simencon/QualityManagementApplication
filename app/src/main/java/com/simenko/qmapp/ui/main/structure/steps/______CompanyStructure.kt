@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import kotlinx.coroutines.delay
@@ -31,7 +30,7 @@ fun CompanyStructure(
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding()
 
-    val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
+    val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -78,8 +77,8 @@ fun CompanyStructure(
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
-    LaunchedEffect(channelVisibility) {
-        when (channelVisibility.first == NoRecord) {
+    LaunchedEffect(isSecondRowVisible) {
+        when (!isSecondRowVisible) {
             true -> {
                 if (screenWidth <= limitToResize) animateScroll(0)
                 updateSizes(0)
@@ -103,7 +102,7 @@ fun CompanyStructure(
                 .height(screenHeight)
         ) {
             Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-            if (channelVisibility.first != NoRecord)
+            if (isSecondRowVisible)
                 Lines(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }

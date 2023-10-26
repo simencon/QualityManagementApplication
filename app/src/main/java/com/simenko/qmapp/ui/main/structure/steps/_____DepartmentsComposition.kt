@@ -73,7 +73,7 @@ fun Departments(
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
     val items by viewModel.departments.collectAsStateWithLifecycle(listOf())
-    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
+    val scrollToRecord by viewModel.scrollToRecordInFirstColumn.collectAsStateWithLifecycle(null)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
@@ -86,8 +86,8 @@ fun Departments(
     LaunchedEffect(lifecycleState.value) {
         println("Departments - lifecycleState: ${lifecycleState.value}")
         when (lifecycleState.value) {
-            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
-            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(0, true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(0, false)
             else -> {}
         }
     }
@@ -96,6 +96,7 @@ fun Departments(
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.departmentId.getContentIfNotHandled()?.let { departmentId ->
+                println("department - scrollToRecord = $departmentId")
                 viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.department.id }.toList(), selectedId = departmentId) })
             }
         }
