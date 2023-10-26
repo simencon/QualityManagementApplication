@@ -1,6 +1,7 @@
 package com.simenko.qmapp.repository
 
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.domain.entities.DomainDepartment.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel.DomainManufacturingChannelWithParents
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete

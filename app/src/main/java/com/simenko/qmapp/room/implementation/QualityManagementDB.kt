@@ -65,13 +65,9 @@ import com.simenko.qmapp.room.implementation.dao.system.UserRoleDao
         DatabaseResult::class
     ],
     views = [
-        DatabaseSubDepartment.DatabaseSubDepartmentComplete::class,
         DatabaseSubDepartment.DatabaseSubDepartmentWithParents::class,
-        DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete::class,
         DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents::class,
-        DatabaseManufacturingLine.DatabaseManufacturingLineComplete::class,
         DatabaseManufacturingLine.DatabaseManufacturingLineWithParents::class,
-        DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete::class,
         DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class,
 
         DatabaseItem::class,

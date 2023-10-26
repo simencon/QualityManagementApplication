@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "26c2d783350250d0054cc8a02d93b7b4",
+    "identityHash": "22a52d7099b3bbf9dedc4468439c9297",
     "entities": [
       {
         "tableName": "user_roles",
@@ -3594,6 +3594,22 @@
     ],
     "views": [
       {
+        "viewName": "subDepartmentWithParents",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select c.id as companyId, c.companyOrder, c.companyName,\n        d.id as departmentId, d.depOrder, d.depAbbr, d.depName, \n        sd.id, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation\n        from `11_sub_departments` as sd\n        inner join `10_departments` as d on sd.depId = d.id\n        inner join `0_companies` as c on d.companyId = c.id\n        order by d.depOrder, sd.subDepOrder;"
+      },
+      {
+        "viewName": "manufacturingChannelsWithParents",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select c.id as companyId, c.companyOrder, c.companyName,\n        d.id as departmentId, d.depOrder, d.depAbbr, d.depName, \n        sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, \n        mc.id, mc.channelOrder, mc.channelAbbr, mc.channelDesignation\n        from `12_manufacturing_channels` as mc\n        inner join `11_sub_departments` as sd on mc.subDepId = sd.id\n        inner join `10_departments` as d on sd.depId = d.id\n        inner join `0_companies` as c on d.companyId = c.id\n        order by d.depOrder, sd.subDepOrder, mc.channelOrder;"
+      },
+      {
+        "viewName": "manufacturingLinesWithParents",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select c.id as companyId, c.companyOrder, c.companyName,\n        d.id as departmentId, d.depOrder, d.depAbbr, d.depName, \n        sd.id as subDepartmentId, sd.subDepOrder, sd.subDepAbbr, sd.subDepDesignation, \n        mc.id as channelId, mc.channelOrder, mc.channelAbbr, mc.channelDesignation, \n        ml.id, ml.lineOrder, ml.lineAbbr, ml.lineDesignation \n        from `13_manufacturing_lines` as ml\n        inner join `12_manufacturing_channels` as mc on ml.chId = mc.id\n        inner join `11_sub_departments` as sd on mc.subDepId = sd.id\n        inner join `10_departments` as d on sd.depId = d.id\n        inner join `0_companies` as c on d.companyId = c.id\n        order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder;"
+      },
+      {
+        "viewName": "operationsFlowsComplete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select mof.id, mof.currentOperationId, mof.previousOperationId, pmo.operationOrder, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment, \n        c.id as companyId, c.companyOrder, c.companyName, \n        d.id as depId, d.depOrder, d.depAbbr, \n        sd.id as subDepId, sd.subDepOrder, sd.subDepAbbr, \n        mc.id as channelId, mc.channelOrder, mc.channelAbbr, \n        ml.id as lineId, ml.lineOrder, ml.lineAbbr\n        from `14_14_manufacturing_operations_flow` as mof\n        inner join `14_manufacturing_operations` as pmo on mof.previousOperationId = pmo.id\n        inner join `13_manufacturing_lines` as ml on pmo.lineId = ml.id\n        inner join `12_manufacturing_channels` as mc on ml.chId = mc.id\n        inner join `11_sub_departments` as sd on mc.subDepId = sd.id\n        inner join `10_departments` as d on sd.depId = d.id\n        inner join `0_companies` as c on d.companyId = c.id\n        order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder, pmo.operationOrder;"
+      },
+      {
         "viewName": "items",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.id as id, ('p'|| p.Id) as fId, p.keyId, p.productDesignation as itemDesignation FROM `2_products` AS p UNION ALL SELECT c.id as id, ('c'|| c.Id) as fId, c.keyId, c.componentDesignation as itemDesignation FROM `4_components` AS c UNION ALL SELECT s.id as id, ('s'|| s.Id) as fId, s.keyId, s.componentInStageDescription as itemDesignation FROM `6_components_in_stages` AS s;"
       },
@@ -3656,7 +3672,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '26c2d783350250d0054cc8a02d93b7b4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '22a52d7099b3bbf9dedc4468439c9297')"
     ]
   }
 }
