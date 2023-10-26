@@ -84,7 +84,6 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        println("Operations - lifecycleState: ${lifecycleState.value}")
         when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(4, true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(4, false)
