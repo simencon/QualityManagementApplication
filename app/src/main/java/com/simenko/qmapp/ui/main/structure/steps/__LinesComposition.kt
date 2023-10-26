@@ -44,12 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.SelectedNumber
@@ -62,6 +64,7 @@ import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -70,7 +73,7 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
 
     val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.lines.collectAsStateWithLifecycle(listOf())
-    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
+    val scrollToRecord by viewModel.scrollToRecordInSecondColumn.collectAsStateWithLifecycle(null)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
@@ -79,10 +82,22 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        println("Lines - lifecycleState: ${lifecycleState.value}")
+        when (lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(3, true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(3, false)
+            else -> {}
+        }
+    }
+
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.lineId.getContentIfNotHandled()?.let { lineId ->
+                println("line - scrollToRecord = $lineId")
                 viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.id }.toList(), selectedId = lineId) })
             }
         }

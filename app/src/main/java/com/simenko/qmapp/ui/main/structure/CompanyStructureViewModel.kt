@@ -26,6 +26,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -105,14 +106,31 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _isComposed = MutableStateFlow(false)
-    val setIsComposed: (Boolean) -> Unit = { _isComposed.value = it }
+    private val _isComposed = MutableStateFlow(arrayOf(false, false, false, false, false))
+    val setIsComposed: (Int, Boolean) -> Unit = { i, value ->
+        val cpy = _isComposed.value.copyOf()
+        cpy[i] = value
+        _isComposed.value = cpy
+    }
 
-    val scrollToRecord: SharedFlow<StructureIds?> = _createdRecord.flatMapLatest { record ->
-        _isComposed.flatMapLatest { isComposed ->
-            if (isComposed) flow { emit(record) } else flow { emit(null) }
+    val isSecondColumnVisible = _isComposed.flatMapLatest { isComposed ->
+        _channelsVisibility.flatMapLatest { channelsVisibility ->
+            flow { emit((channelsVisibility.first != NoRecord) && (isComposed.component3())) }
         }
-    }.flowOn(Dispatchers.IO).conflate().shareIn(viewModelScope, SharingStarted.WhileSubscribed())
+    }
+
+    val scrollToRecordInFirstColumn: Flow<StructureIds?> = _createdRecord.flatMapLatest { record ->
+        _isComposed.flatMapLatest { isComposed ->
+            if (isComposed.component1()) flow { emit(record) } else flow { emit(null) }
+        }
+    }
+
+    val scrollToRecordInSecondColumn: Flow<StructureIds?> = _createdRecord.flatMapLatest { record ->
+        _isComposed.flatMapLatest { isComposed ->
+            if (isComposed.component4()) flow { emit(record) } else flow { emit(null) }
+        }
+    }
+
 
     val channel = Channel<Job>(capacity = Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
 
@@ -120,11 +138,10 @@ class CompanyStructureViewModel @Inject constructor(
     val departmentsVisibility = _departmentsVisibility.asStateFlow()
     val departments = _departments.flatMapLatest { departments ->
         _departmentsVisibility.flatMapLatest { visibility ->
-            if (_isComposed.value) println("Departments - lifecycleState: departments triggered")
-            _subDepartmentsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setSubDepartmentsVisibility(dId = it) }
-            _channelsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setChannelsVisibility(dId = it) }
-            _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setLinesVisibility(dId = it) }
-            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setOperationsVisibility(dId = it) }
+            _subDepartmentsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component2()) setSubDepartmentsVisibility(dId = it) }
+            _channelsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component3()) setChannelsVisibility(dId = it) }
+            _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component4()) setLinesVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component5()) setOperationsVisibility(dId = it) }
             val cpy = departments.map { it.copy(detailsVisibility = it.department.id == visibility.first.num, isExpanded = it.department.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -133,10 +150,9 @@ class CompanyStructureViewModel @Inject constructor(
     val subDepartmentsVisibility = _subDepartmentsVisibility.asStateFlow()
     val subDepartments = _subDepartments.flatMapLatest { subDepartment ->
         _subDepartmentsVisibility.flatMapLatest { visibility ->
-            if (_isComposed.value) println("Departments - lifecycleState: subDepartments triggered")
-            _channelsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setChannelsVisibility(dId = it) }
-            _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setLinesVisibility(dId = it) }
-            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setOperationsVisibility(dId = it) }
+            _channelsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component3()) setChannelsVisibility(dId = it) }
+            _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component4()) setLinesVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component5()) setOperationsVisibility(dId = it) }
             val cpy = subDepartment.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -145,9 +161,8 @@ class CompanyStructureViewModel @Inject constructor(
     val channelsVisibility = _channelsVisibility.asStateFlow()
     val channels = _channels.flatMapLatest { channel ->
         _channelsVisibility.flatMapLatest { visibility ->
-            if (_isComposed.value) println("Departments - lifecycleState: channels triggered")
-            _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setLinesVisibility(dId = it) }
-            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setOperationsVisibility(dId = it) }
+            _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component4()) setLinesVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component5()) setOperationsVisibility(dId = it) }
             val cpy = channel.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -156,8 +171,7 @@ class CompanyStructureViewModel @Inject constructor(
     val linesVisibility = _linesVisibility.asStateFlow()
     val lines = _lines.flatMapLatest { line ->
         _linesVisibility.flatMapLatest { visibility ->
-            if (_isComposed.value) println("Departments - lifecycleState: lines triggered")
-            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value) setOperationsVisibility(dId = it) }
+            _operationsVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component5()) setOperationsVisibility(dId = it) }
             val cpy = line.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -165,7 +179,6 @@ class CompanyStructureViewModel @Inject constructor(
 
     val operations = _operations.flatMapLatest { operation ->
         _operationsVisibility.flatMapLatest { visibility ->
-            if (_isComposed.value) println("Departments - lifecycleState: operations triggered")
             val cpy = operation.map { it.copy(detailsVisibility = it.operation.id == visibility.first.num, isExpanded = it.operation.id == visibility.second.num) }
             flow { emit(cpy) }
         }
