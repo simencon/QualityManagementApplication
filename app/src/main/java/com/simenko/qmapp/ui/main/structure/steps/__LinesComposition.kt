@@ -82,11 +82,10 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
-    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.observeAsState()
 
-    LaunchedEffect(lifecycleState.value) {
-        println("Lines - lifecycleState: ${lifecycleState.value}")
-        when (lifecycleState.value) {
+    LaunchedEffect(lifecycleState) {
+        when (lifecycleState) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(3, true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(3, false)
             else -> {}
@@ -97,7 +96,6 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.lineId.getContentIfNotHandled()?.let { lineId ->
-                println("line - scrollToRecord = $lineId")
                 viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.id }.toList(), selectedId = lineId) })
             }
         }

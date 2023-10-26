@@ -85,7 +85,6 @@ fun Channels(
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        println("Channels - lifecycleState: ${lifecycleState.value}")
         when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(2, true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(2, false)
@@ -149,7 +148,7 @@ fun ChannelCard(
     }
 
     Box(Modifier.fillMaxWidth()) {
-        Row(Modifier.padding(all = (Constants.DEFAULT_SPACE / 2).dp)) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
                 onClick = { onClickDelete(channel.id) },

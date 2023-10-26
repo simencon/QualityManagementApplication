@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -84,7 +83,6 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
     LaunchedEffect(lifecycleState.value) {
-        println("SubDepartments - lifecycleState: ${lifecycleState.value}")
         when (lifecycleState.value) {
             Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(1, true)
             Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(1, false)

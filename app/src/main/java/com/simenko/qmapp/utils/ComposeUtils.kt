@@ -6,6 +6,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
@@ -19,7 +20,7 @@ val density: Float
 
 @Composable
 fun Lifecycle.observeAsState(): State<Lifecycle.Event> {
-    val state = remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
+    val state = rememberSaveable { mutableStateOf(Lifecycle.Event.ON_ANY) }
     DisposableEffect(this) {
         val observer = LifecycleEventObserver { _, event ->
             state.value = event
