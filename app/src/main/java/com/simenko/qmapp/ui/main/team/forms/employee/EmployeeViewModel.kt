@@ -118,7 +118,7 @@ class EmployeeViewModel @Inject constructor(
         }
     }
 
-    private val _employeeSubDepartments: Flow<List<DomainSubDepartment>> = repository.subDepartments
+    private val _employeeSubDepartments: Flow<List<DomainSubDepartment>> = repository.subDepartments(NoRecord.num)
     val employeeSubDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeSubDepartments.flatMapLatest { subDepartments ->
         _employee.flatMapLatest { employee ->
             val cpy = mutableListOf<Triple<Int, String, Boolean>>()

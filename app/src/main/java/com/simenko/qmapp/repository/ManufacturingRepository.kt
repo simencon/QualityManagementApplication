@@ -16,7 +16,6 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -135,11 +134,9 @@ class ManufacturingRepository @Inject constructor(
     val departmentsComplete: (Int) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
     val departmentById: (Int) -> DomainDepartment = { id -> database.departmentDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") } }
 
-    val subDepartments: Flow<List<DomainSubDepartment>> = database.subDepartmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val subDepartments: (Int) -> Flow<List<DomainSubDepartment>> = { pId -> database.subDepartmentDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }
     val subDepartmentById: (Int) -> DomainSubDepartment.DomainSubDepartmentComplete = { database.subDepartmentDao.getRecordCompleteById(it).toDomainModel() }
-
-    val subDepartmentsByDepartment: (Int) -> Flow<List<DomainSubDepartment>> = { flow { emit(database.subDepartmentDao.getRecordsByParentId(it).map { list -> list.toDomainModel() }) } }
 
     val channels: (Int) -> Flow<List<DomainManufacturingChannel>> = { pId -> database.channelDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val channelWithParentsById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }

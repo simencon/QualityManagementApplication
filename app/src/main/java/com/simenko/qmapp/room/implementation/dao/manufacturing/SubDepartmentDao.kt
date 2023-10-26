@@ -10,25 +10,29 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class SubDepartmentDao : DaoBaseModel<DatabaseSubDepartment> {
-    @Query("SELECT * FROM `11_sub_departments` ORDER BY subDepOrder ASC")
+    @Query("select * from `11_sub_departments` order by subDepOrder asc")
     abstract override fun getRecords(): List<DatabaseSubDepartment>
 
     @Query("select * from `11_sub_departments` where depId = :parentId order by subDepOrder asc")
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSubDepartment>
 
-    @Query("SELECT * FROM `11_sub_departments` WHERE id = :id")
+    @Query("select * from `11_sub_departments` where id = :id")
     abstract override fun getRecordById(id: String): DatabaseSubDepartment?
 
-    @Query("SELECT * FROM `11_sub_departments` ORDER BY subDepOrder ASC")
+    @Query("select * from `11_sub_departments` order by subDepOrder asc")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseSubDepartment>>
 
-    @Query("SELECT * FROM `11_sub_departments` ORDER BY subDepOrder ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseSubDepartment>>
+    @Query("""
+        select * from `11_sub_departments` as sd
+        where(:parentId = -1 or sd.depId = :parentId)
+        order by subDepOrder asc
+        """)
+    abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseSubDepartment>>
 
-    @Query("SELECT * FROM subDepartmentWithParents WHERE id = :id")
+    @Query("select * from subDepartmentWithParents where id = :id")
     abstract fun getRecordWithParentsById(id: Int): DatabaseSubDepartment.DatabaseSubDepartmentWithParents
 
     @Transaction
-    @Query("SELECT * FROM `11_sub_departments` AS sd WHERE id = :id ORDER BY sd.subDepOrder")
+    @Query("select * from `11_sub_departments` AS sd where id = :id order by sd.subDepOrder")
     abstract fun getRecordCompleteById(id: Int): DatabaseSubDepartment.DatabaseSubDepartmentComplete
 }
