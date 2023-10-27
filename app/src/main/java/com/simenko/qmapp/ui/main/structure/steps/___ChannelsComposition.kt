@@ -38,20 +38,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoString
@@ -64,7 +61,6 @@ import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
-import com.simenko.qmapp.utils.observeAsState
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -81,16 +77,6 @@ fun Channels(
     val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddChannelClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditChannelClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onChannelProductsClick(it) } }
-
-    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
-
-    LaunchedEffect(lifecycleState.value) {
-        when (lifecycleState.value) {
-            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(2, true)
-            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(2, false)
-            else -> {}
-        }
-    }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow {

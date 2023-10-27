@@ -43,14 +43,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.NoRecord
@@ -60,17 +58,15 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.DomainDepartment.DomainDepartmentComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.StatusChangeBtn
-import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
-import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @OptIn(FlowPreview::class)
@@ -80,7 +76,6 @@ fun Departments(
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
     val items by viewModel.departments.collectAsStateWithLifecycle(listOf())
-    val scrollToRecord by viewModel.scrollToRecordInFirstColumn.collectAsStateWithLifecycle(null)
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
@@ -89,36 +84,15 @@ fun Departments(
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
 
-    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
-
-    LaunchedEffect(lifecycleState.value) {
-        when (lifecycleState.value) {
-            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(0, true)
-            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(0, false)
-            else -> {}
-        }
-    }
-
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong("DEPARTMENTS_LIST_INDEX").toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong("DEPARTMENTS_LIST_OFFSET").toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.indexKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
+        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.offsetKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
     )
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
-            println("Departments saving position - index = $index")
-            println("Departments saving position - offset = ${listState.firstVisibleItemScrollOffset}")
-            viewModel.storage.setLong("DEPARTMENTS_LIST_INDEX", index.toLong())
-            viewModel.storage.setLong("DEPARTMENTS_LIST_OFFSET", listState.firstVisibleItemScrollOffset.toLong())
-        }
-    }
-
-    LaunchedEffect(scrollToRecord) {
-        scrollToRecord?.let { record ->
-            record.departmentId.getContentIfNotHandled()?.let { departmentId ->
-                println("department - scrollToRecord = $departmentId")
-                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.department.id }.toList(), selectedId = departmentId) })
-            }
+            viewModel.storage.setLong(ScrollStates.DEPARTMENTS.indexKey, index.toLong())
+            viewModel.storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, listState.firstVisibleItemScrollOffset.toLong())
         }
     }
 

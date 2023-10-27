@@ -13,12 +13,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.delay
 
 @Composable
@@ -34,6 +37,22 @@ fun CompanyStructure(
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
+
+    val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
+
+    LaunchedEffect(key1 = listsIsInitialized, key2 = listsIsInitialized) {
+        println("CompanyStructure - depListIsInitialized = $listsIsInitialized")
+    }
+
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when (lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            else -> {}
+        }
+    }
 
     /**
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
@@ -101,8 +120,9 @@ fun CompanyStructure(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-            if (isSecondRowVisible)
+            if (listsIsInitialized.first)
+                Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
+            if (isSecondRowVisible && listsIsInitialized.second)
                 Lines(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }
