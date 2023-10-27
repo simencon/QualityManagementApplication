@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -75,6 +76,8 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddSubDepartmentClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditSubDepartmentClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
+
+    LaunchedEffect(Unit) { viewModel.setIsComposed(1, true) }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow {

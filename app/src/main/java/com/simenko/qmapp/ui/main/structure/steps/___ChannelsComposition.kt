@@ -38,6 +38,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -77,6 +78,8 @@ fun Channels(
     val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddChannelClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditChannelClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onChannelProductsClick(it) } }
+
+    LaunchedEffect(Unit) { viewModel.setIsComposed(2, true) }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow {

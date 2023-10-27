@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
@@ -19,10 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.observeAsState
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun CompanyStructure(
@@ -48,8 +55,8 @@ fun CompanyStructure(
 
     LaunchedEffect(lifecycleState.value) {
         when (lifecycleState.value) {
-            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
-            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            Lifecycle.Event.ON_RESUME -> viewModel.setViewState(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setViewState(false)
             else -> {}
         }
     }
@@ -85,6 +92,8 @@ fun CompanyStructure(
         )
     }
 
+    var isScrolled by rememberSaveable { mutableStateOf(false) }
+
     suspend fun animateScroll(samplesFactor: Int) {
         horizontalScrollState.animateScrollTo(
             samplesFactor * horizontalScrollState.maxValue, tween(
@@ -97,19 +106,14 @@ fun CompanyStructure(
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
     LaunchedEffect(isSecondRowVisible) {
-        when (!isSecondRowVisible) {
-            true -> {
-                if (screenWidth <= limitToResize) animateScroll(0)
-                updateSizes(0)
-            }
+        viewModel.channel.trySend(this.launch { updateSizes(if (isSecondRowVisible) 1 else 0) })
+    }
 
-            false -> {
-                updateSizes(1)
-//                ToDo find a way to run animation exactly when screen resized
-                delay(50L)
-                if (screenWidth <= limitToResize) animateScroll(1)
-            }
-        }
+    var animate by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(animate) {
+        viewModel.channel.trySend(this.launch { if (screenWidth <= limitToResize) animateScroll(if (isSecondRowVisible) 1 else 0) })
+        viewModel.channel.trySend(this.launch { isScrolled = true })
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -117,6 +121,7 @@ fun CompanyStructure(
             Modifier
                 .verticalScroll(verticalScrollState)
                 .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
+                .onSizeChanged { animate = !animate }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {

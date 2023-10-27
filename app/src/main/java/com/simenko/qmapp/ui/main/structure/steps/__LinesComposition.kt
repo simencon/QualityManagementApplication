@@ -84,6 +84,8 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
+    LaunchedEffect(Unit) { viewModel.setIsComposed(3, true) }
+
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.LINES.indexKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
         initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.offsetKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it }

@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -76,6 +77,8 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddOperationClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditOperationClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onOperationProductsClick(it) } }
+
+    LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
 
     FlowRow(horizontalArrangement = Arrangement.End, verticalArrangement = Arrangement.Center) {
         items.forEach { operation ->
@@ -178,7 +181,7 @@ fun Operation(
             Column(modifier = Modifier.weight(0.60f)) {
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = operation.operation.operationOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.34f, title = "Equipment:", text = operation.operation.equipment.let { if(it.isNullOrEmpty()) NoString.str else it })
+                HeaderWithTitle(titleWight = 0.34f, title = "Equipment:", text = operation.operation.equipment.let { if (it.isNullOrEmpty()) NoString.str else it })
             }
             StatusChangeBtn(modifier = Modifier.weight(weight = 0.30f), containerColor = containerColor, onClick = { onClickProducts(operation.operation.id) }) {
                 Text(
