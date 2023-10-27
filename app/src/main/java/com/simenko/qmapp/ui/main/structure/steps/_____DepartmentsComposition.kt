@@ -83,6 +83,7 @@ fun Departments(
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
+    LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.indexKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
