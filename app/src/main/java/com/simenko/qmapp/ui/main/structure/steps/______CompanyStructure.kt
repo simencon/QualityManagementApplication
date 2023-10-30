@@ -21,15 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
-import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.observeAsState
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 
 @Composable
 fun CompanyStructure(
@@ -46,20 +46,6 @@ fun CompanyStructure(
     val horizontalScrollState = rememberScrollState()
 
     val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
-
-    LaunchedEffect(key1 = listsIsInitialized, key2 = listsIsInitialized) {
-        println("CompanyStructure - depListIsInitialized = $listsIsInitialized")
-    }
-
-    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
-
-    LaunchedEffect(lifecycleState.value) {
-        when (lifecycleState.value) {
-            Lifecycle.Event.ON_RESUME -> viewModel.setViewState(true)
-            Lifecycle.Event.ON_STOP -> viewModel.setViewState(false)
-            else -> {}
-        }
-    }
 
     /**
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
@@ -92,28 +78,40 @@ fun CompanyStructure(
         )
     }
 
-    var isScrolled by rememberSaveable { mutableStateOf(false) }
 
     suspend fun animateScroll(samplesFactor: Int) {
         horizontalScrollState.animateScrollTo(
-            samplesFactor * horizontalScrollState.maxValue, tween(
-                durationMillis = ANIMATION_DURATION,
-                easing = LinearOutSlowInEasing
-            )
+            value = samplesFactor * horizontalScrollState.maxValue,
+            animationSpec = tween(durationMillis = ANIMATION_DURATION, easing = LinearOutSlowInEasing)
         )
     }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
-    LaunchedEffect(isSecondRowVisible) {
-        viewModel.channel.trySend(this.launch { updateSizes(if (isSecondRowVisible) 1 else 0) })
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when (lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setViewState(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setViewState(false)
+            else -> {}
+        }
     }
 
-    var animate by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var secondRowVisibility by rememberSaveable { mutableStateOf(false) }
+    val channel = kotlinx.coroutines.channels.Channel<Job>(capacity = kotlinx.coroutines.channels.Channel.UNLIMITED).apply {
+        scope.launch { consumeEach { it.join() } }
+    }
 
-    LaunchedEffect(animate) {
-        viewModel.channel.trySend(this.launch { if (screenWidth <= limitToResize) animateScroll(if (isSecondRowVisible) 1 else 0) })
-        viewModel.channel.trySend(this.launch { isScrolled = true })
+    LaunchedEffect(isSecondRowVisible) {
+        if (isSecondRowVisible) {
+            channel.trySend(scope.launch(start = CoroutineStart.LAZY) { updateSizes(1) })
+        } else {
+            channel.trySend(scope.launch(start = CoroutineStart.LAZY) { secondRowVisibility = false })
+            channel.trySend(scope.launch(start = CoroutineStart.LAZY) { if (screenWidth <= limitToResize) animateScroll(0) })
+            channel.trySend(scope.launch(start = CoroutineStart.LAZY) { updateSizes(0) })
+        }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -121,13 +119,18 @@ fun CompanyStructure(
             Modifier
                 .verticalScroll(verticalScrollState)
                 .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
-                .onSizeChanged { animate = !animate }
+                .onSizeChanged {
+                    if (isSecondRowVisible) {
+                        channel.trySend(scope.launch(start = CoroutineStart.LAZY) { if (screenWidth <= limitToResize) animateScroll(1) })
+                        channel.trySend(scope.launch(start = CoroutineStart.LAZY) { secondRowVisibility = true })
+                    }
+                }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
             if (listsIsInitialized.first)
                 Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-            if (isSecondRowVisible && listsIsInitialized.second)
+            if (secondRowVisibility && listsIsInitialized.second)
                 Lines(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }

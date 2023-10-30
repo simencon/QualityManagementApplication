@@ -107,8 +107,6 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val channel = kotlinx.coroutines.channels.Channel<Job>(capacity = kotlinx.coroutines.channels.Channel.UNLIMITED).apply { viewModelScope.launch { consumeEach { it.join() } } }
-
     private val _viewState = MutableStateFlow(false)
     val setViewState: (Boolean) -> Unit = {
         if (!it) _isComposed.value = BooleanArray(5) { false }
