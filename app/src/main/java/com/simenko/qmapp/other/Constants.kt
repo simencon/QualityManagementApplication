@@ -8,7 +8,7 @@ object Constants {
     const val CARD_OFFSET = 45f//135f
     const val TOP_TAB_ROW_HEIGHT = 40
 
-    const val ANIMATION_DURATION = 200
+    const val ANIMATION_DURATION = 500
     const val MIN_DRAG_AMOUNT = 6
 
     /**
