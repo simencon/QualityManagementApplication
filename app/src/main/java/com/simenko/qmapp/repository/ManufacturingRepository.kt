@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.system.measureTimeMillis
 
 @ViewModelScoped
 class ManufacturingRepository @Inject constructor(
@@ -142,7 +143,14 @@ class ManufacturingRepository @Inject constructor(
     val channelWithParentsById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }
     val channelById: (Int) -> DomainManufacturingChannel.DomainManufacturingChannelComplete = { database.channelDao.getRecordCompleteById(it).toDomainModel() }
 
-    val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId -> database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId ->
+        lateinit var result: Flow<List<DomainManufacturingLine>>
+        val time = measureTimeMillis {
+            result = database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } }
+        }
+        println("measureTimeMillis - lines $time ms")
+        result
+    }
     val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it).toDomainModel() }
     val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
 

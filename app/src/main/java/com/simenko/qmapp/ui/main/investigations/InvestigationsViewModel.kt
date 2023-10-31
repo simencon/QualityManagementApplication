@@ -329,7 +329,11 @@ class InvestigationsViewModel @Inject constructor(
         _tasksVisibility.value = _tasksVisibility.value.setVisibility(dId, aId)
     }
 
-    val tasksVisibility = _tasksVisibility.asStateFlow()
+    val tasksVisibility get() = _tasksVisibility.asStateFlow()
+
+    val isSecondRowVisible = _tasksVisibility.flatMapLatest {
+        flow { emit(it.first != NoRecord) }
+    }
 
     /**
      * The result flow
