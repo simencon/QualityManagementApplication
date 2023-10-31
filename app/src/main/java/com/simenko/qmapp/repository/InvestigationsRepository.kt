@@ -23,6 +23,7 @@ import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.system.measureTimeMillis
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
@@ -86,7 +87,7 @@ class InvestigationsRepository @Inject constructor(
                 val finalLocalDate = locDate ?: (rmDate - SyncPeriods.LAST_DAY.latestMillis)
                 return if (rmDate > finalLocalDate)
                     responseHandlerForListOfRecords(taskExecutor = { invService.getOrdersByDateRange(Pair(finalLocalDate, rmDate)) }) { r -> insertInvEntities(r.map { it.toNetworkModel() }) }
-                 else
+                else
                     produce { send(Event(Resource.success(emptyList()))) }
             }
         }
@@ -282,7 +283,12 @@ class InvestigationsRepository @Inject constructor(
     }
 
     val tasksRangeList: (Int) -> Flow<List<DomainSubOrderTaskComplete>> = { subOrderId ->
-        database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list -> list.map { it.toDomainModel() } }
+        lateinit var result: Flow<List<DomainSubOrderTaskComplete>>
+        val time = measureTimeMillis {
+            result = database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list -> list.map { it.toDomainModel() } }
+        }
+        println("measureTimeMillis - tasksRangeList $time ms")
+        result
     }
 
     val samplesRangeList: (Int) -> Flow<List<DomainSampleComplete>> = { subOrderId ->
@@ -290,7 +296,12 @@ class InvestigationsRepository @Inject constructor(
     }
 
     val resultsRangeList: (Int, Int) -> Flow<List<DomainResultComplete>> = { taskId, sampleId ->
-        database.resultDao.getRecordsByParentIdForUI(taskId, sampleId).map { list -> list.map { it.toDomainModel() } }
+        lateinit var result: Flow<List<DomainResultComplete>>
+        val time = measureTimeMillis {
+            result = database.resultDao.getRecordsByParentIdForUI(taskId, sampleId).map { list -> list.map { it.toDomainModel() } }
+        }
+        println("measureTimeMillis - resultsRangeList $time ms")
+        result
     }
 
     /**

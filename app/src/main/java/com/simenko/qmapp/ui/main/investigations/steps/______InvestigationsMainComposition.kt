@@ -13,17 +13,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
+import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
+import com.simenko.qmapp.utils.dp
 import kotlinx.coroutines.delay
 
 @Composable
@@ -31,11 +33,13 @@ fun InvestigationsMainComposition(
     mainScreenPadding: PaddingValues,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
+    val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - TOP_TAB_ROW_HEIGHT.dp
+    val animator = HorizonteAnimationImp(screenWidth, scope)
 
-    val tasksVisibility by invModel.tasksVisibility.collectAsStateWithLifecycle()
+    val isSecondRowVisible by invModel.isSecondRowVisible.collectAsStateWithLifecycle(false)
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
@@ -48,30 +52,6 @@ fun InvestigationsMainComposition(
      * */
     var screenSizes: Triple<Dp, Dp, Dp> by remember {
         mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
-    }
-
-    val limitToResize = 720
-
-    fun updateSizes(samplesFactor: Int) {
-        screenSizes = Triple(
-            when {
-                screenWidth > limitToResize -> screenWidth.dp
-                else -> (screenWidth * (1 + 0.88 * samplesFactor)).dp
-            },
-            when (samplesFactor) {
-                0 -> screenWidth.dp
-                else -> {
-                    when {
-                        screenWidth > limitToResize -> (screenWidth * 0.57).dp
-                        else -> screenWidth.dp
-                    }
-                }
-            },
-            when {
-                screenWidth > limitToResize -> (screenWidth * 0.43 * samplesFactor).dp
-                else -> (screenWidth * 0.88 * samplesFactor).dp
-            }
-        )
     }
 
     suspend fun animateScroll(samplesFactor: Int) {
@@ -87,19 +67,13 @@ fun InvestigationsMainComposition(
         invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true)
     }
 
-    LaunchedEffect(tasksVisibility) {
-        when (tasksVisibility.first == NoRecord) {
-            true -> {
-                if (screenWidth <= limitToResize) animateScroll(0)
-                updateSizes(0)
-            }
-
-            false -> {
-                updateSizes(1)
-//                ToDo find a way to run animation exactly when screen resized
-                delay(50L)
-                if (screenWidth <= limitToResize) animateScroll(1)
-            }
+    LaunchedEffect(isSecondRowVisible) {
+        if (isSecondRowVisible) {
+            animator.setRequiredScreenWidth(1) { screenSizes = it }
+        } else {
+//            animator.setSecondRowVisibility(false) { secondRowVisibility = it }
+            animator.run { horizontalScrollState.animateScroll(0) }
+            animator.setRequiredScreenWidth(0) { screenSizes = it }
         }
     }
 
@@ -108,6 +82,14 @@ fun InvestigationsMainComposition(
             Modifier
                 .verticalScroll(verticalScrollState)
                 .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
+                .onSizeChanged {
+                    println("CompanyStructure resized with new sizes: $it, physical width ${screenWidth.toFloat().dp()}")
+                    if (isSecondRowVisible && it.width > screenWidth.toFloat().dp()) {
+                        println("CompanyStructure resized, start of animation")
+                        animator.run { horizontalScrollState.animateScroll(1) }
+//                        animator.setSecondRowVisibility(true) { visibility -> secondRowVisibility = visibility }
+                    }
+                }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
@@ -116,7 +98,7 @@ fun InvestigationsMainComposition(
             else
                 Orders(modifier = Modifier.width(screenSizes.second), viewModel = invModel)
 
-            if (tasksVisibility.first != NoRecord)
+            if (isSecondRowVisible)
                 SampleComposition(modifier = Modifier.width(screenSizes.third), invModel = invModel)
         }
 
