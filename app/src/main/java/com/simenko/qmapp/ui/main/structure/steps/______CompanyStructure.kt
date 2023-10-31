@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
+import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
 @Composable
@@ -77,9 +78,11 @@ fun CompanyStructure(
                 .verticalScroll(verticalScrollState)
                 .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
                 .onSizeChanged {
-                    if (isSecondRowVisible) {
+                    println("CompanyStructure resized with new sizes: $it, physical width ${screenWidth.toFloat().dp()}")
+                    if (isSecondRowVisible && it.width > screenWidth.toFloat().dp()) {
+                        println("CompanyStructure resized, start of animation")
                         animator.run { horizontalScrollState.animateScroll(1) }
-                        animator.setSecondRowVisibility(true) { secondRowVisibility = it }
+                        animator.setSecondRowVisibility(true) { visibility -> secondRowVisibility = visibility }
                     }
                 }
                 .width(screenSizes.first)
