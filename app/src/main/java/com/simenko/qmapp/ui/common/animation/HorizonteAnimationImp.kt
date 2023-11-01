@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.other.Constants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -21,23 +22,11 @@ class HorizonteAnimationImp constructor(
 ) : HorizonteAnimation {
     override fun getRequiredScreenWidth(isSecondRowVisible: Int): Triple<Dp, Dp, Dp> {
         return Triple(
-            when {
-                physicalScreenWidth > limitToResize -> physicalScreenWidth.dp
-                else -> (physicalScreenWidth * (1 + 0.88 * isSecondRowVisible)).dp
+            if (physicalScreenWidth > limitToResize) physicalScreenWidth.dp else (physicalScreenWidth * (1 + 0.88 * isSecondRowVisible)).dp,
+            if (isSecondRowVisible == ZeroValue.num) physicalScreenWidth.dp else {
+                if (physicalScreenWidth > limitToResize) (physicalScreenWidth * 0.57).dp else physicalScreenWidth.dp
             },
-            when (isSecondRowVisible) {
-                0 -> physicalScreenWidth.dp
-                else -> {
-                    when {
-                        physicalScreenWidth > limitToResize -> (physicalScreenWidth * 0.57).dp
-                        else -> physicalScreenWidth.dp
-                    }
-                }
-            },
-            when {
-                physicalScreenWidth > limitToResize -> (physicalScreenWidth * 0.43 * isSecondRowVisible).dp
-                else -> (physicalScreenWidth * 0.88 * isSecondRowVisible).dp
-            }
+            if (physicalScreenWidth > limitToResize) (physicalScreenWidth * 0.43 * isSecondRowVisible).dp else (physicalScreenWidth * 0.88 * isSecondRowVisible).dp
         )
     }
 
@@ -59,8 +48,8 @@ class HorizonteAnimationImp constructor(
         })
     }
 
-    override fun setSecondRowVisibility(isVisible: Boolean, action: (Boolean) -> Unit) {
-        channel.trySend(scope.launch(start = CoroutineStart.LAZY) { action(isVisible) })
+    override fun setBoolean(value: Boolean, action: (Boolean) -> Unit) {
+        channel.trySend(scope.launch(start = CoroutineStart.LAZY) { action(value) })
     }
 
     fun putDelay(millis: Long) {

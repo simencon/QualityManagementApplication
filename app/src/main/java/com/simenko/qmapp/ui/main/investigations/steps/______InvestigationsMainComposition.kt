@@ -64,10 +64,8 @@ fun InvestigationsMainComposition(
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
-                .onSizeChanged {
-                    if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) }
-                }
+                .horizontalScroll(horizontalScrollState, isSecondRowVisible)
+                .onSizeChanged { if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) } }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {

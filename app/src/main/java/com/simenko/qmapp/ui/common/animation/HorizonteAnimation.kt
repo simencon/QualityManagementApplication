@@ -8,5 +8,5 @@ interface HorizonteAnimation {
     fun setRequiredScreenWidth(isSecondRowVisible: Int, action: (Triple<Dp, Dp, Dp>) -> Unit)
     fun ScrollState.animateScroll(isSecondRowVisible: Int)
 
-    fun setSecondRowVisibility(isVisible: Boolean, action: (Boolean) -> Unit)
+    fun setBoolean(value: Boolean, action: (Boolean) -> Unit)
 }
