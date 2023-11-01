@@ -88,9 +88,9 @@ fun CompanyStructure(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-//            if (listsIsInitialized.first)
+            if (listsIsInitialized.first)
                 Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-            if (isSecondRowVisible/* && listsIsInitialized.second*/)
+            if (isSecondRowVisible && listsIsInitialized.second)
                 Lines(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }
