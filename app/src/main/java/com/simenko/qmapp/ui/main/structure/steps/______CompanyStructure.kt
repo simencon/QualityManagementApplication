@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,6 +32,7 @@ fun CompanyStructure(
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val screenWidthPhysical = screenWidth.toFloat().dp()
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding()
 
     val animator = HorizonteAnimationImp(screenWidth, scope)
@@ -47,8 +47,6 @@ fun CompanyStructure(
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
-    var secondRowVisibility by rememberSaveable { mutableStateOf(false) }
-
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
@@ -66,7 +64,6 @@ fun CompanyStructure(
         if (isSecondRowVisible) {
             animator.setRequiredScreenWidth(1) { screenSizes = it }
         } else {
-            animator.setSecondRowVisibility(false) { secondRowVisibility = it }
             animator.run { horizontalScrollState.animateScroll(0) }
             animator.setRequiredScreenWidth(0) { screenSizes = it }
         }
@@ -76,15 +73,8 @@ fun CompanyStructure(
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
-                .onSizeChanged {
-                    println("CompanyStructure resized with new sizes: $it, physical width ${screenWidth.toFloat().dp()}")
-                    if (isSecondRowVisible && it.width > screenWidth.toFloat().dp()) {
-                        println("CompanyStructure resized, start of animation")
-                        animator.run { horizontalScrollState.animateScroll(1) }
-                        animator.setSecondRowVisibility(true) { visibility -> secondRowVisibility = visibility }
-                    }
-                }
+                .horizontalScroll(horizontalScrollState, isSecondRowVisible)
+                .onSizeChanged { if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) } }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
