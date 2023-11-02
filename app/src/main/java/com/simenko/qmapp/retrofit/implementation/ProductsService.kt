@@ -21,67 +21,66 @@ import com.simenko.qmapp.other.Constants.PRODUCT_TOLERANCES
 import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
 import com.simenko.qmapp.retrofit.entities.*
+import retrofit2.Response
 import retrofit2.http.GET
 
 interface ProductsService {
+    @GET(CHARACTERISTICS_GROUPS)
+    suspend fun getCharacteristicGroups(): Response<List<NetworkElementIshModel>>
+    @GET(CHARACTERISTICS_SUB_GROUPS)
+    suspend fun getCharacteristicSubGroups(): Response<List<NetworkIshSubCharacteristic>>
     @GET(MANUFACTURING_PROJECTS)
-    suspend fun getManufacturingProjects(): List<NetworkManufacturingProject>
+    suspend fun getManufacturingProjects(): Response<List<NetworkManufacturingProject>>
 
     @GET(PRODUCTS_KEYS)
-    suspend fun getKeys(): List<NetworkKey>
+    suspend fun getKeys(): Response<List<NetworkKey>>
 
     @GET(PRODUCT_BASES)
-    suspend fun getProductBases(): List<NetworkProductBase>
-
-    @GET(CHARACTERISTICS_GROUPS)
-    suspend fun getElementIshModels(): List<NetworkElementIshModel>
-
-    @GET(CHARACTERISTICS_SUB_GROUPS)
-    suspend fun getIshSubCharacteristics(): List<NetworkIshSubCharacteristic>
+    suspend fun getProductBases(): Response<List<NetworkProductBase>>
 
     @GET(CHARACTERISTICS)
-    suspend fun getCharacteristics(): List<NetworkCharacteristic>
+    suspend fun getCharacteristics(): Response<List<NetworkCharacteristic>>
 
     @GET(METRICS)
-    suspend fun getMetrixes(): List<NetworkMetrix>
+    suspend fun getMetrics(): Response<List<NetworkMetrix>>
 
     @GET(VERSION_STATUSES)
-    suspend fun getVersionStatuses(): List<NetworkVersionStatus>
+    suspend fun getVersionStatuses(): Response<List<NetworkVersionStatus>>
 
     @GET(PRODUCTS)
-    suspend fun getProducts(): List<NetworkProduct>
+    suspend fun getProducts(): Response<List<NetworkProduct>>
 
     @GET(PRODUCT_VERSIONS)
-    suspend fun getProductVersions(): List<NetworkProductVersion>
+    suspend fun getProductVersions(): Response<List<NetworkProductVersion>>
 
     @GET(PRODUCT_TOLERANCES)
-    suspend fun getProductTolerances(): List<NetworkProductTolerance>
+    suspend fun getProductTolerances(): Response<List<NetworkProductTolerance>>
 
     @GET(PRODUCTS_TO_LINES)
-    suspend fun getProductsToLines(): List<NetworkProductToLine>
+    suspend fun getProductsToLines(): Response<List<NetworkProductToLine>>
 
     @GET(COMPONENTS)
-    suspend fun getComponents(): List<NetworkComponent>
+    suspend fun getComponents(): Response<List<NetworkComponent>>
 
     @GET(COMPONENT_VERSIONS)
-    suspend fun getComponentVersions(): List<NetworkComponentVersion>
+    suspend fun getComponentVersions(): Response<List<NetworkComponentVersion>>
 
     @GET(COMPONENT_TOLERANCES)
-    suspend fun getComponentTolerances(): List<NetworkComponentTolerance>
+    suspend fun getComponentTolerances(): Response<List<NetworkComponentTolerance>>
 
     @GET(COMPONENTS_TO_LINES)
-    suspend fun getComponentsToLines(): List<NetworkComponentToLine>
+    suspend fun getComponentsToLines(): Response<List<NetworkComponentToLine>>
 
     @GET(COMPONENTS_IN_STAGE)
-    suspend fun getComponentInStages(): List<NetworkComponentInStage>
+    suspend fun getComponentStages(): Response<List<NetworkComponentInStage>>
 
     @GET(COMPONENT_IN_STAGE_VERSIONS)
-    suspend fun getComponentInStageVersions(): List<NetworkComponentInStageVersion>
+    suspend fun getComponentStageVersions(): Response<List<NetworkComponentInStageVersion>>
 
     @GET(COMPONENT_IN_STAGE_TOLERANCES)
-    suspend fun getComponentInStageTolerances(): List<NetworkComponentInStageTolerance>
+    suspend fun getComponentStageTolerances(): Response<List<NetworkComponentInStageTolerance>>
 
     @GET(COMPONENTS_IN_STAGE_TO_LINES)
-    suspend fun getComponentInStagesToLines(): List<NetworkComponentInStageToLine>
+    suspend fun getComponentStagesToLines(): Response<List<NetworkComponentInStageToLine>>
 }
 

@@ -14,6 +14,26 @@ import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationsFlowDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.SubDepartmentDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.EmployeeDao
+import com.simenko.qmapp.room.implementation.dao.products.CharacteristicDao
+import com.simenko.qmapp.room.implementation.dao.products.CharacteristicGroupDao
+import com.simenko.qmapp.room.implementation.dao.products.CharacteristicSubGroupDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentStageDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentStageToLineDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentStageToleranceDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentStageVersionDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentToLineDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentToleranceDao
+import com.simenko.qmapp.room.implementation.dao.products.ComponentVersionDao
+import com.simenko.qmapp.room.implementation.dao.products.ManufacturingProjectDao
+import com.simenko.qmapp.room.implementation.dao.products.MetricDao
+import com.simenko.qmapp.room.implementation.dao.products.ProductBaseDao
+import com.simenko.qmapp.room.implementation.dao.products.ProductDao
+import com.simenko.qmapp.room.implementation.dao.products.ProductKeyDao
+import com.simenko.qmapp.room.implementation.dao.products.ProductToLineDao
+import com.simenko.qmapp.room.implementation.dao.products.ProductToleranceDao
+import com.simenko.qmapp.room.implementation.dao.products.ProductVersionDao
+import com.simenko.qmapp.room.implementation.dao.products.VersionStatusDao
 import com.simenko.qmapp.room.implementation.dao.system.UserDao
 import com.simenko.qmapp.room.implementation.dao.system.UserRoleDao
 
@@ -109,6 +129,28 @@ abstract class QualityManagementDB : RoomDatabase() {
     abstract val lineDao: LineDao
     abstract val operationDao: OperationDao
     abstract val operationsFlowDao: OperationsFlowDao
+
+    abstract val characteristicGroupDao: CharacteristicGroupDao
+    abstract val characteristicSubGroupDao: CharacteristicSubGroupDao
+    abstract val manufacturingProjectDao: ManufacturingProjectDao
+    abstract val characteristicDao: CharacteristicDao
+    abstract val metricDao: MetricDao
+    abstract val productKeyDao: ProductKeyDao
+    abstract val productBaseDao: ProductBaseDao
+    abstract val productDao: ProductDao
+    abstract val componentDao: ComponentDao
+    abstract val componentStageDao: ComponentStageDao
+    abstract val versionStatusDao: VersionStatusDao
+    abstract val productVersionDao: ProductVersionDao
+    abstract val componentVersionDao: ComponentVersionDao
+    abstract val componentStageVersionDao: ComponentStageVersionDao
+    abstract val productToleranceDao: ProductToleranceDao
+    abstract val componentToleranceDao: ComponentToleranceDao
+    abstract val componentStageToleranceDao: ComponentStageToleranceDao
+    abstract val productToLineDao: ProductToLineDao
+    abstract val componentToLineDao: ComponentToLineDao
+    abstract val componentStageToLineDao: ComponentStageToLineDao
+
 
     abstract val productsDao: ProductsDao
 
