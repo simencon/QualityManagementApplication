@@ -143,7 +143,7 @@ class ManufacturingRepository @Inject constructor(
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
     val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
     val companyById: (Int) -> DomainCompany = { id ->
-        database.companyDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
+        database.companyDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such company id ($id) in local DB") }
     }
 
     val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
@@ -151,9 +151,6 @@ class ManufacturingRepository @Inject constructor(
     val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
     val departmentsComplete: (Int) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
     val departmentById: (Int) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).let { it.toDomainModel() } }
-
-    val departmentByIdDeprecated: (Int) -> DomainDepartment =
-        { id -> database.departmentDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") } }
 
     val subDepartments: (Int) -> Flow<List<DomainSubDepartment>> = { pId -> database.subDepartmentDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }
@@ -163,14 +160,7 @@ class ManufacturingRepository @Inject constructor(
     val channelWithParentsById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }
     val channelById: (Int) -> DomainManufacturingChannel.DomainManufacturingChannelComplete = { database.channelDao.getRecordCompleteById(it).toDomainModel() }
 
-    val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId ->
-        lateinit var result: Flow<List<DomainManufacturingLine>>
-        val time = measureTimeMillis {
-            result = database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } }
-        }
-        println("measureTimeMillis - lines $time ms")
-        result
-    }
+    val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId -> database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it).toDomainModel() }
     val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
 
