@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.retrofit.implementation.ProductsService
+import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.room.implementation.dao.ProductsDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,8 @@ private const val TAG = "ProductsRepository"
 
 @Singleton
 class ProductsRepository @Inject constructor(
+    private val database: QualityManagementDB,
+
     private val productsDao: ProductsDao,
     private val productsService: ProductsService,
     private val userRepository: UserRepository

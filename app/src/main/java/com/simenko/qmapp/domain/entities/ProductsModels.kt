@@ -1,6 +1,8 @@
 package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
+import androidx.room.Embedded
+import androidx.room.Relation
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
@@ -57,14 +59,27 @@ data class DomainManufacturingProject(
     var confLevel: Int? = null
 ) : DomainBaseModel<DatabaseManufacturingProject>() {
     override fun getRecordId() = id
-
     override fun getParentId() = NoRecord.num
-
     override fun setIsSelected(value: Boolean) {}
+    override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingProject::class, DatabaseManufacturingProject::class).transform(this)
 
-    override fun toDatabaseModel(): DatabaseManufacturingProject {
-        return ObjectTransformer(DomainManufacturingProject::class, DatabaseManufacturingProject::class).transform(this)
+    data class DomainManufacturingProjectComplete(
+        val manufacturingProject: DomainManufacturingProject,
+        val company: DomainCompany
+    ) : DomainBaseModel<DatabaseManufacturingProject.DatabaseManufacturingProjectComplete>() {
+        override fun getRecordId() = manufacturingProject.id
+        override fun getParentId() = manufacturingProject.companyId
+        override fun setIsSelected(value: Boolean) {}
+
+        override fun toDatabaseModel(): DatabaseManufacturingProject.DatabaseManufacturingProjectComplete {
+            return DatabaseManufacturingProject.DatabaseManufacturingProjectComplete(
+                manufacturingProject = this.manufacturingProject.toDatabaseModel(),
+                company = this.company.toDatabaseModel()
+            )
+        }
+
     }
+
 }
 
 @Stable

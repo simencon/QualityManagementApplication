@@ -24,4 +24,5 @@ class ProductsViewModel @Inject constructor(
     private val _productKindsVisibility = MutableStateFlow(Pair(SelectedNumber(productKindId), NoRecord))
     private val _componentKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentKindId), NoRecord))
     private val _componentStageKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageKindId), NoRecord))
+//    private val _departments = repository.departmentsComplete(companyId)
 }
