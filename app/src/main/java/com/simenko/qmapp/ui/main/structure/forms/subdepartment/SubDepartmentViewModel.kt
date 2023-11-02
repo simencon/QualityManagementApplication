@@ -45,7 +45,7 @@ class SubDepartmentViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (subDepId == NoRecord.num) prepareLine(depId) else _subDepartment.value = repository.subDepartmentById(subDepId)
+                if (subDepId == NoRecord.num) prepareSubDepartment(depId) else _subDepartment.value = repository.subDepartmentById(subDepId)
                 mainPageHandler = MainPageHandler.Builder(if (subDepId == NoRecord.num) Page.ADD_SUB_DEPARTMENT else Page.EDIT_SUB_DEPARTMENT, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }
@@ -54,10 +54,10 @@ class SubDepartmentViewModel @Inject constructor(
         }
     }
 
-    private fun prepareLine(depId: Int) {
+    private fun prepareSubDepartment(depId: Int) {
         _subDepartment.value = DomainSubDepartment.DomainSubDepartmentComplete(
             subDepartment = DomainSubDepartment(depId = depId),
-            department = repository.departmentById(depId)
+            department = repository.departmentById(depId).department
         )
     }
 

@@ -1,11 +1,29 @@
 package com.simenko.qmapp.ui.main.structure.forms.department
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.simenko.qmapp.di.CompanyIdParameter
 import com.simenko.qmapp.di.DepartmentIdParameter
+import com.simenko.qmapp.domain.FillInErrorState
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInState
+import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
+import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
+import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -13,6 +31,135 @@ class DepartmentViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
+    @CompanyIdParameter private val companyId: Int,
     @DepartmentIdParameter private val depId: Int
 ) : ViewModel() {
+    private val _department = MutableStateFlow(DomainDepartment.DomainDepartmentComplete())
+
+    /**
+     * Main page setup -------------------------------------------------------------------------------------------------------------------------------
+     * */
+    var mainPageHandler: MainPageHandler? = null
+        private set
+
+    init {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                if (depId == NoRecord.num) prepareDepartment(depId) else _department.value = repository.departmentById(companyId)
+                mainPageHandler = MainPageHandler.Builder(if (depId == NoRecord.num) Page.ADD_DEPARTMENT else Page.EDIT_DEPARTMENT, mainPageState)
+                    .setOnNavMenuClickAction { appNavigator.navigateBack() }
+                    .setOnFabClickAction { validateInput() }
+                    .build()
+            }
+        }
+    }
+
+    private fun prepareDepartment(companyId: Int) {
+        _department.value = DomainDepartment.DomainDepartmentComplete(
+            department = DomainDepartment(companyId = companyId),
+            company = repository.companyById(companyId)
+        )
+    }
+    /**
+     * UI State --------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    val department get() = _department.asStateFlow()
+
+    fun setDepartmentOrder(it: Int) {
+        _department.value = _department.value.copy(department = _department.value.department.copy(depOrder = it))
+        _fillInErrors.value = _fillInErrors.value.copy(departmentOrderError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    fun setDepartmentAbbr(it: String) {
+        _department.value = _department.value.copy(department = _department.value.department.copy(depAbbr = it))
+        _fillInErrors.value = _fillInErrors.value.copy(departmentAbbrError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    fun setDepartmentDesignation(it: String) {
+        _department.value = _department.value.copy(department = _department.value.department.copy(depName = it))
+        _fillInErrors.value = _fillInErrors.value.copy(departmentDesignationError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    fun setDepartmentFunction(it: String) {
+        _department.value = _department.value.copy(department = _department.value.department.copy(depOrganization = it))
+        _fillInErrors.value = _fillInErrors.value.copy(departmentOrganizationError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    /**
+     * Navigation ------------------------------------------------------------------------------------------------------------------------------------
+     * */
+    private val _fillInErrors = MutableStateFlow(FillInErrors())
+    val fillInErrors get() = _fillInErrors.asStateFlow()
+    private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
+    val fillInState get() = _fillInState.asStateFlow()
+    private fun validateInput() {
+        val errorMsg = buildString {
+            if (_department.value.department.depOrder == NoRecord.num) {
+                _fillInErrors.value = _fillInErrors.value.copy(departmentOrderError = true)
+                append("Department order field is mandatory\n")
+            }
+            if (_department.value.department.depAbbr.isNullOrEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(departmentAbbrError = true)
+                append("Department ID field is mandatory\n")
+            }
+            if (_department.value.department.depName.isNullOrEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(departmentDesignationError = true)
+                append("Department complete name field is mandatory\n")
+            }
+            if (_department.value.department.depManager == NoRecord.num) {
+                _fillInErrors.value = _fillInErrors.value.copy(departmentManagerError = true)
+                append("Department manager field is mandatory\n")
+            }
+            if (_department.value.department.depOrganization.isNullOrEmpty()) {
+                _fillInErrors.value = _fillInErrors.value.copy(departmentOrganizationError = true)
+                append("Department organisation field is mandatory\n")
+            }
+        }
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg) else _fillInState.value = FillInSuccessState
+    }
+
+    fun makeRecord() = viewModelScope.launch {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            repository.run { if (depId == NoRecord.num) insertDepartment(_department.value.department) else updateDepartment(_department.value.department) }.consumeEach { event ->
+                event.getContentIfNotHandled()?.let { resource ->
+                    when (resource.status) {
+                        Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                        Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                        Status.ERROR -> {
+                            mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                            _fillInState.value = FillInInitialState
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun navBackToRecord(id: Int?) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        withContext(Dispatchers.Main) {
+            id?.let {
+                val companyId = _department.value.department.companyId.toString()
+                val depId = it.toString()
+                appNavigator.tryNavigateTo(
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId),
+                    popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
+                    inclusive = true
+                )
+            }
+        }
+    }
 }
+
+data class FillInErrors(
+    var departmentOrderError: Boolean = false,
+    var departmentAbbrError: Boolean = false,
+    var departmentDesignationError: Boolean = false,
+    var departmentManagerError: Boolean = false,
+    var departmentOrganizationError: Boolean = false,
+)

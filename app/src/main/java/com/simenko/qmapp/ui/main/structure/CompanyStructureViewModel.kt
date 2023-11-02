@@ -26,15 +26,12 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -215,6 +212,24 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
+    fun onDeleteDepartmentClick(it: Int) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.run {
+                    deleteDepartment(it).consumeEach { event ->
+                        event.getContentIfNotHandled()?.let { resource ->
+                            when (resource.status) {
+                                Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                                Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                                Status.ERROR -> mainPageHandler.updateLoadingState(Pair(false, resource.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun onDeleteSubDepartmentClick(it: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -311,16 +326,12 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteDepartmentClick(it: Int) {
-        TODO("Not yet implemented")
-    }
-
     private fun onAddDepartmentClick(it: Int) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
     fun onEditDepartmentClick(it: Pair<Int, Int>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
     fun onDepartmentProductsClick(it: Int) {

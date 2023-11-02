@@ -76,12 +76,12 @@ data class DomainJobRole(
 @Stable
 data class DomainDepartment(
     var id: Int = NoRecord.num,
-    var depAbbr: String? = null,
-    var depName: String? = null,
-    var depManager: Int? = null,
-    var depOrganization: String? = null,
-    var depOrder: Int? = null,
-    var companyId: Int? = null,
+    var depAbbr: String? = EmptyString.str,
+    var depName: String? = EmptyString.str,
+    var depManager: Int? = NoRecord.num,
+    var depOrganization: String? = EmptyString.str,
+    var depOrder: Int? = NoRecord.num,
+    var companyId: Int? = NoRecord.num,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseDepartment>() {
     override fun getRecordId() = id
