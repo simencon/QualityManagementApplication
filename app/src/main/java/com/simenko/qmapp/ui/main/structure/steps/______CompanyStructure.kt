@@ -45,10 +45,8 @@ fun CompanyStructure(
      * */
     var screenSizes: Triple<Dp, Dp, Dp> by remember { mutableStateOf(animator.getRequiredScreenWidth(if (isSecondRowVisible) 1 else 0)) }
 
-    LaunchedEffect(key1 = screenSizes, block = { println("screenSizes = $screenSizes") })
-
     val verticalScrollState = rememberScrollState()
-    val horizontalScrollState = rememberScrollState(screenSizes.second.value.dp().toInt())
+    val horizontalScrollState = rememberScrollState()
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
