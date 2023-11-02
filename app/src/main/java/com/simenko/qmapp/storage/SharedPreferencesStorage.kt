@@ -3,7 +3,6 @@ package com.simenko.qmapp.storage
 import android.content.Context
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 

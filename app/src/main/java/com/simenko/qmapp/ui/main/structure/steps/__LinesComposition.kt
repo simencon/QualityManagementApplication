@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
@@ -32,7 +31,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,13 +72,11 @@ import kotlin.math.roundToInt
 @Composable
 fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = hiltViewModel()) {
 
-    val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.lines.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteLineClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddLineClick(it) } }
     val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
     val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
@@ -88,7 +84,7 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
 
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.LINES.indexKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.offsetKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.LINES.offsetKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
     )
 
     LaunchedEffect(listState) {
@@ -109,16 +105,6 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
                 onClickEdit = { onClickEditLambda(it) },
                 onClickProducts = { onClickProductsLambda(it) }
             )
-        }
-        item {
-            Divider(modifier = Modifier.height(0.dp))
-            FloatingActionButton(
-                modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = (DEFAULT_SPACE / 2).dp, bottom = DEFAULT_SPACE.dp),
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                onClick = { onClickAddLambda(channelVisibility.first.num) },
-                content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
-            )
-            Spacer(modifier = Modifier.height((Constants.FAB_HEIGHT).dp))
         }
     }
 }
