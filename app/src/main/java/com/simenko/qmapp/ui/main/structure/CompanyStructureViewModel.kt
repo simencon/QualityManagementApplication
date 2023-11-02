@@ -55,10 +55,6 @@ class CompanyStructureViewModel @Inject constructor(
     @LineIdParameter private val lineId: Int,
     @OperationIdParameter private val operationId: Int,
 ) : ViewModel() {
-    data class StructureIds(val departmentId: Event<Int>, val subDepartmentId: Event<Int>, val channelId: Event<Int>, val lineId: Event<Int>, val operationId: Event<Int>)
-
-    private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _createdRecord: MutableStateFlow<StructureIds> = MutableStateFlow(StructureIds(Event(depId), Event(subDepId), Event(channelId), Event(lineId), Event(operationId)))
     private val _departmentsVisibility = MutableStateFlow(Pair(SelectedNumber(depId), NoRecord))
     private val _subDepartmentsVisibility = MutableStateFlow(Pair(SelectedNumber(subDepId), NoRecord))
     private val _channelsVisibility = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))

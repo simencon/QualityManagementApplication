@@ -49,6 +49,22 @@ annotation class OperationIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class ProductProjectIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ProductKindIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ComponentKindIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ComponentStageKindIdParameter
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class IsProcessControlOnlyParameter
 
 @Qualifier
@@ -83,39 +99,63 @@ object ViewModelsModule {
     @Provides
     @CompanyIdParameter
     @ViewModelScoped
-    fun provideCompanyIdParameterParameter(savedStateHandle: SavedStateHandle): Int {
+    fun provideCompanyIdParameter(savedStateHandle: SavedStateHandle): Int {
         return savedStateHandle[NavArguments.companyId] ?: NoRecord.num
     }
 
     @Provides
     @DepartmentIdParameter
     @ViewModelScoped
-    fun provideDepartmentIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideDepartmentIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.departmentId] ?: NoRecord.num
 
     @Provides
     @SubDepartmentIdParameter
     @ViewModelScoped
-    fun provideSubDepartmentIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideSubDepartmentIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.subDepartmentId] ?: NoRecord.num
 
     @Provides
     @ChannelIdParameter
     @ViewModelScoped
-    fun provideChannelIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideChannelIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.channelId] ?: NoRecord.num
 
     @Provides
     @LineIdParameter
     @ViewModelScoped
-    fun provideLineIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideLineIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.lineId] ?: NoRecord.num
 
     @Provides
     @OperationIdParameter
     @ViewModelScoped
-    fun provideOperationIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideOperationIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.operationId] ?: NoRecord.num
+
+    @Provides
+    @ProductProjectIdParameter
+    @ViewModelScoped
+    fun provideProductProjectIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.productProjectId] ?: NoRecord.num
+
+    @Provides
+    @ProductKindIdParameter
+    @ViewModelScoped
+    fun provideProductKindIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.productKindId] ?: NoRecord.num
+
+    @Provides
+    @ComponentKindIdParameter
+    @ViewModelScoped
+    fun provideComponentKindIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.componentKindId] ?: NoRecord.num
+
+    @Provides
+    @ComponentStageKindIdParameter
+    @ViewModelScoped
+    fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.componentStageKindId] ?: NoRecord.num
 
     @Provides
     @IsProcessControlOnlyParameter
@@ -126,12 +166,12 @@ object ViewModelsModule {
     @Provides
     @OrderIdParameter
     @ViewModelScoped
-    fun provideOrderIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideOrderIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.orderId] ?: NoRecord.num
 
     @Provides
     @SubOrderIdParameter
     @ViewModelScoped
-    fun provideSubOrderIdParameterParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideSubOrderIdParameter(savedStateHandle: SavedStateHandle): Int =
         savedStateHandle[NavArguments.subOrderId] ?: NoRecord.num
 }
