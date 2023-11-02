@@ -257,7 +257,7 @@ class InvestigationsRepository @Inject constructor(
 
 //    -------------------------------------------------------------
 
-    val investigationStatuses: () -> Flow<List<DomainOrdersStatus>> = { database.orderStatusDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } } }
+    val investigationStatuses: () -> Flow<List<DomainOrdersStatus>> = { database.orderStatusDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } } }
 
     val latestLocalOrderId: () -> Int = { database.orderDao.getLatestOrderId(database.orderDao.getLatestOrderDate() ?: NoRecord.num.toLong()) ?: NoRecord.num }
 
@@ -307,11 +307,9 @@ class InvestigationsRepository @Inject constructor(
     /**
      * New order related data
      * */
-    val inputForOrder: Flow<List<DomainInputForOrder>> = database.inputForOrderDao.getRecordsFlowForUI().map { list ->
-        list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
-    }
+    val inputForOrder: Flow<List<DomainInputForOrder>> = database.inputForOrderDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder } }
 
-    val orderTypes: Flow<List<DomainOrdersType>> = database.investigationTypeDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val orderTypes: Flow<List<DomainOrdersType>> = database.investigationTypeDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
-    val orderReasons: Flow<List<DomainReason>> = database.measurementReasonDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val orderReasons: Flow<List<DomainReason>> = database.measurementReasonDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

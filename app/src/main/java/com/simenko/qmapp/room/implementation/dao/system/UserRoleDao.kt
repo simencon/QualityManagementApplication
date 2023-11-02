@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.system
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -19,8 +18,5 @@ abstract class UserRoleDao: DaoBaseModel<DatabaseUserRole> {
     abstract override fun getRecordById(id: String): DatabaseUserRole?
 
     @Query("SELECT * FROM user_roles ORDER BY function ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseUserRole>>
-
-    @Query("SELECT * FROM user_roles ORDER BY function ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseUserRole>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseUserRole>>
 }

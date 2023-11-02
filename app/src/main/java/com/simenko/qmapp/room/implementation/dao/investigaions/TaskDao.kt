@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseSubOrderTask
 import com.simenko.qmapp.room.entities.DatabaseSubOrderTaskComplete
@@ -20,7 +19,7 @@ abstract class TaskDao : DaoBaseModel<DatabaseSubOrderTask>, DaoTimeDependentMod
     abstract override fun getRecordById(id: String): DatabaseSubOrderTask?
 
     @Query("SELECT * FROM `13_7_sub_order_tasks` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseSubOrderTask>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseSubOrderTask>>
 
     @Transaction
     @Query(

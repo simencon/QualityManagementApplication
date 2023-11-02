@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseProductToLine
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ProductToLineDao: DaoBaseModel<DatabaseProductToLine> {
@@ -18,6 +18,6 @@ abstract class ProductToLineDao: DaoBaseModel<DatabaseProductToLine> {
     abstract override fun getRecordById(id: String): DatabaseProductToLine?
 
     @Query("SELECT * FROM `13_1_products_to_lines` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseProductToLine>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseProductToLine>>
 
 }

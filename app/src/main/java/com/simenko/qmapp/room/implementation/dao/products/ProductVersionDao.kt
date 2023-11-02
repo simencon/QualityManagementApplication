@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -21,7 +20,7 @@ abstract class ProductVersionDao: DaoBaseModel<DatabaseProductVersion> {
     abstract override fun getRecordById(id: String): DatabaseProductVersion?
 
     @Query("SELECT * FROM `9_products_versions` ORDER BY versionDate ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseProductVersion>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseProductVersion>>
 
     @Transaction
     @Query("SELECT * FROM item_versions")

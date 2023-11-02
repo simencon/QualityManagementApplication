@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.retrofit.NetworkBaseModel
+import kotlinx.coroutines.flow.Flow
 
 interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseModel<DB>>> {
 
@@ -34,5 +35,5 @@ interface DaoBaseModel<DB : DatabaseBaseModel<NetworkBaseModel<DB>, DomainBaseMo
 
     fun getRecordById(id: String): DB?
 
-    fun getRecordsForUI(): LiveData<List<DB>>
+    fun getRecordsForUI(): Flow<List<DB>>
 }

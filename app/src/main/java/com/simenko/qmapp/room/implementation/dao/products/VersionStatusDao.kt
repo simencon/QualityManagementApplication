@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseVersionStatus
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class VersionStatusDao : DaoBaseModel<DatabaseVersionStatus> {
@@ -18,6 +18,6 @@ abstract class VersionStatusDao : DaoBaseModel<DatabaseVersionStatus> {
     abstract override fun getRecordById(id: String): DatabaseVersionStatus?
 
     @Query("SELECT * FROM `0_versions_status` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseVersionStatus>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseVersionStatus>>
 
 }

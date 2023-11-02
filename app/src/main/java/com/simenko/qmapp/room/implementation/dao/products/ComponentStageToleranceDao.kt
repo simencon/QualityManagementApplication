@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseComponentInStageTolerance
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ComponentStageToleranceDao: DaoBaseModel<DatabaseComponentInStageTolerance> {
@@ -18,6 +18,6 @@ abstract class ComponentStageToleranceDao: DaoBaseModel<DatabaseComponentInStage
     abstract override fun getRecordById(id: String): DatabaseComponentInStageTolerance?
 
     @Query("SELECT * FROM `11_8_component_in_stage_tolerances` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseComponentInStageTolerance>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentInStageTolerance>>
 
 }

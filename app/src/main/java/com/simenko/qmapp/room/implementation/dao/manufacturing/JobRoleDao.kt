@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.manufacturing
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -19,8 +18,5 @@ abstract class JobRoleDao : DaoBaseModel<DatabaseJobRole> {
     abstract override fun getRecordById(id: String): DatabaseJobRole?
 
     @Query("SELECT * FROM `0_job_roles` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseJobRole>>
-
-    @Query("SELECT * FROM `0_job_roles` ORDER BY id ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseJobRole>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseJobRole>>
 }

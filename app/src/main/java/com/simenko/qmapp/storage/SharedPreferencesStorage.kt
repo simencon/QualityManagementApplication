@@ -6,7 +6,6 @@ import com.simenko.qmapp.domain.NoRecord
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-// @Inject tells Dagger how to provide instances of this type
 class SharedPreferencesStorage @Inject constructor(@ApplicationContext context: Context) : Storage {
 
     private val sharedPreferences = context.getSharedPreferences(

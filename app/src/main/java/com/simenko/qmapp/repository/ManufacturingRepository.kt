@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.system.measureTimeMillis
 
 @ViewModelScoped
 class ManufacturingRepository @Inject constructor(
@@ -132,7 +131,7 @@ class ManufacturingRepository @Inject constructor(
     /**
      * Connecting with LiveData for ViewModel
      */
-    val employees: Flow<List<DomainEmployee>> = database.employeeDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val employees: Flow<List<DomainEmployee>> = database.employeeDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val employeeById: (Int) -> DomainEmployee = { id ->
         database.employeeDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
     }
@@ -140,15 +139,15 @@ class ManufacturingRepository @Inject constructor(
         database.employeeDao.getRecordsCompleteFlowForUI("%${filter.stringToSearch}%", filter.parentId).map { list -> list.map { it.toDomainModel() } }
     }
 
-    val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
     val companyById: (Int) -> DomainCompany = { id ->
         database.companyDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such company id ($id) in local DB") }
     }
 
-    val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
-    val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val departmentsComplete: (Int) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
     val departmentById: (Int) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).let { it.toDomainModel() } }
 
@@ -167,5 +166,5 @@ class ManufacturingRepository @Inject constructor(
     val operations: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { pId -> database.operationDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val operationById: (Int) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
 
-    val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseSample
 import com.simenko.qmapp.room.entities.DatabaseSampleComplete
@@ -20,7 +19,7 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
     abstract override fun getRecordById(id: String): DatabaseSample?
 
     @Query("SELECT * FROM `14_samples` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseSample>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseSample>>
 
     @Transaction
     @Query(

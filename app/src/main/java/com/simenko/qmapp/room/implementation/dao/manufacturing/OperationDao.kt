@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.manufacturing
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -20,7 +19,7 @@ abstract class OperationDao: DaoBaseModel<DatabaseManufacturingOperation> {
     abstract override fun getRecordById(id: String): DatabaseManufacturingOperation?
 
     @Query("SELECT * FROM `14_manufacturing_operations` ORDER BY operationOrder ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseManufacturingOperation>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseManufacturingOperation>>
 
     @Transaction
     @Query("""
