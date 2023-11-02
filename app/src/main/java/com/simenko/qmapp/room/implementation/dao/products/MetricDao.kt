@@ -20,4 +20,12 @@ abstract class MetricDao: DaoBaseModel<DatabaseMetrix> {
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseMetrix>>
 
+    @Query("select m.* from items_tolerances as it " +
+            "left join `8_metrixes` as m on it.metrixId = m.id " +
+            "where " +
+            "it.versionId = :versionId and " +
+            "it.isActual = :actual and " +
+            "charId = :charId and " +
+            "substr(it.fId, 1, 1) = :prefix")
+    abstract suspend fun getMetricsByPrefixVersionIdActualityCharId(prefix: String, versionId: String, actual: String, charId: String): List<DatabaseMetrix>
 }

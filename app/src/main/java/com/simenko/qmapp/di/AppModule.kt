@@ -51,10 +51,6 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideProductsDao(database: QualityManagementDB) = database.productsDao
-
-    @Singleton
-    @Provides
     fun provideMoshiInstance(): Moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
         .build()

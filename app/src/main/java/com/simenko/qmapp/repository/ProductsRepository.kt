@@ -6,22 +6,16 @@ import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
-import com.simenko.qmapp.room.implementation.dao.ProductsDao
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private const val TAG = "ProductsRepository"
 
 @Singleton
 class ProductsRepository @Inject constructor(
     private val database: QualityManagementDB,
     private val crudeOperations: CrudeOperations,
-
-
-    private val productsDao: ProductsDao,
-    private val service: ProductsService,
-    private val userRepository: UserRepository
+    private val service: ProductsService
 ) {
     /**
      * Update Products from the network
@@ -47,19 +41,10 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentsToLines() = crudeOperations.syncRecordsAll(database.componentToLineDao) { service.getComponentsToLines() }
     suspend fun syncComponentStagesToLines() = crudeOperations.syncRecordsAll(database.componentStageToLineDao) { service.getComponentStagesToLines() }
 
-    suspend fun getMetricsByPrefixVersionIdActualityCharId(
-        prefix: String,
-        versionId: Int,
-        actual: Boolean,
-        charId: Int
-    ): List<DomainMetrix> {
-        val list = productsDao.getMetricsByPrefixVersionIdActualityCharId(
-            prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()
-        )
-        return list.map { it.toDomainModel() }
+    val metricsByPrefixVersionIdActualityCharId: suspend (String, Int, Boolean, Int) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->
+        database.metricDao.getMetricsByPrefixVersionIdActualityCharId(prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()).map { it.toDomainModel() }
     }
 
+    val itemVersionsComplete: Flow<List<DomainItemVersionComplete>> = database.productVersionDao.getItemVersionsComplete().map { list -> list.map { it.toDomainModel() } }
     val characteristics = database.characteristicDao.getRecordsForUI().asFlow().map { list -> list.map { it.toDomainModel() } }
-    val products = database.productDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
-    val components = database.componentDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }
