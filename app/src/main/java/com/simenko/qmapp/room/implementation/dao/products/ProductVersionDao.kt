@@ -3,8 +3,11 @@ package com.simenko.qmapp.room.implementation.dao.products
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import com.simenko.qmapp.room.entities.DatabaseItemVersionComplete
 import com.simenko.qmapp.room.entities.DatabaseProductVersion
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ProductVersionDao: DaoBaseModel<DatabaseProductVersion> {
@@ -19,5 +22,9 @@ abstract class ProductVersionDao: DaoBaseModel<DatabaseProductVersion> {
 
     @Query("SELECT * FROM `9_products_versions` ORDER BY versionDate ASC")
     abstract override fun getRecordsForUI(): LiveData<List<DatabaseProductVersion>>
+
+    @Transaction
+    @Query("SELECT * FROM item_versions")
+    abstract fun getItemVersionsComplete(): Flow<List<DatabaseItemVersionComplete>>
 
 }

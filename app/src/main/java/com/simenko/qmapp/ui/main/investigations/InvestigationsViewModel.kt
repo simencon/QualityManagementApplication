@@ -551,11 +551,11 @@ class InvestigationsViewModel @Inject constructor(
                                             /**
                                              * second - extract list of metrixes to record
                                              * */
-                                            val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                                                prefix = subOrder.itemPreffix.substring(0, 1),
-                                                versionId = subOrder.itemVersionId,
-                                                actual = true,
-                                                charId = subOrderTask.charId
+                                            val metrixesToRecord = productsRepository.metricsByPrefixVersionIdActualityCharId(
+                                                subOrder.itemPreffix.substring(0, 1),
+                                                subOrder.itemVersionId,
+                                                true,
+                                                subOrderTask.charId
                                             )
                                             /**
                                              * third - generate the final list of result to record
