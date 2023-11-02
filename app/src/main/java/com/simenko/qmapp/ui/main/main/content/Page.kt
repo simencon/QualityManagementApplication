@@ -52,6 +52,18 @@ enum class Page(
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = CompanyStructureActions.toList()
     ),
+    PRODUCTS(
+        link = Route.Main.Products.link,
+        navIcon = Icons.Filled.Menu,
+        title = "Company products",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = Icons.Filled.MoreVert,
+        actionMenuItems = CompanyStructureActions.toList()
+    ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
         navIcon = Icons.Filled.Menu,
@@ -109,6 +121,18 @@ enum class Page(
 
     ADD_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
     EDIT_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_PRODUCT_PROJECT(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new manufacturing project", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_PROJECT(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit manufacturing project", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_PRODUCT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new product kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit product kind", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_COMPONENT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new component kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_COMPONENT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit component kind", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_COMPONENT_STAGE_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new component stage kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_COMPONENT_STAGE_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit component stage kind", null, null, null, null, Icons.Filled.Save, null),
 
     ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
     EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),
