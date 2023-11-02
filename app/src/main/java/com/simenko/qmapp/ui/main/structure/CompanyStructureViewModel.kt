@@ -31,11 +31,15 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -60,7 +64,7 @@ class CompanyStructureViewModel @Inject constructor(
     private val _createdRecord: MutableStateFlow<StructureIds> = MutableStateFlow(StructureIds(Event(depId), Event(subDepId), Event(channelId), Event(lineId), Event(operationId)))
     private val _departmentsVisibility = MutableStateFlow(Pair(SelectedNumber(depId), NoRecord))
     private val _subDepartmentsVisibility = MutableStateFlow(Pair(SelectedNumber(subDepId), NoRecord))
-    private val _channelsVisibility: MutableStateFlow<Pair<SelectedNumber, SelectedNumber>> = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))
+    private val _channelsVisibility = MutableStateFlow(Pair(SelectedNumber(channelId), NoRecord))
     private val _linesVisibility = MutableStateFlow(Pair(SelectedNumber(lineId), NoRecord))
     private val _operationsVisibility = MutableStateFlow(Pair(SelectedNumber(operationId), NoRecord))
     private val _departments = repository.departmentsComplete(companyId)
@@ -76,7 +80,7 @@ class CompanyStructureViewModel @Inject constructor(
 
     init {
         mainPageHandler = MainPageHandler.Builder(Page.COMPANY_STRUCTURE, mainPageState)
-            .setOnFabClickAction { onAddDepartmentClick(companyId) }
+            .setOnFabClickAction { if (isSecondColumnVisible.value) onAddLineClick(_channelsVisibility.value.first.num) else onAddDepartmentClick(companyId) }
             .setOnPullRefreshAction { updateCompanyStructureData() }
             .build()
     }
@@ -120,11 +124,11 @@ class CompanyStructureViewModel @Inject constructor(
         _isComposed.value = cpy
     }
 
-    val isSecondColumnVisible = _isComposed.flatMapLatest { isComposed ->
+    val isSecondColumnVisible: StateFlow<Boolean> = _isComposed.flatMapLatest { isComposed ->
         _channelsVisibility.flatMapLatest { channelsVisibility ->
             flow { emit((channelsVisibility.first != NoRecord) && (isComposed.component3())) }
         }
-    }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _viewState.flatMapLatest { viewState ->
         _departments.flatMapLatest { departments ->
@@ -151,8 +155,8 @@ class CompanyStructureViewModel @Inject constructor(
     private val _lineListIsInitialized: Flow<Boolean> = _lines.flatMapLatest { lines ->
         flow {
             if (lineId != NoRecord.num) {
-                storage.setLong(ScrollStates.DEPARTMENTS.indexKey, lines.map { it.id }.indexOf(lineId).toLong())
-                storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, ZeroValue.num.toLong())
+                storage.setLong(ScrollStates.LINES.indexKey, lines.map { it.id }.indexOf(lineId).toLong())
+                storage.setLong(ScrollStates.LINES.offsetKey, ZeroValue.num.toLong())
                 emit(true)
             } else {
                 emit(true)
@@ -183,7 +187,6 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    val channelsVisibility = _channelsVisibility.asStateFlow()
     val channels = _channels.flatMapLatest { channel ->
         _channelsVisibility.flatMapLatest { visibility ->
             _linesVisibility.value.first.let { if (it != NoRecord && _isComposed.value.component4()) setLinesVisibility(dId = it) }
@@ -348,7 +351,7 @@ class CompanyStructureViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onAddLineClick(it: Int) {
+    private fun onAddLineClick(it: Int) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
