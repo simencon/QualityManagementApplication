@@ -61,6 +61,29 @@ data class DatabaseManufacturingProject(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingProject::class, NetworkManufacturingProject::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingProject::class, DomainManufacturingProject::class).transform(this)
+
+    data class DatabaseManufacturingProjectComplete(
+        @Embedded
+        val manufacturingProject: DatabaseManufacturingProject,
+        @Relation(
+            entity = DatabaseCompany::class,
+            parentColumn = "companyId",
+            entityColumn = "id"
+        )
+        val company: DatabaseCompany
+    ) : DatabaseBaseModel<Any?, DomainManufacturingProject.DomainManufacturingProjectComplete> {
+        override fun getRecordId() = manufacturingProject.id
+
+        override fun toNetworkModel() = null
+
+        override fun toDomainModel(): DomainManufacturingProject.DomainManufacturingProjectComplete {
+            return DomainManufacturingProject.DomainManufacturingProjectComplete(
+                manufacturingProject = this.manufacturingProject.toDomainModel(),
+                company = this.company.toDomainModel()
+            )
+        }
+
+    }
 }
 
 @Entity(
