@@ -9,7 +9,11 @@ import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.DomainEmployee
+import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
@@ -17,11 +21,20 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.utils.EmployeesFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -81,6 +94,23 @@ class DepartmentViewModel @Inject constructor(
         _department.value = _department.value.copy(department = _department.value.department.copy(depName = it))
         _fillInErrors.value = _fillInErrors.value.copy(departmentDesignationError = false)
         _fillInState.value = FillInInitialState
+    }
+
+    private val _companyEmployees: Flow<List<DomainEmployeeComplete>> = repository.employeesComplete(EmployeesFilter(parentId = companyId))
+    val companyEmployees: StateFlow<List<Triple<Int, String, Boolean>>> = _companyEmployees.flatMapLatest { employees ->
+        _department.flatMapLatest { department ->
+            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            employees.forEach { cpy.add(Triple(it.teamMember.id, it.teamMember.fullName, it.teamMember.id == department.depManager.id)) }
+            flow { emit(cpy) }
+        }
+    }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
+
+    fun setDepartmentManager(it: Int) {
+        if (_department.value.department.depManager != it) {
+            _department.value = _department.value.copy(department = _department.value.department.copy(depManager = it))
+            _fillInErrors.value = _fillInErrors.value.copy(departmentManagerError = false)
+            _fillInState.value = FillInInitialState
+        }
     }
 
     fun setDepartmentFunction(it: String) {
