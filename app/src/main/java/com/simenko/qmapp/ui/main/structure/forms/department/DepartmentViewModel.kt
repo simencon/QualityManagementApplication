@@ -45,7 +45,7 @@ class DepartmentViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                if (depId == NoRecord.num) prepareDepartment(depId) else _department.value = repository.departmentById(companyId)
+                if (depId == NoRecord.num) prepareDepartment(companyId) else _department.value = repository.departmentById(depId)
                 mainPageHandler = MainPageHandler.Builder(if (depId == NoRecord.num) Page.ADD_DEPARTMENT else Page.EDIT_DEPARTMENT, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { validateInput() }

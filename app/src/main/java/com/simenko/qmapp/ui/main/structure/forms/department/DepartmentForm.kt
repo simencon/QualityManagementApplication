@@ -115,11 +115,12 @@ fun DepartmentForm(
 
 //            ToDo DepManager
 
+            Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(dComplete.department.depOrganization?: EmptyString.str, fillInErrors.departmentOrganizationError) { viewModel.setDepartmentFunction(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Info, "Department function name", "Enter function"),
+                contentDescription = Triple(Icons.Outlined.Info, "Department function", "Enter function"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)
