@@ -7,6 +7,7 @@ import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
 
 open class BaseFilter constructor(
+    open val parentId: Int? = null,
     open val typeId: Int? = null,
     open val statusId: Int? = null,
     open val stringToSearch: String? = null,
@@ -14,6 +15,7 @@ open class BaseFilter constructor(
 )
 
 data class EmployeesFilter(
+    override val parentId: Int = NoRecord.num,
     override val stringToSearch: String = EmptyString.str,
 ) : BaseFilter()
 

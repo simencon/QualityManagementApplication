@@ -31,8 +31,9 @@ abstract class EmployeeDao : DaoBaseModel<DatabaseEmployee> {
         """
             SELECT * FROM '8_employees'
             WHERE (:fullName = '' or fullName like :fullName)
+            and (:companyId = -1 or companyId = :companyId)
             ORDER BY id DESC
         """
     )
-    abstract fun getRecordsCompleteFlowForUI(fullName: String): Flow<List<DatabaseEmployeeComplete>>
+    abstract fun getRecordsCompleteFlowForUI(fullName: String, companyId: Int): Flow<List<DatabaseEmployeeComplete>>
 }

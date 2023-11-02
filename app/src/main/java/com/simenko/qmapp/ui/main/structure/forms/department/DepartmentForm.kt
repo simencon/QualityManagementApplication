@@ -12,6 +12,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.FAB_HEIGHT
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -50,6 +53,7 @@ fun DepartmentForm(
     viewModel: DepartmentViewModel
 ) {
     val dComplete by viewModel.department.collectAsStateWithLifecycle(DomainDepartment.DomainDepartmentComplete())
+    val companyEmployees by viewModel.companyEmployees.collectAsStateWithLifecycle()
     LaunchedEffect(dComplete) {
         viewModel.mainPageHandler?.setupMainPage?.invoke(0, true)
     }
@@ -72,6 +76,8 @@ fun DepartmentForm(
     val (orderFR) = FocusRequester.createRefs()
     val (abbreviationFR) = FocusRequester.createRefs()
     val (designationFR) = FocusRequester.createRefs()
+    val (managerFR) = FocusRequester.createRefs()
+    val (functionFR) = FocusRequester.createRefs()
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
@@ -108,19 +114,27 @@ fun DepartmentForm(
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(dComplete.department.depName?: EmptyString.str, fillInErrors.departmentDesignationError) { viewModel.setDepartmentDesignation(it) },
-                keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
-                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                keyboardNavigation = Pair(designationFR) { managerFR.requestFocus() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Department complete name", "Enter complete name"),
             )
 
-//            ToDo DepManager
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItemWithMenu(
+                options = companyEmployees,
+                isError = fillInErrors.departmentManagerError,
+                onDropdownMenuItemClick = { viewModel.setDepartmentManager(it) },
+                keyboardNavigation = Pair(managerFR) { managerFR.requestFocus() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
+                contentDescription = Triple(Icons.Outlined.Person, "Department manager", "Select dep. manager"),
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(dComplete.department.depOrganization?: EmptyString.str, fillInErrors.departmentOrganizationError) { viewModel.setDepartmentFunction(it) },
-                keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
+                keyboardNavigation = Pair(functionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.Info, "Department function", "Enter function"),
+                contentDescription = Triple(Icons.Outlined.Work, "Department function", "Enter function"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             if (error != EmptyString.str)

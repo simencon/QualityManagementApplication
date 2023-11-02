@@ -137,7 +137,7 @@ class ManufacturingRepository @Inject constructor(
         database.employeeDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
     }
     val employeesComplete: (EmployeesFilter) -> Flow<List<DomainEmployeeComplete>> = { filter ->
-        database.employeeDao.getRecordsCompleteFlowForUI("%${filter.stringToSearch}%").map { list -> list.map { it.toDomainModel() } }
+        database.employeeDao.getRecordsCompleteFlowForUI("%${filter.stringToSearch}%", filter.parentId).map { list -> list.map { it.toDomainModel() } }
     }
 
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
