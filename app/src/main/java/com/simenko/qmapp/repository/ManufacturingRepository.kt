@@ -47,7 +47,21 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun syncCompanies() = crudeOperations.syncRecordsAll(database.companyDao) { service.getCompanies() }
     suspend fun syncJobRoles() = crudeOperations.syncRecordsAll(database.jobRoleDao) { service.getJobRoles() }
+
+
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(database.departmentDao) { service.getDepartments() }
+
+    fun CoroutineScope.deleteDepartment(id: Int): ReceiveChannel<Event<Resource<DomainDepartment>>> = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.deleteDepartment(id) }) { r -> database.departmentDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertDepartment(record: DomainDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.insertDepartment(record.toDatabaseModel().toNetworkModel()) }) { r -> database.departmentDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateDepartment(record: DomainDepartment) = crudeOperations.run {
+        responseHandlerForSingleRecord(taskExecutor = { service.editDepartment(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.departmentDao.updateRecord(r) }
+    }
 
 
     suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(database.subDepartmentDao) { service.getSubDepartments() }
@@ -128,12 +142,18 @@ class ManufacturingRepository @Inject constructor(
 
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
     val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
+    val companyById: (Int) -> DomainCompany = { id ->
+        database.companyDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
+    }
 
     val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
 
     val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
     val departmentsComplete: (Int) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
-    val departmentById: (Int) -> DomainDepartment = { id -> database.departmentDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") } }
+    val departmentById: (Int) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).let { it.toDomainModel() } }
+
+    val departmentByIdDeprecated: (Int) -> DomainDepartment =
+        { id -> database.departmentDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") } }
 
     val subDepartments: (Int) -> Flow<List<DomainSubDepartment>> = { pId -> database.subDepartmentDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }

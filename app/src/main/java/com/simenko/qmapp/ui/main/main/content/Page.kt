@@ -95,6 +95,9 @@ enum class Page(
     AUTHORIZE_USER(Route.Main.Team.AuthorizeUser.link, Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, Icons.Filled.Save, null),
     EDIT_USER(Route.Main.Team.EditUser.link, Icons.Filled.ArrowBack, "Edit user", null, null, null, null, Icons.Filled.Save, null),
 
+    ADD_DEPARTMENT(Route.Main.CompanyStructure.DepartmentAddEdit.link, Icons.Filled.ArrowBack, "Add new department", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_DEPARTMENT(Route.Main.CompanyStructure.DepartmentAddEdit.link, Icons.Filled.ArrowBack, "Edit department", null, null, null, null, Icons.Filled.Save, null),
+
     ADD_SUB_DEPARTMENT(Route.Main.CompanyStructure.SubDepartmentAddEdit.link, Icons.Filled.ArrowBack, "Add new sub department", null, null, null, null, Icons.Filled.Save, null),
     EDIT_SUB_DEPARTMENT(Route.Main.CompanyStructure.SubDepartmentAddEdit.link, Icons.Filled.ArrowBack, "Edit sub department", null, null, null, null, Icons.Filled.Save, null),
 

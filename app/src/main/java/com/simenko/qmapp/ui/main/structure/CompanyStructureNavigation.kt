@@ -5,6 +5,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import com.simenko.qmapp.ui.main.structure.forms.channel.ChannelForm
 import com.simenko.qmapp.ui.main.structure.forms.channel.ChannelViewModel
+import com.simenko.qmapp.ui.main.structure.forms.department.DepartmentForm
+import com.simenko.qmapp.ui.main.structure.forms.department.DepartmentViewModel
 import com.simenko.qmapp.ui.main.structure.forms.line.LineForm
 import com.simenko.qmapp.ui.main.structure.forms.line.LineViewModel
 import com.simenko.qmapp.ui.main.structure.forms.operation.OperationForm
@@ -21,6 +23,10 @@ fun NavGraphBuilder.companyStructureNavigation(mainScreenPadding: PaddingValues)
         composable(destination = Route.Main.CompanyStructure.StructureView) {
             val viewModel: CompanyStructureViewModel = hiltViewModel()
             CompanyStructure(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
+        }
+        composable(destination = Route.Main.CompanyStructure.DepartmentAddEdit) {
+            val viewModel: DepartmentViewModel = hiltViewModel()
+            DepartmentForm(viewModel = viewModel)
         }
         composable(destination = Route.Main.CompanyStructure.SubDepartmentAddEdit) {
             val viewModel: SubDepartmentViewModel = hiltViewModel()

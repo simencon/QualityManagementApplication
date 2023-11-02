@@ -36,6 +36,14 @@ interface ManufacturingService {
 
     @GET(DEPARTMENTS)
     suspend fun getDepartments(): Response<List<NetworkDepartment>>
+    @POST(DEPARTMENTS)
+    suspend fun insertDepartment(@Body value: NetworkDepartment): Response<NetworkDepartment>
+    @DELETE("$DEPARTMENTS/{id}")
+    suspend fun deleteDepartment(@Path("id") id: Int): Response<NetworkDepartment>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$DEPARTMENTS/{id}")
+    suspend fun editDepartment(@Path("id") id: Int, @Body body: NetworkDepartment): Response<NetworkDepartment>
+
 
     @GET(SUB_DEPARTMENTS)
     suspend fun getSubDepartments(): Response<List<NetworkSubDepartment>>
