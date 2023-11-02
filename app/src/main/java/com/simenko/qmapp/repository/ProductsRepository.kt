@@ -46,5 +46,5 @@ class ProductsRepository @Inject constructor(
     }
 
     val itemVersionsComplete: Flow<List<DomainItemVersionComplete>> = database.productVersionDao.getItemVersionsComplete().map { list -> list.map { it.toDomainModel() } }
-    val characteristics = database.characteristicDao.getRecordsForUI().asFlow().map { list -> list.map { it.toDomainModel() } }
+    val characteristics = database.characteristicDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

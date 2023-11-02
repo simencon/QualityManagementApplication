@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.manufacturing
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -20,7 +19,7 @@ abstract class SubDepartmentDao : DaoBaseModel<DatabaseSubDepartment> {
     abstract override fun getRecordById(id: String): DatabaseSubDepartment?
 
     @Query("select * from `11_sub_departments` order by subDepOrder asc")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseSubDepartment>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseSubDepartment>>
 
     @Query("""
         select * from `11_sub_departments` as sd

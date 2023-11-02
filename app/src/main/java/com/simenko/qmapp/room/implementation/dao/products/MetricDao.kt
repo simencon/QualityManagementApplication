@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseMetrix
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class MetricDao: DaoBaseModel<DatabaseMetrix> {
@@ -18,7 +18,7 @@ abstract class MetricDao: DaoBaseModel<DatabaseMetrix> {
     abstract override fun getRecordById(id: String): DatabaseMetrix?
 
     @Query("SELECT * FROM `8_metrixes` ORDER BY metrixOrder ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseMetrix>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseMetrix>>
 
     @Query("select m.* from items_tolerances as it " +
             "left join `8_metrixes` as m on it.metrixId = m.id " +

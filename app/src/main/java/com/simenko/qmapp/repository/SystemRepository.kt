@@ -54,5 +54,5 @@ class SystemRepository @Inject constructor(
         database.userDao.getRecordsFlowForUI(filter.newUsers, "%${filter.stringToSearch}%").map { list -> list.map { it.toDomainModel() } }
     }
 
-    val userRoles: Flow<List<DomainUserRole>> = database.userRoleDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val userRoles: Flow<List<DomainUserRole>> = database.userRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

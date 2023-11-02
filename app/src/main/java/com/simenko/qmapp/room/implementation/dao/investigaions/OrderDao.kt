@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.other.Constants.UI_SAFETY_GAP
 import com.simenko.qmapp.other.Constants.UI_TOTAL_VISIBLE
@@ -22,7 +21,7 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
     abstract override fun getRecordById(id: String): DatabaseOrder?
 
     @Query("SELECT * FROM `12_orders` ORDER BY orderNumber desc")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseOrder>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseOrder>>
 
     @Transaction
     @Query(

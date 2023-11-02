@@ -1,10 +1,8 @@
 package com.simenko.qmapp.room.implementation.dao.manufacturing
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseManufacturingChannel
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +19,7 @@ abstract class ChannelDao: DaoBaseModel<DatabaseManufacturingChannel> {
     abstract override fun getRecordById(id: String): DatabaseManufacturingChannel?
 
     @Query("SELECT * FROM `12_manufacturing_channels` ORDER BY channelOrder ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseManufacturingChannel>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseManufacturingChannel>>
 
     @Query("""
         SELECT * FROM `12_manufacturing_channels` as mc

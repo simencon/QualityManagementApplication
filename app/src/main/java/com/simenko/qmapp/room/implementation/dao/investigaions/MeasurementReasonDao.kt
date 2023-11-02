@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseReason
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -19,8 +18,5 @@ abstract class MeasurementReasonDao : DaoBaseModel<DatabaseReason> {
     abstract override fun getRecordById(id: String): DatabaseReason?
 
     @Query("SELECT * FROM `0_measurement_reasons` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseReason>>
-
-    @Query("SELECT * FROM `0_measurement_reasons` ORDER BY id ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseReason>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseReason>>
 }

@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.simenko.qmapp.room.entities.DatabaseOrdersType
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -21,8 +20,5 @@ abstract class InvestigationTypeDao : DaoBaseModel<DatabaseOrdersType> {
     abstract override fun getRecordById(id: String): DatabaseOrdersType?
 
     @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseOrdersType>>
-
-    @Query("SELECT * FROM `0_orders_types` ORDER BY id ASC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseOrdersType>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseOrdersType>>
 }

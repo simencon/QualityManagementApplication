@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseManufacturingProject
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ManufacturingProjectDao: DaoBaseModel<DatabaseManufacturingProject> {
@@ -18,6 +18,6 @@ abstract class ManufacturingProjectDao: DaoBaseModel<DatabaseManufacturingProjec
     abstract override fun getRecordById(id: String): DatabaseManufacturingProject?
 
     @Query("SELECT * FROM `0_manufacturing_project` ORDER BY startDate ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseManufacturingProject>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseManufacturingProject>>
 
 }

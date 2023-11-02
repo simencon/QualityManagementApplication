@@ -1,6 +1,5 @@
 package com.simenko.qmapp.room.implementation.dao.manufacturing
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -21,10 +20,7 @@ abstract class EmployeeDao : DaoBaseModel<DatabaseEmployee> {
     abstract override fun getRecordById(id: String): DatabaseEmployee?
 
     @Query("SELECT * FROM `8_employees` ORDER BY id DESC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseEmployee>>
-
-    @Query("SELECT * FROM `8_employees` ORDER BY id DESC")
-    abstract fun getRecordsFlowForUI(): Flow<List<DatabaseEmployee>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseEmployee>>
 
     @Transaction
     @Query(

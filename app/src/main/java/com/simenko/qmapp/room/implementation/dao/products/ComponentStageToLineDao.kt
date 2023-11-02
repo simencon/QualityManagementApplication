@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseComponentInStageToLine
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ComponentStageToLineDao: DaoBaseModel<DatabaseComponentInStageToLine> {
@@ -18,6 +18,6 @@ abstract class ComponentStageToLineDao: DaoBaseModel<DatabaseComponentInStageToL
     abstract override fun getRecordById(id: String): DatabaseComponentInStageToLine?
 
     @Query("SELECT * FROM `13_5_component_in_stages_to_lines` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseComponentInStageToLine>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentInStageToLine>>
 
 }

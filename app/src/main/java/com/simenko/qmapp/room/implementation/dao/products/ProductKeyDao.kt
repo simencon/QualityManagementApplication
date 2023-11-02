@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseKey
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
@@ -18,6 +18,6 @@ abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
     abstract override fun getRecordById(id: String): DatabaseKey?
 
     @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseKey>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseKey>>
 
 }

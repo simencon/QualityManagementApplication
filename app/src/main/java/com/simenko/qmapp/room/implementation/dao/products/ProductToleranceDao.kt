@@ -1,10 +1,10 @@
 package com.simenko.qmapp.room.implementation.dao.products
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseProductTolerance
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ProductToleranceDao: DaoBaseModel<DatabaseProductTolerance> {
@@ -18,6 +18,6 @@ abstract class ProductToleranceDao: DaoBaseModel<DatabaseProductTolerance> {
     abstract override fun getRecordById(id: String): DatabaseProductTolerance?
 
     @Query("SELECT * FROM `9_8_product_tolerances` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseProductTolerance>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseProductTolerance>>
 
 }
