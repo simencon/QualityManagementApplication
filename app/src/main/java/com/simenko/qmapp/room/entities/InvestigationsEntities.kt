@@ -2,9 +2,11 @@ package com.simenko.qmapp.room.entities
 
 import androidx.room.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.domain.entities.products.DomainResultTolerance
 import com.simenko.qmapp.retrofit.entities.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.room.contract.StatusHolderModel
+import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.NotificationData
 import com.simenko.qmapp.utils.NotificationReasons
 import com.simenko.qmapp.utils.ObjectTransformer
