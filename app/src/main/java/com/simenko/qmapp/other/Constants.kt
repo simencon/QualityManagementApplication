@@ -56,18 +56,41 @@ object Constants {
     const val CHARACTERISTICS = "characteristics"
     const val METRICS = "metrics"
     const val VERSION_STATUSES = "versionStatuses"
+
+    const val PRODUCT_KINDS = "productKinds"
+    const val COMPONENT_KINDS = "componentKinds"
+    const val COMPONENT_STAGE_KINDS = "componentStageKinds"
+
+    const val PRODUCT_KINDS_KEYS = "productKindKeys"
+    const val COMPONENT_KINDS_KEYS = "componentKindKeys"
+    const val COMPONENT_STAGE_KINDS_KEYS = "componentStageKindKeys"
+
+    const val CHARACTERISTICS_PRODUCT_KINDS = "characteristicsProductKinds"
+    const val CHARACTERISTICS_COMPONENT_KINDS = "characteristicsComponentKinds"
+    const val CHARACTERISTICS_COMPONENT_STAGE_KINDS = "characteristicsComponentStageKinds"
+
     const val PRODUCTS = "products"
-    const val PRODUCT_VERSIONS = "productVersions"
-    const val PRODUCT_TOLERANCES = "productTolerances"
-    const val PRODUCTS_TO_LINES = "productsToLines"
     const val COMPONENTS = "components"
-    const val COMPONENT_VERSIONS = "componentVersions"
-    const val COMPONENT_TOLERANCES = "componentTolerances"
-    const val COMPONENTS_TO_LINES = "componentsToLines"
     const val COMPONENTS_IN_STAGE = "componentsInStage"
-    const val COMPONENT_IN_STAGE_VERSIONS = "componentInStageVersions"
-    const val COMPONENT_IN_STAGE_TOLERANCES = "componentInStageTolerances"
+
+    const val PRODUCTS_TO_LINES = "productsToLines"
+    const val COMPONENTS_TO_LINES = "componentsToLines"
     const val COMPONENTS_IN_STAGE_TO_LINES = "componentsInStageToLines"
+
+    const val PRODUCT_KINDS_PRODUCTS = "productKindsProducts"
+    const val COMPONENT_KINDS_COMPONENTS = "componentKindsComponents"
+    const val COMPONENT_STAGE_KINDS_COMPONENT_STAGES = "componentStageKindsComponentStages"
+
+    const val PRODUCTS_COMPONENTS = "productsComponents"
+    const val COMPONENTS_COMPONENT_STAGES = "componentsComponentStages"
+
+    const val PRODUCT_VERSIONS = "productVersions"
+    const val COMPONENT_VERSIONS = "componentVersions"
+    const val COMPONENT_IN_STAGE_VERSIONS = "componentInStageVersions"
+
+    const val PRODUCT_TOLERANCES = "productTolerances"
+    const val COMPONENT_TOLERANCES = "componentTolerances"
+    const val COMPONENT_IN_STAGE_TOLERANCES = "componentInStageTolerances"
 
     const val INPUT_TO_PLACE_INVESTIGATION = "inputToPlaceInvestigation"
     const val INVESTIGATION_TYPES = "investigationTypes"

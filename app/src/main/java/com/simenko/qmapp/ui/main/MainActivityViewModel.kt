@@ -156,26 +156,49 @@ class MainActivityViewModel @Inject constructor(
             manufacturingRepository.syncOperations()
             manufacturingRepository.syncOperationsFlows()
 
-            productsRepository.syncCharacteristicGroups()
-            productsRepository.syncCharacteristicSubGroups()
             productsRepository.syncManufacturingProjects()
-            productsRepository.syncCharacteristics()
-            productsRepository.syncMetrics()
             productsRepository.syncProductKeys()
             productsRepository.syncProductBases()
+            productsRepository.syncCharacteristicGroups()
+            productsRepository.syncCharacteristicSubGroups()
+            productsRepository.syncCharacteristics()
+            productsRepository.syncMetrics()
+            productsRepository.syncVersionStatuses()
+
+            productsRepository.syncProductKinds()
+            productsRepository.syncComponentKinds()
+            productsRepository.syncComponentStageKinds()
+
+            productsRepository.syncProductKindsKeys()
+            productsRepository.syncComponentKindsKeys()
+            productsRepository.syncComponentStageKindsKeys()
+
+            productsRepository.syncCharacteristicsProductKinds()
+            productsRepository.syncCharacteristicsComponentKinds()
+            productsRepository.syncCharacteristicsComponentStageKinds()
+
             productsRepository.syncProducts()
             productsRepository.syncComponents()
             productsRepository.syncComponentStages()
-            productsRepository.syncVersionStatuses()
-            productsRepository.syncProductVersions()
-            productsRepository.syncComponentVersions()
-            productsRepository.syncComponentStageVersions()
-            productsRepository.syncProductTolerances()
-            productsRepository.syncComponentTolerances()
-            productsRepository.syncComponentStageTolerances()
+
             productsRepository.syncProductsToLines()
             productsRepository.syncComponentsToLines()
             productsRepository.syncComponentStagesToLines()
+
+            productsRepository.syncProductKindsProducts()
+            productsRepository.syncComponentKindsComponents()
+            productsRepository.syncComponentStageKindsComponentStages()
+
+            productsRepository.syncProductsComponents()
+            productsRepository.syncComponentsComponentStages()
+
+            productsRepository.syncProductVersions()
+            productsRepository.syncComponentVersions()
+            productsRepository.syncComponentStageVersions()
+
+            productsRepository.syncProductTolerances()
+            productsRepository.syncComponentTolerances()
+            productsRepository.syncComponentStageTolerances()
 
             repository.syncInputForOrder()
             repository.syncOrdersStatuses()

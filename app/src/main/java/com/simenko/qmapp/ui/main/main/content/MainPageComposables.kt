@@ -38,6 +38,7 @@ import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -47,6 +48,10 @@ fun AppBar(
     val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
     val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
     val actionsMenuState by topBarSetup.actionsMenuState.collectAsStateWithLifecycle()
+
+    val dmOffsetInitialValue by rememberSaveable { mutableFloatStateOf(drawerMenuState.offset.value) }
+
+    LaunchedEffect(key1 = drawerMenuState.offset.value, block = { println("AppBar - drawerMenuState.offset = ${drawerMenuState.offset.value}, initial offset was = $dmOffsetInitialValue")})
 
     val scope = rememberCoroutineScope()
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
@@ -140,7 +145,7 @@ fun AppBar(
                             imageVector = topBarSetup.navIcon,
                             contentDescription = "Navigation button",
                             modifier = Modifier
-                                .rotate(drawerMenuState.offset.value / 1080f * 360f)
+                                .rotate(drawerMenuState.offset.value / abs(dmOffsetInitialValue) * 360f)
                         )
                     }
         },
