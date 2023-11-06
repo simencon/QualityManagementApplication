@@ -7,6 +7,8 @@ import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository

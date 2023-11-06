@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
-import com.simenko.qmapp.room.entities.DatabaseItemVersionComplete
-import com.simenko.qmapp.room.entities.DatabaseProductVersion
+import com.simenko.qmapp.room.entities.products.DatabaseItemVersionComplete
+import com.simenko.qmapp.room.entities.products.DatabaseProductVersion
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -34,21 +34,7 @@ import com.simenko.qmapp.other.Constants.PRODUCT_KINDS_PRODUCTS
 import com.simenko.qmapp.other.Constants.PRODUCT_TOLERANCES
 import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
-import com.simenko.qmapp.retrofit.entities.*
-import com.simenko.qmapp.retrofit.entities.products.NetworkCharacteristicComponentKind
-import com.simenko.qmapp.retrofit.entities.products.NetworkCharacteristicComponentStageKind
-import com.simenko.qmapp.retrofit.entities.products.NetworkCharacteristicProductKind
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentComponentStage
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentKind
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentKindComponent
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentKindKey
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentStageKind
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentStageKindComponentStage
-import com.simenko.qmapp.retrofit.entities.products.NetworkComponentStageKindKey
-import com.simenko.qmapp.retrofit.entities.products.NetworkProductComponent
-import com.simenko.qmapp.retrofit.entities.products.NetworkProductKind
-import com.simenko.qmapp.retrofit.entities.products.NetworkProductKindKey
-import com.simenko.qmapp.retrofit.entities.products.NetworkProductKindProduct
+import com.simenko.qmapp.retrofit.entities.products.*
 import retrofit2.Response
 import retrofit2.http.GET
 

@@ -2,6 +2,10 @@ package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.*
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristicComplete
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
+import com.simenko.qmapp.domain.entities.products.DomainMetrix
+import com.simenko.qmapp.domain.entities.products.DomainResultTolerance
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
 

@@ -3,7 +3,7 @@ package com.simenko.qmapp.room.implementation.dao.products
 import androidx.room.Dao
 import androidx.room.Query
 import com.simenko.qmapp.room.contract.DaoBaseModel
-import com.simenko.qmapp.room.entities.DatabaseKey
+import com.simenko.qmapp.room.entities.products.DatabaseKey
 import kotlinx.coroutines.flow.Flow
 
 @Dao

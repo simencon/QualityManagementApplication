@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 
 @Composable

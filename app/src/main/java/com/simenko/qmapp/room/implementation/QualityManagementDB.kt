@@ -2,20 +2,7 @@ package com.simenko.qmapp.room.implementation
 
 import androidx.room.*
 import com.simenko.qmapp.room.entities.*
-import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicComponentKind
-import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicComponentStageKind
-import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicProductKind
-import com.simenko.qmapp.room.entities.products.DatabaseComponentComponentStage
-import com.simenko.qmapp.room.entities.products.DatabaseComponentKind
-import com.simenko.qmapp.room.entities.products.DatabaseComponentKindComponent
-import com.simenko.qmapp.room.entities.products.DatabaseComponentKindKey
-import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKind
-import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKindComponentStage
-import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKindKey
-import com.simenko.qmapp.room.entities.products.DatabaseProductComponent
-import com.simenko.qmapp.room.entities.products.DatabaseProductKind
-import com.simenko.qmapp.room.entities.products.DatabaseProductKindKey
-import com.simenko.qmapp.room.entities.products.DatabaseProductKindProduct
+import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.room.implementation.dao.Converters
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
 import com.simenko.qmapp.room.implementation.dao.manufacturing.*
