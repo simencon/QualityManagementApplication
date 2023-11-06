@@ -40,10 +40,7 @@ data class DomainInputForOrder constructor(
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-
-    override fun toDatabaseModel(): DatabaseInputForOrder {
-        return ObjectTransformer(DomainInputForOrder::class, DatabaseInputForOrder::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainInputForOrder::class, DatabaseInputForOrder::class).transform(this)
 }
 
 @Stable

@@ -2,39 +2,26 @@ package com.simenko.qmapp.room.implementation
 
 import androidx.room.*
 import com.simenko.qmapp.room.entities.*
+import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicComponentKind
+import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicComponentStageKind
+import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicProductKind
+import com.simenko.qmapp.room.entities.products.DatabaseComponentComponentStage
+import com.simenko.qmapp.room.entities.products.DatabaseComponentKind
+import com.simenko.qmapp.room.entities.products.DatabaseComponentKindComponent
+import com.simenko.qmapp.room.entities.products.DatabaseComponentKindKey
+import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKind
+import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKindComponentStage
+import com.simenko.qmapp.room.entities.products.DatabaseComponentStageKindKey
+import com.simenko.qmapp.room.entities.products.DatabaseProductComponent
+import com.simenko.qmapp.room.entities.products.DatabaseProductKind
+import com.simenko.qmapp.room.entities.products.DatabaseProductKindKey
+import com.simenko.qmapp.room.entities.products.DatabaseProductKindProduct
 import com.simenko.qmapp.room.implementation.dao.Converters
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
-import com.simenko.qmapp.room.implementation.dao.manufacturing.ChannelDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.CompanyDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.DepartmentDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.JobRoleDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.LineDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.OperationsFlowDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.SubDepartmentDao
-import com.simenko.qmapp.room.implementation.dao.manufacturing.EmployeeDao
-import com.simenko.qmapp.room.implementation.dao.products.CharacteristicDao
-import com.simenko.qmapp.room.implementation.dao.products.CharacteristicGroupDao
-import com.simenko.qmapp.room.implementation.dao.products.CharacteristicSubGroupDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentStageDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentStageToLineDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentStageToleranceDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentStageVersionDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentToLineDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentToleranceDao
-import com.simenko.qmapp.room.implementation.dao.products.ComponentVersionDao
-import com.simenko.qmapp.room.implementation.dao.products.ManufacturingProjectDao
-import com.simenko.qmapp.room.implementation.dao.products.MetricDao
-import com.simenko.qmapp.room.implementation.dao.products.ProductBaseDao
-import com.simenko.qmapp.room.implementation.dao.products.ProductDao
-import com.simenko.qmapp.room.implementation.dao.products.ProductKeyDao
-import com.simenko.qmapp.room.implementation.dao.products.ProductToLineDao
-import com.simenko.qmapp.room.implementation.dao.products.ProductToleranceDao
-import com.simenko.qmapp.room.implementation.dao.products.ProductVersionDao
-import com.simenko.qmapp.room.implementation.dao.products.VersionStatusDao
-import com.simenko.qmapp.room.implementation.dao.system.UserDao
-import com.simenko.qmapp.room.implementation.dao.system.UserRoleDao
+import com.simenko.qmapp.room.implementation.dao.manufacturing.*
+import com.simenko.qmapp.room.implementation.dao.products.*
+import com.simenko.qmapp.room.implementation.dao.products.rest.*
+import com.simenko.qmapp.room.implementation.dao.system.*
 
 @Database(
     entities = [
@@ -51,26 +38,49 @@ import com.simenko.qmapp.room.implementation.dao.system.UserRoleDao
         DatabaseManufacturingOperation::class,
         DatabaseOperationsFlow::class,
 
-        DatabaseElementIshModel::class,
-        DatabaseIshSubCharacteristic::class,
         DatabaseManufacturingProject::class,
-        DatabaseCharacteristic::class,
-        DatabaseMetrix::class,
         DatabaseKey::class,
         DatabaseProductBase::class,
+        DatabaseElementIshModel::class,
+        DatabaseIshSubCharacteristic::class,
+        DatabaseCharacteristic::class,
+        DatabaseMetrix::class,
+        DatabaseVersionStatus::class,
+
+        DatabaseProductKind::class,
+        DatabaseComponentKind::class,
+        DatabaseComponentStageKind::class,
+
+        DatabaseProductKindKey::class,
+        DatabaseComponentKindKey::class,
+        DatabaseComponentStageKindKey::class,
+
+        DatabaseCharacteristicProductKind::class,
+        DatabaseCharacteristicComponentKind::class,
+        DatabaseCharacteristicComponentStageKind::class,
+
         DatabaseProduct::class,
         DatabaseComponent::class,
         DatabaseComponentInStage::class,
-        DatabaseVersionStatus::class,
-        DatabaseProductVersion::class,
-        DatabaseComponentVersion::class,
-        DatabaseComponentInStageVersion::class,
-        DatabaseProductTolerance::class,
-        DatabaseComponentTolerance::class,
-        DatabaseComponentInStageTolerance::class,
+
         DatabaseProductToLine::class,
         DatabaseComponentToLine::class,
         DatabaseComponentInStageToLine::class,
+
+        DatabaseProductKindProduct::class,
+        DatabaseComponentKindComponent::class,
+        DatabaseComponentStageKindComponentStage::class,
+
+        DatabaseProductComponent::class,
+        DatabaseComponentComponentStage::class,
+
+        DatabaseProductVersion::class,
+        DatabaseComponentVersion::class,
+        DatabaseComponentInStageVersion::class,
+
+        DatabaseProductTolerance::class,
+        DatabaseComponentTolerance::class,
+        DatabaseComponentInStageTolerance::class,
 
         DatabaseInputForOrder::class,
         DatabaseOrdersStatus::class,
@@ -129,26 +139,51 @@ abstract class QualityManagementDB : RoomDatabase() {
     abstract val operationDao: OperationDao
     abstract val operationsFlowDao: OperationsFlowDao
 
-    abstract val characteristicGroupDao: CharacteristicGroupDao
-    abstract val characteristicSubGroupDao: CharacteristicSubGroupDao
     abstract val manufacturingProjectDao: ManufacturingProjectDao
-    abstract val characteristicDao: CharacteristicDao
-    abstract val metricDao: MetricDao
     abstract val productKeyDao: ProductKeyDao
     abstract val productBaseDao: ProductBaseDao
+    abstract val characteristicGroupDao: CharacteristicGroupDao
+    abstract val characteristicSubGroupDao: CharacteristicSubGroupDao
+    abstract val characteristicDao: CharacteristicDao
+    abstract val metricDao: MetricDao
+    abstract val versionStatusDao: VersionStatusDao
+
+    abstract val productKindDao: ProductKindDao
+    abstract val componentKindDao: ComponentKindDao
+    abstract val componentStageKindDao: ComponentStageKindDao
+
+    abstract val productKindKeyDao: ProductKindKeyDao
+    abstract val componentKindKeyDao: ComponentKindKeyDao
+    abstract val componentStageKindKeyDao: ComponentStageKindKeyDao
+
+    abstract val characteristicProductKindDao: CharacteristicProductKindDao
+    abstract val characteristicComponentKindDao: CharacteristicComponentKindDao
+    abstract val characteristicComponentStageKindDao: CharacteristicComponentStageKindDao
+
+
     abstract val productDao: ProductDao
     abstract val componentDao: ComponentDao
     abstract val componentStageDao: ComponentStageDao
-    abstract val versionStatusDao: VersionStatusDao
-    abstract val productVersionDao: ProductVersionDao
-    abstract val componentVersionDao: ComponentVersionDao
-    abstract val componentStageVersionDao: ComponentStageVersionDao
-    abstract val productToleranceDao: ProductToleranceDao
-    abstract val componentToleranceDao: ComponentToleranceDao
-    abstract val componentStageToleranceDao: ComponentStageToleranceDao
+
     abstract val productToLineDao: ProductToLineDao
     abstract val componentToLineDao: ComponentToLineDao
     abstract val componentStageToLineDao: ComponentStageToLineDao
+
+    abstract val productKindProductDao: ProductKindProductDao
+    abstract val componentKindComponentDao: ComponentKindComponentDao
+    abstract val componentStageKindComponentStageDao: ComponentStageKindComponentStageDao
+
+    abstract val productComponentDao: ProductComponentDao
+    abstract val componentComponentStageDao: ComponentComponentStageDao
+
+    abstract val productVersionDao: ProductVersionDao
+    abstract val componentVersionDao: ComponentVersionDao
+    abstract val componentStageVersionDao: ComponentStageVersionDao
+
+    abstract val productToleranceDao: ProductToleranceDao
+    abstract val componentToleranceDao: ComponentToleranceDao
+    abstract val componentStageToleranceDao: ComponentStageToleranceDao
+
 
     abstract val inputForOrderDao: InputForOrderDao
     abstract val orderStatusDao: OrderStatusDao

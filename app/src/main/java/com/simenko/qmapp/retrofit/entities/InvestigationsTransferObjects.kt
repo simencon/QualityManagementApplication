@@ -40,9 +40,7 @@ data class NetworkInputForOrder constructor(
     var charOrder: Int
 ) : NetworkBaseModel<DatabaseInputForOrder> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseInputForOrder {
-        return ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
