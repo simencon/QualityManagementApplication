@@ -6,6 +6,7 @@ import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.domain.entities.products.DomainManufacturingProject.DomainManufacturingProjectComplete
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -56,6 +57,10 @@ class ProductsRepository @Inject constructor(
 
     val productLines: (Long) -> Flow<List<DomainManufacturingProjectComplete>> = { pId ->
         database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+
+    val productKeys: (Int) -> Flow<List<DomainKey>> = {pId ->
+        database.productKeyDao.getRecordsCompleteForUI(pId).map { list-> list.map { it.toDomainModel() } }
     }
 
     val metricsByPrefixVersionIdActualityCharId: suspend (String, Int, Boolean, Int) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->

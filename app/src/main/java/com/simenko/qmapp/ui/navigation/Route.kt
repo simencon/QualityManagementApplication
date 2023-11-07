@@ -56,6 +56,7 @@ object NavRouteName {
     const val operation_add_edit = "operation_add_edit"
 
     const val product_lines = "product_lines"
+    const val product_keys = "product_keys"
     const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
     const val component_kind_add_edit = "component_kind_add_edit"
@@ -98,6 +99,7 @@ object NavArguments {
     const val operationId = "operationId"
 
     const val productLineId = "productLineId"
+    const val productKeyId = "productKeyId"
     const val productKindId = "productKindId"
     const val componentKindId = "componentKindId"
     const val componentStageKindId = "componentStageKindId"
@@ -405,7 +407,28 @@ sealed class Route(
                     }
                 ),
                 route = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}"
-            )
+            ) {
+                data object ProductKeys : Route(
+                    link = NavRouteName.product_keys + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productKeyId)}",
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_keys}${arg(NavArguments.productLineId)}${arg(NavArguments.productKeyId)}"
+                            action = Intent.ACTION_VIEW
+                        }
+                    ),
+                    arguments = listOf(
+                        navArgument(NavArguments.productLineId) {
+                            type = NavType.IntType
+                            defaultValue = NoRecord.num
+                        },
+                        navArgument(NavArguments.productKeyId) {
+                            type = NavType.IntType
+                            defaultValue = NoRecord.num
+                        }
+                    ),
+                    route = NavRouteName.product_lines
+                )
+            }
 
             data object ProductLineAddEdit : Route(
                 link = "${NavRouteName.product_line_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.productLineId)}",

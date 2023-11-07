@@ -64,6 +64,18 @@ enum class Page(
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = CompanyProductsActions.toList()
     ),
+    PRODUCT_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product line keys",
+        titlePlaceholderText = "Search by key",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
         navIcon = Icons.Filled.Menu,
@@ -83,9 +95,9 @@ enum class Page(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = ProgressTabs.toList(),
+        topTabsContent = null,
         fabIcon = Icons.Filled.Add,
-        actionBtnIcon = Icons.Filled.MoreVert,
+        actionBtnIcon = null,
         actionMenuItems = ProcessControlActions.toList()
     ),
     ACCOUNT_SETTINGS(
