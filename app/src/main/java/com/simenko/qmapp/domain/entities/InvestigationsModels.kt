@@ -2,7 +2,7 @@ package com.simenko.qmapp.domain.entities
 
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.*
-import com.simenko.qmapp.domain.entities.products.DomainCharacteristicComplete
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.domain.entities.products.DomainResultTolerance
@@ -386,7 +386,7 @@ data class DomainSubOrderComplete constructor(
 @Stable
 data class DomainSubOrderTaskComplete constructor(
     var subOrderTask: DomainSubOrderTask = DomainSubOrderTask(),
-    var characteristic: DomainCharacteristicComplete = DomainCharacteristicComplete(),
+    var characteristic: DomainCharacteristic.DomainCharacteristicComplete = DomainCharacteristic.DomainCharacteristicComplete(),
     var status: DomainOrdersStatus = DomainOrdersStatus(),
     var subOrder: DomainSubOrder = DomainSubOrder(),
     var taskResult: DomainTaskResult = DomainTaskResult(),

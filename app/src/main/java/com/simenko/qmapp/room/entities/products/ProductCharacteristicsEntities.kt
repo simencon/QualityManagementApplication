@@ -36,7 +36,6 @@ data class DatabaseIshSubCharacteristic constructor(
 }
 
 
-
 @Entity(
     tableName = "7_characteristics",
     foreignKeys = [
@@ -80,35 +79,42 @@ data class DatabaseCharacteristic constructor(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristic::class, NetworkCharacteristic::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
-}
 
-@DatabaseView(
-    viewName = "characteristic_complete",
-    value = "SELECT * FROM `7_characteristics` ORDER BY charOrder;"
-)
-data class DatabaseCharacteristicComplete(
-    @Embedded
-    val characteristic: DatabaseCharacteristic,
-    @Relation(
-        entity = DatabaseElementIshModel::class,
-        parentColumn = "ishCharId",
-        entityColumn = "id"
+    @DatabaseView(
+        viewName = "characteristic_complete",
+        value = "SELECT * FROM `7_characteristics` ORDER BY charOrder;"
     )
-    val characteristicGroup: DatabaseElementIshModel,
-    @Relation(
-        entity = DatabaseIshSubCharacteristic::class,
-        parentColumn = "ishSubChar",
-        entityColumn = "id"
-    )
-    val characteristicSubGroup: DatabaseIshSubCharacteristic
-) : DatabaseBaseModel<Any?, DomainCharacteristicComplete> {
-    override fun getRecordId() = characteristic.id
-    override fun toNetworkModel() = null
-    override fun toDomainModel() = DomainCharacteristicComplete(
-        characteristic = characteristic.toDomainModel(),
-        characteristicGroup = characteristicGroup.toDomainModel(),
-        characteristicSubGroup = characteristicSubGroup.toDomainModel()
-    )
+    data class DatabaseCharacteristicComplete(
+        @Embedded
+        val characteristic: DatabaseCharacteristic,
+        @Relation(
+            entity = DatabaseManufacturingProject::class,
+            parentColumn = "projectId",
+            entityColumn = "id"
+        )
+        val productLine: DatabaseManufacturingProject,
+        @Relation(
+            entity = DatabaseElementIshModel::class,
+            parentColumn = "ishCharId",
+            entityColumn = "id"
+        )
+        val characteristicGroup: DatabaseElementIshModel,
+        @Relation(
+            entity = DatabaseIshSubCharacteristic::class,
+            parentColumn = "ishSubChar",
+            entityColumn = "id"
+        )
+        val characteristicSubGroup: DatabaseIshSubCharacteristic
+    ) : DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicComplete> {
+        override fun getRecordId() = characteristic.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainCharacteristic.DomainCharacteristicComplete(
+            characteristic = this.characteristic.toDomainModel(),
+            productLine = this.productLine.toDomainModel(),
+            characteristicGroup = this.characteristicGroup.toDomainModel(),
+            characteristicSubGroup = this.characteristicSubGroup.toDomainModel()
+        )
+    }
 }
 
 @Entity(

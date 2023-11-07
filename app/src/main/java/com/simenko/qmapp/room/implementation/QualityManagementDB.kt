@@ -96,7 +96,7 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseItemTolerance::class,
 
-        DatabaseCharacteristicComplete::class,
+        DatabaseCharacteristic.DatabaseCharacteristicComplete::class,
 
         DatabaseSubOrderTaskComplete::class,
         DatabaseResultComplete::class,

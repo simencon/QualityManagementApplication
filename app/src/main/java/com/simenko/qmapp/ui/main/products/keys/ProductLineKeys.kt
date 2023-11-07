@@ -60,9 +60,9 @@ fun ProductLineKeys(
     val productLine by viewModel.productLine.collectAsStateWithLifecycle()
     val items by viewModel.productKeys.collectAsStateWithLifecycle(listOf())
 
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setProductKeysVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteProductLineClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditProductLineClick(it) } }
+    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setProductLineKeysVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteProductLineKeyClick(it) } }
+    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditProductLineKeyClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
