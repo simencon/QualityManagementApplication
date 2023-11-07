@@ -2,6 +2,7 @@ package com.simenko.qmapp.domain.entities.products
 
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
@@ -11,19 +12,19 @@ import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 data class DomainManufacturingProject(
-    var id: Int,
-    var companyId: Int,
-    var factoryLocationDep: Long,
+    var id: Int = NoRecord.num,
+    var companyId: Int = NoRecord.num,
+    var factoryLocationDep: Long = NoRecord.num.toLong(),
     var factoryLocationDetails: String? = null,
     var customerName: String? = null,
     var team: Int? = null,
     var modelYear: String? = null,
-    var projectSubject: String? = null,
-    var startDate: String? = null,
-    var revisionDate: String? = null,
+    var projectSubject: String? = EmptyString.str,
+    var startDate: String? = EmptyString.str,
+    var revisionDate: String? = EmptyString.str,
     var refItem: String? = null,
-    var pfmeaNum: String? = null,
-    var processOwner: Long,
+    var pfmeaNum: String? = EmptyString.str,
+    var processOwner: Long = NoRecord.num.toLong(),
     var confLevel: Int? = null
 ) : DomainBaseModel<DatabaseManufacturingProject>() {
     override fun getRecordId() = id
@@ -32,10 +33,10 @@ data class DomainManufacturingProject(
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingProject::class, DatabaseManufacturingProject::class).transform(this)
 
     data class DomainManufacturingProjectComplete(
-        val manufacturingProject: DomainManufacturingProject,
-        val company: DomainCompany,
-        val designDepartment: DomainDepartment,
-        val designManager: DomainEmployee,
+        val manufacturingProject: DomainManufacturingProject = DomainManufacturingProject(),
+        val company: DomainCompany = DomainCompany(),
+        val designDepartment: DomainDepartment = DomainDepartment(),
+        val designManager: DomainEmployee = DomainEmployee(),
         var detailsVisibility: Boolean = false,
         var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseManufacturingProject.DatabaseManufacturingProjectComplete>() {
@@ -57,16 +58,29 @@ data class DomainManufacturingProject(
 
 data class DomainKey(
     var id: Int = NoRecord.num,
-    var projectId: Int? = null,
-    var componentKey: String? = null,
-    var componentKeyDescription: String? = null,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    var projectId: Int? = NoRecord.num,
+    var componentKey: String? = EmptyString.str,
+    var componentKeyDescription: String? = EmptyString.str
 ) : DomainBaseModel<DatabaseKey>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainKey::class, DatabaseKey::class).transform(this)
+
+    data class DomainKeyComplete(
+        val productLineKey: DomainKey = DomainKey(),
+        val productLine: DomainManufacturingProject = DomainManufacturingProject(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseKey.DatabaseKeyComplete>() {
+        override fun getRecordId() = productLineKey.id
+        override fun getParentId() = productLineKey.projectId ?: NoRecord.num
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseKey.DatabaseKeyComplete(
+            productLineKey = this.productLineKey.toDatabaseModel(),
+            productLine = this.productLine.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainProductBase(

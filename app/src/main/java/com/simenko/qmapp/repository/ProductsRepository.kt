@@ -58,9 +58,10 @@ class ProductsRepository @Inject constructor(
     val productLines: (Long) -> Flow<List<DomainManufacturingProjectComplete>> = { pId ->
         database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val productLine: suspend (Int) -> DomainManufacturingProject = { database.manufacturingProjectDao.getRecordById(it.toString())?.toDomainModel() ?: DomainManufacturingProject() }
 
-    val productKeys: (Int) -> Flow<List<DomainKey>> = {pId ->
-        database.productKeyDao.getRecordsCompleteForUI(pId).map { list-> list.map { it.toDomainModel() } }
+    val productKeys: (Int) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId ->
+        database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
     val metricsByPrefixVersionIdActualityCharId: suspend (String, Int, Boolean, Int) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->

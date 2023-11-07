@@ -17,7 +17,7 @@ fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
         }
         composable(destination = Route.Main.Products.ProductLineAddEdit) {
         }
-        composable(destination = Route.Main.Products.ProductLines.ProductKeys) {
+        composable(destination = Route.Main.Products.ProductLines.ProductLineKeys) {
             val viewModel: ProductLineKeysViewModel = hiltViewModel()
             ProductLineKeys(viewModel = viewModel)
         }

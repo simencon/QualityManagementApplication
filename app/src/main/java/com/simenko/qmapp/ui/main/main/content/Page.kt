@@ -64,8 +64,20 @@ enum class Page(
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = CompanyProductsActions.toList()
     ),
-    PRODUCT_KEYS(
-        link = Route.Main.Products.ProductLines.ProductKeys.link,
+    PRODUCT_LINE_CHARACTERISTICS(
+        link = Route.Main.Products.ProductLines.ProductLineCharacteristics.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Characteristics",
+        titlePlaceholderText = "Search by description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_LINE_KEYS(
+        link = Route.Main.Products.ProductLines.ProductLineKeys.link,
         navIcon = Icons.Filled.ArrowBack,
         title = "Product line keys",
         titlePlaceholderText = "Search by key",

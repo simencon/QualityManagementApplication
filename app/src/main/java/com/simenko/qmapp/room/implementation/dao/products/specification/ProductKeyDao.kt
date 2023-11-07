@@ -2,6 +2,7 @@ package com.simenko.qmapp.room.implementation.dao.products.specification
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.products.DatabaseKey
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,7 @@ abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
     @Query("SELECT * FROM `0_keys` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseKey>>
 
+    @Transaction
     @Query("select * from `0_keys` where projectId = :parentId order by id  asc")
-    abstract fun getRecordsCompleteForUI(parentId: Int): Flow<List<DatabaseKey>>
+    abstract fun getRecordsCompleteForUI(parentId: Int): Flow<List<DatabaseKey.DatabaseKeyComplete>>
 }

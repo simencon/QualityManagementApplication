@@ -123,6 +123,25 @@ data class DatabaseKey(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseKey::class, NetworkKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseKey::class, DomainKey::class).transform(this)
+
+    data class DatabaseKeyComplete(
+        @Embedded
+        val productLineKey: DatabaseKey,
+        @Relation(
+            entity = DatabaseManufacturingProject::class,
+            parentColumn = "projectId",
+            entityColumn = "id"
+        )
+        val productLine: DatabaseManufacturingProject,
+    ) : DatabaseBaseModel<Any?, DomainKey.DomainKeyComplete> {
+        override fun getRecordId() = productLineKey.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainKey.DomainKeyComplete(
+            productLineKey = this.productLineKey.toDomainModel(),
+            productLine = this.productLine.toDomainModel()
+        )
+
+    }
 }
 
 @Entity(
