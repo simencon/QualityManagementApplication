@@ -53,7 +53,10 @@ annotation class ProductLineIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class ProductKeyIdParameter
+annotation class ProductLineCharacteristicIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ProductLineKeyIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -144,10 +147,16 @@ object ViewModelsModule {
         savedStateHandle[NavArguments.productLineId] ?: NoRecord.num
 
     @Provides
-    @ProductKeyIdParameter
+    @ProductLineCharacteristicIdParameter
     @ViewModelScoped
-    fun provideProductKeyIdParameter(savedStateHandle: SavedStateHandle): Int =
-        savedStateHandle[NavArguments.productKeyId] ?: NoRecord.num
+    fun provideProductLineCharacteristicIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.productLineCharacteristicId] ?: NoRecord.num
+
+    @Provides
+    @ProductLineKeyIdParameter
+    @ViewModelScoped
+    fun provideProductLineKeyIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.productLineKeyId] ?: NoRecord.num
 
 
     @Provides

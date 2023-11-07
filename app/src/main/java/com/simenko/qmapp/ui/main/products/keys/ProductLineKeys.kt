@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +48,7 @@ import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.utils.dp
 import kotlin.math.roundToInt
 
@@ -55,6 +57,7 @@ fun ProductLineKeys(
     modifier: Modifier = Modifier,
     viewModel: ProductLineKeysViewModel = hiltViewModel()
 ) {
+    val productLine by viewModel.productLine.collectAsStateWithLifecycle()
     val items by viewModel.productKeys.collectAsStateWithLifecycle(listOf())
 
     val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setProductKeysVisibility(aId = SelectedNumber(it)) } }
@@ -65,14 +68,19 @@ fun ProductLineKeys(
 
     val listState = rememberLazyListState()
 
-    LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.id }) { key ->
-            KeyCard(
-                key = key,
-                onClickActions = { onClickActionsLambda(it) },
-                onClickDelete = { onClickDeleteLambda(it) },
-                onClickEdit = { onClickEditLambda(it) },
-            )
+    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+        Spacer(modifier = Modifier.height(10.dp))
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = productLine.projectSubject ?: NoString.str)
+        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+            items(items = items, key = { it.productLineKey.id }) { key ->
+                KeyCard(
+                    key = key,
+                    onClickActions = { onClickActionsLambda(it) },
+                    onClickDelete = { onClickDeleteLambda(it) },
+                    onClickEdit = { onClickEditLambda(it) },
+                )
+            }
         }
     }
 }
@@ -81,7 +89,7 @@ fun ProductLineKeys(
 @Composable
 fun KeyCard(
     modifier: Modifier = Modifier,
-    key: DomainKey,
+    key: DomainKey.DomainKeyComplete,
     onClickActions: (Int) -> Unit,
     onClickDelete: (Int) -> Unit,
     onClickEdit: (Pair<Int, Int>) -> Unit
@@ -112,13 +120,13 @@ fun KeyCard(
         Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickDelete(key.id) },
+                onClick = { onClickDelete(key.productLineKey.id) },
                 content = { Icon(imageVector = Icons.Filled.Delete, contentDescription = "delete action") }
             )
 
             IconButton(
                 modifier = Modifier.size(Constants.ACTION_ITEM_SIZE.dp),
-                onClick = { onClickEdit(Pair(key.projectId ?: NoRecord.num, key.id)) },
+                onClick = { onClickEdit(Pair(key.productLineKey.projectId ?: NoRecord.num, key.productLineKey.id)) },
                 content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
             )
         }
@@ -131,7 +139,7 @@ fun KeyCard(
                 .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(key.id) { detectTapGestures(onDoubleTap = { onClickActions(key.id) }) }
+                .pointerInput(key.productLineKey.id) { detectTapGestures(onDoubleTap = { onClickActions(key.productLineKey.id) }) }
         ) {
             Key(key = key)
         }
@@ -140,11 +148,11 @@ fun KeyCard(
 
 @Composable
 fun Key(
-    key: DomainKey,
+    key: DomainKey.DomainKeyComplete,
 ) {
     Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
-        HeaderWithTitle(titleWight = 0.18f, title = "Key:", text = key.componentKey ?: NoString.str)
+        HeaderWithTitle(titleWight = 0.18f, title = "Key:", text = key.productLineKey.componentKey ?: NoString.str)
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        ContentWithTitle(titleWight = 0.18f, title = "Description:", value = key.componentKeyDescription ?: NoString.str)
+        ContentWithTitle(titleWight = 0.18f, title = "Description:", value = key.productLineKey.componentKeyDescription ?: NoString.str)
     }
 }

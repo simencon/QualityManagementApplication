@@ -86,7 +86,7 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun onProductLineKeysClick(it: Long) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKeys.withOpts(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductLineKeys.withOpts(it.toString(), NoRecordStr.str))
     }
 
     fun onProductLineCharacteristicsClick(it: Long) {
