@@ -127,6 +127,17 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
+    fun onDrawerMenuProductsSelected() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+//                todo-me - companyId should be initially stored under user
+                val companyName = userRepository.user.company
+                val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
+                appNavigator.tryNavigateTo(route = Route.Main.Products.withOpts(companyId), popUpToRoute = Route.Main.Products.route, inclusive = true)
+            }
+        }
+    }
+
     fun onDrawerMenuInvSelected() {
         appNavigator.tryNavigateTo(route = Route.Main.Inv.withOpts(), popUpToRoute = Route.Main.Inv.route, inclusive = true)
     }

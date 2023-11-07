@@ -8,17 +8,12 @@ import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
 
 fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
-    navigation(startDestination = Route.Main.Products.ProductsView) {
-        composable(destination = Route.Main.Products.ProductsView) {
+    navigation(startDestination = Route.Main.Products.ProductLines) {
+        composable(destination = Route.Main.Products.ProductLines) {
             val viewModel: ProductsViewModel = hiltViewModel()
+            ProductLines(viewModel = viewModel)
         }
-        composable(destination = Route.Main.Products.ProductProjectAddEdit) {
-        }
-        composable(destination = Route.Main.Products.ProductKindAddEdit) {
-        }
-        composable(destination = Route.Main.Products.ComponentKindAddEdit) {
-        }
-        composable(destination = Route.Main.Products.ComponentStageKindAddEdit) {
+        composable(destination = Route.Main.Products.ProductLineAddEdit) {
         }
     }
 }

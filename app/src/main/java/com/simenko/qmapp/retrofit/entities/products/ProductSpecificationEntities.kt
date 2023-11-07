@@ -10,7 +10,7 @@ import com.squareup.moshi.JsonClass
 data class NetworkManufacturingProject(
     var id: Int,
     var companyId: Int,
-    var factoryLocationDep: Int? = null,
+    var factoryLocationDep: Long,
     var factoryLocationDetails: String? = null,
     var customerName: String? = null,
     var team: Int? = null,
@@ -20,7 +20,7 @@ data class NetworkManufacturingProject(
     var revisionDate: String? = null,
     var refItem: String? = null,
     var pfmeaNum: String? = null,
-    var processOwner: Int? = null,
+    var processOwner: Long,
     var confLevel: Int? = null
 ) : NetworkBaseModel<DatabaseManufacturingProject> {
     override fun getRecordId() = id

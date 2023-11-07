@@ -55,8 +55,8 @@ object NavRouteName {
     const val line_add_edit = "line_add_edit"
     const val operation_add_edit = "operation_add_edit"
 
-    const val products_view = "products_view"
-    const val product_project_add_edit = "product_project_add_edit"
+    const val product_lines = "product_lines"
+    const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
     const val component_kind_add_edit = "component_kind_add_edit"
     const val component_stage_kind_add_edit = "component_stage_kind_add_edit"
@@ -97,7 +97,7 @@ object NavArguments {
     const val lineId = "lineId"
     const val operationId = "operationId"
 
-    const val productProjectId = "productProjectId"
+    const val productLineId = "productLineId"
     const val productKindId = "productKindId"
     const val componentKindId = "componentKindId"
     const val componentStageKindId = "componentStageKindId"
@@ -278,6 +278,7 @@ sealed class Route(
                 ),
                 route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
+
             data object DepartmentAddEdit : Route(
                 link = "${NavRouteName.department_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.departmentId)}",
                 deepLinks = listOf(
@@ -298,6 +299,7 @@ sealed class Route(
                 ),
                 route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
+
             data object SubDepartmentAddEdit : Route(
                 link = "${NavRouteName.sub_department_add_edit}${arg(NavArguments.departmentId)}${arg(NavArguments.subDepartmentId)}",
                 deepLinks = listOf(
@@ -318,6 +320,7 @@ sealed class Route(
                 ),
                 route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
+
             data object ChannelAddEdit : Route(
                 link = "${NavRouteName.channel_add_edit}${arg(NavArguments.subDepartmentId)}${arg(NavArguments.channelId)}",
                 deepLinks = listOf(
@@ -338,6 +341,7 @@ sealed class Route(
                 ),
                 route = COMPANY_STRUCTURE_ROUTE + "?${opt(NavArguments.companyId)}"
             )
+
             data object LineAddEdit : Route(
                 link = "${NavRouteName.line_add_edit}${arg(NavArguments.channelId)}${arg(NavArguments.lineId)}",
                 deepLinks = listOf(
@@ -382,15 +386,11 @@ sealed class Route(
         }
 
         data object Products : Route(link = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}", route = MAIN_ROUTE) {
-            data object ProductsView : Route(
-                link = NavRouteName.products_view +
-                        "?${opt(NavArguments.companyId)}&${opt(NavArguments.productProjectId)}" +
-                        "&${opt(NavArguments.productKindId)}&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentStageKindId)}",
+            data object ProductLines : Route(
+                link = NavRouteName.product_lines + "?${opt(NavArguments.companyId)}&${opt(NavArguments.productLineId)}",
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "${NavArguments.domain}/${NavRouteName.products_view}" +
-                                "?${opt(NavArguments.companyId)}&${opt(NavArguments.productProjectId)}" +
-                                "&${opt(NavArguments.productKindId)}&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentStageKindId)}"
+                        uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}" + "?${opt(NavArguments.companyId)}&${opt(NavArguments.productLineId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),
@@ -399,19 +399,7 @@ sealed class Route(
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     },
-                    navArgument(NavArguments.productProjectId) {
-                        type = NavType.IntType
-                        defaultValue = NoRecord.num
-                    },
-                    navArgument(NavArguments.productKindId) {
-                        type = NavType.IntType
-                        defaultValue = NoRecord.num
-                    },
-                    navArgument(NavArguments.componentKindId) {
-                        type = NavType.IntType
-                        defaultValue = NoRecord.num
-                    },
-                    navArgument(NavArguments.componentStageKindId) {
+                    navArgument(NavArguments.productLineId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }
@@ -419,11 +407,11 @@ sealed class Route(
                 route = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}"
             )
 
-            data object ProductProjectAddEdit : Route(
-                link = "${NavRouteName.product_project_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.productProjectId)}",
+            data object ProductLineAddEdit : Route(
+                link = "${NavRouteName.product_line_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.productLineId)}",
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$PRODUCTS_ROUTE/${NavRouteName.product_project_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.productProjectId)}"
+                        uriPattern = "${NavArguments.domain}/$PRODUCTS_ROUTE/${NavRouteName.product_line_add_edit}${arg(NavArguments.companyId)}${arg(NavArguments.productLineId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),
@@ -432,7 +420,7 @@ sealed class Route(
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     },
-                    navArgument(NavArguments.productProjectId) {
+                    navArgument(NavArguments.productLineId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     }
@@ -441,15 +429,15 @@ sealed class Route(
             )
 
             data object ProductKindAddEdit : Route(
-                link = "${NavRouteName.product_kind_add_edit}${arg(NavArguments.productProjectId)}${arg(NavArguments.productKindId)}",
+                link = "${NavRouteName.product_kind_add_edit}${arg(NavArguments.productLineId)}${arg(NavArguments.productKindId)}",
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$PRODUCTS_ROUTE/${NavRouteName.product_kind_add_edit}${arg(NavArguments.productProjectId)}${arg(NavArguments.productKindId)}"
+                        uriPattern = "${NavArguments.domain}/$PRODUCTS_ROUTE/${NavRouteName.product_kind_add_edit}${arg(NavArguments.productLineId)}${arg(NavArguments.productKindId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),
                 arguments = listOf(
-                    navArgument(NavArguments.productProjectId) {
+                    navArgument(NavArguments.productLineId) {
                         type = NavType.IntType
                         defaultValue = NoRecord.num
                     },
@@ -486,7 +474,8 @@ sealed class Route(
                 link = "${NavRouteName.component_stage_kind_add_edit}${arg(NavArguments.componentKindId)}${arg(NavArguments.componentStageKindId)}",
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "${NavArguments.domain}/$PRODUCTS_ROUTE/${NavRouteName.component_stage_kind_add_edit}${arg(NavArguments.componentKindId)}${arg(NavArguments.componentStageKindId)}"
+                        uriPattern =
+                            "${NavArguments.domain}/$PRODUCTS_ROUTE/${NavRouteName.component_stage_kind_add_edit}${arg(NavArguments.componentKindId)}${arg(NavArguments.componentStageKindId)}"
                         action = Intent.ACTION_VIEW
                     }
                 ),

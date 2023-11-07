@@ -108,6 +108,7 @@ class MainActivity : ComponentActivity() {
                         when (id) {
                             Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
                             Route.Main.CompanyStructure.link -> viewModel.onDrawerMenuCompanyStructureSelected()
+                            Route.Main.Products.link -> viewModel.onDrawerMenuProductsSelected()
                             Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
                             Route.Main.ProcessControl.link -> viewModel.onDrawerMenuProcessControlSelected()
                             Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()

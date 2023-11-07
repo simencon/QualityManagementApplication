@@ -49,7 +49,7 @@ annotation class OperationIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class ProductProjectIdParameter
+annotation class ProductLineIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -134,10 +134,10 @@ object ViewModelsModule {
         savedStateHandle[NavArguments.operationId] ?: NoRecord.num
 
     @Provides
-    @ProductProjectIdParameter
+    @ProductLineIdParameter
     @ViewModelScoped
-    fun provideProductProjectIdParameter(savedStateHandle: SavedStateHandle): Int =
-        savedStateHandle[NavArguments.productProjectId] ?: NoRecord.num
+    fun provideProductLineIdParameter(savedStateHandle: SavedStateHandle): Int =
+        savedStateHandle[NavArguments.productLineId] ?: NoRecord.num
 
     @Provides
     @ProductKindIdParameter

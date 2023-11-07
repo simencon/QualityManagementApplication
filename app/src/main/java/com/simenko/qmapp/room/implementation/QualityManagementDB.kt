@@ -9,7 +9,6 @@ import com.simenko.qmapp.room.implementation.dao.manufacturing.*
 import com.simenko.qmapp.room.implementation.dao.products.*
 import com.simenko.qmapp.room.implementation.dao.products.characteristics.*
 import com.simenko.qmapp.room.implementation.dao.products.manufacturing.*
-import com.simenko.qmapp.room.implementation.dao.products.rest.*
 import com.simenko.qmapp.room.implementation.dao.products.specification.*
 import com.simenko.qmapp.room.implementation.dao.system.*
 
