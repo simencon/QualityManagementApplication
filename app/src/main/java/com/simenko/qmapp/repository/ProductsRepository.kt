@@ -6,7 +6,6 @@ import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.domain.entities.products.DomainManufacturingProject.DomainManufacturingProjectComplete
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -60,9 +59,13 @@ class ProductsRepository @Inject constructor(
     }
     val productLine: suspend (Int) -> DomainManufacturingProject = { database.manufacturingProjectDao.getRecordById(it.toString())?.toDomainModel() ?: DomainManufacturingProject() }
 
-    val productKeys: (Int) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId ->
-        database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    val productLineKeys: (Int) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId -> database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+
+    val productLineCharacteristics: (Int) -> Flow<List<DomainCharacteristic.DomainCharacteristicComplete>> = { pId ->
+        database.characteristicDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+
+    val metrics: (Int) -> Flow<List<DomainMetrix>> = { pId -> database.metricDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
 
     val metricsByPrefixVersionIdActualityCharId: suspend (String, Int, Boolean, Int) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->
         database.metricDao.getMetricsByPrefixVersionIdActualityCharId(prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()).map { it.toDomainModel() }

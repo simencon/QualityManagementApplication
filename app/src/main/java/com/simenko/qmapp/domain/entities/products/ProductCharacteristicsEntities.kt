@@ -2,6 +2,7 @@ package com.simenko.qmapp.domain.entities.products
 
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.room.entities.DatabaseResultTolerance
 import com.simenko.qmapp.room.entities.products.*
@@ -53,22 +54,24 @@ data class DomainCharacteristic constructor(
     }
 
     override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristic::class, DatabaseCharacteristic::class).transform(this)
-}
 
-@Stable
-data class DomainCharacteristicComplete(
-    val characteristic: DomainCharacteristic = DomainCharacteristic(),
-    val characteristicGroup: DomainElementIshModel = DomainElementIshModel(),
-    val characteristicSubGroup: DomainIshSubCharacteristic = DomainIshSubCharacteristic()
-) : DomainBaseModel<DatabaseCharacteristicComplete>() {
-    override fun getRecordId() = characteristic.id
-    override fun getParentId() = characteristic.projectId
-    override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabaseCharacteristicComplete {
-        return DatabaseCharacteristicComplete(
-            characteristic = characteristic.toDatabaseModel(),
-            characteristicGroup = characteristicGroup.toDatabaseModel(),
-            characteristicSubGroup = characteristicSubGroup.toDatabaseModel()
+    @Stable
+    data class DomainCharacteristicComplete(
+        val characteristic: DomainCharacteristic = DomainCharacteristic(),
+        val productLine: DomainManufacturingProject = DomainManufacturingProject(),
+        val characteristicGroup: DomainElementIshModel = DomainElementIshModel(),
+        val characteristicSubGroup: DomainIshSubCharacteristic = DomainIshSubCharacteristic(),
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseCharacteristic.DatabaseCharacteristicComplete>() {
+        override fun getRecordId() = characteristic.id
+        override fun getParentId() = characteristic.projectId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseCharacteristic.DatabaseCharacteristicComplete(
+            characteristic = this.characteristic.toDatabaseModel(),
+            productLine = this.productLine.toDatabaseModel(),
+            characteristicGroup = this.characteristicGroup.toDatabaseModel(),
+            characteristicSubGroup = this.characteristicSubGroup.toDatabaseModel()
         )
     }
 }
@@ -77,10 +80,12 @@ data class DomainCharacteristicComplete(
 data class DomainMetrix constructor(
     var id: Int = NoRecord.num,
     var charId: Int = NoRecord.num,
-    var metrixOrder: Int? = null,
-    var metrixDesignation: String? = null,
-    var metrixDescription: String? = null,
-    var units: String? = null
+    var metrixOrder: Int? = NoRecord.num,
+    var metrixDesignation: String? = EmptyString.str,
+    var metrixDescription: String? = EmptyString.str,
+    var units: String? = EmptyString.str,
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseMetrix>() {
     override fun getRecordId() = id
     override fun getParentId() = charId

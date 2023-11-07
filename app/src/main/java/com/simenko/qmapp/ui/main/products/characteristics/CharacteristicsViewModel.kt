@@ -1,8 +1,9 @@
-package com.simenko.qmapp.ui.main.products.keys
+package com.simenko.qmapp.ui.main.products.characteristics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ProductLineKeyIdParameter
+import com.simenko.qmapp.di.MetricIdParameter
+import com.simenko.qmapp.di.ProductLineCharacteristicIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
@@ -25,16 +26,19 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProductLineKeysViewModel @Inject constructor(
+class CharacteristicsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
     @ProductLineIdParameter val productLineId: Int,
-    @ProductLineKeyIdParameter val productKeyId: Int
+    @ProductLineCharacteristicIdParameter val characteristicId: Int,
+    @MetricIdParameter val metricId: Int
 ) : ViewModel() {
-    private val _productKeysVisibility = MutableStateFlow(Pair(SelectedNumber(productKeyId), NoRecord))
+    private val _characteristicsVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
+    private val _metricVisibility = MutableStateFlow(Pair(SelectedNumber(metricId), NoRecord))
     private val _productLine = MutableStateFlow(DomainManufacturingProject())
-    private val _productKeys = repository.productLineKeys(productLineId)
+    private val _characteristics = repository.productLineCharacteristics(productLineId)
+    private val _metrics = _characteristicsVisibility.flatMapLatest { repository.metrics(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -42,10 +46,10 @@ class ProductLineKeysViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_KEYS, mainPageState)
+        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_CHARACTERISTICS, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddProductLineKeyClick(Pair(productLineId, NoRecord.num)) }
-            .setOnPullRefreshAction { updateProductLineKeysData() }
+            .setOnFabClickAction { onAddProductLineCharacteristicClick(Pair(productLineId, NoRecord.num)) }
+            .setOnPullRefreshAction { updateProductLineCharacteristicsData() }
             .build()
         viewModelScope.launch(Dispatchers.IO) { _productLine.value = repository.productLine(productLineId) }
     }
@@ -53,8 +57,12 @@ class ProductLineKeysViewModel @Inject constructor(
     /**
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun setProductLineKeysVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _productKeysVisibility.value = _productKeysVisibility.value.setVisibility(dId, aId)
+    fun setProductLineCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _characteristicsVisibility.value = _characteristicsVisibility.value.setVisibility(dId, aId)
+    }
+
+    fun setMetricsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _metricVisibility.value = _metricVisibility.value.setVisibility(dId, aId)
     }
 
     /**
@@ -62,9 +70,16 @@ class ProductLineKeysViewModel @Inject constructor(
      * */
     val productLine get() = _productLine.asStateFlow()
 
-    val productKeys = _productKeys.flatMapLatest { key ->
-        _productKeysVisibility.flatMapLatest { visibility ->
-            val cpy = key.map { it.copy(detailsVisibility = it.productLineKey.id == visibility.first.num, isExpanded = it.productLineKey.id == visibility.second.num) }
+    val characteristics = _characteristics.flatMapLatest { characteristics ->
+        _characteristicsVisibility.flatMapLatest { visibility ->
+            val cpy = characteristics.map { it.copy(detailsVisibility = it.characteristic.id == visibility.first.num, isExpanded = it.characteristic.id == visibility.second.num) }
+            flow { emit(cpy) }
+        }
+    }
+
+    val metrics = _metrics.flatMapLatest { metrics ->
+        _metricVisibility.flatMapLatest { visibility ->
+            val cpy = metrics.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
     }
@@ -72,22 +87,22 @@ class ProductLineKeysViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineKeyClick(it: Int) {
+    fun onDeleteProductLineCharacteristicClick(it: Int) {
         TODO("Not yet implemented")
     }
 
-    private fun updateProductLineKeysData() {
+    private fun updateProductLineCharacteristicsData() {
         TODO("Not yet implemented")
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductLineKeyClick(it: Pair<Int, Int>) {
+    private fun onAddProductLineCharacteristicClick(it: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
 
-    fun onEditProductLineKeyClick(it: Pair<Int, Int>) {
+    fun onEditProductLineCharacteristicClick(it: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
 }

@@ -7,7 +7,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseCharacteristic
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class CharacteristicDao: DaoBaseModel<DatabaseCharacteristic> {
+abstract class CharacteristicDao : DaoBaseModel<DatabaseCharacteristic> {
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
     abstract override fun getRecords(): List<DatabaseCharacteristic>
 
@@ -19,5 +19,6 @@ abstract class CharacteristicDao: DaoBaseModel<DatabaseCharacteristic> {
 
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharacteristic>>
-
+    @Query("select * from characteristic_complete where projectId = :parentId ")
+    abstract fun getRecordsCompleteForUI(parentId: Int): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicComplete>>
 }
