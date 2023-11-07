@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f7affad0c08194a5913c5908a0ffcda6",
+    "identityHash": "d571cc06789b00a00e7926f4ed823013",
     "entities": [
       {
         "tableName": "user_roles",
@@ -914,7 +914,7 @@
       },
       {
         "tableName": "0_manufacturing_project",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `companyId` INTEGER NOT NULL, `factoryLocationDep` INTEGER, `factoryLocationDetails` TEXT, `customerName` TEXT, `team` INTEGER, `modelYear` TEXT, `projectSubject` TEXT, `startDate` TEXT, `revisionDate` TEXT, `refItem` TEXT, `pfmeaNum` TEXT, `processOwner` INTEGER, `confLevel` INTEGER, FOREIGN KEY(`companyId`) REFERENCES `0_companies`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `companyId` INTEGER NOT NULL, `factoryLocationDep` INTEGER NOT NULL, `factoryLocationDetails` TEXT, `customerName` TEXT, `team` INTEGER, `modelYear` TEXT, `projectSubject` TEXT, `startDate` TEXT, `revisionDate` TEXT, `refItem` TEXT, `pfmeaNum` TEXT, `processOwner` INTEGER NOT NULL, `confLevel` INTEGER, FOREIGN KEY(`companyId`) REFERENCES `0_companies`(`id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`factoryLocationDep`) REFERENCES `10_departments`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`processOwner`) REFERENCES `8_employees`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -932,7 +932,7 @@
             "fieldPath": "factoryLocationDep",
             "columnName": "factoryLocationDep",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "factoryLocationDetails",
@@ -992,7 +992,7 @@
             "fieldPath": "processOwner",
             "columnName": "processOwner",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "confLevel",
@@ -1021,10 +1021,32 @@
         "foreignKeys": [
           {
             "table": "0_companies",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "companyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "10_departments",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "companyId"
+              "factoryLocationDep"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "8_employees",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "processOwner"
             ],
             "referencedColumns": [
               "id"
@@ -4672,7 +4694,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f7affad0c08194a5913c5908a0ffcda6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd571cc06789b00a00e7926f4ed823013')"
     ]
   }
 }

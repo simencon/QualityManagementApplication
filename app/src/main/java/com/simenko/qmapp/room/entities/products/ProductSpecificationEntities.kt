@@ -11,6 +11,8 @@ import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.retrofit.entities.products.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.room.entities.DatabaseCompany
+import com.simenko.qmapp.room.entities.DatabaseDepartment
+import com.simenko.qmapp.room.entities.DatabaseEmployee
 import com.simenko.qmapp.utils.ObjectTransformer
 
 @Entity(
@@ -20,16 +22,31 @@ import com.simenko.qmapp.utils.ObjectTransformer
             entity = DatabaseCompany::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("companyId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DatabaseDepartment::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("factoryLocationDep"),
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
-        )]
+        ),
+        ForeignKey(
+            entity = DatabaseEmployee::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("processOwner"),
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.NO_ACTION
+        )
+    ]
 )
 data class DatabaseManufacturingProject(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     @ColumnInfo(index = true)
     var companyId: Int,
-    var factoryLocationDep: Int? = null,
+    var factoryLocationDep: Long,
     var factoryLocationDetails: String? = null,
     var customerName: String? = null,
     var team: Int? = null,
@@ -39,7 +56,7 @@ data class DatabaseManufacturingProject(
     var revisionDate: String? = null,
     var refItem: String? = null,
     var pfmeaNum: String? = null,
-    var processOwner: Int? = null,
+    var processOwner: Long,
     var confLevel: Int? = null
 ) : DatabaseBaseModel<NetworkManufacturingProject, DomainManufacturingProject> {
     override fun getRecordId() = id
@@ -54,7 +71,19 @@ data class DatabaseManufacturingProject(
             parentColumn = "companyId",
             entityColumn = "id"
         )
-        val company: DatabaseCompany
+        val company: DatabaseCompany,
+        @Relation(
+            entity = DatabaseDepartment::class,
+            parentColumn = "factoryLocationDep",
+            entityColumn = "id"
+        )
+        val designDepartment: DatabaseDepartment,
+        @Relation(
+            entity = DatabaseEmployee::class,
+            parentColumn = "processOwner",
+            entityColumn = "id"
+        )
+        val designManager: DatabaseEmployee
     ) : DatabaseBaseModel<Any?, DomainManufacturingProject.DomainManufacturingProjectComplete> {
         override fun getRecordId() = manufacturingProject.id
 
@@ -63,7 +92,9 @@ data class DatabaseManufacturingProject(
         override fun toDomainModel(): DomainManufacturingProject.DomainManufacturingProjectComplete {
             return DomainManufacturingProject.DomainManufacturingProjectComplete(
                 manufacturingProject = this.manufacturingProject.toDomainModel(),
-                company = this.company.toDomainModel()
+                company = this.company.toDomainModel(),
+                designDepartment = this.designDepartment.toDomainModel(),
+                designManager = this.designManager.toDomainModel()
             )
         }
 
@@ -661,6 +692,7 @@ data class DatabaseItem(
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItem::class, DomainItem::class).transform(this)
 }
+
 @DatabaseView(
     viewName = "item_versions",
     value = "SELECT pv.id as id, ('p'|| pv.id) as fId, pv.productId as itemId, ('p'|| pv.productId) as fItemId, pv.versionDescription, pv.versionDate, pv.statusId, pv.isDefault FROM `9_products_versions` AS pv " +

@@ -29,6 +29,17 @@ enum class CompanyStructureActions(override val tag: String, override val image:
     }
 }
 
+enum class CompanyProductsActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
+    SYNC_STRUCTURE_DATA("sync_structure_data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
+    ;
+
+    override val title: String get() = StringUtils.getWithSpacesTitle(this.name)
+
+    companion object {
+        fun toList(): List<MenuItem> = Common.toList().union(TeamActions.values().toList()).toList()
+    }
+}
+
 enum class TeamActions(override val tag: String, override val image: ImageVector, override val group: MenuItem.MenuGroup) : MenuItem {
     SYNC_TEAM_DATA("sync_team_data", Icons.Filled.Refresh, MenuItem.MenuGroup.ACTIONS),
     ;

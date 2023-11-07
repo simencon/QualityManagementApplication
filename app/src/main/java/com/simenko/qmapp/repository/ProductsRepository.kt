@@ -4,6 +4,7 @@ import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
+import com.simenko.qmapp.domain.entities.products.DomainManufacturingProject.DomainManufacturingProjectComplete
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -34,7 +35,7 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentStageKindsKeys() = crudeOperations.syncRecordsAll(database.componentStageKindKeyDao) { service.getComponentStageKindsKeys() }
     suspend fun syncCharacteristicsProductKinds() = crudeOperations.syncRecordsAll(database.characteristicProductKindDao) { service.getCharacteristicsProductKinds() }
     suspend fun syncCharacteristicsComponentKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentKindDao) { service.getCharacteristicsComponentKinds() }
-    suspend fun syncCharacteristicsComponentStageKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentStageKindDao) {service.getCharacteristicsComponentStageKinds() }
+    suspend fun syncCharacteristicsComponentStageKinds() = crudeOperations.syncRecordsAll(database.characteristicComponentStageKindDao) { service.getCharacteristicsComponentStageKinds() }
     suspend fun syncProducts() = crudeOperations.syncRecordsAll(database.productDao) { service.getProducts() }
     suspend fun syncComponents() = crudeOperations.syncRecordsAll(database.componentDao) { service.getComponents() }
     suspend fun syncComponentStages() = crudeOperations.syncRecordsAll(database.componentStageDao) { service.getComponentStages() }
@@ -53,6 +54,9 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentTolerances() = crudeOperations.syncRecordsAll(database.componentToleranceDao) { service.getComponentTolerances() }
     suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
 
+    val productLines: (Long) -> Flow<List<DomainManufacturingProjectComplete>> = { pId ->
+        database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
 
     val metricsByPrefixVersionIdActualityCharId: suspend (String, Int, Boolean, Int) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->
         database.metricDao.getMetricsByPrefixVersionIdActualityCharId(prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()).map { it.toDomainModel() }

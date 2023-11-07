@@ -5,13 +5,15 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
+import com.simenko.qmapp.domain.entities.DomainDepartment
+import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 data class DomainManufacturingProject(
     var id: Int,
     var companyId: Int,
-    var factoryLocationDep: Int? = null,
+    var factoryLocationDep: Long,
     var factoryLocationDetails: String? = null,
     var customerName: String? = null,
     var team: Int? = null,
@@ -21,7 +23,7 @@ data class DomainManufacturingProject(
     var revisionDate: String? = null,
     var refItem: String? = null,
     var pfmeaNum: String? = null,
-    var processOwner: Int? = null,
+    var processOwner: Long,
     var confLevel: Int? = null
 ) : DomainBaseModel<DatabaseManufacturingProject>() {
     override fun getRecordId() = id
@@ -31,7 +33,11 @@ data class DomainManufacturingProject(
 
     data class DomainManufacturingProjectComplete(
         val manufacturingProject: DomainManufacturingProject,
-        val company: DomainCompany
+        val company: DomainCompany,
+        val designDepartment: DomainDepartment,
+        val designManager: DomainEmployee,
+        var detailsVisibility: Boolean = false,
+        var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseManufacturingProject.DatabaseManufacturingProjectComplete>() {
         override fun getRecordId() = manufacturingProject.id
         override fun getParentId() = manufacturingProject.companyId
@@ -40,7 +46,9 @@ data class DomainManufacturingProject(
         override fun toDatabaseModel(): DatabaseManufacturingProject.DatabaseManufacturingProjectComplete {
             return DatabaseManufacturingProject.DatabaseManufacturingProjectComplete(
                 manufacturingProject = this.manufacturingProject.toDatabaseModel(),
-                company = this.company.toDatabaseModel()
+                company = this.company.toDatabaseModel(),
+                designDepartment = this.designDepartment.toDatabaseModel(),
+                designManager = this.designManager.toDatabaseModel()
             )
         }
 

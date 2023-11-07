@@ -62,7 +62,7 @@ enum class Page(
         topTabsContent = null,
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = Icons.Filled.MoreVert,
-        actionMenuItems = CompanyStructureActions.toList()
+        actionMenuItems = CompanyProductsActions.toList()
     ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
