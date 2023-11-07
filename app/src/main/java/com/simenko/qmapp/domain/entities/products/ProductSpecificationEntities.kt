@@ -59,7 +59,9 @@ data class DomainKey(
     var id: Int = NoRecord.num,
     var projectId: Int? = null,
     var componentKey: String? = null,
-    var componentKeyDescription: String? = null
+    var componentKeyDescription: String? = null,
+    var detailsVisibility: Boolean = false,
+    var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseKey>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num

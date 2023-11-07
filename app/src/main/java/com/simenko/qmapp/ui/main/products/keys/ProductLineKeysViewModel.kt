@@ -1,17 +1,15 @@
-package com.simenko.qmapp.ui.main.products
+package com.simenko.qmapp.ui.main.products.keys
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.di.CompanyIdParameter
+import com.simenko.qmapp.di.ProductKeyIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,15 +20,15 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProductsViewModel @Inject constructor(
+class ProductLineKeysViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
-    @CompanyIdParameter val companyId: Int,
-    @ProductLineIdParameter val productLineId: Int
+    @ProductLineIdParameter val productLineId: Int,
+    @ProductKeyIdParameter val productKeyId: Int
 ) : ViewModel() {
-    private val _productLinesVisibility = MutableStateFlow(Pair(SelectedNumber(productLineId), NoRecord))
-    private val _productLines = repository.productLines(companyId.toLong())
+    private val _productKeysVisibility = MutableStateFlow(Pair(SelectedNumber(productKeyId), NoRecord))
+    private val _productKeys = repository.productKeys(productLineId)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -38,26 +36,27 @@ class ProductsViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCTS, mainPageState)
-            .setOnFabClickAction { onAddProductLineClick(companyId) }
-            .setOnPullRefreshAction { updateCompanyProductsData() }
+        println("ProductLineKeysViewModel - $productLineId/$productKeyId")
+        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KEYS, mainPageState)
+            .setOnNavMenuClickAction { appNavigator.navigateBack() }
+            .setOnFabClickAction { onAddProductKeyClick(Pair(productLineId, NoRecord.num)) }
+            .setOnPullRefreshAction { updateProductKeysData() }
             .build()
     }
 
     /**
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun setProductLinesVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _productLinesVisibility.value = _productLinesVisibility.value.setVisibility(dId, aId)
+    fun setProductKeysVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _productKeysVisibility.value = _productKeysVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-
-    val productLines = _productLines.flatMapLatest { productLines ->
-        _productLinesVisibility.flatMapLatest { visibility ->
-            val cpy = productLines.map { it.copy(detailsVisibility = it.manufacturingProject.id == visibility.first.num, isExpanded = it.manufacturingProject.id == visibility.second.num) }
+    val productKeys = _productKeys.flatMapLatest { key ->
+        _productKeysVisibility.flatMapLatest { visibility ->
+            val cpy = key.map { it.copy(detailsVisibility = it.id == visibility.first.num, isExpanded = it.id == visibility.second.num) }
             flow { emit(cpy) }
         }
     }
@@ -65,36 +64,22 @@ class ProductsViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineClick(it: Long) {
+    fun onDeleteProductLineClick(it: Int) {
         TODO("Not yet implemented")
     }
 
-    private fun updateCompanyProductsData() {
+    private fun updateProductKeysData() {
         TODO("Not yet implemented")
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductLineClick(companyId: Int) {
+    private fun onAddProductKeyClick(it: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
 
-
-    fun onEditProductLineClick(it: Pair<Long, Long>) {
+    fun onEditProductLineClick(it: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
-
-    fun onProductLineKeysClick(it: Long) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKeys.withOpts(it.toString(), NoRecordStr.str))
-    }
-
-    fun onProductLineCharacteristicsClick(it: Long) {
-        TODO("Not yet implemented")
-    }
-
-    fun onProductLineItemsClick(it: Long) {
-        TODO("Not yet implemented")
-    }
-
 }
