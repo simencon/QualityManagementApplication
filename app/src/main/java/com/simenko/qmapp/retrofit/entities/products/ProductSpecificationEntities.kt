@@ -1,13 +1,12 @@
 package com.simenko.qmapp.retrofit.entities.products
 
 import com.simenko.qmapp.retrofit.NetworkBaseModel
-import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkManufacturingProject(
+data class NetworkProductLine(
     var id: Int,
     var companyId: Int,
     var factoryLocationDep: Long,
@@ -22,9 +21,9 @@ data class NetworkManufacturingProject(
     var pfmeaNum: String? = null,
     var processOwner: Long,
     var confLevel: Int? = null
-) : NetworkBaseModel<DatabaseManufacturingProject> {
+) : NetworkBaseModel<DatabaseProductLine> {
     override fun getRecordId() = id
-    override fun toDatabaseModel() = ObjectTransformer(NetworkManufacturingProject::class, DatabaseManufacturingProject::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(NetworkProductLine::class, DatabaseProductLine::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)

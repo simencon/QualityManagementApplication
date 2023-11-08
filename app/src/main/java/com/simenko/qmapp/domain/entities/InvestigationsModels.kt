@@ -326,8 +326,8 @@ data class DomainOrderComplete constructor(
     var orderPlacer: DomainEmployee = DomainEmployee(),
     var orderStatus: DomainOrdersStatus = DomainOrdersStatus(),
     var orderResult: DomainOrderResult = DomainOrderResult(),
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseOrderComplete>() {
     override fun getRecordId() = order.getRecordId()
     override fun getParentId() = order.getParentId()
@@ -359,8 +359,8 @@ data class DomainSubOrderComplete constructor(
     var operation: DomainManufacturingOperation = DomainManufacturingOperation(),
     var itemVersionComplete: DomainItemVersionComplete = DomainItemVersionComplete(),
     var subOrderResult: DomainSubOrderResult = DomainSubOrderResult(),
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseSubOrderComplete>() {
     override fun getRecordId() = subOrder.getRecordId()
     override fun getParentId() = subOrder.getParentId()
@@ -390,8 +390,8 @@ data class DomainSubOrderTaskComplete constructor(
     var status: DomainOrdersStatus = DomainOrdersStatus(),
     var subOrder: DomainSubOrder = DomainSubOrder(),
     var taskResult: DomainTaskResult = DomainTaskResult(),
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseSubOrderTaskComplete>() {
     override fun getRecordId() = subOrderTask.getRecordId()
     override fun getParentId() = subOrderTask.getParentId()
@@ -411,7 +411,8 @@ data class DomainSubOrderTaskComplete constructor(
 data class DomainSampleComplete constructor(
     var sampleResult: DomainSampleResult = DomainSampleResult(),
     var sample: DomainSample = DomainSample(),
-    var detailsVisibility: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseSampleComplete>() {
     override fun getRecordId() = sample.getRecordId()
     override fun getParentId() = sample.getRecordId()
@@ -430,7 +431,8 @@ data class DomainResultComplete(
     var resultsDecryption: DomainResultsDecryption = DomainResultsDecryption(),
     var metrix: DomainMetrix = DomainMetrix(),
     var resultTolerance: DomainResultTolerance = DomainResultTolerance(),
-    var detailsVisibility: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseResultComplete>() {
     override fun getRecordId() = result.getRecordId()
     override fun getParentId() = result.getParentId()

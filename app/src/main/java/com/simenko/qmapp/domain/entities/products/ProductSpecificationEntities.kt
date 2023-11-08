@@ -11,7 +11,7 @@ import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
-data class DomainManufacturingProject(
+data class DomainProductLine(
     var id: Int = NoRecord.num,
     var companyId: Int = NoRecord.num,
     var factoryLocationDep: Long = NoRecord.num.toLong(),
@@ -26,26 +26,26 @@ data class DomainManufacturingProject(
     var pfmeaNum: String? = EmptyString.str,
     var processOwner: Long = NoRecord.num.toLong(),
     var confLevel: Int? = null
-) : DomainBaseModel<DatabaseManufacturingProject>() {
+) : DomainBaseModel<DatabaseProductLine>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingProject::class, DatabaseManufacturingProject::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(DomainProductLine::class, DatabaseProductLine::class).transform(this)
 
-    data class DomainManufacturingProjectComplete(
-        val manufacturingProject: DomainManufacturingProject = DomainManufacturingProject(),
+    data class DomainProductLineComplete(
+        val manufacturingProject: DomainProductLine = DomainProductLine(),
         val company: DomainCompany = DomainCompany(),
         val designDepartment: DomainDepartment = DomainDepartment(),
         val designManager: DomainEmployee = DomainEmployee(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
-    ) : DomainBaseModel<DatabaseManufacturingProject.DatabaseManufacturingProjectComplete>() {
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseProductLine.DatabaseProductLineComplete>() {
         override fun getRecordId() = manufacturingProject.id
         override fun getParentId() = manufacturingProject.companyId
         override fun setIsSelected(value: Boolean) {}
 
-        override fun toDatabaseModel(): DatabaseManufacturingProject.DatabaseManufacturingProjectComplete {
-            return DatabaseManufacturingProject.DatabaseManufacturingProjectComplete(
+        override fun toDatabaseModel(): DatabaseProductLine.DatabaseProductLineComplete {
+            return DatabaseProductLine.DatabaseProductLineComplete(
                 manufacturingProject = this.manufacturingProject.toDatabaseModel(),
                 company = this.company.toDatabaseModel(),
                 designDepartment = this.designDepartment.toDatabaseModel(),
@@ -69,10 +69,11 @@ data class DomainKey(
 
     data class DomainKeyComplete(
         val productLineKey: DomainKey = DomainKey(),
-        val productLine: DomainManufacturingProject = DomainManufacturingProject(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        val productLine: DomainProductLine = DomainProductLine(),
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseKey.DatabaseKeyComplete>() {
+
         override fun getRecordId() = productLineKey.id
         override fun getParentId() = productLineKey.projectId ?: NoRecord.num
         override fun setIsSelected(value: Boolean) {}

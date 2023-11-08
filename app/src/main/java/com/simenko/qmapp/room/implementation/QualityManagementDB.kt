@@ -27,11 +27,11 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseManufacturingOperation::class,
         DatabaseOperationsFlow::class,
 
-        DatabaseManufacturingProject::class,
+        DatabaseProductLine::class,
         DatabaseKey::class,
         DatabaseProductBase::class,
-        DatabaseElementIshModel::class,
-        DatabaseIshSubCharacteristic::class,
+        DatabaseCharGroup::class,
+        DatabaseCharSubGroup::class,
         DatabaseCharacteristic::class,
         DatabaseMetrix::class,
         DatabaseVersionStatus::class,
@@ -96,6 +96,10 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseItemTolerance::class,
 
+        DatabaseProductLine.DatabaseProductLineComplete::class,
+
+        DatabaseCharGroup.DatabaseCharGroupComplete::class,
+        DatabaseCharSubGroup.DatabaseCharSubGroupComplete::class,
         DatabaseCharacteristic.DatabaseCharacteristicComplete::class,
 
         DatabaseSubOrderTaskComplete::class,

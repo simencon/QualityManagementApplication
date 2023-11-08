@@ -164,14 +164,14 @@ fun SubOrderTask(
                     ContentWithTitle(
                         title = "Group:",
                         contentTextSize = 12.sp,
-                        value = subOrderTask.characteristic.characteristicGroup.ishElement ?: NoString.str,
+                        value = subOrderTask.characteristic.characteristicSubGroup.charGroup.charGroup.ishElement ?: NoString.str,
                         titleWight = 0.35f
                     )
                     Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                     ContentWithTitle(
                         title = "Sub group:",
                         contentTextSize = 12.sp,
-                        value = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: NoString.str,
+                        value = subOrderTask.characteristic.characteristicSubGroup.charSubGroup.ishElement ?: NoString.str,
                         titleWight = 0.35f
                     )
                 }

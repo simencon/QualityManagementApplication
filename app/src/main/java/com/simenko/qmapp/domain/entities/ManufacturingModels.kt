@@ -20,7 +20,6 @@ data class DomainEmployee(
     var jobRole: String = EmptyString.str,
     var email: String? = null,
     var passWord: String? = null,
-    var detailsVisibility: Boolean = false,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseEmployee>() {
     override fun getRecordId() = id
@@ -96,8 +95,8 @@ data class DomainDepartment(
         val department: DomainDepartment = DomainDepartment(),
         val depManager: DomainEmployee = DomainEmployee(),
         val company: DomainCompany = DomainCompany(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseDepartment.DatabaseDepartmentsComplete>() {
         override fun getRecordId() = department.id
         override fun getParentId() = department.companyId ?: NoRecord.num
@@ -119,9 +118,9 @@ data class DomainSubDepartment(
     var subDepAbbr: String? = EmptyString.str,
     var subDepDesignation: String? = EmptyString.str,
     var subDepOrder: Int? = NoRecord.num,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseSubDepartment>() {
     override fun getRecordId() = id
     override fun getParentId() = depId
@@ -133,9 +132,7 @@ data class DomainSubDepartment(
 
     data class DomainSubDepartmentComplete(
         val subDepartment: DomainSubDepartment = DomainSubDepartment(),
-        val department: DomainDepartment = DomainDepartment(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        val department: DomainDepartment = DomainDepartment()
     ) : DomainBaseModel<DatabaseSubDepartment.DatabaseSubDepartmentComplete>() {
         override fun getRecordId(): Any = subDepartment.id
         override fun getParentId(): Int = subDepartment.depId
@@ -177,9 +174,9 @@ data class DomainManufacturingChannel(
     var channelAbbr: String? = EmptyString.str,
     var channelDesignation: String? = EmptyString.str,
     var channelOrder: Int? = NoRecord.num,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingChannel>() {
     override fun getRecordId() = id
     override fun getParentId() = subDepId
@@ -191,9 +188,7 @@ data class DomainManufacturingChannel(
 
     data class DomainManufacturingChannelComplete(
         val channel: DomainManufacturingChannel = DomainManufacturingChannel(),
-        val subDepartmentWithParents: DomainSubDepartment.DomainSubDepartmentWithParents = DomainSubDepartment.DomainSubDepartmentWithParents(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        val subDepartmentWithParents: DomainSubDepartment.DomainSubDepartmentWithParents = DomainSubDepartment.DomainSubDepartmentWithParents()
     ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete>() {
         override fun getRecordId(): Any = channel.id
         override fun getParentId(): Int = channel.subDepId
@@ -239,9 +234,9 @@ data class DomainManufacturingLine(
     var lineAbbr: String = EmptyString.str,
     var lineDesignation: String = EmptyString.str,
     var lineOrder: Int = NoRecord.num,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingLine>() {
     override fun getRecordId() = id
     override fun getParentId() = chId
@@ -281,9 +276,7 @@ data class DomainManufacturingLine(
 
     data class DomainManufacturingLineComplete(
         val line: DomainManufacturingLine = DomainManufacturingLine(),
-        val channelWithParents: DomainManufacturingChannel.DomainManufacturingChannelWithParents = DomainManufacturingChannel.DomainManufacturingChannelWithParents(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        val channelWithParents: DomainManufacturingChannel.DomainManufacturingChannelWithParents = DomainManufacturingChannel.DomainManufacturingChannelWithParents()
     ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineComplete>() {
         override fun getRecordId(): Any = line.id
         override fun getParentId(): Int = line.chId
@@ -320,8 +313,8 @@ data class DomainManufacturingOperation(
         val operation: DomainManufacturingOperation = DomainManufacturingOperation(),
         val lineWithParents: DomainManufacturingLine.DomainManufacturingLineWithParents = DomainManufacturingLine.DomainManufacturingLineWithParents(),
         val previousOperations: List<DomainOperationsFlow.DomainOperationsFlowComplete> = listOf(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>() {
         override fun getRecordId(): Any = operation.id
         override fun getParentId(): Int = operation.lineId
@@ -370,9 +363,9 @@ data class DomainOperationsFlow(
         val lineId: Int = NoRecord.num,
         val lineOrder: Int = NoRecord.num,
         val lineAbbr: String? = null,
-        val detailsVisibility: Boolean = false,
-        val isExpanded: Boolean = false,
-        val toBeDeleted: Boolean = false
+        val toBeDeleted: Boolean = false,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ): DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
         override fun getRecordId(): Int = this.id
         override fun getParentId(): Int = currentOperationId
@@ -430,8 +423,8 @@ data class DomainEmployeeComplete(
     val subDepartment: DomainSubDepartment? = DomainSubDepartment(),
     val jobRole: DomainJobRole? = DomainJobRole(),
     var isSelected: Boolean = false,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseEmployeeComplete>() {
     override fun getRecordId() = teamMember.id
     override fun getParentId() = teamMember.departmentId

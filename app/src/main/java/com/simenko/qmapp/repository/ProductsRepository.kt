@@ -4,7 +4,7 @@ import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
-import com.simenko.qmapp.domain.entities.products.DomainManufacturingProject.DomainManufacturingProjectComplete
+import com.simenko.qmapp.domain.entities.products.DomainProductLine.DomainProductLineComplete
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -54,10 +54,10 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentTolerances() = crudeOperations.syncRecordsAll(database.componentToleranceDao) { service.getComponentTolerances() }
     suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
 
-    val productLines: (Long) -> Flow<List<DomainManufacturingProjectComplete>> = { pId ->
+    val productLines: (Long) -> Flow<List<DomainProductLineComplete>> = { pId ->
         database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-    val productLine: suspend (Int) -> DomainManufacturingProject = { database.manufacturingProjectDao.getRecordById(it.toString())?.toDomainModel() ?: DomainManufacturingProject() }
+    val productLine: suspend (Int) -> DomainProductLine = { database.manufacturingProjectDao.getRecordById(it.toString())?.toDomainModel() ?: DomainProductLine() }
 
     val productLineKeys: (Int) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId -> database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
 

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d571cc06789b00a00e7926f4ed823013",
+    "identityHash": "f4f855de694947178bdb89e2347e7f6a",
     "entities": [
       {
         "tableName": "user_roles",
@@ -1170,11 +1170,17 @@
       },
       {
         "tableName": "10_1_d_element_ish_model",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ishElement` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productLineId` INTEGER NOT NULL, `ishElement` TEXT, FOREIGN KEY(`productLineId`) REFERENCES `0_manufacturing_project`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productLineId",
+            "columnName": "productLineId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1192,15 +1198,33 @@
           ]
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "0_manufacturing_project",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "productLineId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "0_ish_sub_characteristics",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ishElement` TEXT, `measurementGroupRelatedTime` REAL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `charGroupId` INTEGER NOT NULL, `ishElement` TEXT, `measurementGroupRelatedTime` REAL, FOREIGN KEY(`charGroupId`) REFERENCES `10_1_d_element_ish_model`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "charGroupId",
+            "columnName": "charGroupId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1224,11 +1248,23 @@
           ]
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "10_1_d_element_ish_model",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "charGroupId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "7_characteristics",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ishCharId` INTEGER NOT NULL, `charOrder` INTEGER, `charDesignation` TEXT, `charDescription` TEXT, `ishSubChar` INTEGER NOT NULL, `projectId` INTEGER NOT NULL, `sampleRelatedTime` REAL, `measurementRelatedTime` REAL, FOREIGN KEY(`ishCharId`) REFERENCES `10_1_d_element_ish_model`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`ishSubChar`) REFERENCES `0_ish_sub_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`projectId`) REFERENCES `0_manufacturing_project`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ishSubCharId` INTEGER NOT NULL, `charOrder` INTEGER, `charDesignation` TEXT, `charDescription` TEXT, `sampleRelatedTime` REAL, `measurementRelatedTime` REAL, FOREIGN KEY(`ishSubCharId`) REFERENCES `0_ish_sub_characteristics`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1237,8 +1273,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "ishCharId",
-            "columnName": "ishCharId",
+            "fieldPath": "ishSubCharId",
+            "columnName": "ishSubCharId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -1261,18 +1297,6 @@
             "notNull": false
           },
           {
-            "fieldPath": "ishSubChar",
-            "columnName": "ishSubChar",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "projectId",
-            "columnName": "projectId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
             "fieldPath": "sampleRelatedTime",
             "columnName": "sampleRelatedTime",
             "affinity": "REAL",
@@ -1293,62 +1317,22 @@
         },
         "indices": [
           {
-            "name": "index_7_characteristics_ishCharId",
+            "name": "index_7_characteristics_ishSubCharId",
             "unique": false,
             "columnNames": [
-              "ishCharId"
+              "ishSubCharId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_7_characteristics_ishCharId` ON `${TABLE_NAME}` (`ishCharId`)"
-          },
-          {
-            "name": "index_7_characteristics_ishSubChar",
-            "unique": false,
-            "columnNames": [
-              "ishSubChar"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_7_characteristics_ishSubChar` ON `${TABLE_NAME}` (`ishSubChar`)"
-          },
-          {
-            "name": "index_7_characteristics_projectId",
-            "unique": false,
-            "columnNames": [
-              "projectId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_7_characteristics_projectId` ON `${TABLE_NAME}` (`projectId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_7_characteristics_ishSubCharId` ON `${TABLE_NAME}` (`ishSubCharId`)"
           }
         ],
         "foreignKeys": [
-          {
-            "table": "10_1_d_element_ish_model",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "ishCharId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
           {
             "table": "0_ish_sub_characteristics",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "ishSubChar"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          },
-          {
-            "table": "0_manufacturing_project",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "projectId"
+              "ishSubCharId"
             ],
             "referencedColumns": [
               "id"
@@ -4648,6 +4632,18 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pt.id, ('p' || pt.id) as fId, pt.metrixId, pt.versionId, ('p' || pt.versionId) as fVersionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt UNION ALL SELECT ct.id, ('c' || ct.id) as fId, ct.metrixId, ct.versionId, ('c' || ct.versionId) as fVersionId, ct.nominal, ct.LSL, ct.USL, ct.isActual FROM `10_8_component_tolerances` AS ct UNION ALL SELECT st.id, ('s' || st.id) as fId, st.metrixId, st.versionId, ('s' || st.versionId) as fVersionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
       },
       {
+        "viewName": "product_line_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `0_manufacturing_project` ORDER BY id;"
+      },
+      {
+        "viewName": "characteristic_group_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `10_1_d_element_ish_model` ORDER BY id;"
+      },
+      {
+        "viewName": "characteristic_sub_group_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `0_ish_sub_characteristics` ORDER BY id;"
+      },
+      {
         "viewName": "characteristic_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `7_characteristics` ORDER BY charOrder;"
       },
@@ -4694,7 +4690,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd571cc06789b00a00e7926f4ed823013')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f4f855de694947178bdb89e2347e7f6a')"
     ]
   }
 }

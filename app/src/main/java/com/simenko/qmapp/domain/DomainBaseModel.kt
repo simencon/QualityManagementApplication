@@ -4,6 +4,8 @@ import androidx.compose.runtime.Stable
 
 @Stable
 abstract class DomainBaseModel<out T> {
+    open var detailsVisibility: Boolean = false
+    open var isExpanded: Boolean = false
     @Stable
     abstract fun getRecordId(): Any
 

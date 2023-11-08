@@ -1,28 +1,30 @@
 package com.simenko.qmapp.retrofit.entities.products
 
 import com.simenko.qmapp.retrofit.NetworkBaseModel
-import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkElementIshModel constructor(
+data class NetworkCharGroup constructor(
     var id: Int,
-    var ishElement: String? = null
-) : NetworkBaseModel<DatabaseElementIshModel> {
+    val productLineId: Long,
+    var ishElement: String?
+) : NetworkBaseModel<DatabaseCharGroup> {
     override fun getRecordId() = id
-    override fun toDatabaseModel() = ObjectTransformer(NetworkElementIshModel::class, DatabaseElementIshModel::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(NetworkCharGroup::class, DatabaseCharGroup::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
-data class NetworkIshSubCharacteristic constructor(
+data class NetworkCharSubGroup constructor(
     var id: Int,
-    var ishElement: String? = null,
-    var measurementGroupRelatedTime: Double? = null
-) : NetworkBaseModel<DatabaseIshSubCharacteristic> {
+    val charGroupId: Long,
+    var ishElement: String?,
+    var measurementGroupRelatedTime: Double?
+) : NetworkBaseModel<DatabaseCharSubGroup> {
     override fun getRecordId() = id
-    override fun toDatabaseModel() = ObjectTransformer(NetworkIshSubCharacteristic::class, DatabaseIshSubCharacteristic::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(NetworkCharSubGroup::class, DatabaseCharSubGroup::class).transform(this)
 }
 
 
@@ -30,12 +32,11 @@ data class NetworkIshSubCharacteristic constructor(
 @JsonClass(generateAdapter = true)
 data class NetworkCharacteristic constructor(
     var id: Int,
-    var ishCharId: Int,
+    @Json(name="ishSubChar")
+    var ishSubCharId: Int,
     var charOrder: Int? = null,
     var charDesignation: String? = null,
     var charDescription: String? = null,
-    var ishSubChar: Int,
-    var projectId: Int,
     var sampleRelatedTime: Double? = null,
     var measurementRelatedTime: Double? = null
 ) : NetworkBaseModel<DatabaseCharacteristic> {

@@ -11,7 +11,7 @@ abstract class CharacteristicDao : DaoBaseModel<DatabaseCharacteristic> {
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
     abstract override fun getRecords(): List<DatabaseCharacteristic>
 
-    @Query("select * from `7_characteristics` where projectId = :parentId order by charOrder  asc")
+    @Query("select * from `7_characteristics` where ishSubCharId = :parentId order by charOrder  asc")
     abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseCharacteristic>
 
     @Query("SELECT * FROM `7_characteristics` WHERE id = :id")
@@ -19,6 +19,6 @@ abstract class CharacteristicDao : DaoBaseModel<DatabaseCharacteristic> {
 
     @Query("SELECT * FROM `7_characteristics` ORDER BY charOrder ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseCharacteristic>>
-    @Query("select * from characteristic_complete where projectId = :parentId ")
+    @Query("select * from characteristic_complete where ishSubCharId = :parentId ")
     abstract fun getRecordsCompleteForUI(parentId: Int): Flow<List<DatabaseCharacteristic.DatabaseCharacteristicComplete>>
 }

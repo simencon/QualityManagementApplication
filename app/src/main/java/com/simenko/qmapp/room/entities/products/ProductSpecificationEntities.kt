@@ -41,7 +41,7 @@ import com.simenko.qmapp.utils.ObjectTransformer
         )
     ]
 )
-data class DatabaseManufacturingProject(
+data class DatabaseProductLine(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     @ColumnInfo(index = true)
@@ -58,14 +58,18 @@ data class DatabaseManufacturingProject(
     var pfmeaNum: String? = null,
     var processOwner: Long,
     var confLevel: Int? = null
-) : DatabaseBaseModel<NetworkManufacturingProject, DomainManufacturingProject> {
+) : DatabaseBaseModel<NetworkProductLine, DomainProductLine> {
     override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabaseManufacturingProject::class, NetworkManufacturingProject::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabaseManufacturingProject::class, DomainManufacturingProject::class).transform(this)
+    override fun toNetworkModel() = ObjectTransformer(DatabaseProductLine::class, NetworkProductLine::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseProductLine::class, DomainProductLine::class).transform(this)
 
-    data class DatabaseManufacturingProjectComplete(
+    @DatabaseView(
+        viewName = "product_line_complete",
+        value = "SELECT * FROM `0_manufacturing_project` ORDER BY id;"
+    )
+    data class DatabaseProductLineComplete(
         @Embedded
-        val manufacturingProject: DatabaseManufacturingProject,
+        val manufacturingProject: DatabaseProductLine,
         @Relation(
             entity = DatabaseCompany::class,
             parentColumn = "companyId",
@@ -84,20 +88,15 @@ data class DatabaseManufacturingProject(
             entityColumn = "id"
         )
         val designManager: DatabaseEmployee
-    ) : DatabaseBaseModel<Any?, DomainManufacturingProject.DomainManufacturingProjectComplete> {
+    ) : DatabaseBaseModel<Any?, DomainProductLine.DomainProductLineComplete> {
         override fun getRecordId() = manufacturingProject.id
-
         override fun toNetworkModel() = null
-
-        override fun toDomainModel(): DomainManufacturingProject.DomainManufacturingProjectComplete {
-            return DomainManufacturingProject.DomainManufacturingProjectComplete(
-                manufacturingProject = this.manufacturingProject.toDomainModel(),
-                company = this.company.toDomainModel(),
-                designDepartment = this.designDepartment.toDomainModel(),
-                designManager = this.designManager.toDomainModel()
-            )
-        }
-
+        override fun toDomainModel() = DomainProductLine.DomainProductLineComplete(
+            manufacturingProject = this.manufacturingProject.toDomainModel(),
+            company = this.company.toDomainModel(),
+            designDepartment = this.designDepartment.toDomainModel(),
+            designManager = this.designManager.toDomainModel()
+        )
     }
 }
 
@@ -105,7 +104,7 @@ data class DatabaseManufacturingProject(
     tableName = "0_keys",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseManufacturingProject::class,
+            entity = DatabaseProductLine::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("projectId"),
             onDelete = ForeignKey.NO_ACTION,
@@ -128,11 +127,11 @@ data class DatabaseKey(
         @Embedded
         val productLineKey: DatabaseKey,
         @Relation(
-            entity = DatabaseManufacturingProject::class,
+            entity = DatabaseProductLine::class,
             parentColumn = "projectId",
             entityColumn = "id"
         )
-        val productLine: DatabaseManufacturingProject,
+        val productLine: DatabaseProductLine,
     ) : DatabaseBaseModel<Any?, DomainKey.DomainKeyComplete> {
         override fun getRecordId() = productLineKey.id
         override fun toNetworkModel() = null
@@ -148,7 +147,7 @@ data class DatabaseKey(
     tableName = "0_products_bases",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseManufacturingProject::class,
+            entity = DatabaseProductLine::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("projectId"),
             onDelete = ForeignKey.NO_ACTION,
@@ -171,7 +170,7 @@ data class DatabaseProductBase(
     tableName = "1_product_kinds",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseManufacturingProject::class,
+            entity = DatabaseProductLine::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("projectId"),
             onDelete = ForeignKey.CASCADE,

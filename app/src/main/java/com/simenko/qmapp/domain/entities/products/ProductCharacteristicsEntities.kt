@@ -9,44 +9,69 @@ import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable
-data class DomainElementIshModel constructor(
+data class DomainCharGroup constructor(
     var id: Int = NoRecord.num,
-    var ishElement: String? = null
-) : DomainBaseModel<DatabaseElementIshModel>() {
+    val productLineId: Long = NoRecord.num.toLong(),
+    var ishElement: String? = EmptyString.str
+) : DomainBaseModel<DatabaseCharGroup>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel() = ObjectTransformer(DomainElementIshModel::class, DatabaseElementIshModel::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(DomainCharGroup::class, DatabaseCharGroup::class).transform(this)
+    data class DomainCharGroupComplete(
+        val charGroup: DomainCharGroup = DomainCharGroup(),
+        val productLine: DomainProductLine.DomainProductLineComplete = DomainProductLine.DomainProductLineComplete()
+    ): DomainBaseModel<DatabaseCharGroup.DatabaseCharGroupComplete>() {
+        override fun getRecordId() = charGroup.id
+        override fun getParentId() = charGroup.productLineId.toInt()
+        override fun setIsSelected(value: Boolean) {}
+
+        override fun toDatabaseModel() = DatabaseCharGroup.DatabaseCharGroupComplete(
+            charGroup = charGroup.toDatabaseModel(),
+            productLine = productLine.toDatabaseModel()
+        )
+    }
 }
 
 @Stable
-data class DomainIshSubCharacteristic constructor(
+data class DomainCharSubGroup constructor(
     var id: Int = NoRecord.num,
-    var ishElement: String? = null,
+    val charGroupId: Long = NoRecord.num.toLong(),
+    var ishElement: String? = EmptyString.str,
     var measurementGroupRelatedTime: Double? = null
-) : DomainBaseModel<DatabaseIshSubCharacteristic>() {
+) : DomainBaseModel<DatabaseCharSubGroup>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel() = ObjectTransformer(DomainIshSubCharacteristic::class, DatabaseIshSubCharacteristic::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(DomainCharSubGroup::class, DatabaseCharSubGroup::class).transform(this)
+    data class DomainCharSubGroupComplete(
+        val charSubGroup: DomainCharSubGroup = DomainCharSubGroup(),
+        val charGroup: DomainCharGroup.DomainCharGroupComplete = DomainCharGroup.DomainCharGroupComplete()
+    ) : DomainBaseModel<DatabaseCharSubGroup.DatabaseCharSubGroupComplete>() {
+        override fun getRecordId() = charSubGroup.id
+        override fun getParentId() = charSubGroup.charGroupId.toInt()
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseCharSubGroup.DatabaseCharSubGroupComplete (
+            charSubGroup = charSubGroup.toDatabaseModel(),
+            charGroup = charGroup.toDatabaseModel()
+        )
+    }
 }
 
 
 @Stable
 data class DomainCharacteristic constructor(
     var id: Int = NoRecord.num,
-    var ishCharId: Int = NoRecord.num,
+    var ishSubCharId: Int = NoRecord.num,
     var charOrder: Int? = null,
     var charDesignation: String? = null,
     var charDescription: String? = null,
-    var ishSubChar: Int = NoRecord.num,
-    var projectId: Int = NoRecord.num,
     var sampleRelatedTime: Double? = null,
     var measurementRelatedTime: Double? = null,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseCharacteristic>() {
     override fun getRecordId() = id
-    override fun getParentId() = projectId
+    override fun getParentId() = ishSubCharId
     override fun hasParentId(pId: Int) = pId != 0
 
     override fun setIsSelected(value: Boolean) {
@@ -58,19 +83,15 @@ data class DomainCharacteristic constructor(
     @Stable
     data class DomainCharacteristicComplete(
         val characteristic: DomainCharacteristic = DomainCharacteristic(),
-        val productLine: DomainManufacturingProject = DomainManufacturingProject(),
-        val characteristicGroup: DomainElementIshModel = DomainElementIshModel(),
-        val characteristicSubGroup: DomainIshSubCharacteristic = DomainIshSubCharacteristic(),
-        var detailsVisibility: Boolean = false,
-        var isExpanded: Boolean = false
+        val characteristicSubGroup: DomainCharSubGroup.DomainCharSubGroupComplete = DomainCharSubGroup.DomainCharSubGroupComplete(),
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseCharacteristic.DatabaseCharacteristicComplete>() {
         override fun getRecordId() = characteristic.id
-        override fun getParentId() = characteristic.projectId
+        override fun getParentId() = characteristic.ishSubCharId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel() = DatabaseCharacteristic.DatabaseCharacteristicComplete(
             characteristic = this.characteristic.toDatabaseModel(),
-            productLine = this.productLine.toDatabaseModel(),
-            characteristicGroup = this.characteristicGroup.toDatabaseModel(),
             characteristicSubGroup = this.characteristicSubGroup.toDatabaseModel()
         )
     }
@@ -84,8 +105,8 @@ data class DomainMetrix constructor(
     var metrixDesignation: String? = EmptyString.str,
     var metrixDescription: String? = EmptyString.str,
     var units: String? = EmptyString.str,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseMetrix>() {
     override fun getRecordId() = id
     override fun getParentId() = charId

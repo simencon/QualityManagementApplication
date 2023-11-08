@@ -40,15 +40,15 @@ import retrofit2.http.GET
 
 interface ProductsService {
     @GET(MANUFACTURING_PROJECTS)
-    suspend fun getManufacturingProjects(): Response<List<NetworkManufacturingProject>>
+    suspend fun getManufacturingProjects(): Response<List<NetworkProductLine>>
     @GET(PRODUCTS_KEYS)
     suspend fun getKeys(): Response<List<NetworkKey>>
     @GET(PRODUCT_BASES)
     suspend fun getProductBases(): Response<List<NetworkProductBase>>
     @GET(CHARACTERISTICS_GROUPS)
-    suspend fun getCharacteristicGroups(): Response<List<NetworkElementIshModel>>
+    suspend fun getCharacteristicGroups(): Response<List<NetworkCharGroup>>
     @GET(CHARACTERISTICS_SUB_GROUPS)
-    suspend fun getCharacteristicSubGroups(): Response<List<NetworkIshSubCharacteristic>>
+    suspend fun getCharacteristicSubGroups(): Response<List<NetworkCharSubGroup>>
     @GET(CHARACTERISTICS)
     suspend fun getCharacteristics(): Response<List<NetworkCharacteristic>>
     @GET(METRICS)

@@ -6,7 +6,7 @@ import com.simenko.qmapp.di.ProductLineKeyIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainManufacturingProject
+import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -33,7 +33,7 @@ class ProductLineKeysViewModel @Inject constructor(
     @ProductLineKeyIdParameter val productKeyId: Int
 ) : ViewModel() {
     private val _productKeysVisibility = MutableStateFlow(Pair(SelectedNumber(productKeyId), NoRecord))
-    private val _productLine = MutableStateFlow(DomainManufacturingProject())
+    private val _productLine = MutableStateFlow(DomainProductLine())
     private val _productKeys = repository.productLineKeys(productLineId)
 
     /**
