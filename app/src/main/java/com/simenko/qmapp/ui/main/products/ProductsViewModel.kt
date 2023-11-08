@@ -65,7 +65,7 @@ class ProductsViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineClick(it: Long) {
+    fun onDeleteProductLineClick(it: Int) {
         TODO("Not yet implemented")
     }
 
@@ -81,7 +81,7 @@ class ProductsViewModel @Inject constructor(
     }
 
 
-    fun onEditProductLineClick(it: Pair<Long, Long>) {
+    fun onEditProductLineClick(it: Pair<Int, Int>) {
         TODO("Not yet implemented")
     }
 

@@ -12,9 +12,8 @@ data class DomainUserRole(
     val function: String = NoString.str,
     val roleLevel: String = NoString.str,
     val accessLevel: String = NoString.str,
-
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseUserRole>() {
     override fun getRecordId(): String = "${this.function}:${this.roleLevel}:${this.accessLevel}"
     override fun getParentId(): Int = NoRecord.num
@@ -42,10 +41,9 @@ data class DomainUser(
     var accountNonLocked: Boolean = false,
     var credentialsNonExpired: Boolean = false,
     var enabled: Boolean = false,
-
     var isSelected: Boolean = false,
-    var detailsVisibility: Boolean = false,
-    var isExpanded: Boolean = false
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseUser>() {
     fun rolesAsUserRoles(): List<DomainUserRole> {
         val list = mutableListOf<DomainUserRole>()

@@ -568,8 +568,7 @@ data class DatabaseSampleComplete constructor(
     override fun toNetworkModel() = null
     override fun toDomainModel() = DomainSampleComplete(
         sampleResult = sampleResult.toDomainModel(),
-        sample = sample.toDomainModel(),
-        detailsVisibility = false
+        sample = sample.toDomainModel()
     )
 }
 
@@ -749,8 +748,7 @@ data class DatabaseOrderComplete constructor(
         customer = customer.toDomainModel(),
         orderPlacer = orderPlacer.toDomainModel(),
         orderStatus = orderStatus.toDomainModel(),
-        orderResult = orderResult.toDomainModel(),
-        detailsVisibility = false
+        orderResult = orderResult.toDomainModel()
     )
 }
 
@@ -841,8 +839,7 @@ data class DatabaseSubOrderComplete constructor(
         line = line.toDomainModel(),
         operation = operation.toDomainModel(),
         itemVersionComplete = itemVersionComplete.toDomainModel(),
-        subOrderResult = subOrderResult.toDomainModel(),
-        detailsVisibility = false
+        subOrderResult = subOrderResult.toDomainModel()
     )
 
     override fun toNotificationData(reason: NotificationReasons) = NotificationData(
@@ -899,8 +896,7 @@ data class DatabaseSubOrderTaskComplete constructor(
         characteristic = characteristic.toDomainModel(),
         subOrder = subOrder.toDomainModel(),
         status = status.toDomainModel(),
-        taskResult = taskResult.toDomainModel(),
-        detailsVisibility = false
+        taskResult = taskResult.toDomainModel()
     )
 }
 
@@ -954,7 +950,6 @@ data class DatabaseResultComplete(
         result = result.toDomainModel(),
         resultsDecryption = resultsDecryption.toDomainModel(),
         metrix = metrix.toDomainModel(),
-        resultTolerance = resultTolerance.toDomainModel(),
-        detailsVisibility = false
+        resultTolerance = resultTolerance.toDomainModel()
     )
 }

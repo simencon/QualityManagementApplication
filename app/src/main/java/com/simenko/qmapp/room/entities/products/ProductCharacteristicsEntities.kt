@@ -12,27 +12,94 @@ import com.simenko.qmapp.retrofit.entities.products.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
 import com.simenko.qmapp.utils.ObjectTransformer
 
-@Entity(tableName = "10_1_d_element_ish_model")
-data class DatabaseElementIshModel constructor(
+@Entity(
+    tableName = "10_1_d_element_ish_model",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseProductLine::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("productLineId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ]
+)
+data class DatabaseCharGroup constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
-    var ishElement: String? = null
-) : DatabaseBaseModel<NetworkElementIshModel, DomainElementIshModel> {
+    val id: Int,
+    val productLineId: Long,
+    val ishElement: String?
+) : DatabaseBaseModel<NetworkCharGroup, DomainCharGroup> {
     override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabaseElementIshModel::class, NetworkElementIshModel::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabaseElementIshModel::class, DomainElementIshModel::class).transform(this)
+    override fun toNetworkModel() = ObjectTransformer(DatabaseCharGroup::class, NetworkCharGroup::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseCharGroup::class, DomainCharGroup::class).transform(this)
+
+    @DatabaseView(
+        viewName = "characteristic_group_complete",
+        value = "SELECT * FROM `10_1_d_element_ish_model` ORDER BY id;"
+    )
+    data class DatabaseCharGroupComplete(
+        @Embedded
+        val charGroup: DatabaseCharGroup,
+        @Relation(
+            entity = DatabaseProductLine.DatabaseProductLineComplete::class,
+            parentColumn = "productLineId",
+            entityColumn = "id"
+        )
+        val productLine: DatabaseProductLine.DatabaseProductLineComplete
+    ): DatabaseBaseModel<Any?, DomainCharGroup.DomainCharGroupComplete> {
+        override fun getRecordId() = charGroup.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainCharGroup.DomainCharGroupComplete(
+            charGroup = charGroup.toDomainModel(),
+            productLine = productLine.toDomainModel()
+        )
+    }
 }
 
-@Entity(tableName = "0_ish_sub_characteristics")
-data class DatabaseIshSubCharacteristic constructor(
+@Entity(
+    tableName = "0_ish_sub_characteristics",
+    foreignKeys = [
+        ForeignKey(
+            entity = DatabaseCharGroup::class,
+            parentColumns = arrayOf("id"),
+            childColumns = arrayOf("charGroupId"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ]
+)
+data class DatabaseCharSubGroup constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
-    var ishElement: String? = null,
-    var measurementGroupRelatedTime: Double? = null
-) : DatabaseBaseModel<NetworkIshSubCharacteristic, DomainIshSubCharacteristic> {
+    val id: Int,
+    val charGroupId: Long,
+    val ishElement: String? = null,
+    val measurementGroupRelatedTime: Double? = null
+) : DatabaseBaseModel<NetworkCharSubGroup, DomainCharSubGroup> {
     override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabaseIshSubCharacteristic::class, NetworkIshSubCharacteristic::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabaseIshSubCharacteristic::class, DomainIshSubCharacteristic::class).transform(this)
+    override fun toNetworkModel() = ObjectTransformer(DatabaseCharSubGroup::class, NetworkCharSubGroup::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseCharSubGroup::class, DomainCharSubGroup::class).transform(this)
+    @DatabaseView(
+        viewName = "characteristic_sub_group_complete",
+        value = "SELECT * FROM `0_ish_sub_characteristics` ORDER BY id;"
+    )
+    data class DatabaseCharSubGroupComplete(
+        @Embedded
+        val charSubGroup: DatabaseCharSubGroup,
+        @Relation(
+            entity = DatabaseCharGroup.DatabaseCharGroupComplete::class,
+            parentColumn = "charGroupId",
+            entityColumn = "id"
+        )
+        val charGroup: DatabaseCharGroup.DatabaseCharGroupComplete
+    ) : DatabaseBaseModel<Any?, DomainCharSubGroup.DomainCharSubGroupComplete> {
+        override fun getRecordId() = charSubGroup.id
+        override fun toNetworkModel() = charSubGroup.charGroupId
+        override fun toDomainModel() = DomainCharSubGroup.DomainCharSubGroupComplete(
+            charSubGroup = charSubGroup.toDomainModel(),
+            charGroup = charGroup.toDomainModel()
+        )
+    }
 }
 
 
@@ -40,41 +107,24 @@ data class DatabaseIshSubCharacteristic constructor(
     tableName = "7_characteristics",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseElementIshModel::class,
+            entity = DatabaseCharSubGroup::class,
             parentColumns = arrayOf("id"),
-            childColumns = arrayOf("ishCharId"),
+            childColumns = arrayOf("ishSubCharId"),
             onDelete = ForeignKey.NO_ACTION,
             onUpdate = ForeignKey.NO_ACTION
-        ),
-        ForeignKey(
-            entity = DatabaseIshSubCharacteristic::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("ishSubChar"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
-        ),
-        ForeignKey(
-            entity = DatabaseManufacturingProject::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("projectId"),
-            onDelete = ForeignKey.NO_ACTION,
-            onUpdate = ForeignKey.NO_ACTION
-        )]
+        )
+    ]
 )
 data class DatabaseCharacteristic constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     @ColumnInfo(index = true)
-    var ishCharId: Int,
-    var charOrder: Int? = null,
-    var charDesignation: String? = null,
-    var charDescription: String? = null,
-    @ColumnInfo(index = true)
-    var ishSubChar: Int,
-    @ColumnInfo(index = true)
-    var projectId: Int,
-    var sampleRelatedTime: Double? = null,
-    var measurementRelatedTime: Double? = null
+    val ishSubCharId: Int,
+    val charOrder: Int? = null,
+    val charDesignation: String? = null,
+    val charDescription: String? = null,
+    val sampleRelatedTime: Double? = null,
+    val measurementRelatedTime: Double? = null
 ) : DatabaseBaseModel<NetworkCharacteristic, DomainCharacteristic> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristic::class, NetworkCharacteristic::class).transform(this)
@@ -88,30 +138,16 @@ data class DatabaseCharacteristic constructor(
         @Embedded
         val characteristic: DatabaseCharacteristic,
         @Relation(
-            entity = DatabaseManufacturingProject::class,
-            parentColumn = "projectId",
+            entity = DatabaseCharSubGroup.DatabaseCharSubGroupComplete::class,
+            parentColumn = "ishSubCharId",
             entityColumn = "id"
         )
-        val productLine: DatabaseManufacturingProject,
-        @Relation(
-            entity = DatabaseElementIshModel::class,
-            parentColumn = "ishCharId",
-            entityColumn = "id"
-        )
-        val characteristicGroup: DatabaseElementIshModel,
-        @Relation(
-            entity = DatabaseIshSubCharacteristic::class,
-            parentColumn = "ishSubChar",
-            entityColumn = "id"
-        )
-        val characteristicSubGroup: DatabaseIshSubCharacteristic
+        val characteristicSubGroup: DatabaseCharSubGroup.DatabaseCharSubGroupComplete
     ) : DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicComplete> {
         override fun getRecordId() = characteristic.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainCharacteristic.DomainCharacteristicComplete(
             characteristic = this.characteristic.toDomainModel(),
-            productLine = this.productLine.toDomainModel(),
-            characteristicGroup = this.characteristicGroup.toDomainModel(),
             characteristicSubGroup = this.characteristicSubGroup.toDomainModel()
         )
     }
@@ -130,13 +166,13 @@ data class DatabaseCharacteristic constructor(
 )
 data class DatabaseMetrix constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     @ColumnInfo(index = true)
-    var charId: Int,
-    var metrixOrder: Int? = null,
-    var metrixDesignation: String? = null,
-    var metrixDescription: String? = null,
-    var units: String? = null
+    val charId: Int,
+    val metrixOrder: Int? = null,
+    val metrixDesignation: String? = null,
+    val metrixDescription: String? = null,
+    val units: String? = null
 ) : DatabaseBaseModel<NetworkMetrix, DomainMetrix> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseMetrix::class, NetworkMetrix::class).transform(this)
@@ -259,15 +295,15 @@ data class DatabaseCharacteristicComponentStageKind(
 )
 data class DatabaseProductTolerance(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     @ColumnInfo(index = true)
-    var metrixId: Int?,
+    val metrixId: Int?,
     @ColumnInfo(index = true)
-    var versionId: Int?,
-    var nominal: Float?,
-    var lsl: Float?,
-    var usl: Float?,
-    var isActual: Boolean
+    val versionId: Int?,
+    val nominal: Float?,
+    val lsl: Float?,
+    val usl: Float?,
+    val isActual: Boolean
 ) : DatabaseBaseModel<NetworkProductTolerance, DomainProductTolerance> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductTolerance::class, NetworkProductTolerance::class).transform(this)
@@ -294,15 +330,15 @@ data class DatabaseProductTolerance(
 )
 data class DatabaseComponentTolerance(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     @ColumnInfo(index = true)
-    var metrixId: Int?,
+    val metrixId: Int?,
     @ColumnInfo(index = true)
-    var versionId: Int?,
-    var nominal: Float?,
-    var lsl: Float?,
-    var usl: Float?,
-    var isActual: Boolean
+    val versionId: Int?,
+    val nominal: Float?,
+    val lsl: Float?,
+    val usl: Float?,
+    val isActual: Boolean
 ) : DatabaseBaseModel<NetworkComponentTolerance, DomainComponentTolerance> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentTolerance::class, NetworkComponentTolerance::class).transform(this)
@@ -329,15 +365,15 @@ data class DatabaseComponentTolerance(
 )
 data class DatabaseComponentInStageTolerance(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     @ColumnInfo(index = true)
-    var metrixId: Int?,
+    val metrixId: Int?,
     @ColumnInfo(index = true)
-    var versionId: Int?,
-    var nominal: Float?,
-    var lsl: Float?,
-    var usl: Float?,
-    var isActual: Boolean
+    val versionId: Int?,
+    val nominal: Float?,
+    val lsl: Float?,
+    val usl: Float?,
+    val isActual: Boolean
 ) : DatabaseBaseModel<NetworkComponentInStageTolerance, DomainComponentInStageTolerance> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageTolerance::class, NetworkComponentInStageTolerance::class).transform(this)

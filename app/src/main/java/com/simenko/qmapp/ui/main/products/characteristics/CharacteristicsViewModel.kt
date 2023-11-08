@@ -7,7 +7,7 @@ import com.simenko.qmapp.di.ProductLineCharacteristicIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainManufacturingProject
+import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
@@ -36,7 +36,7 @@ class CharacteristicsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _characteristicsVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
     private val _metricVisibility = MutableStateFlow(Pair(SelectedNumber(metricId), NoRecord))
-    private val _productLine = MutableStateFlow(DomainManufacturingProject())
+    private val _productLine = MutableStateFlow(DomainProductLine())
     private val _characteristics = repository.productLineCharacteristics(productLineId)
     private val _metrics = _characteristicsVisibility.flatMapLatest { repository.metrics(it.first.num) }
 
