@@ -322,8 +322,7 @@ fun ActionsMenuTop(
             text = { Text(getWithSpaces(it)) },
             onClick = { onTopMenuItemClick(it) },
             leadingIcon = { Icon(Icons.Filled.ArrowBack, contentDescription = getWithSpaces(it)) },
-            modifier = Modifier
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
 }
@@ -341,8 +340,7 @@ fun ActionsMenuContext(
         text = { Text(getWithSpaces(actionsGroup)) },
         onClick = onClickBack,
         trailingIcon = { Icon(Icons.Filled.ArrowForward, contentDescription = getWithSpaces(actionsGroup)) },
-        modifier = Modifier
-            .padding(NavigationDrawerItemDefaults.ItemPadding)
+        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 
     topBarSetup.actionMenuItems?.filter { it.group.name == actionsGroup }?.forEach { item ->
@@ -351,8 +349,7 @@ fun ActionsMenuContext(
             onClick = { onContextMenuItemClick(item) },
             enabled = selectedItemId != item,
             leadingIcon = { Icon(item.image, contentDescription = item.title) },
-            modifier = Modifier
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
 }
