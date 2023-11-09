@@ -107,7 +107,7 @@ enum class Page(
         titlePlaceholderText = "Search order by number",
         keyboardType = KeyboardType.Decimal,
         searchBtnIcon = Icons.Filled.Search,
-        topTabsContent = null,
+        topTabsContent = ProgressTabs.toList(),
         fabIcon = Icons.Filled.Add,
         actionBtnIcon = null,
         actionMenuItems = ProcessControlActions.toList()

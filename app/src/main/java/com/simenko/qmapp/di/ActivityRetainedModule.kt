@@ -21,7 +21,9 @@ object ActivityRetainedModule {
     @ActivityRetainedScoped
     @Provides
     fun provideAppNavigator(): AppNavigator {
-        return AppNavigatorImpl()
+        val navigator = AppNavigatorImpl()
+        println("provideAppNavigator instance = $navigator")
+        return navigator
     }
 
     @ActivityRetainedScoped

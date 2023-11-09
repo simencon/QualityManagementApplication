@@ -127,6 +127,8 @@ dependencies {
 
 //    Compose dependencies
     implementation 'androidx.activity:activity-compose:1.8.0'
+//    todo-me - with version 2.7.5 has problem on configuration change: java.lang.IllegalStateException: You cannot access the NavBackStackEntry's ViewModels after the NavBackStackEntry is destroyed.
+//    todo-me - onSync 2.7.4 gives 2 times replication, 2.7.5 - 4 times.
     implementation "androidx.navigation:navigation-compose:2.7.5"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.2"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2"
