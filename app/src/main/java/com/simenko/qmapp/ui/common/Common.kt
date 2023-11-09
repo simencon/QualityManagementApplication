@@ -531,7 +531,6 @@ fun ItemCard(
             border = BorderStroke(width = 1.dp, borderColor),
             elevation = CardDefaults.cardElevation(4.dp),
             modifier = modifier
-                .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(item.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num) }) }

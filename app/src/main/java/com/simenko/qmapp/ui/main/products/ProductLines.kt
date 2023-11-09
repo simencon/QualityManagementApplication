@@ -71,10 +71,10 @@ fun ProductLines(
         items(items = items, key = { it.manufacturingProject.id }) { productLine ->
             ProductLineCard(
                 productLine = productLine,
-                onClickDetails = { onClickDetailsLambda(it) },
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) },
+                onClickDetails = { onClickDetailsLambda(it) },
                 onClickKeys = { onClickKeysLambda(it) },
                 onClickCharacteristics = { onClickCharacteristicsLambda(it) },
                 onClickItems = { onClickItemsLambda(it) }
@@ -86,18 +86,17 @@ fun ProductLines(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun ProductLineCard(
-    modifier: Modifier = Modifier,
     productLine: DomainProductLine.DomainProductLineComplete,
-    onClickDetails: (ID) -> Unit,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickDetails: (ID) -> Unit,
     onClickKeys: (ID) -> Unit,
     onClickCharacteristics: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
     ItemCard(
-        modifier = modifier,
+        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = productLine,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
@@ -125,7 +124,7 @@ fun ProductLine(
 ) {
     val containerColor = when (productLine.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
+        false -> MaterialTheme.colorScheme.primaryContainer
     }
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
