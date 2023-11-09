@@ -25,8 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,10 +77,10 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {
-        viewModelScope.launch {
-            combine(intents, _topTabsSetup, _fabSetup, _pullRefreshSetup) { intent, topTabsSetup, fabSetup, pullRefreshSetup ->
-                handleEvent(intent, topTabsSetup, fabSetup, pullRefreshSetup)
-            }.collect()
+        viewModelScope.launch(Dispatchers.Default) {
+            intents.collect {
+                handleEvent(it, _topTabsSetup.value, _fabSetup.value, _pullRefreshSetup.value)
+            }
         }
     }
 
@@ -150,14 +148,9 @@ class MainActivityViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
     }
 
-    private val instance = this
-
     private fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
             pullRefreshSetup.value.updateLoadingState(Pair(true, null))
-
-//            todo-me -> this function called twice on the beginning (looks like the same problem as slow UI on the beginning)
-            println("MainActivityViewModel instance (syncData) - $instance")
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
