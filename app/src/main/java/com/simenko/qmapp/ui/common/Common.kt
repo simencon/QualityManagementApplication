@@ -25,7 +25,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -78,16 +77,13 @@ import androidx.compose.ui.unit.sp
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.entities.DomainDepartment
-import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.CARD_OFFSET
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
-import com.simenko.qmapp.ui.main.products.characteristics.Department
-import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 import com.simenko.qmapp.utils.dp
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -134,9 +130,9 @@ fun RecordFieldItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordFieldItemWithMenu(
-    options: List<Triple<Int, String, Boolean>>,
+    options: List<Triple<ID, String, Boolean>>,
     isError: Boolean,
-    onDropdownMenuItemClick: (Int) -> Unit,
+    onDropdownMenuItemClick: (ID) -> Unit,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
     contentDescription: Triple<ImageVector, String, String>,
@@ -153,7 +149,7 @@ fun RecordFieldItemWithMenu(
         }
     }
 
-    var filteredOptions = mutableListOf<Triple<Int, String, Boolean>>()
+    var filteredOptions = mutableListOf<Triple<ID, String, Boolean>>()
 
     Box {
         RecordFieldItem(
@@ -422,7 +418,7 @@ fun ContentWithTitle(modifier: Modifier = Modifier, title: String, contentTextSi
 
 @Composable
 fun StatusWithPercentage(
-    status: Pair<Int, String?>,
+    status: Pair<ID, String?>,
     result: Triple<Boolean?, Int?, Int?>,
     onlyInt: Boolean = false,
     percentageTextSize: TextUnit = 12.sp
@@ -434,7 +430,7 @@ fun StatusWithPercentage(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    if (status.first == 3) {
+    if (status.first == 3L) {
         if (status.second != EmptyString.str)
             Text(
                 text = "(",
@@ -476,9 +472,9 @@ fun StatusWithPercentage(
 fun ItemCard(
     modifier: Modifier = Modifier,
     item: DomainBaseModel<Any>,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
     contentColors: Triple<Color, Color, Color>, /*Normal-Expanded Color-Border Selected Color*/
     vararg actionButtonsImages: ImageVector,
     content: @Composable (() -> Unit),
@@ -514,7 +510,7 @@ fun ItemCard(
                     0 -> {
                         IconButton(
                             modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                            onClick = { onClickDelete(if (item.getRecordId() is Int) item.getRecordId() as Int else NoRecord.num) },
+                            onClick = { onClickDelete(if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num) },
                             content = { Icon(imageVector = imageVector, contentDescription = "delete action") }
                         )
                     }
@@ -522,7 +518,7 @@ fun ItemCard(
                     1 -> {
                         IconButton(
                             modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                            onClick = { onClickEdit(Pair(item.getParentId(), if (item.getRecordId() is Int) item.getRecordId() as Int else NoRecord.num)) },
+                            onClick = { onClickEdit(Pair(item.getParentId(), if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num)) },
                             content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
                         )
                     }
@@ -538,7 +534,7 @@ fun ItemCard(
                 .padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp)
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
-                .pointerInput(item.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(if (item.getRecordId() is Int) item.getRecordId() as Int else NoRecord.num) }) }
+                .pointerInput(item.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num) }) }
         ) {
             content()
         }

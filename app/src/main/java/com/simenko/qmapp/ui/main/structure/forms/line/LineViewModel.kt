@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineComplete
@@ -32,8 +33,8 @@ class LineViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @ChannelIdParameter private val channelId: Int,
-    @LineIdParameter private val lineId: Int
+    @ChannelIdParameter private val channelId: ID,
+    @LineIdParameter private val lineId: ID
 ) : ViewModel() {
     private val _line = MutableStateFlow(DomainManufacturingLineComplete())
 
@@ -55,7 +56,7 @@ class LineViewModel @Inject constructor(
         }
     }
 
-    private fun prepareLine(channelId: Int) {
+    private fun prepareLine(channelId: ID) {
         _line.value = DomainManufacturingLineComplete(
             line = DomainManufacturingLine(chId = channelId),
             channelWithParents = repository.channelWithParentsById(channelId)
@@ -94,7 +95,7 @@ class LineViewModel @Inject constructor(
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
         val errorMsg = buildString {
-            if (_line.value.line.lineOrder == NoRecord.num) {
+            if (_line.value.line.lineOrder == NoRecord.num.toInt()) {
                 _fillInErrors.value = _fillInErrors.value.copy(lineOrderError = true)
                 append("Line order field is mandatory\n")
             }
@@ -129,7 +130,7 @@ class LineViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
+    private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {

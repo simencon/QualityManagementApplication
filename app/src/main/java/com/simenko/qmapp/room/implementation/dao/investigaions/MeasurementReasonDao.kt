@@ -1,6 +1,7 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
 import androidx.room.*
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.entities.DatabaseReason
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ abstract class MeasurementReasonDao : DaoBaseModel<DatabaseReason> {
 
     //    ToDo - change this when reason and types will be connected
     @Query("select * from `0_measurement_reasons` where id = :parentId order by reasonOrder asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseReason>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseReason>
 
     @Query("SELECT * FROM `0_measurement_reasons` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseReason?

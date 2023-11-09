@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.DomainDepartment
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
@@ -25,7 +26,7 @@ fun DepartmentsSelection(
     val items by viewModel.subOrderDepartments.collectAsStateWithLifecycle()
     val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectSubOrderDepartment(it) } }
+    val onSelectLambda = remember<(ID) -> Unit> { { viewModel.selectSubOrderDepartment(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
@@ -51,7 +52,7 @@ fun DepartmentsSelection(
 @Composable
 fun DepartmentCard(
     input: DomainDepartment,
-    onClick: (Int) -> Unit
+    onClick: (ID) -> Unit
 ) {
     ItemToSelect(Triple(input.id, input.depAbbr ?: "-", input.isSelected), onClick)
 }

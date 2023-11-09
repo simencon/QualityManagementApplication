@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedString
@@ -87,17 +88,17 @@ class UserViewModel @Inject constructor(
 
     private val _userEmployees: Flow<List<DomainEmployee>> = manufacturingRepository.employees
 
-    val userEmployees: StateFlow<List<Triple<Int, String, Boolean>>> = _userEmployees.flatMapLatest { employees ->
+    val userEmployees: StateFlow<List<Triple<ID, String, Boolean>>> = _userEmployees.flatMapLatest { employees ->
         _user.flatMapLatest { user ->
-            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
-            employees.forEach { cpy.add(Triple(it.id, it.fullName, it.id.toLong() == user.teamMemberId)) }
+            val cpy = mutableListOf<Triple<ID, String, Boolean>>()
+            employees.forEach { cpy.add(Triple(it.id, it.fullName, it.id == user.teamMemberId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setUserEmployee(id: Int) {
-        if (_user.value.teamMemberId != id.toLong()) {
-            _user.value = _user.value.copy(teamMemberId = id.toLong())
+    fun setUserEmployee(id: ID) {
+        if (_user.value.teamMemberId != id) {
+            _user.value = _user.value.copy(teamMemberId = id)
             _userErrors.value = _userErrors.value.copy(teamMemberError = false)
             _fillInState.value = FillInInitialState
         }
@@ -153,7 +154,7 @@ class UserViewModel @Inject constructor(
     private fun validateInput(user: DomainUser = _user.value) {
         val errorMsg = buildString {
             println("validateInput - ${user.teamMemberId}")
-            if (user.teamMemberId == NoRecord.num.toLong()) {
+            if (user.teamMemberId == NoRecord.num) {
                 _userErrors.value = _userErrors.value.copy(teamMemberError = true)
                 append("Employee field is mandatory\n")
             }

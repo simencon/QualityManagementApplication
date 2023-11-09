@@ -46,7 +46,6 @@ fun ResultsComposition(
 
     val items by invModel.results.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setResultsVisibility(dId = SelectedNumber(it)) } }
     val onChangeValueLambda = remember<(DomainResultComplete) -> Unit> { { invModel.editResult(it.result) } }
 
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
@@ -55,7 +54,6 @@ fun ResultsComposition(
                 if (result.result.taskId == tasksVisibility.first.num && result.result.sampleId == currentSample.first.num) {
                     ResultCard(
                         result = result,
-                        onSelect = { onClickDetailsLambda(it) },
                         onChangeValue = { onChangeValueLambda(it) }
                     )
                 }
@@ -69,8 +67,7 @@ fun ResultsComposition(
 @Composable
 fun ResultCard(
     result: DomainResultComplete,
-    onSelect: (Int) -> Unit,
-    onChangeValue: (DomainResultComplete) -> Unit,
+    onChangeValue: (DomainResultComplete) -> Unit
 ) {
     val containerColor = MaterialTheme.colorScheme.primaryContainer
 
@@ -89,8 +86,7 @@ fun ResultCard(
     ) {
         Result(
             result = result,
-            onChangeValue = { onChangeValue(result) },
-            onSelect = onSelect
+            onChangeValue = { onChangeValue(result) }
         )
     }
 }
@@ -99,8 +95,7 @@ fun ResultCard(
 @Composable
 fun Result(
     result: DomainResultComplete = DomainResultComplete(),
-    onChangeValue: (DomainResultComplete) -> Unit = {},
-    onSelect: (Int) -> Unit,
+    onChangeValue: (DomainResultComplete) -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var text: String by rememberSaveable { mutableStateOf(result.result.result.let { it?.toString() ?: EmptyString.str }) }
@@ -199,6 +194,6 @@ fun Result(
 @Composable
 fun MyResultPreview() {
     QMAppTheme {
-        Result(onSelect = {})
+        Result()
     }
 }

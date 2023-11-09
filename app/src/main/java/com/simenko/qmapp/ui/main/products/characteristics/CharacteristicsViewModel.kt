@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.MetricIdParameter
 import com.simenko.qmapp.di.ProductLineCharacteristicIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
@@ -30,9 +31,9 @@ class CharacteristicsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
-    @ProductLineIdParameter val productLineId: Int,
-    @ProductLineCharacteristicIdParameter val characteristicId: Int,
-    @MetricIdParameter val metricId: Int
+    @ProductLineIdParameter val productLineId: ID,
+    @ProductLineCharacteristicIdParameter val characteristicId: ID,
+    @MetricIdParameter val metricId: ID
 ) : ViewModel() {
     private val _characteristicsVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
     private val _metricVisibility = MutableStateFlow(Pair(SelectedNumber(metricId), NoRecord))
@@ -87,7 +88,7 @@ class CharacteristicsViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineCharacteristicClick(it: Int) {
+    fun onDeleteProductLineCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
 
@@ -98,11 +99,11 @@ class CharacteristicsViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductLineCharacteristicClick(it: Pair<Int, Int>) {
+    private fun onAddProductLineCharacteristicClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 
-    fun onEditProductLineCharacteristicClick(it: Pair<Int, Int>) {
+    fun onEditProductLineCharacteristicClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 }

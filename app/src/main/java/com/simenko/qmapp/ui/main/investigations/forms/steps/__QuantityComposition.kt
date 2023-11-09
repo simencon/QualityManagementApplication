@@ -47,13 +47,13 @@ fun QuantitySelection(
                             }
                             scaleX = 1f
                             scaleY = 1f
-                            minValue = ZeroValue.num
+                            minValue = ZeroValue.num.toInt()
                             maxValue = 10
-                            this.value = it.subOrder.samplesCount ?: ZeroValue.num
+                            this.value = it.subOrder.samplesCount ?: ZeroValue.num.toInt()
                         }
                     },
                     update = { picker ->
-                        picker.value = it.subOrder.samplesCount ?: ZeroValue.num
+                        picker.value = it.subOrder.samplesCount ?: ZeroValue.num.toInt()
                     }
                 )
         }

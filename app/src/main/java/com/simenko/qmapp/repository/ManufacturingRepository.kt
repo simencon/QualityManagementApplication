@@ -1,5 +1,6 @@
 package com.simenko.qmapp.repository
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.domain.entities.DomainDepartment.DomainDepartmentComplete
 import com.simenko.qmapp.domain.entities.DomainManufacturingLine.DomainManufacturingLineComplete
@@ -31,7 +32,7 @@ class ManufacturingRepository @Inject constructor(
      */
     suspend fun syncTeamMembers() = crudeOperations.syncRecordsAll(database.employeeDao) { service.getEmployees() }
 
-    fun CoroutineScope.deleteTeamMember(orderId: Int): ReceiveChannel<Event<Resource<DomainEmployee>>> = crudeOperations.run {
+    fun CoroutineScope.deleteTeamMember(orderId: ID): ReceiveChannel<Event<Resource<DomainEmployee>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteEmployee(orderId) }) { r -> database.employeeDao.deleteRecord(r) }
     }
 
@@ -50,7 +51,7 @@ class ManufacturingRepository @Inject constructor(
 
     suspend fun syncDepartments() = crudeOperations.syncRecordsAll(database.departmentDao) { service.getDepartments() }
 
-    fun CoroutineScope.deleteDepartment(id: Int): ReceiveChannel<Event<Resource<DomainDepartment>>> = crudeOperations.run {
+    fun CoroutineScope.deleteDepartment(id: ID): ReceiveChannel<Event<Resource<DomainDepartment>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteDepartment(id) }) { r -> database.departmentDao.deleteRecord(r) }
     }
 
@@ -64,7 +65,7 @@ class ManufacturingRepository @Inject constructor(
 
 
     suspend fun syncSubDepartments() = crudeOperations.syncRecordsAll(database.subDepartmentDao) { service.getSubDepartments() }
-    fun CoroutineScope.deleteSubDepartment(id: Int): ReceiveChannel<Event<Resource<DomainSubDepartment>>> = crudeOperations.run {
+    fun CoroutineScope.deleteSubDepartment(id: ID): ReceiveChannel<Event<Resource<DomainSubDepartment>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteSubDepartment(id) }) { r -> database.subDepartmentDao.deleteRecord(r) }
     }
 
@@ -78,7 +79,7 @@ class ManufacturingRepository @Inject constructor(
 
 
     suspend fun syncChannels() = crudeOperations.syncRecordsAll(database.channelDao) { service.getManufacturingChannels() }
-    fun CoroutineScope.deleteChannel(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingChannel>>> = crudeOperations.run {
+    fun CoroutineScope.deleteChannel(id: ID): ReceiveChannel<Event<Resource<DomainManufacturingChannel>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingChannel(id) }) { r -> database.channelDao.deleteRecord(r) }
     }
 
@@ -92,7 +93,7 @@ class ManufacturingRepository @Inject constructor(
 
 
     suspend fun syncLines() = crudeOperations.syncRecordsAll(database.lineDao) { service.getManufacturingLines() }
-    fun CoroutineScope.deleteLine(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingLine>>> = crudeOperations.run {
+    fun CoroutineScope.deleteLine(id: ID): ReceiveChannel<Event<Resource<DomainManufacturingLine>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingLine(id) }) { r -> database.lineDao.deleteRecord(r) }
     }
 
@@ -106,7 +107,7 @@ class ManufacturingRepository @Inject constructor(
 
 
     suspend fun syncOperations() = crudeOperations.syncRecordsAll(database.operationDao) { service.getManufacturingOperations() }
-    fun CoroutineScope.deleteOperation(id: Int): ReceiveChannel<Event<Resource<DomainManufacturingOperation>>> = crudeOperations.run {
+    fun CoroutineScope.deleteOperation(id: ID): ReceiveChannel<Event<Resource<DomainManufacturingOperation>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { service.deleteManufacturingOperation(id) }) { r -> database.operationDao.deleteRecord(r) }
     }
 
@@ -132,7 +133,7 @@ class ManufacturingRepository @Inject constructor(
      * Connecting with LiveData for ViewModel
      */
     val employees: Flow<List<DomainEmployee>> = database.employeeDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
-    val employeeById: (Int) -> DomainEmployee = { id ->
+    val employeeById: (ID) -> DomainEmployee = { id ->
         database.employeeDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such employee in local DB") }
     }
     val employeesComplete: (EmployeesFilter) -> Flow<List<DomainEmployeeComplete>> = { filter ->
@@ -141,30 +142,30 @@ class ManufacturingRepository @Inject constructor(
 
     val companies: Flow<List<DomainCompany>> = database.companyDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val companyByName: (String) -> DomainCompany? = { database.companyDao.getRecordByName(it)?.toDomainModel() }
-    val companyById: (Int) -> DomainCompany = { id ->
+    val companyById: (ID) -> DomainCompany = { id ->
         database.companyDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such company id ($id) in local DB") }
     }
 
     val jobRoles: Flow<List<DomainJobRole>> = database.jobRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
     val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
-    val departmentsComplete: (Int) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
-    val departmentById: (Int) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).let { it.toDomainModel() } }
+    val departmentsComplete: (ID) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
+    val departmentById: (ID) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).let { it.toDomainModel() } }
 
-    val subDepartments: (Int) -> Flow<List<DomainSubDepartment>> = { pId -> database.subDepartmentDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
-    val subDepartmentWithParentsById: (Int) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }
-    val subDepartmentById: (Int) -> DomainSubDepartment.DomainSubDepartmentComplete = { database.subDepartmentDao.getRecordCompleteById(it).toDomainModel() }
+    val subDepartments: (ID) -> Flow<List<DomainSubDepartment>> = { pId -> database.subDepartmentDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val subDepartmentWithParentsById: (ID) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }
+    val subDepartmentById: (ID) -> DomainSubDepartment.DomainSubDepartmentComplete = { database.subDepartmentDao.getRecordCompleteById(it).toDomainModel() }
 
-    val channels: (Int) -> Flow<List<DomainManufacturingChannel>> = { pId -> database.channelDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
-    val channelWithParentsById: (Int) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }
-    val channelById: (Int) -> DomainManufacturingChannel.DomainManufacturingChannelComplete = { database.channelDao.getRecordCompleteById(it).toDomainModel() }
+    val channels: (ID) -> Flow<List<DomainManufacturingChannel>> = { pId -> database.channelDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val channelWithParentsById: (ID) -> DomainManufacturingChannelWithParents = { database.channelDao.getRecordWithParentsById(it).toDomainModel() }
+    val channelById: (ID) -> DomainManufacturingChannel.DomainManufacturingChannelComplete = { database.channelDao.getRecordCompleteById(it).toDomainModel() }
 
-    val lines: (Int) -> Flow<List<DomainManufacturingLine>> = { pId -> database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
-    val lineWithParentsById: (Int) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it).toDomainModel() }
-    val lineById: (Int) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
+    val lines: (ID) -> Flow<List<DomainManufacturingLine>> = { pId -> database.lineDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val lineWithParentsById: (ID) -> DomainManufacturingLineWithParents = { database.lineDao.getRecordWithParentsById(it).toDomainModel() }
+    val lineById: (ID) -> DomainManufacturingLineComplete = { database.lineDao.getRecordCompleteById(it).toDomainModel() }
 
-    val operations: (Int) -> Flow<List<DomainManufacturingOperationComplete>> = { pId -> database.operationDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
-    val operationById: (Int) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
+    val operations: (ID) -> Flow<List<DomainManufacturingOperationComplete>> = { pId -> database.operationDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val operationById: (ID) -> DomainManufacturingOperationComplete = { database.operationDao.getRecordCompleteById(it).toDomainModel() }
 
     val operationsFlows: Flow<List<DomainOperationsFlow>> = database.operationsFlowDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

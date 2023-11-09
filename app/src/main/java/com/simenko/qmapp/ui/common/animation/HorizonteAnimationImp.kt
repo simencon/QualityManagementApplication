@@ -23,7 +23,7 @@ class HorizonteAnimationImp constructor(
     override fun getRequiredScreenWidth(isSecondRowVisible: Int): Triple<Dp, Dp, Dp> {
         return Triple(
             if (physicalScreenWidth > limitToResize) physicalScreenWidth.dp else (physicalScreenWidth * (1 + 0.88 * isSecondRowVisible)).dp,
-            if (isSecondRowVisible == ZeroValue.num) physicalScreenWidth.dp else {
+            if (isSecondRowVisible == ZeroValue.num.toInt()) physicalScreenWidth.dp else {
                 if (physicalScreenWidth > limitToResize) (physicalScreenWidth * 0.57).dp else physicalScreenWidth.dp
             },
             if (physicalScreenWidth > limitToResize) (physicalScreenWidth * 0.43 * isSecondRowVisible).dp else (physicalScreenWidth * 0.88 * isSecondRowVisible).dp

@@ -52,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -71,12 +72,12 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val linesVisibility by viewModel.linesVisibility.collectAsStateWithLifecycle()
     val items by viewModel.operations.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setOperationsVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteOperationClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddOperationClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditOperationClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onOperationProductsClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setOperationsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setOperationsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteOperationClick(it) } }
+    val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddOperationClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditOperationClick(it) } }
+    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onOperationProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
 
@@ -105,11 +106,11 @@ fun Operations(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 @Composable
 fun OperationCard(
     operation: DomainManufacturingOperationComplete,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(operation.isExpanded).apply { targetState = !operation.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -168,8 +169,8 @@ fun OperationCard(
 @Composable
 fun Operation(
     operation: DomainManufacturingOperationComplete,
-    onClickDetails: (Int) -> Unit = {},
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit = {},
+    onClickProducts: (ID) -> Unit
 ) {
     val containerColor = when (operation.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer

@@ -1,6 +1,7 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
 import androidx.room.*
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.entities.DatabaseSample
 import com.simenko.qmapp.room.entities.DatabaseSampleComplete
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -13,7 +14,7 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
     abstract override fun getRecords(): List<DatabaseSample>
 
     @Query("SELECT s.* FROM `14_samples` as s where s.subOrderId = :parentId")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSample>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseSample>
 
     @Query("SELECT * FROM `14_samples` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseSample?
@@ -36,5 +37,5 @@ abstract class SampleDao : DaoBaseModel<DatabaseSample>, DaoTimeDependentModel<D
         "select s.* from `samples_results` s " +
                 "where s.subOrderId = :parentId;"
     )
-    abstract fun getRecordsByParentIdForUI(parentId: Int): Flow<List<DatabaseSampleComplete>>
+    abstract fun getRecordsByParentIdForUI(parentId: ID): Flow<List<DatabaseSampleComplete>>
 }

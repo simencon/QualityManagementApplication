@@ -8,6 +8,7 @@ import com.simenko.qmapp.di.DepartmentIdParameter
 import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.di.OperationIdParameter
 import com.simenko.qmapp.di.SubDepartmentIdParameter
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
@@ -48,12 +49,12 @@ class CompanyStructureViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
     val storage: Storage,
-    @CompanyIdParameter private val companyId: Int,
-    @DepartmentIdParameter private val depId: Int,
-    @SubDepartmentIdParameter private val subDepId: Int,
-    @ChannelIdParameter private val channelId: Int,
-    @LineIdParameter private val lineId: Int,
-    @OperationIdParameter private val operationId: Int,
+    @CompanyIdParameter private val companyId: ID,
+    @DepartmentIdParameter private val depId: ID,
+    @SubDepartmentIdParameter private val subDepId: ID,
+    @ChannelIdParameter private val channelId: ID,
+    @LineIdParameter private val lineId: ID,
+    @OperationIdParameter private val operationId: ID,
 ) : ViewModel() {
     private val _departmentsVisibility = MutableStateFlow(Pair(SelectedNumber(depId), NoRecord))
     private val _subDepartmentsVisibility = MutableStateFlow(Pair(SelectedNumber(subDepId), NoRecord))
@@ -208,7 +209,7 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteDepartmentClick(it: Int) {
+    fun onDeleteDepartmentClick(it: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -226,7 +227,7 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteSubDepartmentClick(it: Int) {
+    fun onDeleteSubDepartmentClick(it: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -244,7 +245,7 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteChannelClick(it: Int) {
+    fun onDeleteChannelClick(it: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -262,7 +263,7 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteLineClick(it: Int) {
+    fun onDeleteLineClick(it: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -280,7 +281,7 @@ class CompanyStructureViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteOperationClick(it: Int) {
+    fun onDeleteOperationClick(it: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -322,63 +323,63 @@ class CompanyStructureViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddDepartmentClick(it: Int) {
+    private fun onAddDepartmentClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
-    fun onEditDepartmentClick(it: Pair<Int, Int>) {
+    fun onEditDepartmentClick(it: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.DepartmentAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
-    fun onDepartmentProductsClick(it: Int) {
+    fun onDepartmentProductsClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    fun onAddSubDepartmentClick(it: Int) {
+    fun onAddSubDepartmentClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
-    fun onEditSubDepartmentClick(it: Pair<Int, Int>) {
+    fun onEditSubDepartmentClick(it: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.SubDepartmentAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
-    fun onSubDepartmentProductsClick(it: Int) {
+    fun onSubDepartmentProductsClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    fun onAddChannelClick(it: Int) {
+    fun onAddChannelClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
-    fun onEditChannelClick(it: Pair<Int, Int>) {
+    fun onEditChannelClick(it: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.ChannelAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
-    fun onChannelProductsClick(it: Int) {
+    fun onChannelProductsClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    private fun onAddLineClick(it: Int) {
+    private fun onAddLineClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
-    fun onEditLineClick(it: Pair<Int, Int>) {
+    fun onEditLineClick(it: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.LineAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
-    fun onLineProductsClick(it: Int) {
+    fun onLineProductsClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    fun onAddOperationClick(it: Int) {
+    fun onAddOperationClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
 
-    fun onEditOperationClick(it: Pair<Int, Int>) {
+    fun onEditOperationClick(it: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.OperationAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
-    fun onOperationProductsClick(it: Int) {
+    fun onOperationProductsClick(it: ID) {
         TODO("Not yet implemented")
     }
 }

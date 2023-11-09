@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.products
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.CompanyIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
@@ -26,11 +27,11 @@ class ProductsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
-    @CompanyIdParameter val companyId: Int,
-    @ProductLineIdParameter val productLineId: Int
+    @CompanyIdParameter val companyId: ID,
+    @ProductLineIdParameter val productLineId: ID
 ) : ViewModel() {
     private val _productLinesVisibility = MutableStateFlow(Pair(SelectedNumber(productLineId), NoRecord))
-    private val _productLines = repository.productLines(companyId.toLong())
+    private val _productLines = repository.productLines(companyId)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ class ProductsViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineClick(it: Int) {
+    fun onDeleteProductLineClick(it: ID) {
         TODO("Not yet implemented")
     }
 
@@ -76,24 +77,24 @@ class ProductsViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductLineClick(companyId: Int) {
+    private fun onAddProductLineClick(companyId: ID) {
         TODO("Not yet implemented")
     }
 
 
-    fun onEditProductLineClick(it: Pair<Int, Int>) {
+    fun onEditProductLineClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 
-    fun onProductLineKeysClick(it: Long) {
+    fun onProductLineKeysClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductLineKeys.withOpts(it.toString(), NoRecordStr.str))
     }
 
-    fun onProductLineCharacteristicsClick(it: Long) {
+    fun onProductLineCharacteristicsClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    fun onProductLineItemsClick(it: Long) {
+    fun onProductLineItemsClick(it: ID) {
         TODO("Not yet implemented")
     }
 

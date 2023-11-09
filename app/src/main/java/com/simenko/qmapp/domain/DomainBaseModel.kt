@@ -2,6 +2,8 @@ package com.simenko.qmapp.domain
 
 import androidx.compose.runtime.Stable
 
+typealias ID = Long
+
 @Stable
 abstract class DomainBaseModel<out T> {
     open var detailsVisibility: Boolean = false
@@ -10,10 +12,10 @@ abstract class DomainBaseModel<out T> {
     abstract fun getRecordId(): Any
 
     @Stable
-    abstract fun getParentId(): Int
+    abstract fun getParentId(): ID
 
     @Stable
-    open fun hasParentId(pId: Int): Boolean = false
+    open fun hasParentId(pId: ID): Boolean = false
 
     @Stable
     abstract fun setIsSelected(value: Boolean)
@@ -31,7 +33,7 @@ data object FillInSuccessState : FillInState()
 data class FillInErrorState(val errorMsg: String) : FillInState()
 
 @JvmInline
-value class SelectedNumber(val num: Int)
+value class SelectedNumber(val num: Long)
 
 val NoRecord = SelectedNumber(-1)
 val ZeroValue = SelectedNumber(0)

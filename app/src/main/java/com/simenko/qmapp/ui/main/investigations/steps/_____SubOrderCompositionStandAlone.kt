@@ -29,11 +29,11 @@ fun SubOrdersStandAlone(
         viewModel.setSubOrdersFilter(BaseFilter(typeId = ProcessControlOrderTypeId.num))
     }
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteSubOrderClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditProcessControlClick(it) } }
-    val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> { { so, completedById -> viewModel.showStatusUpdateDialog(currentSubOrder = so, performerId = completedById) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteSubOrderClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProcessControlClick(it) } }
+    val onClickStatusLambda = remember<(DomainSubOrderComplete, ID?) -> Unit> { { so, completedById -> viewModel.showStatusUpdateDialog(currentSubOrder = so, performerId = completedById) } }
 
     val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 

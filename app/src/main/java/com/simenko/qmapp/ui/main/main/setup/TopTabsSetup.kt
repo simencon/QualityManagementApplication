@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 
 data class TopTabsSetup(private val screen: Page = Page.values()[0], var onTabSelectAction: ((SelectedNumber) -> Unit)? = null) {
 
-    private val _selectedTab = MutableStateFlow(ZeroValue.num)
+    private val _selectedTab = MutableStateFlow(ZeroValue.num.toInt())
     val selectedTab = _selectedTab.asStateFlow()
 
     val setSelectedTab: (Int) -> Unit = {

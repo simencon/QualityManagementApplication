@@ -2,6 +2,7 @@ package com.simenko.qmapp.room.implementation.dao.products.characteristics
 
 import androidx.room.Dao
 import androidx.room.Query
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.products.DatabaseMetrix
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ abstract class MetricDao : DaoBaseModel<DatabaseMetrix> {
     abstract override fun getRecords(): List<DatabaseMetrix>
 
     @Query("select * from `8_metrixes` where charId = :parentId order by metrixOrder  asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseMetrix>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseMetrix>
 
     @Query("SELECT * FROM `8_metrixes` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseMetrix?
@@ -21,7 +22,7 @@ abstract class MetricDao : DaoBaseModel<DatabaseMetrix> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseMetrix>>
 
     @Query("select * from `8_metrixes` where charId = :parentId order by metrixOrder  asc")
-    abstract fun getRecordsCompleteForUI(parentId: Int): Flow<List<DatabaseMetrix>>
+    abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseMetrix>>
 
     @Query(
         "select m.* from items_tolerances as it " +

@@ -1,6 +1,7 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
 import androidx.room.*
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.entities.DatabaseSubOrder
 import com.simenko.qmapp.room.entities.DatabaseSubOrderComplete
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -13,7 +14,7 @@ abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentMod
     abstract override fun getRecords(): List<DatabaseSubOrder>
 
     @Query("select * from `13_sub_orders` where orderId = :parentId order by orderId asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSubOrder>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseSubOrder>
 
     @Query("SELECT * FROM `13_sub_orders` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseSubOrder?
@@ -44,12 +45,12 @@ abstract class SubOrderDao : DaoBaseModel<DatabaseSubOrder>, DaoTimeDependentMod
     abstract fun getRecordsByTimeRangeForUI(
         fromDate: Long,
         toDate: Long,
-        orderTypeId: Int,
-        orderStatusId: Int,
+        orderTypeId: ID,
+        orderStatusId: ID,
         orderNumber: String
     ): Flow<List<DatabaseSubOrderComplete>>
 
     @Transaction
     @Query("select so.* from `13_sub_orders` so where so.id = :id")
-    abstract fun getRecordByIdComplete(id: Int): DatabaseSubOrderComplete?
+    abstract fun getRecordByIdComplete(id: ID): DatabaseSubOrderComplete?
 }

@@ -1,5 +1,6 @@
 package com.simenko.qmapp.repository
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ProductsService
@@ -54,20 +55,20 @@ class ProductsRepository @Inject constructor(
     suspend fun syncComponentTolerances() = crudeOperations.syncRecordsAll(database.componentToleranceDao) { service.getComponentTolerances() }
     suspend fun syncComponentStageTolerances() = crudeOperations.syncRecordsAll(database.componentStageToleranceDao) { service.getComponentStageTolerances() }
 
-    val productLines: (Long) -> Flow<List<DomainProductLineComplete>> = { pId ->
+    val productLines: (ID) -> Flow<List<DomainProductLineComplete>> = { pId ->
         database.manufacturingProjectDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-    val productLine: suspend (Int) -> DomainProductLine = { database.manufacturingProjectDao.getRecordById(it.toString())?.toDomainModel() ?: DomainProductLine() }
+    val productLine: suspend (ID) -> DomainProductLine = { database.manufacturingProjectDao.getRecordById(it.toString())?.toDomainModel() ?: DomainProductLine() }
 
-    val productLineKeys: (Int) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId -> database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val productLineKeys: (ID) -> Flow<List<DomainKey.DomainKeyComplete>> = { pId -> database.productKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
 
-    val productLineCharacteristics: (Int) -> Flow<List<DomainCharacteristic.DomainCharacteristicComplete>> = { pId ->
+    val productLineCharacteristics: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicComplete>> = { pId ->
         database.characteristicDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
-    val metrics: (Int) -> Flow<List<DomainMetrix>> = { pId -> database.metricDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
+    val metrics: (ID) -> Flow<List<DomainMetrix>> = { pId -> database.metricDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } } }
 
-    val metricsByPrefixVersionIdActualityCharId: suspend (String, Int, Boolean, Int) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->
+    val metricsByPrefixVersionIdActualityCharId: suspend (String, ID, Boolean, ID) -> List<DomainMetrix> = { prefix, versionId, actual, charId ->
         database.metricDao.getMetricsByPrefixVersionIdActualityCharId(prefix, versionId.toString(), if (actual) "1" else "0", charId.toString()).map { it.toDomainModel() }
     }
 

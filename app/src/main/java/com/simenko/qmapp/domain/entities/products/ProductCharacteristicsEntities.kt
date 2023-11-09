@@ -3,6 +3,7 @@ package com.simenko.qmapp.domain.entities.products
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.room.entities.DatabaseResultTolerance
 import com.simenko.qmapp.room.entities.products.*
@@ -10,8 +11,8 @@ import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable
 data class DomainCharGroup constructor(
-    var id: Int = NoRecord.num,
-    val productLineId: Long = NoRecord.num.toLong(),
+    var id: ID = NoRecord.num,
+    val productLineId: ID = NoRecord.num,
     var ishElement: String? = EmptyString.str
 ) : DomainBaseModel<DatabaseCharGroup>() {
     override fun getRecordId() = id
@@ -23,7 +24,7 @@ data class DomainCharGroup constructor(
         val productLine: DomainProductLine.DomainProductLineComplete = DomainProductLine.DomainProductLineComplete()
     ): DomainBaseModel<DatabaseCharGroup.DatabaseCharGroupComplete>() {
         override fun getRecordId() = charGroup.id
-        override fun getParentId() = charGroup.productLineId.toInt()
+        override fun getParentId() = charGroup.productLineId
         override fun setIsSelected(value: Boolean) {}
 
         override fun toDatabaseModel() = DatabaseCharGroup.DatabaseCharGroupComplete(
@@ -35,8 +36,8 @@ data class DomainCharGroup constructor(
 
 @Stable
 data class DomainCharSubGroup constructor(
-    var id: Int = NoRecord.num,
-    val charGroupId: Long = NoRecord.num.toLong(),
+    var id: ID = NoRecord.num,
+    val charGroupId: ID = NoRecord.num,
     var ishElement: String? = EmptyString.str,
     var measurementGroupRelatedTime: Double? = null
 ) : DomainBaseModel<DatabaseCharSubGroup>() {
@@ -49,7 +50,7 @@ data class DomainCharSubGroup constructor(
         val charGroup: DomainCharGroup.DomainCharGroupComplete = DomainCharGroup.DomainCharGroupComplete()
     ) : DomainBaseModel<DatabaseCharSubGroup.DatabaseCharSubGroupComplete>() {
         override fun getRecordId() = charSubGroup.id
-        override fun getParentId() = charSubGroup.charGroupId.toInt()
+        override fun getParentId() = charSubGroup.charGroupId
         override fun setIsSelected(value: Boolean) {}
         override fun toDatabaseModel() = DatabaseCharSubGroup.DatabaseCharSubGroupComplete (
             charSubGroup = charSubGroup.toDatabaseModel(),
@@ -61,8 +62,8 @@ data class DomainCharSubGroup constructor(
 
 @Stable
 data class DomainCharacteristic constructor(
-    var id: Int = NoRecord.num,
-    var ishSubCharId: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var ishSubCharId: ID = NoRecord.num,
     var charOrder: Int? = null,
     var charDesignation: String? = null,
     var charDescription: String? = null,
@@ -72,7 +73,7 @@ data class DomainCharacteristic constructor(
 ) : DomainBaseModel<DatabaseCharacteristic>() {
     override fun getRecordId() = id
     override fun getParentId() = ishSubCharId
-    override fun hasParentId(pId: Int) = pId != 0
+    override fun hasParentId(pId: ID) = pId != 0L
 
     override fun setIsSelected(value: Boolean) {
         isSelected = value
@@ -99,9 +100,9 @@ data class DomainCharacteristic constructor(
 
 @Stable
 data class DomainMetrix constructor(
-    var id: Int = NoRecord.num,
-    var charId: Int = NoRecord.num,
-    var metrixOrder: Int? = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var charId: ID = NoRecord.num,
+    var metrixOrder: Int? = NoRecord.num.toInt(),
     var metrixDesignation: String? = EmptyString.str,
     var metrixDescription: String? = EmptyString.str,
     var units: String? = EmptyString.str,
@@ -115,9 +116,9 @@ data class DomainMetrix constructor(
 }
 
 data class DomainCharacteristicProductKind(
-    val id: Long,
-    val charId: Long,
-    val productKindId: Long
+    val id: ID,
+    val charId: ID,
+    val productKindId: ID
 ) : DomainBaseModel<DatabaseCharacteristicProductKind>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -126,9 +127,9 @@ data class DomainCharacteristicProductKind(
 }
 
 data class DomainCharacteristicComponentKind(
-    val id: Long,
-    val charId: Long,
-    val componentKindId: Long
+    val id: ID,
+    val charId: ID,
+    val componentKindId: ID
 ) : DomainBaseModel<DatabaseCharacteristicComponentKind>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -137,9 +138,9 @@ data class DomainCharacteristicComponentKind(
 }
 
 data class DomainCharacteristicComponentStageKind(
-    val id: Long,
-    val charId: Long,
-    val componentStageKindId: Long
+    val id: ID,
+    val charId: ID,
+    val componentStageKindId: ID
 ) : DomainBaseModel<DatabaseCharacteristicComponentStageKind>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -149,7 +150,7 @@ data class DomainCharacteristicComponentStageKind(
 
 @Stable
 data class DomainResultTolerance(
-    var id: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
     var nominal: Float? = null,
     var lsl: Float? = null,
     var usl: Float? = null
@@ -161,9 +162,9 @@ data class DomainResultTolerance(
 }
 
 data class DomainProductTolerance(
-    var id: Int,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var id: ID,
+    var metrixId: ID?,
+    var versionId: ID?,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -176,9 +177,9 @@ data class DomainProductTolerance(
 }
 
 data class DomainComponentTolerance(
-    var id: Int,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var id: ID,
+    var metrixId: ID?,
+    var versionId: ID?,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -191,9 +192,9 @@ data class DomainComponentTolerance(
 }
 
 data class DomainComponentInStageTolerance(
-    var id: Int,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var id: ID,
+    var metrixId: ID?,
+    var versionId: ID?,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -208,8 +209,8 @@ data class DomainComponentInStageTolerance(
 data class DomainItemTolerance(
     var id: String,
     var fId: String,
-    var metrixId: Int,
-    var versionId: Int,
+    var metrixId: ID,
+    var versionId: ID,
     var fVersionId: String,
     var nominal: Float?,
     var lsl: Float?,

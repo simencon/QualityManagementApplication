@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.DomainKey
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
@@ -60,9 +61,9 @@ fun ProductLineKeys(
     val productLine by viewModel.productLine.collectAsStateWithLifecycle()
     val items by viewModel.productKeys.collectAsStateWithLifecycle(listOf())
 
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setProductLineKeysVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteProductLineKeyClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditProductLineKeyClick(it) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductLineKeysVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductLineKeyClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductLineKeyClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
@@ -90,9 +91,9 @@ fun ProductLineKeys(
 fun KeyCard(
     modifier: Modifier = Modifier,
     key: DomainKey.DomainKeyComplete,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(key.isExpanded).apply { targetState = !key.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")

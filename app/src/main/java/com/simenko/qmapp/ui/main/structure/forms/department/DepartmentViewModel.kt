@@ -8,11 +8,9 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.NoString
-import com.simenko.qmapp.domain.entities.DomainCompany
 import com.simenko.qmapp.domain.entities.DomainDepartment
-import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -24,6 +22,7 @@ import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.EmployeesFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,13 +38,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class DepartmentViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @CompanyIdParameter private val companyId: Int,
-    @DepartmentIdParameter private val depId: Int
+    @CompanyIdParameter private val companyId: ID,
+    @DepartmentIdParameter private val depId: ID
 ) : ViewModel() {
     private val _department = MutableStateFlow(DomainDepartment.DomainDepartmentComplete())
 
@@ -67,7 +67,7 @@ class DepartmentViewModel @Inject constructor(
         }
     }
 
-    private fun prepareDepartment(companyId: Int) {
+    private fun prepareDepartment(companyId: ID) {
         _department.value = DomainDepartment.DomainDepartmentComplete(
             department = DomainDepartment(companyId = companyId),
             company = repository.companyById(companyId)
@@ -97,15 +97,15 @@ class DepartmentViewModel @Inject constructor(
     }
 
     private val _companyEmployees: Flow<List<DomainEmployeeComplete>> = repository.employeesComplete(EmployeesFilter(parentId = companyId))
-    val companyEmployees: StateFlow<List<Triple<Int, String, Boolean>>> = _companyEmployees.flatMapLatest { employees ->
+    val companyEmployees: StateFlow<List<Triple<ID, String, Boolean>>> = _companyEmployees.flatMapLatest { employees ->
         _department.flatMapLatest { department ->
-            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            val cpy = mutableListOf<Triple<ID, String, Boolean>>()
             employees.forEach { cpy.add(Triple(it.teamMember.id, it.teamMember.fullName, it.teamMember.id == department.depManager.id)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setDepartmentManager(it: Int) {
+    fun setDepartmentManager(it: ID) {
         if (_department.value.department.depManager != it) {
             _department.value = _department.value.copy(department = _department.value.department.copy(depManager = it))
             _fillInErrors.value = _fillInErrors.value.copy(departmentManagerError = false)
@@ -128,7 +128,7 @@ class DepartmentViewModel @Inject constructor(
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
         val errorMsg = buildString {
-            if (_department.value.department.depOrder == NoRecord.num) {
+            if (_department.value.department.depOrder == NoRecord.num.toInt()) {
                 _fillInErrors.value = _fillInErrors.value.copy(departmentOrderError = true)
                 append("Department order field is mandatory\n")
             }
@@ -170,7 +170,7 @@ class DepartmentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
+    private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
