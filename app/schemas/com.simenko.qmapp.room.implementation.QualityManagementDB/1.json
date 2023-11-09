@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f4f855de694947178bdb89e2347e7f6a",
+    "identityHash": "92b8ca473936d7611f8ca7d4708019b0",
     "entities": [
       {
         "tableName": "user_roles",
@@ -1016,6 +1016,24 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_0_manufacturing_project_companyId` ON `${TABLE_NAME}` (`companyId`)"
+          },
+          {
+            "name": "index_0_manufacturing_project_factoryLocationDep",
+            "unique": false,
+            "columnNames": [
+              "factoryLocationDep"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_0_manufacturing_project_factoryLocationDep` ON `${TABLE_NAME}` (`factoryLocationDep`)"
+          },
+          {
+            "name": "index_0_manufacturing_project_processOwner",
+            "unique": false,
+            "columnNames": [
+              "processOwner"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_0_manufacturing_project_processOwner` ON `${TABLE_NAME}` (`processOwner`)"
           }
         ],
         "foreignKeys": [
@@ -1197,7 +1215,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_10_1_d_element_ish_model_productLineId",
+            "unique": false,
+            "columnNames": [
+              "productLineId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_10_1_d_element_ish_model_productLineId` ON `${TABLE_NAME}` (`productLineId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "0_manufacturing_project",
@@ -1247,7 +1275,17 @@
             "id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_0_ish_sub_characteristics_charGroupId",
+            "unique": false,
+            "columnNames": [
+              "charGroupId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_0_ish_sub_characteristics_charGroupId` ON `${TABLE_NAME}` (`charGroupId`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "10_1_d_element_ish_model",
@@ -4690,7 +4728,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f4f855de694947178bdb89e2347e7f6a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '92b8ca473936d7611f8ca7d4708019b0')"
     ]
   }
 }

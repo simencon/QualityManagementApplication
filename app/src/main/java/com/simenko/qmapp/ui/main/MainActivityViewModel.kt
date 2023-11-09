@@ -150,9 +150,14 @@ class MainActivityViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
     }
 
+    private val instance = this
+
     private fun refreshMasterDataFromRepository() = viewModelScope.launch {
         try {
             pullRefreshSetup.value.updateLoadingState(Pair(true, null))
+
+//            todo-me -> this function called twice on the beginning (looks like the same problem as slow UI on the beginning)
+            println("MainActivityViewModel instance (syncData) - $instance")
 
             systemRepository.syncUserRoles()
             systemRepository.syncUsers()
