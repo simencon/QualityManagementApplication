@@ -3,6 +3,7 @@ package com.simenko.qmapp.domain.entities
 import androidx.compose.runtime.Stable
 import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.room.entities.*
@@ -10,13 +11,13 @@ import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable
 data class DomainEmployee(
-    var id: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
     var fullName: String = EmptyString.str,
-    var companyId: Int = NoRecord.num,
-    var departmentId: Int = NoRecord.num,
-    var subDepartmentId: Int? = null,
+    var companyId: ID = NoRecord.num,
+    var departmentId: ID = NoRecord.num,
+    var subDepartmentId: ID? = null,
     var department: String = EmptyString.str,
-    var jobRoleId: Int = NoRecord.num,
+    var jobRoleId: ID = NoRecord.num,
     var jobRole: String = EmptyString.str,
     var email: String? = null,
     var passWord: String? = null,
@@ -29,13 +30,11 @@ data class DomainEmployee(
     }
 
     override fun getName() = fullName
-    override fun toDatabaseModel(): DatabaseEmployee {
-        return ObjectTransformer(DomainEmployee::class, DatabaseEmployee::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(DomainEmployee::class, DatabaseEmployee::class).transform(this)
 }
 
 data class DomainCompany(
-    var id: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
     var companyName: String? = null,
     var companyCountry: String? = null,
     var companyCity: String? = null,
@@ -43,9 +42,9 @@ data class DomainCompany(
     var companyPhoneNo: String? = null,
     var companyPostCode: String? = null,
     var companyRegion: String? = null,
-    var companyOrder: Int = NoRecord.num,
+    var companyOrder: Int = NoRecord.num.toInt(),
     var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int = NoRecord.num,
+    var companyManagerId: ID = NoRecord.num,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseCompany>() {
     override fun getRecordId() = id
@@ -58,8 +57,8 @@ data class DomainCompany(
 }
 
 data class DomainJobRole(
-    var id: Int = NoRecord.num,
-    var companyId: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var companyId: ID = NoRecord.num,
     var jobRoleDescription: String = EmptyString.str,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseJobRole>() {
@@ -74,13 +73,13 @@ data class DomainJobRole(
 
 @Stable
 data class DomainDepartment(
-    var id: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
     var depAbbr: String? = EmptyString.str,
     var depName: String? = EmptyString.str,
-    var depManager: Int? = NoRecord.num,
+    var depManager: ID? = NoRecord.num,
     var depOrganization: String? = EmptyString.str,
-    var depOrder: Int? = NoRecord.num,
-    var companyId: Int? = NoRecord.num,
+    var depOrder: Int? = NoRecord.num.toInt(),
+    var companyId: ID? = NoRecord.num,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseDepartment>() {
     override fun getRecordId() = id
@@ -101,23 +100,21 @@ data class DomainDepartment(
         override fun getRecordId() = department.id
         override fun getParentId() = department.companyId ?: NoRecord.num
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseDepartment.DatabaseDepartmentsComplete {
-            return DatabaseDepartment.DatabaseDepartmentsComplete(
-                department = department.toDatabaseModel(),
-                depManager = depManager.toDatabaseModel(),
-                company = company.toDatabaseModel()
-            )
-        }
+        override fun toDatabaseModel() = DatabaseDepartment.DatabaseDepartmentsComplete(
+            department = department.toDatabaseModel(),
+            depManager = depManager.toDatabaseModel(),
+            company = company.toDatabaseModel()
+        )
     }
 }
 
 @Stable
 data class DomainSubDepartment(
-    var id: Int = NoRecord.num,
-    var depId: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var depId: ID = NoRecord.num,
     var subDepAbbr: String? = EmptyString.str,
     var subDepDesignation: String? = EmptyString.str,
-    var subDepOrder: Int? = NoRecord.num,
+    var subDepOrder: Int? = NoRecord.num.toInt(),
     var isSelected: Boolean = false,
     override var detailsVisibility: Boolean = false,
     override var isExpanded: Boolean = false
@@ -134,46 +131,43 @@ data class DomainSubDepartment(
         val subDepartment: DomainSubDepartment = DomainSubDepartment(),
         val department: DomainDepartment = DomainDepartment()
     ) : DomainBaseModel<DatabaseSubDepartment.DatabaseSubDepartmentComplete>() {
-        override fun getRecordId(): Any = subDepartment.id
-        override fun getParentId(): Int = subDepartment.depId
+        override fun getRecordId() = subDepartment.id
+        override fun getParentId() = subDepartment.depId
         override fun setIsSelected(value: Boolean) {}
 
-        override fun toDatabaseModel(): DatabaseSubDepartment.DatabaseSubDepartmentComplete {
-            return DatabaseSubDepartment.DatabaseSubDepartmentComplete(
-                subDepartment = this.subDepartment.toDatabaseModel(),
-                department = this.department.toDatabaseModel()
-            )
-        }
+        override fun toDatabaseModel() = DatabaseSubDepartment.DatabaseSubDepartmentComplete(
+            subDepartment = this.subDepartment.toDatabaseModel(),
+            department = this.department.toDatabaseModel()
+        )
     }
 
     data class DomainSubDepartmentWithParents(
-        val companyId: Int = NoRecord.num,
-        val companyOrder: Int = NoRecord.num,
+        val companyId: ID = NoRecord.num,
+        val companyOrder: Int = NoRecord.num.toInt(),
         val companyName: String = NoString.str,
-        val departmentId: Int = NoRecord.num,
-        val depOrder: Int = NoRecord.num,
+        val departmentId: ID = NoRecord.num,
+        val depOrder: Int = NoRecord.num.toInt(),
         val depAbbr: String? = NoString.str,
         val depName: String? = NoString.str,
-        val id: Int = NoRecord.num,
-        val subDepOrder: Int = NoRecord.num,
+        val id: ID = NoRecord.num,
+        val subDepOrder: Int = NoRecord.num.toInt(),
         val subDepAbbr: String? = NoString.str,
         val subDepDesignation: String? = NoString.str
     ) : DomainBaseModel<DatabaseSubDepartment.DatabaseSubDepartmentWithParents>() {
         override fun getRecordId() = this.id
         override fun getParentId() = this.departmentId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseSubDepartment.DatabaseSubDepartmentWithParents =
-            ObjectTransformer(DomainSubDepartmentWithParents::class, DatabaseSubDepartment.DatabaseSubDepartmentWithParents::class).transform(this)
+        override fun toDatabaseModel() = ObjectTransformer(DomainSubDepartmentWithParents::class, DatabaseSubDepartment.DatabaseSubDepartmentWithParents::class).transform(this)
     }
 }
 
 @Stable
 data class DomainManufacturingChannel(
-    var id: Int = NoRecord.num,
-    var subDepId: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var subDepId: ID = NoRecord.num,
     var channelAbbr: String? = EmptyString.str,
     var channelDesignation: String? = EmptyString.str,
-    var channelOrder: Int? = NoRecord.num,
+    var channelOrder: Int? = NoRecord.num.toInt(),
     var isSelected: Boolean = false,
     override var detailsVisibility: Boolean = false,
     override var isExpanded: Boolean = false
@@ -190,50 +184,48 @@ data class DomainManufacturingChannel(
         val channel: DomainManufacturingChannel = DomainManufacturingChannel(),
         val subDepartmentWithParents: DomainSubDepartment.DomainSubDepartmentWithParents = DomainSubDepartment.DomainSubDepartmentWithParents()
     ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete>() {
-        override fun getRecordId(): Any = channel.id
-        override fun getParentId(): Int = channel.subDepId
+        override fun getRecordId() = channel.id
+        override fun getParentId() = channel.subDepId
         override fun setIsSelected(value: Boolean) {}
 
-        override fun toDatabaseModel(): DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete {
-            return DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete(
-                channel = this.channel.toDatabaseModel(),
-                subDepartmentWithParents = this.subDepartmentWithParents.toDatabaseModel()
-            )
-        }
+        override fun toDatabaseModel() = DatabaseManufacturingChannel.DatabaseManufacturingChannelComplete(
+            channel = this.channel.toDatabaseModel(),
+            subDepartmentWithParents = this.subDepartmentWithParents.toDatabaseModel()
+        )
     }
 
     data class DomainManufacturingChannelWithParents(
-        val companyId: Int = NoRecord.num,
-        val companyOrder: Int = NoRecord.num,
+        val companyId: ID = NoRecord.num,
+        val companyOrder: Int = NoRecord.num.toInt(),
         val companyName: String = EmptyString.str,
-        val departmentId: Int = NoRecord.num,
-        val depOrder: Int = NoRecord.num,
+        val departmentId: ID = NoRecord.num,
+        val depOrder: Int = NoRecord.num.toInt(),
         val depAbbr: String? = EmptyString.str,
         val depName: String? = EmptyString.str,
-        val subDepartmentId: Int = NoRecord.num,
-        val subDepOrder: Int = NoRecord.num,
+        val subDepartmentId: ID = NoRecord.num,
+        val subDepOrder: Int = NoRecord.num.toInt(),
         val subDepAbbr: String? = EmptyString.str,
         val subDepDesignation: String? = EmptyString.str,
-        val id: Int = NoRecord.num,
-        val channelOrder: Int = NoRecord.num,
+        val id: ID = NoRecord.num,
+        val channelOrder: Int = NoRecord.num.toInt(),
         val channelAbbr: String? = EmptyString.str,
         val channelDesignation: String? = EmptyString.str
     ) : DomainBaseModel<DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents>() {
         override fun getRecordId() = this.id
         override fun getParentId() = this.subDepartmentId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents =
+        override fun toDatabaseModel() =
             ObjectTransformer(DomainManufacturingChannelWithParents::class, DatabaseManufacturingChannel.DatabaseManufacturingChannelWithParents::class).transform(this)
     }
 }
 
 @Stable
 data class DomainManufacturingLine(
-    var id: Int = NoRecord.num,
-    var chId: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var chId: ID = NoRecord.num,
     var lineAbbr: String = EmptyString.str,
     var lineDesignation: String = EmptyString.str,
-    var lineOrder: Int = NoRecord.num,
+    var lineOrder: Int = NoRecord.num.toInt(),
     var isSelected: Boolean = false,
     override var detailsVisibility: Boolean = false,
     override var isExpanded: Boolean = false
@@ -247,57 +239,54 @@ data class DomainManufacturingLine(
     override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingLine::class, DatabaseManufacturingLine::class).transform(this)
 
     data class DomainManufacturingLineWithParents(
-        val companyId: Int = NoRecord.num,
-        val companyOrder: Int = NoRecord.num,
+        val companyId: ID = NoRecord.num,
+        val companyOrder: Int = NoRecord.num.toInt(),
         val companyName: String = EmptyString.str,
-        val departmentId: Int = NoRecord.num,
-        val depOrder: Int = NoRecord.num,
+        val departmentId: ID = NoRecord.num,
+        val depOrder: Int = NoRecord.num.toInt(),
         val depAbbr: String? = EmptyString.str,
         val depName: String? = EmptyString.str,
-        val subDepartmentId: Int = NoRecord.num,
-        val subDepOrder: Int = NoRecord.num,
+        val subDepartmentId: ID = NoRecord.num,
+        val subDepOrder: Int = NoRecord.num.toInt(),
         val subDepAbbr: String? = EmptyString.str,
         val subDepDesignation: String? = EmptyString.str,
-        val channelId: Int = NoRecord.num,
-        val channelOrder: Int = NoRecord.num,
+        val channelId: ID = NoRecord.num,
+        val channelOrder: Int = NoRecord.num.toInt(),
         val channelAbbr: String? = EmptyString.str,
         val channelDesignation: String? = EmptyString.str,
-        val id: Int = NoRecord.num,
-        val lineOrder: Int = NoRecord.num,
+        val id: ID = NoRecord.num,
+        val lineOrder: Int = NoRecord.num.toInt(),
         val lineAbbr: String? = EmptyString.str,
         val lineDesignation: String = EmptyString.str
     ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineWithParents>() {
         override fun getRecordId() = this.id
         override fun getParentId() = this.departmentId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineWithParents =
-            ObjectTransformer(DomainManufacturingLineWithParents::class, DatabaseManufacturingLine.DatabaseManufacturingLineWithParents::class).transform(this)
+        override fun toDatabaseModel() = ObjectTransformer(DomainManufacturingLineWithParents::class, DatabaseManufacturingLine.DatabaseManufacturingLineWithParents::class).transform(this)
     }
 
     data class DomainManufacturingLineComplete(
         val line: DomainManufacturingLine = DomainManufacturingLine(),
         val channelWithParents: DomainManufacturingChannel.DomainManufacturingChannelWithParents = DomainManufacturingChannel.DomainManufacturingChannelWithParents()
     ) : DomainBaseModel<DatabaseManufacturingLine.DatabaseManufacturingLineComplete>() {
-        override fun getRecordId(): Any = line.id
-        override fun getParentId(): Int = line.chId
+        override fun getRecordId() = line.id
+        override fun getParentId() = line.chId
         override fun setIsSelected(value: Boolean) {}
 
-        override fun toDatabaseModel(): DatabaseManufacturingLine.DatabaseManufacturingLineComplete {
-            return DatabaseManufacturingLine.DatabaseManufacturingLineComplete(
-                line = this.line.toDatabaseModel(),
-                channelWithParents = this.channelWithParents.toDatabaseModel()
-            )
-        }
+        override fun toDatabaseModel() = DatabaseManufacturingLine.DatabaseManufacturingLineComplete(
+            line = this.line.toDatabaseModel(),
+            channelWithParents = this.channelWithParents.toDatabaseModel()
+        )
     }
 }
 
 @Stable
 data class DomainManufacturingOperation(
-    var id: Int = NoRecord.num,
-    var lineId: Int = NoRecord.num,
+    var id: ID = NoRecord.num,
+    var lineId: ID = NoRecord.num,
     var operationAbbr: String = EmptyString.str,
     var operationDesignation: String = EmptyString.str,
-    var operationOrder: Int = NoRecord.num,
+    var operationOrder: Int = NoRecord.num.toInt(),
     var equipment: String? = null,
     var isSelected: Boolean = false
 ) : DomainBaseModel<DatabaseManufacturingOperation>() {
@@ -316,24 +305,22 @@ data class DomainManufacturingOperation(
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete>() {
-        override fun getRecordId(): Any = operation.id
-        override fun getParentId(): Int = operation.lineId
+        override fun getRecordId() = operation.id
+        override fun getParentId() = operation.lineId
         override fun setIsSelected(value: Boolean) {}
 
-        override fun toDatabaseModel(): DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete {
-            return DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete(
-                operation = this.operation.toDatabaseModel(),
-                lineWithParents = this.lineWithParents.toDatabaseModel(),
-                previousOperations = this.previousOperations.map { it.toDatabaseModel() }
-            )
-        }
+        override fun toDatabaseModel() = DatabaseManufacturingOperation.DatabaseManufacturingOperationComplete(
+            operation = this.operation.toDatabaseModel(),
+            lineWithParents = this.lineWithParents.toDatabaseModel(),
+            previousOperations = this.previousOperations.map { it.toDatabaseModel() }
+        )
     }
 }
 
 data class DomainOperationsFlow(
-    var id: Int,
-    var currentOperationId: Int,
-    var previousOperationId: Int
+    var id: ID,
+    var currentOperationId: ID,
+    var previousOperationId: ID
 ) : DomainBaseModel<DatabaseOperationsFlow>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -341,38 +328,36 @@ data class DomainOperationsFlow(
     override fun toDatabaseModel() = ObjectTransformer(DomainOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)
 
     data class DomainOperationsFlowComplete(
-        val id: Int = NoRecord.num,
-        val currentOperationId: Int = NoRecord.num,
-        val previousOperationId: Int = NoRecord.num,
-        val operationOrder: Int = NoRecord.num,
+        val id: ID = NoRecord.num,
+        val currentOperationId: ID = NoRecord.num,
+        val previousOperationId: ID = NoRecord.num,
+        val operationOrder: Int = NoRecord.num.toInt(),
         val operationAbbr: String? = null,
         val operationDesignation: String? = null,
         val equipment: String? = null,
-        val companyId: Int = NoRecord.num,
-        val companyOrder: Int = NoRecord.num,
+        val companyId: ID = NoRecord.num,
+        val companyOrder: Int = NoRecord.num.toInt(),
         val companyName: String = EmptyString.str,
-        val depId: Int = NoRecord.num,
-        val depOrder: Int = NoRecord.num,
+        val depId: ID = NoRecord.num,
+        val depOrder: Int = NoRecord.num.toInt(),
         val depAbbr: String? = null,
-        val subDepId: Int = NoRecord.num,
-        val subDepOrder: Int = NoRecord.num,
+        val subDepId: ID = NoRecord.num,
+        val subDepOrder: Int = NoRecord.num.toInt(),
         val subDepAbbr: String? = null,
-        val channelId: Int = NoRecord.num,
-        val channelOrder: Int = NoRecord.num,
+        val channelId: ID = NoRecord.num,
+        val channelOrder: Int = NoRecord.num.toInt(),
         val channelAbbr: String? = null,
-        val lineId: Int = NoRecord.num,
-        val lineOrder: Int = NoRecord.num,
+        val lineId: ID = NoRecord.num,
+        val lineOrder: Int = NoRecord.num.toInt(),
         val lineAbbr: String? = null,
         val toBeDeleted: Boolean = false,
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
-    ): DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
-        override fun getRecordId(): Int = this.id
-        override fun getParentId(): Int = currentOperationId
+    ) : DomainBaseModel<DatabaseOperationsFlow.DatabaseOperationsFlowComplete>() {
+        override fun getRecordId() = this.id
+        override fun getParentId() = currentOperationId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel(): DatabaseOperationsFlow.DatabaseOperationsFlowComplete
-                = ObjectTransformer(DomainOperationsFlowComplete::class, DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class).transform(this)
-
+        override fun toDatabaseModel() = ObjectTransformer(DomainOperationsFlowComplete::class, DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class).transform(this)
         fun toSimplestModel(): DomainOperationsFlow = DomainOperationsFlow(id = this.id, currentOperationId = this.currentOperationId, previousOperationId = this.previousOperationId)
 
         override fun equals(other: Any?): Boolean {
@@ -408,8 +393,8 @@ data class DomainOperationsFlow(
         }
 
         override fun hashCode(): Int {
-            var result = currentOperationId
-            result = 31 * result + previousOperationId
+            var result = currentOperationId.toInt()
+            result = 31 * result + previousOperationId.toInt()
             return result
         }
     }
@@ -434,13 +419,11 @@ data class DomainEmployeeComplete(
         isSelected = value
     }
 
-    override fun toDatabaseModel(): DatabaseEmployeeComplete {
-        return DatabaseEmployeeComplete(
-            teamMember = teamMember.toDatabaseModel(),
-            company = company?.toDatabaseModel(),
-            department = department?.toDatabaseModel(),
-            subDepartment = subDepartment?.toDatabaseModel(),
-            jobRole = jobRole?.toDatabaseModel()
-        )
-    }
+    override fun toDatabaseModel() = DatabaseEmployeeComplete(
+        teamMember = teamMember.toDatabaseModel(),
+        company = company?.toDatabaseModel(),
+        department = department?.toDatabaseModel(),
+        subDepartment = subDepartment?.toDatabaseModel(),
+        jobRole = jobRole?.toDatabaseModel()
+    )
 }

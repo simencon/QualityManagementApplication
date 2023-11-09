@@ -487,8 +487,8 @@ class UserRepository @Inject constructor(
 }
 
 sealed class UserState
-object NoState : UserState()
-object UnregisteredState : UserState()
+data object NoState : UserState()
+data object UnregisteredState : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") :
     UserState()
 

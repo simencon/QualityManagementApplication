@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.other.Status
@@ -31,8 +32,8 @@ class ChannelViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @SubDepartmentIdParameter private val subDepId: Int,
-    @ChannelIdParameter private val channelId: Int,
+    @SubDepartmentIdParameter private val subDepId: ID,
+    @ChannelIdParameter private val channelId: ID,
 ) : ViewModel() {
     private val _channel = MutableStateFlow(DomainManufacturingChannel.DomainManufacturingChannelComplete())
 
@@ -54,7 +55,7 @@ class ChannelViewModel @Inject constructor(
         }
     }
 
-    private fun prepareLine(subDepId: Int) {
+    private fun prepareLine(subDepId: ID) {
         _channel.value = DomainManufacturingChannel.DomainManufacturingChannelComplete(
             channel = DomainManufacturingChannel(subDepId = subDepId),
             subDepartmentWithParents = repository.subDepartmentWithParentsById(subDepId)
@@ -93,7 +94,7 @@ class ChannelViewModel @Inject constructor(
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
         val errorMsg = buildString {
-            if (_channel.value.channel.channelOrder == NoRecord.num) {
+            if (_channel.value.channel.channelOrder == NoRecord.num.toInt()) {
                 _fillInErrors.value = _fillInErrors.value.copy(channelOrderError = true)
                 append("Channel order field is mandatory\n")
             }
@@ -127,7 +128,7 @@ class ChannelViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
+    private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {

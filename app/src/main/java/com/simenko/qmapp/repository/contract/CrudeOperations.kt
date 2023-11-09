@@ -1,6 +1,7 @@
 package com.simenko.qmapp.repository.contract
 
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.other.Event
 import com.simenko.qmapp.other.Resource
 import com.simenko.qmapp.repository.UserRepository
@@ -101,7 +102,7 @@ class CrudeOperations @Inject constructor(
     suspend fun <N, DB, DBC, DM, DAO> syncStatusRecordsByTimeRange(
         timeRange: Pair<Long, Long>,
         dao: DAO,
-        daoReadDetailedRecordById: suspend (Int) -> DBC?,
+        daoReadDetailedRecordById: suspend (ID) -> DBC?,
         serviceGetRecordsByTimeRange: suspend (Pair<Long, Long>) -> Response<List<N>>,
     ): List<NotificationData> where
             N : NetworkBaseModel<DB>,
@@ -122,7 +123,7 @@ class CrudeOperations @Inject constructor(
                 it1.filter { it2 -> it2.getRecordId() !in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToInsert ->
                     dao.insertRecords(listToInsert)
                     listToInsert.forEach { record ->
-                        daoReadDetailedRecordById(record.getRecordId().toString().toInt())?.let { recordComplete ->
+                        daoReadDetailedRecordById(record.getRecordId().toString().toLong())?.let { recordComplete ->
                             result.add(recordComplete.toNotificationData(NotificationReasons.CREATED))
                         }
                     }
@@ -130,7 +131,7 @@ class CrudeOperations @Inject constructor(
                 it1.filter { it2 -> it2.getRecordId() in dbOrders.map { it3 -> it3.getRecordId() } }.let { listToUpdate ->
                     dao.updateRecords(listToUpdate)
                     listToUpdate.forEach { record ->
-                        daoReadDetailedRecordById(record.getRecordId().toString().toInt())?.let { recordComplete ->
+                        daoReadDetailedRecordById(record.getRecordId().toString().toLong())?.let { recordComplete ->
                             result.add(recordComplete.toNotificationData(NotificationReasons.CHANGED))
                         }
                     }
@@ -140,7 +141,7 @@ class CrudeOperations @Inject constructor(
             dbOrders.subtract(ntOrders.toSet()).filter { it1 -> it1.getRecordId() !in ntOrders.map { it2 -> it2.getRecordId() } }.let { listToDelete ->
                 dao.deleteRecords(listToDelete)
                 listToDelete.forEach { record ->
-                    daoReadDetailedRecordById(record.getRecordId().toString().toInt())?.let { recordComplete ->
+                    daoReadDetailedRecordById(record.getRecordId().toString().toLong())?.let { recordComplete ->
                         result.add(recordComplete.toNotificationData(NotificationReasons.DELETED))
                     }
                 }

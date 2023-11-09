@@ -167,7 +167,7 @@ sealed class Route(
                 link = "${NavRouteName.employees}${arg(NavArguments.employeeId)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.employeeId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -178,7 +178,7 @@ sealed class Route(
                 link = "${NavRouteName.employee_add_edit}${arg(NavArguments.employeeId)}",
                 arguments = listOf(
                     navArgument(name = NavArguments.employeeId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -257,27 +257,27 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.companyId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.departmentId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.subDepartmentId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.channelId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.lineId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.operationId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -294,11 +294,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.companyId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.departmentId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -315,11 +315,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.departmentId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.subDepartmentId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -336,11 +336,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.subDepartmentId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.channelId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -357,11 +357,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.channelId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.lineId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -378,11 +378,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.lineId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.operationId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -401,11 +401,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.companyId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.productLineId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -422,11 +422,11 @@ sealed class Route(
                     ),
                     arguments = listOf(
                         navArgument(NavArguments.productLineId) {
-                            type = NavType.IntType
+                            type = NavType.LongType
                             defaultValue = NoRecord.num
                         },
                         navArgument(NavArguments.productLineCharacteristicId) {
-                            type = NavType.IntType
+                            type = NavType.LongType
                             defaultValue = NoRecord.num
                         }
                     ),
@@ -442,11 +442,11 @@ sealed class Route(
                     ),
                     arguments = listOf(
                         navArgument(NavArguments.productLineId) {
-                            type = NavType.IntType
+                            type = NavType.LongType
                             defaultValue = NoRecord.num
                         },
                         navArgument(NavArguments.productLineKeyId) {
-                            type = NavType.IntType
+                            type = NavType.LongType
                             defaultValue = NoRecord.num
                         }
                     ),
@@ -464,11 +464,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.companyId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.productLineId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -485,11 +485,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.productLineId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.productKindId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -506,11 +506,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.productKindId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.componentKindId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -528,11 +528,11 @@ sealed class Route(
                 ),
                 arguments = listOf(
                     navArgument(NavArguments.componentKindId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     },
                     navArgument(NavArguments.componentStageKindId) {
-                        type = NavType.IntType
+                        type = NavType.LongType
                         defaultValue = NoRecord.num
                     }
                 ),
@@ -548,11 +548,11 @@ sealed class Route(
                     defaultValue = false
                 },
                 navArgument(NavArguments.orderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 },
                 navArgument(NavArguments.subOrderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 }
             ),
@@ -567,11 +567,11 @@ sealed class Route(
                     defaultValue = true
                 },
                 navArgument(NavArguments.orderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 },
                 navArgument(NavArguments.subOrderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 }
             ),
@@ -582,7 +582,7 @@ sealed class Route(
             link = "${NavRouteName.order_add_edit}${arg(NavArguments.orderId)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 }
             ),
@@ -593,11 +593,11 @@ sealed class Route(
             link = "${NavRouteName.sub_order_add_edit}${arg(NavArguments.orderId)}${arg(NavArguments.subOrderId)}${arg(NavArguments.isProcessControlOnly)}",
             arguments = listOf(
                 navArgument(NavArguments.orderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 },
                 navArgument(NavArguments.subOrderId) {
-                    type = NavType.IntType
+                    type = NavType.LongType
                     defaultValue = NoRecord.num
                 },
                 navArgument(NavArguments.isProcessControlOnly) {

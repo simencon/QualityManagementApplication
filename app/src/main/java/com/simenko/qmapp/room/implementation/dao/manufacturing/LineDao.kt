@@ -3,6 +3,7 @@ package com.simenko.qmapp.room.implementation.dao.manufacturing
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseManufacturingLine
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,7 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
     abstract override fun getRecords(): List<DatabaseManufacturingLine>
 
     @Query("select * from `13_manufacturing_lines` where chId = :parentId order by lineOrder asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseManufacturingLine>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseManufacturingLine>
 
     @Query("SELECT * FROM `13_manufacturing_lines` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseManufacturingLine?
@@ -26,12 +27,12 @@ abstract class LineDao: DaoBaseModel<DatabaseManufacturingLine> {
         WHERE(:parentId = -1 OR ml.chId = :parentId)
         ORDER BY lineOrder ASC;
     """)
-    abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseManufacturingLine>>
+    abstract fun getRecordsFlowForUI(parentId: ID): Flow<List<DatabaseManufacturingLine>>
 
     @Query("SELECT * FROM manufacturingLinesWithParents WHERE id = :id")
-    abstract fun getRecordWithParentsById(id: Int): DatabaseManufacturingLine.DatabaseManufacturingLineWithParents
+    abstract fun getRecordWithParentsById(id: ID): DatabaseManufacturingLine.DatabaseManufacturingLineWithParents
 
     @Transaction
     @Query("SELECT * FROM `13_manufacturing_lines` AS ml WHERE id = :id ORDER BY ml.lineOrder")
-    abstract fun getRecordCompleteById(id: Int): DatabaseManufacturingLine.DatabaseManufacturingLineComplete
+    abstract fun getRecordCompleteById(id: ID): DatabaseManufacturingLine.DatabaseManufacturingLineComplete
 }

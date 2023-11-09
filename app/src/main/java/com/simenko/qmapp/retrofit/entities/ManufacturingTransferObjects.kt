@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.entities
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -7,13 +8,13 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NetworkEmployee(
-    var id: Int,
+    var id: ID,
     var fullName: String,
-    var companyId: Int,
-    var departmentId: Int,
-    var subDepartmentId: Int? = null,
+    var companyId: ID,
+    var departmentId: ID,
+    var subDepartmentId: ID? = null,
     var department: String,
-    var jobRoleId: Int,
+    var jobRoleId: ID,
     var jobRole: String,
     var email: String? = null,
     var passWord: String? = null
@@ -26,7 +27,7 @@ data class NetworkEmployee(
 
 @JsonClass(generateAdapter = true)
 data class NetworkCompany constructor(
-    var id: Int,
+    var id: ID,
     var companyName: String? = null,
     var companyCountry: String? = null,
     var companyCity: String? = null,
@@ -36,7 +37,7 @@ data class NetworkCompany constructor(
     var companyRegion: String? = null,
     var companyOrder: Int,
     var companyIndustrialClassification: String? = null,
-    var companyManagerId: Int
+    var companyManagerId: ID
 ) : NetworkBaseModel<DatabaseCompany> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkCompany::class, DatabaseCompany::class).transform(this)
@@ -44,8 +45,8 @@ data class NetworkCompany constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkJobRole(
-    val id: Int,
-    val companyId: Int,
+    val id: ID,
+    val companyId: ID,
     val jobRoleDescription: String
 ) : NetworkBaseModel<DatabaseJobRole> {
     override fun getRecordId() = this.id
@@ -54,13 +55,13 @@ data class NetworkJobRole(
 
 @JsonClass(generateAdapter = true)
 data class NetworkDepartment(
-    val id: Int,
+    val id: ID,
     val depAbbr: String?,
     val depName: String?,
-    val depManager: Int?,
+    val depManager: ID?,
     val depOrganization: String?,
     val depOrder: Int?,
-    val companyId: Int?
+    val companyId: ID?
 ) : NetworkBaseModel<DatabaseDepartment> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkDepartment::class, DatabaseDepartment::class).transform(this)
@@ -68,8 +69,8 @@ data class NetworkDepartment(
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubDepartment(
-    var id: Int,
-    var depId: Int,
+    var id: ID,
+    var depId: ID,
     var subDepAbbr: String? = null,
     var subDepDesignation: String? = null,
     var subDepOrder: Int? = null
@@ -80,8 +81,8 @@ data class NetworkSubDepartment(
 
 @JsonClass(generateAdapter = true)
 data class NetworkManufacturingChannel(
-    var id: Int,
-    var subDepId: Int,
+    var id: ID,
+    var subDepId: ID,
     var channelAbbr: String? = null,
     var channelDesignation: String? = null,
     var channelOrder: Int? = null
@@ -92,8 +93,8 @@ data class NetworkManufacturingChannel(
 
 @JsonClass(generateAdapter = true)
 data class NetworkManufacturingLine(
-    var id: Int,
-    var chId: Int,
+    var id: ID,
+    var chId: ID,
     var lineAbbr: String,
     var lineDesignation: String,
     var lineOrder: Int
@@ -104,8 +105,8 @@ data class NetworkManufacturingLine(
 
 @JsonClass(generateAdapter = true)
 data class NetworkManufacturingOperation(
-    var id: Int,
-    var lineId: Int,
+    var id: ID,
+    var lineId: ID,
     var operationAbbr: String,
     var operationDesignation: String,
     var operationOrder: Int,
@@ -117,9 +118,9 @@ data class NetworkManufacturingOperation(
 
 @JsonClass(generateAdapter = true)
 data class NetworkOperationsFlow(
-    var id: Int,
-    var currentOperationId: Int,
-    var previousOperationId: Int
+    var id: ID,
+    var currentOperationId: ID,
+    var previousOperationId: ID
 ) : NetworkBaseModel<DatabaseOperationsFlow> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkOperationsFlow::class, DatabaseOperationsFlow::class).transform(this)

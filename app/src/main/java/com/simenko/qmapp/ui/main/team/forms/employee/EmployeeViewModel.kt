@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainCompany
@@ -46,10 +47,10 @@ class EmployeeViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @EmployeeIdParameter private val employeeId: Int
+    @EmployeeIdParameter private val employeeId: ID
 ) : ViewModel() {
     private val _employee: MutableStateFlow<DomainEmployee> = MutableStateFlow(DomainEmployee())
-    private fun loadEmployee(id: Int) {
+    private fun loadEmployee(id: ID) {
         _employee.value = repository.employeeById(id)
     }
 
@@ -83,15 +84,15 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private val _employeeCompanies: Flow<List<DomainCompany>> = repository.companies
-    val employeeCompanies: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeCompanies.flatMapLatest { company ->
+    val employeeCompanies: StateFlow<List<Triple<ID, String, Boolean>>> = _employeeCompanies.flatMapLatest { company ->
         _employee.flatMapLatest { employee ->
-            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            val cpy = mutableListOf<Triple<ID, String, Boolean>>()
             company.forEach { cpy.add(Triple(it.id, it.companyName ?: NoString.str, it.id == employee.companyId)) }
             flow { emit(cpy) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setEmployeeCompany(id: Int) {
+    fun setEmployeeCompany(id: ID) {
         if (_employee.value.companyId != id) {
             _employee.value = _employee.value.copy(companyId = id, departmentId = NoRecord.num, subDepartmentId = null)
             _employeeErrors.value = _employeeErrors.value.copy(companyError = false)
@@ -100,9 +101,9 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private val _employeeDepartments: Flow<List<DomainDepartment>> = repository.departments
-    val employeeDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeDepartments.flatMapLatest { departments ->
+    val employeeDepartments: StateFlow<List<Triple<ID, String, Boolean>>> = _employeeDepartments.flatMapLatest { departments ->
         _employee.flatMapLatest { employee ->
-            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            val cpy = mutableListOf<Triple<ID, String, Boolean>>()
             departments
                 .filter { it.companyId == employee.companyId }
                 .forEach { cpy.add(Triple(it.id, it.depAbbr ?: NoString.str, it.id == employee.departmentId)) }
@@ -110,7 +111,7 @@ class EmployeeViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setEmployeeDepartment(id: Int) {
+    fun setEmployeeDepartment(id: ID) {
         if (_employee.value.departmentId != id) {
             _employee.value = _employee.value.copy(departmentId = id, subDepartmentId = null)
             _employeeErrors.value = _employeeErrors.value.copy(departmentError = false)
@@ -119,9 +120,9 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private val _employeeSubDepartments: Flow<List<DomainSubDepartment>> = repository.subDepartments(NoRecord.num)
-    val employeeSubDepartments: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeSubDepartments.flatMapLatest { subDepartments ->
+    val employeeSubDepartments: StateFlow<List<Triple<ID, String, Boolean>>> = _employeeSubDepartments.flatMapLatest { subDepartments ->
         _employee.flatMapLatest { employee ->
-            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            val cpy = mutableListOf<Triple<ID, String, Boolean>>()
             subDepartments
                 .filter { it.depId == employee.departmentId }
                 .forEach { cpy.add(Triple(it.id, it.subDepAbbr ?: NoString.str, it.id == employee.subDepartmentId)) }
@@ -129,7 +130,7 @@ class EmployeeViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setEmployeeSubDepartment(id: Int) {
+    fun setEmployeeSubDepartment(id: ID) {
         if (_employee.value.subDepartmentId != id) {
             _employee.value = _employee.value.copy(subDepartmentId = if (id == NoRecord.num) null else id)
             _employeeErrors.value = _employeeErrors.value.copy(subDepartmentError = false)
@@ -138,9 +139,9 @@ class EmployeeViewModel @Inject constructor(
     }
 
     private val _employeeJobRoles: Flow<List<DomainJobRole>> = repository.jobRoles
-    val employeeJobRoles: StateFlow<List<Triple<Int, String, Boolean>>> = _employeeJobRoles.flatMapLatest { subDepartments ->
+    val employeeJobRoles: StateFlow<List<Triple<ID, String, Boolean>>> = _employeeJobRoles.flatMapLatest { subDepartments ->
         _employee.flatMapLatest { employee ->
-            val cpy = mutableListOf<Triple<Int, String, Boolean>>()
+            val cpy = mutableListOf<Triple<ID, String, Boolean>>()
             subDepartments
                 .filter { it.companyId == employee.companyId }
                 .forEach { cpy.add(Triple(it.id, it.jobRoleDescription, it.id == employee.jobRoleId)) }
@@ -148,7 +149,7 @@ class EmployeeViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun setEmployeeJobRole(id: Int) {
+    fun setEmployeeJobRole(id: ID) {
         if (_employee.value.subDepartmentId != id) {
             _employee.value = _employee.value.copy(jobRoleId = id)
             _employeeErrors.value = _employeeErrors.value.copy(jobRoleIdError = false)
@@ -234,7 +235,7 @@ class EmployeeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
+    private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler.updateLoadingState(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let { appNavigator.tryNavigateTo(route = Route.Main.Team.Employees.withArgs(it.toString()), popUpToRoute = Route.Main.Team.Employees.route, inclusive = true) }

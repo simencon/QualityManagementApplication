@@ -7,6 +7,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.retrofit.entities.products.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
@@ -26,8 +27,9 @@ import com.simenko.qmapp.utils.ObjectTransformer
 )
 data class DatabaseCharGroup constructor(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
-    val productLineId: Long,
+    val id: ID,
+    @ColumnInfo(index = true)
+    val productLineId: ID,
     val ishElement: String?
 ) : DatabaseBaseModel<NetworkCharGroup, DomainCharGroup> {
     override fun getRecordId() = id
@@ -71,8 +73,9 @@ data class DatabaseCharGroup constructor(
 )
 data class DatabaseCharSubGroup constructor(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
-    val charGroupId: Long,
+    val id: ID,
+    @ColumnInfo(index = true)
+    val charGroupId: ID,
     val ishElement: String? = null,
     val measurementGroupRelatedTime: Double? = null
 ) : DatabaseBaseModel<NetworkCharSubGroup, DomainCharSubGroup> {
@@ -117,9 +120,9 @@ data class DatabaseCharSubGroup constructor(
 )
 data class DatabaseCharacteristic constructor(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: ID,
     @ColumnInfo(index = true)
-    val ishSubCharId: Int,
+    val ishSubCharId: ID,
     val charOrder: Int? = null,
     val charDesignation: String? = null,
     val charDescription: String? = null,
@@ -166,9 +169,9 @@ data class DatabaseCharacteristic constructor(
 )
 data class DatabaseMetrix constructor(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: ID,
     @ColumnInfo(index = true)
-    val charId: Int,
+    val charId: ID,
     val metrixOrder: Int? = null,
     val metrixDesignation: String? = null,
     val metrixDescription: String? = null,
@@ -200,11 +203,11 @@ data class DatabaseMetrix constructor(
 )
 data class DatabaseCharacteristicProductKind(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: ID,
     @ColumnInfo(index = true)
-    val charId: Long,
+    val charId: ID,
     @ColumnInfo(index = true)
-    val productKindId: Long
+    val productKindId: ID
 ) : DatabaseBaseModel<NetworkCharacteristicProductKind, DomainCharacteristicProductKind> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicProductKind::class, NetworkCharacteristicProductKind::class).transform(this)
@@ -232,11 +235,11 @@ data class DatabaseCharacteristicProductKind(
 )
 data class DatabaseCharacteristicComponentKind(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: ID,
     @ColumnInfo(index = true)
-    val charId: Long,
+    val charId: ID,
     @ColumnInfo(index = true)
-    val componentKindId: Long
+    val componentKindId: ID
 ) : DatabaseBaseModel<NetworkCharacteristicComponentKind, DomainCharacteristicComponentKind> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicComponentKind::class, NetworkCharacteristicComponentKind::class).transform(this)
@@ -264,11 +267,11 @@ data class DatabaseCharacteristicComponentKind(
 )
 data class DatabaseCharacteristicComponentStageKind(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: ID,
     @ColumnInfo(index = true)
-    val charId: Long,
+    val charId: ID,
     @ColumnInfo(index = true)
-    val componentStageKindId: Long
+    val componentStageKindId: ID
 ) : DatabaseBaseModel<NetworkCharacteristicComponentStageKind, DomainCharacteristicComponentStageKind> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristicComponentStageKind::class, NetworkCharacteristicComponentStageKind::class).transform(this)
@@ -295,11 +298,11 @@ data class DatabaseCharacteristicComponentStageKind(
 )
 data class DatabaseProductTolerance(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: ID,
     @ColumnInfo(index = true)
-    val metrixId: Int?,
+    val metrixId: ID?,
     @ColumnInfo(index = true)
-    val versionId: Int?,
+    val versionId: ID?,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?,
@@ -330,11 +333,11 @@ data class DatabaseProductTolerance(
 )
 data class DatabaseComponentTolerance(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: ID,
     @ColumnInfo(index = true)
-    val metrixId: Int?,
+    val metrixId: ID?,
     @ColumnInfo(index = true)
-    val versionId: Int?,
+    val versionId: ID?,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?,
@@ -365,11 +368,11 @@ data class DatabaseComponentTolerance(
 )
 data class DatabaseComponentInStageTolerance(
     @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    val id: ID,
     @ColumnInfo(index = true)
-    val metrixId: Int?,
+    val metrixId: ID?,
     @ColumnInfo(index = true)
-    val versionId: Int?,
+    val versionId: ID?,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?,
@@ -391,8 +394,8 @@ data class DatabaseComponentInStageTolerance(
 data class DatabaseItemTolerance(
     val id: String,
     val fId: String,
-    val metrixId: Int,
-    val versionId: Int,
+    val metrixId: ID,
+    val versionId: ID,
     val fVersionId: String,
     val nominal: Float?,
     val lsl: Float?,

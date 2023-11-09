@@ -3,6 +3,7 @@ package com.simenko.qmapp.room.implementation.dao.manufacturing
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseEmployee
 import com.simenko.qmapp.room.entities.DatabaseEmployeeComplete
@@ -14,7 +15,7 @@ abstract class EmployeeDao : DaoBaseModel<DatabaseEmployee> {
     abstract override fun getRecords(): List<DatabaseEmployee>
 
     @Query("select * from `8_employees` where companyId = :parentId order by id DESC")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseEmployee>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseEmployee>
 
     @Query("SELECT * FROM `8_employees` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseEmployee?
@@ -31,5 +32,5 @@ abstract class EmployeeDao : DaoBaseModel<DatabaseEmployee> {
             ORDER BY id DESC
         """
     )
-    abstract fun getRecordsCompleteFlowForUI(fullName: String, companyId: Int): Flow<List<DatabaseEmployeeComplete>>
+    abstract fun getRecordsCompleteFlowForUI(fullName: String, companyId: ID): Flow<List<DatabaseEmployeeComplete>>
 }

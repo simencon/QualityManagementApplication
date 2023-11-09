@@ -3,6 +3,7 @@ package com.simenko.qmapp.room.implementation.dao.manufacturing
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseSubDepartment
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,7 @@ abstract class SubDepartmentDao : DaoBaseModel<DatabaseSubDepartment> {
     abstract override fun getRecords(): List<DatabaseSubDepartment>
 
     @Query("select * from `11_sub_departments` where depId = :parentId order by subDepOrder asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseSubDepartment>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseSubDepartment>
 
     @Query("select * from `11_sub_departments` where id = :id")
     abstract override fun getRecordById(id: String): DatabaseSubDepartment?
@@ -26,12 +27,12 @@ abstract class SubDepartmentDao : DaoBaseModel<DatabaseSubDepartment> {
         where(:parentId = -1 or sd.depId = :parentId)
         order by subDepOrder asc
         """)
-    abstract fun getRecordsFlowForUI(parentId: Int): Flow<List<DatabaseSubDepartment>>
+    abstract fun getRecordsFlowForUI(parentId: ID): Flow<List<DatabaseSubDepartment>>
 
     @Query("select * from subDepartmentWithParents where id = :id")
-    abstract fun getRecordWithParentsById(id: Int): DatabaseSubDepartment.DatabaseSubDepartmentWithParents
+    abstract fun getRecordWithParentsById(id: ID): DatabaseSubDepartment.DatabaseSubDepartmentWithParents
 
     @Transaction
     @Query("select * from `11_sub_departments` AS sd where id = :id order by sd.subDepOrder")
-    abstract fun getRecordCompleteById(id: Int): DatabaseSubDepartment.DatabaseSubDepartmentComplete
+    abstract fun getRecordCompleteById(id: ID): DatabaseSubDepartment.DatabaseSubDepartmentComplete
 }

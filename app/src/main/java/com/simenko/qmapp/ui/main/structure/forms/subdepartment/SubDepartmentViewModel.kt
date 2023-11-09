@@ -8,6 +8,7 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
 import com.simenko.qmapp.other.Status
@@ -31,8 +32,8 @@ class SubDepartmentViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @DepartmentIdParameter private val depId: Int,
-    @SubDepartmentIdParameter private val subDepId: Int
+    @DepartmentIdParameter private val depId: ID,
+    @SubDepartmentIdParameter private val subDepId: ID
 ) : ViewModel() {
     private val _subDepartment = MutableStateFlow(DomainSubDepartment.DomainSubDepartmentComplete())
 
@@ -54,7 +55,7 @@ class SubDepartmentViewModel @Inject constructor(
         }
     }
 
-    private fun prepareSubDepartment(depId: Int) {
+    private fun prepareSubDepartment(depId: ID) {
         _subDepartment.value = DomainSubDepartment.DomainSubDepartmentComplete(
             subDepartment = DomainSubDepartment(depId = depId),
             department = repository.departmentById(depId).department
@@ -93,7 +94,7 @@ class SubDepartmentViewModel @Inject constructor(
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
         val errorMsg = buildString {
-            if (_subDepartment.value.subDepartment.subDepOrder == NoRecord.num) {
+            if (_subDepartment.value.subDepartment.subDepOrder == NoRecord.num.toInt()) {
                 _fillInErrors.value = _fillInErrors.value.copy(subDepartmentOrderError = true)
                 append("Sub department order field is mandatory\n")
             }
@@ -127,7 +128,7 @@ class SubDepartmentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
+    private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {

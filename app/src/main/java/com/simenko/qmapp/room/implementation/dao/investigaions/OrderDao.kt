@@ -1,6 +1,7 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
 import androidx.room.*
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.other.Constants.UI_SAFETY_GAP
 import com.simenko.qmapp.other.Constants.UI_TOTAL_VISIBLE
 import com.simenko.qmapp.room.entities.DatabaseOrder
@@ -15,7 +16,7 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
     abstract override fun getRecords(): List<DatabaseOrder>
 
     @Query("select * from `12_orders` where orderTypeId = :parentId order by orderNumber asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseOrder>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseOrder>
 
     @Query("SELECT * FROM `12_orders` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseOrder?
@@ -41,7 +42,7 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
 
     @Transaction
     @Query("select max(id) from `12_orders` where createdDate = :latestOrderDate")
-    abstract fun getLatestOrderId(latestOrderDate: Long): Int?
+    abstract fun getLatestOrderId(latestOrderDate: Long): ID?
 
     @Transaction
     @Query(
@@ -70,8 +71,8 @@ abstract class OrderDao : DaoBaseModel<DatabaseOrder>, DaoTimeDependentModel<Dat
         lastVisibleCreateDate: Long,
         safetyGap: Int = UI_SAFETY_GAP,
         totalVisible: Int = UI_TOTAL_VISIBLE,
-        orderTypeId: Int,
-        orderStatusId: Int,
+        orderTypeId: ID,
+        orderStatusId: ID,
         orderNumber: String
     ): Flow<List<DatabaseOrderComplete>>
 }

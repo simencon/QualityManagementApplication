@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.ui.main.investigations.forms.steps.CustomersSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.InitiatorsSelection
 import com.simenko.qmapp.ui.main.investigations.forms.steps.ReasonsSelection
@@ -95,8 +96,8 @@ fun SearchBarProducts(
 
 @Composable
 fun ItemToSelect(
-    item: Triple<Int, String, Boolean>,
-    onClick: (Int) -> Unit,
+    item: Triple<ID, String, Boolean>,
+    onClick: (ID) -> Unit,
     modifier: Modifier = Modifier
         .width(224.dp)
         .height(56.dp)

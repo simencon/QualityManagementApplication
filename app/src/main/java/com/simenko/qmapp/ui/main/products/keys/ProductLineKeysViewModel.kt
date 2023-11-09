@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.ProductLineKeyIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
@@ -29,8 +30,8 @@ class ProductLineKeysViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     val repository: ProductsRepository,
-    @ProductLineIdParameter val productLineId: Int,
-    @ProductLineKeyIdParameter val productKeyId: Int
+    @ProductLineIdParameter val productLineId: ID,
+    @ProductLineKeyIdParameter val productKeyId: ID
 ) : ViewModel() {
     private val _productKeysVisibility = MutableStateFlow(Pair(SelectedNumber(productKeyId), NoRecord))
     private val _productLine = MutableStateFlow(DomainProductLine())
@@ -72,7 +73,7 @@ class ProductLineKeysViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineKeyClick(it: Int) {
+    fun onDeleteProductLineKeyClick(it: ID) {
         TODO("Not yet implemented")
     }
 
@@ -83,11 +84,11 @@ class ProductLineKeysViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductLineKeyClick(it: Pair<Int, Int>) {
+    private fun onAddProductLineKeyClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 
-    fun onEditProductLineKeyClick(it: Pair<Int, Int>) {
+    fun onEditProductLineKeyClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 }

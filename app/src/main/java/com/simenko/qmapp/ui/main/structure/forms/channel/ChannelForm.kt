@@ -92,8 +92,8 @@ fun ChannelForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(cnComplete.subDepartmentWithParents.subDepAbbr, cnComplete.subDepartmentWithParents.subDepDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(cnComplete.channel.channelOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.channelOrderError) {
-                    viewModel.setChannelOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
+                valueParam = Triple(cnComplete.channel.channelOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.channelOrderError) {
+                    viewModel.setChannelOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),

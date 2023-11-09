@@ -2,6 +2,7 @@ package com.simenko.qmapp.room.implementation.dao.products.characteristics
 
 import androidx.room.Dao
 import androidx.room.Query
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.products.DatabaseComponentTolerance
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ abstract class ComponentToleranceDao: DaoBaseModel<DatabaseComponentTolerance> {
     abstract override fun getRecords(): List<DatabaseComponentTolerance>
 
     @Query("select * from `10_8_component_tolerances` where versionId = :parentId order by id  asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseComponentTolerance>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseComponentTolerance>
 
     @Query("SELECT * FROM `10_8_component_tolerances` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseComponentTolerance?

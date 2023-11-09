@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainSubDepartment
@@ -70,12 +71,12 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val departmentVisibility by viewModel.departmentsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.subDepartments.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setSubDepartmentsVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteSubDepartmentClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddSubDepartmentClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditSubDepartmentClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setSubDepartmentsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteSubDepartmentClick(it) } }
+    val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddSubDepartmentClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditSubDepartmentClick(it) } }
+    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(1, true) }
 
@@ -108,11 +109,11 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
 fun SubDepartmentCard(
     viewModel: CompanyStructureViewModel,
     subDepartment: DomainSubDepartment,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(subDepartment.isExpanded).apply { targetState = !subDepartment.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -173,8 +174,8 @@ fun SubDepartmentCard(
 fun SubDepartment(
     viewModel: CompanyStructureViewModel,
     subDepartment: DomainSubDepartment,
-    onClickDetails: (Int) -> Unit = {},
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit = {},
+    onClickProducts: (ID) -> Unit
 ) {
     val containerColor = when (subDepartment.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer

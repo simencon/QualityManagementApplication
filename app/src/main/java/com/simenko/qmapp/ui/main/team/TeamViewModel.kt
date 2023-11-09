@@ -40,14 +40,14 @@ class TeamViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val sRepository: SystemRepository,
     private val mRepository: ManufacturingRepository,
-    @EmployeeIdParameter private val employeeId: Int,
+    @EmployeeIdParameter private val employeeId: ID,
     @UserIdParameter private val userId: String
 ) : ViewModel() {
     private val _currentEmployeesFilter = MutableStateFlow(EmployeesFilter())
     private val _employees: Flow<List<DomainEmployeeComplete>> = _currentEmployeesFilter.flatMapLatest { filter -> mRepository.employeesComplete(filter) }.flowOn(Dispatchers.IO)
     private val _currentUsersFilter = MutableStateFlow(UsersFilter())
     private val _users: Flow<List<DomainUser>> = _currentUsersFilter.flatMapLatest { filter -> sRepository.users(filter) }.flowOn(Dispatchers.IO)
-    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<String>>> = MutableStateFlow(Pair(Event(employeeId), Event(userId)))
+    private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<String>>> = MutableStateFlow(Pair(Event(employeeId), Event(userId)))
     private val _employeesVisibility = MutableStateFlow(Pair(SelectedNumber(employeeId), NoRecord))
     private val _usersVisibility = MutableStateFlow(Pair(SelectedString(userId), NoRecordStr))
     val currentUserVisibility = _usersVisibility.asStateFlow()
@@ -88,7 +88,7 @@ class TeamViewModel @Inject constructor(
     private val _isComposed = MutableStateFlow(false)
     val setIsComposed: (Boolean) -> Unit = { _isComposed.value = it }
 
-    val scrollToRecord: Flow<Pair<Event<Int>, Event<String>>?> = _createdRecord.flatMapLatest { record ->
+    val scrollToRecord: Flow<Pair<Event<ID>, Event<String>>?> = _createdRecord.flatMapLatest { record ->
         _isComposed.flatMapLatest { isComposed ->
             if (isComposed) flow { emit(record) } else flow { emit(null) }
         }
@@ -121,7 +121,7 @@ class TeamViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
-    fun deleteEmployee(teamMemberId: Int) = viewModelScope.launch {
+    fun deleteEmployee(teamMemberId: ID) = viewModelScope.launch {
         mainPageHandler.updateLoadingState(Pair(true, null))
         withContext(Dispatchers.IO) {
             mRepository.run {
@@ -198,7 +198,7 @@ class TeamViewModel @Inject constructor(
         }
     }
 
-    fun onEmployeeAddEdictClick(employeeId: Int) {
+    fun onEmployeeAddEdictClick(employeeId: ID) {
         appNavigator.tryNavigateTo(Route.Main.Team.EmployeeAddEdit.withArgs(employeeId.toString()))
     }
 

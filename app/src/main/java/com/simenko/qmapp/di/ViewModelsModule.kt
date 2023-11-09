@@ -1,6 +1,7 @@
 package com.simenko.qmapp.di
 
 import androidx.lifecycle.SavedStateHandle
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.ui.navigation.NavArguments
@@ -97,7 +98,7 @@ object ViewModelsModule {
     @Provides
     @EmployeeIdParameter
     @ViewModelScoped
-    fun provideEmployeeIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideEmployeeIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.employeeId] ?: NoRecord.num
 
     @Provides
@@ -109,80 +110,80 @@ object ViewModelsModule {
     @Provides
     @CompanyIdParameter
     @ViewModelScoped
-    fun provideCompanyIdParameter(savedStateHandle: SavedStateHandle): Int {
+    fun provideCompanyIdParameter(savedStateHandle: SavedStateHandle): ID {
         return savedStateHandle[NavArguments.companyId] ?: NoRecord.num
     }
 
     @Provides
     @DepartmentIdParameter
     @ViewModelScoped
-    fun provideDepartmentIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideDepartmentIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.departmentId] ?: NoRecord.num
 
     @Provides
     @SubDepartmentIdParameter
     @ViewModelScoped
-    fun provideSubDepartmentIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideSubDepartmentIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.subDepartmentId] ?: NoRecord.num
 
     @Provides
     @ChannelIdParameter
     @ViewModelScoped
-    fun provideChannelIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideChannelIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.channelId] ?: NoRecord.num
 
     @Provides
     @LineIdParameter
     @ViewModelScoped
-    fun provideLineIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideLineIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.lineId] ?: NoRecord.num
 
     @Provides
     @OperationIdParameter
     @ViewModelScoped
-    fun provideOperationIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideOperationIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.operationId] ?: NoRecord.num
 
     @Provides
     @ProductLineIdParameter
     @ViewModelScoped
-    fun provideProductLineIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideProductLineIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.productLineId] ?: NoRecord.num
 
     @Provides
     @ProductLineCharacteristicIdParameter
     @ViewModelScoped
-    fun provideProductLineCharacteristicIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideProductLineCharacteristicIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.productLineCharacteristicId] ?: NoRecord.num
     @Provides
     @MetricIdParameter
     @ViewModelScoped
-    fun provideMetricIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideMetricIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.metricId] ?: NoRecord.num
 
     @Provides
     @ProductLineKeyIdParameter
     @ViewModelScoped
-    fun provideProductLineKeyIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideProductLineKeyIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.productLineKeyId] ?: NoRecord.num
 
 
     @Provides
     @ProductKindIdParameter
     @ViewModelScoped
-    fun provideProductKindIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideProductKindIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.productKindId] ?: NoRecord.num
 
     @Provides
     @ComponentKindIdParameter
     @ViewModelScoped
-    fun provideComponentKindIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideComponentKindIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentKindId] ?: NoRecord.num
 
     @Provides
     @ComponentStageKindIdParameter
     @ViewModelScoped
-    fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentStageKindId] ?: NoRecord.num
 
     @Provides
@@ -194,12 +195,12 @@ object ViewModelsModule {
     @Provides
     @OrderIdParameter
     @ViewModelScoped
-    fun provideOrderIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideOrderIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.orderId] ?: NoRecord.num
 
     @Provides
     @SubOrderIdParameter
     @ViewModelScoped
-    fun provideSubOrderIdParameter(savedStateHandle: SavedStateHandle): Int =
+    fun provideSubOrderIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.subOrderId] ?: NoRecord.num
 }

@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.entities.products
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -7,20 +8,20 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductLine(
-    var id: Int,
-    var companyId: Int,
-    var factoryLocationDep: Long,
+    var id: ID,
+    var companyId: ID,
+    var factoryLocationDep: ID,
     var factoryLocationDetails: String? = null,
     var customerName: String? = null,
-    var team: Int? = null,
+    var team: ID? = null,
     var modelYear: String? = null,
     var projectSubject: String? = null,
     var startDate: String? = null,
     var revisionDate: String? = null,
     var refItem: String? = null,
     var pfmeaNum: String? = null,
-    var processOwner: Long,
-    var confLevel: Int? = null
+    var processOwner: ID,
+    var confLevel: ID? = null
 ) : NetworkBaseModel<DatabaseProductLine> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductLine::class, DatabaseProductLine::class).transform(this)
@@ -28,8 +29,8 @@ data class NetworkProductLine(
 
 @JsonClass(generateAdapter = true)
 data class NetworkKey(
-    var id: Int,
-    var projectId: Int?,
+    var id: ID,
+    var projectId: ID?,
     var componentKey: String?,
     var componentKeyDescription: String?
 ) : NetworkBaseModel<DatabaseKey> {
@@ -39,8 +40,8 @@ data class NetworkKey(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductBase(
-    var id: Int,
-    var projectId: Int?,
+    var id: ID,
+    var projectId: ID?,
     var componentBaseDesignation: String?
 ) : NetworkBaseModel<DatabaseProductBase> {
     override fun getRecordId() = id
@@ -51,8 +52,8 @@ data class NetworkProductBase(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductKind(
-    val id: Long,
-    val projectId: Long,
+    val id: ID,
+    val projectId: ID,
     val productKindDesignation: String,
     val comments: String?
 ) : NetworkBaseModel<DatabaseProductKind> {
@@ -62,8 +63,8 @@ data class NetworkProductKind(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentKind(
-    val id: Long,
-    val productKindId: Long,
+    val id: ID,
+    val productKindId: ID,
     val componentKindOrder: Int,
     val componentKindDescription: String
 ) : NetworkBaseModel<DatabaseComponentKind> {
@@ -73,8 +74,8 @@ data class NetworkComponentKind(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentStageKind(
-    val id: Long,
-    val componentKindId: Long,
+    val id: ID,
+    val componentKindId: ID,
     val componentStageOrder: Int,
     val componentStageDescription: String
 ) : NetworkBaseModel<DatabaseComponentStageKind> {
@@ -84,9 +85,9 @@ data class NetworkComponentStageKind(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductKindKey(
-    val id: Long,
-    val productKindId: Long,
-    val keyId: Long
+    val id: ID,
+    val productKindId: ID,
+    val keyId: ID
 ) : NetworkBaseModel<DatabaseProductKindKey> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductKindKey::class, DatabaseProductKindKey::class).transform(this)
@@ -94,9 +95,9 @@ data class NetworkProductKindKey(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentKindKey(
-    val id: Long,
-    val componentKindId: Long,
-    val keyId: Long
+    val id: ID,
+    val componentKindId: ID,
+    val keyId: ID
 ) : NetworkBaseModel<DatabaseComponentKindKey> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentKindKey::class, DatabaseComponentKindKey::class).transform(this)
@@ -104,9 +105,9 @@ data class NetworkComponentKindKey(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentStageKindKey(
-    val id: Long,
-    val componentStageKindId: Long,
-    val keyId: Long
+    val id: ID,
+    val componentStageKindId: ID,
+    val keyId: ID
 ) : NetworkBaseModel<DatabaseComponentStageKindKey> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStageKindKey::class, DatabaseComponentStageKindKey::class).transform(this)
@@ -114,9 +115,9 @@ data class NetworkComponentStageKindKey(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProduct(
-    var id: Int,
-    var productBaseId: Int?,
-    var keyId: Int?,
+    var id: ID,
+    var productBaseId: ID?,
+    var keyId: ID?,
     var productDesignation: String?
 ) : NetworkBaseModel<DatabaseProduct> {
     override fun getRecordId() = id
@@ -125,8 +126,8 @@ data class NetworkProduct(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponent(
-    var id: Int,
-    var keyId: Int?,
+    var id: ID,
+    var keyId: ID?,
     var componentDesignation: String?,
     var ifAny: Int?
 ) : NetworkBaseModel<DatabaseComponent> {
@@ -136,8 +137,8 @@ data class NetworkComponent(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentInStage(
-    var id: Int,
-    var keyId: Int?,
+    var id: ID,
+    var keyId: ID?,
     var componentInStageDescription: String?,
     var ifAny: Int?
 ) : NetworkBaseModel<DatabaseComponentInStage> {
@@ -147,9 +148,9 @@ data class NetworkComponentInStage(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductKindProduct(
-    val id: Long,
-    val productKindId: Long,
-    val productId: Long
+    val id: ID,
+    val productKindId: ID,
+    val productId: ID
 ) : NetworkBaseModel<DatabaseProductKindProduct> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductKindProduct::class, DatabaseProductKindProduct::class).transform(this)
@@ -157,9 +158,9 @@ data class NetworkProductKindProduct(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentKindComponent(
-    val id: Long,
-    val componentKindId: Long,
-    val componentId: Long
+    val id: ID,
+    val componentKindId: ID,
+    val componentId: ID
 ) : NetworkBaseModel<DatabaseComponentKindComponent> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentKindComponent::class, DatabaseComponentKindComponent::class).transform(this)
@@ -167,9 +168,9 @@ data class NetworkComponentKindComponent(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentStageKindComponentStage(
-    val id: Long,
-    val componentStageKindId: Long,
-    val componentStageId: Long
+    val id: ID,
+    val componentStageKindId: ID,
+    val componentStageId: ID
 ) : NetworkBaseModel<DatabaseComponentStageKindComponentStage> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStageKindComponentStage::class, DatabaseComponentStageKindComponentStage::class).transform(this)
@@ -177,10 +178,10 @@ data class NetworkComponentStageKindComponentStage(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductComponent(
-    val id: Long,
+    val id: ID,
     val countOfComponents: Int,
-    val productId: Long,
-    val componentId: Long
+    val productId: ID,
+    val componentId: ID
 ) : NetworkBaseModel<DatabaseProductComponent> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkProductComponent::class, DatabaseProductComponent::class).transform(this)
@@ -188,9 +189,9 @@ data class NetworkProductComponent(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentComponentStage(
-    val id: Long,
-    val componentId: Long,
-    val componentStageId: Long
+    val id: ID,
+    val componentId: ID,
+    val componentStageId: ID
 ) : NetworkBaseModel<DatabaseComponentComponentStage> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkComponentComponentStage::class, DatabaseComponentComponentStage::class).transform(this)
@@ -198,7 +199,7 @@ data class NetworkComponentComponentStage(
 
 @JsonClass(generateAdapter = true)
 data class NetworkVersionStatus(
-    var id: Int,
+    var id: ID,
     var statusDescription: String?
 ) : NetworkBaseModel<DatabaseVersionStatus> {
     override fun getRecordId() = id
@@ -207,11 +208,11 @@ data class NetworkVersionStatus(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductVersion(
-    var id: Int,
-    var productId: Int,
+    var id: ID,
+    var productId: ID,
     var versionDescription: String?,
     var versionDate: String?,
-    var statusId: Int?,
+    var statusId: ID?,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseProductVersion> {
     override fun getRecordId() = id
@@ -220,11 +221,11 @@ data class NetworkProductVersion(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentVersion(
-    var id: Int,
-    var componentId: Int,
+    var id: ID,
+    var componentId: ID,
     var versionDescription: String?,
     var versionDate: String?,
-    var statusId: Int?,
+    var statusId: ID?,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseComponentVersion> {
     override fun getRecordId() = id
@@ -233,11 +234,11 @@ data class NetworkComponentVersion(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentInStageVersion(
-    var id: Int,
-    var componentInStageId: Int,
+    var id: ID,
+    var componentInStageId: ID,
     var versionDescription: String?,
     var versionDate: String?,
-    var statusId: Int?,
+    var statusId: ID?,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseComponentInStageVersion> {
     override fun getRecordId() = id

@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
@@ -77,17 +78,17 @@ fun Departments(
 ) {
     val items by viewModel.departments.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteDepartmentClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setDepartmentsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setDepartmentsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteDepartmentClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditDepartmentClick(it) } }
+    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onDepartmentProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.indexKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.offsetKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.indexKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt(),
+        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.DEPARTMENTS.offsetKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt()
     )
 
     LaunchedEffect(listState) {
@@ -118,11 +119,11 @@ fun DepartmentCard(
     modifier: Modifier = Modifier,
     viewModel: CompanyStructureViewModel,
     department: DomainDepartmentComplete,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(department.isExpanded).apply { targetState = !department.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -185,8 +186,8 @@ fun DepartmentCard(
 fun Department(
     viewModel: CompanyStructureViewModel = hiltViewModel(),
     department: DomainDepartmentComplete,
-    onClickDetails: (Int) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val containerColor = when (department.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer

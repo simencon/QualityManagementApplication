@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
@@ -54,14 +55,14 @@ fun ProductLines(
 ) {
     val items by viewModel.productLines.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Long) -> Unit> { { viewModel.setProductLinesVisibility(dId = SelectedNumber(it.toInt())) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setProductLinesVisibility(aId = SelectedNumber(it.toInt())) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteProductLineClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditProductLineClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setProductLinesVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductLinesVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductLineClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductLineClick(it) } }
 
-    val onClickKeysLambda = remember<(Long) -> Unit> { { viewModel.onProductLineKeysClick(it) } }
-    val onClickCharacteristicsLambda = remember<(Long) -> Unit> { { viewModel.onProductLineCharacteristicsClick(it) } }
-    val onClickItemsLambda = remember<(Long) -> Unit> { { viewModel.onProductLineItemsClick(it) } }
+    val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onProductLineKeysClick(it) } }
+    val onClickCharacteristicsLambda = remember<(ID) -> Unit> { { viewModel.onProductLineCharacteristicsClick(it) } }
+    val onClickItemsLambda = remember<(ID) -> Unit> { { viewModel.onProductLineItemsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
     val listState = rememberLazyListState()
@@ -87,13 +88,13 @@ fun ProductLines(
 fun ProductLineCard(
     modifier: Modifier = Modifier,
     productLine: DomainProductLine.DomainProductLineComplete,
-    onClickDetails: (Long) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickKeys: (Long) -> Unit,
-    onClickCharacteristics: (Long) -> Unit,
-    onClickItems: (Long) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
+    onClickItems: (ID) -> Unit
 ) {
     ItemCard(
         modifier = modifier,
@@ -117,10 +118,10 @@ fun ProductLineCard(
 @Composable
 fun ProductLine(
     productLine: DomainProductLine.DomainProductLineComplete,
-    onClickDetails: (Long) -> Unit,
-    onClickKeys: (Long) -> Unit,
-    onClickCharacteristics: (Long) -> Unit,
-    onClickItems: (Long) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
+    onClickItems: (ID) -> Unit
 ) {
     val containerColor = when (productLine.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -144,7 +145,7 @@ fun ProductLine(
                 ContentWithTitle(titleWight = 0.50f, title = "Revision date:", value = productLine.manufacturingProject.revisionDate ?: NoString.str)
             }
             Column(modifier = Modifier.weight(0.46f)) {
-                StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickCharacteristics(productLine.manufacturingProject.id.toLong()) }) {
+                StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickCharacteristics(productLine.manufacturingProject.id) }) {
                     Text(
                         text = "Characteristics",
                         style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -153,7 +154,7 @@ fun ProductLine(
                     )
                 }
                 Row {
-                    StatusChangeBtn(modifier = Modifier.weight(0.50f), containerColor = containerColor, onClick = { onClickKeys(productLine.manufacturingProject.id.toLong()) }) {
+                    StatusChangeBtn(modifier = Modifier.weight(0.50f), containerColor = containerColor, onClick = { onClickKeys(productLine.manufacturingProject.id) }) {
                         Text(
                             text = "Keys",
                             style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -162,7 +163,7 @@ fun ProductLine(
                         )
                     }
                     Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    StatusChangeBtn(modifier = Modifier.weight(0.50f), containerColor = containerColor, onClick = { onClickItems(productLine.manufacturingProject.id.toLong()) }) {
+                    StatusChangeBtn(modifier = Modifier.weight(0.50f), containerColor = containerColor, onClick = { onClickItems(productLine.manufacturingProject.id) }) {
                         Text(
                             text = "Items",
                             style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
@@ -173,7 +174,7 @@ fun ProductLine(
                 }
             }
 
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(productLine.manufacturingProject.id.toLong()) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(productLine.manufacturingProject.id) }) {
                 Icon(
                     imageVector = if (productLine.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (productLine.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)

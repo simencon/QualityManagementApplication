@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
@@ -74,17 +75,17 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
 
     val items by viewModel.lines.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteLineClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditLineClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onLineProductsClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setLinesVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setLinesVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteLineClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditLineClick(it) } }
+    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onLineProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(3, true) }
 
     val listState = rememberLazyListState(
-        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.LINES.indexKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it },
-        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.LINES.offsetKey).toInt().let { if (it == NoRecord.num) ZeroValue.num else it }
+        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.LINES.indexKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt(),
+        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.LINES.offsetKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt()
     )
 
     LaunchedEffect(listState) {
@@ -114,11 +115,11 @@ fun Lines(modifier: Modifier = Modifier, viewModel: CompanyStructureViewModel = 
 fun LineCard(
     viewModel: CompanyStructureViewModel,
     line: DomainManufacturingLine,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(line.isExpanded).apply { targetState = !line.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -179,8 +180,8 @@ fun LineCard(
 fun Line(
     viewModel: CompanyStructureViewModel,
     line: DomainManufacturingLine,
-    onClickDetails: (Int) -> Unit = {},
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit = {},
+    onClickProducts: (ID) -> Unit
 ) {
     val containerColor = when (line.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer

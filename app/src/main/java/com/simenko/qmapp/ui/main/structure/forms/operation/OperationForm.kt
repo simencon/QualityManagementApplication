@@ -104,8 +104,8 @@ fun OperationForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineWithParents.lineAbbr, opComplete.lineWithParents.lineDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
-                    viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
+                valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
+                    viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
@@ -136,7 +136,7 @@ fun OperationForm(
             PreviousOperationHeader(
                 previousOperations = opComplete.previousOperations,
                 userRolesError = fillInErrors.previousOperationsError,
-                onClickActions = { viewModel.setPreviousOperationVisibility(aId = SelectedNumber(it)) },
+                onClickActions = { viewModel.setPreviousOperationVisibility(aId = SelectedNumber(it.toLong())) },
                 onClickDelete = { viewModel.deletePreviousOperation(it) },
                 onClickAdd = { viewModel.setPreviousOperationDialogVisibility(true) }
             )

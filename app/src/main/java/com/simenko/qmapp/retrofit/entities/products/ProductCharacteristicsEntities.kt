@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.entities.products
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -8,8 +9,8 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NetworkCharGroup constructor(
-    var id: Int,
-    val productLineId: Long,
+    var id: ID,
+    val productLineId: ID,
     var ishElement: String?
 ) : NetworkBaseModel<DatabaseCharGroup> {
     override fun getRecordId() = id
@@ -18,8 +19,8 @@ data class NetworkCharGroup constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkCharSubGroup constructor(
-    var id: Int,
-    val charGroupId: Long,
+    var id: ID,
+    val charGroupId: ID,
     var ishElement: String?,
     var measurementGroupRelatedTime: Double?
 ) : NetworkBaseModel<DatabaseCharSubGroup> {
@@ -31,9 +32,9 @@ data class NetworkCharSubGroup constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkCharacteristic constructor(
-    var id: Int,
+    var id: ID,
     @Json(name="ishSubChar")
-    var ishSubCharId: Int,
+    var ishSubCharId: ID,
     var charOrder: Int? = null,
     var charDesignation: String? = null,
     var charDescription: String? = null,
@@ -46,8 +47,8 @@ data class NetworkCharacteristic constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkMetrix constructor(
-    var id: Int,
-    var charId: Int,
+    var id: ID,
+    var charId: ID,
     var metrixOrder: Int? = null,
     var metrixDesignation: String? = null,
     var metrixDescription: String? = null,
@@ -58,27 +59,27 @@ data class NetworkMetrix constructor(
 }
 
 data class NetworkCharacteristicProductKind(
-    val id: Long,
-    val charId: Long,
-    val productKindId: Long
+    val id: ID,
+    val charId: ID,
+    val productKindId: ID
 ) : NetworkBaseModel<DatabaseCharacteristicProductKind> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristicProductKind::class, DatabaseCharacteristicProductKind::class).transform(this)
 }
 
 data class NetworkCharacteristicComponentKind(
-    val id: Long,
-    val charId: Long,
-    val componentKindId: Long
+    val id: ID,
+    val charId: ID,
+    val componentKindId: ID
 ) : NetworkBaseModel<DatabaseCharacteristicComponentKind> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristicComponentKind::class, DatabaseCharacteristicComponentKind::class).transform(this)
 }
 
 data class NetworkCharacteristicComponentStageKind(
-    val id: Long,
-    val charId: Long,
-    val componentStageKindId: Long
+    val id: ID,
+    val charId: ID,
+    val componentStageKindId: ID
 ) : NetworkBaseModel<DatabaseCharacteristicComponentStageKind> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkCharacteristicComponentStageKind::class, DatabaseCharacteristicComponentStageKind::class).transform(this)
@@ -86,9 +87,9 @@ data class NetworkCharacteristicComponentStageKind(
 
 @JsonClass(generateAdapter = true)
 data class NetworkProductTolerance(
-    var id: Int,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var id: ID,
+    var metrixId: ID?,
+    var versionId: ID?,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -100,9 +101,9 @@ data class NetworkProductTolerance(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentTolerance(
-    var id: Int,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var id: ID,
+    var metrixId: ID?,
+    var versionId: ID?,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
@@ -114,9 +115,9 @@ data class NetworkComponentTolerance(
 
 @JsonClass(generateAdapter = true)
 data class NetworkComponentInStageTolerance(
-    var id: Int,
-    var metrixId: Int?,
-    var versionId: Int?,
+    var id: ID,
+    var metrixId: ID?,
+    var versionId: ID?,
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,

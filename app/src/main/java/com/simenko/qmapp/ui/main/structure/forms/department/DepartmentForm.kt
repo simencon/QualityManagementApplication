@@ -97,8 +97,8 @@ fun DepartmentForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Company", body = concatTwoStrings1(dComplete.company.companyName, dComplete.company.companyIndustrialClassification))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(dComplete.department.depOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.departmentOrderError) {
-                    viewModel.setDepartmentOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
+                valueParam = Triple(dComplete.department.depOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.departmentOrderError) {
+                    viewModel.setDepartmentOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),

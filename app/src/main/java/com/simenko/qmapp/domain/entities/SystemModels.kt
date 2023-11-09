@@ -1,6 +1,7 @@
 package com.simenko.qmapp.domain.entities
 
 import com.simenko.qmapp.domain.DomainBaseModel
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
@@ -15,23 +16,23 @@ data class DomainUserRole(
     override var detailsVisibility: Boolean = false,
     override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseUserRole>() {
-    override fun getRecordId(): String = "${this.function}:${this.roleLevel}:${this.accessLevel}"
-    override fun getParentId(): Int = NoRecord.num
+    override fun getRecordId() = "${this.function}:${this.roleLevel}:${this.accessLevel}"
+    override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel(): DatabaseUserRole = ObjectTransformer(DomainUserRole::class, DatabaseUserRole::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(DomainUserRole::class, DatabaseUserRole::class).transform(this)
 }
 
 data class DomainUser(
     var email: String = NoRecordStr.str,
-    var teamMemberId: Long = NoRecord.num.toLong(),
+    var teamMemberId: ID = NoRecord.num,
     var phoneNumber: Long? = null,
     var fullName: String? = null,
     var company: String? = null,
-    var companyId: Long = NoRecord.num.toLong(),
+    var companyId: ID = NoRecord.num,
     var department: String? = null,
-    var departmentId: Long = NoRecord.num.toLong(),
+    var departmentId: ID = NoRecord.num,
     var subDepartment: String? = null,
-    var subDepartmentId: Long = NoRecord.num.toLong(),
+    var subDepartmentId: ID = NoRecord.num,
     var jobRole: String? = null,
     var restApiUrl: String? = null,
     var userUid: String? = null,
@@ -58,9 +59,8 @@ data class DomainUser(
         return list.toList()
     }
 
-    override fun getRecordId(): Any = this.email
-    override fun getParentId(): Int = this.companyId.toInt()
-
+    override fun getRecordId() = this.email
+    override fun getParentId() = this.companyId
     override fun getName() = this.fullName ?: "Has no name"
 
     override fun setIsSelected(value: Boolean) {

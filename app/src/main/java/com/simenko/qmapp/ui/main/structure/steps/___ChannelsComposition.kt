@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
@@ -72,12 +73,12 @@ fun Channels(
     val subDepartmentVisibility by viewModel.subDepartmentsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.channels.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setChannelsVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.onDeleteChannelClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { viewModel.onAddChannelClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { viewModel.onEditChannelClick(it) } }
-    val onClickProductsLambda = remember<(Int) -> Unit> { { viewModel.onChannelProductsClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setChannelsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setChannelsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteChannelClick(it) } }
+    val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddChannelClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditChannelClick(it) } }
+    val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onChannelProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(2, true) }
 
@@ -108,11 +109,11 @@ fun Channels(
 @Composable
 fun ChannelCard(
     channel: DomainManufacturingChannel,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(channel.isExpanded).apply { targetState = !channel.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -172,8 +173,8 @@ fun ChannelCard(
 @Composable
 fun Channel(
     channel: DomainManufacturingChannel,
-    onClickDetails: (Int) -> Unit,
-    onClickProducts: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickProducts: (ID) -> Unit
 ) {
     val containerColor = when (channel.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer

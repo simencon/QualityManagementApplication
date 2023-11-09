@@ -26,7 +26,7 @@ fun OnLifecycleEvent(onEvent: (owner: LifecycleOwner, event: Lifecycle.Event) ->
 }
 
 suspend fun <S : ScrollableState, T> S.scrollToSelectedItem(list: List<T>, selectedId: T) = list.indexOf(selectedId).let { index ->
-    if (index != NoRecord.num)
+    if (index != NoRecord.num.toInt())
         when (this) {
             is LazyGridState -> (this as LazyGridState).animateScrollToItem(index = index)
             is LazyListState -> (this as LazyListState).scrollToItem(index = index)

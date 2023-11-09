@@ -1,6 +1,7 @@
 package com.simenko.qmapp.room.entities
 
 import androidx.room.*
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.domain.entities.products.DomainResultTolerance
 import com.simenko.qmapp.retrofit.entities.*
@@ -24,32 +25,32 @@ import com.simenko.qmapp.utils.StringUtils
     ]
 )
 data class DatabaseInputForOrder constructor(
-    var depId: Int,
+    var depId: ID,
     var depAbbr: String,
     var depOrder: Int,
-    var subDepId: Int,
+    var subDepId: ID,
     var subDepAbbr: String,
     var subDepOrder: Int,
-    var chId: Int,
+    var chId: ID,
     var channelAbbr: String,
     var channelOrder: Int,
-    var lineId: Int,
+    var lineId: ID,
     var lineAbbr: String,
     var lineOrder: Int,
     var id: String,
     var itemPrefix: String,
-    var itemId: Int,
-    var itemVersionId: Int,
+    var itemId: ID,
+    var itemVersionId: ID,
     var isDefault: Boolean,
     var itemKey: String,
     var itemDesignation: String,
-    var operationId: Int,
+    var operationId: ID,
     var operationAbbr: String,
     var operationDesignation: String,
     var operationOrder: Int,
-    var charId: Int,
-    var ishCharId: Int,
-    var ishSubChar: Int,
+    var charId: ID,
+    var ishCharId: ID,
+    var ishSubChar: ID,
     var charDescription: String,
     var charDesignation: String? = null,
     var charOrder: Int
@@ -62,7 +63,7 @@ data class DatabaseInputForOrder constructor(
 @Entity(tableName = "0_orders_statuses")
 data class DatabaseOrdersStatus constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     var statusDescription: String? = null
 ) : DatabaseBaseModel<NetworkOrdersStatus, DomainOrdersStatus> {
     override fun getRecordId() = id
@@ -73,7 +74,7 @@ data class DatabaseOrdersStatus constructor(
 @Entity(tableName = "0_measurement_reasons")
 data class DatabaseReason constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
@@ -86,7 +87,7 @@ data class DatabaseReason constructor(
 @Entity(tableName = "0_orders_types")
 data class DatabaseOrdersType constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     var typeDescription: String? = null
 ) : DatabaseBaseModel<NetworkOrdersType, DomainOrdersType> {
     override fun getRecordId() = id
@@ -135,18 +136,18 @@ data class DatabaseOrdersType constructor(
 )
 data class DatabaseOrder constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     @ColumnInfo(index = true)
-    var orderTypeId: Int,
+    var orderTypeId: ID,
     @ColumnInfo(index = true)
-    var reasonId: Int,
-    var orderNumber: Int? = null,
+    var reasonId: ID,
+    var orderNumber: Long? = null,
     @ColumnInfo(index = true)
-    var customerId: Int,
+    var customerId: ID,
     @ColumnInfo(index = true)
-    var orderedById: Int,
+    var orderedById: ID,
     @ColumnInfo(index = true)
-    var statusId: Int,
+    var statusId: ID,
     @ColumnInfo(index = true)
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
@@ -175,13 +176,13 @@ data class DatabaseOrder constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + orderTypeId
-        result = 31 * result + reasonId
-        result = 31 * result + (orderNumber ?: 0)
-        result = 31 * result + customerId
-        result = 31 * result + orderedById
-        result = 31 * result + statusId
+        var result = id.toInt()
+        result = 31 * result + orderTypeId.toInt()
+        result = 31 * result + reasonId.toInt()
+        result = 31 * result + (orderNumber?.toInt() ?: 0)
+        result = 31 * result + customerId.toInt()
+        result = 31 * result + orderedById.toInt()
+        result = 31 * result + statusId.toInt()
         result = 31 * result + createdDate.hashCode()
         result = 31 * result + (completedDate?.hashCode() ?: 0)
         return result
@@ -197,7 +198,7 @@ data class DatabaseOrder constructor(
             "GROUP BY o.id;"
 )
 data class DatabaseOrderResult constructor(
-    val id: Int,
+    val id: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
@@ -277,34 +278,34 @@ data class DatabaseOrderResult constructor(
 )
 data class DatabaseSubOrder constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     @ColumnInfo(index = true)
-    var orderId: Int,
-    var subOrderNumber: Int,
+    var orderId: ID,
+    var subOrderNumber: Long,
     @ColumnInfo(index = true)
-    var orderedById: Int,
+    var orderedById: ID,
     @ColumnInfo(index = true)
-    var completedById: Int? = null,
+    var completedById: ID? = null,
     @ColumnInfo(index = true)
-    var statusId: Int,
+    var statusId: ID,
     var createdDate: Long,
     var completedDate: Long? = null,
     @ColumnInfo(index = true)
-    var departmentId: Int,
+    var departmentId: ID,
     @ColumnInfo(index = true)
-    var subDepartmentId: Int,
+    var subDepartmentId: ID,
     @ColumnInfo(index = true)
-    var channelId: Int,
+    var channelId: ID,
     @ColumnInfo(index = true)
-    var lineId: Int,
+    var lineId: ID,
     @ColumnInfo(index = true)
-    var operationId: Int,
+    var operationId: ID,
     @ColumnInfo(index = true)
     var itemPreffix: String,
-    var itemTypeId: Int,
-    var itemVersionId: Int,
+    var itemTypeId: ID,
+    var itemVersionId: ID,
     var samplesCount: Int? = null,
-    var remarkId: Int
+    var remarkId: ID
 ) : DatabaseBaseModel<NetworkSubOrder, DomainSubOrder> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrder::class, NetworkSubOrder::class).transform(this)
@@ -339,24 +340,24 @@ data class DatabaseSubOrder constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + orderId
-        result = 31 * result + subOrderNumber
-        result = 31 * result + orderedById
-        result = 31 * result + (completedById ?: 0)
-        result = 31 * result + statusId
+        var result = id.toInt()
+        result = 31 * result + orderId.toInt()
+        result = 31 * result + subOrderNumber.toInt()
+        result = 31 * result + orderedById.toInt()
+        result = 31 * result + (completedById?.toInt() ?: 0)
+        result = 31 * result + statusId.toInt()
         result = 31 * result + createdDate.hashCode()
         result = 31 * result + (completedDate?.hashCode() ?: 0)
-        result = 31 * result + departmentId
-        result = 31 * result + subDepartmentId
-        result = 31 * result + channelId
-        result = 31 * result + lineId
-        result = 31 * result + operationId
+        result = 31 * result + departmentId.toInt()
+        result = 31 * result + subDepartmentId.toInt()
+        result = 31 * result + channelId.toInt()
+        result = 31 * result + lineId.toInt()
+        result = 31 * result + operationId.toInt()
         result = 31 * result + itemPreffix.hashCode()
-        result = 31 * result + itemTypeId
-        result = 31 * result + itemVersionId
+        result = 31 * result + itemTypeId.toInt()
+        result = 31 * result + itemVersionId.toInt()
         result = 31 * result + (samplesCount ?: 0)
-        result = 31 * result + remarkId
+        result = 31 * result + remarkId.toInt()
         return result
     }
 }
@@ -369,7 +370,7 @@ data class DatabaseSubOrder constructor(
             "GROUP BY so.id;"
 )
 data class DatabaseSubOrderResult constructor(
-    val id: Int,
+    val id: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
@@ -426,19 +427,19 @@ data class DatabaseSubOrderResult constructor(
 )
 data class DatabaseSubOrderTask constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     @ColumnInfo(index = true)
-    var subOrderId: Int,
+    var subOrderId: ID,
     @ColumnInfo(index = true)
-    var charId: Int,
+    var charId: ID,
     @ColumnInfo(index = true)
-    var statusId: Int,
+    var statusId: ID,
     var createdDate: Long? = null,
     var completedDate: Long? = null,
     @ColumnInfo(index = true)
-    var orderedById: Int? = null,
+    var orderedById: ID? = null,
     @ColumnInfo(index = true)
-    var completedById: Int? = null,
+    var completedById: ID? = null,
 ) : DatabaseBaseModel<NetworkSubOrderTask, DomainSubOrderTask> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseSubOrderTask::class, NetworkSubOrderTask::class).transform(this)
@@ -463,14 +464,14 @@ data class DatabaseSubOrderTask constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + subOrderId
-        result = 31 * result + charId
-        result = 31 * result + statusId
+        var result = id.toInt()
+        result = 31 * result + subOrderId.toInt()
+        result = 31 * result + charId.toInt()
+        result = 31 * result + statusId.toInt()
         result = 31 * result + (createdDate?.hashCode() ?: 0)
         result = 31 * result + (completedDate?.hashCode() ?: 0)
-        result = 31 * result + (orderedById ?: 0)
-        result = 31 * result + (completedById ?: 0)
+        result = 31 * result + (orderedById?.toInt() ?: 0)
+        result = 31 * result + (completedById?.toInt() ?: 0)
         return result
     }
 }
@@ -482,7 +483,7 @@ data class DatabaseSubOrderTask constructor(
             "GROUP BY t.id;"
 )
 data class DatabaseTaskResult constructor(
-    val id: Int,
+    val id: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
@@ -505,9 +506,9 @@ data class DatabaseTaskResult constructor(
 )
 data class DatabaseSample constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     @ColumnInfo(index = true)
-    var subOrderId: Int,
+    var subOrderId: ID,
     var sampleNumber: Int? = null
 ) : DatabaseBaseModel<NetworkSample, DomainSample> {
     override fun getRecordId() = id
@@ -528,8 +529,8 @@ data class DatabaseSample constructor(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + subOrderId
+        var result = id.toInt()
+        result = 31 * result + subOrderId.toInt()
         result = 31 * result + (sampleNumber ?: 0)
         return result
     }
@@ -542,9 +543,9 @@ data class DatabaseSample constructor(
             "GROUP BY s.id, r.taskId;"
 )
 data class DatabaseSampleResult constructor(
-    val id: Int,
-    val taskId: Int?,
-    val subOrderId: Int,
+    val id: ID,
+    val taskId: ID?,
+    val subOrderId: ID,
     val isOk: Boolean?,
     val good: Int?,
     val total: Int?
@@ -575,7 +576,7 @@ data class DatabaseSampleComplete constructor(
 @Entity(tableName = "0_results_decryptions")
 data class DatabaseResultsDecryption constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     var resultDecryption: String? = null
 ) : DatabaseBaseModel<NetworkResultsDecryption, DomainResultsDecryption> {
     override fun getRecordId() = id
@@ -617,17 +618,17 @@ data class DatabaseResultsDecryption constructor(
 )
 data class DatabaseResult constructor(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: ID,
     @ColumnInfo(index = true)
-    var sampleId: Int,
+    var sampleId: ID,
     @ColumnInfo(index = true)
-    var metrixId: Int,
+    var metrixId: ID,
     var result: Float? = null,
     var isOk: Boolean? = null,
     @ColumnInfo(index = true)
-    var resultDecryptionId: Int,
+    var resultDecryptionId: ID,
     @ColumnInfo(index = true)
-    var taskId: Int
+    var taskId: ID
 ) : DatabaseBaseModel<NetworkResult, DomainResult> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseResult::class, NetworkResult::class).transform(this)
@@ -651,13 +652,13 @@ data class DatabaseResult constructor(
     }
 
     override fun hashCode(): Int {
-        var result1 = id
-        result1 = 31 * result1 + sampleId
-        result1 = 31 * result1 + metrixId
+        var result1 = id.toInt()
+        result1 = 31 * result1 + sampleId.toInt()
+        result1 = 31 * result1 + metrixId.toInt()
         result1 = 31 * result1 + (result?.hashCode() ?: 0)
         result1 = 31 * result1 + (isOk?.hashCode() ?: 0)
-        result1 = 31 * result1 + resultDecryptionId
-        result1 = 31 * result1 + taskId
+        result1 = 31 * result1 + resultDecryptionId.toInt()
+        result1 = 31 * result1 + taskId.toInt()
         return result1
     }
 }
@@ -696,42 +697,36 @@ data class DatabaseOrderShort constructor(
 data class DatabaseOrderComplete constructor(
     @Embedded
     val order: DatabaseOrder,
-
     @Relation(
         entity = DatabaseOrdersType::class,
         parentColumn = "orderTypeId",
         entityColumn = "id"
     )
     val orderType: DatabaseOrdersType,
-
     @Relation(
         entity = DatabaseReason::class,
         parentColumn = "reasonId",
         entityColumn = "id"
     )
     val orderReason: DatabaseReason,
-
     @Relation(
         entity = DatabaseDepartment::class,
         parentColumn = "customerId",
         entityColumn = "id",
     )
     val customer: DatabaseDepartment,
-
     @Relation(
         entity = DatabaseEmployee::class,
         parentColumn = "orderedById",
         entityColumn = "id"
     )
     val orderPlacer: DatabaseEmployee,
-
     @Relation(
         entity = DatabaseOrdersStatus::class,
         parentColumn = "statusId",
         entityColumn = "id"
     )
     val orderStatus: DatabaseOrdersStatus,
-
     @Relation(
         entity = DatabaseOrderResult::class,
         parentColumn = "id",
@@ -755,14 +750,12 @@ data class DatabaseOrderComplete constructor(
 data class DatabaseSubOrderComplete constructor(
     @Embedded
     val subOrder: DatabaseSubOrder,
-
     @Relation(
         entity = DatabaseOrderShort::class,
         parentColumn = "orderId",
         entityColumn = "id"
     )
     val orderShort: DatabaseOrderShort,
-
     @Relation(
         entity = DatabaseEmployee::class,
         parentColumn = "orderedById",
@@ -817,7 +810,6 @@ data class DatabaseSubOrderComplete constructor(
         entityColumn = "fId"
     )
     val itemVersionComplete: DatabaseItemVersionComplete,
-
     @Relation(
         entity = DatabaseSubOrderResult::class,
         parentColumn = "id",
@@ -908,7 +900,7 @@ data class DatabaseSubOrderTaskComplete constructor(
             "INNER JOIN items_tolerances AS it ON r.metrixID = it.metrixID AND so.itemPreffix = it.fVersionID;"
 )
 data class DatabaseResultTolerance(
-    val id: Int,
+    val id: ID,
     val nominal: Float?,
     val lsl: Float?,
     val usl: Float?
