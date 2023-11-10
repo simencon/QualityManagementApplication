@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
@@ -119,7 +120,7 @@ fun CharSubGroup(
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(
                     titleWight = 0.50f, title = "Sub group related time:",
-                    text = "${charSubGroup.charSubGroup.measurementGroupRelatedTime?.let { String.format("%.2f", it) }?: NoString.str} minutes"
+                    text = charSubGroup.charSubGroup.measurementGroupRelatedTime?.let { "${String.format("%.2f", it)} minutes" }?: NoString.str
                 )
             }
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(charSubGroup.charSubGroup.id) }) {
@@ -139,6 +140,6 @@ fun CharSubGroupDetails(
     charGroup: DomainCharSubGroup.DomainCharSubGroupComplete
 ) {
     if (charGroup.detailsVisibility) {
-//        Characteristics(viewModel = viewModel)
+        Characteristics(viewModel = viewModel)
     }
 }

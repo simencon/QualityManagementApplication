@@ -154,6 +154,7 @@ class CharacteristicsViewModel @Inject constructor(
             flow { emit(cpy) }
         }
     }
+    val charSubGroupVisibility get() = _charSubGroupVisibility.asStateFlow()
     val charSubGroups = _charSubGroups.flatMapLatest { charSubGroups ->
         _charSubGroupVisibility.flatMapLatest { visibility ->
             val cpy = charSubGroups.map { it.copy(detailsVisibility = it.charSubGroup.id == visibility.first.num, isExpanded = it.charSubGroup.id == visibility.second.num) }
@@ -184,6 +185,9 @@ class CharacteristicsViewModel @Inject constructor(
     fun onDeleteCharSubGroupClick(it: ID) {
         TODO("Not yet implemented")
     }
+    fun onDeleteCharacteristicClick(it: ID) {
+        TODO("Not yet implemented")
+    }
 
     private fun updateCharacteristicsData() {
         TODO("Not yet implemented")
@@ -198,11 +202,18 @@ class CharacteristicsViewModel @Inject constructor(
     fun onAddCharSubGroupClick(it: ID) {
         TODO("Not yet implemented")
     }
+    fun onAddCharacteristicClick(it: ID) {
+        TODO("Not yet implemented")
+    }
 
     fun onEditCharGroupClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
     fun onEditCharSubGroupClick(it: Pair<ID, ID>) {
+        TODO("Not yet implemented")
+    }
+
+    fun onEditCharacteristicClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 }
