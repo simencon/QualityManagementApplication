@@ -2,5 +2,8 @@ package com.simenko.qmapp.storage
 
 enum class ScrollStates(val indexKey: String, val offsetKey: String) {
     DEPARTMENTS("DEPARTMENTS_LIST_INDEX", "DEPARTMENTS_LIST_OFFSET"),
-    LINES("LINES_LIST_INDEX", "LINES_LIST_OFFSET")
+    LINES("LINES_LIST_INDEX", "LINES_LIST_OFFSET"),
+
+    CHAR_GROUPS("CHAR_GROUP_LIST_INDEX", "CHAR_GROUP_LIST_OFFSET"),
+    METRICS("METRIC_LIST_INDEX", "METRIC_LIST_OFFSET")
 }

@@ -131,7 +131,7 @@ class CompanyStructureViewModel @Inject constructor(
                     flow {
                         if (depId != NoRecord.num) {
                             storage.setLong(ScrollStates.DEPARTMENTS.indexKey, departments.map { it.department.id }.indexOf(depId).toLong())
-                            storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, ZeroValue.num.toLong())
+                            storage.setLong(ScrollStates.DEPARTMENTS.offsetKey, ZeroValue.num)
                             emit(Pair(true, sl))
 
                         } else {
@@ -150,7 +150,7 @@ class CompanyStructureViewModel @Inject constructor(
         flow {
             if (lineId != NoRecord.num) {
                 storage.setLong(ScrollStates.LINES.indexKey, lines.map { it.id }.indexOf(lineId).toLong())
-                storage.setLong(ScrollStates.LINES.offsetKey, ZeroValue.num.toLong())
+                storage.setLong(ScrollStates.LINES.offsetKey, ZeroValue.num)
                 emit(true)
             } else {
                 emit(true)

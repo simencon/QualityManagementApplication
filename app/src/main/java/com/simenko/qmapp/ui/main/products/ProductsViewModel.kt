@@ -91,7 +91,7 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun onProductLineCharacteristicsClick(it: ID) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.withOpts(it.toString(), NoRecordStr.str))
     }
 
     fun onProductLineItemsClick(it: ID) {
