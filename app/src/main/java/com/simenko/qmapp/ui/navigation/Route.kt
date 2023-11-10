@@ -56,8 +56,8 @@ object NavRouteName {
     const val operation_add_edit = "operation_add_edit"
 
     const val product_lines = "product_lines"
-    const val product_line_keys = "product_line_keys"
     const val product_line_characteristics = "product_line_characteristics"
+    const val product_line_keys = "product_line_keys"
     const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
     const val component_kind_add_edit = "component_kind_add_edit"
@@ -100,9 +100,11 @@ object NavArguments {
     const val operationId = "operationId"
 
     const val productLineId = "productLineId"
-    const val productLineKeyId = "productLineKeyId"
-    const val productLineCharacteristicId = "productLineCharacteristicId"
+    const val charGroupId = "charGroupId"
+    const val charSubGroupId = "charSubGroupId"
+    const val characteristicId = "characteristicId"
     const val metricId = "metricId"
+    const val productLineKeyId = "productLineKeyId"
     const val productKindId = "productKindId"
     const val componentKindId = "componentKindId"
     const val componentStageKindId = "componentStageKindId"
@@ -411,12 +413,15 @@ sealed class Route(
                 ),
                 route = PRODUCTS_ROUTE + "?${opt(NavArguments.companyId)}"
             ) {
-                data object ProductLineCharacteristics : Route(
-                    link = NavRouteName.product_line_characteristics + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineCharacteristicId)}&${opt(NavArguments.metricId)}",
+                data object Characteristics : Route(
+                    link = NavRouteName.product_line_characteristics +
+                            "?${opt(NavArguments.productLineId)}&${NavArguments.charGroupId}&${NavArguments.charSubGroupId}" +
+                            "&${opt(NavArguments.characteristicId)}&${opt(NavArguments.metricId)}",
                     deepLinks = listOf(
                         navDeepLink {
-                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_keys}" +
-                                    "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineCharacteristicId)}&${opt(NavArguments.metricId)}"
+                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_characteristics}" +
+                                    "?${opt(NavArguments.productLineId)}&${NavArguments.charGroupId}&${NavArguments.charSubGroupId}" +
+                                    "&${opt(NavArguments.characteristicId)}&${opt(NavArguments.metricId)}"
                             action = Intent.ACTION_VIEW
                         }
                     ),
@@ -425,18 +430,32 @@ sealed class Route(
                             type = NavType.LongType
                             defaultValue = NoRecord.num
                         },
-                        navArgument(NavArguments.productLineCharacteristicId) {
+                        navArgument(NavArguments.charGroupId) {
+                            type = NavType.LongType
+                            defaultValue = NoRecord.num
+                        },
+                        navArgument(NavArguments.charSubGroupId) {
+                            type = NavType.LongType
+                            defaultValue = NoRecord.num
+                        },
+                        navArgument(NavArguments.characteristicId) {
+                            type = NavType.LongType
+                            defaultValue = NoRecord.num
+                        },
+                        navArgument(NavArguments.metricId) {
                             type = NavType.LongType
                             defaultValue = NoRecord.num
                         }
                     ),
                     route = NavRouteName.product_lines
                 )
+
                 data object ProductLineKeys : Route(
                     link = NavRouteName.product_line_keys + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineKeyId)}",
                     deepLinks = listOf(
                         navDeepLink {
-                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_keys}?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineKeyId)}"
+                            uriPattern =
+                                "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_keys}?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineKeyId)}"
                             action = Intent.ACTION_VIEW
                         }
                     ),

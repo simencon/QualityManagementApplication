@@ -21,7 +21,9 @@ data class DomainCharGroup constructor(
     override fun toDatabaseModel() = ObjectTransformer(DomainCharGroup::class, DatabaseCharGroup::class).transform(this)
     data class DomainCharGroupComplete(
         val charGroup: DomainCharGroup = DomainCharGroup(),
-        val productLine: DomainProductLine.DomainProductLineComplete = DomainProductLine.DomainProductLineComplete()
+        val productLine: DomainProductLine.DomainProductLineComplete = DomainProductLine.DomainProductLineComplete(),
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ): DomainBaseModel<DatabaseCharGroup.DatabaseCharGroupComplete>() {
         override fun getRecordId() = charGroup.id
         override fun getParentId() = charGroup.productLineId
@@ -47,7 +49,9 @@ data class DomainCharSubGroup constructor(
     override fun toDatabaseModel() = ObjectTransformer(DomainCharSubGroup::class, DatabaseCharSubGroup::class).transform(this)
     data class DomainCharSubGroupComplete(
         val charSubGroup: DomainCharSubGroup = DomainCharSubGroup(),
-        val charGroup: DomainCharGroup.DomainCharGroupComplete = DomainCharGroup.DomainCharGroupComplete()
+        val charGroup: DomainCharGroup.DomainCharGroupComplete = DomainCharGroup.DomainCharGroupComplete(),
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseCharSubGroup.DatabaseCharSubGroupComplete>() {
         override fun getRecordId() = charSubGroup.id
         override fun getParentId() = charSubGroup.charGroupId

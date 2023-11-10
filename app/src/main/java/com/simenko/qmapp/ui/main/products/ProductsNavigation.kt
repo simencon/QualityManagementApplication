@@ -3,6 +3,8 @@ package com.simenko.qmapp.ui.main.products
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
+import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsMain
+import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.keys.ProductLineKeys
 import com.simenko.qmapp.ui.main.products.keys.ProductLineKeysViewModel
 import com.simenko.qmapp.ui.navigation.Route
@@ -20,6 +22,10 @@ fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
         composable(destination = Route.Main.Products.ProductLines.ProductLineKeys) {
             val viewModel: ProductLineKeysViewModel = hiltViewModel()
             ProductLineKeys(viewModel = viewModel)
+        }
+        composable(destination = Route.Main.Products.ProductLines.Characteristics) {
+            val viewModel: CharacteristicsViewModel = hiltViewModel()
+            CharacteristicsMain(mainScreenPadding = mainScreenPadding ,viewModel = viewModel)
         }
     }
 }

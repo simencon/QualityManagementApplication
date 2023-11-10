@@ -51,10 +51,16 @@ annotation class OperationIdParameter
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ProductLineIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CharGroupIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CharSubGroupIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class ProductLineCharacteristicIdParameter
+annotation class CharacteristicIdParameter
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class MetricIdParameter
@@ -149,12 +155,22 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideProductLineIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.productLineId] ?: NoRecord.num
+    @Provides
+    @CharGroupIdParameter
+    @ViewModelScoped
+    fun provideCharGroupIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.charGroupId] ?: NoRecord.num
+    @Provides
+    @CharSubGroupIdParameter
+    @ViewModelScoped
+    fun provideSubCharGroupIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.charSubGroupId] ?: NoRecord.num
 
     @Provides
-    @ProductLineCharacteristicIdParameter
+    @CharacteristicIdParameter
     @ViewModelScoped
-    fun provideProductLineCharacteristicIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.productLineCharacteristicId] ?: NoRecord.num
+    fun provideCharacteristicIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.characteristicId] ?: NoRecord.num
     @Provides
     @MetricIdParameter
     @ViewModelScoped

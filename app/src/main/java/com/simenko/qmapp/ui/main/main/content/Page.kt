@@ -65,7 +65,7 @@ enum class Page(
         actionMenuItems = CompanyProductsActions.toList()
     ),
     PRODUCT_LINE_CHARACTERISTICS(
-        link = Route.Main.Products.ProductLines.ProductLineCharacteristics.link,
+        link = Route.Main.Products.ProductLines.Characteristics.link,
         navIcon = Icons.Filled.ArrowBack,
         title = "Characteristics",
         titlePlaceholderText = "Search by description",
