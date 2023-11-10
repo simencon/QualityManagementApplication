@@ -188,6 +188,9 @@ class CharacteristicsViewModel @Inject constructor(
     fun onDeleteCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
+    fun onDeleteMetricClick(it: ID) {
+        TODO("Not yet implemented")
+    }
 
     private fun updateCharacteristicsData() {
         TODO("Not yet implemented")
@@ -205,6 +208,9 @@ class CharacteristicsViewModel @Inject constructor(
     fun onAddCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
+    fun onAddMetricClick(it: ID) {
+        TODO("Not yet implemented")
+    }
 
     fun onEditCharGroupClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
@@ -214,6 +220,10 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     fun onEditCharacteristicClick(it: Pair<ID, ID>) {
+        TODO("Not yet implemented")
+    }
+
+    fun onEditMetricClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 }
