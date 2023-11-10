@@ -93,8 +93,8 @@ fun CharacteristicsMain(
                 Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
                 if (listsIsInitialized.first)
                     CharGroups(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-//                if (isSecondRowVisible && listsIsInitialized.second)
-//                    Metrics(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
+                if (isSecondRowVisible && listsIsInitialized.second)
+                    Metrics(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
             }
         }
     }
