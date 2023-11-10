@@ -55,11 +55,11 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     val departmentVisibility by viewModel.departmentsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.subDepartments.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
+    val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddSubDepartmentClick(it) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setSubDepartmentsVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteSubDepartmentClick(it) } }
-    val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddSubDepartmentClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditSubDepartmentClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setSubDepartmentsVisibility(dId = SelectedNumber(it)) } }
     val onClickProductsLambda = remember<(ID) -> Unit> { { viewModel.onSubDepartmentProductsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(1, true) }

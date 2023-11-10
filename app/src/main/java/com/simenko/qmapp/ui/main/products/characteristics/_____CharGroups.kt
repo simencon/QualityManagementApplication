@@ -72,10 +72,10 @@ fun CharGroups(
     }
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.charGroup.id }) { department ->
+        items(items = items, key = { it.charGroup.id }) { item ->
             CharGroupCard(
                 viewModel = viewModel,
-                charGroup = department,
+                charGroup = item,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
@@ -139,6 +139,6 @@ fun CharGroupDetails(
     charGroup: DomainCharGroup.DomainCharGroupComplete
 ) {
     if (charGroup.detailsVisibility) {
-//        CharSubGroups(viewModel = viewModel)
+        CharSubGroups(viewModel = viewModel)
     }
 }
