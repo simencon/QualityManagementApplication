@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
@@ -101,10 +102,10 @@ fun Metric(metric: DomainMetrix) {
             .padding(all = DEFAULT_SPACE.dp)
             .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
     ) {
-        HeaderWithTitle(titleFirst = false, titleWight = 0f, text = metric.metrixDescription.toString())
+        HeaderWithTitle(titleWight = 0.07f, title = metric.metrixOrder.toString(), text = metric.metrixDescription?: NoString.str)
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        HeaderWithTitle(titleWight = 0.50f, title = "Metric designation:", text = metric.metrixDesignation)
+        HeaderWithTitle(titleWight = 0.50f, title = "Metric designation:", text = metric.metrixDesignation ?: NoString.str)
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        HeaderWithTitle(titleWight = 0.50f, title = "Metric unit:", text = metric.units)
+        HeaderWithTitle(titleWight = 0.50f, title = "Metric unit:", text = metric.units ?: NoString.str)
     }
 }

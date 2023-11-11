@@ -17,8 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -41,7 +43,9 @@ fun CharacteristicsMain(
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenWidthPhysical = screenWidth.toFloat().dp()
-    val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding()
+    val localDensity = LocalDensity.current
+    var titleHeightDp by remember { mutableStateOf(0.dp) }
+    val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - titleHeightDp
 
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
@@ -78,7 +82,14 @@ fun CharacteristicsMain(
         }
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+        Column(modifier = Modifier.onGloballyPositioned {
+            titleHeightDp = with(localDensity) { it.size.height.toDp() }
+        }) {
+            Spacer(modifier = Modifier.height(10.dp))
+            InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = productLine.projectSubject ?: NoString.str)
+            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        }
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
@@ -87,15 +98,10 @@ fun CharacteristicsMain(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
-                Spacer(modifier = Modifier.height(10.dp))
-                InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = productLine.projectSubject ?: NoString.str)
-                Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-                if (listsIsInitialized.first)
-                    CharGroups(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-                if (isSecondRowVisible /*&& listsIsInitialized.second*/)
-                    Metrics(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
-            }
+            if (listsIsInitialized.first)
+                CharGroups(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
+            if (isSecondRowVisible /*&& listsIsInitialized.second*/)
+                Metrics(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }
 }
