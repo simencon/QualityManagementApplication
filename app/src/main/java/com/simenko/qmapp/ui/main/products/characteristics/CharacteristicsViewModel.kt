@@ -109,7 +109,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     val isSecondColumnVisible: StateFlow<Boolean> = _isComposed.flatMapLatest { isComposed ->
-        _metricVisibility.flatMapLatest { visibility ->
+        _characteristicsVisibility.flatMapLatest { visibility ->
             flow { emit((visibility.first != NoRecord) && (isComposed.component3())) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
