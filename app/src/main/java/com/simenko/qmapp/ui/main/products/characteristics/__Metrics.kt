@@ -63,9 +63,9 @@ fun Metrics(modifier: Modifier = Modifier, viewModel: CharacteristicsViewModel =
     }
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.id }) { line ->
+        items(items = items, key = { it.id }) { item ->
             MetricCard(
-                metric = line,
+                metric = item,
                 onClickActions = { onClickActionsLambda(it) },
                 onClickDelete = { onClickDeleteLambda(it) },
                 onClickEdit = { onClickEditLambda(it) }
