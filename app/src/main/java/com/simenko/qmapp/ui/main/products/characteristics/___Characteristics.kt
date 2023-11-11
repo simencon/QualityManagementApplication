@@ -119,18 +119,18 @@ fun Characteristic(
             .padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(0.91f)) {
-            HeaderWithTitle(titleFirst = false, titleWight = 0f, text = characteristic.characteristic.charDescription ?: NoString.str)
+            HeaderWithTitle(titleWight = 0.07f, title = characteristic.characteristic.charOrder.toString(), text = characteristic.characteristic.charDescription ?: NoString.str)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             HeaderWithTitle(titleWight = 0.50f, title = "Characteristic designation:", text = characteristic.characteristic.charDesignation ?: NoString.str)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             HeaderWithTitle(
                 titleWight = 0.50f, title = "Sample related time:",
-                text = characteristic.characteristic.sampleRelatedTime?.let { "${String.format("%.2f", it)} minutes" }?: NoString.str
+                text = characteristic.characteristic.sampleRelatedTime?.let { "${String.format("%.2f", it)} minutes" } ?: NoString.str
             )
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             HeaderWithTitle(
                 titleWight = 0.50f, title = "Measurement related time:",
-                text = characteristic.characteristic.measurementRelatedTime?.let { "${String.format("%.2f", it)} minutes" }?: NoString.str
+                text = characteristic.characteristic.measurementRelatedTime?.let { "${String.format("%.2f", it)} minutes" } ?: NoString.str
             )
         }
 
