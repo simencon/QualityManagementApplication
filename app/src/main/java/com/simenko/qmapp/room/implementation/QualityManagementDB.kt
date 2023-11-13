@@ -102,6 +102,8 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseCharSubGroup.DatabaseCharSubGroupComplete::class,
         DatabaseCharacteristic.DatabaseCharacteristicComplete::class,
 
+        DatabaseProductKind.DatabaseProductKindComplete::class,
+
         DatabaseSubOrderTaskComplete::class,
         DatabaseResultComplete::class,
 

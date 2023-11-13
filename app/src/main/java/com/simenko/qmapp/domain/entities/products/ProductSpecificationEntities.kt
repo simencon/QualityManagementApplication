@@ -101,6 +101,20 @@ data class DomainProductKind(
     override fun getParentId() = projectId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainProductKind::class, DatabaseProductKind::class).transform(this)
+    data class DomainProductKindComplete(
+        val productKind: DomainProductKind,
+        val productLine: DomainProductLine.DomainProductLineComplete,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseProductKind.DatabaseProductKindComplete>() {
+        override fun getRecordId() = productKind.id
+        override fun getParentId() = productKind.projectId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseProductKind.DatabaseProductKindComplete(
+            productKind = productKind.toDatabaseModel(),
+            productLine = productLine.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainComponentKind(

@@ -58,6 +58,8 @@ object NavRouteName {
     const val product_lines = "product_lines"
     const val product_line_characteristics = "product_line_characteristics"
     const val product_line_keys = "product_line_keys"
+    const val product_kinds = "product_kinds"
+
     const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
     const val component_kind_add_edit = "component_kind_add_edit"
@@ -100,11 +102,13 @@ object NavArguments {
     const val operationId = "operationId"
 
     const val productLineId = "productLineId"
+
     const val charGroupId = "charGroupId"
     const val charSubGroupId = "charSubGroupId"
     const val characteristicId = "characteristicId"
     const val metricId = "metricId"
     const val productLineKeyId = "productLineKeyId"
+
     const val productKindId = "productKindId"
     const val componentKindId = "componentKindId"
     const val componentStageKindId = "componentStageKindId"
@@ -465,6 +469,27 @@ sealed class Route(
                             defaultValue = NoRecord.num
                         },
                         navArgument(NavArguments.productLineKeyId) {
+                            type = NavType.LongType
+                            defaultValue = NoRecord.num
+                        }
+                    ),
+                    route = NavRouteName.product_lines
+                )
+
+                data object ProductKinds : Route(
+                    link = NavRouteName.product_kinds + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productKindId)}",
+                    deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}?${opt(NavArguments.productLineId)}&${opt(NavArguments.productKindId)}"
+                            action = Intent.ACTION_VIEW
+                        }
+                    ),
+                    arguments = listOf(
+                        navArgument(NavArguments.productLineId) {
+                            type = NavType.LongType
+                            defaultValue = NoRecord.num
+                        },
+                        navArgument(NavArguments.productKindId) {
                             type = NavType.LongType
                             defaultValue = NoRecord.num
                         }

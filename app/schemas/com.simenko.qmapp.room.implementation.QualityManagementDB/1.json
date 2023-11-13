@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "92b8ca473936d7611f8ca7d4708019b0",
+    "identityHash": "29b50bd9b3ebc2299f6da5354a60bf4e",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4686,6 +4686,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `7_characteristics` ORDER BY charOrder;"
       },
       {
+        "viewName": "product_kinds_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_product_kinds`"
+      },
+      {
         "viewName": "sub_order_task_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `13_7_sub_order_tasks` ORDER BY id;"
       },
@@ -4728,7 +4732,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '92b8ca473936d7611f8ca7d4708019b0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '29b50bd9b3ebc2299f6da5354a60bf4e')"
     ]
   }
 }
