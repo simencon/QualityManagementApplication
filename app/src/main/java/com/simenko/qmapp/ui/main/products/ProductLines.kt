@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -122,57 +125,17 @@ fun ProductLine(
     onClickCharacteristics: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
-    val containerColor = when (productLine.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.primaryContainer
-    }
-
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
-        HeaderWithTitle(
-            modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = DEFAULT_SPACE.dp, end = DEFAULT_SPACE.dp),
-            titleWight = 0.20f,
-            title = "Product line:",
-            text = productLine.manufacturingProject.projectSubject ?: NoString.str
-        )
-
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.54f)) {
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productLine.manufacturingProject.projectSubject ?: NoString.str)
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(titleWight = 0.50f, title = "Product line id:", value = productLine.manufacturingProject.pfmeaNum ?: NoString.str)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(titleWight = 0.50f, title = "Start date:", value = productLine.manufacturingProject.startDate ?: NoString.str)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(titleWight = 0.50f, title = "Revision date:", value = productLine.manufacturingProject.revisionDate ?: NoString.str)
             }
-            Column(modifier = Modifier.weight(0.46f)) {
-                StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickCharacteristics(productLine.manufacturingProject.id) }) {
-                    Text(
-                        text = "Characteristics",
-                        style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Row {
-                    StatusChangeBtn(modifier = Modifier.weight(0.50f), containerColor = containerColor, onClick = { onClickKeys(productLine.manufacturingProject.id) }) {
-                        Text(
-                            text = "Keys",
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    StatusChangeBtn(modifier = Modifier.weight(0.50f), containerColor = containerColor, onClick = { onClickItems(productLine.manufacturingProject.id) }) {
-                        Text(
-                            text = "Items",
-                            style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
-
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(productLine.manufacturingProject.id) }) {
                 Icon(
                     imageVector = if (productLine.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -180,24 +143,54 @@ fun ProductLine(
                 )
             }
         }
-        ProductLineDetails(productLine = productLine)
+        ProductLineDetails(productLine = productLine, onClickCharacteristics = onClickCharacteristics, onClickKeys = onClickKeys, onClickItems = onClickItems)
     }
 }
 
 @Composable
 fun ProductLineDetails(
-    productLine: DomainProductLine.DomainProductLineComplete
+    productLine: DomainProductLine.DomainProductLineComplete,
+    onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
+    onClickItems: (ID) -> Unit
 ) {
     if (productLine.detailsVisibility) {
-        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
+
+        val containerColor = when (productLine.isExpanded) {
+            true -> MaterialTheme.colorScheme.secondaryContainer
+            false -> MaterialTheme.colorScheme.primaryContainer
+        }
+
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Company:", value = productLine.company.companyName ?: NoString.str, titleWight = 0.30f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Design department:", value = productLine.designDepartment.depAbbr ?: NoString.str, titleWight = 0.30f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Design manager:", value = productLine.designManager.fullName, titleWight = 0.30f)
-            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            Row(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.weight(0.50f))
+                Column(modifier = Modifier.weight(0.50f)) {
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickCharacteristics(productLine.manufacturingProject.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Characteristics", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show characteristics")
+                        }
+                    }
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productLine.manufacturingProject.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Item designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show item designations")
+                        }
+                    }
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickItems(productLine.manufacturingProject.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Items", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
+                        }
+                    }
+                }
+            }
         }
     }
 }
