@@ -244,6 +244,27 @@ data class DatabaseComponentKind(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKind::class, NetworkComponentKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentKind::class, DomainComponentKind::class).transform(this)
+    @DatabaseView(
+        viewName = "component_kinds_complete",
+        value = "select * from `3_component_kinds` order by componentKindOrder"
+    )
+    data class DatabaseComponentKindComplete(
+        @Embedded
+        val componentKind: DatabaseComponentKind,
+        @Relation(
+            entity = DatabaseProductKind.DatabaseProductKindComplete::class,
+            parentColumn = "productKindId",
+            entityColumn = "id"
+        )
+        val productKind: DatabaseProductKind.DatabaseProductKindComplete
+    ) : DatabaseBaseModel<Any?, DomainComponentKind.DomainComponentKindComplete> {
+        override fun getRecordId() = componentKind.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainComponentKind.DomainComponentKindComplete(
+            componentKind = componentKind.toDomainModel(),
+            productKind = productKind.toDomainModel()
+        )
+    }
 }
 
 @Entity(
@@ -269,6 +290,27 @@ data class DatabaseComponentStageKind(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageKind::class, NetworkComponentStageKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentStageKind::class, DomainComponentStageKind::class).transform(this)
+    @DatabaseView(
+        viewName = "component_stage_kinds_complete",
+        value = "select * from `5_component_stage_kinds` order by componentStageOrder"
+    )
+    data class DatabaseComponentStageKindComplete(
+        @Embedded
+        val componentStageKind: DatabaseComponentStageKind,
+        @Relation(
+            entity = DatabaseComponentKind.DatabaseComponentKindComplete::class,
+            parentColumn = "componentKindId",
+            entityColumn = "id"
+        )
+        val componentKind: DatabaseComponentKind.DatabaseComponentKindComplete
+    ) : DatabaseBaseModel<Any?, DomainComponentStageKind.DomainComponentStageKindComplete> {
+        override fun getRecordId() = componentStageKind.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainComponentStageKind.DomainComponentStageKindComplete(
+            componentStageKind = componentStageKind.toDomainModel(),
+            componentKind = componentKind.toDomainModel()
+        )
+    }
 }
 
 @Entity(

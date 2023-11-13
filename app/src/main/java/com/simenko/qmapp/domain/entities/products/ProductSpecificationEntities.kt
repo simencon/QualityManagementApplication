@@ -127,6 +127,20 @@ data class DomainComponentKind(
     override fun getParentId() = productKindId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentKind::class, DatabaseComponentKind::class).transform(this)
+    data class DomainComponentKindComplete(
+        val componentKind: DomainComponentKind,
+        val productKind: DomainProductKind.DomainProductKindComplete,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseComponentKind.DatabaseComponentKindComplete>() {
+        override fun getRecordId() = componentKind.id
+        override fun getParentId() = componentKind.productKindId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseComponentKind.DatabaseComponentKindComplete(
+            componentKind = componentKind.toDatabaseModel(),
+            productKind = productKind.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainComponentStageKind(
@@ -139,6 +153,20 @@ data class DomainComponentStageKind(
     override fun getParentId() = componentKindId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentStageKind::class, DatabaseComponentStageKind::class).transform(this)
+    data class DomainComponentStageKindComplete(
+        val componentStageKind: DomainComponentStageKind,
+        val componentKind: DomainComponentKind.DomainComponentKindComplete,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>() {
+        override fun getRecordId() = componentStageKind.id
+        override fun getParentId() = componentStageKind.componentKindId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseComponentStageKind.DatabaseComponentStageKindComplete(
+            componentStageKind = componentStageKind.toDatabaseModel(),
+            componentKind = componentKind.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainProductKindKey(
