@@ -66,7 +66,9 @@ class ProductKindKeysViewModel @Inject constructor(
     val productKind get() = _productKind.asStateFlow()
     val productKindKeys = _productKindKeys.flatMapLatest { productKindKeys ->
         _productKindKeysVisibility.flatMapLatest { visibility ->
-            val cpy = productKindKeys.map { it.copy(detailsVisibility = it.productKindKey.id == visibility.first.num, isExpanded = it.productKindKey.id == visibility.second.num) }
+            val cpy = productKindKeys.map {
+                it.copy(key = it.key.copy(detailsVisibility = it.key.productLineKey.id == visibility.first.num, isExpanded = it.key.productLineKey.id == visibility.second.num))
+            }
             flow { emit(cpy) }
         }
     }

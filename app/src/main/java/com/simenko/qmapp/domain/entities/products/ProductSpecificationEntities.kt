@@ -153,9 +153,7 @@ data class DomainProductKindKey(
     data class DomainProductKindKeyComplete(
         val productKindKey: DomainProductKindKey,
         val productKind: DomainProductKind.DomainProductKindComplete,
-        val key: DomainKey.DomainKeyComplete,
-        override var detailsVisibility: Boolean = false,
-        override var isExpanded: Boolean = false
+        val key: DomainKey.DomainKeyComplete
     ) : DomainBaseModel<DatabaseProductKindKey.DatabaseProductKindKeyComplete>() {
         override fun getRecordId() = productKindKey.id
         override fun getParentId() = productKind.productKind.projectId

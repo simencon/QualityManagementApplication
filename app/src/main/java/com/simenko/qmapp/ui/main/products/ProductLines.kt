@@ -169,8 +169,8 @@ fun ProductLineDetails(
             ContentWithTitle(title = "Design manager:", value = productLine.designManager.fullName, titleWight = 0.30f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             Row(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.weight(0.50f))
-                Column(modifier = Modifier.weight(0.50f)) {
+                Spacer(modifier = Modifier.weight(0.30f))
+                Column(modifier = Modifier.weight(0.70f)) {
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productLine.manufacturingProject.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
