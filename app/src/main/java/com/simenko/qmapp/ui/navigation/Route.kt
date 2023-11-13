@@ -60,6 +60,7 @@ object NavRouteName {
     const val product_line_keys = "product_line_keys"
     const val product_kinds = "product_kinds"
     const val product_kind_keys = "product_kind_keys"
+    const val product_specification = "product_specification"
 
     const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
@@ -503,7 +504,7 @@ sealed class Route(
                         link = NavRouteName.product_kind_keys + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productKindKeyId)}",
                         deepLinks = listOf(
                             navDeepLink {
-                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}" +
+                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_kind_keys}" +
                                         "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productKindKeyId)}"
                                 action = Intent.ACTION_VIEW
                             }
@@ -514,6 +515,32 @@ sealed class Route(
                                 defaultValue = NoRecord.num
                             },
                             navArgument(NavArguments.productKindKeyId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            }
+                        ),
+                        route = NavRouteName.product_kinds
+                    )
+
+                    data object ProductSpecification : Route(
+                        link = NavRouteName.product_specification + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentStageKindId)}",
+                        deepLinks = listOf(
+                            navDeepLink {
+                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_specification}" +
+                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentStageKindId)}"
+                                action = Intent.ACTION_VIEW
+                            }
+                        ),
+                        arguments = listOf(
+                            navArgument(NavArguments.productKindId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.componentKindId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.componentStageKindId) {
                                 type = NavType.LongType
                                 defaultValue = NoRecord.num
                             }

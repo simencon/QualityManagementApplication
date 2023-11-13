@@ -112,6 +112,18 @@ enum class Page(
         actionBtnIcon = null,
         actionMenuItems = null
     ),
+    PRODUCT_KIND_SPECIFICATION(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product specification",
+        titlePlaceholderText = "Search description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
         navIcon = Icons.Filled.Menu,
