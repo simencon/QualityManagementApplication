@@ -91,11 +91,21 @@ class ProductsRepository @Inject constructor(
         database.productKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
+    val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->
+        database.componentKindDao.getRecordCompleteById(id)?.toDomainModel() ?: DomainComponentKind.DomainComponentKindComplete()
+    }
     val componentKinds: (ID) -> Flow<List<DomainComponentKind.DomainComponentKindComplete>> = { pId ->
         database.componentKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val componentKindKeys: (ID) -> Flow<List<DomainComponentKindKey.DomainComponentKindKeyComplete>> = { pId ->
+        database.componentKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+
     val componentStageKinds: (ID) -> Flow<List<DomainComponentStageKind.DomainComponentStageKindComplete>> = { pId ->
         database.componentStageKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+    val componentStageKindKeys: (ID) -> Flow<List<DomainComponentStageKindKey.DomainComponentStageKindKeyComplete>> = { pId ->
+        database.componentStageKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
     val itemVersionsComplete: Flow<List<DomainItemVersionComplete>> = database.productVersionDao.getItemVersionsComplete().map { list -> list.map { it.toDomainModel() } }

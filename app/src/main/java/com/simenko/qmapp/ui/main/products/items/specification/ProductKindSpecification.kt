@@ -47,6 +47,7 @@ import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.main.products.items.specification.stages.ComponentStageKinds
 
 @Composable
 fun ProductKindSpecification(
