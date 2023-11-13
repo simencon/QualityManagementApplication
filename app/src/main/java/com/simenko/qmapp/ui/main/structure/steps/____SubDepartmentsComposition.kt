@@ -88,7 +88,6 @@ fun SubDepartments(viewModel: CompanyStructureViewModel = hiltViewModel()) {
     }
 }
 
-@SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun SubDepartmentCard(
     viewModel: CompanyStructureViewModel,

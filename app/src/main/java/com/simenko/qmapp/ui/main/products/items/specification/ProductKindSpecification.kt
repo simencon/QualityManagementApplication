@@ -1,6 +1,5 @@
-package com.simenko.qmapp.ui.main.products.items
+package com.simenko.qmapp.ui.main.products.items.specification
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -43,155 +42,132 @@ import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainProductKind
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
-import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 
 @Composable
-fun ProductKinds(
+fun ProductKindSpecification(
     modifier: Modifier = Modifier,
-    viewModel: ProductKindsViewModel = hiltViewModel()
+    viewModel: ProductKindSpecificationViewModel = hiltViewModel()
 ) {
-    val productLine by viewModel.productLine.collectAsStateWithLifecycle()
-    val items by viewModel.productKinds.collectAsStateWithLifecycle(listOf())
+    val product by viewModel.productKind.collectAsStateWithLifecycle()
+    val items by viewModel.componentKinds.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setProductKindsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductKindsVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductKindClick(it) } }
-    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductKindClick(it) } }
-
-    val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onProductKindKeysClick(it) } }
-    val onClickSpecificationLambda = remember<(ID) -> Unit> { { viewModel.onProductKindSpecificationClick(it) } }
-    val onClickItemsLambda = remember<(ID) -> Unit> { { viewModel.onProductKindItemsClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setComponentKindsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentKindsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentKindClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentKindClick(it) } }
+    val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onComponentKindKeysClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+
     val listState = rememberLazyListState()
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = productLine.projectSubject ?: NoString.str)
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = product.productLine.manufacturingProject.projectSubject ?: NoString.str)
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = product.productKind.productKindDesignation)
         Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-            items(items = items, key = { it.productKind.id }) { productLine ->
-                ProductKindCard(
-                    productLine = productLine,
+            items(items = items, key = { it.componentKind.id }) { componentKind ->
+                ComponentKindCard(
+                    viewModel = viewModel,
+                    componentKind = componentKind,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
                     onClickEdit = { onClickEditLambda(it) },
                     onClickDetails = { onClickDetailsLambda(it) },
-                    onClickKeys = {onClickKeysLambda(it)},
-                    onClickSpecification = { onClickSpecificationLambda(it) },
-                    onClickItems = { onClickItemsLambda(it) }
+                    onClickKeys = { onClickKeysLambda(it) }
                 )
             }
         }
     }
 }
 
-@SuppressLint("UnusedTransitionTargetStateParameter")
+
 @Composable
-fun ProductKindCard(
-    productLine: DomainProductKind.DomainProductKindComplete,
+fun ComponentKindCard(
+    viewModel: ProductKindSpecificationViewModel,
+    componentKind: DomainComponentKind.DomainComponentKindComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickKeys: (ID) -> Unit,
-    onClickSpecification: (ID) -> Unit,
-    onClickItems: (ID) -> Unit
+    onClickKeys: (ID) -> Unit
 ) {
     ItemCard(
-        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
-        item = productLine,
+        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
+        item = componentKind,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
         onClickEdit = onClickEdit,
         contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {
-        ProductLine(
-            productKind = productLine,
+        ComponentKind(
+            viewModel = viewModel,
+            componentKind = componentKind,
             onClickDetails = { onClickDetails(it) },
-            onClickKeys = {onClickKeys(it)},
-            onClickSpecification = { onClickSpecification(it) },
-            onClickItems = { onClickItems(it) }
+            onClickKeys = { onClickKeys(it) }
         )
     }
 }
 
 @Composable
-fun ProductLine(
-    productKind: DomainProductKind.DomainProductKindComplete,
-    onClickDetails: (ID) -> Unit,
-    onClickKeys: (ID) -> Unit,
-    onClickSpecification: (ID) -> Unit,
-    onClickItems: (ID) -> Unit
+fun ComponentKind(
+    viewModel: ProductKindSpecificationViewModel,
+    componentKind: DomainComponentKind.DomainComponentKindComplete,
+    onClickDetails: (ID) -> Unit = {},
+    onClickKeys: (ID) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
-                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productKind.productKind.productKindDesignation)
+                HeaderWithTitle(titleWight = 0.35f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                ContentWithTitle(titleWight = 0.20f, title = "Industry:", value = productKind.productKind.comments ?: NoString.str)
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = componentKind.componentKind.componentKindDescription)
             }
-
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(productKind.productKind.id) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(componentKind.componentKind.id) }) {
                 Icon(
-                    imageVector = if (productKind.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (productKind.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
+                    imageVector = if (componentKind.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (componentKind.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
                 )
             }
         }
-        ProductKindDetails(productKind = productKind, onClickKeys = onClickKeys, onClickSpecification = onClickSpecification, onClickItems = onClickItems)
+        ComponentKindDetails(viewModel = viewModel, componentKind = componentKind, onClickKeys = onClickKeys)
     }
 }
 
 @Composable
-fun ProductKindDetails(
-    productKind: DomainProductKind.DomainProductKindComplete,
-    onClickKeys: (ID) -> Unit,
-    onClickSpecification: (ID) -> Unit,
-    onClickItems: (ID) -> Unit
+fun ComponentKindDetails(
+    viewModel: ProductKindSpecificationViewModel,
+    componentKind: DomainComponentKind.DomainComponentKindComplete,
+    onClickKeys: (ID) -> Unit
 ) {
-    if (productKind.detailsVisibility) {
-        val containerColor = when (productKind.isExpanded) {
+    if (componentKind.detailsVisibility) {
+        val containerColor = when (componentKind.isExpanded) {
             true -> MaterialTheme.colorScheme.secondaryContainer
             false -> MaterialTheme.colorScheme.primaryContainer
         }
-
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
             Row(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.weight(0.30f))
                 Column(modifier = Modifier.weight(0.70f)) {
-                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productKind.productKind.id) }) {
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
                         }
                     }
-
-                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickSpecification(productKind.productKind.id) }) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Specification", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
-                        }
-                    }
-
-                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickItems(productKind.productKind.id) }) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Product list", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
-                        }
-                    }
                 }
             }
         }
+//        ComponentStageKinds(viewModel = viewModel)
     }
 }
