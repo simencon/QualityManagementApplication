@@ -23,6 +23,6 @@ abstract class ProductKeyDao: DaoBaseModel<DatabaseKey> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseKey>>
 
     @Transaction
-    @Query("select * from `0_keys` where projectId = :parentId order by id  asc")
+    @Query("select * from `keys_complete` where projectId = :parentId order by id  asc")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseKey.DatabaseKeyComplete>>
 }
