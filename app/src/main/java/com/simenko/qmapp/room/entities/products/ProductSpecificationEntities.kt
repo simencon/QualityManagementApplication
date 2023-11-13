@@ -127,6 +127,10 @@ data class DatabaseKey(
     override fun toNetworkModel() = ObjectTransformer(DatabaseKey::class, NetworkKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseKey::class, DomainKey::class).transform(this)
 
+    @DatabaseView(
+        viewName = "keys_complete",
+        value = "select * from `0_keys`"
+    )
     data class DatabaseKeyComplete(
         @Embedded
         val productLineKey: DatabaseKey,
@@ -297,6 +301,35 @@ data class DatabaseProductKindKey(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductKindKey::class, NetworkProductKindKey::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductKindKey::class, DomainProductKindKey::class).transform(this)
+    @DatabaseView(
+        viewName = "product_kind_keys_complete",
+        value = "select * from `1_1_product_kind_keys`"
+    )
+    data class DatabaseProductKindKeyComplete(
+        @Embedded
+        val productKindKey: DatabaseProductKindKey,
+        @Relation(
+            entity = DatabaseProductKind.DatabaseProductKindComplete::class,
+            parentColumn = "productKindId",
+            entityColumn = "id"
+        )
+        val productKind: DatabaseProductKind.DatabaseProductKindComplete,
+        @Relation(
+            entity = DatabaseKey.DatabaseKeyComplete::class,
+            parentColumn = "keyId",
+            entityColumn = "id"
+        )
+        val key: DatabaseKey.DatabaseKeyComplete
+    ) : DatabaseBaseModel<Any?, DomainProductKindKey.DomainProductKindKeyComplete> {
+        override fun getRecordId() = productKindKey.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainProductKindKey.DomainProductKindKeyComplete(
+            productKindKey = productKindKey.toDomainModel(),
+            productKind = productKind.toDomainModel(),
+            key = key.toDomainModel()
+        )
+
+    }
 }
 
 @Entity(

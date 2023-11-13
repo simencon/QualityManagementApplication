@@ -55,7 +55,7 @@ enum class Page(
     PRODUCTS(
         link = Route.Main.Products.link,
         navIcon = Icons.Filled.Menu,
-        title = "Company products",
+        title = "Product lines",
         titlePlaceholderText = null,
         keyboardType = null,
         searchBtnIcon = null,
@@ -79,8 +79,8 @@ enum class Page(
     PRODUCT_LINE_KEYS(
         link = Route.Main.Products.ProductLines.ProductLineKeys.link,
         navIcon = Icons.Filled.ArrowBack,
-        title = "Product line keys",
-        titlePlaceholderText = "Search by key",
+        title = "Product line designations",
+        titlePlaceholderText = "Search by designations",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = null,
@@ -91,8 +91,20 @@ enum class Page(
     PRODUCT_KINDS(
         link = Route.Main.Products.ProductLines.ProductKinds.link,
         navIcon = Icons.Filled.ArrowBack,
-        title = "Product kinds",
+        title = "Products",
         titlePlaceholderText = "Search by description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_KIND_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product designations",
+        titlePlaceholderText = "Search by designations",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = null,

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "29b50bd9b3ebc2299f6da5354a60bf4e",
+    "identityHash": "b9b8a4155c95117ef37e6d622b8e635b",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4670,6 +4670,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pt.id, ('p' || pt.id) as fId, pt.metrixId, pt.versionId, ('p' || pt.versionId) as fVersionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt UNION ALL SELECT ct.id, ('c' || ct.id) as fId, ct.metrixId, ct.versionId, ('c' || ct.versionId) as fVersionId, ct.nominal, ct.LSL, ct.USL, ct.isActual FROM `10_8_component_tolerances` AS ct UNION ALL SELECT st.id, ('s' || st.id) as fId, st.metrixId, st.versionId, ('s' || st.versionId) as fVersionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
       },
       {
+        "viewName": "keys_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `0_keys`"
+      },
+      {
         "viewName": "product_line_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT * FROM `0_manufacturing_project` ORDER BY id;"
       },
@@ -4688,6 +4692,10 @@
       {
         "viewName": "product_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_product_kinds`"
+      },
+      {
+        "viewName": "product_kind_keys_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_1_product_kind_keys`"
       },
       {
         "viewName": "sub_order_task_complete",
@@ -4732,7 +4740,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '29b50bd9b3ebc2299f6da5354a60bf4e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b9b8a4155c95117ef37e6d622b8e635b')"
     ]
   }
 }

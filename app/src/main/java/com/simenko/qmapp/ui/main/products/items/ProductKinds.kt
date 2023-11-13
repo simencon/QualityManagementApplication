@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.NavigateNext
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +47,7 @@ import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.ContentWithTitle
 import com.simenko.qmapp.ui.common.HeaderWithTitle
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 
@@ -54,6 +56,7 @@ fun ProductKinds(
     modifier: Modifier = Modifier,
     viewModel: ProductKindsViewModel = hiltViewModel()
 ) {
+    val productLine by viewModel.productLine.collectAsStateWithLifecycle()
     val items by viewModel.productKinds.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setProductKindsVisibility(dId = SelectedNumber(it)) } }
@@ -61,24 +64,30 @@ fun ProductKinds(
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductKindClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductKindClick(it) } }
 
+    val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onProductKindKeysClick(it) } }
     val onClickSpecificationLambda = remember<(ID) -> Unit> { { viewModel.onProductKindSpecificationClick(it) } }
     val onClickItemsLambda = remember<(ID) -> Unit> { { viewModel.onProductKindItemsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
     val listState = rememberLazyListState()
 
-    LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.productKind.id }) { productLine ->
-            ProductKindCard(
-                viewModel = viewModel,
-                productLine = productLine,
-                onClickActions = { onClickActionsLambda(it) },
-                onClickDelete = { onClickDeleteLambda(it) },
-                onClickEdit = { onClickEditLambda(it) },
-                onClickDetails = { onClickDetailsLambda(it) },
-                onClickSpecification = { onClickSpecificationLambda(it) },
-                onClickItems = { onClickItemsLambda(it) }
-            )
+    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+        Spacer(modifier = Modifier.height(10.dp))
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = productLine.projectSubject ?: NoString.str)
+        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
+            items(items = items, key = { it.productKind.id }) { productLine ->
+                ProductKindCard(
+                    productLine = productLine,
+                    onClickActions = { onClickActionsLambda(it) },
+                    onClickDelete = { onClickDeleteLambda(it) },
+                    onClickEdit = { onClickEditLambda(it) },
+                    onClickDetails = { onClickDetailsLambda(it) },
+                    onClickKeys = {onClickKeysLambda(it)},
+                    onClickSpecification = { onClickSpecificationLambda(it) },
+                    onClickItems = { onClickItemsLambda(it) }
+                )
+            }
         }
     }
 }
@@ -86,12 +95,12 @@ fun ProductKinds(
 @SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun ProductKindCard(
-    viewModel: ProductKindsViewModel,
     productLine: DomainProductKind.DomainProductKindComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
+    onClickKeys: (ID) -> Unit,
     onClickSpecification: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
@@ -105,9 +114,9 @@ fun ProductKindCard(
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {
         ProductLine(
-            viewModel = viewModel,
             productKind = productLine,
             onClickDetails = { onClickDetails(it) },
+            onClickKeys = {onClickKeys(it)},
             onClickSpecification = { onClickSpecification(it) },
             onClickItems = { onClickItems(it) }
         )
@@ -116,44 +125,19 @@ fun ProductKindCard(
 
 @Composable
 fun ProductLine(
-    viewModel: ProductKindsViewModel,
     productKind: DomainProductKind.DomainProductKindComplete,
     onClickDetails: (ID) -> Unit,
+    onClickKeys: (ID) -> Unit,
     onClickSpecification: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
-    val containerColor = when (productKind.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.primaryContainer
-    }
-
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
-
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = productKind.productKind.productKindDesignation)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                ContentWithTitle(titleWight = 0.50f, title = "Industry:", value = productKind.productKind.comments ?: NoString.str)
+                ContentWithTitle(titleWight = 0.20f, title = "Industry:", value = productKind.productKind.comments ?: NoString.str)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-
-                Row(modifier = Modifier.fillMaxSize()) {
-                    Spacer(modifier = Modifier.weight(0.50f))
-                    Column(modifier = Modifier.weight(0.50f)) {
-                        StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickSpecification(productKind.productKind.id) }) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "Product specification", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show characteristics")
-                            }
-                        }
-
-                        StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickItems(productKind.productKind.id) }) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "Product items", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
-                            }
-                        }
-                    }
-                }
             }
 
             IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(productKind.productKind.id) }) {
@@ -163,16 +147,48 @@ fun ProductLine(
                 )
             }
         }
-        ProductKindDetails(viewModel = viewModel, productKind = productKind)
+        ProductKindDetails(productKind = productKind, onClickKeys = onClickKeys, onClickSpecification = onClickSpecification, onClickItems = onClickItems)
     }
 }
 
 @Composable
 fun ProductKindDetails(
-    viewModel: ProductKindsViewModel,
-    productKind: DomainProductKind.DomainProductKindComplete
+    productKind: DomainProductKind.DomainProductKindComplete,
+    onClickKeys: (ID) -> Unit,
+    onClickSpecification: (ID) -> Unit,
+    onClickItems: (ID) -> Unit
 ) {
+    val containerColor = when (productKind.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.primaryContainer
+    }
     if (productKind.detailsVisibility) {
-//        ProductKindKeys(viewModel)
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.weight(0.30f))
+                Column(modifier = Modifier.weight(0.70f)) {
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productKind.productKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                        }
+                    }
+
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickSpecification(productKind.productKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Specification", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                        }
+                    }
+
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickItems(productKind.productKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Product list", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
