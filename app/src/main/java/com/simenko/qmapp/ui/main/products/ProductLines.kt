@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.products
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -86,7 +84,6 @@ fun ProductLines(
     }
 }
 
-@SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun ProductLineCard(
     productLine: DomainProductLine.DomainProductLineComplete,
@@ -174,19 +171,19 @@ fun ProductLineDetails(
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productLine.manufacturingProject.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show item designations")
+                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show item designations")
                         }
                     }
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickItems(productLine.manufacturingProject.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Products", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
+                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
                         }
                     }
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickCharacteristics(productLine.manufacturingProject.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Characteristics", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show characteristics")
+                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show characteristics")
                         }
                     }
                 }

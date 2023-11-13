@@ -72,6 +72,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
      * */
     val productKind get() = _productKind.asStateFlow()
 
+    val componentKindsVisibility get() = _componentKindsVisibility.asStateFlow()
     val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
         _componentKindsVisibility.flatMapLatest { visibility ->
             val cpy = componentKinds.map { it.copy(detailsVisibility = it.componentKind.id == visibility.first.num, isExpanded = it.componentKind.id == visibility.second.num) }
@@ -79,7 +80,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
         }
     }
     val componentStageKinds = _componentStageKinds.flatMapLatest { componentStageKinds ->
-        _componentKindsVisibility.flatMapLatest { visibility ->
+        _componentStageKindsVisibility.flatMapLatest { visibility ->
             val cpy = componentStageKinds.map { it.copy(detailsVisibility = it.componentStageKind.id == visibility.first.num, isExpanded = it.componentStageKind.id == visibility.second.num) }
             flow { emit(cpy) }
         }
@@ -105,7 +106,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     private fun onAddComponentKindClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
-    private fun onAddComponentStageKindClick(it: Pair<ID, ID>) {
+    fun onAddComponentStageKindClick(it: ID) {
         TODO("Not yet implemented")
     }
 

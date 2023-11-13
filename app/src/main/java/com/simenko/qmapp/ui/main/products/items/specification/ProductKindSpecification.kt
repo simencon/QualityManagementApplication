@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.products.items.specification
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -100,7 +99,7 @@ fun ComponentKindCard(
     onClickKeys: (ID) -> Unit
 ) {
     ItemCard(
-        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
+        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE/2).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = componentKind,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
@@ -153,21 +152,21 @@ fun ComponentKindDetails(
             true -> MaterialTheme.colorScheme.secondaryContainer
             false -> MaterialTheme.colorScheme.primaryContainer
         }
-        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
             Row(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.weight(0.30f))
-                Column(modifier = Modifier.weight(0.70f)) {
+                Spacer(modifier = Modifier.weight(0.20f))
+                Column(modifier = Modifier.weight(0.80f)) {
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Image(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                            Text(text = "Component designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
                         }
                     }
                 }
             }
         }
-//        ComponentStageKinds(viewModel = viewModel)
+        ComponentStageKinds(viewModel = viewModel)
     }
 }

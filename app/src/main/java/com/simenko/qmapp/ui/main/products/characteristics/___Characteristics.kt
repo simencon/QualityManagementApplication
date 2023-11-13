@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.products.characteristics
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -34,16 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.DomainManufacturingChannel
 import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
-import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -83,7 +79,6 @@ fun Characteristics(
     }
 }
 
-@SuppressLint("UnusedTransitionTargetStateParameter")
 @Composable
 fun CharacteristicCard(
     characteristic: DomainCharacteristic.DomainCharacteristicComplete,
