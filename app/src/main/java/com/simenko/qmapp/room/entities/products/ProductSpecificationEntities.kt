@@ -6,6 +6,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import androidx.room.Query
 import androidx.room.Relation
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.*
@@ -192,6 +193,28 @@ data class DatabaseProductKind(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductKind::class, NetworkProductKind::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductKind::class, DomainProductKind::class).transform(this)
+
+    @DatabaseView(
+        viewName = "product_kinds_complete",
+        value = "select * from `1_product_kinds`"
+    )
+    data class DatabaseProductKindComplete(
+        @Embedded
+        val productKind: DatabaseProductKind,
+        @Relation(
+            entity = DatabaseProductLine.DatabaseProductLineComplete::class,
+            parentColumn = "projectId",
+            entityColumn = "id"
+        )
+        val productLine: DatabaseProductLine.DatabaseProductLineComplete
+    ) : DatabaseBaseModel<Any?, DomainProductKind.DomainProductKindComplete> {
+        override fun getRecordId() = productKind.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainProductKind.DomainProductKindComplete(
+            productKind = productKind.toDomainModel(),
+            productLine = productLine.toDomainModel()
+        )
+    }
 }
 
 @Entity(

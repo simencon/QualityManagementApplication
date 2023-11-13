@@ -88,6 +88,18 @@ enum class Page(
         actionBtnIcon = null,
         actionMenuItems = null
     ),
+    PRODUCT_KINDS(
+        link = Route.Main.Products.ProductLines.ProductKinds.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product kinds",
+        titlePlaceholderText = "Search by description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
         navIcon = Icons.Filled.Menu,
