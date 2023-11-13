@@ -22,6 +22,7 @@ abstract class ProductKindDao : DaoBaseModel<DatabaseProductKind> {
     @Query("SELECT * FROM `1_product_kinds` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductKind>>
 
+    @Transaction
     @Query("SELECT * FROM `product_kinds_complete` WHERE id = :id")
     abstract fun getRecordCompleteById(id: ID): DatabaseProductKind.DatabaseProductKindComplete?
     @Transaction

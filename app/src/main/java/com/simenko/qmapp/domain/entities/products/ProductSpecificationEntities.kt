@@ -118,18 +118,18 @@ data class DomainProductKind(
 }
 
 data class DomainComponentKind(
-    val id: ID,
-    val productKindId: ID,
-    val componentKindOrder: Int,
-    val componentKindDescription: String
+    val id: ID = NoRecord.num,
+    val productKindId: ID = NoRecord.num,
+    val componentKindOrder: Int = NoRecord.num.toInt(),
+    val componentKindDescription: String = EmptyString.str
 ) : DomainBaseModel<DatabaseComponentKind>() {
     override fun getRecordId() = id
     override fun getParentId() = productKindId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentKind::class, DatabaseComponentKind::class).transform(this)
     data class DomainComponentKindComplete(
-        val componentKind: DomainComponentKind,
-        val productKind: DomainProductKind.DomainProductKindComplete,
+        val componentKind: DomainComponentKind = DomainComponentKind(),
+        val productKind: DomainProductKind.DomainProductKindComplete = DomainProductKind.DomainProductKindComplete(),
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseComponentKind.DatabaseComponentKindComplete>() {
@@ -205,6 +205,20 @@ data class DomainComponentKindKey(
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentKindKey::class, DatabaseComponentKindKey::class).transform(this)
+    data class DomainComponentKindKeyComplete(
+        val componentKindKey: DomainComponentKindKey,
+        val componentKind: DomainComponentKind.DomainComponentKindComplete,
+        val key: DomainKey.DomainKeyComplete
+    ) : DomainBaseModel<DatabaseComponentKindKey.DatabaseComponentKindKeyComplete>() {
+        override fun getRecordId() = componentKindKey.id
+        override fun getParentId() = componentKind.componentKind.productKindId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseComponentKindKey.DatabaseComponentKindKeyComplete(
+            componentKindKey = componentKindKey.toDatabaseModel(),
+            componentKind = componentKind.toDatabaseModel(),
+            key = key.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainComponentStageKindKey(
@@ -216,6 +230,20 @@ data class DomainComponentStageKindKey(
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentStageKindKey::class, DatabaseComponentStageKindKey::class).transform(this)
+    data class DomainComponentStageKindKeyComplete(
+        val componentStageKindKey: DomainComponentStageKindKey,
+        val componentStageKind: DomainComponentStageKind.DomainComponentStageKindComplete,
+        val key: DomainKey.DomainKeyComplete
+    ) : DomainBaseModel<DatabaseComponentStageKindKey.DatabaseComponentStageKindKeyComplete>() {
+        override fun getRecordId() = componentStageKindKey.id
+        override fun getParentId() = componentStageKind.componentStageKind.componentKindId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseComponentStageKindKey.DatabaseComponentStageKindKeyComplete(
+            componentStageKindKey = componentStageKindKey.toDatabaseModel(),
+            componentStageKind = componentStageKind.toDatabaseModel(),
+            key = key.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainProduct(

@@ -78,10 +78,16 @@ annotation class ProductKindKeyIdParameter
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ComponentKindIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ComponentKindKeyIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ComponentStageKindIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ComponentStageKindKeyIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -204,12 +210,22 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideComponentKindIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentKindId] ?: NoRecord.num
+    @Provides
+    @ComponentKindKeyIdParameter
+    @ViewModelScoped
+    fun provideComponentKindKeyIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.componentKindKeyId] ?: NoRecord.num
 
     @Provides
     @ComponentStageKindIdParameter
     @ViewModelScoped
     fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentStageKindId] ?: NoRecord.num
+    @Provides
+    @ComponentStageKindKeyIdParameter
+    @ViewModelScoped
+    fun provideComponentStageKindKeyIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.componentStageKindKeyId] ?: NoRecord.num
 
     @Provides
     @IsProcessControlOnlyParameter

@@ -61,6 +61,8 @@ object NavRouteName {
     const val product_kinds = "product_kinds"
     const val product_kind_keys = "product_kind_keys"
     const val product_specification = "product_specification"
+    const val component_kind_keys = "component_kind_keys"
+    const val component_stage_kind_keys = "component_kind_keys"
 
     const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
@@ -114,7 +116,9 @@ object NavArguments {
     const val productKindId = "productKindId"
     const val productKindKeyId = "productKindKeyId"
     const val componentKindId = "componentKindId"
+    const val componentKindKeyId = "componentKindKeyId"
     const val componentStageKindId = "componentStageKindId"
+    const val componentStageKindKeyId = "componentKindKeyId"
 
     const val isProcessControlOnly = "isProcessControlOnly"
     const val orderId = "orderId"
@@ -546,7 +550,50 @@ sealed class Route(
                             }
                         ),
                         route = NavRouteName.product_kinds
-                    )
+                    ) {
+                        data object ComponentKindKeys : Route(
+                            link = NavRouteName.component_kind_keys + "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentKindKeyId)}",
+                            deepLinks = listOf(
+                                navDeepLink {
+                                    uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_specification}/${NavRouteName.component_kind_keys}" +
+                                            "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentKindKeyId)}"
+                                    action = Intent.ACTION_VIEW
+                                }
+                            ),
+                            arguments = listOf(
+                                navArgument(NavArguments.componentKindId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                },
+                                navArgument(NavArguments.componentKindKeyId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                }
+                            ),
+                            route = NavRouteName.product_specification
+                        )
+                        data object ComponentStageKindKeys : Route(
+                            link = NavRouteName.component_stage_kind_keys + "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageKindKeyId)}",
+                            deepLinks = listOf(
+                                navDeepLink {
+                                    uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_specification}/${NavRouteName.component_stage_kind_keys}" +
+                                            "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageKindKeyId)}"
+                                    action = Intent.ACTION_VIEW
+                                }
+                            ),
+                            arguments = listOf(
+                                navArgument(NavArguments.componentStageKindId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                },
+                                navArgument(NavArguments.componentStageKindKeyId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                }
+                            ),
+                            route = NavRouteName.product_specification
+                        )
+                    }
                 }
             }
 

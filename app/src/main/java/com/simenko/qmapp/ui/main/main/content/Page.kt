@@ -124,6 +124,30 @@ enum class Page(
         actionBtnIcon = null,
         actionMenuItems = null
     ),
+    COMPONENT_KIND_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Component designations",
+        titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    COMPONENT_STAGE_KIND_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Component stage designations",
+        titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
         navIcon = Icons.Filled.Menu,
