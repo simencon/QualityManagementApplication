@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -117,48 +118,22 @@ fun ComponentStageKind(
     onClickDetails: (ID) -> Unit,
     onClickKeys: (ID) -> Unit
 ) {
-    Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
-        Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(0.90f)) {
-                HeaderWithTitle(titleWight = 0.48f, title = "Component stage number:", text = componentStageKind.componentStageKind.componentStageOrder.toString())
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleFirst = false, titleWight = 0f, text = componentStageKind.componentStageKind.componentStageDescription)
-            }
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(componentStageKind.componentStageKind.id) }) {
-                Icon(
-                    imageVector = if (componentStageKind.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (componentStageKind.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
-                )
-            }
-        }
-        ComponentStageKindDetails(componentStageKind = componentStageKind, onClickKeys = onClickKeys)
+    val containerColor = when (componentStageKind.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.tertiaryContainer
     }
-}
-
-@Composable
-fun ComponentStageKindDetails(
-    componentStageKind: DomainComponentStageKind.DomainComponentStageKindComplete,
-    onClickKeys: (ID) -> Unit
-) {
-    if (componentStageKind.detailsVisibility) {
-        val containerColor = when (componentStageKind.isExpanded) {
-            true -> MaterialTheme.colorScheme.secondaryContainer
-            false -> MaterialTheme.colorScheme.primaryContainer
-        }
-        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
-            Row(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.weight(0.20f))
-                Column(modifier = Modifier.weight(0.80f)) {
-                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(componentStageKind.componentStageKind.id) }) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Component stage designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
-                        }
-                    }
+    Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = DEFAULT_SPACE.dp, end = 0.dp, bottom = DEFAULT_SPACE.dp).animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            HeaderWithTitle(modifier = Modifier.weight(0.55f), titleWight = 0.8f, title = "Component stage number:", text = componentStageKind.componentStageKind.componentStageOrder.toString())
+            StatusChangeBtn(modifier = Modifier.weight(0.45f), containerColor = containerColor, onClick = { onClickKeys(componentStageKind.componentStageKind.id) }) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
                 }
             }
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         }
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        HeaderWithTitle(modifier = Modifier.padding(end = DEFAULT_SPACE.dp), titleFirst = false, titleWight = 0f, text = componentStageKind.componentStageKind.componentStageDescription)
     }
 }

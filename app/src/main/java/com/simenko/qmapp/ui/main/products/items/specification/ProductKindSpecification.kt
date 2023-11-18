@@ -124,10 +124,24 @@ fun ComponentKind(
     onClickDetails: (ID) -> Unit = {},
     onClickKeys: (ID) -> Unit
 ) {
+    val containerColor = when (componentKind.isExpanded) {
+        true -> MaterialTheme.colorScheme.secondaryContainer
+        false -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
-                HeaderWithTitle(titleWight = 0.35f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
+                Row(verticalAlignment = Alignment.Bottom) {
+                    HeaderWithTitle(modifier = Modifier.weight(0.5f), titleWight = 0.7f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
+                    StatusChangeBtn(modifier = Modifier.weight(0.5f), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = componentKind.componentKind.componentKindDescription)
             }
@@ -149,24 +163,9 @@ fun ComponentKindDetails(
     onClickKeys: (ID) -> Unit
 ) {
     if (componentKind.detailsVisibility) {
-        val containerColor = when (componentKind.isExpanded) {
-            true -> MaterialTheme.colorScheme.secondaryContainer
-            false -> MaterialTheme.colorScheme.primaryContainer
-        }
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
-            Row(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.weight(0.20f))
-                Column(modifier = Modifier.weight(0.80f)) {
-                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Component designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
-                        }
-                    }
-                }
-            }
         }
         ComponentStageKinds(viewModel = viewModel)
     }
