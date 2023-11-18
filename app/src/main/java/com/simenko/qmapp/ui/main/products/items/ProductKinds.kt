@@ -171,7 +171,7 @@ fun ProductKindDetails(
                 Column(modifier = Modifier.weight(0.70f)) {
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productKind.productKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Product designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
                         }
                     }
