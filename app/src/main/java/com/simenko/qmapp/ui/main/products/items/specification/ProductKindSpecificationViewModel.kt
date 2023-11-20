@@ -118,9 +118,9 @@ class ProductKindSpecificationViewModel @Inject constructor(
     }
 
     fun onComponentKindKeysClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.withOpts(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.withOpts(it.toString(), NoRecordStr.str))
     }
     fun onComponentStageKindKeysClick(it: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.withOpts(it.toString(), NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.withOpts(it.toString(), NoRecordStr.str))
     }
 }
