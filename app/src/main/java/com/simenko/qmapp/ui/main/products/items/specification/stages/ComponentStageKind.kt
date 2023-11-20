@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,13 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,13 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
@@ -56,7 +50,6 @@ fun ComponentStageKinds(
     val componentKindsVisibility by viewModel.componentKindsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.componentStageKinds.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStageKindsVisibility(dId = SelectedNumber(it)) } }
     val onClickAddLambda = remember<(ID) -> Unit> { { viewModel.onAddComponentStageKindClick(it) } }
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStageKindsVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentStageKindClick(it) } }
@@ -71,7 +64,6 @@ fun ComponentStageKinds(
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
                     onClickEdit = { onClickEditLambda(it) },
-                    onClickDetails = { onClickDetailsLambda(it) },
                     onClickKeys = { onClickKeysLambda(it) }
                 )
             }
@@ -92,7 +84,6 @@ fun ComponentStageKindCard(
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
-    onClickDetails: (ID) -> Unit,
     onClickKeys: (ID) -> Unit
 ) {
     ItemCard(
@@ -106,7 +97,6 @@ fun ComponentStageKindCard(
     ) {
         ComponentStageKind(
             componentStageKind = componentStageKind,
-            onClickDetails = onClickDetails,
             onClickKeys = onClickKeys
         )
     }
@@ -115,7 +105,6 @@ fun ComponentStageKindCard(
 @Composable
 fun ComponentStageKind(
     componentStageKind: DomainComponentStageKind.DomainComponentStageKindComplete,
-    onClickDetails: (ID) -> Unit,
     onClickKeys: (ID) -> Unit
 ) {
     val containerColor = when (componentStageKind.isExpanded) {
