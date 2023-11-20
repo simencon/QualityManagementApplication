@@ -46,6 +46,7 @@ fun ComponentKindKeys(
         Spacer(modifier = Modifier.height(10.dp))
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = componentKind.productKind.productKind.productKindDesignation)
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKindDescription)
         Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
             items(items = items, key = { it.componentKindKey.id }) { key ->
