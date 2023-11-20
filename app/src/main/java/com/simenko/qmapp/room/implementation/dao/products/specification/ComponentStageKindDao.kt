@@ -23,6 +23,10 @@ abstract class ComponentStageKindDao : DaoBaseModel<DatabaseComponentStageKind> 
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentStageKind>>
 
     @Transaction
+    @Query("SELECT * FROM `component_stage_kinds_complete` WHERE id = :id")
+    abstract fun getRecordCompleteById(id: ID): DatabaseComponentStageKind.DatabaseComponentStageKindComplete?
+
+    @Transaction
     @Query("select * from component_stage_kinds_complete where componentKindId = :pId")
     abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>>
 }
