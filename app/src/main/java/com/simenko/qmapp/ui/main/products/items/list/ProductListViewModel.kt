@@ -55,6 +55,7 @@ class ProductListViewModel @Inject constructor(
 
     private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
     private val _products = repository.productKindProducts(productKindId)
+    private val _componentKinds = repository.componentKinds(productKindId)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ class ProductListViewModel @Inject constructor(
 
     init {
         mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
+            .setOnNavMenuClickAction { appNavigator.navigateBack() }
             .setOnFabClickAction {
                 if (isSecondColumnVisible.value)
                     if (_versionsVisibility.value.first != NoRecord) onAddProductVersionClick(_productsVisibility.value.first.num)
@@ -87,7 +89,9 @@ class ProductListViewModel @Inject constructor(
     fun onProductVersionsClick(it: ID) {
         TODO("Not yet implemented")
     }
-
+    fun setComponentKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _componentKindsVisibility.value = _componentKindsVisibility.value.setVisibility(dId, aId)
+    }
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -112,10 +116,16 @@ class ProductListViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
-    val productsVisibility get() = _productsVisibility.asStateFlow()
     val products = _products.flatMapLatest { products ->
         _productsVisibility.flatMapLatest { visibility ->
             val cpy = products.map { it.copy(detailsVisibility = it.productKindProduct.productId == visibility.first.num, isExpanded = it.productKindProduct.productId == visibility.second.num) }
+            flow { emit(cpy) }
+        }
+    }
+
+    val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
+        _componentKindsVisibility.flatMapLatest { visibility ->
+            val cpy = componentKinds.map { it.copy(detailsVisibility = it.componentKind.id == visibility.first.num, isExpanded = it.componentKind.id == visibility.second.num) }
             flow { emit(cpy) }
         }
     }
