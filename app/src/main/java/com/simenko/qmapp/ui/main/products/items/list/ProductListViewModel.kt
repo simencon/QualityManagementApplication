@@ -59,6 +59,7 @@ class ProductListViewModel @Inject constructor(
     private val _components = _productsVisibility.flatMapLatest { product ->
         _componentKindsVisibility.flatMapLatest { componentKind -> repository.components(product.first.num, componentKind.first.num) }
     }
+    private val _componentStageKinds = _componentKindsVisibility.flatMapLatest { repository.componentStageKinds(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -100,6 +101,9 @@ class ProductListViewModel @Inject constructor(
     }
     fun onComponentVersionsClick(it: ID) {
         TODO("Not yet implemented")
+    }
+    fun setComponentStageKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _componentStageKindsVisibility.value = _componentStageKindsVisibility.value.setVisibility(dId, aId)
     }
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
@@ -144,6 +148,13 @@ class ProductListViewModel @Inject constructor(
     val components = _components.flatMapLatest { components ->
         _componentsVisibility.flatMapLatest { visibility ->
             val cpy = components.map { it.copy(detailsVisibility = it.productComponent.componentId == visibility.first.num, isExpanded = it.productComponent.componentId == visibility.second.num) }
+            flow { emit(cpy) }
+        }
+    }
+
+    val componentStageKinds = _componentStageKinds.flatMapLatest { componentKinds ->
+        _componentStageKindsVisibility.flatMapLatest { visibility ->
+            val cpy = componentKinds.map { it.copy(detailsVisibility = it.componentStageKind.id == visibility.first.num, isExpanded = it.componentStageKind.id == visibility.second.num) }
             flow { emit(cpy) }
         }
     }
