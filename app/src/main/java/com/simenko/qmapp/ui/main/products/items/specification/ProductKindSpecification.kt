@@ -105,7 +105,7 @@ fun ComponentKindCard(
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
         onClickEdit = onClickEdit,
-        contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
+        contentColors = Triple(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {
         ComponentKind(
@@ -126,7 +126,7 @@ fun ComponentKind(
 ) {
     val containerColor = when (componentKind.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
+        false -> MaterialTheme.colorScheme.primaryContainer
     }
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {

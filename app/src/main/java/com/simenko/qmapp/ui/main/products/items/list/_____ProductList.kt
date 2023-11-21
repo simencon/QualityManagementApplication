@@ -152,7 +152,7 @@ fun Product(
                 )
             }
         }
-        ProductDetails(viewModel = viewModel, product = product, onClickVersions = onClickVersions)
+        ProductDetails(viewModel = viewModel, product = product)
     }
 }
 
@@ -160,13 +160,12 @@ fun Product(
 fun ProductDetails(
     viewModel: ProductListViewModel,
     product: DomainProductKindProduct.DomainProductKindProductComplete,
-    onClickVersions: (ID) -> Unit
 ) {
     if (product.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
-//        ComponentKinds(viewModel = viewModel)
+        ComponentKindList(viewModel = viewModel)
     }
 }
