@@ -48,10 +48,7 @@ import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ComponentList(
-    modifier: Modifier = Modifier,
-    viewModel: ProductListViewModel = hiltViewModel()
-) {
+fun ComponentList(viewModel: ProductListViewModel = hiltViewModel()) {
     val productsVisibility by viewModel.productsVisibility.collectAsStateWithLifecycle()
     val componentKindsVisibility by viewModel.componentKindsVisibility.collectAsStateWithLifecycle()
     val items by viewModel.components.collectAsStateWithLifecycle(listOf())
@@ -132,7 +129,7 @@ fun Component(
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.Bottom) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.65f), titleWight = 0.35f, title = "Count:", text = component.productComponent.countOfComponents.toString())
+                    HeaderWithTitle(modifier = Modifier.weight(0.65f), titleWight = 0.35f, title = "Quantity:", text = component.productComponent.countOfComponents.toString())
                     StatusChangeBtn(modifier = Modifier.weight(0.35f), containerColor = containerColor, onClick = { onClickVersions(component.productComponent.componentId) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -164,6 +161,6 @@ fun ComponentDetails(
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
-//        ComponentStageKindList(viewModel = viewModel)
+        ComponentStageKindList(viewModel = viewModel)
     }
 }
