@@ -116,6 +116,9 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseComponentStageKind.DatabaseComponentStageKindComplete::class,
         DatabaseComponentStageKindKey.DatabaseComponentStageKindKeyComplete::class,
+        DatabaseComponentInStage.DatabaseComponentStageComplete::class,
+        DatabaseComponentStageKindComponentStage.DatabaseComponentStageKindComponentStageComplete::class,
+        DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete::class,
 
         DatabaseSubOrderTaskComplete::class,
         DatabaseResultComplete::class,

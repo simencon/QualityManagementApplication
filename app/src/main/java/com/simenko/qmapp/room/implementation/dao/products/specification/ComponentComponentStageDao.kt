@@ -2,6 +2,7 @@ package com.simenko.qmapp.room.implementation.dao.products.specification
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.products.DatabaseComponentComponentStage
@@ -20,4 +21,9 @@ abstract class ComponentComponentStageDao : DaoBaseModel<DatabaseComponentCompon
 
     @Query("SELECT * FROM `4_6_components_component_stages` ORDER BY id ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentComponentStage>>
+
+    @Transaction
+    @Query("select ccs.* from components_component_stages_complete as ccs join `5_6_component_stage_kinds_component_stages` as csk on ccs.componentStageId = csk.componentStageId " +
+            "where ccs.componentId = :cId and csk.componentStageKindId = :cskId")
+    abstract fun getRecordsCompleteForUI(cId: ID, cskId: ID): Flow<List<DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete>>
 }

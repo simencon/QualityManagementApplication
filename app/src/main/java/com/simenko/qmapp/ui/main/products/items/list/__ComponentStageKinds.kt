@@ -111,6 +111,6 @@ fun ComponentStageKindDetails(
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
-//        ComponentStageList(viewModel = viewModel)
+        ComponentStageList(viewModel = viewModel)
     }
 }
