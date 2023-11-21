@@ -105,6 +105,8 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseProductKind.DatabaseProductKindComplete::class,
         DatabaseProductKindKey.DatabaseProductKindKeyComplete::class,
+        DatabaseProduct.DatabaseProductComplete::class,
+        DatabaseProductKindProduct.DatabaseProductKindProductComplete::class,
 
         DatabaseComponentKind.DatabaseComponentKindComplete::class,
         DatabaseComponentKindKey.DatabaseComponentKindKeyComplete::class,

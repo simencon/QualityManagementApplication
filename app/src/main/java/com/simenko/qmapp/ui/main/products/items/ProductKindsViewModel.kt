@@ -103,6 +103,6 @@ class ProductKindsViewModel @Inject constructor(
     }
 
     fun onProductKindItemsClick(it: ID) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductList.withOpts(it.toString()))
     }
 }

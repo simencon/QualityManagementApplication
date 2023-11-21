@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6d002dd139ad7aec33440171f86f4fc6",
+    "identityHash": "80506e49a7dde727d426c78717d3707b",
     "entities": [
       {
         "tableName": "user_roles",
@@ -1074,7 +1074,7 @@
       },
       {
         "tableName": "0_keys",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `projectId` INTEGER, `componentKey` TEXT, `componentKeyDescription` TEXT, FOREIGN KEY(`projectId`) REFERENCES `0_manufacturing_project`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `projectId` INTEGER NOT NULL, `componentKey` TEXT NOT NULL, `componentKeyDescription` TEXT, FOREIGN KEY(`projectId`) REFERENCES `0_manufacturing_project`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1086,13 +1086,13 @@
             "fieldPath": "projectId",
             "columnName": "projectId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "componentKey",
             "columnName": "componentKey",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "componentKeyDescription",
@@ -2102,7 +2102,7 @@
       },
       {
         "tableName": "2_products",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productBaseId` INTEGER, `keyId` INTEGER, `productDesignation` TEXT, FOREIGN KEY(`productBaseId`) REFERENCES `0_products_bases`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productBaseId` INTEGER NOT NULL, `keyId` INTEGER NOT NULL, `productDesignation` TEXT NOT NULL, FOREIGN KEY(`productBaseId`) REFERENCES `0_products_bases`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2114,19 +2114,19 @@
             "fieldPath": "productBaseId",
             "columnName": "productBaseId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "keyId",
             "columnName": "keyId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "productDesignation",
             "columnName": "productDesignation",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -4698,6 +4698,14 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_1_product_kind_keys`"
       },
       {
+        "viewName": "products_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `2_products`"
+      },
+      {
+        "viewName": "product_kinds_products_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_2_product_kinds_products`"
+      },
+      {
         "viewName": "component_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `3_component_kinds` order by componentKindOrder"
       },
@@ -4756,7 +4764,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6d002dd139ad7aec33440171f86f4fc6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '80506e49a7dde727d426c78717d3707b')"
     ]
   }
 }

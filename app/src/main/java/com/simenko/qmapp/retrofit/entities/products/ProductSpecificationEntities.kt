@@ -30,8 +30,8 @@ data class NetworkProductLine(
 @JsonClass(generateAdapter = true)
 data class NetworkKey(
     var id: ID,
-    var projectId: ID?,
-    var componentKey: String?,
+    var projectId: ID,
+    var componentKey: String,
     var componentKeyDescription: String?
 ) : NetworkBaseModel<DatabaseKey> {
     override fun getRecordId() = id
@@ -116,9 +116,9 @@ data class NetworkComponentStageKindKey(
 @JsonClass(generateAdapter = true)
 data class NetworkProduct(
     var id: ID,
-    var productBaseId: ID?,
-    var keyId: ID?,
-    var productDesignation: String?
+    var productBaseId: ID,
+    var keyId: ID,
+    var productDesignation: String
 ) : NetworkBaseModel<DatabaseProduct> {
     override fun getRecordId() = id
     override fun toDatabaseModel() = ObjectTransformer(NetworkProduct::class, DatabaseProduct::class).transform(this)

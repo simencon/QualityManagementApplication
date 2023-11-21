@@ -124,6 +124,18 @@ enum class Page(
         actionBtnIcon = null,
         actionMenuItems = null
     ),
+    PRODUCT_KIND_LIST(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductList.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product list",
+        titlePlaceholderText = "Search by name",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     COMPONENT_KIND_KEYS(
         link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.link,
         navIcon = Icons.Filled.ArrowBack,

@@ -602,7 +602,44 @@ sealed class Route(
                     }
 
                     data object ProductList : Route (
-                        link = NavRouteName.product_list + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productId)}"
+                        link = NavRouteName.product_list +
+                                "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productId)}" +
+                                "&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentId)}&${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageId)}",
+                        deepLinks = listOf(
+                            navDeepLink {
+                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}" +
+                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productId)}" +
+                                        "&${opt(NavArguments.componentKindId)}&${opt(NavArguments.componentId)}&${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.componentStageId)}"
+                                action = Intent.ACTION_VIEW
+                            }
+                        ),
+                        arguments = listOf(
+                            navArgument(NavArguments.productKindId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.productId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.componentKindId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.componentId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.componentStageKindId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.componentStageId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            }
+                        ),
+                        route = NavRouteName.product_kinds
                     )
                 }
             }

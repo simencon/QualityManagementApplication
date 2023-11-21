@@ -6,7 +6,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.Query
 import androidx.room.Relation
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.products.*
@@ -119,8 +118,8 @@ data class DatabaseKey(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
-    var projectId: ID?,
-    var componentKey: String?,
+    var projectId: ID,
+    var componentKey: String,
     var componentKeyDescription: String?
 ) : DatabaseBaseModel<NetworkKey, DomainKey> {
     override fun getRecordId() = id
@@ -521,14 +520,42 @@ data class DatabaseProduct(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
-    var productBaseId: ID?,
+    var productBaseId: ID,
     @ColumnInfo(index = true)
-    var keyId: ID?,
-    var productDesignation: String?
+    var keyId: ID,
+    var productDesignation: String
 ) : DatabaseBaseModel<NetworkProduct, DomainProduct> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProduct::class, NetworkProduct::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProduct::class, DomainProduct::class).transform(this)
+    @DatabaseView(
+        viewName = "products_complete",
+        value = "select * from `2_products`"
+    )
+    data class DatabaseProductComplete(
+        @Embedded
+        val product: DatabaseProduct,
+        @Relation(
+            entity = DatabaseProductBase::class,
+            parentColumn = "productBaseId",
+            entityColumn = "id"
+        )
+        val productBase: DatabaseProductBase,
+        @Relation(
+            entity = DatabaseKey::class,
+            parentColumn = "keyId",
+            entityColumn = "id"
+        )
+        val key: DatabaseKey
+    ) : DatabaseBaseModel<Any?, DomainProduct.DomainProductComplete> {
+        override fun getRecordId() = product.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainProduct.DomainProductComplete(
+            product = this.product.toDomainModel(),
+            productBase = this.productBase.toDomainModel(),
+            key = this.key.toDomainModel()
+        )
+    }
 }
 
 @Entity(
@@ -609,6 +636,34 @@ data class DatabaseProductKindProduct(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductKindProduct::class, NetworkProductKindProduct::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductKindProduct::class, DomainProductKindProduct::class).transform(this)
+    @DatabaseView(
+        viewName = "product_kinds_products_complete",
+        value = "select * from `1_2_product_kinds_products`"
+    )
+    data class DatabaseProductKindProductComplete(
+        @Embedded
+        val productKindProduct: DatabaseProductKindProduct,
+        @Relation(
+            entity = DatabaseProductKind::class,
+            parentColumn = "productKindId",
+            entityColumn = "id"
+        )
+        val productKind: DatabaseProductKind,
+        @Relation(
+            entity = DatabaseProduct.DatabaseProductComplete::class,
+            parentColumn = "productId",
+            entityColumn = "id"
+        )
+        val product: DatabaseProduct.DatabaseProductComplete
+    ) : DatabaseBaseModel<Any?, DomainProductKindProduct.DomainProductKindProductComplete> {
+        override fun getRecordId() = productKindProduct.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainProductKindProduct.DomainProductKindProductComplete(
+            productKindProduct = this.productKindProduct.toDomainModel(),
+            productKind = this.productKind.toDomainModel(),
+            product = this.product.toDomainModel()
+        )
+    }
 }
 
 @Entity(

@@ -91,6 +91,10 @@ class ProductsRepository @Inject constructor(
         database.productKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
+    val productKindProducts: (ID)-> Flow<List<DomainProductKindProduct.DomainProductKindProductComplete>> = { pId->
+        database.productKindProductDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+
     val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->
         database.componentKindDao.getRecordCompleteById(id)?.toDomainModel() ?: DomainComponentKind.DomainComponentKindComplete()
     }
