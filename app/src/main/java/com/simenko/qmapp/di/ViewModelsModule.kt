@@ -88,6 +88,15 @@ annotation class ComponentStageKindIdParameter
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ComponentStageKindKeyIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ProductIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ComponentIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ComponentStageIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -219,13 +228,28 @@ object ViewModelsModule {
     @Provides
     @ComponentStageKindIdParameter
     @ViewModelScoped
-    fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): ID =
+    fun provideComponentStageKindIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentStageKindId] ?: NoRecord.num
     @Provides
     @ComponentStageKindKeyIdParameter
     @ViewModelScoped
     fun provideComponentStageKindKeyIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentStageKindKeyId] ?: NoRecord.num
+    @Provides
+    @ProductIdParameter
+    @ViewModelScoped
+    fun provideProductIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.productId] ?: NoRecord.num
+    @Provides
+    @ComponentIdParameter
+    @ViewModelScoped
+    fun provideComponentIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.componentId] ?: NoRecord.num
+    @Provides
+    @ComponentStageIdParameter
+    @ViewModelScoped
+    fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): ID =
+        savedStateHandle[NavArguments.componentStageId] ?: NoRecord.num
 
     @Provides
     @IsProcessControlOnlyParameter
