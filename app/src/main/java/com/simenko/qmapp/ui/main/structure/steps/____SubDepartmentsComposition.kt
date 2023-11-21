@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.structure.steps
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring

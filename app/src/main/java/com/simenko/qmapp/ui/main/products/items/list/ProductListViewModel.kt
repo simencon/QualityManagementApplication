@@ -56,6 +56,9 @@ class ProductListViewModel @Inject constructor(
     private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
     private val _products = repository.productKindProducts(productKindId)
     private val _componentKinds = repository.componentKinds(productKindId)
+    private val _components = _productsVisibility.flatMapLatest { product ->
+        _componentKindsVisibility.flatMapLatest { componentKind -> repository.components(product.first.num, componentKind.first.num) }
+    }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -92,6 +95,12 @@ class ProductListViewModel @Inject constructor(
     fun setComponentKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _componentKindsVisibility.value = _componentKindsVisibility.value.setVisibility(dId, aId)
     }
+    fun setComponentsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _componentsVisibility.value = _componentsVisibility.value.setVisibility(dId, aId)
+    }
+    fun onComponentVersionsClick(it: ID) {
+        TODO("Not yet implemented")
+    }
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -116,6 +125,7 @@ class ProductListViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
+    val productsVisibility = _productsVisibility.asStateFlow()
     val products = _products.flatMapLatest { products ->
         _productsVisibility.flatMapLatest { visibility ->
             val cpy = products.map { it.copy(detailsVisibility = it.productKindProduct.productId == visibility.first.num, isExpanded = it.productKindProduct.productId == visibility.second.num) }
@@ -123,9 +133,17 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
+    val componentKindsVisibility = _componentKindsVisibility.asStateFlow()
     val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
         _componentKindsVisibility.flatMapLatest { visibility ->
             val cpy = componentKinds.map { it.copy(detailsVisibility = it.componentKind.id == visibility.first.num, isExpanded = it.componentKind.id == visibility.second.num) }
+            flow { emit(cpy) }
+        }
+    }
+
+    val components = _components.flatMapLatest { components ->
+        _componentsVisibility.flatMapLatest { visibility ->
+            val cpy = components.map { it.copy(detailsVisibility = it.productComponent.componentId == visibility.first.num, isExpanded = it.productComponent.componentId == visibility.second.num) }
             flow { emit(cpy) }
         }
     }
@@ -138,6 +156,9 @@ class ProductListViewModel @Inject constructor(
     fun onDeleteProductClick(it: ID) {
         TODO("Not yet implemented")
     }
+    fun onDeleteComponentClick(it: ID) {
+        TODO("Not yet implemented")
+    }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
@@ -147,6 +168,12 @@ class ProductListViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
     fun onEditProductClick(it: Pair<ID, ID>) {
+        TODO("Not yet implemented")
+    }
+    fun onAddComponentClick(it: Pair<ID, ID>) {
+        TODO("Not yet implemented")
+    }
+    fun onEditComponentClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 

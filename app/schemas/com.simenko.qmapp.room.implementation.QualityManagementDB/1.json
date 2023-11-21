@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "80506e49a7dde727d426c78717d3707b",
+    "identityHash": "db275ff6c456a84333931e36dd3657e7",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4714,6 +4714,18 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `3_1_component_kind_keys`"
       },
       {
+        "viewName": "components_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `4_components`"
+      },
+      {
+        "viewName": "component_kinds_components_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `3_4_component_kinds_components`"
+      },
+      {
+        "viewName": "products_components_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `2_4_products_components`"
+      },
+      {
         "viewName": "component_stage_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `5_component_stage_kinds` order by componentStageOrder"
       },
@@ -4764,7 +4776,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '80506e49a7dde727d426c78717d3707b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db275ff6c456a84333931e36dd3657e7')"
     ]
   }
 }

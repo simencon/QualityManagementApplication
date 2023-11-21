@@ -580,6 +580,27 @@ data class DatabaseComponent(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponent::class, NetworkComponent::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponent::class, DomainComponent::class).transform(this)
+    @DatabaseView(
+        viewName = "components_complete",
+        value = "select * from `4_components`"
+    )
+    data class DatabaseComponentComplete(
+        @Embedded
+        val component: DatabaseComponent,
+        @Relation(
+            entity = DatabaseKey::class,
+            parentColumn = "keyId",
+            entityColumn = "id"
+        )
+        val key: DatabaseKey
+    ):DatabaseBaseModel<Any?, DomainComponent.DomainComponentComplete> {
+        override fun getRecordId() = component.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainComponent.DomainComponentComplete(
+            component = this.component.toDomainModel(),
+            key = this.key.toDomainModel()
+        )
+    }
 }
 
 @Entity(
@@ -696,6 +717,34 @@ data class DatabaseComponentKindComponent(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentKindComponent::class, NetworkComponentKindComponent::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentKindComponent::class, DomainComponentKindComponent::class).transform(this)
+    @DatabaseView(
+        viewName = "component_kinds_components_complete",
+        value = "select * from `3_4_component_kinds_components`"
+    )
+    data class DatabaseComponentKindComponentComplete(
+        @Embedded
+        val componentKindComponent: DatabaseComponentKindComponent,
+        @Relation(
+            entity = DatabaseComponentKind::class,
+            parentColumn = "componentKindId",
+            entityColumn = "id"
+        )
+        val componentKind: DatabaseComponentKind,
+        @Relation(
+            entity = DatabaseComponent.DatabaseComponentComplete::class,
+            parentColumn = "componentId",
+            entityColumn = "id"
+        )
+        val component: DatabaseComponent.DatabaseComponentComplete
+    ) : DatabaseBaseModel<Any?, DomainComponentKindComponent.DomainComponentKindComponentComplete> {
+        override fun getRecordId() = componentKindComponent.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainComponentKindComponent.DomainComponentKindComponentComplete(
+            componentKindComponent = this.componentKindComponent.toDomainModel(),
+            componentKind = this.componentKind.toDomainModel(),
+            component = this.component.toDomainModel()
+        )
+    }
 }
 
 @Entity(
@@ -761,6 +810,34 @@ data class DatabaseProductComponent(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductComponent::class, NetworkProductComponent::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductComponent::class, DomainProductComponent::class).transform(this)
+    @DatabaseView(
+        viewName = "products_components_complete",
+        value = "select * from `2_4_products_components`"
+    )
+    data class DatabaseProductComponentComplete(
+        @Embedded
+        val productComponent: DatabaseProductComponent,
+        @Relation(
+            entity = DatabaseProduct::class,
+            parentColumn = "productId",
+            entityColumn = "id"
+        )
+        val product: DatabaseProduct,
+        @Relation(
+            entity = DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete::class,
+            parentColumn = "componentId",
+            entityColumn = "componentId"
+        )
+        val component: DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete
+    ) : DatabaseBaseModel<Any?, DomainProductComponent.DomainProductComponentComplete> {
+        override fun getRecordId() = productComponent.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainProductComponent.DomainProductComponentComplete(
+            productComponent = this.productComponent.toDomainModel(),
+            product = this.product.toDomainModel(),
+            component = this.component.toDomainModel()
+        )
+    }
 }
 
 @Entity(
