@@ -127,8 +127,8 @@ data class NetworkProduct(
 @JsonClass(generateAdapter = true)
 data class NetworkComponent(
     var id: ID,
-    var keyId: ID?,
-    var componentDesignation: String?,
+    var keyId: ID,
+    var componentDesignation: String,
     var ifAny: Int?
 ) : NetworkBaseModel<DatabaseComponent> {
     override fun getRecordId() = id

@@ -92,7 +92,7 @@ fun Key(
     key: DomainKey.DomainKeyComplete,
 ) {
     Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
-        HeaderWithTitle(titleWight = 0.20f, title = "Designation:", text = key.productLineKey.componentKey ?: NoString.str)
+        HeaderWithTitle(titleWight = 0.20f, title = "Designation:", text = key.productLineKey.componentKey)
         Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         ContentWithTitle(titleWight = 0.20f, title = "Description:", value = key.productLineKey.componentKeyDescription ?: NoString.str)
     }
