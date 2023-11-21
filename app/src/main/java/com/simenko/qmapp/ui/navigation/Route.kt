@@ -64,6 +64,8 @@ object NavRouteName {
     const val component_kind_keys = "component_kind_keys"
     const val component_stage_kind_keys = "component_kind_keys"
 
+    const val product_list = "product_list"
+
     const val product_line_add_edit = "product_line_add_edit"
     const val product_kind_add_edit = "product_kind_add_edit"
     const val component_kind_add_edit = "component_kind_add_edit"
@@ -119,6 +121,10 @@ object NavArguments {
     const val componentKindKeyId = "componentKindKeyId"
     const val componentStageKindId = "componentStageKindId"
     const val componentStageKindKeyId = "componentKindKeyId"
+
+    const val productId = "productId"
+    const val componentId = "componentId"
+    const val componentStageId = "componentStageId"
 
     const val isProcessControlOnly = "isProcessControlOnly"
     const val orderId = "orderId"
@@ -594,6 +600,10 @@ sealed class Route(
                             route = NavRouteName.product_specification
                         )
                     }
+
+                    data object ProductList : Route (
+                        link = NavRouteName.product_list + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.productId)}"
+                    )
                 }
             }
 
