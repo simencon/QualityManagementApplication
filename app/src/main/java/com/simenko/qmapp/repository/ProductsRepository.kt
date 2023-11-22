@@ -90,10 +90,13 @@ class ProductsRepository @Inject constructor(
     val productKindKeys: (ID) -> Flow<List<DomainProductKindKey.DomainProductKindKeyComplete>> = { pId ->
         database.productKindKeyDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-
     val productKindProducts: (ID) -> Flow<List<DomainProductKindProduct.DomainProductKindProductComplete>> = { pId ->
         database.productKindProductDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val productVersions: (ID) -> Flow<List<DomainProductVersion.DomainProductVersionComplete>> = {pId ->
+        database.productVersionDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+
 
     val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->
         database.componentKindDao.getRecordCompleteById(id)?.toDomainModel() ?: DomainComponentKind.DomainComponentKindComplete()
@@ -107,6 +110,10 @@ class ProductsRepository @Inject constructor(
     val components: (ID, ID) -> Flow<List<DomainProductComponent.DomainProductComponentComplete>> = { pId, ckId ->
         database.productComponentDao.getRecordsCompleteForUI(pId, ckId).map { list -> list.map { it.toDomainModel() } }
     }
+    val componentVersions: (ID) -> Flow<List<DomainComponentVersion.DomainComponentVersionComplete>> = {pId ->
+        database.componentVersionDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+
 
     val componentStageKind: suspend (ID) -> DomainComponentStageKind.DomainComponentStageKindComplete = { id ->
         database.componentStageKindDao.getRecordCompleteById(id)?.toDomainModel() ?: DomainComponentStageKind.DomainComponentStageKindComplete()
@@ -120,6 +127,10 @@ class ProductsRepository @Inject constructor(
     val componentStages: (ID, ID) -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = { cId, cskId ->
         database.componentComponentStageDao.getRecordsCompleteForUI(cId, cskId).map { list -> list.map { it.toDomainModel() } }
     }
+    val componentStageVersions: (ID) -> Flow<List<DomainComponentStageVersion.DomainComponentStageVersionComplete>> = {pId ->
+        database.componentStageVersionDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+    }
+
 
     val itemVersionsComplete: Flow<List<DomainItemVersionComplete>> = database.productVersionDao.getItemVersionsComplete().map { list -> list.map { it.toDomainModel() } }
 }

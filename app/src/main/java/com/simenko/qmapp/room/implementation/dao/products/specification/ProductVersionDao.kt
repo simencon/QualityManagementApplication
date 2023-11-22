@@ -10,7 +10,7 @@ import com.simenko.qmapp.room.entities.products.DatabaseProductVersion
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class ProductVersionDao: DaoBaseModel<DatabaseProductVersion> {
+abstract class ProductVersionDao : DaoBaseModel<DatabaseProductVersion> {
     @Query("SELECT * FROM `9_products_versions` ORDER BY versionDate ASC")
     abstract override fun getRecords(): List<DatabaseProductVersion>
 
@@ -24,7 +24,10 @@ abstract class ProductVersionDao: DaoBaseModel<DatabaseProductVersion> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductVersion>>
 
     @Transaction
+    @Query("SELECT * FROM product_versions_complete where productId = :pId ORDER BY versionDate ASC")
+    abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseProductVersion.DatabaseProductVersionComplete>>
+
+    @Transaction
     @Query("SELECT * FROM item_versions")
     abstract fun getItemVersionsComplete(): Flow<List<DatabaseItemVersionComplete>>
-
 }

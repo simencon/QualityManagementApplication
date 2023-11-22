@@ -574,8 +574,8 @@ data class DatabaseComponent(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
-    var keyId: ID?,
-    var componentDesignation: String?,
+    var keyId: ID,
+    var componentDesignation: String,
     var ifAny: Int?
 ) : DatabaseBaseModel<NetworkComponent, DomainComponent> {
     override fun getRecordId() = id
@@ -616,34 +616,34 @@ data class DatabaseComponent(
             onUpdate = ForeignKey.NO_ACTION
         )]
 )
-data class DatabaseComponentInStage(
+data class DatabaseComponentStage(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
-    var keyId: ID?,
-    var componentInStageDescription: String?,
+    var keyId: ID,
+    var componentInStageDescription: String,
     var ifAny: Int?
-) : DatabaseBaseModel<NetworkComponentInStage, DomainComponentInStage> {
+) : DatabaseBaseModel<NetworkComponentStage, DomainComponentStage> {
     override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStage::class, NetworkComponentInStage::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStage::class, DomainComponentInStage::class).transform(this)
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStage::class, NetworkComponentStage::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentStage::class, DomainComponentStage::class).transform(this)
     @DatabaseView(
         viewName = "component_stages_complete",
         value = "select * from `6_components_in_stages`"
     )
     data class DatabaseComponentStageComplete(
         @Embedded
-        val componentStage: DatabaseComponentInStage,
+        val componentStage: DatabaseComponentStage,
         @Relation(
             entity = DatabaseKey::class,
             parentColumn = "keyId",
             entityColumn = "id"
         )
         val key: DatabaseKey
-    ) : DatabaseBaseModel<Any?, DomainComponentInStage.DomainComponentStageComplete> {
+    ) : DatabaseBaseModel<Any?, DomainComponentStage.DomainComponentStageComplete> {
         override fun getRecordId() = componentStage.id
         override fun toNetworkModel() = null
-        override fun toDomainModel() = DomainComponentInStage.DomainComponentStageComplete(
+        override fun toDomainModel() = DomainComponentStage.DomainComponentStageComplete(
             componentStage = this.componentStage.toDomainModel(),
             key = this.key.toDomainModel()
         )
@@ -783,7 +783,7 @@ data class DatabaseComponentKindComponent(
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DatabaseComponentInStage::class,
+            entity = DatabaseComponentStage::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("componentStageId"),
             onDelete = ForeignKey.CASCADE,
@@ -816,11 +816,11 @@ data class DatabaseComponentStageKindComponentStage(
         )
         val componentStageKind: DatabaseComponentStageKind,
         @Relation(
-            entity = DatabaseComponentInStage.DatabaseComponentStageComplete::class,
+            entity = DatabaseComponentStage.DatabaseComponentStageComplete::class,
             parentColumn = "componentStageId",
             entityColumn = "id"
         )
-        val componentStage: DatabaseComponentInStage.DatabaseComponentStageComplete
+        val componentStage: DatabaseComponentStage.DatabaseComponentStageComplete
     ) : DatabaseBaseModel<Any?, DomainComponentStageKindComponentStage.DomainComponentStageKindComponentStageComplete> {
         override fun getRecordId() = componentStageKindComponentStage.componentStageId
         override fun toNetworkModel() = null
@@ -905,7 +905,7 @@ data class DatabaseProductComponent(
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DatabaseComponentInStage::class,
+            entity = DatabaseComponentStage::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("componentStageId"),
             onDelete = ForeignKey.CASCADE,
@@ -988,15 +988,43 @@ data class DatabaseProductVersion(
     var id: ID,
     @ColumnInfo(index = true)
     var productId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
+    var versionDescription: String,
+    var versionDate: String,
     @ColumnInfo(index = true)
-    var statusId: ID?,
+    var statusId: ID,
     var isDefault: Boolean
 ) : DatabaseBaseModel<NetworkProductVersion, DomainProductVersion> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseProductVersion::class, NetworkProductVersion::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseProductVersion::class, DomainProductVersion::class).transform(this)
+    @DatabaseView(
+        viewName = "product_versions_complete",
+        value = "select * from `9_products_versions`"
+    )
+    data class DatabaseProductVersionComplete(
+        @Embedded
+        val version: DatabaseProductVersion,
+        @Relation(
+            entity = DatabaseProduct.DatabaseProductComplete::class,
+            parentColumn = "productId",
+            entityColumn = "id"
+        )
+        val parentItem: DatabaseProduct.DatabaseProductComplete,
+        @Relation(
+            entity = DatabaseVersionStatus::class,
+            parentColumn = "statusId",
+            entityColumn = "id"
+        )
+        val status: DatabaseVersionStatus
+    ) : DatabaseBaseModel<Any?, DomainProductVersion.DomainProductVersionComplete> {
+        override fun getRecordId() = version.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainProductVersion.DomainProductVersionComplete(
+            version = this.version.toDomainModel(),
+            parentItem = this.parentItem.toDomainModel(),
+            status = this.status.toDomainModel()
+        )
+    }
 }
 
 
@@ -1023,22 +1051,50 @@ data class DatabaseComponentVersion(
     var id: ID,
     @ColumnInfo(index = true)
     var componentId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
+    var versionDescription: String,
+    var versionDate: String,
     @ColumnInfo(index = true)
-    var statusId: ID?,
+    var statusId: ID,
     var isDefault: Boolean
 ) : DatabaseBaseModel<NetworkComponentVersion, DomainComponentVersion> {
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseComponentVersion::class, NetworkComponentVersion::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseComponentVersion::class, DomainComponentVersion::class).transform(this)
+    @DatabaseView(
+        viewName = "component_versions_complete",
+        value = "select * from `10_components_versions`"
+    )
+    data class DatabaseComponentVersionComplete(
+        @Embedded
+        val version: DatabaseComponentVersion,
+        @Relation(
+            entity = DatabaseComponent.DatabaseComponentComplete::class,
+            parentColumn = "componentId",
+            entityColumn = "id"
+        )
+        val parentItem: DatabaseComponent.DatabaseComponentComplete,
+        @Relation(
+            entity = DatabaseVersionStatus::class,
+            parentColumn = "statusId",
+            entityColumn = "id"
+        )
+        val status: DatabaseVersionStatus
+    ) : DatabaseBaseModel<Any?, DomainComponentVersion.DomainComponentVersionComplete> {
+        override fun getRecordId() = version.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainComponentVersion.DomainComponentVersionComplete(
+            version = this.version.toDomainModel(),
+            parentItem = this.parentItem.toDomainModel(),
+            status = this.status.toDomainModel()
+        )
+    }
 }
 
 @Entity(
     tableName = "11_component_in_stage_versions",
     foreignKeys = [
         ForeignKey(
-            entity = DatabaseComponentInStage::class,
+            entity = DatabaseComponentStage::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("componentInStageId"),
             onDelete = ForeignKey.NO_ACTION,
@@ -1052,20 +1108,48 @@ data class DatabaseComponentVersion(
             onUpdate = ForeignKey.NO_ACTION
         )]
 )
-data class DatabaseComponentInStageVersion(
+data class DatabaseComponentStageVersion(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     @ColumnInfo(index = true)
     var componentInStageId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
+    var versionDescription: String,
+    var versionDate: String,
     @ColumnInfo(index = true)
-    var statusId: ID?,
+    var statusId: ID,
     var isDefault: Boolean
-) : DatabaseBaseModel<NetworkComponentInStageVersion, DomainComponentInStageVersion> {
+) : DatabaseBaseModel<NetworkComponentStageVersion, DomainComponentStageVersion> {
     override fun getRecordId() = id
-    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentInStageVersion::class, NetworkComponentInStageVersion::class).transform(this)
-    override fun toDomainModel() = ObjectTransformer(DatabaseComponentInStageVersion::class, DomainComponentInStageVersion::class).transform(this)
+    override fun toNetworkModel() = ObjectTransformer(DatabaseComponentStageVersion::class, NetworkComponentStageVersion::class).transform(this)
+    override fun toDomainModel() = ObjectTransformer(DatabaseComponentStageVersion::class, DomainComponentStageVersion::class).transform(this)
+    @DatabaseView(
+        viewName = "component_stage_versions_complete",
+        value = "select * from `11_component_in_stage_versions`"
+    )
+    data class DatabaseComponentStageVersionComplete(
+        @Embedded
+        val version: DatabaseComponentStageVersion,
+        @Relation(
+            entity = DatabaseComponent.DatabaseComponentComplete::class,
+            parentColumn = "componentInStageId",
+            entityColumn = "id"
+        )
+        val parentItem: DatabaseComponentStage.DatabaseComponentStageComplete,
+        @Relation(
+            entity = DatabaseComponent.DatabaseComponentComplete::class,
+            parentColumn = "statusId",
+            entityColumn = "id"
+        )
+        val status: DatabaseVersionStatus
+    ) : DatabaseBaseModel<Any?, DomainComponentStageVersion.DomainComponentStageVersionComplete> {
+        override fun getRecordId() = version.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainComponentStageVersion.DomainComponentStageVersionComplete(
+            version = this.version.toDomainModel(),
+            parentItem = this.parentItem.toDomainModel(),
+            status = this.status.toDomainModel()
+        )
+    }
 }
 
 @DatabaseView(

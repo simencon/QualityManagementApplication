@@ -85,7 +85,7 @@ data class DatabaseComponentToLine(
             onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DatabaseComponentInStage::class,
+            entity = DatabaseComponentStage::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("componentInStageId"),
             onDelete = ForeignKey.CASCADE,

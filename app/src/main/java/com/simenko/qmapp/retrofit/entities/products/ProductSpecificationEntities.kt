@@ -136,14 +136,14 @@ data class NetworkComponent(
 }
 
 @JsonClass(generateAdapter = true)
-data class NetworkComponentInStage(
+data class NetworkComponentStage(
     var id: ID,
-    var keyId: ID?,
-    var componentInStageDescription: String?,
+    var keyId: ID,
+    var componentInStageDescription: String,
     var ifAny: Int?
-) : NetworkBaseModel<DatabaseComponentInStage> {
+) : NetworkBaseModel<DatabaseComponentStage> {
     override fun getRecordId() = id
-    override fun toDatabaseModel() = ObjectTransformer(NetworkComponentInStage::class, DatabaseComponentInStage::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStage::class, DatabaseComponentStage::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
@@ -210,9 +210,9 @@ data class NetworkVersionStatus(
 data class NetworkProductVersion(
     var id: ID,
     var productId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
-    var statusId: ID?,
+    var versionDescription: String,
+    var versionDate: String,
+    var statusId: ID,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseProductVersion> {
     override fun getRecordId() = id
@@ -223,9 +223,9 @@ data class NetworkProductVersion(
 data class NetworkComponentVersion(
     var id: ID,
     var componentId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
-    var statusId: ID?,
+    var versionDescription: String,
+    var versionDate: String,
+    var statusId: ID,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseComponentVersion> {
     override fun getRecordId() = id
@@ -233,14 +233,14 @@ data class NetworkComponentVersion(
 }
 
 @JsonClass(generateAdapter = true)
-data class NetworkComponentInStageVersion(
+data class NetworkComponentStageVersion(
     var id: ID,
     var componentInStageId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
-    var statusId: ID?,
+    var versionDescription: String,
+    var versionDate: String,
+    var statusId: ID,
     var isDefault: Boolean
-) : NetworkBaseModel<DatabaseComponentInStageVersion> {
+) : NetworkBaseModel<DatabaseComponentStageVersion> {
     override fun getRecordId() = id
-    override fun toDatabaseModel() = ObjectTransformer(NetworkComponentInStageVersion::class, DatabaseComponentInStageVersion::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(NetworkComponentStageVersion::class, DatabaseComponentStageVersion::class).transform(this)
 }

@@ -50,7 +50,7 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseProduct::class,
         DatabaseComponent::class,
-        DatabaseComponentInStage::class,
+        DatabaseComponentStage::class,
 
         DatabaseProductToLine::class,
         DatabaseComponentToLine::class,
@@ -65,7 +65,7 @@ import com.simenko.qmapp.room.implementation.dao.system.*
 
         DatabaseProductVersion::class,
         DatabaseComponentVersion::class,
-        DatabaseComponentInStageVersion::class,
+        DatabaseComponentStageVersion::class,
 
         DatabaseProductTolerance::class,
         DatabaseComponentTolerance::class,
@@ -107,18 +107,21 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseProductKindKey.DatabaseProductKindKeyComplete::class,
         DatabaseProduct.DatabaseProductComplete::class,
         DatabaseProductKindProduct.DatabaseProductKindProductComplete::class,
+        DatabaseProductVersion.DatabaseProductVersionComplete::class,
 
         DatabaseComponentKind.DatabaseComponentKindComplete::class,
         DatabaseComponentKindKey.DatabaseComponentKindKeyComplete::class,
         DatabaseComponent.DatabaseComponentComplete::class,
         DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete::class,
         DatabaseProductComponent.DatabaseProductComponentComplete::class,
+        DatabaseComponentVersion.DatabaseComponentVersionComplete::class,
 
         DatabaseComponentStageKind.DatabaseComponentStageKindComplete::class,
         DatabaseComponentStageKindKey.DatabaseComponentStageKindKeyComplete::class,
-        DatabaseComponentInStage.DatabaseComponentStageComplete::class,
+        DatabaseComponentStage.DatabaseComponentStageComplete::class,
         DatabaseComponentStageKindComponentStage.DatabaseComponentStageKindComponentStageComplete::class,
         DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete::class,
+        DatabaseComponentStageVersion.DatabaseComponentStageVersionComplete::class,
 
         DatabaseSubOrderTaskComplete::class,
         DatabaseResultComplete::class,
