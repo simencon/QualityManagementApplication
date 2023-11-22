@@ -296,24 +296,24 @@ data class DomainComponent(
     }
 }
 
-data class DomainComponentInStage(
+data class DomainComponentStage(
     var id: ID,
-    var keyId: ID?,
-    var componentInStageDescription: String?,
+    var keyId: ID,
+    var componentInStageDescription: String,
     var ifAny: Int?
-) : DomainBaseModel<DatabaseComponentInStage>() {
+) : DomainBaseModel<DatabaseComponentStage>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel() = ObjectTransformer(DomainComponentInStage::class, DatabaseComponentInStage::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(DomainComponentStage::class, DatabaseComponentStage::class).transform(this)
     data class DomainComponentStageComplete(
-        val componentStage: DomainComponentInStage,
+        val componentStage: DomainComponentStage,
         val key: DomainKey
-    ) : DomainBaseModel<DatabaseComponentInStage.DatabaseComponentStageComplete>() {
+    ) : DomainBaseModel<DatabaseComponentStage.DatabaseComponentStageComplete>() {
         override fun getRecordId() = componentStage.id
         override fun getParentId() = key.projectId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel() = DatabaseComponentInStage.DatabaseComponentStageComplete(
+        override fun toDatabaseModel() = DatabaseComponentStage.DatabaseComponentStageComplete(
             componentStage = this.componentStage.toDatabaseModel(),
             key = this.key.toDatabaseModel()
         )
@@ -385,7 +385,7 @@ data class DomainComponentStageKindComponentStage(
     data class DomainComponentStageKindComponentStageComplete(
         val componentStageKindComponentStage: DomainComponentStageKindComponentStage,
         val componentStageKind: DomainComponentStageKind,
-        val componentStage: DomainComponentInStage.DomainComponentStageComplete
+        val componentStage: DomainComponentStage.DomainComponentStageComplete
     ) : DomainBaseModel<DatabaseComponentStageKindComponentStage.DatabaseComponentStageKindComponentStageComplete>() {
         override fun getRecordId() = componentStageKindComponentStage.componentStageId
         override fun getParentId() = componentStageKindComponentStage.componentStageKindId
@@ -466,43 +466,87 @@ data class DomainVersionStatus(
 data class DomainProductVersion(
     var id: ID,
     var productId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
-    var statusId: ID?,
+    var versionDescription: String,
+    var versionDate: String,
+    var statusId: ID,
     var isDefault: Boolean
 ) : DomainBaseModel<DatabaseProductVersion>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainProductVersion::class, DatabaseProductVersion::class).transform(this)
+    data class DomainProductVersionComplete(
+        val version: DomainProductVersion,
+        val parentItem: DomainProduct.DomainProductComplete,
+        val status: DomainVersionStatus
+    ) : DomainBaseModel<DatabaseProductVersion.DatabaseProductVersionComplete>() {
+        override fun getRecordId() = version.id
+        override fun getParentId() = version.productId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseProductVersion.DatabaseProductVersionComplete(
+            version = this.version.toDatabaseModel(),
+            parentItem = this.parentItem.toDatabaseModel(),
+            status = this.status.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainComponentVersion(
     var id: ID,
     var componentId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
-    var statusId: ID?,
+    var versionDescription: String,
+    var versionDate: String,
+    var statusId: ID,
     var isDefault: Boolean
 ) : DomainBaseModel<DatabaseComponentVersion>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainComponentVersion::class, DatabaseComponentVersion::class).transform(this)
+    data class DomainComponentVersionComplete(
+        val version: DomainComponentVersion,
+        val parentItem: DomainComponent.DomainComponentComplete,
+        val status: DomainVersionStatus,
+        override var detailsVisibility: Boolean = false,
+        override var isExpanded: Boolean = false
+    ) : DomainBaseModel<DatabaseComponentVersion.DatabaseComponentVersionComplete>() {
+        override fun getRecordId() = version.id
+        override fun getParentId() = version.componentId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseComponentVersion.DatabaseComponentVersionComplete(
+            version = this.version.toDatabaseModel(),
+            parentItem = this.parentItem.toDatabaseModel(),
+            status = this.status.toDatabaseModel()
+        )
+    }
 }
 
-data class DomainComponentInStageVersion(
+data class DomainComponentStageVersion(
     var id: ID,
     var componentInStageId: ID,
-    var versionDescription: String?,
-    var versionDate: String?,
-    var statusId: ID?,
+    var versionDescription: String,
+    var versionDate: String,
+    var statusId: ID,
     var isDefault: Boolean
-) : DomainBaseModel<DatabaseComponentInStageVersion>() {
+) : DomainBaseModel<DatabaseComponentStageVersion>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
-    override fun toDatabaseModel() = ObjectTransformer(DomainComponentInStageVersion::class, DatabaseComponentInStageVersion::class).transform(this)
+    override fun toDatabaseModel() = ObjectTransformer(DomainComponentStageVersion::class, DatabaseComponentStageVersion::class).transform(this)
+    data class DomainComponentStageVersionComplete(
+        val version: DomainComponentStageVersion,
+        val parentItem: DomainComponentStage.DomainComponentStageComplete,
+        val status: DomainVersionStatus
+    ) : DomainBaseModel<DatabaseComponentStageVersion.DatabaseComponentStageVersionComplete>() {
+        override fun getRecordId() = version.id
+        override fun getParentId() = version.componentInStageId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseComponentStageVersion.DatabaseComponentStageVersionComplete(
+            version = this.version.toDatabaseModel(),
+            parentItem = this.parentItem.toDatabaseModel(),
+            status = this.status.toDatabaseModel()
+        )
+    }
 }
 
 data class DomainItem(

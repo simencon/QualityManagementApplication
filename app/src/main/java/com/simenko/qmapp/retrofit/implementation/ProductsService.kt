@@ -87,7 +87,7 @@ interface ProductsService {
     @GET(COMPONENTS)
     suspend fun getComponents(): Response<List<NetworkComponent>>
     @GET(COMPONENTS_IN_STAGE)
-    suspend fun getComponentStages(): Response<List<NetworkComponentInStage>>
+    suspend fun getComponentStages(): Response<List<NetworkComponentStage>>
 
 
     @GET(PRODUCTS_TO_LINES)
@@ -123,7 +123,7 @@ interface ProductsService {
     @GET(COMPONENT_TOLERANCES)
     suspend fun getComponentTolerances(): Response<List<NetworkComponentTolerance>>
     @GET(COMPONENT_IN_STAGE_VERSIONS)
-    suspend fun getComponentStageVersions(): Response<List<NetworkComponentInStageVersion>>
+    suspend fun getComponentStageVersions(): Response<List<NetworkComponentStageVersion>>
     @GET(COMPONENT_IN_STAGE_TOLERANCES)
     suspend fun getComponentStageTolerances(): Response<List<NetworkComponentInStageTolerance>>
 }

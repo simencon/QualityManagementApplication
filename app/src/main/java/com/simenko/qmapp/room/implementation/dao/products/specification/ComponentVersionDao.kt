@@ -2,6 +2,7 @@ package com.simenko.qmapp.room.implementation.dao.products.specification
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.products.DatabaseComponentVersion
@@ -20,5 +21,7 @@ abstract class ComponentVersionDao: DaoBaseModel<DatabaseComponentVersion> {
 
     @Query("SELECT * FROM `10_components_versions` ORDER BY versionDate ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentVersion>>
-
+    @Transaction
+    @Query("SELECT * FROM component_versions_complete where componentId = :pId ORDER BY versionDate ASC")
+    abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseComponentVersion.DatabaseComponentVersionComplete>>
 }

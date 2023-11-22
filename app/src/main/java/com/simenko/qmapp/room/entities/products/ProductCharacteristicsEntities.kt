@@ -359,7 +359,7 @@ data class DatabaseComponentTolerance(
             onUpdate = ForeignKey.NO_ACTION
         ),
         ForeignKey(
-            entity = DatabaseComponentInStageVersion::class,
+            entity = DatabaseComponentStageVersion::class,
             parentColumns = arrayOf("id"),
             childColumns = arrayOf("versionId"),
             onDelete = ForeignKey.CASCADE,

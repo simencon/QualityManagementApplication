@@ -107,6 +107,16 @@ object InvestigationsUtils {
         else
             Pair(this.first, if (this.second != aId) aId else NoRecordStr)
 
+    fun Triple<SelectedNumber, SelectedNumber, SelectedNumber>.setOnlyOneItem(itemNum: Int, id: ID): Triple<SelectedNumber, SelectedNumber, SelectedNumber> =
+        let {
+            if (itemNum == 0)
+                if (it.first.num == id) Triple(NoRecord, NoRecord, NoRecord) else Triple(SelectedNumber(id), NoRecord, NoRecord)
+            else if (itemNum == 1)
+                if (it.second.num == id) Triple(NoRecord, NoRecord, NoRecord) else Triple(NoRecord, SelectedNumber(id), NoRecord)
+            else
+                if (it.third.num == id) Triple(NoRecord, NoRecord, NoRecord) else Triple(NoRecord, NoRecord, SelectedNumber(id))
+        }
+
 
     fun getPeriodToSync(currentState: Pair<Long, Long>, latest: Long, exclude: Long): Pair<Long, Long> {
         val thisMoment = Instant.now()
