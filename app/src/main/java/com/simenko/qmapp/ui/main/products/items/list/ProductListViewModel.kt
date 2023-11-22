@@ -11,8 +11,11 @@ import com.simenko.qmapp.di.ProductKindIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.storage.ScrollStates
+import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
@@ -22,6 +25,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -40,13 +44,17 @@ class ProductListViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
-    @ProductKindIdParameter productKindId: ID,
-    @ProductIdParameter productId: ID,
-    @ComponentKindIdParameter componentKindId: ID,
-    @ComponentIdParameter componentId: ID,
-    @ComponentStageKindIdParameter componentStageKindId: ID,
-    @ComponentStageIdParameter componentStageId: ID
+    val storage: Storage,
+    @ProductKindIdParameter private val productKindId: ID,
+    @ProductIdParameter private val productId: ID,
+    @ComponentKindIdParameter private val componentKindId: ID,
+    @ComponentIdParameter private val componentId: ID,
+    @ComponentStageKindIdParameter private val componentStageKindId: ID,
+    @ComponentStageIdParameter private val componentStageId: ID
 ) : ViewModel() {
+    //    ToDo: Add this param into constructor later
+    private val componentVersionId: ID = NoRecord.num
+
     private val _productsVisibility = MutableStateFlow(Pair(SelectedNumber(productId), NoRecord))
     private val _componentKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentKindId), NoRecord))
     private val _componentsVisibility = MutableStateFlow(Pair(SelectedNumber(componentId), NoRecord))
@@ -127,6 +135,7 @@ class ProductListViewModel @Inject constructor(
     fun onComponentStageVersionsClick(id: ID) {
         _versionsForItem.value = _versionsForItem.value.setOnlyOneItem(1, id)
     }
+
     fun setVersionsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _versionsVisibility.value = _versionsVisibility.value.setVisibility(dId, aId)
     }
@@ -135,14 +144,15 @@ class ProductListViewModel @Inject constructor(
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
     val productKind get() = _productKind.asStateFlow()
+    val versionsForItem get() = _versionsForItem.asStateFlow()
 
     private val _viewState = MutableStateFlow(false)
     val setViewState: (Boolean) -> Unit = {
-        if (!it) _isComposed.value = BooleanArray(5) { false }
+        if (!it) _isComposed.value = BooleanArray(6) { false }
         _viewState.value = it
     }
 
-    private val _isComposed = MutableStateFlow(BooleanArray(5) { false })
+    private val _isComposed = MutableStateFlow(BooleanArray(6) { false })
     val setIsComposed: (Int, Boolean) -> Unit = { i, value ->
         val cpy = _isComposed.value.copyOf()
         cpy[i] = value
@@ -151,9 +161,49 @@ class ProductListViewModel @Inject constructor(
 
     val isSecondColumnVisible: StateFlow<Boolean> = _isComposed.flatMapLatest { isComposed ->
         _versionsForItem.flatMapLatest { versionsVisibility ->
-            flow { emit(((versionsVisibility.first != NoRecord) || (versionsVisibility.second != NoRecord) || (versionsVisibility.third != NoRecord)) && isComposed.component5()) }
+            flow {
+                emit(
+                    (((versionsVisibility.first != NoRecord) && isComposed.component1()) ||
+                            ((versionsVisibility.second != NoRecord) && isComposed.component3()) ||
+                            ((versionsVisibility.third != NoRecord) && isComposed.component5()))
+                )
+            }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+
+    val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _viewState.flatMapLatest { viewState ->
+        _products.flatMapLatest { products ->
+            _versionListIsInitialized.flatMapLatest { sl ->
+                if (viewState)
+                    flow {
+                        if (productId != NoRecord.num) {
+                            storage.setLong(ScrollStates.PRODUCTS.indexKey, products.map { it.product.product.id }.indexOf(productId).toLong())
+                            storage.setLong(ScrollStates.PRODUCTS.offsetKey, ZeroValue.num)
+                            emit(Pair(true, sl))
+
+                        } else {
+                            emit(Pair(true, sl))
+                        }
+                    }
+                else
+                    flow {
+                        emit(Pair(false, false))
+                    }
+            }
+        }
+    }
+
+    private val _versionListIsInitialized: Flow<Boolean> = _componentVersions.flatMapLatest { versions ->
+        flow {
+            if (componentVersionId != NoRecord.num) {
+                storage.setLong(ScrollStates.VERSIONS.indexKey, versions.map { it.version.id }.indexOf(componentVersionId).toLong())
+                storage.setLong(ScrollStates.VERSIONS.offsetKey, ZeroValue.num)
+                emit(true)
+            } else {
+                emit(true)
+            }
+        }
+    }
 
     val productsVisibility = _productsVisibility.asStateFlow()
     val products = _products.flatMapLatest { products ->
@@ -225,6 +275,7 @@ class ProductListViewModel @Inject constructor(
     fun onDeleteComponentStageClick(it: ID) {
         TODO("Not yet implemented")
     }
+
     fun onDeleteVersionClick(it: ID) {
         TODO("Not yet implemented")
     }
@@ -268,9 +319,11 @@ class ProductListViewModel @Inject constructor(
     private fun onAddComponentStageVersionClick(componentStageId: ID) {
         TODO("Not yet implemented")
     }
+
     fun onEditVersionClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
+
     fun onSpecificationClick(it: ID) {
         TODO("Not yet implemented")
     }

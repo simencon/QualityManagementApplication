@@ -194,7 +194,7 @@ fun SubOrder(
                             )
                         }
                     }
-                    StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, { onClickStatus(subOrder, subOrder.subOrder.completedById) }) {
+                    StatusChangeBtn(modifier = Modifier.weight(weight = 0.46f), containerColor = containerColor, onClick = { onClickStatus(subOrder, subOrder.subOrder.completedById) }) {
                         StatusWithPercentage(
                             status = Pair(subOrder.subOrder.statusId, subOrder.status.statusDescription),
                             result = Triple(subOrder.subOrderResult.isOk, subOrder.subOrderResult.total, subOrder.subOrderResult.good),

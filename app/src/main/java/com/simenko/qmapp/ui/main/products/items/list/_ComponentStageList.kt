@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,6 +49,7 @@ import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
     val componentsVisibility by viewModel.componentsVisibility.collectAsStateWithLifecycle()
     val componentStageKindsVisibility by viewModel.componentStageKindsVisibility.collectAsStateWithLifecycle()
+    val versionsForItem by viewModel.versionsForItem.collectAsStateWithLifecycle()
     val items by viewModel.componentStages.collectAsStateWithLifecycle(listOf())
 
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStagesVisibility(aId = SelectedNumber(it)) } }
@@ -55,10 +58,13 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentStageClick(it) } }
     val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onComponentStageVersionsClick(it) } }
 
+    LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
+
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
         FlowRow {
             items.forEach { item ->
                 ComponentStageCard(
+                    versionsForItem = versionsForItem,
                     componentStage = item,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
@@ -80,6 +86,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
 
 @Composable
 fun ComponentStageCard(
+    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
     componentStage: DomainComponentComponentStage.DomainComponentComponentStageComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
@@ -96,6 +103,7 @@ fun ComponentStageCard(
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {
         ComponentStage(
+            versionsForItem = versionsForItem,
             componentStage = componentStage,
             onClickVersions = { onClickVersions(it) }
         )
@@ -104,23 +112,26 @@ fun ComponentStageCard(
 
 @Composable
 fun ComponentStage(
+    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
     componentStage: DomainComponentComponentStage.DomainComponentComponentStageComplete,
     onClickVersions: (ID) -> Unit
 ) {
-    val containerColor = when (componentStage.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.tertiaryContainer
-    }
+    val borderColor = if (versionsForItem.third.num == componentStage.componentComponentStage.componentStageId) MaterialTheme.colorScheme.outline else null
+    val containerColor = if (componentStage.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiaryContainer
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     HeaderWithTitle(modifier = Modifier.weight(0.65f), titleWight = 0.5f, title = "Quantity:", text = NoString.str)
-                    StatusChangeBtn(modifier = Modifier.weight(0.35f), containerColor = containerColor, onClick = { onClickVersions(componentStage.componentComponentStage.componentStageId) }) {
+                    StatusChangeBtn(
+                        modifier = Modifier.weight(0.35f),
+                        borderColor = borderColor,
+                        containerColor = containerColor,
+                        onClick = { onClickVersions(componentStage.componentComponentStage.componentStageId) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show versions")
+                            Icon(imageVector = if (borderColor == null) Icons.Filled.NavigateNext else Icons.Filled.NavigateBefore, contentDescription = "Show versions")
                         }
                     }
                 }

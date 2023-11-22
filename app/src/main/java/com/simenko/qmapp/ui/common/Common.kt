@@ -373,6 +373,7 @@ fun HeaderWithTitle(
 @Composable
 fun StatusChangeBtn(
     modifier: Modifier,
+    borderColor: Color? = null,
     containerColor: Color,
     onClick: () -> Unit,
     content: @Composable (() -> Unit),
@@ -384,7 +385,7 @@ fun StatusChangeBtn(
         enabled = true,
         shape = MaterialTheme.shapes.medium,
         elevation = ButtonDefaults.buttonElevation(4.dp),
-        border = null,
+        border = borderColor?.let { BorderStroke(1.dp, it) },
         colors = ButtonDefaults.buttonColors(containerColor = containerColor, contentColor = contentColorFor(containerColor))
     )
 }
