@@ -215,9 +215,17 @@ class ProductListViewModel @Inject constructor(
 
     val componentKindsVisibility = _componentKindsVisibility.asStateFlow()
     val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
-        _componentKindsVisibility.flatMapLatest { visibility ->
-            val cpy = componentKinds.map { it.copy(detailsVisibility = it.componentKind.id == visibility.first.num, isExpanded = it.componentKind.id == visibility.second.num) }
-            flow { emit(cpy) }
+        _components.flatMapLatest { components ->
+            _componentKindsVisibility.flatMapLatest { visibility ->
+                val cpy = componentKinds.map {
+                    it.copy(
+                        hasComponents = components.filter { c -> c.component.componentKindComponent.componentKindId == it.componentKind.id }.isNotEmpty(),
+                        detailsVisibility = it.componentKind.id == visibility.first.num,
+                        isExpanded = it.componentKind.id == visibility.second.num
+                    )
+                }
+                flow { emit(cpy) }
+            }
         }
     }
 

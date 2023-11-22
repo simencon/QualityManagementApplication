@@ -39,7 +39,6 @@ import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
-import kotlin.random.Random
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -99,7 +98,7 @@ fun ComponentKind(
                         modifier = Modifier.height(15.dp),
                         imageVector = Icons.Filled.Circle,
                         contentDescription = "Is filled",
-                        tint = if (Random.nextBoolean()) Color.Green else Color.Red,
+                        tint = if (componentKind.hasComponents) Color.Green else Color.Red,
                     )
                     Spacer(modifier = Modifier.width((DEFAULT_SPACE * 2).dp))
                     HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.39f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())

@@ -130,6 +130,7 @@ data class DomainComponentKind(
     data class DomainComponentKindComplete(
         val componentKind: DomainComponentKind = DomainComponentKind(),
         val productKind: DomainProductKind.DomainProductKindComplete = DomainProductKind.DomainProductKindComplete(),
+        var hasComponents: Boolean = false,
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseComponentKind.DatabaseComponentKindComplete>() {
