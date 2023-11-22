@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +43,9 @@ fun ComponentStageKindList(viewModel: ProductListViewModel = hiltViewModel()) {
     val items by viewModel.componentStageKinds.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStageKindsVisibility(dId = SelectedNumber(it)) } }
+
+    LaunchedEffect(Unit) { viewModel.setIsComposed(3, true) }
+
     FlowRow(modifier = Modifier.padding(bottom = (DEFAULT_SPACE / 2).dp), horizontalArrangement = Arrangement.End, verticalArrangement = Arrangement.Center) {
         items.forEach { item ->
             ComponentStageKindCard(

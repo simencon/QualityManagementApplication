@@ -175,7 +175,7 @@ fun SubOrderTask(
                         titleWight = 0.35f
                     )
                 }
-                StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) }) {
+                StatusChangeBtn(modifier = Modifier.weight(weight = 0.46f), containerColor = containerColor, onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) }) {
                     StatusWithPercentage(
                         status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
                         result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),

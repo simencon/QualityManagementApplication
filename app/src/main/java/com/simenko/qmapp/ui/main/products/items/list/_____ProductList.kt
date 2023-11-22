@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,21 +40,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
-import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductKindProduct
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.HeaderWithTitle
-import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 
+@OptIn(FlowPreview::class)
 @Composable
 fun ProductList(
     modifier: Modifier = Modifier,
     viewModel: ProductListViewModel = hiltViewModel()
 ) {
-    val productKind by viewModel.productKind.collectAsStateWithLifecycle()
+    val versionsForItem by viewModel.versionsForItem.collectAsStateWithLifecycle()
     val items by viewModel.products.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setProductsVisibility(dId = SelectedNumber(it)) } }
@@ -61,19 +68,26 @@ fun ProductList(
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductClick(it) } }
     val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onProductVersionsClick(it) } }
 
-    LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
+    LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
-    val listState = rememberLazyListState()
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = viewModel.storage.getLong(ScrollStates.PRODUCTS.indexKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt(),
+        initialFirstVisibleItemScrollOffset = viewModel.storage.getLong(ScrollStates.PRODUCTS.offsetKey).let { if (it == NoRecord.num) ZeroValue.num else it }.toInt()
+    )
+
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
+            viewModel.storage.setLong(ScrollStates.PRODUCTS.indexKey, index.toLong())
+            viewModel.storage.setLong(ScrollStates.PRODUCTS.offsetKey, listState.firstVisibleItemScrollOffset.toLong())
+        }
+    }
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
-        Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = productKind.productKind.productKindDesignation)
-        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
             items(items = items, key = { it.productKindProduct.id }) { componentKind ->
                 ProductCard(
                     viewModel = viewModel,
+                    versionsForItem = versionsForItem,
                     product = componentKind,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
@@ -90,12 +104,13 @@ fun ProductList(
 @Composable
 fun ProductCard(
     viewModel: ProductListViewModel,
+    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
     product: DomainProductKindProduct.DomainProductKindProductComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickVersions: (ID) -> Unit
+    onClickVersions: (ID) -> Unit,
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
@@ -108,6 +123,7 @@ fun ProductCard(
     ) {
         Product(
             viewModel = viewModel,
+            versionsForItem = versionsForItem,
             product = product,
             onClickDetails = { onClickDetails(it) },
             onClickVersions = { onClickVersions(it) }
@@ -118,24 +134,27 @@ fun ProductCard(
 @Composable
 fun Product(
     viewModel: ProductListViewModel,
+    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
     product: DomainProductKindProduct.DomainProductKindProductComplete,
     onClickDetails: (ID) -> Unit = {},
     onClickVersions: (ID) -> Unit
 ) {
-    val containerColor = when (product.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
-    }
+    val borderColor = if (versionsForItem.first.num == product.productKindProduct.productId) MaterialTheme.colorScheme.outline else null
+    val containerColor = if (product.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     HeaderWithTitle(modifier = Modifier.weight(0.65f), titleWight = 0.35f, title = "Designation:", text = product.product.key.componentKey)
-                    StatusChangeBtn(modifier = Modifier.weight(0.35f), containerColor = containerColor, onClick = { onClickVersions(product.productKindProduct.productId) }) {
+                    StatusChangeBtn(
+                        modifier = Modifier.weight(0.35f),
+                        borderColor = borderColor,
+                        containerColor = containerColor,
+                        onClick = { onClickVersions(product.productKindProduct.productId) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show versions")
+                            Icon(imageVector = if (borderColor == null) Icons.Filled.NavigateNext else Icons.Filled.NavigateBefore, contentDescription = "Show versions")
                         }
                     }
                 }

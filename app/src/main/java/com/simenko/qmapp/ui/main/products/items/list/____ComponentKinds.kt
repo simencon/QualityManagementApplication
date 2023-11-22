@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Divider
@@ -20,10 +22,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -35,6 +39,7 @@ import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
+import kotlin.random.Random
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -42,6 +47,9 @@ fun ComponentKindList(viewModel: ProductListViewModel = hiltViewModel()) {
     val items by viewModel.componentKinds.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setComponentKindsVisibility(dId = SelectedNumber(it)) } }
+
+    LaunchedEffect(Unit) { viewModel.setIsComposed(1, true) }
+
     FlowRow(modifier = Modifier.padding(bottom = (DEFAULT_SPACE / 2).dp), horizontalArrangement = Arrangement.End, verticalArrangement = Arrangement.Center) {
         items.forEach { item ->
             ComponentKindCard(
@@ -86,7 +94,17 @@ fun ComponentKind(
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
-                HeaderWithTitle(modifier = Modifier.fillMaxWidth(), titleWight = 0.35f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Icon(
+                        modifier = Modifier.height(15.dp),
+                        imageVector = Icons.Filled.Circle,
+                        contentDescription = "Is filled",
+                        tint = if (Random.nextBoolean()) Color.Green else Color.Red,
+                    )
+                    Spacer(modifier = Modifier.width((DEFAULT_SPACE * 2).dp))
+                    HeaderWithTitle(modifier = Modifier.weight(0.85f), titleWight = 0.39f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
+                }
+
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(modifier = Modifier.fillMaxWidth(), titleFirst = false, titleWight = 0f, text = componentKind.componentKind.componentKindDescription)
             }

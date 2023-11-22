@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "192a9cef3662df24bb5fadbcbe4044db",
+    "identityHash": "bbe974db49cf30abb98e090fcf3e72f9",
     "entities": [
       {
         "tableName": "user_roles",
@@ -2182,7 +2182,7 @@
       },
       {
         "tableName": "4_components",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `keyId` INTEGER, `componentDesignation` TEXT, `ifAny` INTEGER, FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `keyId` INTEGER NOT NULL, `componentDesignation` TEXT NOT NULL, `ifAny` INTEGER, FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2194,13 +2194,13 @@
             "fieldPath": "keyId",
             "columnName": "keyId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "componentDesignation",
             "columnName": "componentDesignation",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "ifAny",
@@ -2242,7 +2242,7 @@
       },
       {
         "tableName": "6_components_in_stages",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `keyId` INTEGER, `componentInStageDescription` TEXT, `ifAny` INTEGER, FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `keyId` INTEGER NOT NULL, `componentInStageDescription` TEXT NOT NULL, `ifAny` INTEGER, FOREIGN KEY(`keyId`) REFERENCES `0_keys`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2254,13 +2254,13 @@
             "fieldPath": "keyId",
             "columnName": "keyId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "componentInStageDescription",
             "columnName": "componentInStageDescription",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "ifAny",
@@ -2900,7 +2900,7 @@
       },
       {
         "tableName": "9_products_versions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `versionDescription` TEXT, `versionDate` TEXT, `statusId` INTEGER, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` TEXT NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2918,19 +2918,19 @@
             "fieldPath": "versionDescription",
             "columnName": "versionDescription",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "versionDate",
             "columnName": "versionDate",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "statusId",
             "columnName": "statusId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "isDefault",
@@ -2992,7 +2992,7 @@
       },
       {
         "tableName": "10_components_versions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `versionDescription` TEXT, `versionDate` TEXT, `statusId` INTEGER, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` TEXT NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3010,19 +3010,19 @@
             "fieldPath": "versionDescription",
             "columnName": "versionDescription",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "versionDate",
             "columnName": "versionDate",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "statusId",
             "columnName": "statusId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "isDefault",
@@ -3084,7 +3084,7 @@
       },
       {
         "tableName": "11_component_in_stage_versions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentInStageId` INTEGER NOT NULL, `versionDescription` TEXT, `versionDate` TEXT, `statusId` INTEGER, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentInStageId`) REFERENCES `6_components_in_stages`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentInStageId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` TEXT NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentInStageId`) REFERENCES `6_components_in_stages`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3102,19 +3102,19 @@
             "fieldPath": "versionDescription",
             "columnName": "versionDescription",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "versionDate",
             "columnName": "versionDate",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "statusId",
             "columnName": "statusId",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "isDefault",
@@ -4706,6 +4706,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_2_product_kinds_products`"
       },
       {
+        "viewName": "product_versions_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `9_products_versions`"
+      },
+      {
         "viewName": "component_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `3_component_kinds` order by componentKindOrder"
       },
@@ -4726,6 +4730,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `2_4_products_components`"
       },
       {
+        "viewName": "component_versions_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `10_components_versions`"
+      },
+      {
         "viewName": "component_stage_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `5_component_stage_kinds` order by componentStageOrder"
       },
@@ -4744,6 +4752,10 @@
       {
         "viewName": "components_component_stages_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `4_6_components_component_stages`"
+      },
+      {
+        "viewName": "component_stage_versions_complete",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `11_component_in_stage_versions`"
       },
       {
         "viewName": "sub_order_task_complete",
@@ -4788,7 +4800,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '192a9cef3662df24bb5fadbcbe4044db')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bbe974db49cf30abb98e090fcf3e72f9')"
     ]
   }
 }

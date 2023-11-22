@@ -1130,13 +1130,13 @@ data class DatabaseComponentStageVersion(
         @Embedded
         val version: DatabaseComponentStageVersion,
         @Relation(
-            entity = DatabaseComponent.DatabaseComponentComplete::class,
+            entity = DatabaseComponentStage.DatabaseComponentStageComplete::class,
             parentColumn = "componentInStageId",
             entityColumn = "id"
         )
         val parentItem: DatabaseComponentStage.DatabaseComponentStageComplete,
         @Relation(
-            entity = DatabaseComponent.DatabaseComponentComplete::class,
+            entity = DatabaseVersionStatus::class,
             parentColumn = "statusId",
             entityColumn = "id"
         )
