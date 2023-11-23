@@ -157,6 +157,7 @@ data class DomainComponentStageKind(
     data class DomainComponentStageKindComplete(
         val componentStageKind: DomainComponentStageKind = DomainComponentStageKind(),
         val componentKind: DomainComponentKind.DomainComponentKindComplete = DomainComponentKind.DomainComponentKindComplete(),
+        val hasComponentStages: Boolean = false,
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>() {

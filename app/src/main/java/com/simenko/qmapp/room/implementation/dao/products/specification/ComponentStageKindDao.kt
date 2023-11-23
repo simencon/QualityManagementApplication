@@ -27,6 +27,6 @@ abstract class ComponentStageKindDao : DaoBaseModel<DatabaseComponentStageKind> 
     abstract fun getRecordCompleteById(id: ID): DatabaseComponentStageKind.DatabaseComponentStageKindComplete?
 
     @Transaction
-    @Query("select * from component_stage_kinds_complete where componentKindId = :pId")
+    @Query("select * from component_stage_kinds_complete where componentKindId = :pId order by componentStageOrder desc")
     abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseComponentStageKind.DatabaseComponentStageKindComplete>>
 }

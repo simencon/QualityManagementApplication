@@ -60,7 +60,6 @@ fun ComponentKindList(viewModel: ProductListViewModel = hiltViewModel()) {
     }
 }
 
-
 @Composable
 fun ComponentKindCard(
     viewModel: ProductListViewModel,

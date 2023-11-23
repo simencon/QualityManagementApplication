@@ -2,6 +2,7 @@ package com.simenko.qmapp.ui.main.products.items.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.tasks.Tasks.await
 import com.simenko.qmapp.di.ComponentIdParameter
 import com.simenko.qmapp.di.ComponentKindIdParameter
 import com.simenko.qmapp.di.ComponentStageIdParameter
@@ -12,6 +13,7 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.products.DomainProductComponent
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -67,10 +70,13 @@ class ProductListViewModel @Inject constructor(
     private val _components = _productsVisibility.flatMapLatest { product ->
         _componentKindsVisibility.flatMapLatest { componentKind -> repository.components(product.first.num, componentKind.first.num) }
     }
+    private val _componentsAll = _productsVisibility.flatMapLatest { product -> repository.components(product.first.num, NoRecord.num) }
+
     private val _componentStageKinds = _componentKindsVisibility.flatMapLatest { repository.componentStageKinds(it.first.num) }
     private val _componentStages = _componentsVisibility.flatMapLatest { component ->
         _componentStageKindsVisibility.flatMapLatest { componentStageKind -> repository.componentStages(component.first.num, componentStageKind.first.num) }
     }
+    private val _componentStagesAll = _componentsVisibility.flatMapLatest { component -> repository.componentStages(component.first.num, NoRecord.num) }
 
     private val _versionsForItem = MutableStateFlow(Triple(NoRecord, NoRecord, NoRecord))
     private val _versionsVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageId), NoRecord))
@@ -215,11 +221,11 @@ class ProductListViewModel @Inject constructor(
 
     val componentKindsVisibility = _componentKindsVisibility.asStateFlow()
     val componentKinds = _componentKinds.flatMapLatest { componentKinds ->
-        _components.flatMapLatest { components ->
+        _componentsAll.flatMapLatest { components ->
             _componentKindsVisibility.flatMapLatest { visibility ->
                 val cpy = componentKinds.map {
                     it.copy(
-                        hasComponents = components.filter { c -> c.component.componentKindComponent.componentKindId == it.componentKind.id }.isNotEmpty(),
+                        hasComponents = components.any { c -> c.component.componentKindComponent.componentKindId == it.componentKind.id },
                         detailsVisibility = it.componentKind.id == visibility.first.num,
                         isExpanded = it.componentKind.id == visibility.second.num
                     )
@@ -240,9 +246,17 @@ class ProductListViewModel @Inject constructor(
 
     val componentStageKindsVisibility = _componentStageKindsVisibility.asStateFlow()
     val componentStageKinds = _componentStageKinds.flatMapLatest { componentKinds ->
-        _componentStageKindsVisibility.flatMapLatest { visibility ->
-            val cpy = componentKinds.map { it.copy(detailsVisibility = it.componentStageKind.id == visibility.first.num, isExpanded = it.componentStageKind.id == visibility.second.num) }
-            flow { emit(cpy) }
+        _componentStagesAll.flatMapLatest { componentStages ->
+            _componentStageKindsVisibility.flatMapLatest { visibility ->
+                val cpy = componentKinds.map {
+                    it.copy(
+                        hasComponentStages = componentStages.any { c -> c.componentStage.componentStageKindComponentStage.componentStageKindId == it.componentStageKind.id },
+                        detailsVisibility = it.componentStageKind.id == visibility.first.num,
+                        isExpanded = it.componentStageKind.id == visibility.second.num
+                    )
+                }
+                flow { emit(cpy) }
+            }
         }
     }
 
