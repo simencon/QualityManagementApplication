@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.specification
+package com.simenko.qmapp.ui.main.products.kinds.set
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

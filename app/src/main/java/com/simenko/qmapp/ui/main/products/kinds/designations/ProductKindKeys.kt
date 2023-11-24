@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.keys
+package com.simenko.qmapp.ui.main.products.kinds.designations
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,7 +24,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
-import com.simenko.qmapp.ui.main.products.keys.KeyCard
+import com.simenko.qmapp.ui.main.products.designations.KeyCard
 
 @Composable
 fun ProductKindKeys(

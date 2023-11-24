@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.specification.stages.keys
+package com.simenko.qmapp.ui.main.products.kinds.set.stages.designations
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +7,6 @@ import com.simenko.qmapp.di.ComponentStageKindKeyIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage

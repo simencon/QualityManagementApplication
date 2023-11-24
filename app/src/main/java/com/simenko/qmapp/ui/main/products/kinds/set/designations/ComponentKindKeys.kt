@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.specification.stages.keys
+package com.simenko.qmapp.ui.main.products.kinds.set.designations
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,19 +24,19 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
-import com.simenko.qmapp.ui.main.products.keys.KeyCard
+import com.simenko.qmapp.ui.main.products.designations.KeyCard
 
 @Composable
-fun ComponentStageKindKeys(
+fun ComponentKindKeys(
     modifier: Modifier = Modifier,
-    viewModel: ComponentStageKindKeysViewModel = hiltViewModel()
+    viewModel: ComponentKindKeysViewModel = hiltViewModel()
 ) {
-    val componentStageKind by viewModel.componentStageKind.collectAsStateWithLifecycle()
-    val items by viewModel.componentStageKindKeys.collectAsStateWithLifecycle(listOf())
+    val componentKind by viewModel.componentKind.collectAsStateWithLifecycle()
+    val items by viewModel.componentKindKeys.collectAsStateWithLifecycle(listOf())
 
-    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentStageKindKeysVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentStageKindKeyClick(it) } }
-    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentStageKindKeyClick(it) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setComponentKindKeysVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentKindKeyClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentKindKeyClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
@@ -44,13 +44,12 @@ fun ComponentStageKindKeys(
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = componentStageKind.componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = componentStageKind.componentKind.productKind.productKind.productKindDesignation)
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Component", body = componentStageKind.componentKind.componentKind.componentKindDescription)
-        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Component stage", body = componentStageKind.componentStageKind.componentStageDescription)
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = componentKind.productKind.productKind.productKindDesignation)
+        InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKindDescription)
         Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-            items(items = items, key = { it.componentStageKindKey.id }) { key ->
+            items(items = items, key = { it.componentKindKey.id }) { key ->
                 KeyCard(
                     key = key.key,
                     onClickActions = { onClickActionsLambda(it) },

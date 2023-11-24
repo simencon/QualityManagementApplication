@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.keys
+package com.simenko.qmapp.ui.main.products.designations
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement

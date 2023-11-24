@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.list
+package com.simenko.qmapp.ui.main.products.kinds.list.steps
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -39,6 +39,7 @@ import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.main.products.kinds.list.ProductListViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -107,10 +108,7 @@ fun ComponentVersion(
     version: DomainComponentVersion.DomainComponentVersionComplete,
     onClickSpecification: (ID) -> Unit
 ) {
-    val containerColor = when (version.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.surfaceVariant
-    }
+    val containerColor = if (version.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.Top) {

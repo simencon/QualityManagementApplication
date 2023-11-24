@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.list
+package com.simenko.qmapp.ui.main.products.kinds.list.steps
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NavigateBefore
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +44,7 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
+import com.simenko.qmapp.ui.main.products.kinds.list.ProductListViewModel
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings3
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -122,14 +125,20 @@ fun ComponentStage(
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.65f), titleWight = 0.5f, title = "Quantity:", text = NoString.str)
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
+                    HeaderWithTitle(modifier = Modifier.weight(0.54f), titleWight = 0.5f, title = "Quantity:", text = NoString.str)
                     StatusChangeBtn(
-                        modifier = Modifier.weight(0.35f),
+                        modifier = Modifier.weight(0.46f),
                         borderColor = borderColor,
                         containerColor = containerColor,
                         onClick = { onClickVersions(componentStage.componentComponentStage.componentStageId) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                modifier = Modifier.height(15.dp),
+                                imageVector = Icons.Filled.Circle,
+                                contentDescription = "Is filled",
+                                tint = if (componentStage.versions.isNotEmpty()) Color.Green else Color.Red,
+                            )
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = if (borderColor == null) Icons.Filled.NavigateNext else Icons.Filled.NavigateBefore, contentDescription = "Show versions")
                         }

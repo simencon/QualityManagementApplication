@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.specification.stages
+package com.simenko.qmapp.ui.main.products.kinds.set.stages
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -40,7 +40,7 @@ import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
-import com.simenko.qmapp.ui.main.products.items.specification.ProductKindSpecificationViewModel
+import com.simenko.qmapp.ui.main.products.kinds.set.ProductKindSpecificationViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -107,10 +107,8 @@ fun ComponentStageKind(
     componentStageKind: DomainComponentStageKind.DomainComponentStageKindComplete,
     onClickKeys: (ID) -> Unit
 ) {
-    val containerColor = when (componentStageKind.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.tertiaryContainer
-    }
+    val containerColor = if (componentStageKind.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiaryContainer
+
     Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = DEFAULT_SPACE.dp, end = 0.dp, bottom = DEFAULT_SPACE.dp).animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(verticalAlignment = Alignment.Bottom) {
             HeaderWithTitle(modifier = Modifier.weight(0.55f), titleWight = 0.8f, title = "Component stage number:", text = componentStageKind.componentStageKind.componentStageOrder.toString())

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items
+package com.simenko.qmapp.ui.main.products.kinds
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.animateContentSize
@@ -82,7 +82,7 @@ fun ProductKinds(
                     onClickDelete = { onClickDeleteLambda(it) },
                     onClickEdit = { onClickEditLambda(it) },
                     onClickDetails = { onClickDetailsLambda(it) },
-                    onClickKeys = {onClickKeysLambda(it)},
+                    onClickKeys = { onClickKeysLambda(it) },
                     onClickSpecification = { onClickSpecificationLambda(it) },
                     onClickItems = { onClickItemsLambda(it) }
                 )
@@ -115,7 +115,7 @@ fun ProductKindCard(
         ProductLine(
             productKind = productLine,
             onClickDetails = { onClickDetails(it) },
-            onClickKeys = {onClickKeys(it)},
+            onClickKeys = { onClickKeys(it) },
             onClickSpecification = { onClickSpecification(it) },
             onClickItems = { onClickItems(it) }
         )
@@ -158,10 +158,7 @@ fun ProductKindDetails(
     onClickItems: (ID) -> Unit
 ) {
     if (productKind.detailsVisibility) {
-        val containerColor = when (productKind.isExpanded) {
-            true -> MaterialTheme.colorScheme.secondaryContainer
-            false -> MaterialTheme.colorScheme.primaryContainer
-        }
+        val containerColor = if (productKind.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
 
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
@@ -178,7 +175,7 @@ fun ProductKindDetails(
 
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickSpecification(productKind.productKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Specification", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(text = "Product set", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
                         }
                     }

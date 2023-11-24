@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.list
+package com.simenko.qmapp.ui.main.products.kinds.list.steps
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -39,6 +39,7 @@ import com.simenko.qmapp.domain.entities.products.DomainComponentStageKind
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
+import com.simenko.qmapp.ui.main.products.kinds.list.ProductListViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

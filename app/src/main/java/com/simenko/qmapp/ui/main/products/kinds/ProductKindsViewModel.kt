@@ -1,19 +1,20 @@
-package com.simenko.qmapp.ui.main.products.items.specification.keys
+package com.simenko.qmapp.ui.main.products.kinds
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ComponentKindIdParameter
-import com.simenko.qmapp.di.ComponentKindKeyIdParameter
+import com.simenko.qmapp.di.ProductKindIdParameter
+import com.simenko.qmapp.di.ProductLineIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainComponentKind
+import com.simenko.qmapp.domain.entities.products.DomainProductLine
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,17 +28,17 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ComponentKindKeysViewModel @Inject constructor(
+class ProductKindsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @ComponentKindIdParameter private val componentKindId: ID,
-    @ComponentKindKeyIdParameter private val componentKindKeyId: ID
+    @ProductLineIdParameter private val productLineId: ID,
+    @ProductKindIdParameter private val productKindId: ID
 ) : ViewModel() {
-    private val _componentKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(componentKindKeyId), NoRecord))
-    private val _componentKind = MutableStateFlow(DomainComponentKind.DomainComponentKindComplete())
-    private val _componentKindKeys = repository.componentKindKeys(componentKindId)
+    private val _productKindsVisibility = MutableStateFlow(Pair(SelectedNumber(productKindId), NoRecord))
+    private val _productLine = MutableStateFlow(DomainProductLine())
+    private val _productKinds = repository.productKinds(productLineId)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -45,38 +46,35 @@ class ComponentKindKeysViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_KEYS, mainPageState)
+        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KINDS, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddComponentKindKeyClick(componentKindId) }
+            .setOnFabClickAction { onAddProductKindClick(Pair(productLineId, NoRecord.num)) }
             .setOnPullRefreshAction { updateCompanyProductsData() }
             .build()
-        viewModelScope.launch(Dispatchers.IO) { _componentKind.value = repository.componentKind(componentKindId) }
+        viewModelScope.launch(Dispatchers.IO) { _productLine.value = repository.productLine(productLineId) }
     }
 
     /**
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun setComponentKindKeysVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _componentKindKeysVisibility.value = _componentKindKeysVisibility.value.setVisibility(dId, aId)
+    fun setProductKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _productKindsVisibility.value = _productKindsVisibility.value.setVisibility(dId, aId)
     }
-
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val componentKind get() = _componentKind.asStateFlow()
-    val componentKindKeys = _componentKindKeys.flatMapLatest { productKindKeys ->
-        _componentKindKeysVisibility.flatMapLatest { visibility ->
-            val cpy = productKindKeys.map {
-                it.copy(key = it.key.copy(detailsVisibility = it.key.productLineKey.id == visibility.first.num, isExpanded = it.key.productLineKey.id == visibility.second.num))
-            }
+    val productLine get() = _productLine.asStateFlow()
+
+    val productKinds = _productKinds.flatMapLatest { productKinds ->
+        _productKindsVisibility.flatMapLatest { visibility ->
+            val cpy = productKinds.map { it.copy(detailsVisibility = it.productKind.id == visibility.first.num, isExpanded = it.productKind.id == visibility.second.num) }
             flow { emit(cpy) }
         }
     }
-
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteComponentKindKeyClick(it: ID) {
+    fun onDeleteProductKindClick(it: ID) {
         TODO("Not yet implemented")
     }
 
@@ -87,11 +85,23 @@ class ComponentKindKeysViewModel @Inject constructor(
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddComponentKindKeyClick(it: ID) {
+    private fun onAddProductKindClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 
-    fun onEditComponentKindKeyClick(it: Pair<ID, ID>) {
+    fun onEditProductKindClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
+    }
+
+    fun onProductKindKeysClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.withOpts(it.toString()))
+    }
+
+    fun onProductKindSpecificationClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.withOpts(it.toString()))
+    }
+
+    fun onProductKindItemsClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductList.withOpts(it.toString()))
     }
 }

@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.products
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -152,11 +151,7 @@ fun ProductLineDetails(
     onClickItems: (ID) -> Unit
 ) {
     if (productLine.detailsVisibility) {
-
-        val containerColor = when (productLine.isExpanded) {
-            true -> MaterialTheme.colorScheme.secondaryContainer
-            false -> MaterialTheme.colorScheme.primaryContainer
-        }
+        val containerColor = if (productLine.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
 
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
