@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.list
+package com.simenko.qmapp.ui.main.products.kinds.list.steps
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +31,7 @@ import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
+import com.simenko.qmapp.ui.main.products.kinds.list.ProductListViewModel
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 

@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.items.specification
+package com.simenko.qmapp.ui.main.products.kinds.set
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -47,7 +46,7 @@ import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.StatusChangeBtn
-import com.simenko.qmapp.ui.main.products.items.specification.stages.ComponentStageKinds
+import com.simenko.qmapp.ui.main.products.kinds.set.stages.ComponentStageKinds
 
 @Composable
 fun ProductKindSpecification(
@@ -124,10 +123,7 @@ fun ComponentKind(
     onClickDetails: (ID) -> Unit = {},
     onClickKeys: (ID) -> Unit
 ) {
-    val containerColor = when (componentKind.isExpanded) {
-        true -> MaterialTheme.colorScheme.secondaryContainer
-        false -> MaterialTheme.colorScheme.primaryContainer
-    }
+    val containerColor = if (componentKind.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -152,15 +148,14 @@ fun ComponentKind(
                 )
             }
         }
-        ComponentKindDetails(viewModel = viewModel, componentKind = componentKind, onClickKeys = onClickKeys)
+        ComponentKindDetails(viewModel = viewModel, componentKind = componentKind)
     }
 }
 
 @Composable
 fun ComponentKindDetails(
     viewModel: ProductKindSpecificationViewModel,
-    componentKind: DomainComponentKind.DomainComponentKindComplete,
-    onClickKeys: (ID) -> Unit
+    componentKind: DomainComponentKind.DomainComponentKindComplete
 ) {
     if (componentKind.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {

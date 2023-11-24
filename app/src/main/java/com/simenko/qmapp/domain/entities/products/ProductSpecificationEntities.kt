@@ -335,6 +335,7 @@ data class DomainProductKindProduct(
         val productKindProduct: DomainProductKindProduct,
         val productKind: DomainProductKind,
         val product: DomainProduct.DomainProductComplete,
+        val versions: List<DomainProductVersion>,
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseProductKindProduct.DatabaseProductKindProductComplete>() {
@@ -344,7 +345,8 @@ data class DomainProductKindProduct(
         override fun toDatabaseModel() = DatabaseProductKindProduct.DatabaseProductKindProductComplete(
             productKindProduct = this.productKindProduct.toDatabaseModel(),
             productKind = this.productKind.toDatabaseModel(),
-            product = this.product.toDatabaseModel()
+            product = this.product.toDatabaseModel(),
+            versions = this.versions.map { it.toDatabaseModel() }
         )
     }
 }
@@ -414,6 +416,7 @@ data class DomainProductComponent(
         val productComponent: DomainProductComponent,
         val product: DomainProduct,
         val component: DomainComponentKindComponent.DomainComponentKindComponentComplete,
+        val versions: List<DomainComponentVersion>,
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseProductComponent.DatabaseProductComponentComplete>() {
@@ -423,7 +426,8 @@ data class DomainProductComponent(
         override fun toDatabaseModel() = DatabaseProductComponent.DatabaseProductComponentComplete(
             productComponent = this.productComponent.toDatabaseModel(),
             product = this.product.toDatabaseModel(),
-            component = this.component.toDatabaseModel()
+            component = this.component.toDatabaseModel(),
+            versions = this.versions.map { it.toDatabaseModel() }
         )
     }
 }
@@ -441,6 +445,7 @@ data class DomainComponentComponentStage(
         val componentComponentStage: DomainComponentComponentStage,
         val component: DomainComponent,
         val componentStage: DomainComponentStageKindComponentStage.DomainComponentStageKindComponentStageComplete,
+        val versions: List<DomainComponentStageVersion>,
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
     ) : DomainBaseModel<DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete>() {
@@ -450,7 +455,8 @@ data class DomainComponentComponentStage(
         override fun toDatabaseModel() = DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete(
             componentComponentStage = this.componentComponentStage.toDatabaseModel(),
             component = this.component.toDatabaseModel(),
-            componentStage = this.componentStage.toDatabaseModel()
+            componentStage = this.componentStage.toDatabaseModel(),
+            versions = this.versions.map { it.toDatabaseModel() }
         )
     }
 }

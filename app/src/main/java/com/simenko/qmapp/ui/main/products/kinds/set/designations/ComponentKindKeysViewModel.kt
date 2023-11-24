@@ -1,14 +1,15 @@
-package com.simenko.qmapp.ui.main.products.keys
+package com.simenko.qmapp.ui.main.products.kinds.set.designations
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.simenko.qmapp.di.ProductLineKeyIdParameter
-import com.simenko.qmapp.di.ProductLineIdParameter
+import com.simenko.qmapp.di.ComponentKindIdParameter
+import com.simenko.qmapp.di.ComponentKindKeyIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
-import com.simenko.qmapp.domain.entities.products.DomainProductLine
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.repository.ProductsRepository
+import com.simenko.qmapp.storage.Storage
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
@@ -26,16 +27,17 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProductLineKeysViewModel @Inject constructor(
+class ComponentKindKeysViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    val repository: ProductsRepository,
-    @ProductLineIdParameter val productLineId: ID,
-    @ProductLineKeyIdParameter val productKeyId: ID
+    private val repository: ProductsRepository,
+    val storage: Storage,
+    @ComponentKindIdParameter private val componentKindId: ID,
+    @ComponentKindKeyIdParameter private val componentKindKeyId: ID
 ) : ViewModel() {
-    private val _productKeysVisibility = MutableStateFlow(Pair(SelectedNumber(productKeyId), NoRecord))
-    private val _productLine = MutableStateFlow(DomainProductLine())
-    private val _productKeys = repository.productLineKeys(productLineId)
+    private val _componentKindKeysVisibility = MutableStateFlow(Pair(SelectedNumber(componentKindKeyId), NoRecord))
+    private val _componentKind = MutableStateFlow(DomainComponentKind.DomainComponentKindComplete())
+    private val _componentKindKeys = repository.componentKindKeys(componentKindId)
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -43,29 +45,30 @@ class ProductLineKeysViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_LINE_KEYS, mainPageState)
+        mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_KEYS, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddProductLineKeyClick(Pair(productLineId, NoRecord.num)) }
-            .setOnPullRefreshAction { updateProductLineKeysData() }
+            .setOnFabClickAction { onAddComponentKindKeyClick(componentKindId) }
+            .setOnPullRefreshAction { updateCompanyProductsData() }
             .build()
-        viewModelScope.launch(Dispatchers.IO) { _productLine.value = repository.productLine(productLineId) }
+        viewModelScope.launch(Dispatchers.IO) { _componentKind.value = repository.componentKind(componentKindId) }
     }
 
     /**
      * UI operations ---------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun setProductLineKeysVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _productKeysVisibility.value = _productKeysVisibility.value.setVisibility(dId, aId)
+    fun setComponentKindKeysVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _componentKindKeysVisibility.value = _componentKindKeysVisibility.value.setVisibility(dId, aId)
     }
 
     /**
      * UI state --------------------------------------------------------------------------------------------------------------------------------------
      * */
-    val productLine get() = _productLine.asStateFlow()
-
-    val productKeys = _productKeys.flatMapLatest { key ->
-        _productKeysVisibility.flatMapLatest { visibility ->
-            val cpy = key.map { it.copy(detailsVisibility = it.productLineKey.id == visibility.first.num, isExpanded = it.productLineKey.id == visibility.second.num) }
+    val componentKind get() = _componentKind.asStateFlow()
+    val componentKindKeys = _componentKindKeys.flatMapLatest { productKindKeys ->
+        _componentKindKeysVisibility.flatMapLatest { visibility ->
+            val cpy = productKindKeys.map {
+                it.copy(key = it.key.copy(detailsVisibility = it.key.productLineKey.id == visibility.first.num, isExpanded = it.key.productLineKey.id == visibility.second.num))
+            }
             flow { emit(cpy) }
         }
     }
@@ -73,22 +76,22 @@ class ProductLineKeysViewModel @Inject constructor(
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------
      * */
-    fun onDeleteProductLineKeyClick(it: ID) {
+    fun onDeleteComponentKindKeyClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    private fun updateProductLineKeysData() {
+    private fun updateCompanyProductsData() {
         TODO("Not yet implemented")
     }
 
     /**
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private fun onAddProductLineKeyClick(it: Pair<ID, ID>) {
+    private fun onAddComponentKindKeyClick(it: ID) {
         TODO("Not yet implemented")
     }
 
-    fun onEditProductLineKeyClick(it: Pair<ID, ID>) {
+    fun onEditComponentKindKeyClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
 }

@@ -1,8 +1,7 @@
-package com.simenko.qmapp.ui.main.products.items.list
+package com.simenko.qmapp.ui.main.products.kinds.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.tasks.Tasks.await
 import com.simenko.qmapp.di.ComponentIdParameter
 import com.simenko.qmapp.di.ComponentKindIdParameter
 import com.simenko.qmapp.di.ComponentStageIdParameter
@@ -13,7 +12,6 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
-import com.simenko.qmapp.domain.entities.products.DomainProductComponent
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
@@ -32,7 +30,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
