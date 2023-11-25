@@ -605,10 +605,13 @@ data class DomainItemVersionComplete(
     val itemVersion: DomainItemVersion = DomainItemVersion(),
     val versionStatus: DomainVersionStatus = DomainVersionStatus(),
     val itemComplete: DomainItemComplete = DomainItemComplete(),
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseItemVersionComplete>() {
     override fun getRecordId() = itemVersion.fId
-    override fun getParentId() = 0L//is not the case with itemsVersions
+    override fun getParentId() = NoRecord.num
+    override fun getParentIdStr() = itemVersion.fItemId
     override fun hasParentId(pId: ID) = itemComplete.itemToLines.find { it.lineId == pId } != null
     override fun setIsSelected(value: Boolean) {
         isSelected = value

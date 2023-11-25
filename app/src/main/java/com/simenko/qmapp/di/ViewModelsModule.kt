@@ -97,6 +97,9 @@ annotation class ComponentIdParameter
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ComponentStageIdParameter
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class VersionFIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -250,6 +253,12 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideComponentStageIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.componentStageId] ?: NoRecord.num
+
+    @Provides
+    @VersionFIdParameter
+    @ViewModelScoped
+    fun provideVersionFIdParameter(savedStateHandle: SavedStateHandle): String =
+        savedStateHandle[NavArguments.versionFId] ?: NoRecordStr.str
 
     @Provides
     @IsProcessControlOnlyParameter

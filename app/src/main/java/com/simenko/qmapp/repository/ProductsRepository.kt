@@ -93,9 +93,6 @@ class ProductsRepository @Inject constructor(
     val productKindProducts: (ID) -> Flow<List<DomainProductKindProduct.DomainProductKindProductComplete>> = { pId ->
         database.productKindProductDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
-    val productVersions: (ID) -> Flow<List<DomainProductVersion.DomainProductVersionComplete>> = {pId ->
-        database.productVersionDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
-    }
 
 
     val componentKind: suspend (ID) -> DomainComponentKind.DomainComponentKindComplete = { id ->
@@ -109,9 +106,6 @@ class ProductsRepository @Inject constructor(
     }
     val components: (ID, ID) -> Flow<List<DomainProductComponent.DomainProductComponentComplete>> = { pId, ckId ->
         database.productComponentDao.getRecordsCompleteForUI(pId, ckId).map { list -> list.map { it.toDomainModel() } }
-    }
-    val componentVersions: (ID) -> Flow<List<DomainComponentVersion.DomainComponentVersionComplete>> = {pId ->
-        database.componentVersionDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
 
@@ -127,10 +121,9 @@ class ProductsRepository @Inject constructor(
     val componentStages: (ID, ID) -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = { cId, cskId ->
         database.componentComponentStageDao.getRecordsCompleteForUI(cId, cskId).map { list -> list.map { it.toDomainModel() } }
     }
-    val componentStageVersions: (ID) -> Flow<List<DomainComponentStageVersion.DomainComponentStageVersionComplete>> = {pId ->
-        database.componentStageVersionDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
+
+
+    val itemVersionsComplete: (String) -> Flow<List<DomainItemVersionComplete>> = { fpId ->
+        database.productVersionDao.getRecordsCompleteForUI(fpId).map { list -> list.map { it.toDomainModel() } }
     }
-
-
-    val itemVersionsComplete: Flow<List<DomainItemVersionComplete>> = database.productVersionDao.getItemVersionsComplete().map { list -> list.map { it.toDomainModel() } }
 }

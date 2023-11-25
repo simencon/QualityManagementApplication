@@ -125,6 +125,7 @@ object NavArguments {
     const val productId = "productId"
     const val componentId = "componentId"
     const val componentStageId = "componentStageId"
+    const val versionFId = "versionFId"
 
     const val isProcessControlOnly = "isProcessControlOnly"
     const val orderId = "orderId"

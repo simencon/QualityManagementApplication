@@ -15,6 +15,9 @@ abstract class DomainBaseModel<out T> {
     abstract fun getParentId(): ID
 
     @Stable
+    open fun getParentIdStr(): String = NoRecordStr.str
+
+    @Stable
     open fun hasParentId(pId: ID): Boolean = false
 
     @Stable
@@ -53,6 +56,13 @@ val EmptyString = SelectedString("")
 val FalseStr = SelectedString("false")
 val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
+
+@JvmInline
+value class SelectedChar(val char: Char)
+
+val ProductPref = SelectedChar('p')
+val ComponentPref = SelectedChar('c')
+val ComponentStagePref = SelectedChar('s')
 
 
 
