@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.ComponentStagePref
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
@@ -59,7 +60,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
     val onClickAddLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onAddComponentStageClick(it) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentStageClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentStageClick(it) } }
-    val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onComponentStageVersionsClick(it) } }
+    val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onVersionsClick(ComponentStagePref.char.toString() + it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(4, true) }
 
@@ -67,7 +68,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
         FlowRow {
             items.forEach { item ->
                 ComponentStageCard(
-                    versionsForItem = versionsForItem,
+                    versionsForItem = versionsForItem.str,
                     componentStage = item,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
@@ -89,7 +90,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
 
 @Composable
 fun ComponentStageCard(
-    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
+    versionsForItem: String,
     componentStage: DomainComponentComponentStage.DomainComponentComponentStageComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
@@ -115,11 +116,11 @@ fun ComponentStageCard(
 
 @Composable
 fun ComponentStage(
-    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
+    versionsForItem: String,
     componentStage: DomainComponentComponentStage.DomainComponentComponentStageComplete,
     onClickVersions: (ID) -> Unit
 ) {
-    val borderColor = if (versionsForItem.third.num == componentStage.componentComponentStage.componentStageId) MaterialTheme.colorScheme.outline else null
+    val borderColor = if (versionsForItem == ComponentStagePref.char.toString() + componentStage.componentComponentStage.componentStageId) MaterialTheme.colorScheme.outline else null
     val containerColor = if (componentStage.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.tertiaryContainer
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {

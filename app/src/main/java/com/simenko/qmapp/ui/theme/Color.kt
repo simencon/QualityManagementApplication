@@ -75,7 +75,7 @@ val TertiaryContainer = Color(0xFFBBBBBB)
 /**
  * 1-st level: MaterialTheme.colorScheme.surfaceVariant
  * 2-d level: MaterialTheme.colorScheme.primaryContainer
- * 3-d level:MaterialTheme.colorScheme.tertiaryContainer
+ * 3-d level: MaterialTheme.colorScheme.tertiaryContainer
  * On actions visible: MaterialTheme.colorScheme.secondaryContainer
  * Border color: MaterialTheme.colorScheme.outline
  * */

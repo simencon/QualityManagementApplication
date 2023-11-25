@@ -43,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ProductPref
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductKindProduct
@@ -69,7 +70,7 @@ fun ProductList(
     val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setProductsVisibility(aId = SelectedNumber(it)) } }
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteProductClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductClick(it) } }
-    val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onProductVersionsClick(it) } }
+    val onClickVersionsLambda = remember<(ID) -> Unit> { { viewModel.onVersionsClick(ProductPref.char.toString() + it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
@@ -90,7 +91,7 @@ fun ProductList(
             items(items = items, key = { it.productKindProduct.id }) { componentKind ->
                 ProductCard(
                     viewModel = viewModel,
-                    versionsForItem = versionsForItem,
+                    versionsForItem = versionsForItem.str,
                     product = componentKind,
                     onClickActions = { onClickActionsLambda(it) },
                     onClickDelete = { onClickDeleteLambda(it) },
@@ -107,7 +108,7 @@ fun ProductList(
 @Composable
 fun ProductCard(
     viewModel: ProductListViewModel,
-    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
+    versionsForItem: String,
     product: DomainProductKindProduct.DomainProductKindProductComplete,
     onClickActions: (ID) -> Unit,
     onClickDelete: (ID) -> Unit,
@@ -137,12 +138,12 @@ fun ProductCard(
 @Composable
 fun Product(
     viewModel: ProductListViewModel,
-    versionsForItem: Triple<SelectedNumber, SelectedNumber, SelectedNumber>,
+    versionsForItem: String,
     product: DomainProductKindProduct.DomainProductKindProductComplete,
     onClickDetails: (ID) -> Unit = {},
     onClickVersions: (ID) -> Unit
 ) {
-    val borderColor = if (versionsForItem.first.num == product.productKindProduct.productId) MaterialTheme.colorScheme.outline else null
+    val borderColor = if (versionsForItem == ProductPref.char.toString() + product.productKindProduct.productId) MaterialTheme.colorScheme.outline else null
     val containerColor = if (product.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant
 
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {

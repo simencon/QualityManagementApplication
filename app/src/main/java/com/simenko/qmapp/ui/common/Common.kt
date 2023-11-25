@@ -79,6 +79,7 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.other.Constants.ACTION_ITEM_SIZE
 import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
@@ -535,6 +536,79 @@ fun ItemCard(
                 .fillMaxWidth()
                 .offset { IntOffset(offsetTransition.roundToInt(), 0) }
                 .pointerInput(item.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num) }) }
+        ) {
+            content()
+        }
+    }
+}
+
+@SuppressLint("UnusedTransitionTargetStateParameter")
+@Composable
+fun ItemCardStringId(
+    modifier: Modifier = Modifier,
+    item: DomainBaseModel<Any>,
+    onClickActions: (String) -> Unit,
+    onClickDelete: (String) -> Unit,
+    onClickEdit: (Pair<String, String>) -> Unit,
+    contentColors: Triple<Color, Color, Color>, /*Normal-Expanded Color-Border Selected Color*/
+    vararg actionButtonsImages: ImageVector,
+    content: @Composable (() -> Unit),
+) {
+    val offset = CARD_OFFSET * actionButtonsImages.size
+
+    val transitionState = remember { MutableTransitionState(item.isExpanded).apply { targetState = !item.isExpanded } }
+    val transition = updateTransition(transitionState, "cardTransition")
+
+    val offsetTransition by transition.animateFloat(
+        label = "cardOffsetTransition",
+        transitionSpec = { tween(durationMillis = ANIMATION_DURATION) },
+        targetValueByState = { (if (item.isExpanded) offset else 0f).dp() },
+    )
+
+    val containerColor = when (item.isExpanded) {
+        true -> contentColors.second
+        false -> contentColors.first
+    }
+
+    val borderColor = when (item.detailsVisibility) {
+        true -> contentColors.third
+        false -> when (item.isExpanded) {
+            true -> contentColors.second
+            false -> contentColors.first
+        }
+    }
+
+    Box(Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
+            actionButtonsImages.forEachIndexed { index, imageVector ->
+                when (index) {
+                    0 -> {
+                        IconButton(
+                            modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                            onClick = { onClickDelete(if (item.getRecordId() is String) item.getRecordId() as String else NoRecordStr.str) },
+                            content = { Icon(imageVector = imageVector, contentDescription = "delete action") }
+                        )
+                    }
+
+                    1 -> {
+                        IconButton(
+                            modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
+                            onClick = { onClickEdit(Pair(item.getParentIdStr(), if (item.getRecordId() is String) item.getRecordId() as String else NoRecordStr.str)) },
+                            content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
+                        )
+                    }
+                }
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = containerColor),
+            border = BorderStroke(width = 1.dp, borderColor),
+            elevation = CardDefaults.cardElevation(4.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .offset { IntOffset(offsetTransition.roundToInt(), 0) }
+                .pointerInput(item.getRecordId()) { detectTapGestures(onDoubleTap = { onClickActions(if (item.getRecordId() is String) item.getRecordId() as String else NoRecordStr.str) }) }
         ) {
             content()
         }

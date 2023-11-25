@@ -8,9 +8,12 @@ import com.simenko.qmapp.di.ComponentStageIdParameter
 import com.simenko.qmapp.di.ComponentStageKindIdParameter
 import com.simenko.qmapp.di.ProductIdParameter
 import com.simenko.qmapp.di.ProductKindIdParameter
+import com.simenko.qmapp.di.VersionFIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
+import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
@@ -20,7 +23,6 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.utils.InvestigationsUtils.setOnlyOneItem
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -50,16 +52,15 @@ class ProductListViewModel @Inject constructor(
     @ComponentKindIdParameter private val componentKindId: ID,
     @ComponentIdParameter private val componentId: ID,
     @ComponentStageKindIdParameter private val componentStageKindId: ID,
-    @ComponentStageIdParameter private val componentStageId: ID
+    @ComponentStageIdParameter private val componentStageId: ID,
+    @VersionFIdParameter private val versionFId: String = NoRecordStr.str
 ) : ViewModel() {
-    //    ToDo: Add this param into constructor later
-    private val componentVersionId: ID = NoRecord.num
-
     private val _productsVisibility = MutableStateFlow(Pair(SelectedNumber(productId), NoRecord))
     private val _componentKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentKindId), NoRecord))
     private val _componentsVisibility = MutableStateFlow(Pair(SelectedNumber(componentId), NoRecord))
     private val _componentStageKindsVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageKindId), NoRecord))
     private val _componentStagesVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageId), NoRecord))
+    private val _versionsVisibility = MutableStateFlow(Pair(SelectedString(versionFId), NoRecordStr))
 
     private val _productKind = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
     private val _products = repository.productKindProducts(productKindId)
@@ -75,11 +76,8 @@ class ProductListViewModel @Inject constructor(
     }
     private val _componentStagesAll = _componentsVisibility.flatMapLatest { component -> repository.componentStages(component.first.num, NoRecord.num) }
 
-    private val _versionsForItem = MutableStateFlow(Triple(NoRecord, NoRecord, NoRecord))
-    private val _versionsVisibility = MutableStateFlow(Pair(SelectedNumber(componentStageId), NoRecord))
-    private val _productVersions = _versionsForItem.flatMapLatest { repository.productVersions(it.first.num) }
-    private val _componentVersions = _versionsForItem.flatMapLatest { repository.componentVersions(it.second.num) }
-    private val _componentStageVersions = _versionsForItem.flatMapLatest { repository.componentStageVersions(it.second.num) }
+    private val _versionsForItem = MutableStateFlow(NoRecordStr)
+    private val _versions = _versionsForItem.flatMapLatest { repository.itemVersionsComplete(it.str) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -91,9 +89,7 @@ class ProductListViewModel @Inject constructor(
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
             .setOnFabClickAction {
                 if (isSecondColumnVisible.value)
-                    if (_versionsForItem.value.first != NoRecord) onAddProductVersionClick(_productsVisibility.value.first.num)
-                    else if (_versionsForItem.value.second != NoRecord) onAddComponentVersionClick(_componentsVisibility.value.first.num)
-                    else onAddComponentStageVersionClick(_componentStagesVisibility.value.first.num)
+                    onAddVersionClick(_versionsForItem.value.str)
                 else
                     onAddProduct(productKindId)
             }
@@ -111,20 +107,12 @@ class ProductListViewModel @Inject constructor(
         _productsVisibility.value = _productsVisibility.value.setVisibility(dId, aId)
     }
 
-    fun onProductVersionsClick(id: ID) {
-        _versionsForItem.value = _versionsForItem.value.setOnlyOneItem(0, id)
-    }
-
     fun setComponentKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _componentKindsVisibility.value = _componentKindsVisibility.value.setVisibility(dId, aId)
     }
 
     fun setComponentsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _componentsVisibility.value = _componentsVisibility.value.setVisibility(dId, aId)
-    }
-
-    fun onComponentVersionsClick(id: ID) {
-        _versionsForItem.value = _versionsForItem.value.setOnlyOneItem(1, id)
     }
 
     fun setComponentStageKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
@@ -135,11 +123,11 @@ class ProductListViewModel @Inject constructor(
         _componentStagesVisibility.value = _componentStagesVisibility.value.setVisibility(dId, aId)
     }
 
-    fun onComponentStageVersionsClick(id: ID) {
-        _versionsForItem.value = _versionsForItem.value.setOnlyOneItem(1, id)
+    fun onVersionsClick(fpId: String) {
+        if (fpId != _versionsForItem.value.str) _versionsForItem.value = SelectedString(fpId) else _versionsForItem.value = NoRecordStr
     }
 
-    fun setVersionsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+    fun setVersionsVisibility(dId: SelectedString = NoRecordStr, aId: SelectedString = NoRecordStr) {
         _versionsVisibility.value = _versionsVisibility.value.setVisibility(dId, aId)
     }
 
@@ -166,9 +154,7 @@ class ProductListViewModel @Inject constructor(
         _versionsForItem.flatMapLatest { versionsVisibility ->
             flow {
                 emit(
-                    (((versionsVisibility.first != NoRecord) && isComposed.component1()) ||
-                            ((versionsVisibility.second != NoRecord) && isComposed.component3()) ||
-                            ((versionsVisibility.third != NoRecord) && isComposed.component5()))
+                    ((versionsVisibility != NoRecordStr) && (isComposed.component1() || isComposed.component3() || isComposed.component5()))
                 )
             }
         }
@@ -196,10 +182,10 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    private val _versionListIsInitialized: Flow<Boolean> = _componentVersions.flatMapLatest { versions ->
+    private val _versionListIsInitialized: Flow<Boolean> = _versions.flatMapLatest { versions ->
         flow {
-            if (componentVersionId != NoRecord.num) {
-                storage.setLong(ScrollStates.VERSIONS.indexKey, versions.map { it.version.id }.indexOf(componentVersionId).toLong())
+            if (versionFId != NoRecordStr.str) {
+                storage.setLong(ScrollStates.VERSIONS.indexKey, versions.map { it.itemVersion.fId }.indexOf(versionFId).toLong())
                 storage.setLong(ScrollStates.VERSIONS.offsetKey, ZeroValue.num)
                 emit(true)
             } else {
@@ -269,9 +255,9 @@ class ProductListViewModel @Inject constructor(
         }
     }
 
-    val componentVersions = _componentVersions.flatMapLatest { versions ->
+    val componentVersions = _versions.flatMapLatest { versions ->
         _versionsVisibility.flatMapLatest { visibility ->
-            val cpy = versions.map { it.copy(detailsVisibility = it.version.id == visibility.first.num, isExpanded = it.version.id == visibility.second.num) }
+            val cpy = versions.map { it.copy(detailsVisibility = it.itemVersion.fId == visibility.first.str, isExpanded = it.itemVersion.fId == visibility.second.str) }
             flow { emit(cpy) }
         }
     }
@@ -295,7 +281,7 @@ class ProductListViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onDeleteVersionClick(it: ID) {
+    fun onDeleteVersionClick(it: String) {
         TODO("Not yet implemented")
     }
 
@@ -327,23 +313,15 @@ class ProductListViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    private fun onAddProductVersionClick(productId: ID) {
+    private fun onAddVersionClick(fId: String) {
         TODO("Not yet implemented")
     }
 
-    private fun onAddComponentVersionClick(componentId: ID) {
+    fun onEditVersionClick(it: Pair<String, String>) {
         TODO("Not yet implemented")
     }
 
-    private fun onAddComponentStageVersionClick(componentStageId: ID) {
-        TODO("Not yet implemented")
-    }
-
-    fun onEditVersionClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
-    }
-
-    fun onSpecificationClick(it: ID) {
+    fun onSpecificationClick(it: String) {
         TODO("Not yet implemented")
     }
 }

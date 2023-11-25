@@ -399,7 +399,7 @@ class NewItemViewModel @Inject constructor(
     }
 
     // Sub Order Item --------------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete
+    private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete(NoRecordStr.str)
     val subOrderItemVersions: StateFlow<List<DomainItemVersionComplete>> = _subOrderItemVersions.flatMapLatest { itemVersions ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->

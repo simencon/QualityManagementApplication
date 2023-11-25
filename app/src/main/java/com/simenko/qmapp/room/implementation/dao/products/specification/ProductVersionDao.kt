@@ -24,10 +24,6 @@ abstract class ProductVersionDao : DaoBaseModel<DatabaseProductVersion> {
     abstract override fun getRecordsForUI(): Flow<List<DatabaseProductVersion>>
 
     @Transaction
-    @Query("SELECT * FROM product_versions_complete where productId = :pId ORDER BY versionDate ASC")
-    abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseProductVersion.DatabaseProductVersionComplete>>
-
-    @Transaction
-    @Query("SELECT * FROM item_versions")
-    abstract fun getItemVersionsComplete(): Flow<List<DatabaseItemVersionComplete>>
+    @Query("SELECT * FROM item_versions where fItemId = :fpId or :fpId = '-1'")
+    abstract fun getRecordsCompleteForUI(fpId: String): Flow<List<DatabaseItemVersionComplete>>
 }

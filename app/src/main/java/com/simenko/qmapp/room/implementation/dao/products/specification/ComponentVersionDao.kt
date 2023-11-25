@@ -21,7 +21,4 @@ abstract class ComponentVersionDao: DaoBaseModel<DatabaseComponentVersion> {
 
     @Query("SELECT * FROM `10_components_versions` ORDER BY versionDate ASC")
     abstract override fun getRecordsForUI(): Flow<List<DatabaseComponentVersion>>
-    @Transaction
-    @Query("SELECT * FROM component_versions_complete where componentId = :pId ORDER BY versionDate ASC")
-    abstract fun getRecordsCompleteForUI(pId: ID): Flow<List<DatabaseComponentVersion.DatabaseComponentVersionComplete>>
 }
