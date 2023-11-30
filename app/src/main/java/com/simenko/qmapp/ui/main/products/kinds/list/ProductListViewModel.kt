@@ -87,12 +87,7 @@ class ProductListViewModel @Inject constructor(
     init {
         mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_LIST, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction {
-                if (isSecondColumnVisible.value)
-                    onAddVersionClick(_versionsForItem.value.str)
-                else
-                    onAddProduct(productKindId)
-            }
+            .setOnFabClickAction { if (isSecondColumnVisible.value) onAddVersionClick(_versionsForItem.value.str) else onAddProduct(productKindId) }
             .setOnPullRefreshAction { updateProductsData() }
             .build()
 
