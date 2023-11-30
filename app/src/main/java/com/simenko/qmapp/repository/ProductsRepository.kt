@@ -121,9 +121,14 @@ class ProductsRepository @Inject constructor(
     val componentStages: (ID, ID) -> Flow<List<DomainComponentComponentStage.DomainComponentComponentStageComplete>> = { cId, cskId ->
         database.componentComponentStageDao.getRecordsCompleteForUI(cId, cskId).map { list -> list.map { it.toDomainModel() } }
     }
-
-
     val itemVersionsComplete: (String) -> Flow<List<DomainItemVersionComplete>> = { fpId ->
         database.productVersionDao.getRecordsCompleteForUI(fpId).map { list -> list.map { it.toDomainModel() } }
+    }
+    val versionCharacteristics(versionFId: String): Any {
+        TODO("Not yet implemented")
+    }
+
+    val characteristicTolerances(versionFId: String, num: ID) {
+        TODO("Not yet implemented")
     }
 }
