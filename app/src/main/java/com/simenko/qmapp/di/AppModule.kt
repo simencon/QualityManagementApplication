@@ -8,6 +8,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
@@ -130,6 +133,17 @@ object AppModule {
     @Singleton
     @Provides
     fun provideFirebaseMessaging() = Firebase.messaging
+
+    @Singleton
+    @Provides
+    fun provideFirebaseRemoteConfig(): FirebaseRemoteConfig {
+        val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
+        val configSettings = remoteConfigSettings {
+            minimumFetchIntervalInSeconds = 3600
+        }
+        remoteConfig.setConfigSettingsAsync(configSettings)
+        return remoteConfig
+    }
 
     @Singleton
     @Provides
