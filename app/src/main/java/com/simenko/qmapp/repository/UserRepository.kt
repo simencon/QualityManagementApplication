@@ -317,6 +317,9 @@ class UserRepository @Inject constructor(
                                 }
                             }
 
+//                            ToDoMe - hand this error "An internal error has occurred. [ Requests from this Android client application com.simenko.qmapp are blocked. ]" - it means App is not allowed to FireBase project.
+
+
                             else -> {
                                 _user.clearUserData()
                                 _userState.value = UnregisteredState
