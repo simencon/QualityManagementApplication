@@ -232,6 +232,7 @@ class UserRepository @Inject constructor(
     val authToken: String
         get() = _user.fbToken
 
+    //    ToDoMe - not yet in CleanArchitecture
     suspend fun refreshTokenIfNecessary() = suspendCoroutine { continuation ->
         if (Instant.now().epochSecond + _user.epochFbDiff < _user.fbTokenExp) {
             continuation.resume(_user.fbToken)
@@ -373,6 +374,7 @@ class UserRepository @Inject constructor(
         }
     }
 
+    //    ToDoMe - not yet in CleanArchitecture
     fun updateUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
@@ -450,7 +452,7 @@ class UserRepository @Inject constructor(
                 if (currentTokenTask.isSuccessful) {
                     if (_deviceFcmToken.fcmToken.isNotEmpty() && _deviceFcmToken.fcmToken != currentTokenTask.result) {
                         this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
-                            if(deleteTask.isSuccessful) {
+                            if (deleteTask.isSuccessful) {
                                 println("updateFcmToken - changed token deleted ${deleteTask.result}")
                                 _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, currentTokenTask.result)
                                 this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
