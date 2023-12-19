@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.structure.steps
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,85 +11,61 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
+import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.main.structure.CompanyStructureViewModel
-import kotlinx.coroutines.delay
+import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 
 @Composable
 fun CompanyStructure(
     mainScreenPadding: PaddingValues,
     viewModel: CompanyStructureViewModel = hiltViewModel()
 ) {
+    val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val screenWidthPhysical = screenWidth.toFloat().dp()
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding()
 
-    val channelVisibility by viewModel.channelsVisibility.collectAsStateWithLifecycle()
+    val animator = HorizonteAnimationImp(screenWidth, scope)
 
-    val verticalScrollState = rememberScrollState()
-    val horizontalScrollState = rememberScrollState()
+    val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
+    val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
 
     /**
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
      * */
-    var screenSizes: Triple<Dp, Dp, Dp> by remember {
-        mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
-    }
+    var screenSizes: Triple<Dp, Dp, Dp> by remember { mutableStateOf(animator.getRequiredScreenWidth(if (isSecondRowVisible) 1 else 0)) }
 
-    val limitToResize = 720
-
-    fun updateSizes(samplesFactor: Int) {
-        screenSizes = Triple(
-            when {
-                screenWidth > limitToResize -> screenWidth.dp
-                else -> (screenWidth * (1 + 0.88 * samplesFactor)).dp
-            },
-            when (samplesFactor) {
-                0 -> screenWidth.dp
-                else -> {
-                    when {
-                        screenWidth > limitToResize -> (screenWidth * 0.57).dp
-                        else -> screenWidth.dp
-                    }
-                }
-            },
-            when {
-                screenWidth > limitToResize -> (screenWidth * 0.43 * samplesFactor).dp
-                else -> (screenWidth * 0.88 * samplesFactor).dp
-            }
-        )
-    }
-
-    suspend fun animateScroll(samplesFactor: Int) {
-        horizontalScrollState.animateScrollTo(
-            samplesFactor * horizontalScrollState.maxValue, tween(
-                durationMillis = ANIMATION_DURATION,
-                easing = LinearOutSlowInEasing
-            )
-        )
-    }
+    val verticalScrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
-    LaunchedEffect(channelVisibility) {
-        when (channelVisibility.first == NoRecord) {
-            true -> {
-                if (screenWidth <= limitToResize) animateScroll(0)
-                updateSizes(0)
-            }
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 
-            false -> {
-                updateSizes(1)
-//                ToDo find a way to run animation exactly when screen resized
-                delay(50L)
-                if (screenWidth <= limitToResize) animateScroll(1)
-            }
+    LaunchedEffect(lifecycleState.value) {
+        when (lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setViewState(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setViewState(false)
+            else -> {}
+        }
+    }
+
+    LaunchedEffect(isSecondRowVisible) {
+        if (isSecondRowVisible) {
+            animator.setRequiredScreenWidth(1) { screenSizes = it }
+        } else {
+            animator.run { horizontalScrollState.animateScroll(0) }
+            animator.setRequiredScreenWidth(0) { screenSizes = it }
         }
     }
 
@@ -98,12 +73,14 @@ fun CompanyStructure(
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
+                .horizontalScroll(horizontalScrollState, isSecondRowVisible)
+                .onSizeChanged { if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) } }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
-            if (channelVisibility.first != NoRecord)
+            if (listsIsInitialized.first)
+                Departments(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
+            if (isSecondRowVisible && listsIsInitialized.second)
                 Lines(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
         }
     }

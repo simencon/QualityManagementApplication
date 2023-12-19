@@ -33,9 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -66,8 +66,8 @@ fun OperationForm(
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
             when (state) {
-                is FillInSuccess -> viewModel.makeRecord()
-                is FillInError -> error = state.errorMsg
+                is FillInSuccessState -> viewModel.makeRecord()
+                is FillInErrorState -> error = state.errorMsg
                 is FillInInitialState -> error = EmptyString.str
             }
         }
@@ -98,45 +98,45 @@ fun OperationForm(
             modifier = Modifier.padding(all = 0.dp)
         ) {
             Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(opComplete.lineComplete.depAbbr, opComplete.lineComplete.depName))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(opComplete.lineComplete.subDepAbbr, opComplete.lineComplete.subDepDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(opComplete.lineComplete.channelAbbr, opComplete.lineComplete.channelDesignation))
-            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineComplete.lineAbbr, opComplete.lineComplete.lineDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(opComplete.lineWithParents.depAbbr, opComplete.lineWithParents.depName))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(opComplete.lineWithParents.subDepAbbr, opComplete.lineWithParents.subDepDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(opComplete.lineWithParents.channelAbbr, opComplete.lineWithParents.channelDesignation))
+            InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineWithParents.lineAbbr, opComplete.lineWithParents.lineDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
-                    viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num else it.toInt())
+                valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
+                    viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter operation order"),
+                contentDescription = Triple(Icons.Outlined.FormatListNumbered, "Operation order", "Enter order"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter operation id"),
+                contentDescription = Triple(Icons.Outlined.Info, "Operation id", "Enter id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { equipmentFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
-                contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter operation complete name"),
+                contentDescription = Triple(Icons.Outlined.Info, "Operation complete name", "Enter complete name"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
                 valueParam = Triple(opComplete.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
                 keyboardNavigation = Pair(equipmentFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter operation equipment")
+                contentDescription = Triple(Icons.Outlined.PrecisionManufacturing, "Operation equipment", "Enter equipment name")
             )
             Spacer(modifier = Modifier.height(10.dp))
             PreviousOperationHeader(
                 previousOperations = opComplete.previousOperations,
                 userRolesError = fillInErrors.previousOperationsError,
-                onClickActions = { viewModel.setPreviousOperationVisibility(aId = SelectedNumber(it)) },
+                onClickActions = { viewModel.setPreviousOperationVisibility(aId = SelectedNumber(it.toLong())) },
                 onClickDelete = { viewModel.deletePreviousOperation(it) },
                 onClickAdd = { viewModel.setPreviousOperationDialogVisibility(true) }
             )

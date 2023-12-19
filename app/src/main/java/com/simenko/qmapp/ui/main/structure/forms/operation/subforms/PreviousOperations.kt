@@ -53,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.entities.DomainOperationsFlow.DomainOperationsFlowComplete
 import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.ContentWithTitle
@@ -211,14 +210,9 @@ fun PreviousOperationCard(
 @Composable
 fun PreviousOperation(item: DomainOperationsFlowComplete) {
     Column(modifier = Modifier.padding(all = Constants.DEFAULT_SPACE.dp)) {
-        ContentWithTitle(title = "Department:", value = item.depAbbr?: EmptyString.str, titleWight = 0.35f)
+        val line = StringUtils.concatFourStrings(item.depAbbr, item.subDepAbbr, item.channelAbbr, item.lineAbbr)
+        ContentWithTitle(title = "Line:", value = line, titleWight = 0.18f)
         Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Sub department:", value = item.subDepAbbr?: EmptyString.str, titleWight = 0.35f)
-        Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Channel:", value = item.channelAbbr?: EmptyString.str, titleWight = 0.35f)
-        Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Line:", value = item.lineAbbr?: EmptyString.str, titleWight = 0.35f)
-        Spacer(modifier = Modifier.height(Constants.DEFAULT_SPACE.dp))
-        ContentWithTitle(title = "Operation:", value = StringUtils.concatTwoStrings1(item.equipment, item.operationAbbr), titleWight = 0.35f)
+        ContentWithTitle(title = "Operation:", value = StringUtils.concatTwoStrings1(item.equipment, item.operationAbbr), titleWight = 0.18f)
     }
 }

@@ -18,7 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.entities.DomainItemVersionComplete
+import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.investigations.forms.NewItemViewModel
 import com.simenko.qmapp.utils.StringUtils.concatTwoStrings1
@@ -34,7 +35,7 @@ fun VersionsSelection(
     val items by viewModel.subOrderItemVersions.collectAsStateWithLifecycle()
     val currentSubOrder by viewModel.subOrder.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Triple<String, Int, Int>) -> Unit> { { viewModel.selectSubOrderItemVersion(it) } }
+    val onSelectLambda = remember<(Triple<String, ID, ID>) -> Unit> { { viewModel.selectSubOrderItemVersion(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
@@ -60,7 +61,7 @@ fun VersionsSelection(
 @Composable
 fun VersionCard(
     input: DomainItemVersionComplete,
-    onClick: (Triple<String, Int, Int>) -> Unit
+    onClick: (Triple<String, ID, ID>) -> Unit
 ) {
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = if (input.isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,

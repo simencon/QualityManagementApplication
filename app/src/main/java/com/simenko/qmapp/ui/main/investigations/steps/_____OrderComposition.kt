@@ -16,10 +16,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
 import com.simenko.qmapp.domain.*
@@ -38,46 +40,55 @@ import com.simenko.qmapp.ui.theme.*
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
 @Composable
 fun Orders(
     modifier: Modifier = Modifier,
-    invModel: InvestigationsViewModel = hiltViewModel()
+    viewModel: InvestigationsViewModel = hiltViewModel()
 ) {
-    val scrollToRecord by invModel.scrollToRecord.collectAsStateWithLifecycle(null)
-    val items by invModel.orders.collectAsStateWithLifecycle(listOf())
+    val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
+    val items by viewModel.orders.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setOrdersVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteOrder(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> { { invModel.onEditInvClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setOrdersVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.deleteOrder(it) } }
+    val onClickEditLambda = remember<(ID) -> Unit> { { viewModel.onEditInvClick(it) } }
+
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when(lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            else -> {}
+        }
+    }
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {
         scrollToRecord?.let { record ->
             record.first.getContentIfNotHandled()?.let { orderId ->
-                invModel.channel.trySend(
-                    this.launch { listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId) }
-                )
+                viewModel.channel.trySend(this.launch { listState.scrollToSelectedItem(list = items.map { it.order.id }.toList(), selectedId = orderId) })
             }
         }
     }
     val lastItemIsVisible by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1 } }
     LaunchedEffect(lastItemIsVisible) {
-        if (lastItemIsVisible) invModel.mainPageHandler?.onListEnd?.invoke(true) else invModel.mainPageHandler?.onListEnd?.invoke(false)
+        if (lastItemIsVisible) viewModel.mainPageHandler?.onListEnd?.invoke(true) else viewModel.mainPageHandler?.onListEnd?.invoke(false)
     }
 
     val lastVisibleItemKey by remember { derivedStateOf { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key } }
     LaunchedEffect(listState.isScrollInProgress) {
-        if (!listState.isScrollInProgress) lastVisibleItemKey?.let { invModel.setLastVisibleItemKey(it) }
+        if (!listState.isScrollInProgress) lastVisibleItemKey?.let { viewModel.setLastVisibleItemKey(it) }
     }
 
     LazyColumn(modifier = modifier, state = listState) {
         items(items = items, key = { it.order.id }) { order ->
             OrderCard(
-                invModel = invModel,
+                invModel = viewModel,
                 order = order,
                 onClickDetails = { onClickDetailsLambda(it) },
                 onClickActions = { onClickActionsLambda(it) },
@@ -93,10 +104,10 @@ fun Orders(
 fun OrderCard(
     invModel: InvestigationsViewModel = hiltViewModel(),
     order: DomainOrderComplete = DomainOrderComplete(),
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(order.isExpanded).apply { targetState = !order.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -158,7 +169,7 @@ fun OrderCard(
 fun Order(
     invModel: InvestigationsViewModel = hiltViewModel(),
     order: DomainOrderComplete,
-    onClickDetails: (Int) -> Unit = {}
+    onClickDetails: (Long) -> Unit = {}
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -211,7 +222,7 @@ fun Order(
 @Composable
 fun OrderDetails(
     invModel: InvestigationsViewModel = hiltViewModel(),
-    orderId: Int = NoRecord.num,
+    orderId: Long = NoRecord.num,
     detailsVisibility: Boolean = false,
     placerFullName: String = "",
     createdDate: Long = NoRecord.num.toLong(),

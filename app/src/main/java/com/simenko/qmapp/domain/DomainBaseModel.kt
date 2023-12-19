@@ -2,16 +2,23 @@ package com.simenko.qmapp.domain
 
 import androidx.compose.runtime.Stable
 
+typealias ID = Long
+
 @Stable
 abstract class DomainBaseModel<out T> {
+    open var detailsVisibility: Boolean = false
+    open var isExpanded: Boolean = false
     @Stable
     abstract fun getRecordId(): Any
 
     @Stable
-    abstract fun getParentId(): Int
+    abstract fun getParentId(): ID
 
     @Stable
-    open fun hasParentId(pId: Int): Boolean = false
+    open fun getParentIdStr(): String = NoRecordStr.str
+
+    @Stable
+    open fun hasParentId(pId: ID): Boolean = false
 
     @Stable
     abstract fun setIsSelected(value: Boolean)
@@ -24,12 +31,12 @@ abstract class DomainBaseModel<out T> {
 }
 
 sealed class FillInState
-object FillInInitialState : FillInState()
-object FillInSuccess : FillInState()
-data class FillInError(val errorMsg: String) : FillInState()
+data object FillInInitialState : FillInState()
+data object FillInSuccessState : FillInState()
+data class FillInErrorState(val errorMsg: String) : FillInState()
 
 @JvmInline
-value class SelectedNumber(val num: Int)
+value class SelectedNumber(val num: Long)
 
 val NoRecord = SelectedNumber(-1)
 val ZeroValue = SelectedNumber(0)
@@ -49,6 +56,13 @@ val EmptyString = SelectedString("")
 val FalseStr = SelectedString("false")
 val TrueStr = SelectedString("true")
 val NoRecordStr = SelectedString("-1")
+
+@JvmInline
+value class SelectedChar(val char: Char)
+
+val ProductPref = SelectedChar('p')
+val ComponentPref = SelectedChar('c')
+val ComponentStagePref = SelectedChar('s')
 
 
 

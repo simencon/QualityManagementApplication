@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
 import com.simenko.qmapp.repository.ProductsRepository
@@ -20,13 +21,13 @@ import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Exception
 import javax.inject.Inject
 
@@ -76,10 +77,10 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {
-        viewModelScope.launch {
-            combine(intents, _topTabsSetup, _fabSetup, _pullRefreshSetup) { intent, topTabsSetup, fabSetup, pullRefreshSetup ->
-                handleEvent(intent, topTabsSetup, fabSetup, pullRefreshSetup)
-            }.collect()
+        viewModelScope.launch(Dispatchers.Default) {
+            intents.collect {
+                handleEvent(it, _topTabsSetup.value, _fabSetup.value, _pullRefreshSetup.value)
+            }
         }
     }
 
@@ -114,7 +115,25 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onDrawerMenuCompanyStructureSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.link, popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+//                todo-me - companyId should be initially stored under user
+                val companyName = userRepository.user.company
+                val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
+                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(companyId), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+            }
+        }
+    }
+
+    fun onDrawerMenuProductsSelected() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+//                todo-me - companyId should be initially stored under user
+                val companyName = userRepository.user.company
+                val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
+                appNavigator.tryNavigateTo(route = Route.Main.Products.withOpts(companyId), popUpToRoute = Route.Main.Products.route, inclusive = true)
+            }
+        }
     }
 
     fun onDrawerMenuInvSelected() {
@@ -146,26 +165,49 @@ class MainActivityViewModel @Inject constructor(
             manufacturingRepository.syncOperations()
             manufacturingRepository.syncOperationsFlows()
 
-            productsRepository.refreshElementIshModels()
-            productsRepository.refreshIshSubCharacteristics()
-            productsRepository.refreshManufacturingProjects()
-            productsRepository.refreshCharacteristics()
-            productsRepository.refreshMetrixes()
-            productsRepository.refreshKeys()
-            productsRepository.refreshProductBases()
-            productsRepository.refreshProducts()
-            productsRepository.refreshComponents()
-            productsRepository.refreshComponentInStages()
-            productsRepository.refreshVersionStatuses()
-            productsRepository.refreshProductVersions()
-            productsRepository.refreshComponentVersions()
-            productsRepository.refreshComponentInStageVersions()
-            productsRepository.refreshProductTolerances()
-            productsRepository.refreshComponentTolerances()
-            productsRepository.refreshComponentInStageTolerances()
-            productsRepository.refreshProductsToLines()
-            productsRepository.refreshComponentsToLines()
-            productsRepository.refreshComponentInStagesToLines()
+            productsRepository.syncManufacturingProjects()
+            productsRepository.syncProductKeys()
+            productsRepository.syncProductBases()
+            productsRepository.syncCharacteristicGroups()
+            productsRepository.syncCharacteristicSubGroups()
+            productsRepository.syncCharacteristics()
+            productsRepository.syncMetrics()
+            productsRepository.syncVersionStatuses()
+
+            productsRepository.syncProductKinds()
+            productsRepository.syncComponentKinds()
+            productsRepository.syncComponentStageKinds()
+
+            productsRepository.syncProductKindsKeys()
+            productsRepository.syncComponentKindsKeys()
+            productsRepository.syncComponentStageKindsKeys()
+
+            productsRepository.syncCharacteristicsProductKinds()
+            productsRepository.syncCharacteristicsComponentKinds()
+            productsRepository.syncCharacteristicsComponentStageKinds()
+
+            productsRepository.syncProducts()
+            productsRepository.syncComponents()
+            productsRepository.syncComponentStages()
+
+            productsRepository.syncProductsToLines()
+            productsRepository.syncComponentsToLines()
+            productsRepository.syncComponentStagesToLines()
+
+            productsRepository.syncProductKindsProducts()
+            productsRepository.syncComponentKindsComponents()
+            productsRepository.syncComponentStageKindsComponentStages()
+
+            productsRepository.syncProductsComponents()
+            productsRepository.syncComponentsComponentStages()
+
+            productsRepository.syncProductVersions()
+            productsRepository.syncComponentVersions()
+            productsRepository.syncComponentStageVersions()
+
+            productsRepository.syncProductTolerances()
+            productsRepository.syncComponentTolerances()
+            productsRepository.syncComponentStageTolerances()
 
             repository.syncInputForOrder()
             repository.syncOrdersStatuses()

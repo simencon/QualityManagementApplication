@@ -107,7 +107,7 @@ fun Sample(
                 title = "Sample num.: ",
                 text = sample.sample.sampleNumber.toString()
             )
-            StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, {}) {
+            StatusChangeBtn(modifier = Modifier.weight(weight = 0.46f), containerColor = containerColor, onClick = {}) {
                 StatusWithPercentage(
                     status = Pair(StatusDoneId.num, "Done"),
                     result = Triple(sample.sampleResult.isOk, sample.sampleResult.total, sample.sampleResult.good),

@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.settings
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.repository.UserState
@@ -19,7 +20,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val remoteConfig: FirebaseRemoteConfig
 ) : ViewModel() {
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -30,6 +32,8 @@ class SettingsViewModel @Inject constructor(
         mainPageHandler = MainPageHandler.Builder(Page.ACCOUNT_SETTINGS, mainPageState)
             .setOnPullRefreshAction { this.updateUserData() }
             .build()
+        val restApiUrl = remoteConfig.getString("app_rest_api_url")
+        println("SettingsViewModel remote config value: ${restApiUrl}, chars: ${restApiUrl.length}")
     }
 
     /**

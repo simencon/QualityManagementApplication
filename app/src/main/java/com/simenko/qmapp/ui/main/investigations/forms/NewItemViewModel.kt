@@ -6,6 +6,9 @@ import com.simenko.qmapp.di.OrderIdParameter
 import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
+import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.InvestigationsRepository
 import com.simenko.qmapp.repository.ManufacturingRepository
@@ -39,8 +42,8 @@ class NewItemViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
     @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
-    @OrderIdParameter private val orderId: Int,
-    @SubOrderIdParameter private val subOrderId: Int
+    @OrderIdParameter private val orderId: ID,
+    @SubOrderIdParameter private val subOrderId: ID
 ) : ViewModel() {
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -99,7 +102,7 @@ class NewItemViewModel @Inject constructor(
     )
     val order: StateFlow<DomainOrder> get() = _order
 
-    private fun loadOrder(id: Int) {
+    private fun loadOrder(id: ID) {
         _order.value = repository.orderById(id)
     }
 
@@ -117,7 +120,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    fun selectOrderType(id: Int) {
+    fun selectOrderType(id: ID) {
         if (_order.value.orderTypeId != id)
             _order.value = _order.value.copy(orderTypeId = id, reasonId = NoRecord.num, customerId = NoRecord.num, orderedById = NoRecord.num)
     }
@@ -136,7 +139,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectOrderReason(id: Int) {
+    fun selectOrderReason(id: ID) {
         if (_order.value.reasonId != id && isPcOnly != true)
             _order.value = _order.value.copy(reasonId = id, customerId = NoRecord.num, orderedById = NoRecord.num)
         else if (_order.value.reasonId != id)
@@ -157,7 +160,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectOrderCustomer(id: Int) {
+    fun selectOrderCustomer(id: ID) {
         if (_order.value.customerId != id)
             _order.value = _order.value.copy(customerId = id, orderedById = NoRecord.num)
     }
@@ -176,7 +179,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectOrderInitiator(id: Int) {
+    fun selectOrderInitiator(id: ID) {
         if (_order.value.orderedById != id)
             _order.value = _order.value.copy(orderedById = id)
     }
@@ -194,7 +197,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _subOrder.value)
 
-    private fun loadSubOrder(id: Int) {
+    private fun loadSubOrder(id: ID) {
         val subOrder = repository.subOrderById(id)
         val samples = repository.samplesBySubOrderId(id)
         val tasks = repository.tasksBySubOrderId(id)
@@ -227,7 +230,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderDepartment(id: Int) {
+    fun selectSubOrderDepartment(id: ID) {
         if (_subOrder.value.subOrder.departmentId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
@@ -242,13 +245,13 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
 
     // Sub Order Sub Department ----------------------------------------------------------------------------------------------------------------------
-    private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments
+    private val _subOrderSubDepartments: Flow<List<DomainSubDepartment>> = manufacturingRepository.subDepartments(NoRecord.num)
     val subOrderSubDepartments: StateFlow<List<DomainSubDepartment>> = _subOrderSubDepartments.flatMapLatest { subDepartments ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -268,7 +271,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderSubDepartment(id: Int) {
+    fun selectSubOrderSubDepartment(id: ID) {
         if (_subOrder.value.subOrder.subDepartmentId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
@@ -282,7 +285,7 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
@@ -302,7 +305,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderPlacer(id: Int) {
+    fun selectSubOrderPlacer(id: ID) {
         if (_subOrder.value.subOrder.orderedById != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
@@ -315,13 +318,13 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
 
     // Sub Order Channel -----------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels
+    private val _subOrderChannels: Flow<List<DomainManufacturingChannel>> = manufacturingRepository.channels(NoRecord.num)
     val subOrderChannels: StateFlow<List<DomainManufacturingChannel>> = _subOrderChannels.flatMapLatest { channels ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -341,7 +344,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderChannel(id: Int) {
+    fun selectSubOrderChannel(id: ID) {
         if (_subOrder.value.subOrder.channelId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
@@ -353,13 +356,13 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
 
     // Sub Order Line --------------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines
+    private val _subOrderLines: Flow<List<DomainManufacturingLine>> = manufacturingRepository.lines(NoRecord.num)
     val subOrderLines: StateFlow<List<DomainManufacturingLine>> = _subOrderLines.flatMapLatest { lines ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -379,7 +382,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderLine(id: Int) {
+    fun selectSubOrderLine(id: ID) {
         if (_subOrder.value.subOrder.lineId != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
@@ -390,13 +393,13 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
 
     // Sub Order Item --------------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete
+    private val _subOrderItemVersions: Flow<List<DomainItemVersionComplete>> = productsRepository.itemVersionsComplete(NoRecordStr.str)
     val subOrderItemVersions: StateFlow<List<DomainItemVersionComplete>> = _subOrderItemVersions.flatMapLatest { itemVersions ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -416,7 +419,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderItemVersion(id: Triple<String, Int, Int>) {
+    fun selectSubOrderItemVersion(id: Triple<String, ID, ID>) {
         if (_subOrder.value.subOrder.getItemIds() != id) {
             _subOrder.value = _subOrder.value.copy(
                 subOrder = _subOrder.value.subOrder.copy(
@@ -426,13 +429,13 @@ class NewItemViewModel @Inject constructor(
                     operationId = NoRecord.num
                 )
             )
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
 
     // Sub Order Operation ---------------------------------------------------------------------------------------------------------------------------
-    private val _subOrderOperations: Flow<List<DomainManufacturingOperation>> = manufacturingRepository.operations
+    private val _subOrderOperations: Flow<List<DomainManufacturingOperationComplete>> = manufacturingRepository.operations(NoRecord.num)
     val subOrderOperations: StateFlow<List<DomainManufacturingOperation>> = _subOrderOperations.flatMapLatest { operations ->
         _subOrder.flatMapLatest { so ->
             _inputForOrder.flatMapLatest { master ->
@@ -441,8 +444,8 @@ class NewItemViewModel @Inject constructor(
                         .sortedBy { it.operationOrder }.map { it.operationId }.toSet()
                     val cpy = mutableListOf<DomainManufacturingOperation>()
                     ids.forEach { id ->
-                        operations.findLast { it.id == id }?.let {
-                            cpy.add(it.copy(isSelected = it.id == so.subOrder.operationId))
+                        operations.findLast { it.operation.id == id }?.let {
+                            cpy.add(it.operation.copy(isSelected = it.operation.id == so.subOrder.operationId))
                         }
                     }
                     flow { emit(cpy) }
@@ -453,10 +456,10 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderOperation(id: Int) {
+    fun selectSubOrderOperation(id: ID) {
         if (_subOrder.value.subOrder.operationId != id) {
             _subOrder.value = _subOrder.value.copy(subOrder = _subOrder.value.subOrder.copy(operationId = id))
-            selectSubOrderItemsCount(ZeroValue.num)
+            selectSubOrderItemsCount(ZeroValue.num.toInt())
             selectSubOrderCharacteristic(NoRecord.num)
         }
     }
@@ -468,7 +471,7 @@ class NewItemViewModel @Inject constructor(
         cpy.subOrder.samplesCount = count
 
         val subOrderId = cpy.subOrder.id
-        var currentSize = ZeroValue.num
+        var currentSize = ZeroValue.num.toInt()
         cpy.samples.forEach {
             if (it.isNewRecord || !it.toBeDeleted)
                 currentSize++
@@ -498,7 +501,7 @@ class NewItemViewModel @Inject constructor(
         _subOrderOperationsFlows.flatMapLatest { opf ->
             _subOrder.flatMapLatest { so ->
                 _inputForOrder.flatMapLatest { master ->
-                    if (so.subOrder.samplesCount != NoRecord.num) {
+                    if (so.subOrder.samplesCount != NoRecord.num.toInt()) {
                         val ids = master.filter {
                             it.getItemVersionPid() == so.subOrder.getItemVersionPid() &&
                                     (it.operationId == so.subOrder.operationId || isOperationInFlow(it.operationId, so.subOrder.operationId, opf))
@@ -521,7 +524,7 @@ class NewItemViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun selectSubOrderCharacteristic(id: Int) {
+    fun selectSubOrderCharacteristic(id: ID) {
         if (id == NoRecord.num) {
             _subOrder.value.subOrderTasks.removeIf { it.isNewRecord }
             _subOrder.value.subOrderTasks.forEach { it.toBeDeleted = true }
@@ -645,7 +648,7 @@ class NewItemViewModel @Inject constructor(
             mainPageHandler?.updateLoadingState?.invoke(Pair(false, "Fill in all field before save!"))
     }
 
-    private suspend fun postDeleteSamples(subOrderId: Int) {
+    private suspend fun postDeleteSamples(subOrderId: ID) {
         withContext(Dispatchers.IO) {
             repository.run {
                 _subOrder.value.samples.map {
@@ -679,7 +682,7 @@ class NewItemViewModel @Inject constructor(
         }
     }
 
-    private suspend fun postDeleteSubOrderTasks(subOrderId: Int) {
+    private suspend fun postDeleteSubOrderTasks(subOrderId: ID) {
         withContext(Dispatchers.IO) {
             repository.run {
                 _subOrder.value.subOrderTasks.map {
@@ -715,8 +718,8 @@ class NewItemViewModel @Inject constructor(
 }
 
 fun isOperationInFlow(
-    operationId: Int,
-    selectedOperationId: Int,
+    operationId: ID,
+    selectedOperationId: ID,
     operationsFlow: List<DomainOperationsFlow>
 ): Boolean {
     var result = false
@@ -730,8 +733,8 @@ fun isOperationInFlow(
     return result
 }
 
-fun getPreviousIds(currentId: Int, pairs: List<DomainOperationsFlow>): List<Int> {
-    val previousIds = mutableListOf<Int>()
+fun getPreviousIds(currentId: ID, pairs: List<DomainOperationsFlow>): List<ID> {
+    val previousIds = mutableListOf<ID>()
     for (pair in pairs) {
         if (pair.currentOperationId == currentId) {
             previousIds.add(pair.previousOperationId)
@@ -761,9 +764,9 @@ fun checkIfPossibleToSave(record: Triple<DomainOrder, DomainSubOrder, Int>): Boo
     if (record.second.lineId == NoRecord.num) return false
     if (record.second.operationId == NoRecord.num) return false
     if (record.second.itemVersionId == NoRecord.num) return false
-    if (record.second.samplesCount == ZeroValue.num) return false
+    if (record.second.samplesCount == ZeroValue.num.toInt()) return false
 
-    if (record.third == ZeroValue.num) return false
+    if (record.third == ZeroValue.num.toInt()) return false
 
     return true
 }

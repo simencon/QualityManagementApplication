@@ -39,8 +39,8 @@ class SyncEntitiesWorker @AssistedInject constructor(
 
     @RequiresPermission("android.permission.POST_NOTIFICATIONS")
     override suspend fun doWork(): Result {
-        val latestMillis = inputData.getLong(LATEST_MILLIS, NoRecord.num.toLong())
-        val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num.toLong())
+        val latestMillis = inputData.getLong(LATEST_MILLIS, NoRecord.num)
+        val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num)
 
         runCatching {
             if (url != EmptyString.str) {
@@ -101,7 +101,7 @@ class SyncEntitiesWorker @AssistedInject constructor(
             .setContentIntent(pendingIntent)
 
         with(notificationManagerCompat) {
-            notify(notificationData.subOrderId, builder.build())
+            notify(notificationData.subOrderId.toInt(), builder.build())
         }
     }
 }

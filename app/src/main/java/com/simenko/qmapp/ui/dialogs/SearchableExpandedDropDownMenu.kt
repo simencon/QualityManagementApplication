@@ -22,7 +22,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,7 +66,7 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
     val maxHeight = remember(itemHeights.toMap()) {
         if (itemHeights.keys.toSet() != listOfItems.indices.toSet()) { return@remember baseHeight }
         val baseHeightInt = with(density) { baseHeight.toPx().toInt() }
-        var sum = with(density) { DropdownMenuVerticalPadding.toPx().toInt() } * 2
+        var sum = with(density) { dropdownMenuVerticalPadding.toPx().toInt() } * 2
         for ((_, itemSize) in itemHeights.toSortedMap()) {
             sum += itemSize
             if (sum >= baseHeightInt) {
@@ -151,4 +150,4 @@ fun <D, T : DomainBaseModel<D>> SearchableExpandedDropDownMenu(
     }
 }
 
-private val DropdownMenuVerticalPadding = 8.dp
+private val dropdownMenuVerticalPadding = 8.dp

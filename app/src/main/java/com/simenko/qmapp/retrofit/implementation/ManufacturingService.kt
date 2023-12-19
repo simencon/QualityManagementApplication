@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.implementation
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.other.Constants.COMPANIES
 import com.simenko.qmapp.other.Constants.DEPARTMENTS
 import com.simenko.qmapp.other.Constants.JOB_ROLES
@@ -22,11 +23,11 @@ interface ManufacturingService {
     suspend fun insertEmployee(@Body teamMember: NetworkEmployee): Response<NetworkEmployee>
 
     @DELETE("$EMPLOYEES/{id}")
-    suspend fun deleteEmployee(@Path("id") id: Int): Response<NetworkEmployee>
+    suspend fun deleteEmployee(@Path("id") id: ID): Response<NetworkEmployee>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$EMPLOYEES/{id}")
-    suspend fun editEmployee(@Path("id") id: Int, @Body body: NetworkEmployee): Response<NetworkEmployee>
+    suspend fun editEmployee(@Path("id") id: ID, @Body body: NetworkEmployee): Response<NetworkEmployee>
 
     @GET(COMPANIES)
     suspend fun getCompanies(): Response<List<NetworkCompany>>
@@ -36,15 +37,47 @@ interface ManufacturingService {
 
     @GET(DEPARTMENTS)
     suspend fun getDepartments(): Response<List<NetworkDepartment>>
+    @POST(DEPARTMENTS)
+    suspend fun insertDepartment(@Body value: NetworkDepartment): Response<NetworkDepartment>
+    @DELETE("$DEPARTMENTS/{id}")
+    suspend fun deleteDepartment(@Path("id") id: ID): Response<NetworkDepartment>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$DEPARTMENTS/{id}")
+    suspend fun editDepartment(@Path("id") id: ID, @Body body: NetworkDepartment): Response<NetworkDepartment>
+
 
     @GET(SUB_DEPARTMENTS)
     suspend fun getSubDepartments(): Response<List<NetworkSubDepartment>>
+    @POST(SUB_DEPARTMENTS)
+    suspend fun insertSubDepartment(@Body value: NetworkSubDepartment): Response<NetworkSubDepartment>
+    @DELETE("$SUB_DEPARTMENTS/{id}")
+    suspend fun deleteSubDepartment(@Path("id") id: ID): Response<NetworkSubDepartment>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$SUB_DEPARTMENTS/{id}")
+    suspend fun editSubDepartment(@Path("id") id: ID, @Body body: NetworkSubDepartment): Response<NetworkSubDepartment>
+
 
     @GET(MANUFACTURING_CHANNELS)
     suspend fun getManufacturingChannels(): Response<List<NetworkManufacturingChannel>>
+    @POST(MANUFACTURING_CHANNELS)
+    suspend fun insertManufacturingChannel(@Body value: NetworkManufacturingChannel): Response<NetworkManufacturingChannel>
+    @DELETE("$MANUFACTURING_CHANNELS/{id}")
+    suspend fun deleteManufacturingChannel(@Path("id") id: ID): Response<NetworkManufacturingChannel>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$MANUFACTURING_CHANNELS/{id}")
+    suspend fun editManufacturingChannel(@Path("id") id: ID, @Body body: NetworkManufacturingChannel): Response<NetworkManufacturingChannel>
+
 
     @GET(MANUFACTURING_LINES)
     suspend fun getManufacturingLines(): Response<List<NetworkManufacturingLine>>
+    @POST(MANUFACTURING_LINES)
+    suspend fun insertManufacturingLine(@Body value: NetworkManufacturingLine): Response<NetworkManufacturingLine>
+    @DELETE("$MANUFACTURING_LINES/{id}")
+    suspend fun deleteManufacturingLine(@Path("id") id: ID): Response<NetworkManufacturingLine>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("$MANUFACTURING_LINES/{id}")
+    suspend fun editManufacturingLine(@Path("id") id: ID, @Body body: NetworkManufacturingLine): Response<NetworkManufacturingLine>
+
 
     @GET(MANUFACTURING_OPERATIONS)
     suspend fun getManufacturingOperations(): Response<List<NetworkManufacturingOperation>>
@@ -53,11 +86,12 @@ interface ManufacturingService {
     suspend fun insertManufacturingOperation(@Body teamMember: NetworkManufacturingOperation): Response<NetworkManufacturingOperation>
 
     @DELETE("$MANUFACTURING_OPERATIONS/{id}")
-    suspend fun deleteManufacturingOperation(@Path("id") id: Int): Response<NetworkManufacturingOperation>
+    suspend fun deleteManufacturingOperation(@Path("id") id: ID): Response<NetworkManufacturingOperation>
 
     @Headers(value = ["Content-Type: application/json"])
     @PUT("$MANUFACTURING_OPERATIONS/{id}")
-    suspend fun editManufacturingOperation(@Path("id") id: Int, @Body body: NetworkManufacturingOperation): Response<NetworkManufacturingOperation>
+    suspend fun editManufacturingOperation(@Path("id") id: ID, @Body body: NetworkManufacturingOperation): Response<NetworkManufacturingOperation>
+
 
     @GET(MANUFACTURING_OPERATIONS_FLOWS)
     suspend fun getOperationsFlows(): Response<List<NetworkOperationsFlow>>

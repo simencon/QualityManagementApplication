@@ -1,8 +1,8 @@
 package com.simenko.qmapp.room.implementation.dao.system
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
 import com.simenko.qmapp.room.entities.DatabaseUser
 import kotlinx.coroutines.flow.Flow
@@ -13,13 +13,13 @@ abstract class UserDao: DaoBaseModel<DatabaseUser> {
     abstract override fun getRecords(): List<DatabaseUser>
 
     @Query("select * from users where companyId = :parentId order by email asc")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseUser>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseUser>
 
     @Query("SELECT * FROM users WHERE email = :id")
     abstract override fun getRecordById(id: String): DatabaseUser?
 
     @Query("SELECT * FROM users ORDER BY email ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseUser>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseUser>>
 
     @Query(
         """

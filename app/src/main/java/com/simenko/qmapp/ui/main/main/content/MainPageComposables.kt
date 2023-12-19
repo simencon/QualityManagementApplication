@@ -28,8 +28,6 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
@@ -40,6 +38,7 @@ import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getWithSpaces
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -49,6 +48,10 @@ fun AppBar(
     val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
     val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
     val actionsMenuState by topBarSetup.actionsMenuState.collectAsStateWithLifecycle()
+
+    val dmOffsetInitialValue by rememberSaveable { mutableFloatStateOf(drawerMenuState.offset.value) }
+
+    LaunchedEffect(key1 = drawerMenuState.offset.value, block = { println("AppBar - drawerMenuState.offset = ${drawerMenuState.offset.value}, initial offset was = $dmOffsetInitialValue")})
 
     val scope = rememberCoroutineScope()
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
@@ -142,7 +145,7 @@ fun AppBar(
                             imageVector = topBarSetup.navIcon,
                             contentDescription = "Navigation button",
                             modifier = Modifier
-                                .rotate(drawerMenuState.offset.value / 1080f * 360f)
+                                .rotate(drawerMenuState.offset.value / abs(dmOffsetInitialValue) * 360f)
                         )
                     }
         },
@@ -319,8 +322,7 @@ fun ActionsMenuTop(
             text = { Text(getWithSpaces(it)) },
             onClick = { onTopMenuItemClick(it) },
             leadingIcon = { Icon(Icons.Filled.ArrowBack, contentDescription = getWithSpaces(it)) },
-            modifier = Modifier
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
 }
@@ -338,8 +340,7 @@ fun ActionsMenuContext(
         text = { Text(getWithSpaces(actionsGroup)) },
         onClick = onClickBack,
         trailingIcon = { Icon(Icons.Filled.ArrowForward, contentDescription = getWithSpaces(actionsGroup)) },
-        modifier = Modifier
-            .padding(NavigationDrawerItemDefaults.ItemPadding)
+        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
     )
 
     topBarSetup.actionMenuItems?.filter { it.group.name == actionsGroup }?.forEach { item ->
@@ -348,8 +349,7 @@ fun ActionsMenuContext(
             onClick = { onContextMenuItemClick(item) },
             enabled = selectedItemId != item,
             leadingIcon = { Icon(item.image, contentDescription = item.title) },
-            modifier = Modifier
-                .padding(NavigationDrawerItemDefaults.ItemPadding)
+            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
         )
     }
 }
@@ -422,21 +422,4 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
             }
         }
     }
-}
-
-@Composable
-fun Lifecycle.observeAsState(): State<Lifecycle.Event> {
-    val state = remember { mutableStateOf(Lifecycle.Event.ON_ANY) }
-    DisposableEffect(this) {
-        val observer = LifecycleEventObserver { _, event ->
-            state.value = event
-        }
-        this@observeAsState.addObserver(observer)
-        onDispose {
-            this@observeAsState.removeObserver(observer)
-        }
-    }
-    return state
-//    Usage
-//    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
 }

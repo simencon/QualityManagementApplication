@@ -7,13 +7,15 @@ import com.simenko.qmapp.works.SyncPeriods
 import java.time.Instant
 
 open class BaseFilter constructor(
-    open val typeId: Int? = null,
-    open val statusId: Int? = null,
+    open val parentId: ID? = null,
+    open val typeId: ID? = null,
+    open val statusId: ID? = null,
     open val stringToSearch: String? = null,
     open val newUsers: Boolean? = null
 )
 
 data class EmployeesFilter(
+    override val parentId: ID = NoRecord.num,
     override val stringToSearch: String = EmptyString.str,
 ) : BaseFilter()
 
@@ -23,21 +25,21 @@ data class UsersFilter(
 ) : BaseFilter()
 
 data class OrdersFilter(
-    override val typeId: Int = NoRecord.num,
-    override val statusId: Int = NoRecord.num,
+    override val typeId: ID = NoRecord.num,
+    override val statusId: ID = NoRecord.num,
     override val stringToSearch: String = EmptyString.str
 ) : BaseFilter()
 
 data class SubOrdersFilter(
-    override val typeId: Int = NoRecord.num,
-    override val statusId: Int = NoRecord.num,
+    override val typeId: ID = NoRecord.num,
+    override val statusId: ID = NoRecord.num,
     override val stringToSearch: String = EmptyString.str
 ) : BaseFilter()
 
 data class NotificationData(
-    val orderId: Int = NoRecord.num,
-    val subOrderId: Int = NoRecord.num,
-    val orderNumber: Int? = null,
+    val orderId: ID = NoRecord.num,
+    val subOrderId: ID = NoRecord.num,
+    val orderNumber: ID? = null,
     val subOrderStatus: String? = null,
     val departmentAbbr: String? = null,
     val channelAbbr: String? = null,
@@ -52,7 +54,7 @@ enum class NotificationReasons(val reason: String) {
     DEFAULT("no reason")
 }
 
-enum class InvStatuses(val statusId: Int) {
+enum class InvStatuses(val statusId: ID) {
     TO_DO(1),
     IN_PROGRESS(2),
     DONE(3),
@@ -72,7 +74,7 @@ object InvestigationsUtils {
                 this.maxBy { it.order.createdDate }.order.createdDate
             )
         else
-            Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
+            Pair(NoRecord.num, NoRecord.num)
 
     /**
      * The first means top orderID
@@ -85,7 +87,7 @@ object InvestigationsUtils {
                 this.maxBy { it.createdDate }.createdDate
             )
         else
-            Pair(NoRecord.num.toLong(), NoRecord.num.toLong())
+            Pair(NoRecord.num, NoRecord.num)
 
     fun Pair<SelectedNumber, SelectedNumber>.setVisibility(
         dId: SelectedNumber,
@@ -113,7 +115,7 @@ object InvestigationsUtils {
 
         val specificPair = Pair(
             when {
-                currentState.first == NoRecord.num.toLong() -> //when local is empty
+                currentState.first == NoRecord.num -> //when local is empty
                     if (latest != SyncPeriods.LAST_DAY.latestMillis) thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli() else latestMillis
 
                 currentState.first in (latestMillis + 1) until excludedMillis -> //when local start is within latest and exclude
@@ -129,7 +131,7 @@ object InvestigationsUtils {
                 else -> latestMillis
             },
             when {
-                currentState.second == NoRecord.num.toLong() -> //when local is empty
+                currentState.second == NoRecord.num -> //when local is empty
                     if (exclude != SyncPeriods.LAST_DAY.excludeMillis) thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli() else excludedMillis
 
                 currentState.first < excludedMillis && currentState.second > excludedMillis -> //when local is within latest and exclude
@@ -148,14 +150,14 @@ object InvestigationsUtils {
 
         val infPair = Pair(
             when {
-                currentState.first == NoRecord.num.toLong() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
+                currentState.first == NoRecord.num -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis).toEpochMilli()
                 currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.latestMillis)
                     .toEpochMilli()
 
                 else -> currentState.first
             },
             when {
-                currentState.second == NoRecord.num.toLong() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
+                currentState.second == NoRecord.num -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis).toEpochMilli()
                 currentState.first > thisMoment.minusMillis(SyncPeriods.LAST_YEAR.latestMillis).toEpochMilli() -> thisMoment.minusMillis(SyncPeriods.LAST_HOUR.excludeMillis)
                     .toEpochMilli()
 
@@ -166,7 +168,7 @@ object InvestigationsUtils {
         return if (exclude == SyncPeriods.COMPLETE_PERIOD.excludeMillis) infPair else specificPair
     }
 
-    fun generateResult(record: Triple<Float, Float?, Float?>): Triple<Float?, Boolean, Int> {
+    fun generateResult(record: Triple<Float, Float?, Float?>): Triple<Float?, Boolean, ID> {
         /**
          * record: measurement/LSL/USL; generatedResult: measurement/isOk/resultDecryptionId
          * */

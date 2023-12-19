@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF00658C)
@@ -70,3 +71,13 @@ val Primary = Color(0xFF03506F)
 val Secondary = Color(0xFFffa480)
 
 val TertiaryContainer = Color(0xFFBBBBBB)
+
+/**
+ * 1-st level: MaterialTheme.colorScheme.surfaceVariant
+ * 2-d level: MaterialTheme.colorScheme.primaryContainer
+ * 3-d level: MaterialTheme.colorScheme.tertiaryContainer
+ * On actions visible: MaterialTheme.colorScheme.secondaryContainer
+ * Border color: MaterialTheme.colorScheme.outline
+ * */
+
+//Fir MaterialTheme.colorScheme.surfaceVariant

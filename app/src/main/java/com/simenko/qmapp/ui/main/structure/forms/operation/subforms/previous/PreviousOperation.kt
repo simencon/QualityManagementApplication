@@ -28,7 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,9 +45,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
 import com.simenko.qmapp.repository.UserError
@@ -96,8 +97,8 @@ fun AddPreviousOperation(
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     fillInState.let { state ->
         when (state) {
-            is FillInSuccess -> onAddClickLambda()
-            is FillInError -> error = state.errorMsg
+            is FillInSuccessState -> onAddClickLambda()
+            is FillInErrorState -> error = state.errorMsg
             is FillInInitialState -> error = UserError.NO_ERROR.error
         }
     }
@@ -216,11 +217,11 @@ fun Section(
 @Composable
 fun SelectionGrid(
     modifier: Modifier = Modifier,
-    items: List<Triple<Int, String, Boolean>>,
-    onSelect: (Int) -> Unit
+    items: List<Triple<ID, String, Boolean>>,
+    onSelect: (ID) -> Unit
 ) {
     val gritState = rememberLazyGridState()
-    var currentItem by rememberSaveable { mutableIntStateOf(NoRecord.num) }
+    var currentItem by rememberSaveable { mutableLongStateOf(NoRecord.num) }
 
     LaunchedEffect(items) {
         items.find { it.third }?.let {
@@ -252,8 +253,8 @@ fun SelectionGrid(
 
 @Composable
 fun ItemToSelect(
-    item: Triple<Int, String, Boolean>,
-    onClick: (Int) -> Unit
+    item: Triple<ID, String, Boolean>,
+    onClick: (ID) -> Unit
 ) {
     val btnColors = ButtonDefaults.buttonColors(
         contentColor = if (item.third) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,

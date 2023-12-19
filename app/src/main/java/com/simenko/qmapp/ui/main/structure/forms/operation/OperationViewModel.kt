@@ -4,10 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.LineIdParameter
 import com.simenko.qmapp.di.OperationIdParameter
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation
@@ -39,8 +40,8 @@ class OperationViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ManufacturingRepository,
-    @LineIdParameter private val lineId: Int,
-    @OperationIdParameter private val operationId: Int
+    @LineIdParameter private val lineId: ID,
+    @OperationIdParameter private val operationId: ID
 ) : ViewModel() {
     private val _operation = MutableStateFlow(DomainManufacturingOperationComplete())
 
@@ -62,10 +63,10 @@ class OperationViewModel @Inject constructor(
         }
     }
 
-    private fun prepareOperation(lineId: Int) {
+    private fun prepareOperation(lineId: ID) {
         _operation.value = DomainManufacturingOperationComplete(
             operation = DomainManufacturingOperation(lineId = lineId),
-            lineComplete = repository.lineById(lineId)
+            lineWithParents = repository.lineWithParentsById(lineId)
         )
     }
 
@@ -80,7 +81,7 @@ class OperationViewModel @Inject constructor(
     val operationComplete = _operation.flatMapLatest { operation ->
         _previousOperationsVisibility.flatMapLatest { visibility ->
             val previousOperations = operation.previousOperations.filter { !it.toBeDeleted }.map {
-                it.copy(detailsVisibility = it.hashCode() == visibility.first.num, isExpanded = it.hashCode() == visibility.second.num)
+                it.copy(detailsVisibility = it.hashCode() == visibility.first.num.toInt(), isExpanded = it.hashCode() == visibility.second.num.toInt())
             }
             flow { emit(operation.copy(previousOperations = previousOperations)) }
         }
@@ -148,7 +149,7 @@ class OperationViewModel @Inject constructor(
     val fillInState get() = _fillInState.asStateFlow()
     private fun validateInput() {
         val errorMsg = buildString {
-            if (_operation.value.operation.operationOrder == NoRecord.num) {
+            if (_operation.value.operation.operationOrder == NoRecord.num.toInt()) {
                 _fillInErrors.value = _fillInErrors.value.copy(operationOrderError = true)
                 append("Operation order field is mandatory\n")
             }
@@ -170,7 +171,7 @@ class OperationViewModel @Inject constructor(
             }
         }
 
-        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg) else _fillInState.value = FillInSuccess
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg) else _fillInState.value = FillInSuccessState
     }
 
     fun makeRecord() = viewModelScope.launch {
@@ -191,7 +192,7 @@ class OperationViewModel @Inject constructor(
         }
     }
 
-    private fun insertOperationsFlows(id: Int?) = viewModelScope.launch {
+    private fun insertOperationsFlows(id: ID?) = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             id?.let { id ->
                 val listToInsert = _operation.value.previousOperations.filter { it.id == NoRecord.num && !it.toBeDeleted }.map { it.toSimplestModel().copy(currentOperationId = id) }
@@ -216,7 +217,7 @@ class OperationViewModel @Inject constructor(
         }
     }
 
-    private fun deleteOperationsFlows(id: Int?) = viewModelScope.launch {
+    private fun deleteOperationsFlows(id: ID?) = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             _operation.value.previousOperations.filter { it.toBeDeleted }.map { it.toSimplestModel() }.let { listToDelete ->
                 if (listToDelete.isNotEmpty())
@@ -240,17 +241,18 @@ class OperationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navBackToRecord(id: Int?) {
+    private suspend fun navBackToRecord(id: ID?) {
         mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
         withContext(Dispatchers.Main) {
             id?.let {
-                val depId = _operation.value.lineComplete.departmentId.toString()
-                val subDepId = _operation.value.lineComplete.subDepartmentId.toString()
-                val chId = _operation.value.lineComplete.channelId.toString()
-                val lineId = _operation.value.lineComplete.id.toString()
+                val companyId = _operation.value.lineWithParents.companyId.toString()
+                val depId = _operation.value.lineWithParents.departmentId.toString()
+                val subDepId = _operation.value.lineWithParents.subDepartmentId.toString()
+                val chId = _operation.value.lineWithParents.channelId.toString()
+                val lineId = _operation.value.lineWithParents.id.toString()
                 val opId = it.toString()
                 appNavigator.tryNavigateTo(
-                    route = Route.Main.CompanyStructure.StructureView.withOpts(depId, subDepId, chId, lineId, opId),
+                    route = Route.Main.CompanyStructure.StructureView.withOpts(companyId, depId, subDepId, chId, lineId, opId),
                     popUpToRoute = Route.Main.CompanyStructure.StructureView.route,
                     inclusive = true
                 )

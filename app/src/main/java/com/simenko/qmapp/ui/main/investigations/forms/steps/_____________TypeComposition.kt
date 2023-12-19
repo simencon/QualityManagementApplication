@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.DomainOrdersType
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
@@ -25,7 +26,7 @@ fun TypesSelection(
     val items by viewModel.orderTypes.collectAsStateWithLifecycle()
     val currentOrder by viewModel.order.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderType(it) } }
+    val onSelectLambda = remember<(ID) -> Unit> { { viewModel.selectOrderType(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
@@ -51,7 +52,7 @@ fun TypesSelection(
 @Composable
 fun InvestigationTypeCard(
     inputForOrder: DomainOrdersType,
-    onClick: (Int) -> Unit
+    onClick: (ID) -> Unit
 ) {
     ItemToSelect(Triple(inputForOrder.id, inputForOrder.typeDescription ?: "-", inputForOrder.isSelected), onClick)
 }

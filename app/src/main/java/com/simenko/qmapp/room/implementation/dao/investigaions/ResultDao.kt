@@ -1,7 +1,7 @@
 package com.simenko.qmapp.room.implementation.dao.investigaions
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.entities.DatabaseResult
 import com.simenko.qmapp.room.entities.DatabaseResultComplete
 import com.simenko.qmapp.room.contract.DaoBaseModel
@@ -15,13 +15,13 @@ abstract class ResultDao : DaoBaseModel<DatabaseResult>, DaoTimeDependentModel<D
 
     //    ToDo - is not 100% correct because parent is taskId + sampleId
     @Query("SELECT s.* FROM `14_8_results` as s where s.taskId = :parentId")
-    abstract override fun getRecordsByParentId(parentId: Int): List<DatabaseResult>
+    abstract override fun getRecordsByParentId(parentId: ID): List<DatabaseResult>
 
     @Query("SELECT * FROM `14_8_results` WHERE id = :id")
     abstract override fun getRecordById(id: String): DatabaseResult?
 
     @Query("SELECT * FROM `14_8_results` ORDER BY id ASC")
-    abstract override fun getRecordsForUI(): LiveData<List<DatabaseResult>>
+    abstract override fun getRecordsForUI(): Flow<List<DatabaseResult>>
 
     @Transaction
     @Query(
@@ -36,5 +36,5 @@ abstract class ResultDao : DaoBaseModel<DatabaseResult>, DaoTimeDependentModel<D
 
     @Transaction
     @Query("select r.* from `result_complete` r where r.taskId = :taskId and r.sampleId = :sampleId;")
-    abstract fun getRecordsByParentIdForUI(taskId: Int, sampleId: Int): Flow<List<DatabaseResultComplete>>
+    abstract fun getRecordsByParentIdForUI(taskId: ID, sampleId: ID): Flow<List<DatabaseResultComplete>>
 }

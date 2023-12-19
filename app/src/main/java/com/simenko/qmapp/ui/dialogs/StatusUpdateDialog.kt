@@ -34,7 +34,7 @@ data class DialogInput(
     var currentOrder: DomainOrderComplete? = null,
     var currentSubOrder: DomainSubOrderComplete? = null,
     var currentSubOrderTask: DomainSubOrderTaskComplete? = null,
-    var performerId: Int? = null
+    var performerId: ID? = null
 )
 
 @Composable
@@ -86,7 +86,7 @@ fun StatusUpdateDialog(
         }
     }
 
-    fun changeStatus(id: Int) {
+    fun changeStatus(id: ID) {
         when {
             currentOrder != null ->
                 currentOrder.order.statusId = id
@@ -230,7 +230,7 @@ fun StatusUpdateDialog(
 fun StatusSelection(
     modifier: Modifier = Modifier,
     statuses: List<DomainOrdersStatus>,
-    onSelectStatus: (Int) -> Unit
+    onSelectStatus: (ID) -> Unit
 ) {
     val gritState = rememberLazyGridState()
 
@@ -243,7 +243,7 @@ fun StatusSelection(
         modifier = modifier.height(60.dp)
     ) {
         items(statuses.size) { item ->
-            if (statuses[item].id != 2) //To remove In Progress
+            if (statuses[item].id != 2L) //To remove In Progress
                 StatusCard(
                     input = statuses[item],
                     onClick = {

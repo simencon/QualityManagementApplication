@@ -22,11 +22,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.DomainEmployeeComplete
 import com.simenko.qmapp.other.Constants
@@ -38,23 +41,34 @@ import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun Employees(
     viewModel: TeamViewModel = hiltViewModel(),
-    onClickEdit: (Int) -> Unit
+    onClickEdit: (ID) -> Unit
 ) {
     val items by viewModel.employees.collectAsStateWithLifecycle(listOf())
     val scrollToRecord by viewModel.scrollToRecord.collectAsStateWithLifecycle(null)
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
-    val onClickDetailsLambda: (Int) -> Unit = { viewModel.setEmployeesVisibility(dId = SelectedNumber(it)) }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { viewModel.setEmployeesVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { viewModel.deleteEmployee(it) } }
-    val onClickEditLambda = remember<(Int) -> Unit> { { onClickEdit(it) } }
+    val onClickDetailsLambda: (ID) -> Unit = { viewModel.setEmployeesVisibility(dId = SelectedNumber(it)) }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setEmployeesVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.deleteEmployee(it) } }
+    val onClickEditLambda = remember<(ID) -> Unit> { { onClickEdit(it) } }
+
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when(lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            else -> {}
+        }
+    }
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {
@@ -87,10 +101,10 @@ fun Employees(
 @Composable
 fun EmployeeCard(
     teamMember: DomainEmployeeComplete,
-    onClickDetails: (Int) -> Unit,
-    onDoubleClick: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Int) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onDoubleClick: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (ID) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(teamMember.isExpanded).apply { targetState = !teamMember.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -142,10 +156,10 @@ fun EmployeeCard(
 @Composable
 fun Employee(
     item: DomainEmployeeComplete,
-    onClickDetails: (Int) -> Unit
+    onClickDetails: (ID) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
-        SimpleRecordHeader(item, item.detailsVisibility) { onClickDetails(it.toInt()) }
+        SimpleRecordHeader(item, item.detailsVisibility) { onClickDetails(it.toLong()) }
         if (item.detailsVisibility) {
             Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
                 val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"

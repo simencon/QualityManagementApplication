@@ -232,6 +232,7 @@ class UserRepository @Inject constructor(
     val authToken: String
         get() = _user.fbToken
 
+    //    ToDoMe - not yet in CleanArchitecture
     suspend fun refreshTokenIfNecessary() = suspendCoroutine { continuation ->
         if (Instant.now().epochSecond + _user.epochFbDiff < _user.fbTokenExp) {
             continuation.resume(_user.fbToken)
@@ -317,6 +318,9 @@ class UserRepository @Inject constructor(
                                 }
                             }
 
+//                            ToDoMe - hand this error "An internal error has occurred. [ Requests from this Android client application com.simenko.qmapp are blocked. ]" - it means App is not allowed to FireBase project.
+
+
                             else -> {
                                 _user.clearUserData()
                                 _userState.value = UnregisteredState
@@ -370,6 +374,7 @@ class UserRepository @Inject constructor(
         }
     }
 
+    //    ToDoMe - not yet in CleanArchitecture
     fun updateUserData() = this.callFirebaseFunction(fbFunction = "getUserData")
         .addOnCompleteListener { result ->
             if (result.isSuccessful) {
@@ -447,7 +452,7 @@ class UserRepository @Inject constructor(
                 if (currentTokenTask.isSuccessful) {
                     if (_deviceFcmToken.fcmToken.isNotEmpty() && _deviceFcmToken.fcmToken != currentTokenTask.result) {
                         this.callFirebaseFunction(_deviceFcmToken, "deleteFcmToken").addOnCompleteListener { deleteTask ->
-                            if(deleteTask.isSuccessful) {
+                            if (deleteTask.isSuccessful) {
                                 println("updateFcmToken - changed token deleted ${deleteTask.result}")
                                 _deviceFcmToken.setValues(Instant.now().epochSecond, userEmail, currentTokenTask.result)
                                 this.callFirebaseFunction(_deviceFcmToken, "createFcmToken").addOnCompleteListener { createTask ->
@@ -487,8 +492,8 @@ class UserRepository @Inject constructor(
 }
 
 sealed class UserState
-object NoState : UserState()
-object UnregisteredState : UserState()
+data object NoState : UserState()
+data object UnregisteredState : UserState()
 data class UserNeedToVerifyEmailState(val msg: String = "Check your email box and perform verification (${DateTimeFormatter.ISO_INSTANT.format(Instant.now())})") :
     UserState()
 
