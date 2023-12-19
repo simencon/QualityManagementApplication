@@ -22,9 +22,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoString
@@ -42,6 +44,7 @@ import com.simenko.qmapp.ui.main.team.TeamViewModel
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.dp
+import com.simenko.qmapp.utils.observeAsState
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -66,6 +69,16 @@ fun Users(
     val onClickAuthorizeLambda = remember<(String) -> Unit> { { viewModel.onUserAuthorizeClick(it) } }
     val onClickRemoveLambda = remember<(String) -> Unit> { { viewModel.setRemoveUserDialogVisibility(true, it) } }
     val onClickEditLambda = remember<(String) -> Unit> { { viewModel.onUserEditClick(it) } }
+
+    val lifecycleState = LocalLifecycleOwner.current.lifecycle.observeAsState()
+
+    LaunchedEffect(lifecycleState.value) {
+        when(lifecycleState.value) {
+            Lifecycle.Event.ON_RESUME -> viewModel.setIsComposed(true)
+            Lifecycle.Event.ON_STOP -> viewModel.setIsComposed(false)
+            else -> {}
+        }
+    }
 
     val listState = rememberLazyListState()
     LaunchedEffect(scrollToRecord) {

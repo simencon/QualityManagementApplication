@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -35,6 +36,7 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.navigation.Route
@@ -43,6 +45,8 @@ import com.simenko.qmapp.works.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val TAG = "MainActivity"
 
 internal const val INITIAL_ROUTE = "INITIATED_ROUTE"
 
@@ -58,6 +62,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var workManager: WorkManager
+
+    @Inject
+    lateinit var remoteConfig: FirebaseRemoteConfig
     private lateinit var analytics: FirebaseAnalytics
 
     private lateinit var initialRoute: String
@@ -68,7 +75,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        fetchAndActivateRemoteConfigValues()
         initialRoute = intent.extras?.getString(INITIAL_ROUTE) ?: DrawerMenuItems.startingDrawerMenuItem.tag
 
         if (
@@ -108,6 +115,7 @@ class MainActivity : ComponentActivity() {
                         when (id) {
                             Route.Main.Team.link -> viewModel.onDrawerMenuTeamSelected()
                             Route.Main.CompanyStructure.link -> viewModel.onDrawerMenuCompanyStructureSelected()
+                            Route.Main.Products.link -> viewModel.onDrawerMenuProductsSelected()
                             Route.Main.Inv.link -> viewModel.onDrawerMenuInvSelected()
                             Route.Main.ProcessControl.link -> viewModel.onDrawerMenuProcessControlSelected()
                             Route.Main.Settings.link -> viewModel.onDrawerMenuSettingsSelected()
@@ -190,6 +198,27 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun fetchAndActivateRemoteConfigValues() {
+        remoteConfig.fetchAndActivate()
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val updated = task.result
+                    Log.d(TAG, "Config params updated: $updated")
+                    Toast.makeText(
+                        this,
+                        "Fetch and activate succeeded",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        this,
+                        "Fetch failed",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
     }
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->

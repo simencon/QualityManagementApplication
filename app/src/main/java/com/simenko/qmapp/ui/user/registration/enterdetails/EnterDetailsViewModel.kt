@@ -3,10 +3,10 @@ package com.simenko.qmapp.ui.user.registration.enterdetails
 import androidx.lifecycle.ViewModel
 import com.simenko.qmapp.di.UserEditModeParameter
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.repository.UserRepository
 import com.simenko.qmapp.storage.Principle
@@ -121,8 +121,8 @@ class EnterDetailsViewModel @Inject constructor(
             }
         }
 
-        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
-        else _fillInState.value = FillInSuccess
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg)
+        else _fillInState.value = FillInSuccessState
     }
 
     fun initRawUser() {

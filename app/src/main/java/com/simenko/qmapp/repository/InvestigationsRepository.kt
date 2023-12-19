@@ -23,6 +23,7 @@ import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.system.measureTimeMillis
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
@@ -86,7 +87,7 @@ class InvestigationsRepository @Inject constructor(
                 val finalLocalDate = locDate ?: (rmDate - SyncPeriods.LAST_DAY.latestMillis)
                 return if (rmDate > finalLocalDate)
                     responseHandlerForListOfRecords(taskExecutor = { invService.getOrdersByDateRange(Pair(finalLocalDate, rmDate)) }) { r -> insertInvEntities(r.map { it.toNetworkModel() }) }
-                 else
+                else
                     produce { send(Event(Resource.success(emptyList()))) }
             }
         }
@@ -150,15 +151,15 @@ class InvestigationsRepository @Inject constructor(
     /**
      * Inv deletion operations
      * */
-    fun CoroutineScope.deleteOrder(orderId: Int): ReceiveChannel<Event<Resource<DomainOrder>>> = crudeOperations.run {
+    fun CoroutineScope.deleteOrder(orderId: ID): ReceiveChannel<Event<Resource<DomainOrder>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { invService.deleteOrder(orderId) }) { r -> database.orderDao.deleteRecord(r) }
     }
 
-    fun CoroutineScope.deleteSubOrder(subOrderId: Int): ReceiveChannel<Event<Resource<DomainSubOrder>>> = crudeOperations.run {
+    fun CoroutineScope.deleteSubOrder(subOrderId: ID): ReceiveChannel<Event<Resource<DomainSubOrder>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { invService.deleteSubOrder(subOrderId) }) { r -> database.subOrderDao.deleteRecord(r) }
     }
 
-    fun CoroutineScope.deleteSubOrderTask(taskId: Int): ReceiveChannel<Event<Resource<DomainSubOrderTask>>> = crudeOperations.run {
+    fun CoroutineScope.deleteSubOrderTask(taskId: ID): ReceiveChannel<Event<Resource<DomainSubOrderTask>>> = crudeOperations.run {
         responseHandlerForSingleRecord(taskExecutor = { invService.deleteSubOrderTask(taskId) }) { r -> database.taskDao.deleteRecord(r) }
     }
 
@@ -170,7 +171,7 @@ class InvestigationsRepository @Inject constructor(
         responseHandlerForListOfRecords(taskExecutor = { invService.deleteSamples(records.map { it.toDatabaseModel().toNetworkModel() }) }) { r -> database.sampleDao.deleteRecords(r) }
     }
 
-    fun CoroutineScope.deleteResults(taskId: Int) = crudeOperations.run {
+    fun CoroutineScope.deleteResults(taskId: ID) = crudeOperations.run {
         responseHandlerForListOfRecords(taskExecutor = { invService.deleteResults(taskId) }) { r -> database.resultDao.deleteRecords(r) }
     }
 
@@ -228,39 +229,39 @@ class InvestigationsRepository @Inject constructor(
 
     fun CoroutineScope.getSubOrder(record: DomainSubOrder) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { invService.getSubOrder(record.getRecordId().toString().toInt()) },
+            taskExecutor = { invService.getSubOrder(record.getRecordId().toString().toLong()) },
             resultHandler = { r -> database.subOrderDao.updateRecord(r) }
         )
     }
 
     fun CoroutineScope.getTask(record: DomainSubOrderTask) = crudeOperations.run {
         responseHandlerForSingleRecord(
-            taskExecutor = { invService.getSubOrderTask(record.getRecordId().toString().toInt()) },
+            taskExecutor = { invService.getSubOrderTask(record.getRecordId().toString().toLong()) },
             resultHandler = { r -> database.taskDao.updateRecord(r) }
         )
     }
 
 //    ToDO - change this part to return exactly what is needed
 
-    val orderById: (Int) -> DomainOrder = { id ->
+    val orderById: (ID) -> DomainOrder = { id ->
         database.orderDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such order in local DB") }
     }
 
 
-    val subOrderById: (Int) -> DomainSubOrder = { id ->
+    val subOrderById: (ID) -> DomainSubOrder = { id ->
         database.subOrderDao.getRecordById(id.toString()).let { it?.toDomainModel() ?: throw IOException("no such sub order in local DB") }
     }
 
-    val tasksBySubOrderId: (Int) -> List<DomainSubOrderTask> = { subOrderId -> database.taskDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
-    val samplesBySubOrderId: (Int) -> List<DomainSample> = { subOrderId -> database.sampleDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
+    val tasksBySubOrderId: (ID) -> List<DomainSubOrderTask> = { subOrderId -> database.taskDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
+    val samplesBySubOrderId: (ID) -> List<DomainSample> = { subOrderId -> database.sampleDao.getRecordsByParentId(subOrderId).map { it.toDomainModel() } }
 
 //    -------------------------------------------------------------
 
-    val investigationStatuses: () -> Flow<List<DomainOrdersStatus>> = { database.orderStatusDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } } }
+    val investigationStatuses: () -> Flow<List<DomainOrdersStatus>> = { database.orderStatusDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } } }
 
-    val latestLocalOrderId: () -> Int = { database.orderDao.getLatestOrderId(database.orderDao.getLatestOrderDate() ?: NoRecord.num.toLong()) ?: NoRecord.num }
+    val latestLocalOrderId: () -> ID = { database.orderDao.getLatestOrderId(database.orderDao.getLatestOrderDate() ?: NoRecord.num) ?: NoRecord.num }
 
-    val ordersListByLastVisibleId: (Int, OrdersFilter) -> Flow<List<DomainOrderComplete>> = { lastVisibleId, filter ->
+    val ordersListByLastVisibleId: (ID, OrdersFilter) -> Flow<List<DomainOrderComplete>> = { lastVisibleId, filter ->
         database.orderDao.getRecordById(lastVisibleId.toString())?.let { order ->
             database.orderDao.getRecordsByTimeRangeForUI(
                 lastVisibleCreateDate = order.createdDate,
@@ -281,26 +282,34 @@ class InvestigationsRepository @Inject constructor(
         ).map { list -> list.map { it.toDomainModel() } }
     }
 
-    val tasksRangeList: (Int) -> Flow<List<DomainSubOrderTaskComplete>> = { subOrderId ->
-        database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list -> list.map { it.toDomainModel() } }
+    val tasksRangeList: (ID) -> Flow<List<DomainSubOrderTaskComplete>> = { subOrderId ->
+        lateinit var result: Flow<List<DomainSubOrderTaskComplete>>
+        val time = measureTimeMillis {
+            result = database.taskDao.getRecordsByParentIdForUI(subOrderId).map { list -> list.map { it.toDomainModel() } }
+        }
+        println("measureTimeMillis - tasksRangeList $time ms")
+        result
     }
 
-    val samplesRangeList: (Int) -> Flow<List<DomainSampleComplete>> = { subOrderId ->
+    val samplesRangeList: (ID) -> Flow<List<DomainSampleComplete>> = { subOrderId ->
         database.sampleDao.getRecordsByParentIdForUI(subOrderId).map { list -> list.map { it.toDomainModel() } }
     }
 
-    val resultsRangeList: (Int, Int) -> Flow<List<DomainResultComplete>> = { taskId, sampleId ->
-        database.resultDao.getRecordsByParentIdForUI(taskId, sampleId).map { list -> list.map { it.toDomainModel() } }
+    val resultsRangeList: (ID, ID) -> Flow<List<DomainResultComplete>> = { taskId, sampleId ->
+        lateinit var result: Flow<List<DomainResultComplete>>
+        val time = measureTimeMillis {
+            result = database.resultDao.getRecordsByParentIdForUI(taskId, sampleId).map { list -> list.map { it.toDomainModel() } }
+        }
+        println("measureTimeMillis - resultsRangeList $time ms")
+        result
     }
 
     /**
      * New order related data
      * */
-    val inputForOrder: Flow<List<DomainInputForOrder>> = database.inputForOrderDao.getRecordsFlowForUI().map { list ->
-        list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder }
-    }
+    val inputForOrder: Flow<List<DomainInputForOrder>> = database.inputForOrderDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() }.sortedBy { item -> item.depOrder } }
 
-    val orderTypes: Flow<List<DomainOrdersType>> = database.investigationTypeDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val orderTypes: Flow<List<DomainOrdersType>> = database.investigationTypeDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
-    val orderReasons: Flow<List<DomainReason>> = database.measurementReasonDao.getRecordsFlowForUI().map { list -> list.map { it.toDomainModel() } }
+    val orderReasons: Flow<List<DomainReason>> = database.measurementReasonDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 }

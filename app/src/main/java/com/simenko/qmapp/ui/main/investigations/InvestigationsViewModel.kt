@@ -48,11 +48,11 @@ class InvestigationsViewModel @Inject constructor(
     private val repository: InvestigationsRepository,
     @ApplicationContext context: Context,
     @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
-    @OrderIdParameter private val orderId: Int,
-    @SubOrderIdParameter private val subOrderId: Int
+    @OrderIdParameter private val orderId: ID,
+    @SubOrderIdParameter private val subOrderId: ID
 ) : ViewModel() {
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _createdRecord: MutableStateFlow<Pair<Event<Int>, Event<Int>>> = MutableStateFlow(Pair(Event(orderId), Event(subOrderId)))
+    private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<ID>>> = MutableStateFlow(Pair(Event(orderId), Event(subOrderId)))
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
     private val _ordersVisibility = MutableStateFlow(Pair(SelectedNumber(orderId), NoRecord))
     private val _subOrdersVisibility = MutableStateFlow(Pair(SelectedNumber(subOrderId), NoRecord))
@@ -84,7 +84,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
     val selectedTabIndex
-        get() = if (isPcOnly == true) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num
+        get() = if (isPcOnly == true) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
 
     /**
      * Navigation -------------------------------------------------------------------------------------------------------------------------------
@@ -93,15 +93,15 @@ class InvestigationsViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
     }
 
-    fun onEditInvClick(orderId: Int) {
+    fun onEditInvClick(orderId: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(orderId.toString()))
     }
 
-    fun onAddSubOrderClick(orderId: Int) {
+    fun onAddSubOrderClick(orderId: ID) {
         appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(orderId.toString(), NoRecordStr.str, FalseStr.str))
     }
 
-    fun onEditSubOrderClick(record: Pair<Int, Int>) {
+    fun onEditSubOrderClick(record: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), FalseStr.str))
     }
 
@@ -109,7 +109,7 @@ class InvestigationsViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
     }
 
-    fun onEditProcessControlClick(record: Pair<Int, Int>) {
+    fun onEditProcessControlClick(record: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), TrueStr.str))
     }
 
@@ -125,7 +125,7 @@ class InvestigationsViewModel @Inject constructor(
         currentOrder: DomainOrderComplete? = null,
         currentSubOrder: DomainSubOrderComplete? = null,
         currentSubOrderTask: DomainSubOrderTaskComplete? = null,
-        performerId: Int? = null
+        performerId: ID? = null
     ) {
         _dialogInput.value = DialogInput(currentOrder, currentSubOrder, currentSubOrderTask, performerId)
         _isStatusUpdateDialogVisible.value = true
@@ -154,12 +154,12 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * Handling scrolling to just created record-------------------------------------------------
      * */
-    private val _isScrollingEnabled = MutableStateFlow(false)
-    val enableScrollToCreatedRecord: () -> Unit = { _isScrollingEnabled.value = true }
+    private val _isComposed = MutableStateFlow(false)
+    val setIsComposed: (Boolean) -> Unit = { _isComposed.value = it }
 
     val scrollToRecord = _createdRecord.flatMapLatest { record ->
-        _isScrollingEnabled.flatMapLatest { isScrollingEnabled ->
-            if (isScrollingEnabled) flow { emit(record) } else flow { emit(null) }
+        _isComposed.flatMapLatest { isComposed ->
+            if (isComposed) flow { emit(record) } else flow { emit(null) }
         }
     }.flowOn(Dispatchers.Default)
 
@@ -179,7 +179,7 @@ class InvestigationsViewModel @Inject constructor(
 
     private val _orders: StateFlow<List<DomainOrderComplete>> = _lastVisibleItemKey.flatMapLatest { key ->
         _currentOrdersFilter.flatMapLatest { filter ->
-            repository.ordersListByLastVisibleId(key as Int, filter)
+            repository.ordersListByLastVisibleId(key as ID, filter)
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
@@ -225,7 +225,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * REST operations
      * */
-    fun deleteOrder(orderId: Int) {
+    fun deleteOrder(orderId: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -293,7 +293,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * REST operations
      * */
-    fun onDeleteSubOrderClick(subOrderId: Int) {
+    fun onDeleteSubOrderClick(subOrderId: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -329,7 +329,11 @@ class InvestigationsViewModel @Inject constructor(
         _tasksVisibility.value = _tasksVisibility.value.setVisibility(dId, aId)
     }
 
-    val tasksVisibility = _tasksVisibility.asStateFlow()
+    val tasksVisibility get() = _tasksVisibility.asStateFlow()
+
+    val isSecondRowVisible = _tasksVisibility.flatMapLatest {
+        flow { emit(it.first != NoRecord) }
+    }
 
     /**
      * The result flow
@@ -344,7 +348,7 @@ class InvestigationsViewModel @Inject constructor(
     /**
      * REST operations
      * */
-    fun deleteSubOrderTask(taskId: Int) {
+    fun deleteSubOrderTask(taskId: ID) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 repository.run {
@@ -547,11 +551,11 @@ class InvestigationsViewModel @Inject constructor(
                                             /**
                                              * second - extract list of metrixes to record
                                              * */
-                                            val metrixesToRecord = productsRepository.getMetricsByPrefixVersionIdActualityCharId(
-                                                prefix = subOrder.itemPreffix.substring(0, 1),
-                                                versionId = subOrder.itemVersionId,
-                                                actual = true,
-                                                charId = subOrderTask.charId
+                                            val metrixesToRecord = productsRepository.metricsByPrefixVersionIdActualityCharId(
+                                                subOrder.itemPreffix.substring(0, 1),
+                                                subOrder.itemVersionId,
+                                                true,
+                                                subOrderTask.charId
                                             )
                                             /**
                                              * third - generate the final list of result to record

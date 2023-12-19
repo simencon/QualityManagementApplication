@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.entities.DomainEmployee
 import com.simenko.qmapp.ui.dialogs.scrollToSelectedItem
 import com.simenko.qmapp.ui.main.investigations.forms.ItemToSelect
@@ -28,7 +29,7 @@ fun InitiatorsSelection(
     val items by viewModel.orderInitiators.collectAsStateWithLifecycle()
     val currentOrder by viewModel.order.collectAsStateWithLifecycle()
 
-    val onSelectLambda = remember<(Int) -> Unit> { { viewModel.selectOrderInitiator(it) } }
+    val onSelectLambda = remember<(ID) -> Unit> { { viewModel.selectOrderInitiator(it) } }
 
     LaunchedEffect(items) {
         gritState.scrollToSelectedItem(
@@ -58,7 +59,7 @@ fun InitiatorsSelection(
 @Composable
 fun InvestigationInitiatorCard(
     inputForOrder: DomainEmployee,
-    onClick: (Int) -> Unit
+    onClick: (ID) -> Unit
 ) {
     ItemToSelect(Triple(inputForOrder.id, inputForOrder.fullName, inputForOrder.isSelected), onClick)
 }

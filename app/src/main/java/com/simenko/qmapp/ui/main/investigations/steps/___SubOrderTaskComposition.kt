@@ -42,14 +42,14 @@ import kotlin.math.roundToInt
 @Composable
 fun SubOrderTasksFlowColumn(
     invModel: InvestigationsViewModel = hiltViewModel(),
-    parentId: Int = 0,
+    parentId: ID = 0,
 ) {
     val items by invModel.tasks.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setTasksVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.deleteSubOrderTask(it) } }
-    val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, Int?) -> Unit> {
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { invModel.setTasksVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { invModel.setTasksVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { invModel.deleteSubOrderTask(it) } }
+    val onClickStatusLambda = remember<(DomainSubOrderTaskComplete, ID?) -> Unit> {
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrderTask = subOrderComplete, performerId = completedById) }
     }
 
@@ -77,10 +77,10 @@ fun SubOrderTasksFlowColumn(
 @Composable
 fun SubOrderTaskCard(
     task: DomainSubOrderTaskComplete,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickStatus: (DomainSubOrderTaskComplete, ID?) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(task.isExpanded).apply { targetState = !task.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -139,9 +139,9 @@ fun SubOrderTaskCard(
 
 @Composable
 fun SubOrderTask(
-    onClickDetails: (Int) -> Unit = {},
     subOrderTask: DomainSubOrderTaskComplete = DomainSubOrderTaskComplete(),
-    onClickStatus: (DomainSubOrderTaskComplete, Int?) -> Unit
+    onClickDetails: (ID) -> Unit = {},
+    onClickStatus: (DomainSubOrderTaskComplete, ID?) -> Unit
 ) {
     val containerColor = when (subOrderTask.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -164,18 +164,18 @@ fun SubOrderTask(
                     ContentWithTitle(
                         title = "Group:",
                         contentTextSize = 12.sp,
-                        value = subOrderTask.characteristic.characteristicGroup.ishElement ?: NoString.str,
+                        value = subOrderTask.characteristic.characteristicSubGroup.charGroup.charGroup.ishElement ?: NoString.str,
                         titleWight = 0.35f
                     )
                     Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                     ContentWithTitle(
                         title = "Sub group:",
                         contentTextSize = 12.sp,
-                        value = subOrderTask.characteristic.characteristicSubGroup.ishElement ?: NoString.str,
+                        value = subOrderTask.characteristic.characteristicSubGroup.charSubGroup.ishElement ?: NoString.str,
                         titleWight = 0.35f
                     )
                 }
-                StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) }) {
+                StatusChangeBtn(modifier = Modifier.weight(weight = 0.46f), containerColor = containerColor, onClick = { onClickStatus(subOrderTask, subOrderTask.subOrderTask.completedById) }) {
                     StatusWithPercentage(
                         status = Pair(subOrderTask.subOrderTask.statusId, subOrderTask.status.statusDescription),
                         result = Triple(subOrderTask.taskResult.isOk, subOrderTask.taskResult.total, subOrderTask.taskResult.good),

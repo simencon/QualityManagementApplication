@@ -10,7 +10,7 @@ enum class DrawerMenuItems(override val tag: String, override val image: ImageVe
     COMPANY_PROFILE(Route.Main.CompanyProfile.link, Icons.Filled.Factory, MenuItem.MenuGroup.COMPANY),
     TEAM(Page.TEAM.link, Icons.Filled.Person, MenuItem.MenuGroup.COMPANY),
     COMPANY_STRUCTURE(Page.COMPANY_STRUCTURE.link, Icons.Filled.AccountTree, MenuItem.MenuGroup.COMPANY),
-    COMPANY_PRODUCTS(Route.Main.CompanyProducts.link, Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
+    COMPANY_PRODUCTS(Route.Main.Products.link, Icons.Filled.ShoppingBag, MenuItem.MenuGroup.COMPANY),
 
     ALL_INVESTIGATIONS(Page.INVESTIGATIONS.link, Icons.Filled.SquareFoot, MenuItem.MenuGroup.QUALITY),
     PROCESS_CONTROL(Page.PROCESS_CONTROL.link, Icons.Filled.Checklist, MenuItem.MenuGroup.QUALITY),

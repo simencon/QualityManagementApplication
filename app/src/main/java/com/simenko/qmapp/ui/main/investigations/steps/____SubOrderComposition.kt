@@ -42,17 +42,17 @@ import kotlin.math.roundToInt
 @Composable
 fun SubOrders(
     invModel: InvestigationsViewModel = hiltViewModel(),
-    parentId: Int = NoRecord.num
+    parentId: ID = NoRecord.num
 ) {
     val items by invModel.subOrdersSF.collectAsStateWithLifecycle(listOf())
 
-    val onClickDetailsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(Int) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
-    val onClickDeleteLambda = remember<(Int) -> Unit> { { invModel.onDeleteSubOrderClick(it) } }
-    val onClickAddLambda = remember<(Int) -> Unit> { { invModel.onAddSubOrderClick(it) } }
-    val onClickEditLambda = remember<(Pair<Int, Int>) -> Unit> { { invModel.onEditSubOrderClick(it) } }
+    val onClickDetailsLambda = remember<(ID) -> Unit> { { invModel.setSubOrdersVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { invModel.setSubOrdersVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { invModel.onDeleteSubOrderClick(it) } }
+    val onClickAddLambda = remember<(ID) -> Unit> { { invModel.onAddSubOrderClick(it) } }
+    val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { invModel.onEditSubOrderClick(it) } }
 
-    val onClickStatusLambda = remember<(DomainSubOrderComplete, Int?) -> Unit> {
+    val onClickStatusLambda = remember<(DomainSubOrderComplete, ID?) -> Unit> {
         { subOrderComplete, completedById -> invModel.showStatusUpdateDialog(currentSubOrder = subOrderComplete, performerId = completedById) }
     }
 
@@ -89,11 +89,11 @@ fun SubOrderCard(
     invModel: InvestigationsViewModel,
     processControlOnly: Boolean,
     subOrder: DomainSubOrderComplete,
-    onClickDetails: (Int) -> Unit,
-    onClickActions: (Int) -> Unit,
-    onClickDelete: (Int) -> Unit,
-    onClickEdit: (Pair<Int, Int>) -> Unit,
-    onClickStatus: (DomainSubOrderComplete, Int?) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit,
+    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickStatus: (DomainSubOrderComplete, ID?) -> Unit
 ) {
     val transitionState = remember { MutableTransitionState(subOrder.isExpanded).apply { targetState = !subOrder.isExpanded } }
     val transition = updateTransition(transitionState, "cardTransition")
@@ -156,8 +156,8 @@ fun SubOrder(
     invModel: InvestigationsViewModel,
     processControlOnly: Boolean,
     subOrder: DomainSubOrderComplete = DomainSubOrderComplete(),
-    onClickDetails: (Int) -> Unit = {},
-    onClickStatus: (DomainSubOrderComplete, Int?) -> Unit,
+    onClickDetails: (ID) -> Unit = {},
+    onClickStatus: (DomainSubOrderComplete, ID?) -> Unit,
 ) {
     val containerColor = when (subOrder.isExpanded) {
         true -> MaterialTheme.colorScheme.secondaryContainer
@@ -194,7 +194,7 @@ fun SubOrder(
                             )
                         }
                     }
-                    StatusChangeBtn(Modifier.weight(weight = 0.46f), containerColor, { onClickStatus(subOrder, subOrder.subOrder.completedById) }) {
+                    StatusChangeBtn(modifier = Modifier.weight(weight = 0.46f), containerColor = containerColor, onClick = { onClickStatus(subOrder, subOrder.subOrder.completedById) }) {
                         StatusWithPercentage(
                             status = Pair(subOrder.subOrder.statusId, subOrder.status.statusDescription),
                             result = Triple(subOrder.subOrderResult.isOk, subOrder.subOrderResult.total, subOrder.subOrderResult.good),

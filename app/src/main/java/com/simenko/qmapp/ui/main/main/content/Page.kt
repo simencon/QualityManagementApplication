@@ -52,6 +52,126 @@ enum class Page(
         actionBtnIcon = Icons.Filled.MoreVert,
         actionMenuItems = CompanyStructureActions.toList()
     ),
+    PRODUCTS(
+        link = Route.Main.Products.link,
+        navIcon = Icons.Filled.Menu,
+        title = "Product lines",
+        titlePlaceholderText = null,
+        keyboardType = null,
+        searchBtnIcon = null,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = Icons.Filled.MoreVert,
+        actionMenuItems = CompanyProductsActions.toList()
+    ),
+    PRODUCT_LINE_CHARACTERISTICS(
+        link = Route.Main.Products.ProductLines.Characteristics.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Characteristics",
+        titlePlaceholderText = "Search by description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_LINE_KEYS(
+        link = Route.Main.Products.ProductLines.ProductLineKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product line designations",
+        titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_KINDS(
+        link = Route.Main.Products.ProductLines.ProductKinds.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Products",
+        titlePlaceholderText = "Search by description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_KIND_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product designations",
+        titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_KIND_SPECIFICATION(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product specification",
+        titlePlaceholderText = "Search description",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    PRODUCT_KIND_LIST(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductList.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product list",
+        titlePlaceholderText = "Search by name",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    VERSION_TOLERANCES(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductList.VersionTolerances.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Version specification",
+        titlePlaceholderText = "Search by name",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    COMPONENT_KIND_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Component designations",
+        titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    COMPONENT_STAGE_KIND_KEYS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Component stage designations",
+        titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     INVESTIGATIONS(
         link = Route.Main.Inv.link,
         navIcon = Icons.Filled.Menu,
@@ -73,7 +193,7 @@ enum class Page(
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = ProgressTabs.toList(),
         fabIcon = Icons.Filled.Add,
-        actionBtnIcon = Icons.Filled.MoreVert,
+        actionBtnIcon = null,
         actionMenuItems = ProcessControlActions.toList()
     ),
     ACCOUNT_SETTINGS(
@@ -95,8 +215,32 @@ enum class Page(
     AUTHORIZE_USER(Route.Main.Team.AuthorizeUser.link, Icons.Filled.ArrowBack, "Authorize user", null, null, null, null, Icons.Filled.Save, null),
     EDIT_USER(Route.Main.Team.EditUser.link, Icons.Filled.ArrowBack, "Edit user", null, null, null, null, Icons.Filled.Save, null),
 
+    ADD_DEPARTMENT(Route.Main.CompanyStructure.DepartmentAddEdit.link, Icons.Filled.ArrowBack, "Add new department", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_DEPARTMENT(Route.Main.CompanyStructure.DepartmentAddEdit.link, Icons.Filled.ArrowBack, "Edit department", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_SUB_DEPARTMENT(Route.Main.CompanyStructure.SubDepartmentAddEdit.link, Icons.Filled.ArrowBack, "Add new sub department", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_SUB_DEPARTMENT(Route.Main.CompanyStructure.SubDepartmentAddEdit.link, Icons.Filled.ArrowBack, "Edit sub department", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_CHANNEL(Route.Main.CompanyStructure.ChannelAddEdit.link, Icons.Filled.ArrowBack, "Add new channel", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_CHANNEL(Route.Main.CompanyStructure.ChannelAddEdit.link, Icons.Filled.ArrowBack, "Edit channel", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Add new line", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_LINE(Route.Main.CompanyStructure.LineAddEdit.link, Icons.Filled.ArrowBack, "Edit line", null, null, null, null, Icons.Filled.Save, null),
+
     ADD_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new operation", null, null, null, null, Icons.Filled.Save, null),
     EDIT_OPERATION(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit operation", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_PRODUCT_PROJECT(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new manufacturing project", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_PROJECT(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit manufacturing project", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_PRODUCT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new product kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_PRODUCT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit product kind", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_COMPONENT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new component kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_COMPONENT_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit component kind", null, null, null, null, Icons.Filled.Save, null),
+
+    ADD_COMPONENT_STAGE_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Add new component stage kind", null, null, null, null, Icons.Filled.Save, null),
+    EDIT_COMPONENT_STAGE_KIND(Route.Main.CompanyStructure.OperationAddEdit.link, Icons.Filled.ArrowBack, "Edit component stage kind", null, null, null, null, Icons.Filled.Save, null),
 
     ADD_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "New investigation order", null, null, null, null, Icons.Filled.Save, null),
     EDIT_ORDER(Route.Main.OrderAddEdit.link, Icons.Filled.ArrowBack, "Edit investigation order", null, null, null, null, Icons.Filled.Save, null),

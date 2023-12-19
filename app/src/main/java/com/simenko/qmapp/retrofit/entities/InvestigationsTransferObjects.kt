@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.entities
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.retrofit.NetworkBaseModel
 import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -8,46 +9,44 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NetworkInputForOrder constructor(
-    var depId: Int,
+    var depId: ID,
     var depAbbr: String,
     var depOrder: Int,
-    var subDepId: Int,
+    var subDepId: ID,
     var subDepAbbr: String,
     var subDepOrder: Int,
-    var chId: Int,
+    var chId: ID,
     var channelAbbr: String,
     var channelOrder: Int,
-    var lineId: Int,
+    var lineId: ID,
     var lineAbbr: String,
     var lineOrder: Int,
     var id: String,
     @Json(name = "itemPreffix")
     var itemPrefix: String,
-    var itemId: Int,
-    var itemVersionId: Int,
+    var itemId: ID,
+    var itemVersionId: ID,
     var isDefault: Boolean,
     var itemKey: String,
     var itemDesignation: String,
-    var operationId: Int,
+    var operationId: ID,
     var operationAbbr: String,
     var operationDesignation: String,
     var operationOrder: Int,
-    var charId: Int,
-    var ishCharId: Int,
-    var ishSubChar: Int,
+    var charId: ID,
+    var ishCharId: ID,
+    var ishSubChar: ID,
     var charDescription: String,
     var charDesignation: String? = null,
     var charOrder: Int
 ) : NetworkBaseModel<DatabaseInputForOrder> {
     override fun getRecordId() = id
-    override fun toDatabaseModel(): DatabaseInputForOrder {
-        return ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
-    }
+    override fun toDatabaseModel() = ObjectTransformer(NetworkInputForOrder::class, DatabaseInputForOrder::class).transform(this)
 }
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrdersStatus constructor(
-    var id: Int,
+    var id: ID,
     var statusDescription: String? = null
 ) : NetworkBaseModel<DatabaseOrdersStatus> {
     override fun getRecordId() = id
@@ -58,7 +57,7 @@ data class NetworkOrdersStatus constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkReason(
-    var id: Int,
+    var id: ID,
     var reasonDescription: String? = null,
     var reasonFormalDescript: String? = null,
     var reasonOrder: Int? = null
@@ -71,7 +70,7 @@ data class NetworkReason(
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrdersType constructor(
-    var id: Int,
+    var id: ID,
     var typeDescription: String? = null
 ) : NetworkBaseModel<DatabaseOrdersType> {
     override fun getRecordId() = id
@@ -82,13 +81,13 @@ data class NetworkOrdersType constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkOrder constructor(
-    var id: Int = 0,
-    var orderTypeId: Int,
-    var reasonId: Int,
-    var orderNumber: Int? = null,
-    var customerId: Int,
-    var orderedById: Int,
-    var statusId: Int,
+    var id: ID,
+    var orderTypeId: ID,
+    var reasonId: ID,
+    var orderNumber: Long? = null,
+    var customerId: ID,
+    var orderedById: ID,
+    var statusId: ID,
     var createdDate: Long,//Format : "2023-02-02T15:44:47.028Z"
     var completedDate: Long? = null
 ) : NetworkBaseModel<DatabaseOrder> {
@@ -100,24 +99,24 @@ data class NetworkOrder constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrder constructor(
-    var id: Int = 0,
-    var orderId: Int,
-    var subOrderNumber: Int,
-    var orderedById: Int,
-    var completedById: Int? = null,
-    var statusId: Int,
+    var id: ID = 0,
+    var orderId: ID,
+    var subOrderNumber: Long,
+    var orderedById: ID,
+    var completedById: ID? = null,
+    var statusId: ID,
     var createdDate: Long,
     var completedDate: Long? = null,
-    var departmentId: Int,
-    var subDepartmentId: Int,
-    var channelId: Int,
-    var lineId: Int,
-    var operationId: Int,
+    var departmentId: ID,
+    var subDepartmentId: ID,
+    var channelId: ID,
+    var lineId: ID,
+    var operationId: ID,
     var itemPreffix: String,
-    var itemTypeId: Int,
-    var itemVersionId: Int,
+    var itemTypeId: ID,
+    var itemVersionId: ID,
     var samplesCount: Int? = null,
-    var remarkId: Int
+    var remarkId: ID
 ) : NetworkBaseModel<DatabaseSubOrder> {
     override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseSubOrder {
@@ -127,14 +126,14 @@ data class NetworkSubOrder constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkSubOrderTask constructor(
-    var id: Int,
-    var subOrderId: Int,
-    var charId: Int,
-    var statusId: Int,
+    var id: ID,
+    var subOrderId: ID,
+    var charId: ID,
+    var statusId: ID,
     var createdDate: Long? = null,
     var completedDate: Long? = null,
-    var orderedById: Int? = null,
-    var completedById: Int? = null,
+    var orderedById: ID? = null,
+    var completedById: ID? = null,
 ) : NetworkBaseModel<DatabaseSubOrderTask> {
     override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseSubOrderTask {
@@ -144,8 +143,8 @@ data class NetworkSubOrderTask constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkSample constructor(
-    var id: Int,
-    var subOrderId: Int,
+    var id: ID,
+    var subOrderId: ID,
     var sampleNumber: Int? = null
 ) : NetworkBaseModel<DatabaseSample> {
     override fun getRecordId() = id
@@ -156,7 +155,7 @@ data class NetworkSample constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkResultsDecryption constructor(
-    var id: Int,
+    var id: ID,
     var resultDecryption: String? = null
 ) : NetworkBaseModel<DatabaseResultsDecryption> {
     override fun getRecordId() = id
@@ -167,13 +166,13 @@ data class NetworkResultsDecryption constructor(
 
 @JsonClass(generateAdapter = true)
 data class NetworkResult constructor(
-    var id: Int = 0,
-    var sampleId: Int,
-    var metrixId: Int,
+    var id: ID = 0,
+    var sampleId: ID,
+    var metrixId: ID,
     var result: Float? = null,
     var isOk: Boolean? = null,
-    var resultDecryptionId: Int,
-    var taskId: Int
+    var resultDecryptionId: ID,
+    var taskId: ID
 ) : NetworkBaseModel<DatabaseResult> {
     override fun getRecordId() = id
     override fun toDatabaseModel(): DatabaseResult {

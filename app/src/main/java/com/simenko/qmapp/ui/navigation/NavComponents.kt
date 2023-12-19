@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.navigation
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -33,6 +34,8 @@ fun NavGraphBuilder.navigation(
     navigation(
         startDestination = startDestination.link,
         route = startDestination.route,
+        arguments = startDestination.arguments,
+        deepLinks = startDestination.deepLinks,
         builder = builder
     )
 }

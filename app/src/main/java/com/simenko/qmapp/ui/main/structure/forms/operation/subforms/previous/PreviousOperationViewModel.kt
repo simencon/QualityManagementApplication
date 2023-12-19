@@ -1,10 +1,11 @@
 package com.simenko.qmapp.ui.main.structure.forms.operation.subforms.previous
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.domain.FillInError
+import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
-import com.simenko.qmapp.domain.FillInSuccess
+import com.simenko.qmapp.domain.FillInSuccessState
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -46,14 +47,14 @@ class PreviousOperationViewModel @Inject constructor(
         this._previousOperations.value = operation.previousOperations
         this._operationToAdd.value = DomainOperationsFlowComplete().copy(
             currentOperationId = operation.operation.id,
-            depId = operation.lineComplete.departmentId,
-            subDepId = operation.lineComplete.subDepartmentId,
-            channelId = operation.lineComplete.channelId,
-            lineId = operation.lineComplete.id
+            depId = operation.lineWithParents.departmentId,
+            subDepId = operation.lineWithParents.subDepartmentId,
+            channelId = operation.lineWithParents.channelId,
+            lineId = operation.lineWithParents.id
         )
     }
 
-    private val _operations = repository.operationsComplete.flatMapLatest { operations ->
+    private val _operations = repository.operations(NoRecord.num).flatMapLatest { operations ->
         _previousOperations.flatMapLatest { addedOperations ->
             _operationToAdd.flatMapLatest { toAdd ->
                 flow {
@@ -67,7 +68,7 @@ class PreviousOperationViewModel @Inject constructor(
     /**
      * (recId, name, isSelected)
      * */
-    val selectDepId: (Int) -> Unit = {
+    val selectDepId: (ID) -> Unit = {
         if (it != _operationToAdd.value.depId) {
             _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = NoRecord.num, channelId = NoRecord.num, subDepId = NoRecord.num, depId = it)
 
@@ -75,12 +76,12 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableDepartments: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableDepartments: Flow<List<Triple<ID, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
                     operations.asSequence()
-                        .map { Triple(it.lineComplete.departmentId, it.lineComplete.depAbbr ?: NoString.str, it.lineComplete.depOrder) }.toSet().sortedBy { it.third }.map {
+                        .map { Triple(it.lineWithParents.departmentId, it.lineWithParents.depAbbr ?: NoString.str, it.lineWithParents.depOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.depId)
                         }.toList()
                 )
@@ -88,7 +89,7 @@ class PreviousOperationViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default)
 
-    val selectSubDepId: (Int) -> Unit = {
+    val selectSubDepId: (ID) -> Unit = {
         if (it != _operationToAdd.value.subDepId) {
             _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = NoRecord.num, channelId = NoRecord.num, subDepId = it)
 
@@ -96,12 +97,12 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableSubDepartments: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableSubDepartments: Flow<List<Triple<ID, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.asSequence().filter { it.lineComplete.departmentId == record.depId }
-                        .map { Triple(it.lineComplete.subDepartmentId, it.lineComplete.subDepAbbr ?: NoString.str, it.lineComplete.subDepOrder) }.toSet().sortedBy { it.third }.map {
+                    operations.asSequence().filter { it.lineWithParents.departmentId == record.depId }
+                        .map { Triple(it.lineWithParents.subDepartmentId, it.lineWithParents.subDepAbbr ?: NoString.str, it.lineWithParents.subDepOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.subDepId)
                         }.toList()
                 )
@@ -109,7 +110,7 @@ class PreviousOperationViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default)
 
-    val selectedChannelId: (Int) -> Unit = {
+    val selectedChannelId: (ID) -> Unit = {
         if (it != _operationToAdd.value.channelId) {
             _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = NoRecord.num, channelId = it)
 
@@ -117,12 +118,12 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableChannels: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableChannels: Flow<List<Triple<ID, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.asSequence().filter { it.lineComplete.subDepartmentId == record.subDepId }
-                        .map { Triple(it.lineComplete.channelId, it.lineComplete.channelAbbr ?: NoString.str, it.lineComplete.channelOrder) }.toSet().sortedBy { it.third }.map {
+                    operations.asSequence().filter { it.lineWithParents.subDepartmentId == record.subDepId }
+                        .map { Triple(it.lineWithParents.channelId, it.lineWithParents.channelAbbr ?: NoString.str, it.lineWithParents.channelOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.channelId)
                         }.toList()
                 )
@@ -130,7 +131,7 @@ class PreviousOperationViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default)
 
-    val selectedLineId: (Int) -> Unit = {
+    val selectedLineId: (ID) -> Unit = {
         if (it != _operationToAdd.value.lineId) {
             _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = NoRecord.num, lineId = it)
 
@@ -138,12 +139,12 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableLines: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableLines: Flow<List<Triple<ID, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.asSequence().filter { it.lineComplete.channelId == record.channelId }
-                        .map { Triple(it.lineComplete.id, it.lineComplete.lineAbbr ?: NoString.str, it.lineComplete.lineOrder) }.toSet().sortedBy { it.third }.map {
+                    operations.asSequence().filter { it.lineWithParents.channelId == record.channelId }
+                        .map { Triple(it.lineWithParents.id, it.lineWithParents.lineAbbr ?: NoString.str, it.lineWithParents.lineOrder) }.toSet().sortedBy { it.third }.map {
                             Triple(it.first, it.second, it.first == record.lineId)
                         }.toList()
                 )
@@ -151,7 +152,7 @@ class PreviousOperationViewModel @Inject constructor(
         }
     }.flowOn(Dispatchers.Default)
 
-    val selectedOperationId: (Int) -> Unit = {
+    val selectedOperationId: (ID) -> Unit = {
         if (it != _operationToAdd.value.previousOperationId) {
             _operationToAdd.value = _operationToAdd.value.copy(previousOperationId = it)
 
@@ -159,16 +160,16 @@ class PreviousOperationViewModel @Inject constructor(
             _fillInState.value = FillInInitialState
         }
     }
-    val availableOperations: Flow<List<Triple<Int, String, Boolean>>> = _operations.flatMapLatest { operations ->
+    val availableOperations: Flow<List<Triple<ID, String, Boolean>>> = _operations.flatMapLatest { operations ->
         _operationToAdd.flatMapLatest { record ->
             flow {
                 emit(
-                    operations.filter { it.lineComplete.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
+                    operations.filter { it.lineWithParents.id == record.lineId }.toSet().sortedBy { it.operation.operationOrder }.map {
                         if (it.operation.id == record.previousOperationId) _operationToAdd.value = record.copy(
-                            depAbbr = it.lineComplete.depAbbr,
-                            subDepAbbr = it.lineComplete.subDepAbbr,
-                            channelAbbr = it.lineComplete.channelAbbr,
-                            lineAbbr = it.lineComplete.lineAbbr,
+                            depAbbr = it.lineWithParents.depAbbr,
+                            subDepAbbr = it.lineWithParents.subDepAbbr,
+                            channelAbbr = it.lineWithParents.channelAbbr,
+                            lineAbbr = it.lineWithParents.lineAbbr,
                             operationAbbr = it.operation.operationAbbr,
                             operationDesignation = it.operation.operationDesignation,
                             equipment = it.operation.equipment
@@ -203,8 +204,8 @@ class PreviousOperationViewModel @Inject constructor(
                 append("Operation is mandatory\n")
             }
         }
-        if (errorMsg.isNotEmpty()) _fillInState.value = FillInError(errorMsg)
-        else _fillInState.value = FillInSuccess
+        if (errorMsg.isNotEmpty()) _fillInState.value = FillInErrorState(errorMsg)
+        else _fillInState.value = FillInSuccessState
     }
 }
 

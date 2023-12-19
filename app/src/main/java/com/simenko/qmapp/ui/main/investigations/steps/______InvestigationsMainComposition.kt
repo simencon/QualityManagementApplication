@@ -1,6 +1,5 @@
 package com.simenko.qmapp.ui.main.investigations.steps
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,93 +12,51 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.other.Constants.ANIMATION_DURATION
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
+import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.ui.dialogs.StatusUpdateDialog
 import com.simenko.qmapp.ui.dialogs.DialogInput
 import com.simenko.qmapp.ui.main.investigations.InvestigationsViewModel
-import kotlinx.coroutines.delay
+import com.simenko.qmapp.utils.dp
 
 @Composable
 fun InvestigationsMainComposition(
     mainScreenPadding: PaddingValues,
     invModel: InvestigationsViewModel = hiltViewModel()
 ) {
+    val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val screenWidthPhysical = screenWidth.toFloat().dp()
     val screenHeight = configuration.screenHeightDp.dp - mainScreenPadding.calculateTopPadding() - TOP_TAB_ROW_HEIGHT.dp
+    val animator = HorizonteAnimationImp(screenWidth, scope)
 
-    val tasksVisibility by invModel.tasksVisibility.collectAsStateWithLifecycle()
+    val isSecondRowVisible by invModel.isSecondRowVisible.collectAsStateWithLifecycle(false)
+    val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
+    val dialogInput by invModel.dialogInput.observeAsState()
 
     val verticalScrollState = rememberScrollState()
     val horizontalScrollState = rememberScrollState()
 
-    val showStatusChangeDialog = invModel.isStatusUpdateDialogVisible.observeAsState()
-    val dialogInput by invModel.dialogInput.observeAsState()
-
     /**
      * TotalScreenWidth, FirstColumnWidth, SecondColumnWidth
      * */
-    var screenSizes: Triple<Dp, Dp, Dp> by remember {
-        mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp))
-    }
+    var screenSizes: Triple<Dp, Dp, Dp> by remember { mutableStateOf(Triple(screenWidth.dp, screenWidth.dp, 0.dp)) }
 
-    val limitToResize = 720
+    LaunchedEffect(Unit) { invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true) }
 
-    fun updateSizes(samplesFactor: Int) {
-        screenSizes = Triple(
-            when {
-                screenWidth > limitToResize -> screenWidth.dp
-                else -> (screenWidth * (1 + 0.88 * samplesFactor)).dp
-            },
-            when (samplesFactor) {
-                0 -> screenWidth.dp
-                else -> {
-                    when {
-                        screenWidth > limitToResize -> (screenWidth * 0.57).dp
-                        else -> screenWidth.dp
-                    }
-                }
-            },
-            when {
-                screenWidth > limitToResize -> (screenWidth * 0.43 * samplesFactor).dp
-                else -> (screenWidth * 0.88 * samplesFactor).dp
-            }
-        )
-    }
-
-    suspend fun animateScroll(samplesFactor: Int) {
-        horizontalScrollState.animateScrollTo(
-            samplesFactor * horizontalScrollState.maxValue, tween(
-                durationMillis = ANIMATION_DURATION,
-                easing = LinearOutSlowInEasing
-            )
-        )
-    }
-
-    LaunchedEffect(Unit) {
-        invModel.mainPageHandler?.setupMainPage?.invoke(invModel.selectedTabIndex, true)
-    }
-
-    LaunchedEffect(tasksVisibility) {
-        when (tasksVisibility.first == NoRecord) {
-            true -> {
-                if (screenWidth <= limitToResize) animateScroll(0)
-                updateSizes(0)
-            }
-
-            false -> {
-                updateSizes(1)
-//                ToDo find a way to run animation exactly when screen resized
-                delay(50L)
-                if (screenWidth <= limitToResize) animateScroll(1)
-            }
+    LaunchedEffect(isSecondRowVisible) {
+        if (isSecondRowVisible) {
+            animator.setRequiredScreenWidth(1) { screenSizes = it }
+        } else {
+            animator.run { horizontalScrollState.animateScroll(0) }
+            animator.setRequiredScreenWidth(0) { screenSizes = it }
         }
     }
 
@@ -107,16 +64,17 @@ fun InvestigationsMainComposition(
         Row(
             Modifier
                 .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState, screenSizes.first != screenWidth.dp)
+                .horizontalScroll(horizontalScrollState, isSecondRowVisible)
+                .onSizeChanged { if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) } }
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
             if (invModel.isPcOnly == true)
-                SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), invModel = invModel)
+                SubOrdersStandAlone(modifier = Modifier.width(screenSizes.second), viewModel = invModel)
             else
-                Orders(modifier = Modifier.width(screenSizes.second), invModel = invModel)
+                Orders(modifier = Modifier.width(screenSizes.second), viewModel = invModel)
 
-            if (tasksVisibility.first != NoRecord)
+            if (isSecondRowVisible)
                 SampleComposition(modifier = Modifier.width(screenSizes.third), invModel = invModel)
         }
 

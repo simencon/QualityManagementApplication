@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui
 import com.google.common.truth.Truth
 import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.NoRecordStr
+import com.simenko.qmapp.domain.TrueStr
 import com.simenko.qmapp.ui.navigation.NavArguments
 import com.simenko.qmapp.ui.navigation.NavRouteName
 import com.simenko.qmapp.ui.navigation.Route
@@ -81,10 +82,15 @@ class RouteTest {
          * All investigations link check
          * */
         val invAll = Route.Main.Inv.link
-        var invAllWithOptArgs = invAll.withOpts(NoRecordStr.str, NoRecordStr.str)
+        var invAllWithOptArgs = invAll.withOpts(FalseStr.str, NoRecordStr.str, NoRecordStr.str)
 
         Truth.assertThat(invAllWithOptArgs)
-            .isEqualTo("${NavRouteName.all_investigations}?${NavArguments.orderId}=${NoRecordStr.str}&${NavArguments.subOrderId}=${NoRecordStr.str}")
+            .isEqualTo(
+                "${NavRouteName.all_investigations}?" +
+                        "${NavArguments.isProcessControlOnly}=${FalseStr.str}&" +
+                        "${NavArguments.orderId}=${NoRecordStr.str}&" +
+                        "${NavArguments.subOrderId}=${NoRecordStr.str}"
+            )
 
         invAllWithOptArgs = invAll.withOpts()
         Truth.assertThat(invAllWithOptArgs).isEqualTo(NavRouteName.all_investigations)
@@ -92,10 +98,13 @@ class RouteTest {
          * Process control link check
          * */
         val processControl = Route.Main.ProcessControl.link
-        var processControlWithOptArgs = processControl.withOpts(NoRecordStr.str, NoRecordStr.str)
+        var processControlWithOptArgs = processControl.withOpts(TrueStr.str, NoRecordStr.str, NoRecordStr.str)
 
         Truth.assertThat(processControlWithOptArgs)
-            .isEqualTo("${NavRouteName.process_control}?${NavArguments.orderId}=${NoRecordStr.str}&${NavArguments.subOrderId}=${NoRecordStr.str}")
+            .isEqualTo("${NavRouteName.process_control}?" +
+                    "${NavArguments.isProcessControlOnly}=${TrueStr.str}&" +
+                    "${NavArguments.orderId}=${NoRecordStr.str}&" +
+                    "${NavArguments.subOrderId}=${NoRecordStr.str}")
 
         processControlWithOptArgs = processControl.withOpts()
         Truth.assertThat(processControlWithOptArgs).isEqualTo(NavRouteName.process_control)

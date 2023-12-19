@@ -1,87 +1,130 @@
 package com.simenko.qmapp.retrofit.implementation
 
 import com.simenko.qmapp.other.Constants.CHARACTERISTICS
+import com.simenko.qmapp.other.Constants.CHARACTERISTICS_COMPONENT_KINDS
+import com.simenko.qmapp.other.Constants.CHARACTERISTICS_COMPONENT_STAGE_KINDS
 import com.simenko.qmapp.other.Constants.CHARACTERISTICS_GROUPS
+import com.simenko.qmapp.other.Constants.CHARACTERISTICS_PRODUCT_KINDS
 import com.simenko.qmapp.other.Constants.CHARACTERISTICS_SUB_GROUPS
 import com.simenko.qmapp.other.Constants.COMPONENTS
+import com.simenko.qmapp.other.Constants.COMPONENTS_COMPONENT_STAGES
 import com.simenko.qmapp.other.Constants.COMPONENTS_IN_STAGE
 import com.simenko.qmapp.other.Constants.COMPONENTS_IN_STAGE_TO_LINES
 import com.simenko.qmapp.other.Constants.COMPONENTS_TO_LINES
 import com.simenko.qmapp.other.Constants.COMPONENT_IN_STAGE_TOLERANCES
 import com.simenko.qmapp.other.Constants.COMPONENT_IN_STAGE_VERSIONS
+import com.simenko.qmapp.other.Constants.COMPONENT_KINDS
+import com.simenko.qmapp.other.Constants.COMPONENT_KINDS_COMPONENTS
+import com.simenko.qmapp.other.Constants.COMPONENT_KINDS_KEYS
+import com.simenko.qmapp.other.Constants.COMPONENT_STAGE_KINDS
+import com.simenko.qmapp.other.Constants.COMPONENT_STAGE_KINDS_COMPONENT_STAGES
+import com.simenko.qmapp.other.Constants.COMPONENT_STAGE_KINDS_KEYS
 import com.simenko.qmapp.other.Constants.COMPONENT_TOLERANCES
 import com.simenko.qmapp.other.Constants.COMPONENT_VERSIONS
 import com.simenko.qmapp.other.Constants.MANUFACTURING_PROJECTS
 import com.simenko.qmapp.other.Constants.METRICS
 import com.simenko.qmapp.other.Constants.PRODUCTS
+import com.simenko.qmapp.other.Constants.PRODUCTS_COMPONENTS
 import com.simenko.qmapp.other.Constants.PRODUCTS_KEYS
 import com.simenko.qmapp.other.Constants.PRODUCTS_TO_LINES
 import com.simenko.qmapp.other.Constants.PRODUCT_BASES
+import com.simenko.qmapp.other.Constants.PRODUCT_KINDS
+import com.simenko.qmapp.other.Constants.PRODUCT_KINDS_KEYS
+import com.simenko.qmapp.other.Constants.PRODUCT_KINDS_PRODUCTS
 import com.simenko.qmapp.other.Constants.PRODUCT_TOLERANCES
 import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
-import com.simenko.qmapp.retrofit.entities.*
+import com.simenko.qmapp.retrofit.entities.products.*
+import retrofit2.Response
 import retrofit2.http.GET
 
 interface ProductsService {
     @GET(MANUFACTURING_PROJECTS)
-    suspend fun getManufacturingProjects(): List<NetworkManufacturingProject>
-
+    suspend fun getManufacturingProjects(): Response<List<NetworkProductLine>>
     @GET(PRODUCTS_KEYS)
-    suspend fun getKeys(): List<NetworkKey>
-
+    suspend fun getKeys(): Response<List<NetworkKey>>
     @GET(PRODUCT_BASES)
-    suspend fun getProductBases(): List<NetworkProductBase>
-
+    suspend fun getProductBases(): Response<List<NetworkProductBase>>
     @GET(CHARACTERISTICS_GROUPS)
-    suspend fun getElementIshModels(): List<NetworkElementIshModel>
-
+    suspend fun getCharacteristicGroups(): Response<List<NetworkCharGroup>>
     @GET(CHARACTERISTICS_SUB_GROUPS)
-    suspend fun getIshSubCharacteristics(): List<NetworkIshSubCharacteristic>
-
+    suspend fun getCharacteristicSubGroups(): Response<List<NetworkCharSubGroup>>
     @GET(CHARACTERISTICS)
-    suspend fun getCharacteristics(): List<NetworkCharacteristic>
-
+    suspend fun getCharacteristics(): Response<List<NetworkCharacteristic>>
     @GET(METRICS)
-    suspend fun getMetrixes(): List<NetworkMetrix>
+    suspend fun getMetrics(): Response<List<NetworkMetrix>>
 
     @GET(VERSION_STATUSES)
-    suspend fun getVersionStatuses(): List<NetworkVersionStatus>
+    suspend fun getVersionStatuses(): Response<List<NetworkVersionStatus>>
+
+
+    @GET(PRODUCT_KINDS)
+    suspend fun getProductKinds(): Response<List<NetworkProductKind>>
+    @GET(COMPONENT_KINDS)
+    suspend fun getComponentKinds(): Response<List<NetworkComponentKind>>
+    @GET(COMPONENT_STAGE_KINDS)
+    suspend fun getComponentStageKinds(): Response<List<NetworkComponentStageKind>>
+
+
+    @GET(PRODUCT_KINDS_KEYS)
+    suspend fun getProductKindsKeys(): Response<List<NetworkProductKindKey>>
+    @GET(COMPONENT_KINDS_KEYS)
+    suspend fun getComponentKindsKeys(): Response<List<NetworkComponentKindKey>>
+    @GET(COMPONENT_STAGE_KINDS_KEYS)
+    suspend fun getComponentStageKindsKeys(): Response<List<NetworkComponentStageKindKey>>
+
+
+    @GET(CHARACTERISTICS_PRODUCT_KINDS)
+    suspend fun getCharacteristicsProductKinds(): Response<List<NetworkCharacteristicProductKind>>
+    @GET(CHARACTERISTICS_COMPONENT_KINDS)
+    suspend fun getCharacteristicsComponentKinds(): Response<List<NetworkCharacteristicComponentKind>>
+    @GET(CHARACTERISTICS_COMPONENT_STAGE_KINDS)
+    suspend fun getCharacteristicsComponentStageKinds(): Response<List<NetworkCharacteristicComponentStageKind>>
+
 
     @GET(PRODUCTS)
-    suspend fun getProducts(): List<NetworkProduct>
+    suspend fun getProducts(): Response<List<NetworkProduct>>
+    @GET(COMPONENTS)
+    suspend fun getComponents(): Response<List<NetworkComponent>>
+    @GET(COMPONENTS_IN_STAGE)
+    suspend fun getComponentStages(): Response<List<NetworkComponentStage>>
 
-    @GET(PRODUCT_VERSIONS)
-    suspend fun getProductVersions(): List<NetworkProductVersion>
-
-    @GET(PRODUCT_TOLERANCES)
-    suspend fun getProductTolerances(): List<NetworkProductTolerance>
 
     @GET(PRODUCTS_TO_LINES)
-    suspend fun getProductsToLines(): List<NetworkProductToLine>
+    suspend fun getProductsToLines(): Response<List<NetworkProductToLine>>
+    @GET(COMPONENTS_TO_LINES)
+    suspend fun getComponentsToLines(): Response<List<NetworkComponentToLine>>
+    @GET(COMPONENTS_IN_STAGE_TO_LINES)
+    suspend fun getComponentStagesToLines(): Response<List<NetworkComponentInStageToLine>>
 
-    @GET(COMPONENTS)
-    suspend fun getComponents(): List<NetworkComponent>
 
+    @GET(PRODUCT_KINDS_PRODUCTS)
+    suspend fun getProductKindsProducts(): Response<List<NetworkProductKindProduct>>
+    @GET(COMPONENT_KINDS_COMPONENTS)
+    suspend fun getComponentKindsComponents(): Response<List<NetworkComponentKindComponent>>
+    @GET(COMPONENT_STAGE_KINDS_COMPONENT_STAGES)
+    suspend fun getComponentStageKindsComponentStages(): Response<List<NetworkComponentStageKindComponentStage>>
+
+
+    @GET(PRODUCTS_COMPONENTS)
+    suspend fun getProductsComponents(): Response<List<NetworkProductComponent>>
+    @GET(COMPONENTS_COMPONENT_STAGES)
+    suspend fun getComponentsComponentStages(): Response<List<NetworkComponentComponentStage>>
+
+
+    @GET(PRODUCT_VERSIONS)
+    suspend fun getProductVersions(): Response<List<NetworkProductVersion>>
+    @GET(PRODUCT_TOLERANCES)
+    suspend fun getProductTolerances(): Response<List<NetworkProductTolerance>>
     @GET(COMPONENT_VERSIONS)
-    suspend fun getComponentVersions(): List<NetworkComponentVersion>
+    suspend fun getComponentVersions(): Response<List<NetworkComponentVersion>>
+
 
     @GET(COMPONENT_TOLERANCES)
-    suspend fun getComponentTolerances(): List<NetworkComponentTolerance>
-
-    @GET(COMPONENTS_TO_LINES)
-    suspend fun getComponentsToLines(): List<NetworkComponentToLine>
-
-    @GET(COMPONENTS_IN_STAGE)
-    suspend fun getComponentInStages(): List<NetworkComponentInStage>
-
+    suspend fun getComponentTolerances(): Response<List<NetworkComponentTolerance>>
     @GET(COMPONENT_IN_STAGE_VERSIONS)
-    suspend fun getComponentInStageVersions(): List<NetworkComponentInStageVersion>
-
+    suspend fun getComponentStageVersions(): Response<List<NetworkComponentStageVersion>>
     @GET(COMPONENT_IN_STAGE_TOLERANCES)
-    suspend fun getComponentInStageTolerances(): List<NetworkComponentInStageTolerance>
-
-    @GET(COMPONENTS_IN_STAGE_TO_LINES)
-    suspend fun getComponentInStagesToLines(): List<NetworkComponentInStageToLine>
+    suspend fun getComponentStageTolerances(): Response<List<NetworkComponentInStageTolerance>>
 }
 
