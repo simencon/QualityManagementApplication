@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bbe974db49cf30abb98e090fcf3e72f9",
+    "identityHash": "e9bd15a03c02d6812ff2602d0945188a",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4706,10 +4706,6 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `1_2_product_kinds_products`"
       },
       {
-        "viewName": "product_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `9_products_versions`"
-      },
-      {
         "viewName": "component_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `3_component_kinds` order by componentKindOrder"
       },
@@ -4730,10 +4726,6 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `2_4_products_components`"
       },
       {
-        "viewName": "component_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `10_components_versions`"
-      },
-      {
         "viewName": "component_stage_kinds_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `5_component_stage_kinds` order by componentStageOrder"
       },
@@ -4752,10 +4744,6 @@
       {
         "viewName": "components_component_stages_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `4_6_components_component_stages`"
-      },
-      {
-        "viewName": "component_stage_versions_complete",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `11_component_in_stage_versions`"
       },
       {
         "viewName": "sub_order_task_complete",
@@ -4800,7 +4788,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bbe974db49cf30abb98e090fcf3e72f9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e9bd15a03c02d6812ff2602d0945188a')"
     ]
   }
 }

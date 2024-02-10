@@ -647,8 +647,8 @@ sealed class Route(
                                 defaultValue = NoRecord.num
                             },
                             navArgument(NavArguments.versionFId) {
-                                type = NavType.LongType
-                                defaultValue = NoRecord.num
+                                type = NavType.StringType
+                                defaultValue = NoRecordStr.str
                             }
                         ),
                         route = NavRouteName.product_kinds
