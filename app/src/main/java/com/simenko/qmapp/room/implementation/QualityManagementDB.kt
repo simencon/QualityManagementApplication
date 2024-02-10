@@ -107,21 +107,18 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseProductKindKey.DatabaseProductKindKeyComplete::class,
         DatabaseProduct.DatabaseProductComplete::class,
         DatabaseProductKindProduct.DatabaseProductKindProductComplete::class,
-        DatabaseProductVersion.DatabaseProductVersionComplete::class,
 
         DatabaseComponentKind.DatabaseComponentKindComplete::class,
         DatabaseComponentKindKey.DatabaseComponentKindKeyComplete::class,
         DatabaseComponent.DatabaseComponentComplete::class,
         DatabaseComponentKindComponent.DatabaseComponentKindComponentComplete::class,
         DatabaseProductComponent.DatabaseProductComponentComplete::class,
-        DatabaseComponentVersion.DatabaseComponentVersionComplete::class,
 
         DatabaseComponentStageKind.DatabaseComponentStageKindComplete::class,
         DatabaseComponentStageKindKey.DatabaseComponentStageKindKeyComplete::class,
         DatabaseComponentStage.DatabaseComponentStageComplete::class,
         DatabaseComponentStageKindComponentStage.DatabaseComponentStageKindComponentStageComplete::class,
         DatabaseComponentComponentStage.DatabaseComponentComponentStageComplete::class,
-        DatabaseComponentStageVersion.DatabaseComponentStageVersionComplete::class,
 
         DatabaseSubOrderTaskComplete::class,
         DatabaseResultComplete::class,

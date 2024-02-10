@@ -1,6 +1,7 @@
 package com.simenko.qmapp.repository
 
 import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -317,9 +318,12 @@ class UserRepository @Inject constructor(
                                     _userState.value = UserErrorState(UserError.USER_NOT_REGISTERED.error)
                                 }
                             }
-
-//                            ToDoMe - hand this error "An internal error has occurred. [ Requests from this Android client application com.simenko.qmapp are blocked. ]" - it means App is not allowed to FireBase project.
-
+                            //  ToDoMe - make sure this error is handled "An internal error has occurred. [ Requests from this Android client application com.simenko.qmapp are blocked. ]" - it means App is not allowed to FireBase project.
+                            is FirebaseException -> {
+                                if (task.exception?.message?.contains("application com.simenko.qmapp are blocked") == true) {
+                                    _userState.value = UserErrorState(UserError.APPLICATION_NOT_REGISTERED.error)
+                                }
+                            }
 
                             else -> {
                                 _user.clearUserData()
@@ -519,5 +523,6 @@ enum class UserError(val error: String) {
     NO_USER_DATA("Cannot obtain user data"),
     ACCOUNT_DISABLED("Account has been disabled"),
     USER_EXISTS("User already registered"),
-    USER_NOT_REGISTERED("User with current email is not registered")
+    USER_NOT_REGISTERED("User with current email is not registered"),
+    APPLICATION_NOT_REGISTERED("Application is not registered")
 }
