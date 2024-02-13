@@ -26,4 +26,8 @@ abstract class ProductVersionDao : DaoBaseModel<DatabaseProductVersion> {
     @Transaction
     @Query("SELECT * FROM item_versions where fItemId = :fpId or :fpId = '-1'")
     abstract fun getRecordsCompleteForUI(fpId: String): Flow<List<DatabaseItemVersionComplete>>
+
+    @Transaction
+    @Query("SELECT * FROM item_versions where fId = :fId")
+    abstract suspend fun getRecordCompleteForUI(fId: String): DatabaseItemVersionComplete?
 }
