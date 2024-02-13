@@ -19,6 +19,7 @@ import com.simenko.qmapp.ui.main.products.kinds.set.stages.designations.Componen
 import com.simenko.qmapp.ui.main.products.kinds.set.stages.designations.ComponentStageKindKeysViewModel
 import com.simenko.qmapp.ui.main.products.designations.ProductLineKeys
 import com.simenko.qmapp.ui.main.products.designations.ProductLineKeysViewModel
+import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerancesViewModel
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
@@ -49,10 +50,6 @@ fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
             val viewModel: ProductKindSpecificationViewModel = hiltViewModel()
             ProductKindSpecification(viewModel = viewModel)
         }
-        composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductList) {
-            val viewModel: ProductListViewModel = hiltViewModel()
-            ProductKindProducts(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
-        }
         composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys) {
             val viewModel: ComponentKindKeysViewModel = hiltViewModel()
             ComponentKindKeys(viewModel = viewModel)
@@ -60,6 +57,13 @@ fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
         composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys) {
             val viewModel: ComponentStageKindKeysViewModel = hiltViewModel()
             ComponentStageKindKeys(viewModel = viewModel)
+        }
+        composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductList) {
+            val viewModel: ProductListViewModel = hiltViewModel()
+            ProductKindProducts(mainScreenPadding = mainScreenPadding, viewModel = viewModel)
+        }
+        composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductList.VersionTolerances) {
+            val viewModel: VersionTolerancesViewModel = hiltViewModel()
         }
     }
 }

@@ -211,7 +211,7 @@ data class DomainComponentInStageTolerance(
 }
 
 data class DomainItemTolerance(
-    var id: String,
+    var id: ID,
     var fId: String,
     var metrixId: ID,
     var versionId: ID,
@@ -225,5 +225,9 @@ data class DomainItemTolerance(
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainItemTolerance::class, DatabaseItemTolerance::class).transform(this)
+    data class DomainItemToleranceComplete(
+        val itemTolerance: DomainItemTolerance,
+        val metric: DomainMetrix = DomainMetrix()
+    )
 }
 

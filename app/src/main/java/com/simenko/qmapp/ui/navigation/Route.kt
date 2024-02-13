@@ -654,11 +654,15 @@ sealed class Route(
                         route = NavRouteName.product_kinds
                     ) {
                         data object VersionTolerances : Route(
-                            link = NavRouteName.version_tolerances + "?${NavArguments.versionFId}&${NavArguments.characteristicId}&${NavArguments.toleranceId}",
+                            link = NavRouteName.version_tolerances +
+                                    "?${opt(NavArguments.versionFId)}" +
+                                    "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}",
                             deepLinks = listOf(
                                 navDeepLink {
-                                    uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}/${NavRouteName.version_tolerances}" +
-                                                "?${NavArguments.versionFId}&${NavArguments.characteristicId}&${NavArguments.toleranceId}"
+                                    uriPattern = NavArguments.domain +
+                                                "/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}/${NavRouteName.version_tolerances}" +
+                                                "?${opt(NavArguments.versionFId)}" +
+                                                "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}"
                                     action = Intent.ACTION_VIEW
                                 }
                             ),

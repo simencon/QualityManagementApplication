@@ -51,13 +51,13 @@ class CharacteristicsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _charGroupVisibility = MutableStateFlow(Pair(SelectedNumber(charGroupId), NoRecord))
     private val _charSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(charSubGroupId), NoRecord))
-    private val _characteristicsVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
+    private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
     private val _metricVisibility = MutableStateFlow(Pair(SelectedNumber(metricId), NoRecord))
     private val _productLine = MutableStateFlow(DomainProductLine())
     private val _charGroups = repository.charGroups(productLineId)
     private val _charSubGroups = _charGroupVisibility.flatMapLatest { repository.charSubGroups(it.first.num) }
     private val _characteristics = _charSubGroupVisibility.flatMapLatest { repository.characteristicsByParent(it.first.num) }
-    private val _metrics = _characteristicsVisibility.flatMapLatest { repository.metrics(it.first.num) }
+    private val _metrics = _characteristicVisibility.flatMapLatest { repository.metrics(it.first.num) }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ class CharacteristicsViewModel @Inject constructor(
         _charSubGroupVisibility.value = _charSubGroupVisibility.value.setVisibility(dId, aId)
     }
     fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _characteristicsVisibility.value = _characteristicsVisibility.value.setVisibility(dId, aId)
+        _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
     }
 
     fun setMetricsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
@@ -109,7 +109,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     val isSecondColumnVisible: StateFlow<Boolean> = _isComposed.flatMapLatest { isComposed ->
-        _characteristicsVisibility.flatMapLatest { visibility ->
+        _characteristicVisibility.flatMapLatest { visibility ->
             flow { emit((visibility.first != NoRecord) && (isComposed.component3())) }
         }
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
@@ -163,7 +163,7 @@ class CharacteristicsViewModel @Inject constructor(
     }
 
     val characteristics = _characteristics.flatMapLatest { characteristics ->
-        _characteristicsVisibility.flatMapLatest { visibility ->
+        _characteristicVisibility.flatMapLatest { visibility ->
             val cpy = characteristics.map { it.copy(detailsVisibility = it.characteristic.id == visibility.first.num, isExpanded = it.characteristic.id == visibility.second.num) }
             flow { emit(cpy) }
         }
