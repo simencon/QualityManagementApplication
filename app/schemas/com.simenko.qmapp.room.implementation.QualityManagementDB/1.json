@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e9bd15a03c02d6812ff2602d0945188a",
+    "identityHash": "43dd8036b84e33ecd56961622f383e5e",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4670,6 +4670,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pt.id, ('p' || pt.id) as fId, pt.metrixId, pt.versionId, ('p' || pt.versionId) as fVersionId, pt.nominal, pt.LSL, pt.USL, pt.isActual FROM `9_8_product_tolerances` AS pt UNION ALL SELECT ct.id, ('c' || ct.id) as fId, ct.metrixId, ct.versionId, ('c' || ct.versionId) as fVersionId, ct.nominal, ct.LSL, ct.USL, ct.isActual FROM `10_8_component_tolerances` AS ct UNION ALL SELECT st.id, ('s' || st.id) as fId, st.metrixId, st.versionId, ('s' || st.versionId) as fVersionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
       },
       {
+        "viewName": "metricWithParents",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription,\n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription,\n        m.id as metricId, m.metrixOrder as metricOrder, m.metrixDesignation as metricDesignation, m.metrixDescription as metricDescription, m.units as metricUnits\n        from `8_metrixes` as m\n        inner join `7_characteristics` as c on m.charId = c.id\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder, m.metrixOrder"
+      },
+      {
         "viewName": "keys_complete",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select * from `0_keys`"
       },
@@ -4788,7 +4792,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e9bd15a03c02d6812ff2602d0945188a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43dd8036b84e33ecd56961622f383e5e')"
     ]
   }
 }

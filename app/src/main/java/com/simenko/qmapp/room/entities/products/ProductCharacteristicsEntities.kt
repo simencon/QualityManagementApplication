@@ -191,7 +191,7 @@ data class DatabaseMetrix(
         select cg.id as groupId, cg.ishElement as groupDescription,
         csg.id as subGroupId, csg.ishElement as subGroupDescription,
         c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription,
-        m.id as metricId, m.metrixOrder as metrixOrder, m.metrixDesignation as metrixDesignation, m.metrixDescription as metrixDescription, m.units as metricUnits
+        m.id as metricId, m.metrixOrder as metricOrder, m.metrixDesignation as metricDesignation, m.metrixDescription as metricDescription, m.units as metricUnits
         from `8_metrixes` as m
         inner join `7_characteristics` as c on m.charId = c.id
         inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id
@@ -448,8 +448,9 @@ data class DatabaseItemTolerance(
         @Embedded
         val itemTolerance: DatabaseItemTolerance,
         @Relation(
-            parentColumn = "fVersionId",
-            entityColumn = "fId"
+            entity = DatabaseMetrix.DatabaseMetricWithParents::class,
+            parentColumn = "metrixId",
+            entityColumn = "metricId"
         )
         val metricWithParents: DatabaseMetrix.DatabaseMetricWithParents
     ) : DatabaseBaseModel<Any?, DomainItemTolerance.DomainItemToleranceComplete> {

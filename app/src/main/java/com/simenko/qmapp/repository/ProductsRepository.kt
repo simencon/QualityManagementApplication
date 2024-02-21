@@ -129,16 +129,7 @@ class ProductsRepository @Inject constructor(
         database.productVersionDao.getRecordCompleteForUI(fId)?.toDomainModel() ?: DomainItemVersionComplete()
     }
 
-    val versionCharacteristicGroups: (String) -> Flow<List<DomainCharGroup.DomainCharGroupComplete>> = { versionFId ->
-        TODO("Not yet implemented")
-    }
-    val versionCharacteristicSubGroups: (String, ID) -> Flow<List<DomainCharSubGroup.DomainCharSubGroupComplete>> = { versionFId, characteristicGroupId ->
-        TODO("Not yet implemented")
-    }
-    val versionCharacteristics: (String, ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicComplete>> = { versionFId, characteristicSubGroupId ->
-        TODO("Not yet implemented")
-    }
-    val characteristicTolerances: (String, ID) -> Flow<List<DomainItemTolerance.DomainItemToleranceComplete>> = { versionFId, characteristicId ->
-        TODO("Not yet implemented")
+    val versionTolerancesComplete: (String) -> Flow<List<DomainItemTolerance.DomainItemToleranceComplete>> = { versionFId ->
+        database.productVersionDao.getItemVersionTolerancesComplete(versionFId).map { list -> list.map { it.toDomainModel() } }
     }
 }
