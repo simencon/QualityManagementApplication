@@ -5,12 +5,13 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.room.entities.DatabaseResultTolerance
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
 
 @Stable
-data class DomainCharGroup constructor(
+data class DomainCharGroup(
     var id: ID = NoRecord.num,
     val productLineId: ID = NoRecord.num,
     var ishElement: String? = EmptyString.str
@@ -24,7 +25,7 @@ data class DomainCharGroup constructor(
         val productLine: DomainProductLine.DomainProductLineComplete = DomainProductLine.DomainProductLineComplete(),
         override var detailsVisibility: Boolean = false,
         override var isExpanded: Boolean = false
-    ): DomainBaseModel<DatabaseCharGroup.DatabaseCharGroupComplete>() {
+    ) : DomainBaseModel<DatabaseCharGroup.DatabaseCharGroupComplete>() {
         override fun getRecordId() = charGroup.id
         override fun getParentId() = charGroup.productLineId
         override fun setIsSelected(value: Boolean) {}
@@ -56,7 +57,7 @@ data class DomainCharSubGroup constructor(
         override fun getRecordId() = charSubGroup.id
         override fun getParentId() = charSubGroup.charGroupId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel() = DatabaseCharSubGroup.DatabaseCharSubGroupComplete (
+        override fun toDatabaseModel() = DatabaseCharSubGroup.DatabaseCharSubGroupComplete(
             charSubGroup = charSubGroup.toDatabaseModel(),
             charGroup = charGroup.toDatabaseModel()
         )
@@ -65,7 +66,7 @@ data class DomainCharSubGroup constructor(
 
 
 @Stable
-data class DomainCharacteristic constructor(
+data class DomainCharacteristic(
     var id: ID = NoRecord.num,
     var ishSubCharId: ID = NoRecord.num,
     var charOrder: Int? = null,
@@ -103,7 +104,7 @@ data class DomainCharacteristic constructor(
 }
 
 @Stable
-data class DomainMetrix constructor(
+data class DomainMetrix(
     var id: ID = NoRecord.num,
     var charId: ID = NoRecord.num,
     var metrixOrder: Int? = NoRecord.num.toInt(),
@@ -117,6 +118,27 @@ data class DomainMetrix constructor(
     override fun getParentId() = charId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainMetrix::class, DatabaseMetrix::class).transform(this)
+
+    data class DomainMetricWithParents(
+        val groupId: ID = NoRecord.num,
+        val groupDescription: String = EmptyString.str,
+        val subGroupId: ID = NoRecord.num,
+        val subGroupDescription: String = EmptyString.str,
+        val charId: ID = NoRecord.num,
+        val charOrder: Int = ZeroValue.num.toInt(),
+        val charDesignation: String = EmptyString.str,
+        val charDescription: String = EmptyString.str,
+        val metricId: ID = NoRecord.num,
+        val metricOrder: Int = ZeroValue.num.toInt(),
+        val metricDesignation: String = EmptyString.str,
+        val metricDescription: String = EmptyString.str,
+        val metricUnits: String = EmptyString.str,
+    ) : DomainBaseModel<DatabaseMetrix.DatabaseMetricWithParents>(){
+        override fun getRecordId() = metricId
+        override fun getParentId() = charId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() =  ObjectTransformer(DomainMetricWithParents::class, DatabaseMetrix.DatabaseMetricWithParents::class).transform(this)
+    }
 }
 
 data class DomainCharacteristicProductKind(
@@ -227,7 +249,15 @@ data class DomainItemTolerance(
     override fun toDatabaseModel() = ObjectTransformer(DomainItemTolerance::class, DatabaseItemTolerance::class).transform(this)
     data class DomainItemToleranceComplete(
         val itemTolerance: DomainItemTolerance,
-        val metric: DomainMetrix = DomainMetrix()
-    )
+        val metricWithParents: DomainMetrix.DomainMetricWithParents = DomainMetrix.DomainMetricWithParents()
+    ) : DomainBaseModel<DatabaseItemTolerance.DatabaseItemToleranceComplete>() {
+        override fun getRecordId() = itemTolerance.id
+        override fun getParentId() = itemTolerance.versionId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseItemTolerance.DatabaseItemToleranceComplete(
+            itemTolerance = itemTolerance.toDatabaseModel(),
+            metricWithParents = metricWithParents.toDatabaseModel()
+        )
+    }
 }
 

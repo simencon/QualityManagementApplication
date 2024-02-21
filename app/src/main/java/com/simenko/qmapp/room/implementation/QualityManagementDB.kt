@@ -95,6 +95,7 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseItemVersionComplete::class,
 
         DatabaseItemTolerance::class,
+        DatabaseItemTolerance.DatabaseItemToleranceComplete::class,
 
         DatabaseKey.DatabaseKeyComplete::class,
         DatabaseProductLine.DatabaseProductLineComplete::class,
