@@ -7,7 +7,10 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
+import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.retrofit.entities.products.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
@@ -49,7 +52,7 @@ data class DatabaseCharGroup constructor(
             entityColumn = "id"
         )
         val productLine: DatabaseProductLine.DatabaseProductLineComplete
-    ): DatabaseBaseModel<Any?, DomainCharGroup.DomainCharGroupComplete> {
+    ) : DatabaseBaseModel<Any?, DomainCharGroup.DomainCharGroupComplete> {
         override fun getRecordId() = charGroup.id
         override fun toNetworkModel() = null
         override fun toDomainModel() = DomainCharGroup.DomainCharGroupComplete(
@@ -82,6 +85,7 @@ data class DatabaseCharSubGroup constructor(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharSubGroup::class, NetworkCharSubGroup::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharSubGroup::class, DomainCharSubGroup::class).transform(this)
+
     @DatabaseView(
         viewName = "characteristic_sub_group_complete",
         value = "SELECT * FROM `0_ish_sub_characteristics` ORDER BY id;"
@@ -167,7 +171,7 @@ data class DatabaseCharacteristic constructor(
             onUpdate = ForeignKey.NO_ACTION
         )]
 )
-data class DatabaseMetrix constructor(
+data class DatabaseMetrix(
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
@@ -180,6 +184,40 @@ data class DatabaseMetrix constructor(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseMetrix::class, NetworkMetrix::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseMetrix::class, DomainMetrix::class).transform(this)
+
+    @DatabaseView(
+        viewName = "metricWithParents",
+        value = """
+        select cg.id as groupId, cg.ishElement as groupDescription,
+        csg.id as subGroupId, csg.ishElement as subGroupDescription,
+        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription,
+        m.id as metricId, m.metrixOrder as metrixOrder, m.metrixDesignation as metrixDesignation, m.metrixDescription as metrixDescription, m.units as metricUnits
+        from `8_metrixes` as m
+        inner join `7_characteristics` as c on m.charId = c.id
+        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id
+        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id
+        order by cg.id, csg.id, c.charOrder, m.metrixOrder
+        """
+    )
+    data class DatabaseMetricWithParents(
+        val groupId: ID,
+        val groupDescription: String,
+        val subGroupId: ID,
+        val subGroupDescription: String,
+        val charId: ID,
+        val charOrder: Int,
+        val charDesignation: String,
+        val charDescription: String,
+        val metricId: ID,
+        val metricOrder: Int,
+        val metricDesignation: String,
+        val metricDescription: String,
+        val metricUnits: String,
+    ) : DatabaseBaseModel<Any?, DomainMetrix.DomainMetricWithParents> {
+        override fun getRecordId() = charId
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = ObjectTransformer(DatabaseMetricWithParents::class, DomainMetrix.DomainMetricWithParents::class).transform(this)
+    }
 }
 
 @Entity(
@@ -405,4 +443,21 @@ data class DatabaseItemTolerance(
     override fun getRecordId() = id
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseItemTolerance::class, DomainItemTolerance::class).transform(this)
+
+    data class DatabaseItemToleranceComplete(
+        @Embedded
+        val itemTolerance: DatabaseItemTolerance,
+        @Relation(
+            parentColumn = "fVersionId",
+            entityColumn = "fId"
+        )
+        val metricWithParents: DatabaseMetrix.DatabaseMetricWithParents
+    ) : DatabaseBaseModel<Any?, DomainItemTolerance.DomainItemToleranceComplete> {
+        override fun getRecordId() = itemTolerance.id
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainItemTolerance.DomainItemToleranceComplete(
+            itemTolerance = itemTolerance.toDomainModel(),
+            metricWithParents = metricWithParents.toDomainModel()
+        )
+    }
 }
