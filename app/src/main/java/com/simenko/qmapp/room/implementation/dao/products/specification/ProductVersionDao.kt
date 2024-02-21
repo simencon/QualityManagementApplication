@@ -34,6 +34,6 @@ abstract class ProductVersionDao : DaoBaseModel<DatabaseProductVersion> {
 
     @Transaction
     @Query("SELECT * FROM items_tolerances where fVersionId = :fVersionId")
-    abstract suspend fun getItemVersionTolerancesComplete(fVersionId: String): Flow<List<DatabaseItemTolerance.DatabaseItemToleranceComplete>>
+    abstract fun getItemVersionTolerancesComplete(fVersionId: String): Flow<List<DatabaseItemTolerance.DatabaseItemToleranceComplete>>
 
 }

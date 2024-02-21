@@ -14,7 +14,9 @@ import com.simenko.qmapp.utils.ObjectTransformer
 data class DomainCharGroup(
     var id: ID = NoRecord.num,
     val productLineId: ID = NoRecord.num,
-    var ishElement: String? = EmptyString.str
+    var ishElement: String? = EmptyString.str,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseCharGroup>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -42,7 +44,9 @@ data class DomainCharSubGroup constructor(
     var id: ID = NoRecord.num,
     val charGroupId: ID = NoRecord.num,
     var ishElement: String? = EmptyString.str,
-    var measurementGroupRelatedTime: Double? = null
+    var measurementGroupRelatedTime: Double? = null,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseCharSubGroup>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
@@ -74,7 +78,9 @@ data class DomainCharacteristic(
     var charDescription: String? = null,
     var sampleRelatedTime: Double? = null,
     var measurementRelatedTime: Double? = null,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+    override var detailsVisibility: Boolean = false,
+    override var isExpanded: Boolean = false
 ) : DomainBaseModel<DatabaseCharacteristic>() {
     override fun getRecordId() = id
     override fun getParentId() = ishSubCharId
@@ -133,11 +139,11 @@ data class DomainMetrix(
         val metricDesignation: String = EmptyString.str,
         val metricDescription: String = EmptyString.str,
         val metricUnits: String = EmptyString.str,
-    ) : DomainBaseModel<DatabaseMetrix.DatabaseMetricWithParents>(){
+    ) : DomainBaseModel<DatabaseMetrix.DatabaseMetricWithParents>() {
         override fun getRecordId() = metricId
         override fun getParentId() = charId
         override fun setIsSelected(value: Boolean) {}
-        override fun toDatabaseModel() =  ObjectTransformer(DomainMetricWithParents::class, DatabaseMetrix.DatabaseMetricWithParents::class).transform(this)
+        override fun toDatabaseModel() = ObjectTransformer(DomainMetricWithParents::class, DatabaseMetrix.DatabaseMetricWithParents::class).transform(this)
     }
 }
 

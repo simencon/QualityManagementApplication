@@ -93,7 +93,7 @@ fun VersionTolerances(
         Column(modifier = Modifier.onGloballyPositioned {
             titleHeightDp = with(localDensity) { it.size.height.toDp() }
         }) {
-            val itemDesignationTitle = when(itemVersion.itemVersion.fId[0]) {
+            val itemDesignationTitle = when (itemVersion.itemVersion.fId[0]) {
                 'p' -> "Product designation"
                 'c' -> "Component designation"
                 's' -> "Component stage designation"
@@ -103,14 +103,14 @@ fun VersionTolerances(
             Spacer(modifier = Modifier.height(10.dp))
             InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
             Row {
-                InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Version Id", body = itemVersion.itemVersion.versionDescription?: EmptyString.str)
+                InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Version Id", body = itemVersion.itemVersion.versionDescription ?: EmptyString.str)
                 Spacer(modifier = Modifier.width(10.dp))
-                TODO("Version date picker with title")
+                //ToDoMe "Version date picker with title"
             }
             Row {
-                TODO("Version status dropdown")
+                //ToDoMe "Version status dropdown"
                 Spacer(modifier = Modifier.width(10.dp))
-                TODO("Is default dropdown")
+                //ToDoMe "Is default dropdown"
             }
             Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         }
@@ -122,10 +122,12 @@ fun VersionTolerances(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
-            if (listsIsInitialized.first)
-                TODO("Version characteristic groups")
-            if (isSecondRowVisible /*&& listsIsInitialized.second*/)
-                TODO("Version characteristic tolerances")
+            if (listsIsInitialized.first) {
+                //ToDoMe "Version characteristic groups"}
+            }
+            if (isSecondRowVisible /*&& listsIsInitialized.second*/) {
+                //ToDoMe"Version characteristic tolerances"}
+            }
         }
     }
 }

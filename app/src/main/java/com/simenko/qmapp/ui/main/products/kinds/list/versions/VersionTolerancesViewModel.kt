@@ -11,7 +11,11 @@ import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
+import com.simenko.qmapp.domain.entities.products.DomainCharGroup
+import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
+import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
+import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.storage.Storage
@@ -54,10 +58,90 @@ class VersionTolerancesViewModel @Inject constructor(
     private val _toleranceVisibility = MutableStateFlow(Pair(SelectedNumber(toleranceId), NoRecord))
 
     private val _itemVersion = MutableStateFlow(DomainItemVersionComplete())
-    private val _characteristicGroups = repository.versionCharacteristicGroups(versionFId)
-    private val _characteristicSubGroups = _characteristicGroupVisibility.flatMapLatest { group -> repository.versionCharacteristicSubGroups(versionFId, group.first.num) }
-    private val _characteristics = _characteristicSubGroupVisibility.flatMapLatest { subGroup -> repository.versionCharacteristics(versionFId, subGroup.first.num) }
-    private val _characteristicTolerances = _characteristicVisibility.flatMapLatest { repository.characteristicTolerances(versionFId, it.first.num) }
+    private val _itemVersionTolerances = repository.versionTolerancesComplete(versionFId)
+
+    private val _characteristicGroups = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicGroupVisibility.flatMapLatest { visibility ->
+            flow {
+                emit(list.distinctBy { it.metricWithParents.groupId }.map {
+                    it.metricWithParents.run {
+                        DomainCharGroup(
+                            id = groupId,
+                            ishElement = groupDescription,
+                            detailsVisibility = visibility.first.num == groupId,
+                            isExpanded = visibility.second.num == groupId
+                        )
+                    }
+                })
+            }
+        }
+    }
+
+    private val _characteristicSubGroups = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicGroupVisibility.flatMapLatest { gVisibility ->
+            _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
+                flow {
+                    emit(list.filter { it.metricWithParents.groupId == gVisibility.first.num }.distinctBy { it.metricWithParents.subGroupId }.map {
+                        it.metricWithParents.run {
+                            DomainCharSubGroup(
+                                id = subGroupId,
+                                charGroupId = groupId,
+                                ishElement = subGroupDescription,
+                                detailsVisibility = sgVisibility.first.num == subGroupId,
+                                isExpanded = sgVisibility.second.num == subGroupId
+                            )
+                        }
+                    })
+                }
+            }
+        }
+    }
+    private val _characteristics = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
+            _characteristicVisibility.flatMapLatest { cVisibility ->
+                flow {
+                    emit(list.filter { it.metricWithParents.subGroupId == sgVisibility.first.num }.distinctBy { it.metricWithParents.charId }.map {
+                        it.metricWithParents.run {
+                            DomainCharacteristic(
+                                id = charId,
+                                ishSubCharId = subGroupId,
+                                charOrder = charOrder,
+                                charDesignation = charDesignation,
+                                charDescription = charDescription,
+                                detailsVisibility = cVisibility.first.num == charId,
+                                isExpanded = cVisibility.second.num == charId
+                            )
+                        }
+                    })
+                }
+            }
+        }
+    }
+
+    private val _tolerances = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicVisibility.flatMapLatest { cVisibility ->
+            _toleranceVisibility.flatMapLatest { tVisibility ->
+                flow {
+                    emit(list.filter { it.metricWithParents.charId == cVisibility.first.num }.distinctBy { it.metricWithParents.metricId }.map {
+                        Pair(
+                            first = it.metricWithParents.run {
+                                DomainMetrix(
+                                    id = metricId,
+                                    charId = charId,
+                                    metrixOrder = metricOrder,
+                                    metrixDesignation = metricDesignation,
+                                    metrixDescription = metricDescription,
+                                    detailsVisibility = tVisibility.first.num == metricId,
+                                    isExpanded = tVisibility.second.num == metricId
+                                )
+                            },
+                            second = it.itemTolerance
+                        )
+                    })
+                }
+            }
+        }
+    }
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -102,7 +186,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 if (viewState)
                     flow {
                         if (characteristicGroupId != NoRecord.num) {
-                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.charGroup.id }.indexOf(characteristicGroupId).toLong())
+                            storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.indexKey, firstList.map { it.id }.indexOf(characteristicGroupId).toLong())
                             storage.setLong(ScrollStates.VERSION_CHAR_GROUPS.offsetKey, ZeroValue.num)
                             emit(Pair(true, secondListState))
                         } else {
@@ -117,10 +201,10 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }
 
-    private val _secondListIsInitialized: Flow<Boolean> = _characteristicTolerances.flatMapLatest { secondList ->
+    private val _secondListIsInitialized: Flow<Boolean> = _tolerances.flatMapLatest { secondList ->
         flow {
             if (toleranceId != NoRecord.num) {
-                storage.setLong(ScrollStates.VERSION_TOLERANCES.indexKey, secondList.map { it.itemTolerance.id }.indexOf(toleranceId).toLong())
+                storage.setLong(ScrollStates.VERSION_TOLERANCES.indexKey, secondList.map { it.first.id }.indexOf(toleranceId).toLong())
                 storage.setLong(ScrollStates.VERSION_TOLERANCES.offsetKey, ZeroValue.num)
                 emit(true)
             } else {
