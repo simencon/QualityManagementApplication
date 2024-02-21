@@ -132,12 +132,12 @@ data class DomainMetrix(
         val subGroupDescription: String = EmptyString.str,
         val charId: ID = NoRecord.num,
         val charOrder: Int = ZeroValue.num.toInt(),
-        val charDesignation: String = EmptyString.str,
+        val charDesignation: String? = EmptyString.str,
         val charDescription: String = EmptyString.str,
         val metricId: ID = NoRecord.num,
         val metricOrder: Int = ZeroValue.num.toInt(),
-        val metricDesignation: String = EmptyString.str,
-        val metricDescription: String = EmptyString.str,
+        val metricDesignation: String? = EmptyString.str,
+        val metricDescription: String? = EmptyString.str,
         val metricUnits: String = EmptyString.str,
     ) : DomainBaseModel<DatabaseMetrix.DatabaseMetricWithParents>() {
         override fun getRecordId() = metricId

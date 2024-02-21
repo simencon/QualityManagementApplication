@@ -99,7 +99,7 @@ fun VersionTolerances(
                 's' -> "Component stage designation"
                 else -> "Unknown item"
             }
-            val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKeyDescription, item.itemDesignation) }
+            val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
             Spacer(modifier = Modifier.height(10.dp))
             InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
             Row {

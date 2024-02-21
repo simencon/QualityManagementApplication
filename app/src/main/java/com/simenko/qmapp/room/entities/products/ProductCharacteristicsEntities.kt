@@ -206,12 +206,12 @@ data class DatabaseMetrix(
         val subGroupDescription: String,
         val charId: ID,
         val charOrder: Int,
-        val charDesignation: String,
+        val charDesignation: String?,
         val charDescription: String,
         val metricId: ID,
         val metricOrder: Int,
-        val metricDesignation: String,
-        val metricDescription: String,
+        val metricDesignation: String?,
+        val metricDescription: String?,
         val metricUnits: String,
     ) : DatabaseBaseModel<Any?, DomainMetrix.DomainMetricWithParents> {
         override fun getRecordId() = charId
@@ -430,7 +430,7 @@ data class DatabaseComponentInStageTolerance(
             "SELECT st.id, ('s' || st.id) as fId, st.metrixId, st.versionId, ('s' || st.versionId) as fVersionId, st.nominal, st.LSL, st.USL, st.isActual FROM `11_8_component_in_stage_tolerances` AS st;"
 )
 data class DatabaseItemTolerance(
-    val id: String,
+    val id: ID,
     val fId: String,
     val metrixId: ID,
     val versionId: ID,
