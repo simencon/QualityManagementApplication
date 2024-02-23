@@ -211,7 +211,7 @@ data class NetworkProductVersion(
     var id: ID,
     var productId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     var statusId: ID,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseProductVersion> {
@@ -224,7 +224,7 @@ data class NetworkComponentVersion(
     var id: ID,
     var componentId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     var statusId: ID,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseComponentVersion> {
@@ -237,7 +237,7 @@ data class NetworkComponentStageVersion(
     var id: ID,
     var componentInStageId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     var statusId: ID,
     var isDefault: Boolean
 ) : NetworkBaseModel<DatabaseComponentStageVersion> {

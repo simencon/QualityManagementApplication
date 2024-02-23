@@ -46,6 +46,7 @@ import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCardStringId
 import com.simenko.qmapp.ui.common.StatusChangeBtn
 import com.simenko.qmapp.ui.main.products.kinds.list.ProductListViewModel
+import com.simenko.qmapp.utils.StringUtils.getStringDate
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -131,7 +132,7 @@ fun ComponentVersion(
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleWight = 0.436f, title = "Is default:", text = version.itemVersion.isDefault.let { if (it) "yes" else "no" })
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HeaderWithTitle(titleWight = 0.436f, title = "Latest edited:", text = version.itemVersion.versionDate)
+                HeaderWithTitle(titleWight = 0.436f, title = "Latest edited:", text = getStringDate(version.itemVersion.versionDate, 6) )
             }
             StatusChangeBtn(modifier = Modifier.weight(weight = 0.45f), containerColor = containerColor, onClick = { onClickSpecification(version.itemVersion.fId) }) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {

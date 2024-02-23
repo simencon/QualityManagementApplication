@@ -7,6 +7,8 @@ import com.simenko.qmapp.di.CharSubGroupIdParameter
 import com.simenko.qmapp.di.CharacteristicIdParameter
 import com.simenko.qmapp.di.ToleranceIdParameter
 import com.simenko.qmapp.di.VersionFIdParameter
+import com.simenko.qmapp.domain.FillInInitialState
+import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
@@ -76,7 +78,6 @@ class VersionTolerancesViewModel @Inject constructor(
             }
         }
     }
-
     private val _characteristicSubGroups = _itemVersionTolerances.flatMapLatest { list ->
         _characteristicGroupVisibility.flatMapLatest { gVisibility ->
             _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
@@ -117,7 +118,6 @@ class VersionTolerancesViewModel @Inject constructor(
             }
         }
     }
-
     private val _tolerances = _itemVersionTolerances.flatMapLatest { list ->
         _characteristicVisibility.flatMapLatest { cVisibility ->
             _toleranceVisibility.flatMapLatest { tVisibility ->
@@ -160,7 +160,19 @@ class VersionTolerancesViewModel @Inject constructor(
     /**
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
+
+    private val _itemVersionErrors: MutableStateFlow<ItemVersionErrors> = MutableStateFlow(ItemVersionErrors())
     val itemVersion get() = _itemVersion.asStateFlow()
+    val itemVersionErrors get() = _itemVersionErrors.asStateFlow()
+
+    fun setItemVersionDescription(it: String) {
+        _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(versionDescription = it))
+        _itemVersionErrors.value = _itemVersionErrors.value.copy(versionDescriptionError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
+    val fillInState get() = _fillInState.asStateFlow()
 
     private val _viewState = MutableStateFlow(false)
     val setViewState: (Boolean) -> Unit = {
@@ -227,3 +239,10 @@ class VersionTolerancesViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 }
+
+data class ItemVersionErrors(
+    val versionDescriptionError: Boolean = false,
+    val versionDateError: Boolean = false,
+    val versionStatusError: Boolean = false,
+    val versionIsDefaultError: Boolean = false
+)

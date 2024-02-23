@@ -1010,7 +1010,7 @@ data class DatabaseProductVersion(
     @ColumnInfo(index = true)
     var productId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     @ColumnInfo(index = true)
     var statusId: ID,
     var isDefault: Boolean
@@ -1045,7 +1045,7 @@ data class DatabaseComponentVersion(
     @ColumnInfo(index = true)
     var componentId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     @ColumnInfo(index = true)
     var statusId: ID,
     var isDefault: Boolean
@@ -1079,7 +1079,7 @@ data class DatabaseComponentStageVersion(
     @ColumnInfo(index = true)
     var componentInStageId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     @ColumnInfo(index = true)
     var statusId: ID,
     var isDefault: Boolean
@@ -1122,7 +1122,7 @@ data class DatabaseItemVersion(
     val itemId: ID,
     val fItemId: String,
     val versionDescription: String?,
-    val versionDate: String?,
+    val versionDate: Long,
     val statusId: ID?,
     val isDefault: Boolean
 ) : DatabaseBaseModel<Any?, DomainItemVersion> {

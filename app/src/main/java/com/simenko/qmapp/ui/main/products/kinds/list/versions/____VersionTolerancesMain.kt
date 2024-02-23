@@ -12,8 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,25 +29,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
-import com.simenko.qmapp.other.Constants
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.InfoLine
+import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.utils.StringUtils
+import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun VersionTolerances(
     mainScreenPadding: PaddingValues,
@@ -57,6 +72,8 @@ fun VersionTolerances(
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
     val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle()
+    val itemVersionErrors by viewModel.itemVersionErrors.collectAsStateWithLifecycle()
+
     val isSecondRowVisible by viewModel.isSecondColumnVisible.collectAsStateWithLifecycle(false)
     val listsIsInitialized by viewModel.listsIsInitialized.collectAsStateWithLifecycle(Pair(false, false))
 
@@ -89,6 +106,13 @@ fun VersionTolerances(
         }
     }
 
+    val (versionDescriptionFR) = FocusRequester.createRefs()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    var isDatePickerVisible by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Column(modifier = Modifier.onGloballyPositioned {
             titleHeightDp = with(localDensity) { it.size.height.toDp() }
@@ -100,19 +124,38 @@ fun VersionTolerances(
                 else -> "Unknown item"
             }
             val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
-            Spacer(modifier = Modifier.height(10.dp))
-            InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
             Row {
-                InfoLine(modifier = Modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Version Id", body = itemVersion.itemVersion.versionDescription ?: EmptyString.str)
-                Spacer(modifier = Modifier.width(10.dp))
-                //ToDoMe "Version date picker with title"
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                RecordFieldItem(
+                    modifier = Modifier.weight(0.5f),
+                    valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { viewModel.setItemVersionDescription(it) },
+                    keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
+                    keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                    contentDescription = Triple(null, "Version ID", "Enter version ID")
+                )
+
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                RecordFieldItem(
+                    modifier = Modifier.weight(0.5f),
+                    valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6) ?: EmptyString.str, itemVersionErrors.versionDescriptionError) {
+                        isDatePickerVisible = true
+                        viewModel.setItemVersionDescription(it)
+                    },
+                    keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
+                    keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                    contentDescription = Triple(null, "Version date", "Pick date")
+                )
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
             }
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             Row {
                 //ToDoMe "Version status dropdown"
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                 //ToDoMe "Is default dropdown"
             }
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         }
         Row(
             Modifier
@@ -122,6 +165,10 @@ fun VersionTolerances(
                 .width(screenSizes.first)
                 .height(screenHeight)
         ) {
+            if (isDatePickerVisible)
+                DatePickerDialog(onDismissRequest = { isDatePickerVisible = false }, confirmButton = { Text(text = "OK") }, dismissButton = { Text(text = "Cancel") }) {
+                    DatePicker(state = datePickerState)
+                }
             if (listsIsInitialized.first) {
                 //ToDoMe "Version characteristic groups"}
             }
