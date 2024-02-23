@@ -146,12 +146,13 @@ fun RecordFieldItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordFieldItemWithMenu(
+    modifier: Modifier = Modifier,
     options: List<Triple<ID, String, Boolean>>,
     isError: Boolean,
     onDropdownMenuItemClick: (ID) -> Unit,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
-    contentDescription: Triple<ImageVector, String, String>,
+    contentDescription: Triple<ImageVector?, String, String>,
     isMandatoryField: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -169,6 +170,7 @@ fun RecordFieldItemWithMenu(
 
     Box {
         RecordFieldItem(
+            modifier = modifier,
             valueParam = Triple(selectedOptionText, isError) {},
             keyboardNavigation = keyboardNavigation,
             keyBoardTypeAction = keyBoardTypeAction,

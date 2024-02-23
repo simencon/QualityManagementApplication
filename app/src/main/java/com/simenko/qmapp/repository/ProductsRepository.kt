@@ -132,4 +132,6 @@ class ProductsRepository @Inject constructor(
     val versionTolerancesComplete: (String) -> Flow<List<DomainItemTolerance.DomainItemToleranceComplete>> = { versionFId ->
         database.productVersionDao.getItemVersionTolerancesComplete(versionFId).map { list -> list.map { it.toDomainModel() } }
     }
+
+    val versionStatuses = database.versionStatusDao.getRecordsForUI()
 }
