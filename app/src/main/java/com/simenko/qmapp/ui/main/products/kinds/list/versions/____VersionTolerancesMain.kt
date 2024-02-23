@@ -1,7 +1,10 @@
 package com.simenko.qmapp.ui.main.products.kinds.list.versions
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,21 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -47,6 +44,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
+import com.simenko.qmapp.ui.common.AppDialogDatePicker
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
@@ -55,7 +53,7 @@ import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun VersionTolerances(
     mainScreenPadding: PaddingValues,
@@ -110,71 +108,76 @@ fun VersionTolerances(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var isDatePickerVisible by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
+    val interactionSource = remember { MutableInteractionSource() }
+    var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
+    interactionSource.collectIsPressedAsState().let { if (it.value) isDatePickerVisible = true }
 
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
-        Column(modifier = Modifier.onGloballyPositioned {
-            titleHeightDp = with(localDensity) { it.size.height.toDp() }
-        }) {
-            val itemDesignationTitle = when (itemVersion.itemVersion.fId[0]) {
-                'p' -> "Product designation"
-                'c' -> "Component designation"
-                's' -> "Component stage designation"
-                else -> "Unknown item"
-            }
-            val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
-            Row {
-                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                RecordFieldItem(
-                    modifier = Modifier.weight(0.5f),
-                    valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { viewModel.setItemVersionDescription(it) },
-                    keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
-                    keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                    contentDescription = Triple(null, "Version ID", "Enter version ID")
-                )
-
-                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                RecordFieldItem(
-                    modifier = Modifier.weight(0.5f),
-                    valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6) ?: EmptyString.str, itemVersionErrors.versionDescriptionError) {
-                        isDatePickerVisible = true
-                        viewModel.setItemVersionDescription(it)
-                    },
-                    keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
-                    keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                    contentDescription = Triple(null, "Version date", "Pick date")
-                )
-                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-            }
-            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            Row {
-                //ToDoMe "Version status dropdown"
-                Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                //ToDoMe "Is default dropdown"
-            }
-            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-        }
-        Row(
-            Modifier
-                .verticalScroll(verticalScrollState)
-                .horizontalScroll(horizontalScrollState, isSecondRowVisible)
-                .onSizeChanged { if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) } }
-                .width(screenSizes.first)
-                .height(screenHeight)
-        ) {
-            if (isDatePickerVisible)
-                DatePickerDialog(onDismissRequest = { isDatePickerVisible = false }, confirmButton = { Text(text = "OK") }, dismissButton = { Text(text = "Cancel") }) {
-                    DatePicker(state = datePickerState)
+    Box{
+        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
+            Column(modifier = Modifier.onGloballyPositioned {
+                titleHeightDp = with(localDensity) { it.size.height.toDp() }
+            }) {
+                val itemDesignationTitle = when (itemVersion.itemVersion.fId[0]) {
+                    'p' -> "Product designation"
+                    'c' -> "Component designation"
+                    's' -> "Component stage designation"
+                    else -> "Unknown item"
                 }
-            if (listsIsInitialized.first) {
-                //ToDoMe "Version characteristic groups"}
+                val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
+                Row {
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                    RecordFieldItem(
+                        modifier = Modifier.weight(0.5f),
+                        valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { viewModel.setItemVersionDescription(it) },
+                        keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
+                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                        contentDescription = Triple(null, "Version ID", "Enter version ID")
+                    )
+
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                    RecordFieldItem(
+                        modifier = Modifier.weight(0.5f),
+                        valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
+                        keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
+                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                        contentDescription = Triple(null, "Version date", "Pick date"),
+                        readOnly = true,
+                        interactionSource = interactionSource
+                    )
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                }
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                Row {
+                    //ToDoMe "Version status dropdown"
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                    //ToDoMe "Is default dropdown"
+                }
+                HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             }
-            if (isSecondRowVisible /*&& listsIsInitialized.second*/) {
-                //ToDoMe"Version characteristic tolerances"}
+            Row(
+                Modifier
+                    .verticalScroll(verticalScrollState)
+                    .horizontalScroll(horizontalScrollState, isSecondRowVisible)
+                    .onSizeChanged { if (isSecondRowVisible && it.width > screenWidthPhysical) animator.run { horizontalScrollState.animateScroll(1) } }
+                    .width(screenSizes.first)
+                    .height(screenHeight)
+            ) {
+                if (listsIsInitialized.first) {
+                    //ToDoMe "Version characteristic groups"}
+                }
+                if (isSecondRowVisible /*&& listsIsInitialized.second*/) {
+                    //ToDoMe"Version characteristic tolerances"}
+                }
             }
+        }
+        if (isDatePickerVisible) {
+            AppDialogDatePicker(
+                initialDateMillis = itemVersion.itemVersion.versionDate,
+                onDateSelected = { viewModel.setItemVersionDate(it) },
+                onDismiss = { isDatePickerVisible = false }
+            )
         }
     }
 }

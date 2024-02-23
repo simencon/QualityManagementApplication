@@ -254,11 +254,11 @@ fun SubOrderDetails(
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Created:", value = getStringDate(subOrder.subOrder.createdDate) ?: NoString.str, titleWight = 0.22f)
+            ContentWithTitle(title = "Created:", value = getStringDate(subOrder.subOrder.createdDate), titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Completed by:", value = subOrder.completedBy?.fullName ?: NoString.str, titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate) ?: NoString.str, titleWight = 0.22f)
+            ContentWithTitle(title = "Completed:", value = getStringDate(subOrder.subOrder.completedDate), titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
         }
         SubOrderTasksFlowColumn(invModel = invModel, parentId = subOrder.subOrder.id)
