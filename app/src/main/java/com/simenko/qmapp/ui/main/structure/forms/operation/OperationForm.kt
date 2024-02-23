@@ -104,6 +104,7 @@ fun OperationForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Line", body = concatTwoStrings(opComplete.lineWithParents.lineAbbr, opComplete.lineWithParents.lineDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(opComplete.operation.operationOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.operationOrderError) {
                     viewModel.setOperationOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
@@ -113,6 +114,7 @@ fun OperationForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(opComplete.operation.operationAbbr, fillInErrors.operationAbbrError) { viewModel.setOperationAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -120,6 +122,7 @@ fun OperationForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(opComplete.operation.operationDesignation, fillInErrors.operationDesignationError) { viewModel.setOperationDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { equipmentFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -127,6 +130,7 @@ fun OperationForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(opComplete.operation.equipment ?: EmptyString.str, fillInErrors.operationEquipmentError) { viewModel.setOperationEquipment(it) },
                 keyboardNavigation = Pair(equipmentFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),

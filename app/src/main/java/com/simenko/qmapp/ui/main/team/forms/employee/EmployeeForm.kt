@@ -103,6 +103,7 @@ fun EmployeeForm(
     ) {
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(employee.fullName, employeeErrors.fullNameError) { viewModel.setFullName(it) },
             keyboardNavigation = Pair(fullNameFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
@@ -110,6 +111,7 @@ fun EmployeeForm(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
+            modifier = Modifier.width(320.dp),
             options = companies,
             isError = employeeErrors.companyError,
             onDropdownMenuItemClick = { viewModel.setEmployeeCompany(it) },
@@ -119,6 +121,7 @@ fun EmployeeForm(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
+            modifier = Modifier.width(320.dp),
             options = departments,
             isError = employeeErrors.departmentError,
             onDropdownMenuItemClick = { viewModel.setEmployeeDepartment(it) },
@@ -128,6 +131,7 @@ fun EmployeeForm(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
+            modifier = Modifier.width(320.dp),
             options = subDepartments,
             isError = employeeErrors.subDepartmentError,
             onDropdownMenuItemClick = { viewModel.setEmployeeSubDepartment(it) },
@@ -138,6 +142,7 @@ fun EmployeeForm(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItemWithMenu(
+            modifier = Modifier.width(320.dp),
             options = jobRoles,
             isError = employeeErrors.jobRoleIdError,
             onDropdownMenuItemClick = { viewModel.setEmployeeJobRole(it) },
@@ -147,6 +152,7 @@ fun EmployeeForm(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(employee.jobRole, employeeErrors.jobRoleError) { viewModel.setJobRole(it) },
             keyboardNavigation = Pair(jobRoleDetailsFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
@@ -154,6 +160,7 @@ fun EmployeeForm(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(employee.email ?: EmptyString.str, employeeErrors.emailError) { viewModel.setEmail(it) },
             keyboardNavigation = Pair(emailFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Done),
@@ -163,6 +170,7 @@ fun EmployeeForm(
         Spacer(modifier = Modifier.height(10.dp))
         var passwordVisible by rememberSaveable { mutableStateOf(false) }
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(employee.passWord ?: EmptyString.str, employeeErrors.passwordError) { viewModel.setPassword(it) },
             keyboardNavigation = Pair(passwordFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Done),

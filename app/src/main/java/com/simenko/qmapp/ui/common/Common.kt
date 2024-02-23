@@ -109,13 +109,7 @@ fun RecordFieldItem(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    val resultModifier =
-        if (modifier == Modifier)
-            modifier
-                .focusRequester(keyboardNavigation.first)
-                .width(320.dp)
-        else
-            modifier
+    val resultModifier = modifier.focusRequester(keyboardNavigation.first)
 
     TextField(
         value = valueParam.first,

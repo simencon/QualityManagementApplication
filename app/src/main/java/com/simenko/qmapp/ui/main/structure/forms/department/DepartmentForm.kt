@@ -97,8 +97,9 @@ fun DepartmentForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Company", body = concatTwoStrings1(dComplete.company.companyName, dComplete.company.companyIndustrialClassification))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(dComplete.department.depOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.departmentOrderError) {
-                    viewModel.setDepartmentOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
+                    viewModel.setDepartmentOrder(if (it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
                 keyboardNavigation = Pair(orderFR) { abbreviationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Next),
@@ -106,14 +107,16 @@ fun DepartmentForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(dComplete.department.depAbbr?: EmptyString.str, fillInErrors.departmentAbbrError) { viewModel.setDepartmentAbbr(it) },
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(dComplete.department.depAbbr ?: EmptyString.str, fillInErrors.departmentAbbrError) { viewModel.setDepartmentAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Department id", "Enter id"),
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(dComplete.department.depName?: EmptyString.str, fillInErrors.departmentDesignationError) { viewModel.setDepartmentDesignation(it) },
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(dComplete.department.depName ?: EmptyString.str, fillInErrors.departmentDesignationError) { viewModel.setDepartmentDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { managerFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
                 contentDescription = Triple(Icons.Outlined.Info, "Department complete name", "Enter complete name"),
@@ -121,6 +124,7 @@ fun DepartmentForm(
 
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItemWithMenu(
+                modifier = Modifier.width(320.dp),
                 options = companyEmployees,
                 isError = fillInErrors.departmentManagerError,
                 onDropdownMenuItemClick = { viewModel.setDepartmentManager(it) },
@@ -131,7 +135,8 @@ fun DepartmentForm(
 
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
-                valueParam = Triple(dComplete.department.depOrganization?: EmptyString.str, fillInErrors.departmentOrganizationError) { viewModel.setDepartmentFunction(it) },
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(dComplete.department.depOrganization ?: EmptyString.str, fillInErrors.departmentOrganizationError) { viewModel.setDepartmentFunction(it) },
                 keyboardNavigation = Pair(functionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                 contentDescription = Triple(Icons.Outlined.Work, "Department function", "Enter function"),
