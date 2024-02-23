@@ -11,6 +11,7 @@ import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -170,9 +172,21 @@ class VersionTolerancesViewModel @Inject constructor(
         _itemVersionErrors.value = _itemVersionErrors.value.copy(versionDescriptionError = false)
         _fillInState.value = FillInInitialState
     }
+
     fun setItemVersionDate(it: Long) {
         _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(versionDate = it))
         _itemVersionErrors.value = _itemVersionErrors.value.copy(versionDateError = false)
+        _fillInState.value = FillInInitialState
+    }
+
+    val versionStatuses = repository.versionStatuses.flatMapLatest { statuses ->
+        _itemVersion.flatMapLatest { itemVersion ->
+            flow { emit(statuses.map { Triple(it.id, it.statusDescription?: NoString.str, it.id == itemVersion.itemVersion.statusId) }) }
+        }
+    }
+    fun setVersionStatus(it: ID) {
+        _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(statusId = it))
+        _itemVersionErrors.value = _itemVersionErrors.value.copy(versionStatusError = false)
         _fillInState.value = FillInInitialState
     }
 
