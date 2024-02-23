@@ -91,6 +91,7 @@ fun SubDepartmentForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Department", body = concatTwoStrings(sdComplete.department.depAbbr, sdComplete.department.depName))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(sdComplete.subDepartment.subDepOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.subDepartmentOrderError) {
                     viewModel.setSubDepartmentOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
@@ -100,6 +101,7 @@ fun SubDepartmentForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(sdComplete.subDepartment.subDepAbbr?: EmptyString.str, fillInErrors.subDepartmentAbbrError) { viewModel.setSubDepartmentAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -107,6 +109,7 @@ fun SubDepartmentForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(sdComplete.subDepartment.subDepDesignation?: EmptyString.str, fillInErrors.subDepartmentDesignationError) { viewModel.setSubDepartmentDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),

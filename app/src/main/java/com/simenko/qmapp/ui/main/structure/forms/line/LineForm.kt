@@ -93,6 +93,7 @@ fun LineForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Channel", body = concatTwoStrings(lnComplete.channelWithParents.channelAbbr, lnComplete.channelWithParents.channelDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(lnComplete.line.lineOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.lineOrderError) {
                     viewModel.setLineOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
@@ -102,6 +103,7 @@ fun LineForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(lnComplete.line.lineAbbr, fillInErrors.lineAbbrError) { viewModel.setLineAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -109,6 +111,7 @@ fun LineForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(lnComplete.line.lineDesignation, fillInErrors.lineDesignationError) { viewModel.setLineDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),

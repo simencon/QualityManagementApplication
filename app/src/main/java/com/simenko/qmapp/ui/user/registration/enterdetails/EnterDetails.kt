@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -125,6 +126,7 @@ fun EnterDetails(
             )
         Spacer(modifier = Modifier.height(20.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.fullName, rawPrincipleErrors.fullNameError) { viewModel.setFullName(it) },
             keyboardNavigation = Pair(focusRequesterUserName) { if (!editMode) focusRequesterDepartment.requestFocus() else focusRequesterPhoneNumber.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -132,6 +134,7 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.department, rawPrincipleErrors.departmentError) { viewModel.setDepartment(it) },
             keyboardNavigation = Pair(focusRequesterDepartment) { focusRequesterSubDepartment.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -141,6 +144,7 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.subDepartment ?: "", false) { viewModel.setSubDepartment(it) },
             keyboardNavigation = Pair(focusRequesterSubDepartment) { focusRequesterJobRole.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -150,6 +154,7 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.jobRole, rawPrincipleErrors.jobRoleError) { viewModel.setJobRole(it) },
             keyboardNavigation = Pair(focusRequesterJobRole) { focusRequesterEmail.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -159,6 +164,7 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.email, rawPrincipleErrors.emailError) { viewModel.setEmail(it) },
             keyboardNavigation = Pair(focusRequesterEmail) { focusRequesterPhoneNumber.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Next),
@@ -168,6 +174,7 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.phoneNumber.phoneNumberToString(), false) { viewModel.setPhoneNumber(it.stringToPhoneNumber()) },
             keyboardNavigation = Pair(focusRequesterPhoneNumber) { if (!editMode) focusRequesterPassword.requestFocus() else keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Phone, if (!editMode) ImeAction.Next else ImeAction.Done),
@@ -176,6 +183,7 @@ fun EnterDetails(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(rawPrinciple.password, rawPrincipleErrors.passwordError) {
                 viewModel.setPassword(it)
                 error = UserError.NO_ERROR.error

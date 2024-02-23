@@ -92,6 +92,7 @@ fun ChannelForm(
             InfoLine(modifier = modifier.padding(start = 0.dp), title = "Sub department", body = concatTwoStrings(cnComplete.subDepartmentWithParents.subDepAbbr, cnComplete.subDepartmentWithParents.subDepDesignation))
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(cnComplete.channel.channelOrder.let { if (it == NoRecord.num.toInt()) EmptyString.str else it }.toString(), fillInErrors.channelOrderError) {
                     viewModel.setChannelOrder(if(it == EmptyString.str) NoRecord.num.toInt() else it.toInt())
                 },
@@ -101,6 +102,7 @@ fun ChannelForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(cnComplete.channel.channelAbbr?: EmptyString.str, fillInErrors.channelAbbrError) { viewModel.setChannelAbbr(it) },
                 keyboardNavigation = Pair(abbreviationFR) { designationFR.requestFocus() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Next),
@@ -108,6 +110,7 @@ fun ChannelForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             RecordFieldItem(
+                modifier = Modifier.width(320.dp),
                 valueParam = Triple(cnComplete.channel.channelDesignation?: EmptyString.str, fillInErrors.channelDesignationError) { viewModel.setChannelDesignation(it) },
                 keyboardNavigation = Pair(designationFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),

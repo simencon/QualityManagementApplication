@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
@@ -40,7 +41,6 @@ import com.simenko.qmapp.repository.UserErrorState
 import com.simenko.qmapp.repository.UserLoggedOutState
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -92,6 +92,7 @@ fun LogIn(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(principle.email, principleErrors.emailError) { viewModel.setEmail(it) },
             keyboardNavigation = Pair(focusRequesterEmail) { focusRequesterPassword.requestFocus() },
             keyBoardTypeAction = Pair(KeyboardType.Email, ImeAction.Next),
@@ -99,6 +100,7 @@ fun LogIn(
         )
         Spacer(modifier = Modifier.height(10.dp))
         RecordFieldItem(
+            modifier = Modifier.width(320.dp),
             valueParam = Triple(principle.password, principleErrors.passwordError) {
                 viewModel.setPassword(it)
                 error = UserError.NO_ERROR.error
