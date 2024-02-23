@@ -189,6 +189,11 @@ class VersionTolerancesViewModel @Inject constructor(
         _itemVersionErrors.value = _itemVersionErrors.value.copy(versionStatusError = false)
         _fillInState.value = FillInInitialState
     }
+    fun setVersionIsDefault(it: Boolean) {
+        _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(isDefault = it))
+        _itemVersionErrors.value = _itemVersionErrors.value.copy(versionIsDefaultError = false)
+        _fillInState.value = FillInInitialState
+    }
 
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
