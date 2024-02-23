@@ -20,9 +20,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
@@ -49,6 +51,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -101,7 +105,7 @@ fun RecordFieldItem(
     valueParam: Triple<String, Boolean, (String) -> Unit>,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
-    contentDescription: Triple<ImageVector?, String, String>,
+    contentDescription: Triple<ImageVector?, String?, String>,
     isMandatoryField: Boolean = true,
     enabled: Boolean = true,
     readOnly: Boolean = false,
@@ -120,7 +124,7 @@ fun RecordFieldItem(
                 Icon(imageVector = it, contentDescription = contentDescription.second, tint = tint)
             }
         },
-        label = { Text(text = "${contentDescription.second}${if (isMandatoryField) " *" else ""}") },
+        label = { contentDescription.second?.let { Text(text = "${contentDescription.second}${if (isMandatoryField) " *" else ""}") } },
         isError = valueParam.second,
         placeholder = { Text(text = "${contentDescription.third}${if (isMandatoryField) " *" else ""}") },
         maxLines = 1,
@@ -146,7 +150,7 @@ fun RecordFieldItemWithMenu(
     onDropdownMenuItemClick: (ID) -> Unit,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
-    contentDescription: Triple<ImageVector?, String, String>,
+    contentDescription: Triple<ImageVector?, String?, String>,
     isMandatoryField: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -162,7 +166,7 @@ fun RecordFieldItemWithMenu(
 
     var filteredOptions = mutableListOf<Triple<ID, String, Boolean>>()
 
-    Box {
+    Box(modifier = modifier) {
         RecordFieldItem(
             modifier = modifier,
             valueParam = Triple(selectedOptionText, isError) {},
@@ -661,5 +665,71 @@ fun AppDialogDatePicker(
         })
     {
         DatePicker(state = datePickerState)
+    }
+}
+
+@Composable
+fun TrueFalseField(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    frontImage: ImageVector? = null,
+    description: String,
+    containerColor: Color? = null,
+    isError: Boolean,
+    onSwitch: (Boolean) -> Unit,
+) {
+    val tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(4.dp),
+        colors = CardDefaults.cardColors(containerColor = containerColor ?: MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp, 0.dp),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            frontImage?.let {
+                Icon(
+                    modifier = Modifier.padding(all = 12.dp),
+                    imageVector = it,
+                    contentDescription = "Front image",
+                    tint = tint
+                )
+            }
+
+            Text(
+                textAlign = TextAlign.End,
+                color = tint,
+                text = description,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(
+                        start = frontImage?.let { (DEFAULT_SPACE / 2).dp } ?: (DEFAULT_SPACE * 2).dp,
+                        end = DEFAULT_SPACE.dp
+                    )
+            )
+
+            Switch(
+                modifier = Modifier.padding(end = DEFAULT_SPACE.dp),
+                checked = enabled,
+                onCheckedChange = onSwitch,
+                thumbContent = if (enabled) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(SwitchDefaults.IconSize),
+                        )
+                    }
+                } else {
+                    null
+                }
+            )
+        }
     }
 }

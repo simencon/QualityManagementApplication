@@ -13,10 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -31,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
@@ -50,6 +50,7 @@ import com.simenko.qmapp.ui.common.AppDialogDatePicker
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
+import com.simenko.qmapp.ui.common.TrueFalseField
 import com.simenko.qmapp.ui.common.animation.HorizonteAnimationImp
 import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate
@@ -131,20 +132,39 @@ fun VersionTolerances(
                 }
                 val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
-                Row {
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column(modifier = Modifier.weight(0.55f)) {
+                        InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
+                    }
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                    TrueFalseField(
+                        modifier = Modifier.weight(0.45f),
+                        enabled = itemVersion.itemVersion.isDefault,
+                        description = "Is default?",
+                        containerColor = Color.Transparent,
+                        isError = itemVersionErrors.versionStatusError,
+                        onSwitch = { viewModel.setVersionIsDefault(it) }
+                    )
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                }
+                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                Row(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .horizontalScroll(rememberScrollState()),
+
+                    ) {
                     Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                     RecordFieldItem(
-                        modifier = Modifier.weight(0.5f),
+                        modifier = Modifier.width(120.dp),
                         valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { viewModel.setItemVersionDescription(it) },
                         keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
                         keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                         contentDescription = Triple(null, "Version ID", "Enter version ID")
                     )
-
                     Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                     RecordFieldItem(
-                        modifier = Modifier.weight(0.5f),
+                        modifier = Modifier.width(120.dp),
                         valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
                         keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },
                         keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
@@ -153,31 +173,18 @@ fun VersionTolerances(
                         interactionSource = interactionSource
                     )
                     Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+                    RecordFieldItemWithMenu(
+                        modifier = Modifier.width(160.dp),
+                        options = versionStatuses,
+                        isError = itemVersionErrors.versionStatusError,
+                        onDropdownMenuItemClick = { viewModel.setVersionStatus(it) },
+                        keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
+                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                        contentDescription = Triple(null, "Status", "Status")
+                    )
+                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                 }
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                Row {
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    RecordFieldItemWithMenu(
-                        modifier = Modifier.weight(0.5f),
-                        options = versionStatuses,
-                        isError = itemVersionErrors.versionStatusError,
-                        onDropdownMenuItemClick = { viewModel.setVersionStatus(it) },
-                        keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
-                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                        contentDescription = Triple(null, "Version status", "Select status")
-                    )
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    RecordFieldItemWithMenu(
-                        modifier = Modifier.weight(0.5f),
-                        options = versionStatuses,
-                        isError = itemVersionErrors.versionStatusError,
-                        onDropdownMenuItemClick = { viewModel.setVersionStatus(it) },
-                        keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
-                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                        contentDescription = Triple(null, "Version status", "Select status")
-                    )
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                }
                 HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             }
             Row(

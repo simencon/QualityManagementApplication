@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,9 +39,9 @@ import com.simenko.qmapp.domain.SelectedString
 import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
+import com.simenko.qmapp.ui.common.TrueFalseField
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.role.AddRole
 import com.simenko.qmapp.ui.main.team.forms.user.subforms.RolesHeader
-import com.simenko.qmapp.ui.main.team.forms.user.subforms.TrueFalseField
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -119,7 +120,10 @@ fun UserForm(
             )
             Spacer(modifier = Modifier.height(10.dp))
             TrueFalseField(
-                user = user,
+                modifier = Modifier.width(320.dp),
+                enabled = user.enabled,
+                frontImage = Icons.Default.AdminPanelSettings,
+                description = "Enabled",
                 onSwitch = { viewModel.setUserIsEnabled(it) },
                 isError = userErrors.enabledError
             )
