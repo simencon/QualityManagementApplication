@@ -6,6 +6,7 @@ import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.utils.ObjectTransformer
@@ -475,7 +476,7 @@ data class DomainProductVersion(
     var id: ID,
     var productId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     var statusId: ID,
     var isDefault: Boolean
 ) : DomainBaseModel<DatabaseProductVersion>() {
@@ -489,7 +490,7 @@ data class DomainComponentVersion(
     var id: ID,
     var componentId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     var statusId: ID,
     var isDefault: Boolean
 ) : DomainBaseModel<DatabaseComponentVersion>() {
@@ -503,7 +504,7 @@ data class DomainComponentStageVersion(
     var id: ID,
     var componentInStageId: ID,
     var versionDescription: String,
-    var versionDate: String,
+    var versionDate: Long,
     var statusId: ID,
     var isDefault: Boolean
 ) : DomainBaseModel<DatabaseComponentStageVersion>() {
@@ -531,7 +532,7 @@ data class DomainItemVersion(
     var itemId: ID = NoRecord.num,
     var fItemId: String = NoString.str,
     var versionDescription: String? = null,
-    var versionDate: String? = null,
+    var versionDate: Long = ZeroValue.num,
     var statusId: ID? = null,
     var isDefault: Boolean = false
 ) : DomainBaseModel<DatabaseItemVersion>() {

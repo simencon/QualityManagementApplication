@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "43dd8036b84e33ecd56961622f383e5e",
+    "identityHash": "4c3dfccf8bb23cbc9a938202651188c2",
     "entities": [
       {
         "tableName": "user_roles",
@@ -2900,7 +2900,7 @@
       },
       {
         "tableName": "9_products_versions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` TEXT NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `productId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`productId`) REFERENCES `2_products`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2923,7 +2923,7 @@
           {
             "fieldPath": "versionDate",
             "columnName": "versionDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -2992,7 +2992,7 @@
       },
       {
         "tableName": "10_components_versions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` TEXT NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentId`) REFERENCES `4_components`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3015,7 +3015,7 @@
           {
             "fieldPath": "versionDate",
             "columnName": "versionDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -3084,7 +3084,7 @@
       },
       {
         "tableName": "11_component_in_stage_versions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentInStageId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` TEXT NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentInStageId`) REFERENCES `6_components_in_stages`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `componentInStageId` INTEGER NOT NULL, `versionDescription` TEXT NOT NULL, `versionDate` INTEGER NOT NULL, `statusId` INTEGER NOT NULL, `isDefault` INTEGER NOT NULL, FOREIGN KEY(`componentInStageId`) REFERENCES `6_components_in_stages`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`statusId`) REFERENCES `0_versions_status`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3107,7 +3107,7 @@
           {
             "fieldPath": "versionDate",
             "columnName": "versionDate",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -4792,7 +4792,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43dd8036b84e33ecd56961622f383e5e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c3dfccf8bb23cbc9a938202651188c2')"
     ]
   }
 }

@@ -91,10 +91,11 @@ import kotlin.math.roundToInt
 
 @Composable
 fun RecordFieldItem(
+    modifier: Modifier = Modifier,
     valueParam: Triple<String, Boolean, (String) -> Unit>,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
-    contentDescription: Triple<ImageVector, String, String>,
+    contentDescription: Triple<ImageVector?, String, String>,
     isMandatoryField: Boolean = true,
     enabled: Boolean = true,
     readOnly: Boolean = false,
@@ -102,12 +103,22 @@ fun RecordFieldItem(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
+    val resultModifier =
+        if (modifier == Modifier)
+            modifier
+                .focusRequester(keyboardNavigation.first)
+                .width(320.dp)
+        else
+            modifier
+
     TextField(
         value = valueParam.first,
         onValueChange = valueParam.third,
-        leadingIcon = {
-            val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-            Icon(imageVector = contentDescription.first, contentDescription = contentDescription.second, tint = tint)
+        leadingIcon = contentDescription.first?.let {
+            {
+                val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
+                Icon(imageVector = it, contentDescription = contentDescription.second, tint = tint)
+            }
         },
         label = { Text(text = "${contentDescription.second}${if (isMandatoryField) " *" else ""}") },
         isError = valueParam.second,
@@ -122,9 +133,7 @@ fun RecordFieldItem(
         trailingIcon = trailingIcon,
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,
-        modifier = Modifier
-            .focusRequester(keyboardNavigation.first)
-            .width(320.dp)
+        modifier = resultModifier
     )
 }
 

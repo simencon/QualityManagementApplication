@@ -89,7 +89,8 @@ object StringUtils {
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SXXX"),
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"),
         SimpleDateFormat("yyyy-MM-dd HH:mm:ss"),
-        SimpleDateFormat("dd-MMMM-yyyy EEE HH:mm")
+        SimpleDateFormat("dd-MMMM-yyyy EEE HH:mm"),
+        SimpleDateFormat("yyyy-MM-dd"),
     )
 
     @JvmStatic

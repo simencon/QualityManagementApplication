@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.other.Constants.TOP_TAB_ROW_HEIGHT
 import com.simenko.qmapp.storage.Principle
 import com.simenko.qmapp.ui.main.main.setup.TopBarSetup
@@ -51,7 +52,7 @@ fun AppBar(
 
     val dmOffsetInitialValue by rememberSaveable { mutableFloatStateOf(drawerMenuState.offset.value) }
 
-    LaunchedEffect(key1 = drawerMenuState.offset.value, block = { println("AppBar - drawerMenuState.offset = ${drawerMenuState.offset.value}, initial offset was = $dmOffsetInitialValue")})
+    LaunchedEffect(key1 = drawerMenuState.offset.value, block = { println("AppBar - drawerMenuState.offset = ${drawerMenuState.offset.value}, initial offset was = $dmOffsetInitialValue") })
 
     val scope = rememberCoroutineScope()
     val contentColor: Color = MaterialTheme.colorScheme.onPrimary
@@ -288,7 +289,7 @@ fun ActionsMenu(
                 setActionMenuState(false)
                 isContextMenuVisible.value = true
             },
-            categories = topBarSetup.actionMenuItems?.map { it.group.name }?.toSet()?.toList()?: emptyList()
+            categories = topBarSetup.actionMenuItems?.map { it.group.name }?.toSet()?.toList() ?: emptyList()
         )
     }
 
@@ -381,7 +382,6 @@ fun ItemsGroup(
     Spacer(modifier = Modifier.height(5.dp))
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopTabs(topTabsSetup: TopTabsSetup) {
     val tabs by topTabsSetup.topTabsContent.collectAsStateWithLifecycle()
@@ -396,16 +396,18 @@ fun TopTabs(topTabsSetup: TopTabsSetup) {
                 onClick = { topTabsSetup.onTabSelect(it.index, it.tag) }
             ) {
                 if (it.badgeCount > 0)
-                    BadgedBox(badge = {
-                        Box(modifier = Modifier.background(color = it.badgeBackgroundColor, shape = RoundedCornerShape(size = 3.dp))) {
-                            Text(
-                                text = it.badgeCount.toString(),
-                                color = it.badgeContentColor,
-                                fontSize = 8.sp,
-                                fontWeight = if (selected) FontWeight.Black else FontWeight.SemiBold
-                            )
+                    BadgedBox(
+                        badge = {
+                            Badge(
+                                modifier = Modifier.padding(start = DEFAULT_SPACE.dp),
+                                containerColor = it.badgeBackgroundColor, contentColor = it.badgeContentColor) {
+                                Text(
+                                    text = it.badgeCount.toString(),
+                                    fontSize = 8.sp,
+                                    fontWeight = if (selected) FontWeight.Black else FontWeight.SemiBold
+                                )
+                            }
                         }
-                    }
                     ) {
                         Text(
                             text = getWithSpaces(it.title),
