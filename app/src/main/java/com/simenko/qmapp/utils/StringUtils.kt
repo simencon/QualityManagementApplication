@@ -2,6 +2,7 @@ package com.simenko.qmapp.utils
 
 import android.util.Log
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.SelectedNumber
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -109,8 +110,8 @@ object StringUtils {
     val FormatForRestService = SelectedNumber(0)
 
     @JvmStatic
-    fun getStringDate(myDateTimeLong: Long?, formatType: Int = 5): String? {
-        if (myDateTimeLong == null) return null
+    fun getStringDate(myDateTimeLong: Long?, formatType: Int = 5): String {
+        if (myDateTimeLong == null) return NoString.str
         return mySimpleFormatters[formatType].format(Date(myDateTimeLong))
     }
 

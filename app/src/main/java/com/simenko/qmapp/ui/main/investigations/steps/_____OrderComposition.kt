@@ -234,9 +234,9 @@ fun OrderDetails(
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Initiation date:", value = getStringDate(createdDate) ?: NoString.str, titleWight = 0.35f)
+            ContentWithTitle(title = "Initiation date:", value = getStringDate(createdDate), titleWight = 0.35f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-            ContentWithTitle(title = "Completion date:", value = getStringDate(completedDate) ?: NoString.str, titleWight = 0.35f)
+            ContentWithTitle(title = "Completion date:", value = getStringDate(completedDate), titleWight = 0.35f)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
         SubOrders(invModel = invModel, parentId = orderId)
