@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.content.MenuItem
 import com.simenko.qmapp.ui.main.main.content.Page
@@ -29,7 +30,7 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
             TopScreenIntent.MainPageSetup(
                 topBarSetup = TopBarSetup(page, onNavMenuClick, onSearchAction, onActionItemClick),
                 topTabsSetup = TopTabsSetup(page, onTabSelectAction),
-                fabSetup = FabSetup(page, fabAction),
+                fabSetup = FabSetup(page.fabIcon, fabAction),
                 pullRefreshSetup = PullRefreshSetup(refreshAction)
             )
         )
@@ -48,7 +49,7 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
             TopScreenIntent.MainPageSetup(
                 topBarSetup = TopBarSetup(page, onNavMenuClick, onSearchAction, onActionItemClick),
                 topTabsSetup = TopTabsSetup(page, onTabSelectAction),
-                fabSetup = FabSetup(page, fabAction),
+                fabSetup = FabSetup(page.fabIcon, fabAction),
                 pullRefreshSetup = PullRefreshSetup(refreshAction)
             )
         )
@@ -76,6 +77,14 @@ class MainPageStateImpl @Inject constructor() : MainPageState {
 
     override fun trySendFabVisibility(isVisible: Boolean) {
         topScreenChannel.trySend(TopScreenIntent.FabVisibilityState(state = isVisible))
+    }
+
+    override suspend fun sendFabIcon(icon: ImageVector) {
+        topScreenChannel.send(TopScreenIntent.FabIconState(state = icon))
+    }
+
+    override fun trySendFabIcon(icon: ImageVector) {
+        topScreenChannel.trySend(TopScreenIntent.FabIconState(state = icon))
     }
 
     override suspend fun sendEndOfListState(state: Boolean) {

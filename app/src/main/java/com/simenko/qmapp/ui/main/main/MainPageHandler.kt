@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.content.MenuItem
@@ -63,6 +64,8 @@ class MainPageHandler private constructor(
         mainPageState.sendFabVisibility(isFabVisible)
         tabBadges.collect { mainPageState.sendTabBadgesState(it) }
     }
+
+    val setFabIcon: suspend (ImageVector) -> Unit = { mainPageState.sendFabIcon(it) }
 
     val updateLoadingState: (Pair<Boolean, String?>) -> Unit = {
         onUpdateLoadingStateExtraAction?.invoke(it)

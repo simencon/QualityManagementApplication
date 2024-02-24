@@ -1,6 +1,7 @@
 package com.simenko.qmapp.ui.main.main
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.ui.main.main.setup.*
 import com.simenko.qmapp.ui.main.main.content.*
@@ -34,23 +35,26 @@ interface MainPageState {
     fun trySendSelectedTab(selectedTab: Int)
     suspend fun sendFabVisibility(isVisible: Boolean)
     fun trySendFabVisibility(isVisible: Boolean)
+    suspend fun sendFabIcon(icon: ImageVector)
+    fun trySendFabIcon(icon: ImageVector)
     suspend fun sendEndOfListState(state: Boolean)
     fun trySendEndOfListState(state: Boolean)
     suspend fun sendLoadingState(state: Pair<Boolean, String?>)
     fun trySendLoadingState(state: Pair<Boolean, String?>)
 }
 
-sealed class TopScreenIntent {
+sealed interface TopScreenIntent {
     data class MainPageSetup(
         val topBarSetup: TopBarSetup,
         val topTabsSetup: TopTabsSetup,
         val fabSetup: FabSetup,
         val pullRefreshSetup: PullRefreshSetup
-    ) : TopScreenIntent()
+    ) : TopScreenIntent
 
-    data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent()
-    class SelectedTabState(val state: Int) : TopScreenIntent()
-    data class FabVisibilityState(val state: Boolean) : TopScreenIntent()
-    data class EndOfListState(val state: Boolean) : TopScreenIntent()
-    data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent()
+    data class TabBadgesState(val state: List<Triple<Int, Color, Color>>) : TopScreenIntent
+    class SelectedTabState(val state: Int) : TopScreenIntent
+    data class FabVisibilityState(val state: Boolean) : TopScreenIntent
+    data class FabIconState(val state: ImageVector): TopScreenIntent
+    data class EndOfListState(val state: Boolean) : TopScreenIntent
+    data class LoadingState(val state: Pair<Boolean, String?>) : TopScreenIntent
 }

@@ -55,6 +55,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
@@ -113,16 +114,11 @@ fun RecordFieldItem(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val resultModifier = modifier.focusRequester(keyboardNavigation.first)
-
+    val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
     TextField(
         value = valueParam.first,
         onValueChange = valueParam.third,
-        leadingIcon = contentDescription.first?.let {
-            {
-                val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
-                Icon(imageVector = it, contentDescription = contentDescription.second, tint = tint)
-            }
-        },
+        leadingIcon = contentDescription.first?.let { { Icon(imageVector = it, contentDescription = contentDescription.second, tint = tint) } },
         label = { contentDescription.second?.let { Text(text = "${contentDescription.second}${if (isMandatoryField) " *" else ""}") } },
         isError = valueParam.second,
         placeholder = { Text(text = "${contentDescription.third}${if (isMandatoryField) " *" else ""}") },
@@ -136,7 +132,8 @@ fun RecordFieldItem(
         trailingIcon = trailingIcon,
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,
-        modifier = resultModifier
+        modifier = resultModifier,
+        colors = TextFieldDefaults.colors().copy(focusedLabelColor = tint, unfocusedLabelColor = tint, disabledLabelColor = tint, errorLabelColor = tint)
     )
 }
 

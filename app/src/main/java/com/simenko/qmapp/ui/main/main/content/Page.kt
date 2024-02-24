@@ -3,6 +3,7 @@ package com.simenko.qmapp.ui.main.main.content
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Save
@@ -144,7 +145,7 @@ enum class Page(
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = null,
-        fabIcon = Icons.Filled.Add,
+        fabIcon = Icons.Filled.Edit,
         actionBtnIcon = null,
         actionMenuItems = null
     ),

@@ -1,5 +1,6 @@
 package com.simenko.qmapp.ui.main
 
+import androidx.compose.material3.FabPosition
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
@@ -79,18 +80,19 @@ class MainActivityViewModel @Inject constructor(
     private fun subscribeMainScreenSetupEvents(intents: Flow<TopScreenIntent>) {
         viewModelScope.launch(Dispatchers.Default) {
             intents.collect {
-                handleEvent(it, _topTabsSetup.value, _fabSetup.value, _pullRefreshSetup.value)
+                handleEvent(it, _topTabsSetup.value, _pullRefreshSetup.value)
             }
         }
     }
 
-    private fun handleEvent(intent: TopScreenIntent, topTabsSetup: TopTabsSetup, fabSetup: FabSetup, pullRefreshSetup: PullRefreshSetup) {
+    private fun handleEvent(intent: TopScreenIntent, topTabsSetup: TopTabsSetup, pullRefreshSetup: PullRefreshSetup) {
         when (intent) {
             is TopScreenIntent.MainPageSetup -> setupMainPage(intent.topBarSetup, intent.topTabsSetup, intent.fabSetup, intent.pullRefreshSetup)
             is TopScreenIntent.TabBadgesState -> topTabsSetup.updateBadgeContent(intent.state)
             is TopScreenIntent.SelectedTabState -> topTabsSetup.setSelectedTab(intent.state)
-            is TopScreenIntent.FabVisibilityState -> fabSetup.setFabVisibility(intent.state)
-            is TopScreenIntent.EndOfListState -> fabSetup.onEndOfList(intent.state)
+            is TopScreenIntent.FabVisibilityState -> _fabSetup.value = _fabSetup.value.copy(isFabVisible = intent.state)
+            is TopScreenIntent.FabIconState -> _fabSetup.value = _fabSetup.value.copy(fabIcon = intent.state)
+            is TopScreenIntent.EndOfListState -> _fabSetup.value = _fabSetup.value.copy(fabPosition = if (intent.state) FabPosition.Center else FabPosition.End)
             is TopScreenIntent.LoadingState -> pullRefreshSetup.updateLoadingState(intent.state)
         }
     }
@@ -116,7 +118,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun onDrawerMenuCompanyStructureSelected() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
 //                todo-me - companyId should be initially stored under user
                 val companyName = userRepository.user.company
                 val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
@@ -127,7 +129,7 @@ class MainActivityViewModel @Inject constructor(
 
     fun onDrawerMenuProductsSelected() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
 //                todo-me - companyId should be initially stored under user
                 val companyName = userRepository.user.company
                 val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
