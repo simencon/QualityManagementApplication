@@ -23,7 +23,7 @@ enum class Page(
     val keyboardType: KeyboardType?,
     val searchBtnIcon: ImageVector?,
     val topTabsContent: List<TabItem>?,
-    val fabIcon: ImageVector?,
+    var fabIcon: ImageVector?,
     val actionBtnIcon: ImageVector?,
     val actionMenuItems: List<MenuItem>? = null
 ) {
@@ -250,7 +250,12 @@ enum class Page(
     ADD_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "New process control order", null, null, null, null, Icons.Filled.Save, null),
     EDIT_SUB_ORDER_SA(Route.Main.SubOrderAddEdit.link, Icons.Filled.ArrowBack, "Edit process control order", null, null, null, null, Icons.Filled.Save, null),
 
-    ACCOUNT_EDIT(Route.Main.Settings.EditUserDetails.link, Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, Icons.Filled.Save, null),
+    ACCOUNT_EDIT(Route.Main.Settings.EditUserDetails.link, Icons.Filled.ArrowBack, "Edit account data", null, null, null, null, Icons.Filled.Save, null);
+
+    fun withCustomFabIcon(icon: ImageVector): Page {
+        fabIcon = icon
+        return this
+    }
 }
 
 interface MenuItem {

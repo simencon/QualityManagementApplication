@@ -2,7 +2,7 @@ package com.simenko.qmapp.ui.main.products.kinds.list.versions
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,12 +39,16 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
+import com.simenko.qmapp.domain.ID
+import com.simenko.qmapp.domain.entities.products.DomainItemTolerance
+import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.AppDialogDatePicker
 import com.simenko.qmapp.ui.common.InfoLine
@@ -56,6 +60,7 @@ import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
+import kotlinx.coroutines.flow.collect
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -110,88 +115,22 @@ fun VersionTolerances(
         }
     }
 
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    val (versionDescriptionFR) = FocusRequester.createRefs()
-    val (versionDateFR) = FocusRequester.createRefs()
-    val (versionStatusFR) = FocusRequester.createRefs()
-
-    val interactionSource = remember { MutableInteractionSource() }
     var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
-    interactionSource.collectIsPressedAsState().let { if (it.value) isDatePickerVisible = true }
 
     Box {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
-            Column(modifier = Modifier.onGloballyPositioned {
-                titleHeightDp = with(localDensity) { it.size.height.toDp() }
-            }) {
-                val itemDesignationTitle = when (itemVersion.itemVersion.fId[0]) {
-                    'p' -> "Product designation"
-                    'c' -> "Component designation"
-                    's' -> "Component stage designation"
-                    else -> "Unknown item"
-                }
-                val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column(modifier = Modifier.weight(0.55f)) {
-                        InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
-                    }
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    TrueFalseField(
-                        modifier = Modifier.weight(0.45f),
-                        value = itemVersion.itemVersion.isDefault,
-                        description = "Is default?",
-                        containerColor = Color.Transparent,
-                        enabled = isEditMode,
-                        isError = itemVersionErrors.versionStatusError,
-                        onSwitch = { viewModel.setVersionIsDefault(it) }
-                    )
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                }
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                Row(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .horizontalScroll(rememberScrollState()),
-
-                    ) {
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    RecordFieldItem(
-                        modifier = Modifier.width(120.dp),
-                        valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { viewModel.setItemVersionDescription(it) },
-                        enabled = isEditMode,
-                        keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
-                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                        contentDescription = Triple(null, "Version ID", "Enter version ID")
-                    )
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    RecordFieldItem(
-                        modifier = Modifier.width(120.dp),
-                        valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
-                        enabled = isEditMode,
-                        keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },
-                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                        contentDescription = Triple(null, "Version date", "Pick date"),
-                        readOnly = true,
-                        interactionSource = interactionSource
-                    )
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                    RecordFieldItemWithMenu(
-                        modifier = Modifier.width(160.dp),
-                        options = versionStatuses,
-                        enabled = isEditMode,
-                        isError = itemVersionErrors.versionStatusError,
-                        onDropdownMenuItemClick = { viewModel.setVersionStatus(it) },
-                        keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
-                        keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                        contentDescription = Triple(null, "Status", "Status")
-                    )
-                    Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
-                }
-                Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-                HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
-            }
+            VersionSpecificationHeader(
+                localDensity = localDensity,
+                onHeaderHeightCalculated = { titleHeightDp = it },
+                isEditMode = isEditMode,
+                itemVersion = itemVersion,
+                itemVersionErrors = itemVersionErrors,
+                versionStatuses = versionStatuses,
+                onShowDatePicker = { isDatePickerVisible = it },
+                setVersionIsDefault = viewModel::setVersionIsDefault,
+                setItemVersionDescription = viewModel::setItemVersionDescription,
+                setVersionStatus = viewModel::setVersionStatus
+            )
             Row(
                 Modifier
                     .verticalScroll(verticalScrollState)
@@ -215,5 +154,101 @@ fun VersionTolerances(
                 onDismiss = { isDatePickerVisible = false }
             )
         }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun VersionSpecificationHeader(
+    localDensity: Density,
+    onHeaderHeightCalculated: (Dp) -> Unit,
+    isEditMode: Boolean,
+    itemVersion: DomainItemVersionComplete,
+    itemVersionErrors: ItemVersionErrors,
+    versionStatuses: List<Triple<ID, String, Boolean>>,
+    onShowDatePicker: (Boolean) -> Unit,
+    setVersionIsDefault: (Boolean) -> Unit,
+    setItemVersionDescription: (String) -> Unit,
+    setVersionStatus: (ID) -> Unit
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val (versionDescriptionFR) = FocusRequester.createRefs()
+    val (versionDateFR) = FocusRequester.createRefs()
+    val (versionStatusFR) = FocusRequester.createRefs()
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    LaunchedEffect(Unit) {
+        interactionSource.interactions.collect { if (it is PressInteraction.Release) onShowDatePicker(true) }
+    }
+
+    Column(modifier = Modifier.onGloballyPositioned { onHeaderHeightCalculated(with(localDensity) { it.size.height.toDp() }) }) {
+        val itemDesignationTitle = when (itemVersion.itemVersion.fId[0]) {
+            'p' -> "Product designation"
+            'c' -> "Component designation"
+            's' -> "Component stage designation"
+            else -> "Unknown item"
+        }
+        val itemDesignation = itemVersion.itemComplete.run { StringUtils.concatTwoStrings3(key.componentKey, item.itemDesignation) }
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            Column(modifier = Modifier.weight(0.55f)) {
+                InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = itemDesignationTitle, body = itemDesignation)
+            }
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+            TrueFalseField(
+                modifier = Modifier.weight(0.45f),
+                value = itemVersion.itemVersion.isDefault,
+                description = "Is default?",
+                containerColor = Color.Transparent,
+                enabled = isEditMode,
+                isError = itemVersionErrors.versionStatusError,
+                onSwitch = { setVersionIsDefault(it) }
+            )
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+        }
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        Row(
+            modifier = Modifier
+                .wrapContentWidth()
+                .horizontalScroll(rememberScrollState()),
+
+            ) {
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+            RecordFieldItem(
+                modifier = Modifier.width(120.dp),
+                valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { setItemVersionDescription(it) },
+                enabled = isEditMode,
+                keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                contentDescription = Triple(null, "Version ID", "Enter version ID")
+            )
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+            RecordFieldItem(
+                modifier = Modifier.width(120.dp),
+                valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
+                enabled = isEditMode,
+                keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                contentDescription = Triple(null, "Version date", "Pick date"),
+                readOnly = true,
+                interactionSource = interactionSource
+            )
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+            RecordFieldItemWithMenu(
+                modifier = Modifier.width(160.dp),
+                options = versionStatuses,
+                enabled = isEditMode,
+                isError = itemVersionErrors.versionStatusError,
+                onDropdownMenuItemClick = { setVersionStatus(it) },
+                keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                contentDescription = Triple(null, "Status", "Status")
+            )
+            Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
+        }
+        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
     }
 }

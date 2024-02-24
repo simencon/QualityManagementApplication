@@ -3,6 +3,8 @@ package com.simenko.qmapp.ui.main.products.kinds.list.versions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.CharGroupIdParameter
@@ -154,16 +156,16 @@ class VersionTolerancesViewModel @Inject constructor(
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     val mainPageHandler: MainPageHandler
+    private val page = mutableStateOf(Page.VERSION_TOLERANCES)
 
     init {
-        mainPageHandler = MainPageHandler.Builder(Page.VERSION_TOLERANCES, mainPageState)
+        mainPageHandler = MainPageHandler.Builder(page.value.withCustomFabIcon(if (_versionEditMode.value) Icons.Filled.Save else Icons.Filled.Edit), mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
             .setOnFabClickAction { onFabClick() }
             .setOnPullRefreshAction { updateTolerancesData() }
             .build()
         viewModelScope.launch(Dispatchers.IO) {
             _itemVersion.value = repository.itemVersionComplete(versionFId)
-            mainPageHandler.setFabIcon(if (editMode) Icons.Filled.Edit else Icons.Filled.Save)
         }
     }
 
@@ -275,6 +277,7 @@ class VersionTolerancesViewModel @Inject constructor(
             Icons.Filled.Save
         }
         _versionEditMode.value = !_versionEditMode.value
+        page.value = page.value.withCustomFabIcon(fabIcon)
         viewModelScope.launch { mainPageHandler.setFabIcon(fabIcon) }
     }
 
