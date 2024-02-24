@@ -6,6 +6,7 @@ import com.simenko.qmapp.di.CharGroupIdParameter
 import com.simenko.qmapp.di.CharSubGroupIdParameter
 import com.simenko.qmapp.di.CharacteristicIdParameter
 import com.simenko.qmapp.di.ToleranceIdParameter
+import com.simenko.qmapp.di.VersionEditMode
 import com.simenko.qmapp.di.VersionFIdParameter
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInState
@@ -51,6 +52,7 @@ class VersionTolerancesViewModel @Inject constructor(
     private val repository: ProductsRepository,
     val storage: Storage,
     @VersionFIdParameter val versionFId: String,
+    @VersionEditMode val editMode: Boolean,
     @CharGroupIdParameter val characteristicGroupId: ID,
     @CharSubGroupIdParameter val characteristicSubGroupId: ID,
     @CharacteristicIdParameter val characteristicId: ID,
@@ -62,6 +64,7 @@ class VersionTolerancesViewModel @Inject constructor(
     private val _toleranceVisibility = MutableStateFlow(Pair(SelectedNumber(toleranceId), NoRecord))
 
     private val _itemVersion = MutableStateFlow(DomainItemVersionComplete())
+    private val _versionEditMode = MutableStateFlow(editMode)
     private val _itemVersionTolerances = repository.versionTolerancesComplete(versionFId)
 
     private val _characteristicGroups = _itemVersionTolerances.flatMapLatest { list ->
@@ -165,6 +168,7 @@ class VersionTolerancesViewModel @Inject constructor(
 
     private val _itemVersionErrors: MutableStateFlow<ItemVersionErrors> = MutableStateFlow(ItemVersionErrors())
     val itemVersion get() = _itemVersion.asStateFlow()
+    val versionEditMode get() = _versionEditMode.asStateFlow()
     val itemVersionErrors get() = _itemVersionErrors.asStateFlow()
 
     fun setItemVersionDescription(it: String) {

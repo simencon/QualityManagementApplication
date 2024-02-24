@@ -74,6 +74,7 @@ fun VersionTolerances(
     val animator = HorizonteAnimationImp(screenWidth, scope)
 
     val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle()
+    val isEditMode by viewModel.versionEditMode.collectAsStateWithLifecycle()
     val itemVersionErrors by viewModel.itemVersionErrors.collectAsStateWithLifecycle()
     val versionStatuses by viewModel.versionStatuses.collectAsStateWithLifecycle(emptyList())
 
@@ -139,9 +140,10 @@ fun VersionTolerances(
                     Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
                     TrueFalseField(
                         modifier = Modifier.weight(0.45f),
-                        enabled = itemVersion.itemVersion.isDefault,
+                        value = itemVersion.itemVersion.isDefault,
                         description = "Is default?",
                         containerColor = Color.Transparent,
+                        enabled = isEditMode,
                         isError = itemVersionErrors.versionStatusError,
                         onSwitch = { viewModel.setVersionIsDefault(it) }
                     )
@@ -158,6 +160,7 @@ fun VersionTolerances(
                     RecordFieldItem(
                         modifier = Modifier.width(120.dp),
                         valueParam = Triple(itemVersion.itemVersion.versionDescription ?: EmptyString.str, itemVersionErrors.versionDescriptionError) { viewModel.setItemVersionDescription(it) },
+                        enabled = isEditMode,
                         keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
                         keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                         contentDescription = Triple(null, "Version ID", "Enter version ID")
@@ -166,6 +169,7 @@ fun VersionTolerances(
                     RecordFieldItem(
                         modifier = Modifier.width(120.dp),
                         valueParam = Triple(getStringDate(itemVersion.itemVersion.versionDate, 6), itemVersionErrors.versionDescriptionError) {},
+                        enabled = isEditMode,
                         keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },
                         keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
                         contentDescription = Triple(null, "Version date", "Pick date"),
@@ -176,6 +180,7 @@ fun VersionTolerances(
                     RecordFieldItemWithMenu(
                         modifier = Modifier.width(160.dp),
                         options = versionStatuses,
+                        enabled = isEditMode,
                         isError = itemVersionErrors.versionStatusError,
                         onDropdownMenuItemClick = { viewModel.setVersionStatus(it) },
                         keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },

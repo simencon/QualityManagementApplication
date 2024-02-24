@@ -127,6 +127,7 @@ object NavArguments {
     const val componentId = "componentId"
     const val componentStageId = "componentStageId"
     const val versionFId = "versionFId"
+    const val versionEditMode = "versionEditMode"
     const val toleranceId = "toleranceId"
 
     const val isProcessControlOnly = "isProcessControlOnly"
@@ -655,13 +656,13 @@ sealed class Route(
                     ) {
                         data object VersionTolerances : Route(
                             link = NavRouteName.version_tolerances +
-                                    "?${opt(NavArguments.versionFId)}" +
+                                    "?${opt(NavArguments.versionFId)}&${opt(NavArguments.versionEditMode)}" +
                                     "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}",
                             deepLinks = listOf(
                                 navDeepLink {
                                     uriPattern = NavArguments.domain +
                                                 "/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}/${NavRouteName.version_tolerances}" +
-                                                "?${opt(NavArguments.versionFId)}" +
+                                                "?${opt(NavArguments.versionFId)}&${opt(NavArguments.versionEditMode)}" +
                                                 "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}"
                                     action = Intent.ACTION_VIEW
                                 }
@@ -670,6 +671,18 @@ sealed class Route(
                                 navArgument(NavArguments.versionFId) {
                                     type = NavType.StringType
                                     defaultValue = NoRecordStr.str
+                                },
+                                navArgument(NavArguments.versionEditMode) {
+                                    type = NavType.BoolType
+                                    defaultValue = false
+                                },
+                                navArgument(NavArguments.charGroupId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                },
+                                navArgument(NavArguments.charSubGroupId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
                                 },
                                 navArgument(NavArguments.characteristicId) {
                                     type = NavType.LongType
