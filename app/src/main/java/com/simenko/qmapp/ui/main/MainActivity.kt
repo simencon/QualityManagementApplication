@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -41,7 +40,6 @@ import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.theme.QMAppTheme
-import com.simenko.qmapp.works.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -100,8 +98,6 @@ class MainActivity : ComponentActivity() {
 
                 val drawerMenuState by topBarSetup.drawerMenuState.collectAsStateWithLifecycle()
                 val searchBarState by topBarSetup.searchBarState.collectAsStateWithLifecycle()
-                val isFabVisible by fabSetup.isFabVisible.collectAsStateWithLifecycle()
-                val fabPosition by fabSetup.fabPosition.collectAsStateWithLifecycle()
 
                 val observerLoadingProcess by pullRefreshSetup.isLoadingInProgress.collectAsStateWithLifecycle()
                 val observerIsNetworkError by pullRefreshSetup.isErrorMessage.collectAsStateWithLifecycle()
@@ -145,7 +141,7 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             topBar = { AppBar(topBarSetup = topBarSetup) },
                             floatingActionButton = {
-                                if (fabSetup.fabAction != null && fabSetup.fabIcon != null && isFabVisible)
+                                if (fabSetup.fabAction != null && fabSetup.fabIcon != null && fabSetup.isFabVisible)
                                     FloatingActionButton(
                                         containerColor = MaterialTheme.colorScheme.tertiary,
                                         onClick = { fabSetup.fabAction!!.invoke() },
@@ -158,7 +154,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                             },
-                            floatingActionButtonPosition = fabPosition
+                            floatingActionButtonPosition = fabSetup.fabPosition
                         ) {
 
                             val pullRefreshState = rememberPullRefreshState(

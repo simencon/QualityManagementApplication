@@ -1,5 +1,8 @@
 package com.simenko.qmapp.ui.main.products.kinds.list.versions
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Save
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.CharGroupIdParameter
@@ -39,7 +42,6 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -156,10 +158,13 @@ class VersionTolerancesViewModel @Inject constructor(
     init {
         mainPageHandler = MainPageHandler.Builder(Page.VERSION_TOLERANCES, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddCharacteristicClick(Pair(versionFId, NoRecord.num)) }
+            .setOnFabClickAction { onFabClick() }
             .setOnPullRefreshAction { updateTolerancesData() }
             .build()
-        viewModelScope.launch(Dispatchers.IO) { _itemVersion.value = repository.itemVersionComplete(versionFId) }
+        viewModelScope.launch(Dispatchers.IO) {
+            _itemVersion.value = repository.itemVersionComplete(versionFId)
+            mainPageHandler.setFabIcon(if (editMode) Icons.Filled.Edit else Icons.Filled.Save)
+        }
     }
 
     /**
@@ -185,14 +190,16 @@ class VersionTolerancesViewModel @Inject constructor(
 
     val versionStatuses = repository.versionStatuses.flatMapLatest { statuses ->
         _itemVersion.flatMapLatest { itemVersion ->
-            flow { emit(statuses.map { Triple(it.id, it.statusDescription?: NoString.str, it.id == itemVersion.itemVersion.statusId) }) }
+            flow { emit(statuses.map { Triple(it.id, it.statusDescription ?: NoString.str, it.id == itemVersion.itemVersion.statusId) }) }
         }
     }
+
     fun setVersionStatus(it: ID) {
         _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(statusId = it))
         _itemVersionErrors.value = _itemVersionErrors.value.copy(versionStatusError = false)
         _fillInState.value = FillInInitialState
     }
+
     fun setVersionIsDefault(it: Boolean) {
         _itemVersion.value = _itemVersion.value.copy(itemVersion = _itemVersion.value.itemVersion.copy(isDefault = it))
         _itemVersionErrors.value = _itemVersionErrors.value.copy(versionIsDefaultError = false)
@@ -258,6 +265,17 @@ class VersionTolerancesViewModel @Inject constructor(
      * */
     private fun updateTolerancesData() {
         TODO("Not yet implemented")
+    }
+
+    private fun onFabClick() {
+        val fabIcon = if (_versionEditMode.value) {
+//            ToDoMe - save all changes here
+            Icons.Filled.Edit
+        } else {
+            Icons.Filled.Save
+        }
+        _versionEditMode.value = !_versionEditMode.value
+        viewModelScope.launch { mainPageHandler.setFabIcon(fabIcon) }
     }
 
     /**
