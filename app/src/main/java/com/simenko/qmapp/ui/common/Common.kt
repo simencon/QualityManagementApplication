@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
@@ -147,6 +146,7 @@ fun RecordFieldItemWithMenu(
     modifier: Modifier = Modifier,
     options: List<Triple<ID, String, Boolean>>,
     isError: Boolean,
+    enabled: Boolean = true,
     onDropdownMenuItemClick: (ID) -> Unit,
     keyboardNavigation: Pair<FocusRequester, () -> Unit>,
     keyBoardTypeAction: Pair<KeyboardType, ImeAction>,
@@ -170,6 +170,7 @@ fun RecordFieldItemWithMenu(
         RecordFieldItem(
             modifier = modifier,
             valueParam = Triple(selectedOptionText, isError) {},
+            enabled = enabled,
             keyboardNavigation = keyboardNavigation,
             keyBoardTypeAction = keyBoardTypeAction,
             contentDescription = contentDescription,
@@ -671,11 +672,12 @@ fun AppDialogDatePicker(
 @Composable
 fun TrueFalseField(
     modifier: Modifier = Modifier,
-    enabled: Boolean,
+    value: Boolean,
     frontImage: ImageVector? = null,
     description: String,
     containerColor: Color? = null,
     isError: Boolean,
+    enabled: Boolean = true,
     onSwitch: (Boolean) -> Unit,
 ) {
     val tint = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
@@ -716,9 +718,10 @@ fun TrueFalseField(
 
             Switch(
                 modifier = Modifier.padding(end = DEFAULT_SPACE.dp),
-                checked = enabled,
+                enabled = enabled,
+                checked = value,
                 onCheckedChange = onSwitch,
-                thumbContent = if (enabled) {
+                thumbContent = if (value) {
                     {
                         Icon(
                             imageVector = Icons.Filled.Check,

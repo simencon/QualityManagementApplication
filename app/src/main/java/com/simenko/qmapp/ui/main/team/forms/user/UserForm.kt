@@ -121,7 +121,7 @@ fun UserForm(
             Spacer(modifier = Modifier.height(10.dp))
             TrueFalseField(
                 modifier = Modifier.width(320.dp),
-                enabled = user.enabled,
+                value = user.enabled,
                 frontImage = Icons.Default.AdminPanelSettings,
                 description = "Enabled",
                 onSwitch = { viewModel.setUserIsEnabled(it) },

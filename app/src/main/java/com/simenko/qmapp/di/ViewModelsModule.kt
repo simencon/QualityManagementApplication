@@ -114,6 +114,10 @@ annotation class VersionFIdParameter
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class VersionEditMode
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class ToleranceIdParameter
 
 @Qualifier
@@ -282,6 +286,12 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideVersionFIdParameter(savedStateHandle: SavedStateHandle): String =
         savedStateHandle[NavArguments.versionFId] ?: NoRecordStr.str
+
+    @Provides
+    @VersionEditMode
+    @ViewModelScoped
+    fun provideVersionEditModeParameter(savedStateHandle: SavedStateHandle): Boolean =
+        savedStateHandle[NavArguments.versionEditMode] ?: false
 
     @Provides
     @ToleranceIdParameter

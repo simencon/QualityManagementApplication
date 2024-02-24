@@ -9,6 +9,7 @@ import com.simenko.qmapp.di.ComponentStageKindIdParameter
 import com.simenko.qmapp.di.ProductIdParameter
 import com.simenko.qmapp.di.ProductKindIdParameter
 import com.simenko.qmapp.di.VersionFIdParameter
+import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.NoRecordStr
@@ -318,6 +319,6 @@ class ProductListViewModel @Inject constructor(
     }
 
     fun onSpecificationClick(it: String) {
-        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductList.VersionTolerances.withOpts(it))
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductList.VersionTolerances.withOpts(it, FalseStr.str))
     }
 }
