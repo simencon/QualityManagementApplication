@@ -3,7 +3,6 @@ package com.simenko.qmapp.ui.main.products.kinds.list.versions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,6 +31,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -71,87 +71,6 @@ class VersionTolerancesViewModel @Inject constructor(
     private val _versionEditMode = MutableStateFlow(editMode)
     private val _itemVersionTolerances = repository.versionTolerancesComplete(versionFId)
 
-    private val _characteristicGroups = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicGroupVisibility.flatMapLatest { visibility ->
-            flow {
-                emit(list.distinctBy { it.metricWithParents.groupId }.map {
-                    it.metricWithParents.run {
-                        DomainCharGroup(
-                            id = groupId,
-                            ishElement = groupDescription,
-                            detailsVisibility = visibility.first.num == groupId,
-                            isExpanded = visibility.second.num == groupId
-                        )
-                    }
-                })
-            }
-        }
-    }
-    private val _characteristicSubGroups = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicGroupVisibility.flatMapLatest { gVisibility ->
-            _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
-                flow {
-                    emit(list.filter { it.metricWithParents.groupId == gVisibility.first.num }.distinctBy { it.metricWithParents.subGroupId }.map {
-                        it.metricWithParents.run {
-                            DomainCharSubGroup(
-                                id = subGroupId,
-                                charGroupId = groupId,
-                                ishElement = subGroupDescription,
-                                detailsVisibility = sgVisibility.first.num == subGroupId,
-                                isExpanded = sgVisibility.second.num == subGroupId
-                            )
-                        }
-                    })
-                }
-            }
-        }
-    }
-    private val _characteristics = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
-            _characteristicVisibility.flatMapLatest { cVisibility ->
-                flow {
-                    emit(list.filter { it.metricWithParents.subGroupId == sgVisibility.first.num }.distinctBy { it.metricWithParents.charId }.map {
-                        it.metricWithParents.run {
-                            DomainCharacteristic(
-                                id = charId,
-                                ishSubCharId = subGroupId,
-                                charOrder = charOrder,
-                                charDesignation = charDesignation,
-                                charDescription = charDescription,
-                                detailsVisibility = cVisibility.first.num == charId,
-                                isExpanded = cVisibility.second.num == charId
-                            )
-                        }
-                    })
-                }
-            }
-        }
-    }
-    private val _tolerances = _itemVersionTolerances.flatMapLatest { list ->
-        _characteristicVisibility.flatMapLatest { cVisibility ->
-            _toleranceVisibility.flatMapLatest { tVisibility ->
-                flow {
-                    emit(list.filter { it.metricWithParents.charId == cVisibility.first.num }.distinctBy { it.metricWithParents.metricId }.map {
-                        Pair(
-                            first = it.metricWithParents.run {
-                                DomainMetrix(
-                                    id = metricId,
-                                    charId = charId,
-                                    metrixOrder = metricOrder,
-                                    metrixDesignation = metricDesignation,
-                                    metrixDescription = metricDescription,
-                                    detailsVisibility = tVisibility.first.num == metricId,
-                                    isExpanded = tVisibility.second.num == metricId
-                                )
-                            },
-                            second = it.itemTolerance
-                        )
-                    })
-                }
-            }
-        }
-    }
-
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -173,6 +92,7 @@ class VersionTolerancesViewModel @Inject constructor(
      * UI state -------------------------------------------------------------------------------------------------------------------------------------
      * */
 
+    // Header state ---------------
     private val _itemVersionErrors: MutableStateFlow<ItemVersionErrors> = MutableStateFlow(ItemVersionErrors())
     val itemVersion get() = _itemVersion.asStateFlow()
     val versionEditMode get() = _versionEditMode.asStateFlow()
@@ -211,6 +131,89 @@ class VersionTolerancesViewModel @Inject constructor(
     private val _fillInState = MutableStateFlow<FillInState>(FillInInitialState)
     val fillInState get() = _fillInState.asStateFlow()
 
+    // Lists state ------------------------------
+    val characteristicGroups = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicGroupVisibility.flatMapLatest { visibility ->
+            flow {
+                emit(list.distinctBy { it.metricWithParents.groupId }.map {
+                    it.metricWithParents.run {
+                        DomainCharGroup(
+                            id = groupId,
+                            ishElement = groupDescription,
+                            detailsVisibility = visibility.first.num == groupId,
+                            isExpanded = visibility.second.num == groupId
+                        )
+                    }
+                })
+            }
+        }
+    }
+    val characteristicSubGroups = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicGroupVisibility.flatMapLatest { gVisibility ->
+            _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
+                flow {
+                    emit(list.filter { it.metricWithParents.groupId == gVisibility.first.num }.distinctBy { it.metricWithParents.subGroupId }.map {
+                        it.metricWithParents.run {
+                            DomainCharSubGroup(
+                                id = subGroupId,
+                                charGroupId = groupId,
+                                ishElement = subGroupDescription,
+                                detailsVisibility = sgVisibility.first.num == subGroupId,
+                                isExpanded = sgVisibility.second.num == subGroupId
+                            )
+                        }
+                    })
+                }
+            }
+        }
+    }
+    val characteristics = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicSubGroupVisibility.flatMapLatest { sgVisibility ->
+            _characteristicVisibility.flatMapLatest { cVisibility ->
+                flow {
+                    emit(list.filter { it.metricWithParents.subGroupId == sgVisibility.first.num }.distinctBy { it.metricWithParents.charId }.map {
+                        it.metricWithParents.run {
+                            DomainCharacteristic(
+                                id = charId,
+                                ishSubCharId = subGroupId,
+                                charOrder = charOrder,
+                                charDesignation = charDesignation,
+                                charDescription = charDescription,
+                                detailsVisibility = cVisibility.first.num == charId,
+                                isExpanded = cVisibility.second.num == charId
+                            )
+                        }
+                    })
+                }
+            }
+        }
+    }
+    val tolerances = _itemVersionTolerances.flatMapLatest { list ->
+        _characteristicVisibility.flatMapLatest { cVisibility ->
+            _toleranceVisibility.flatMapLatest { tVisibility ->
+                flow {
+                    emit(list.filter { it.metricWithParents.charId == cVisibility.first.num }.distinctBy { it.metricWithParents.metricId }.map {
+                        Pair(
+                            first = it.metricWithParents.run {
+                                DomainMetrix(
+                                    id = metricId,
+                                    charId = charId,
+                                    metrixOrder = metricOrder,
+                                    metrixDesignation = metricDesignation,
+                                    metrixDescription = metricDescription,
+                                    detailsVisibility = tVisibility.first.num == metricId,
+                                    isExpanded = tVisibility.second.num == metricId
+                                )
+                            },
+                            second = it.itemTolerance
+                        )
+                    })
+                }
+            }
+        }
+    }
+
+    // Rendered state --------------------------------------
     private val _viewState = MutableStateFlow(false)
     val setViewState: (Boolean) -> Unit = {
         if (!it) _isComposed.value = BooleanArray(4) { false }
@@ -230,7 +233,7 @@ class VersionTolerancesViewModel @Inject constructor(
     }.flowOn(Dispatchers.IO).conflate().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     val listsIsInitialized: Flow<Pair<Boolean, Boolean>> = _viewState.flatMapLatest { viewState ->
-        _characteristicGroups.flatMapLatest { firstList ->
+        characteristicGroups.flatMapLatest { firstList ->
             _secondListIsInitialized.flatMapLatest { secondListState ->
                 if (viewState)
                     flow {
@@ -250,7 +253,7 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }
 
-    private val _secondListIsInitialized: Flow<Boolean> = _tolerances.flatMapLatest { secondList ->
+    private val _secondListIsInitialized: Flow<Boolean> = tolerances.flatMapLatest { secondList ->
         flow {
             if (toleranceId != NoRecord.num) {
                 storage.setLong(ScrollStates.VERSION_TOLERANCES.indexKey, secondList.map { it.first.id }.indexOf(toleranceId).toLong())
@@ -261,6 +264,22 @@ class VersionTolerancesViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * UI operations ---------------------------------------------------------------------------------------------------------------------------------
+     * */
+    fun setCharGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _characteristicGroupVisibility.value = _characteristicGroupVisibility.value.setVisibility(dId, aId)
+    }
+
+    fun setCharSubGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _characteristicSubGroupVisibility.value = _characteristicSubGroupVisibility.value.setVisibility(dId, aId)
+    }
+
+    fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
+        _characteristicSubGroupVisibility.value = _characteristicSubGroupVisibility.value.setVisibility(dId, aId)
+    }
+
 
     /**
      * REST operations -------------------------------------------------------------------------------------------------------------------------------

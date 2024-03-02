@@ -47,7 +47,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
-import com.simenko.qmapp.domain.entities.products.DomainItemTolerance
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.other.Constants.DEFAULT_SPACE
 import com.simenko.qmapp.ui.common.AppDialogDatePicker
@@ -60,7 +59,6 @@ import com.simenko.qmapp.utils.StringUtils
 import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
-import kotlinx.coroutines.flow.collect
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -140,7 +138,7 @@ fun VersionTolerances(
                     .height(screenHeight)
             ) {
                 if (listsIsInitialized.first) {
-                    //ToDoMe "Version characteristic groups"}
+                    CharGroups(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
                 }
                 if (isSecondRowVisible /*&& listsIsInitialized.second*/) {
                     //ToDoMe"Version characteristic tolerances"}
