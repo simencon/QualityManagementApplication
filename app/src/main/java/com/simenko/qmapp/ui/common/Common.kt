@@ -487,9 +487,9 @@ fun StatusWithPercentage(
 fun ItemCard(
     modifier: Modifier = Modifier,
     item: DomainBaseModel<Any>,
-    onClickActions: (ID) -> Unit,
-    onClickDelete: (ID) -> Unit,
-    onClickEdit: (Pair<ID, ID>) -> Unit,
+    onClickActions: (ID) -> Unit = {},
+    onClickDelete: ((ID) -> Unit)? = null,
+    onClickEdit: ((Pair<ID, ID>) -> Unit)? = null,
     contentColors: Triple<Color, Color, Color>, /*Normal-Expanded Color-Border Selected Color*/
     vararg actionButtonsImages: ImageVector,
     content: @Composable (() -> Unit),
@@ -522,18 +522,18 @@ fun ItemCard(
         Row(Modifier.padding(all = (DEFAULT_SPACE / 2).dp)) {
             actionButtonsImages.forEachIndexed { index, imageVector ->
                 when (index) {
-                    0 -> {
+                    0 -> onClickDelete?.let {
                         IconButton(
                             modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                            onClick = { onClickDelete(if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num) },
+                            onClick = { it(if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num) },
                             content = { Icon(imageVector = imageVector, contentDescription = "delete action") }
                         )
                     }
 
-                    1 -> {
+                    1 -> onClickEdit?.let{
                         IconButton(
                             modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
-                            onClick = { onClickEdit(Pair(item.getParentId(), if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num)) },
+                            onClick = { it(Pair(item.getParentId(), if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num)) },
                             content = { Icon(imageVector = Icons.Filled.Edit, contentDescription = "edit action") }
                         )
                     }
