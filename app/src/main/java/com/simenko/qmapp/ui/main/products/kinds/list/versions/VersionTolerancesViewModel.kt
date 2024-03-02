@@ -201,13 +201,14 @@ class VersionTolerancesViewModel @Inject constructor(
                                     metrixOrder = metricOrder,
                                     metrixDesignation = metricDesignation,
                                     metrixDescription = metricDescription,
+                                    units = metricUnits,
                                     detailsVisibility = tVisibility.first.num == metricId,
                                     isExpanded = tVisibility.second.num == metricId
                                 )
                             },
                             second = it.itemTolerance
                         )
-                    })
+                    }.sortedBy { it.first.metrixOrder })
                 }
             }
         }
@@ -277,7 +278,7 @@ class VersionTolerancesViewModel @Inject constructor(
     }
 
     fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _characteristicSubGroupVisibility.value = _characteristicSubGroupVisibility.value.setVisibility(dId, aId)
+        _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
     }
 
 

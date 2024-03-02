@@ -141,7 +141,7 @@ fun VersionTolerances(
                     CharGroups(modifier = Modifier.width(screenSizes.second), viewModel = viewModel)
                 }
                 if (isSecondRowVisible /*&& listsIsInitialized.second*/) {
-                    //ToDoMe"Version characteristic tolerances"}
+                    Tolerances(modifier = Modifier.width(screenSizes.third), viewModel = viewModel)
                 }
             }
         }
