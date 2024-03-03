@@ -112,6 +112,7 @@ fun RecordFieldItem(
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    containerColor: Color? = null
 ) {
     val resultModifier = modifier.focusRequester(keyboardNavigation.first)
     val tint = if (valueParam.second) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceTint
@@ -133,7 +134,15 @@ fun RecordFieldItem(
         visualTransformation = visualTransformation,
         interactionSource = interactionSource,
         modifier = resultModifier,
-        colors = TextFieldDefaults.colors().copy(focusedLabelColor = tint, unfocusedLabelColor = tint, disabledLabelColor = tint, errorLabelColor = tint)
+        colors = TextFieldDefaults.colors().let {
+            it.copy(
+                focusedContainerColor = containerColor ?: it.focusedContainerColor,
+                unfocusedContainerColor = containerColor ?: it.unfocusedContainerColor,
+                disabledContainerColor = containerColor ?: it.disabledContainerColor,
+                errorContainerColor = containerColor ?: it.errorContainerColor,
+                focusedLabelColor = tint, unfocusedLabelColor = tint, disabledLabelColor = tint, errorLabelColor = tint,
+            )
+        }
     )
 }
 
@@ -530,7 +539,7 @@ fun ItemCard(
                         )
                     }
 
-                    1 -> onClickEdit?.let{
+                    1 -> onClickEdit?.let {
                         IconButton(
                             modifier = Modifier.size(ACTION_ITEM_SIZE.dp),
                             onClick = { it(Pair(item.getParentId(), if (item.getRecordId() is ID) item.getRecordId() as ID else NoRecord.num)) },

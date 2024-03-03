@@ -64,5 +64,14 @@ val ProductPref = SelectedChar('p')
 val ComponentPref = SelectedChar('c')
 val ComponentStagePref = SelectedChar('s')
 
+@JvmInline
+value class DefinedFloat(val float: Float)
+
+val ZeroFloat = DefinedFloat(0.0f)
+
+@JvmInline
+value class DefinedDouble(val double: Double)
+
+val ZeroDouble = DefinedDouble(0.0)
 
 

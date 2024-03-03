@@ -22,6 +22,7 @@ import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.products.DomainItemTolerance
 import com.simenko.qmapp.domain.entities.products.DomainItemVersionComplete
 import com.simenko.qmapp.domain.entities.products.DomainMetrix
 import com.simenko.qmapp.repository.ProductsRepository
@@ -35,15 +36,19 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -55,12 +60,12 @@ class VersionTolerancesViewModel @Inject constructor(
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @VersionFIdParameter val versionFId: String,
-    @VersionEditMode val editMode: Boolean,
-    @CharGroupIdParameter val characteristicGroupId: ID,
-    @CharSubGroupIdParameter val characteristicSubGroupId: ID,
-    @CharacteristicIdParameter val characteristicId: ID,
-    @ToleranceIdParameter val toleranceId: ID
+    @VersionFIdParameter private val versionFId: String,
+    @VersionEditMode private val editMode: Boolean,
+    @CharGroupIdParameter private val characteristicGroupId: ID,
+    @CharSubGroupIdParameter private val characteristicSubGroupId: ID,
+    @CharacteristicIdParameter private val characteristicId: ID,
+    @ToleranceIdParameter private val toleranceId: ID
 ) : ViewModel() {
     private val _characteristicGroupVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicGroupId), NoRecord))
     private val _characteristicSubGroupVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicSubGroupId), NoRecord))
@@ -69,7 +74,7 @@ class VersionTolerancesViewModel @Inject constructor(
 
     private val _itemVersion = MutableStateFlow(DomainItemVersionComplete())
     private val _versionEditMode = MutableStateFlow(editMode)
-    private val _itemVersionTolerances = repository.versionTolerancesComplete(versionFId)
+    private val _itemVersionTolerances = MutableStateFlow(listOf<DomainItemTolerance.DomainItemToleranceComplete>())
 
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
@@ -85,6 +90,9 @@ class VersionTolerancesViewModel @Inject constructor(
             .build()
         viewModelScope.launch(Dispatchers.IO) {
             _itemVersion.value = repository.itemVersionComplete(versionFId)
+            repository.versionTolerancesComplete(versionFId).collect {
+                _itemVersionTolerances.value = it
+            }
         }
     }
 
@@ -188,6 +196,7 @@ class VersionTolerancesViewModel @Inject constructor(
             }
         }
     }
+
     val tolerances = _itemVersionTolerances.flatMapLatest { list ->
         _characteristicVisibility.flatMapLatest { cVisibility ->
             _toleranceVisibility.flatMapLatest { tVisibility ->
@@ -211,6 +220,24 @@ class VersionTolerancesViewModel @Inject constructor(
                     }.sortedBy { it.first.metrixOrder })
                 }
             }
+        }
+    }
+
+    fun setLsl(toleranceId: ID, value: String) {
+        _itemVersionTolerances.value = _itemVersionTolerances.value.map {
+            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(lsl = value.toFloatOrNull())) else it
+        }
+    }
+
+    fun setNominal(toleranceId: ID, value: String) {
+        _itemVersionTolerances.value = _itemVersionTolerances.value.map {
+            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(nominal = value.toFloatOrNull())) else it
+        }
+    }
+
+    fun setUsl(toleranceId: ID, value: String) {
+        _itemVersionTolerances.value = _itemVersionTolerances.value.map {
+            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(usl = value.toFloatOrNull())) else it
         }
     }
 
