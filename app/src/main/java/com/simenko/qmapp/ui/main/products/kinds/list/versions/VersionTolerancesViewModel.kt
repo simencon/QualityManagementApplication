@@ -225,19 +225,37 @@ class VersionTolerancesViewModel @Inject constructor(
 
     fun setLsl(toleranceId: ID, value: String) {
         _itemVersionTolerances.value = _itemVersionTolerances.value.map {
-            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(lsl = value.toFloatOrNull())) else it
+            if (it.itemTolerance.id == toleranceId) {
+                value.toFloatOrNull()?.let { lsl ->
+                    it.copy(itemTolerance = it.itemTolerance.copy(lsl = lsl, isLslError = false))
+                } ?: run {
+                    if (value.isNotEmpty()) it.copy(itemTolerance = it.itemTolerance.copy(isLslError = true)) else it.copy(itemTolerance = it.itemTolerance.copy(isLslError = false, lsl = null))
+                }
+            } else it
         }
     }
 
     fun setNominal(toleranceId: ID, value: String) {
         _itemVersionTolerances.value = _itemVersionTolerances.value.map {
-            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(nominal = value.toFloatOrNull())) else it
+            if (it.itemTolerance.id == toleranceId) {
+                value.toFloatOrNull()?.let { nominal ->
+                    it.copy(itemTolerance = it.itemTolerance.copy(nominal = nominal, isNominalError = false))
+                } ?: run {
+                    if (value.isNotEmpty()) it.copy(itemTolerance = it.itemTolerance.copy(isNominalError = true)) else it.copy(itemTolerance = it.itemTolerance.copy(isNominalError = false, nominal = null))
+                }
+            } else it
         }
     }
 
     fun setUsl(toleranceId: ID, value: String) {
         _itemVersionTolerances.value = _itemVersionTolerances.value.map {
-            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(usl = value.toFloatOrNull())) else it
+            if (it.itemTolerance.id == toleranceId) {
+                value.toFloatOrNull()?.let { usl ->
+                    it.copy(itemTolerance = it.itemTolerance.copy(usl = usl, isUslError = false))
+                } ?: run {
+                    if (value.isNotEmpty()) it.copy(itemTolerance = it.itemTolerance.copy(isUslError = true)) else it.copy(itemTolerance = it.itemTolerance.copy(isUslError = false, usl = null))
+                }
+            } else it
         }
     }
 

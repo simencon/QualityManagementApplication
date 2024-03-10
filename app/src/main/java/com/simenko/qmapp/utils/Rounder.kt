@@ -28,14 +28,14 @@ object Rounder {
     fun withToleranceStr(it: String, tol: Int): String {
         val format = if (tol == 0) "%d" else "%.${tol}f"
         val number = if (tol == 0) withTolerance(it, tol).roundToLong() else withTolerance(it, tol)
-        return String.format(format, number)
+        return String.format(format, number).replace(",", ".")
     }
 
     fun withToleranceStrCustom(it: Double, tol: Int): String {
         val tolerance = if (it % 1.00 == ZeroDouble.double) 0 else tol
         val format = if (tolerance == 0) "%d" else "%.${tolerance}f"
         val number = if (tolerance == 0) withTolerance(it, tolerance).roundToLong() else withTolerance(it, tolerance)
-        return String.format(format, number)
+        return String.format(format, number).replace(",", ".")
     }
 
     fun getAlpha(transparency: Int): Int {

@@ -247,7 +247,14 @@ data class DomainItemTolerance(
     var nominal: Float?,
     var lsl: Float?,
     var usl: Float?,
-    var isActual: Boolean
+    var isActual: Boolean,
+
+    val isLslError: Boolean = false,
+    val isNominalError: Boolean = false,
+    val isUslError: Boolean = false,
+
+    val isNewRecord: Boolean = false,
+    val toBeDeleted: Boolean = false
 ) : DomainBaseModel<DatabaseItemTolerance>() {
     override fun getRecordId() = id
     override fun getParentId() = NoRecord.num
