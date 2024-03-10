@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -56,7 +57,8 @@ import kotlinx.coroutines.flow.debounce
 @Composable
 fun Tolerances(modifier: Modifier = Modifier, viewModel: VersionTolerancesViewModel = hiltViewModel()) {
 
-    val items by viewModel.tolerances.collectAsStateWithLifecycle(listOf())
+    val items by viewModel.tolerances.collectAsStateWithLifecycle()
+    val errorRow by viewModel.indexOfToleranceErrorRow.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(3, true) }
 
@@ -69,6 +71,13 @@ fun Tolerances(modifier: Modifier = Modifier, viewModel: VersionTolerancesViewMo
         snapshotFlow { listState.firstVisibleItemIndex }.debounce(500L).collectLatest { index ->
             viewModel.storage.setLong(ScrollStates.METRICS.indexKey, index.toLong())
             viewModel.storage.setLong(ScrollStates.METRICS.offsetKey, listState.firstVisibleItemScrollOffset.toLong())
+        }
+    }
+
+    LaunchedEffect(errorRow) {
+        if (errorRow != NoRecord.num) {
+            listState.animateScrollToItem(errorRow.toInt())
+            viewModel.clearIndexOfToleranceErrorRow()
         }
     }
 
@@ -134,9 +143,9 @@ fun Tolerance(
     setNominal: (ID, String) -> Unit = { _, _ -> },
     setUsl: (ID, String) -> Unit = { _, _ -> },
 ) {
-    var lslValue by remember { mutableStateOf(tolerance.lsl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: EmptyString.str) }
-    var nominalValue by remember { mutableStateOf(tolerance.nominal?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: EmptyString.str) }
-    var uslValue by remember { mutableStateOf(tolerance.usl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: EmptyString.str) }
+    var lslValue by remember { mutableStateOf(tolerance.lsl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str) }
+    var nominalValue by remember { mutableStateOf(tolerance.nominal?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str) }
+    var uslValue by remember { mutableStateOf(tolerance.usl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -147,7 +156,15 @@ fun Tolerance(
     Row {
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         RecordFieldItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        if (lslValue == NoString.str) lslValue = EmptyString.str
+                    } else {
+                        if (lslValue == EmptyString.str) lslValue = NoString.str
+                    }
+                },
             isMandatoryField = false,
             valueParam = Triple(lslValue, tolerance.isLslError) {
                 setLsl(tolerance.id, it)
@@ -161,7 +178,16 @@ fun Tolerance(
         )
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         RecordFieldItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        if (nominalValue == NoString.str) nominalValue = EmptyString.str
+                    } else {
+                        if (nominalValue == EmptyString.str) nominalValue = NoString.str
+                    }
+                },
+            isMandatoryField = false,
             valueParam = Triple(nominalValue, tolerance.isNominalError) {
                 setNominal(tolerance.id, it)
                 nominalValue = it
@@ -174,7 +200,15 @@ fun Tolerance(
         )
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         RecordFieldItem(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier
+                .weight(1f)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        if (uslValue == NoString.str) uslValue = EmptyString.str
+                    } else {
+                        if (uslValue == EmptyString.str) uslValue = NoString.str
+                    }
+                },
             isMandatoryField = false,
             valueParam = Triple(uslValue, tolerance.isUslError) {
                 setUsl(tolerance.id, it)

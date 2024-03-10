@@ -197,6 +197,12 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }
 
+    private val _indexOfToleranceErrorRow = MutableStateFlow(NoRecord.num)
+    val indexOfToleranceErrorRow get() = _indexOfToleranceErrorRow.asStateFlow()
+    fun clearIndexOfToleranceErrorRow() {
+        _indexOfToleranceErrorRow.value = NoRecord.num
+    }
+
     val tolerances = _itemVersionTolerances.flatMapLatest { list ->
         _characteristicVisibility.flatMapLatest { cVisibility ->
             _toleranceVisibility.flatMapLatest { tVisibility ->
@@ -221,7 +227,7 @@ class VersionTolerancesViewModel @Inject constructor(
                 }
             }
         }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun setLsl(toleranceId: ID, value: String) {
         _itemVersionTolerances.value = _itemVersionTolerances.value.map {
@@ -229,7 +235,10 @@ class VersionTolerancesViewModel @Inject constructor(
                 value.toFloatOrNull()?.let { lsl ->
                     it.copy(itemTolerance = it.itemTolerance.copy(lsl = lsl, isLslError = false))
                 } ?: run {
-                    if (value.isNotEmpty()) it.copy(itemTolerance = it.itemTolerance.copy(isLslError = true)) else it.copy(itemTolerance = it.itemTolerance.copy(isLslError = false, lsl = null))
+                    if (value.isNotEmpty() && value != NoString.str)
+                        it.copy(itemTolerance = it.itemTolerance.copy(isLslError = true))
+                    else
+                        it.copy(itemTolerance = it.itemTolerance.copy(isLslError = false, lsl = null))
                 }
             } else it
         }
@@ -241,7 +250,10 @@ class VersionTolerancesViewModel @Inject constructor(
                 value.toFloatOrNull()?.let { nominal ->
                     it.copy(itemTolerance = it.itemTolerance.copy(nominal = nominal, isNominalError = false))
                 } ?: run {
-                    if (value.isNotEmpty()) it.copy(itemTolerance = it.itemTolerance.copy(isNominalError = true)) else it.copy(itemTolerance = it.itemTolerance.copy(isNominalError = false, nominal = null))
+                    if (value.isNotEmpty() && value != NoString.str)
+                        it.copy(itemTolerance = it.itemTolerance.copy(isNominalError = true))
+                    else
+                        it.copy(itemTolerance = it.itemTolerance.copy(isNominalError = false, nominal = null))
                 }
             } else it
         }
@@ -253,7 +265,10 @@ class VersionTolerancesViewModel @Inject constructor(
                 value.toFloatOrNull()?.let { usl ->
                     it.copy(itemTolerance = it.itemTolerance.copy(usl = usl, isUslError = false))
                 } ?: run {
-                    if (value.isNotEmpty()) it.copy(itemTolerance = it.itemTolerance.copy(isUslError = true)) else it.copy(itemTolerance = it.itemTolerance.copy(isUslError = false, usl = null))
+                    if (value.isNotEmpty() && value != NoString.str)
+                        it.copy(itemTolerance = it.itemTolerance.copy(isUslError = true))
+                    else
+                        it.copy(itemTolerance = it.itemTolerance.copy(isUslError = false, usl = null))
                 }
             } else it
         }
@@ -323,7 +338,18 @@ class VersionTolerancesViewModel @Inject constructor(
     }
 
     fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
-        _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
+        tolerances.value.let { values ->
+            listOf(
+                values.indexOfFirst { it.second.isLslError },
+                values.indexOfFirst { it.second.isNominalError },
+                values.indexOfFirst { it.second.isUslError }
+            ).filter { it != NoRecord.num.toInt() }.minOrNull()?.let {
+                _indexOfToleranceErrorRow.value = it.toLong()
+            } ?: run {
+                _indexOfToleranceErrorRow.value = NoRecord.num
+                _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
+            }
+        }
     }
 
 
