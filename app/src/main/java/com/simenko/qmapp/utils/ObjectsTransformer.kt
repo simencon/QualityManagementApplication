@@ -20,6 +20,11 @@ constructor(inClass: KClass<T>, outClass: KClass<R>) {
             "isSelected" -> false
             "isNewRecord" -> false
             "toBeDeleted" -> false
+
+            "isLslError" -> false
+            "isNominalError" -> false
+            "isUslError" -> false
+
             else -> return inPropertiesByName[parameter.name]?.get(data)
         }
     }

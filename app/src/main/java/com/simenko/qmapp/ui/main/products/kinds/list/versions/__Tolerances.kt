@@ -20,6 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -131,6 +134,10 @@ fun Tolerance(
     setNominal: (ID, String) -> Unit = { _, _ -> },
     setUsl: (ID, String) -> Unit = { _, _ -> },
 ) {
+    var lslValue by remember { mutableStateOf(tolerance.lsl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: EmptyString.str) }
+    var nominalValue by remember { mutableStateOf(tolerance.nominal?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: EmptyString.str) }
+    var uslValue by remember { mutableStateOf(tolerance.usl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: EmptyString.str) }
+
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val (lslFR) = FocusRequester.createRefs()
@@ -142,20 +149,26 @@ fun Tolerance(
         RecordFieldItem(
             modifier = Modifier.weight(1f),
             isMandatoryField = false,
-            valueParam = Triple(tolerance.lsl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str, false) { setLsl(tolerance.id, it) },
+            valueParam = Triple(lslValue, tolerance.isLslError) {
+                setLsl(tolerance.id, it)
+                lslValue = it
+            },
             enabled = isEditMode,
             keyboardNavigation = Pair(lslFR) { keyboardController?.hide() },
-            keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
+            keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
             contentDescription = Triple(null, "LSL", "LSL"),
             containerColor = Color.White
         )
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         RecordFieldItem(
             modifier = Modifier.weight(1f),
-            valueParam = Triple(tolerance.nominal?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str, false) { setNominal(tolerance.id, it) },
+            valueParam = Triple(nominalValue, tolerance.isNominalError) {
+                setNominal(tolerance.id, it)
+                nominalValue = it
+            },
             enabled = isEditMode,
             keyboardNavigation = Pair(nominalFR) { keyboardController?.hide() },
-            keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
+            keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
             contentDescription = Triple(null, "Nominal", "Nominal"),
             containerColor = Color.White
         )
@@ -163,10 +176,13 @@ fun Tolerance(
         RecordFieldItem(
             modifier = Modifier.weight(1f),
             isMandatoryField = false,
-            valueParam = Triple(tolerance.usl?.toDouble()?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str, false) { setUsl(tolerance.id, it) },
+            valueParam = Triple(uslValue, tolerance.isUslError) {
+                setUsl(tolerance.id, it)
+                uslValue = it
+            },
             enabled = isEditMode,
             keyboardNavigation = Pair(uslFR) { keyboardController?.hide() },
-            keyBoardTypeAction = Pair(KeyboardType.Decimal, ImeAction.Done),
+            keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
             contentDescription = Triple(null, "USL", "USL"),
             containerColor = Color.White
         )
