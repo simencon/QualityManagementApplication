@@ -1,8 +1,5 @@
 package com.simenko.qmapp.ui.main.products.kinds.list.versions
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +45,7 @@ import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.ui.common.HeaderWithTitle
 import com.simenko.qmapp.ui.common.ItemCard
 import com.simenko.qmapp.ui.common.RecordFieldItem
+import com.simenko.qmapp.ui.common.TrueFalseField
 import com.simenko.qmapp.utils.Rounder
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
@@ -106,13 +104,18 @@ fun MetricCard(
         actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
     ) {
         Column {
-            Metric(metric = metric)
+            Metric(
+                metric = metric,
+                isEditMode = isEditMode,
+                isToleranceActual = Pair(tolerance.id, tolerance.isActual),
+                setActuality = viewModel::setActuality
+            )
             Tolerance(
                 isEditMode = isEditMode,
                 tolerance = tolerance,
-                viewModel::setLsl,
-                viewModel::setNominal,
-                viewModel::setUsl
+                setLsl = viewModel::setLsl,
+                setNominal = viewModel::setNominal,
+                setUsl = viewModel::setUsl
             )
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
@@ -120,17 +123,33 @@ fun MetricCard(
 }
 
 @Composable
-fun Metric(metric: DomainMetrix) {
-    Column(
-        modifier = Modifier
-            .padding(all = DEFAULT_SPACE.dp)
-            .animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))
-    ) {
-        HeaderWithTitle(titleWight = 0.07f, title = metric.metrixOrder.toString(), text = metric.metrixDescription ?: NoString.str)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        HeaderWithTitle(titleWight = 0.50f, title = "Metric designation:", text = metric.metrixDesignation ?: NoString.str)
-        Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
-        HeaderWithTitle(titleWight = 0.50f, title = "Metric unit:", text = metric.units ?: NoString.str)
+fun Metric(
+    metric: DomainMetrix,
+    isEditMode: Boolean,
+    isToleranceActual: Pair<ID, Boolean>,
+    setActuality: (ID, Boolean) -> Unit
+) {
+    Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
+        Column(modifier = Modifier.weight(0.55f)) {
+            HeaderWithTitle(titleWight = 0.07f, title = metric.metrixOrder.toString(), text = metric.metrixDescription ?: NoString.str)
+            Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+            Row {
+                Column(modifier = Modifier.weight(0.55f)) {
+                    HeaderWithTitle(titleWight = 0.60f, title = "Designation:", text = metric.metrixDesignation ?: NoString.str)
+                    Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
+                    HeaderWithTitle(titleWight = 0.60f, title = "Unit:", text = metric.units ?: NoString.str)
+                }
+                TrueFalseField(
+                    modifier = Modifier.weight(0.45f),
+                    value = isToleranceActual.second,
+                    description = "Actual?",
+                    containerColor = Color.Transparent,
+                    enabled = isEditMode,
+                    isError = false,
+                    onSwitch = { setActuality(isToleranceActual.first, it) }
+                )
+            }
+        }
     }
 }
 

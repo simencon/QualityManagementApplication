@@ -229,6 +229,12 @@ class VersionTolerancesViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
+    fun setActuality(toleranceId: ID, value: Boolean) {
+        _itemVersionTolerances.value = _itemVersionTolerances.value.map {
+            if (it.itemTolerance.id == toleranceId) it.copy(itemTolerance = it.itemTolerance.copy(isActual = value)) else it
+        }
+    }
+
     fun setLsl(toleranceId: ID, value: String) {
         _itemVersionTolerances.value = _itemVersionTolerances.value.map {
             if (it.itemTolerance.id == toleranceId) {
