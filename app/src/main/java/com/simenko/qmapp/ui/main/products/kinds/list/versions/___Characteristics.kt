@@ -12,10 +12,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +45,8 @@ fun Characteristics(
     val items by viewModel.characteristics.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(dId = SelectedNumber(it)) } }
+    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setCharacteristicsVisibility(aId = SelectedNumber(it)) } }
+    val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.deleteCharacteristic(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(2, true) }
 
@@ -53,7 +54,9 @@ fun Characteristics(
         items.forEach { item ->
             CharacteristicCard(
                 characteristic = item,
-                onClickDetails = { onClickDetailsLambda(it) }
+                onClickDetails = onClickDetailsLambda,
+                onClickActions = onClickActionsLambda,
+                onClickDelete = onClickDeleteLambda
             )
         }
     }
@@ -62,13 +65,17 @@ fun Characteristics(
 @Composable
 fun CharacteristicCard(
     characteristic: DomainCharacteristic,
-    onClickDetails: (ID) -> Unit
+    onClickDetails: (ID) -> Unit,
+    onClickActions: (ID) -> Unit,
+    onClickDelete: (ID) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = characteristic,
         contentColors = Triple(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
-        actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
+        actionButtonsImages = arrayOf(Icons.Filled.Delete),
+        onClickActions = onClickActions,
+        onClickDelete = onClickDelete
     ) {
         Characteristic(
             characteristic = characteristic,
@@ -105,7 +112,7 @@ fun Characteristic(
 
         IconButton(onClick = { onClickDetails(characteristic.id) }, modifier = Modifier.weight(weight = 0.09f)) {
             Icon(
-                imageVector = if (characteristic.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
+                imageVector = if (characteristic.detailsVisibility) Icons.AutoMirrored.Filled.NavigateBefore else Icons.AutoMirrored.Filled.NavigateNext,
                 contentDescription = if (characteristic.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
             )
         }
