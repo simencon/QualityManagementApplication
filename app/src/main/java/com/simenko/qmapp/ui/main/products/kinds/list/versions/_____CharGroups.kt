@@ -13,10 +13,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,9 +54,11 @@ fun CharGroups(
     modifier: Modifier = Modifier,
     viewModel: VersionTolerancesViewModel = hiltViewModel()
 ) {
+    val itemVersion by viewModel.itemVersion.collectAsStateWithLifecycle()
     val items by viewModel.characteristicGroups.collectAsStateWithLifecycle(listOf())
 
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setCharGroupsVisibility(dId = SelectedNumber(it)) } }
+    val onClickAddLambda = remember<(String) -> Unit> { { viewModel.addCharacteristic(it) } }
 
     LaunchedEffect(Unit) { viewModel.setIsComposed(0, true) }
 
@@ -76,6 +80,15 @@ fun CharGroups(
                 viewModel = viewModel,
                 charGroup = item,
                 onClickDetails = { onClickDetailsLambda(it) },
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(0.dp))
+            FloatingActionButton(
+                modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                onClick = { onClickAddLambda(itemVersion.itemVersion.fId) },
+                content = { Icon(imageVector = Icons.Default.Add, contentDescription = "Add sub order") }
             )
         }
     }
