@@ -60,7 +60,6 @@ import com.simenko.qmapp.utils.StringUtils.getStringDate
 import com.simenko.qmapp.utils.dp
 import com.simenko.qmapp.utils.observeAsState
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun VersionTolerances(
     mainScreenPadding: PaddingValues,
@@ -198,7 +197,7 @@ fun VersionSpecificationHeader(
             TrueFalseField(
                 modifier = Modifier.weight(0.45f),
                 value = itemVersion.itemVersion.isDefault,
-                description = "Is default?",
+                description = "Default?",
                 containerColor = Color.Transparent,
                 enabled = isEditMode,
                 isError = itemVersionErrors.versionStatusError,
@@ -220,7 +219,7 @@ fun VersionSpecificationHeader(
                 enabled = isEditMode,
                 keyboardNavigation = Pair(versionDescriptionFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(null, "Version ID", "Enter version ID")
+                contentDescription = Triple(null, "Version ID", "version ID")
             )
             Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
             RecordFieldItem(
@@ -229,7 +228,7 @@ fun VersionSpecificationHeader(
                 enabled = isEditMode,
                 keyboardNavigation = Pair(versionDateFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(null, "Version date", "Pick date"),
+                contentDescription = Triple(null, "Version date", "pick date"),
                 readOnly = true,
                 interactionSource = interactionSource
             )
@@ -242,7 +241,7 @@ fun VersionSpecificationHeader(
                 onDropdownMenuItemClick = { setVersionStatus(it) },
                 keyboardNavigation = Pair(versionStatusFR) { keyboardController?.hide() },
                 keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-                contentDescription = Triple(null, "Status", "Status")
+                contentDescription = Triple(null, "Status", "status")
             )
             Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         }
