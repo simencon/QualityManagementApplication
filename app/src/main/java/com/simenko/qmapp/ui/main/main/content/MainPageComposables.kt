@@ -361,11 +361,11 @@ fun ItemsGroup(
     withDivider: Boolean = true
 ) {
     if (withDivider) {
-        Divider(
-            color = MaterialTheme.colorScheme.secondary,
+        HorizontalDivider(
             modifier = Modifier
                 .height(1.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            color = MaterialTheme.colorScheme.secondary
         )
         Spacer(modifier = Modifier.height(10.dp))
     }

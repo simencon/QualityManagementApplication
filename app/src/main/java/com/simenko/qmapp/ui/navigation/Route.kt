@@ -60,6 +60,7 @@ object NavRouteName {
     const val product_line_keys = "product_line_keys"
     const val product_kinds = "product_kinds"
     const val product_kind_keys = "product_kind_keys"
+    const val product_kind_characteristics = "product_kind_characteristics"
     const val product_specification = "product_specification"
     const val component_kind_keys = "component_kind_keys"
     const val component_stage_kind_keys = "component_kind_keys"
@@ -529,6 +530,28 @@ sealed class Route(
                                 defaultValue = NoRecord.num
                             },
                             navArgument(NavArguments.productKindKeyId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            }
+                        ),
+                        route = NavRouteName.product_kinds
+                    )
+
+                    data object ProductKindCharacteristics: Route(
+                        link = NavRouteName.product_kind_characteristics + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.characteristicId)}",
+                        deepLinks = listOf(
+                            navDeepLink {
+                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_kind_characteristics}" +
+                                        "?${opt(NavArguments.productKindId)}&${opt(NavArguments.characteristicId)}"
+                                action = Intent.ACTION_VIEW
+                            }
+                        ),
+                        arguments = listOf(
+                            navArgument(NavArguments.productKindId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.characteristicId) {
                                 type = NavType.LongType
                                 defaultValue = NoRecord.num
                             }

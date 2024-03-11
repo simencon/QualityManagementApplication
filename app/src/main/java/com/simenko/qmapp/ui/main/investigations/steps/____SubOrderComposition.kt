@@ -73,7 +73,7 @@ fun SubOrders(
                 }
             }
         }
-        Divider(modifier = Modifier.height(0.dp))
+        HorizontalDivider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -250,7 +250,7 @@ fun SubOrderDetails(
 ) {
     if (subOrder.detailsVisibility) {
         Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Ordered by:", value = subOrder.orderedBy.fullName, titleWight = 0.22f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))

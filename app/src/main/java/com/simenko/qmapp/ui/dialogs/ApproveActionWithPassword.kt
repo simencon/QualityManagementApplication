@@ -161,7 +161,7 @@ fun ApproveAction(
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                     )
-                    Divider(
+                    HorizontalDivider(
                         modifier = modifier
                             .width(1.dp)
                             .height(48.dp), color = MaterialTheme.colorScheme.onPrimary

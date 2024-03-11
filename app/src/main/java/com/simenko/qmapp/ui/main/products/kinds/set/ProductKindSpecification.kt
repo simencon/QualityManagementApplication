@@ -14,12 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -70,7 +70,7 @@ fun ProductKindSpecification(
         Spacer(modifier = Modifier.height(10.dp))
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = product.productLine.manufacturingProject.projectSubject ?: NoString.str)
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = product.productKind.productKindDesignation)
-        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
             items(items = items, key = { it.componentKind.id }) { componentKind ->
                 ComponentKindCard(
@@ -133,7 +133,7 @@ fun ComponentKind(
                     StatusChangeBtn(modifier = Modifier.weight(0.5f), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show specification")
                         }
                     }
                 }
@@ -159,7 +159,7 @@ fun ComponentKindDetails(
 ) {
     if (componentKind.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
         ComponentStageKinds(viewModel = viewModel)

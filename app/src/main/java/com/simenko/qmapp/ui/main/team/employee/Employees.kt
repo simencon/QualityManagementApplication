@@ -163,7 +163,7 @@ fun Employee(
         if (item.detailsVisibility) {
             Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
                 val dep = item.department?.depAbbr + if (item.subDepartment?.subDepAbbr.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment?.subDepAbbr}"
-                Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+                HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(title = "Job role:", value = item.teamMember.jobRole, titleWight = 0.2f)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))

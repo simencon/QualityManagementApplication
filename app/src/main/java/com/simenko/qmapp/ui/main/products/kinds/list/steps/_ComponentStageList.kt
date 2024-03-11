@@ -13,14 +13,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -77,7 +77,7 @@ fun ComponentStageList(viewModel: ProductListViewModel = hiltViewModel()) {
                 )
             }
         }
-        Divider(modifier = Modifier.height(0.dp))
+        HorizontalDivider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -141,7 +141,7 @@ fun ComponentStage(
                                 tint = if (componentStage.versions.isNotEmpty()) Color.Green else Color.Red,
                             )
                             Text(text = "Versions", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = if (borderColor == null) Icons.Filled.NavigateNext else Icons.Filled.NavigateBefore, contentDescription = "Show versions")
+                            Icon(imageVector = if (borderColor == null) Icons.AutoMirrored.Filled.NavigateNext else Icons.AutoMirrored.Filled.NavigateBefore, contentDescription = "Show versions")
                         }
                     }
                 }

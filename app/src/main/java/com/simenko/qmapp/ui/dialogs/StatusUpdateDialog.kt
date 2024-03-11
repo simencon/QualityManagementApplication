@@ -181,7 +181,7 @@ fun StatusUpdateDialog(
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
-                    Divider(
+                    HorizontalDivider(
                         modifier = modifier
                             .width(1.dp)
                             .height(48.dp), color = MaterialTheme.colorScheme.onPrimary

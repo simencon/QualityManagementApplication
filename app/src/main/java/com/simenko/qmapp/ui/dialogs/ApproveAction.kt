@@ -87,7 +87,7 @@ fun UserExistDialog(
                             textAlign = TextAlign.Center
                         )
                     }
-                    Divider(modifier = modifier.width(1.dp).height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    HorizontalDivider(modifier = modifier.width(1.dp).height(48.dp), color = MaterialTheme.colorScheme.onPrimary)
                     TextButton(
                         modifier = Modifier.weight(1f),
                         onClick = onOk,

@@ -30,10 +30,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.LowPriority
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -130,7 +130,7 @@ fun PreviousOperations(
     onClickAdd: () -> Unit
 ) {
     Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .height(1.dp)
                 .padding(horizontal = Constants.DEFAULT_SPACE.dp), color = MaterialTheme.colorScheme.secondary
