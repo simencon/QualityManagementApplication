@@ -14,9 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -142,7 +142,7 @@ fun ComponentVersion(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show specification")
                 }
             }
         }

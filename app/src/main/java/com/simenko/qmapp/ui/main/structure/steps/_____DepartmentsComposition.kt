@@ -18,7 +18,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -172,7 +172,7 @@ fun DepartmentDetails(
 
     if (department.detailsVisibility) {
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Functions:", value = department.department.depOrganization ?: NoString.str, titleWight = 0.24f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))

@@ -187,7 +187,7 @@ fun User(
             ) {
                 val modifier: Modifier = Modifier.padding(bottom = DEFAULT_SPACE.dp)
                 val department = item.department + if (item.subDepartment.isNullOrEmpty()) EmptyString.str else "/${item.subDepartment}"
-                Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+                HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 ContentWithTitle(modifier = modifier, title = "Job role: ", value = item.jobRole ?: NoString.str, titleWight = 0.3f)
                 ContentWithTitle(modifier = modifier, title = "Department: ", value = department, titleWight = 0.3f)

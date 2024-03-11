@@ -230,7 +230,7 @@ fun OrderDetails(
 ) {
     if (detailsVisibility) {
         Column(modifier = Modifier.padding(all = DEFAULT_SPACE.dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
             ContentWithTitle(title = "Initiated by:", value = placerFullName, titleWight = 0.35f)
             Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))

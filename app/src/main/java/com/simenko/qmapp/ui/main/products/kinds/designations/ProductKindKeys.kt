@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,7 +46,7 @@ fun ProductKindKeys(
         Spacer(modifier = Modifier.height(10.dp))
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = product.productLine.manufacturingProject.projectSubject ?: NoString.str)
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = product.productKind.productKindDesignation)
-        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
             items(items = items, key = { it.productKindKey.id }) { key ->
                 KeyCard(

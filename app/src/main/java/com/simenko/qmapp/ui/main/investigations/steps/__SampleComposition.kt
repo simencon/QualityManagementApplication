@@ -125,7 +125,7 @@ fun Sample(
             }
         }
         if (sample.detailsVisibility) {
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .height(1.dp)
                     .padding(horizontal = DEFAULT_SPACE.dp),

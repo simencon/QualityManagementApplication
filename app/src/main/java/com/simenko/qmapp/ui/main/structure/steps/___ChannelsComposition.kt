@@ -14,13 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -79,7 +79,7 @@ fun Channels(
                 )
             }
         }
-        Divider(modifier = Modifier.height(0.dp))
+        HorizontalDivider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -156,7 +156,7 @@ fun Channel(
 
         IconButton(onClick = { onClickDetails(channel.id) }, modifier = Modifier.weight(weight = 0.09f)) {
             Icon(
-                imageVector = if (channel.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
+                imageVector = if (channel.detailsVisibility) Icons.AutoMirrored.Filled.NavigateBefore else Icons.AutoMirrored.Filled.NavigateNext,
                 contentDescription = if (channel.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
             )
         }

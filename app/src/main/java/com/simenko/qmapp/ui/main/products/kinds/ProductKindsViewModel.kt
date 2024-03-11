@@ -97,6 +97,10 @@ class ProductKindsViewModel @Inject constructor(
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductKindKeys.withOpts(it.toString()))
     }
 
+    fun onProductKindCharacteristicsClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductKindCharacteristics.withOpts(it.toString()))
+    }
+
     fun onProductKindSpecificationClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.withOpts(it.toString()))
     }

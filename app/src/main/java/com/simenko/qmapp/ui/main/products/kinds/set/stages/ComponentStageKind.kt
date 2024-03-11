@@ -14,12 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -68,7 +68,7 @@ fun ComponentStageKinds(
                 )
             }
         }
-        Divider(modifier = Modifier.height(0.dp))
+        HorizontalDivider(modifier = Modifier.height(0.dp))
         FloatingActionButton(
             modifier = Modifier.padding(top = (DEFAULT_SPACE / 2).dp, end = DEFAULT_SPACE.dp, bottom = DEFAULT_SPACE.dp),
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -115,7 +115,7 @@ fun ComponentStageKind(
             StatusChangeBtn(modifier = Modifier.weight(0.45f), containerColor = containerColor, onClick = { onClickKeys(componentStageKind.componentStageKind.id) }) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show specification")
                 }
             }
             Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))

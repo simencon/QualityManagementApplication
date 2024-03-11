@@ -7,6 +7,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateBefore
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -192,7 +194,7 @@ fun SubOrderTask(
         }
         IconButton(onClick = { onClickDetails(subOrderTask.subOrderTask.id) }, modifier = Modifier.weight(weight = 0.10f)) {
             Icon(
-                imageVector = if (subOrderTask.detailsVisibility) Icons.Filled.NavigateBefore else Icons.Filled.NavigateNext,
+                imageVector = if (subOrderTask.detailsVisibility) Icons.AutoMirrored.Filled.NavigateBefore else Icons.AutoMirrored.Filled.NavigateNext,
                 contentDescription = if (subOrderTask.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more),
             )
         }

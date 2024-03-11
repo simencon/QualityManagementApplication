@@ -113,6 +113,18 @@ enum class Page(
         actionBtnIcon = null,
         actionMenuItems = null
     ),
+    PRODUCT_KIND_CHARACTERISTICS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductKindCharacteristics.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Product kind designations",
+        titlePlaceholderText = "Search by char. name",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
     PRODUCT_KIND_SPECIFICATION(
         link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.link,
         navIcon = Icons.Filled.ArrowBack,

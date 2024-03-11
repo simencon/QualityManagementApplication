@@ -16,12 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NavigateNext
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.NavigateNext
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -64,6 +64,7 @@ fun ProductKinds(
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditProductKindClick(it) } }
 
     val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onProductKindKeysClick(it) } }
+    val onClickCharacteristics = remember<(ID) -> Unit> { { viewModel.onProductKindCharacteristicsClick(it) } }
     val onClickSpecificationLambda = remember<(ID) -> Unit> { { viewModel.onProductKindSpecificationClick(it) } }
     val onClickItemsLambda = remember<(ID) -> Unit> { { viewModel.onProductKindItemsClick(it) } }
 
@@ -73,18 +74,19 @@ fun ProductKinds(
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
         InfoLine(modifier = modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = productLine.projectSubject ?: NoString.str)
-        Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
             items(items = items, key = { it.productKind.id }) { productLine ->
                 ProductKindCard(
                     productLine = productLine,
-                    onClickActions = { onClickActionsLambda(it) },
-                    onClickDelete = { onClickDeleteLambda(it) },
-                    onClickEdit = { onClickEditLambda(it) },
-                    onClickDetails = { onClickDetailsLambda(it) },
-                    onClickKeys = { onClickKeysLambda(it) },
-                    onClickSpecification = { onClickSpecificationLambda(it) },
-                    onClickItems = { onClickItemsLambda(it) }
+                    onClickActions = onClickActionsLambda,
+                    onClickDelete = onClickDeleteLambda,
+                    onClickEdit = onClickEditLambda,
+                    onClickDetails = onClickDetailsLambda,
+                    onClickKeys = onClickKeysLambda,
+                    onClickCharacteristics = onClickCharacteristics,
+                    onClickSpecification = onClickSpecificationLambda,
+                    onClickItems = onClickItemsLambda
                 )
             }
         }
@@ -100,6 +102,7 @@ fun ProductKindCard(
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
     onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
     onClickSpecification: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
@@ -114,10 +117,11 @@ fun ProductKindCard(
     ) {
         ProductLine(
             productKind = productLine,
-            onClickDetails = { onClickDetails(it) },
-            onClickKeys = { onClickKeys(it) },
-            onClickSpecification = { onClickSpecification(it) },
-            onClickItems = { onClickItems(it) }
+            onClickDetails = onClickDetails,
+            onClickKeys = onClickKeys,
+            onClickCharacteristics = onClickCharacteristics,
+            onClickSpecification = onClickSpecification,
+            onClickItems = onClickItems
         )
     }
 }
@@ -127,6 +131,7 @@ fun ProductLine(
     productKind: DomainProductKind.DomainProductKindComplete,
     onClickDetails: (ID) -> Unit,
     onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
     onClickSpecification: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
@@ -146,7 +151,13 @@ fun ProductLine(
                 )
             }
         }
-        ProductKindDetails(productKind = productKind, onClickKeys = onClickKeys, onClickSpecification = onClickSpecification, onClickItems = onClickItems)
+        ProductKindDetails(
+            productKind = productKind,
+            onClickKeys = onClickKeys,
+            onClickCharacteristics = onClickCharacteristics,
+            onClickSpecification = onClickSpecification,
+            onClickItems = onClickItems
+        )
     }
 }
 
@@ -154,6 +165,7 @@ fun ProductLine(
 fun ProductKindDetails(
     productKind: DomainProductKind.DomainProductKindComplete,
     onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
     onClickSpecification: (ID) -> Unit,
     onClickItems: (ID) -> Unit
 ) {
@@ -161,7 +173,7 @@ fun ProductKindDetails(
         val containerColor = if (productKind.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
 
         Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = (DEFAULT_SPACE / 2).dp)) {
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
             Row(modifier = Modifier.fillMaxSize()) {
                 Spacer(modifier = Modifier.weight(0.30f))
@@ -169,21 +181,28 @@ fun ProductKindDetails(
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickKeys(productKind.productKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show designation")
+                        }
+                    }
+
+                    StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickCharacteristics(productKind.productKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Characteristics", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show characteristics")
                         }
                     }
 
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickSpecification(productKind.productKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Product set", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show specification")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show specification")
                         }
                     }
 
                     StatusChangeBtn(modifier = Modifier.fillMaxWidth(), containerColor = containerColor, onClick = { onClickItems(productKind.productKind.id) }) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "Product list", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.Filled.NavigateNext, contentDescription = "Show items")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show items")
                         }
                     }
                 }

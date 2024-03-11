@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -90,7 +90,7 @@ fun ProductKindProducts(
             Spacer(modifier = Modifier.height(10.dp))
             InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = "Product line", body = productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
             InfoLine(modifier = Modifier.padding(start = DEFAULT_SPACE.dp), title = "Product", body = productKind.productKind.productKindDesignation)
-            Divider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         }
         Row(
             Modifier

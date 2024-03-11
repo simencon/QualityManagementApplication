@@ -3,7 +3,7 @@ package com.simenko.qmapp.ui.main.investigations.forms.steps
 import android.widget.NumberPicker
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -78,7 +78,7 @@ fun ButtonsSectionQuantity(
             content()
         }
         Spacer(Modifier.height(0.dp))
-        Divider(modifier = modifier.height(2.dp), color = MaterialTheme.colorScheme.secondary)
+        HorizontalDivider(modifier = modifier.height(2.dp), color = MaterialTheme.colorScheme.secondary)
     }
 }
 
