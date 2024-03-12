@@ -180,6 +180,19 @@ data class DomainCharacteristicComponentStageKind(
     override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristicComponentStageKind::class, DatabaseCharacteristicComponentStageKind::class).transform(this)
 }
 
+data class DomainCharacteristicItemKind(
+    val fId: String,
+    val id: ID,
+    val charId: ID,
+    val itemKindFId: String,
+    val itemKindId: ID
+): DomainBaseModel<DatabaseCharacteristicItemKind>(){
+    override fun getRecordId() = fId
+    override fun getParentId() = NoRecord.num
+    override fun setIsSelected(value: Boolean) {}
+    override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristicItemKind::class, DatabaseCharacteristicItemKind::class).transform(this)
+}
+
 @Stable
 data class DomainResultTolerance(
     var id: ID = NoRecord.num,

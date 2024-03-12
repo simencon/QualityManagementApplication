@@ -316,6 +316,28 @@ data class DatabaseCharacteristicComponentStageKind(
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicComponentStageKind::class, DomainCharacteristicComponentStageKind::class).transform(this)
 }
 
+@DatabaseView(
+    viewName = "item_kind_characteristic",
+    value = """
+        select ('p'||cpk.id) as fId, cpk.id as id, cpk.charId as charId, ('p'||cpk.productKindId) as itemKindFId, cpk.productKindId as itemKindId from `1_7_characteristics_product_kinds` as cpk
+        union all
+        select ('c'||cck.id) as fId, cck.id as id, cck.charId as charId, ('c'||cck.componentKindId) as itemKindFId, cck.componentKindId as itemKindId from `3_7_characteristics_component_kinds` as cck
+        union all
+        select ('s'||csk.id) as fId, csk.id as id, csk.charId as charId, ('s'||csk.componentStageKindId) as itemKindFId, csk.componentStageKindId as itemKindId from `5_7_characteristic_component_stage_kinds` as csk
+        """
+)
+data class DatabaseCharacteristicItemKind(
+    val fId: String,
+    val id: ID,
+    val charId: ID,
+    val itemKindFId: String,
+    val itemKindId: ID
+) : DatabaseBaseModel<Any?, DomainCharacteristicItemKind> {
+    override fun getRecordId() = fId
+    override fun toNetworkModel() = null
+    override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicItemKind::class, DomainCharacteristicItemKind::class).transform(this)
+}
+
 @Entity(
     tableName = "9_8_product_tolerances",
     foreignKeys = [
