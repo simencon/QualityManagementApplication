@@ -122,7 +122,7 @@ data class DatabaseCharSubGroup constructor(
         )
     ]
 )
-data class DatabaseCharacteristic constructor(
+data class DatabaseCharacteristic (
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
@@ -136,6 +136,33 @@ data class DatabaseCharacteristic constructor(
     override fun getRecordId() = id
     override fun toNetworkModel() = ObjectTransformer(DatabaseCharacteristic::class, NetworkCharacteristic::class).transform(this)
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristic::class, DomainCharacteristic::class).transform(this)
+
+    @DatabaseView(
+        viewName = "characteristicWithParents",
+        value = """
+        select cg.id as groupId, cg.ishElement as groupDescription,
+        csg.id as subGroupId, csg.ishElement as subGroupDescription,
+        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription
+        from `7_characteristics` as c
+        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id
+        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id
+        order by cg.id, csg.id, c.charOrder
+        """
+    )
+    data class DatabaseCharacteristicWithParents(
+        val groupId: ID,
+        val groupDescription: String,
+        val subGroupId: ID,
+        val subGroupDescription: String,
+        val charId: ID,
+        val charOrder: Int,
+        val charDesignation: String?,
+        val charDescription: String
+    ): DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicWithParents> {
+        override fun getRecordId() = charId
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicWithParents::class, DomainCharacteristic.DomainCharacteristicWithParents::class).transform(this)
+    }
 
     @DatabaseView(
         viewName = "characteristic_complete",
@@ -336,6 +363,24 @@ data class DatabaseCharacteristicItemKind(
     override fun getRecordId() = fId
     override fun toNetworkModel() = null
     override fun toDomainModel() = ObjectTransformer(DatabaseCharacteristicItemKind::class, DomainCharacteristicItemKind::class).transform(this)
+
+    data class DatabaseCharacteristicItemKindComplete(
+        @Embedded
+        val characteristicItemKind: DatabaseCharacteristicItemKind,
+        @Relation(
+            entity = DatabaseCharacteristic.DatabaseCharacteristicWithParents::class,
+            parentColumn = "charId",
+            entityColumn = "charId"
+        )
+        val characteristicWithParents: DatabaseCharacteristic.DatabaseCharacteristicWithParents
+    ): DatabaseBaseModel<Any?, DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete> {
+        override fun getRecordId() = characteristicItemKind.fId
+        override fun toNetworkModel() = null
+        override fun toDomainModel() = DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete(
+            characteristicItemKind = this.characteristicItemKind.toDomainModel(),
+            characteristicWithParents = this.characteristicWithParents.toDomainModel()
+        )
+    }
 }
 
 @Entity(

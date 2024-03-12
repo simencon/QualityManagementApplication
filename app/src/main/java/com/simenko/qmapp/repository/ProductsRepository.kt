@@ -88,8 +88,8 @@ class ProductsRepository @Inject constructor(
         database.productKindDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
 
-    val productKindCharGroups: (ID) -> Flow<List<DomainCharGroup.DomainCharGroupComplete>> = {
-        TODO("Not yet implemented")
+    val itemKindCharsComplete: (String) -> Flow<List<DomainCharacteristicItemKind.DomainCharacteristicItemKindComplete>> = {
+        database.productKindDao.getItemVersionTolerancesComplete(it).map { list -> list.map { it.toDomainModel() } }
     }
 
     val productKindKeys: (ID) -> Flow<List<DomainProductKindKey.DomainProductKindKeyComplete>> = { pId ->

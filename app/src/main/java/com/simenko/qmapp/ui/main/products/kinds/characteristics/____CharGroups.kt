@@ -49,7 +49,7 @@ fun CharGroups(
     val listState = rememberLazyListState()
 
     LazyColumn(modifier = modifier, state = listState, horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
-        items(items = items, key = { it.charGroup.id }) { item ->
+        items(items = items, key = { it.id }) { item ->
             CharGroupCard(
                 viewModel = viewModel,
                 charGroup = item,
@@ -64,7 +64,7 @@ fun CharGroups(
 @Composable
 fun CharGroupCard(
     viewModel: ProductKindCharacteristicsViewModel,
-    charGroup: DomainCharGroup.DomainCharGroupComplete,
+    charGroup: DomainCharGroup,
     onClickDetails: (ID) -> Unit,
     onClickActions: (ID) -> Unit,
 ) {
@@ -86,15 +86,15 @@ fun CharGroupCard(
 @Composable
 fun CharGroup(
     viewModel: ProductKindCharacteristicsViewModel = hiltViewModel(),
-    charGroup: DomainCharGroup.DomainCharGroupComplete,
+    charGroup: DomainCharGroup,
     onClickDetails: (ID) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.72f)) {
-                HeaderWithTitle(titleWight = 0.37f, title = "Characteristics group:", text = charGroup.charGroup.ishElement ?: NoString.str)
+                HeaderWithTitle(titleWight = 0.37f, title = "Characteristics group:", text = charGroup.ishElement ?: NoString.str)
             }
-            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(charGroup.charGroup.id) }) {
+            IconButton(modifier = Modifier.weight(weight = 0.10f), onClick = { onClickDetails(charGroup.id) }) {
                 Icon(
                     imageVector = if (charGroup.detailsVisibility) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                     contentDescription = if (charGroup.detailsVisibility) stringResource(R.string.show_less) else stringResource(R.string.show_more)
@@ -108,7 +108,7 @@ fun CharGroup(
 @Composable
 fun CharGroupDetails(
     viewModel: ProductKindCharacteristicsViewModel,
-    charGroup: DomainCharGroup.DomainCharGroupComplete
+    charGroup: DomainCharGroup
 ) {
     if (charGroup.detailsVisibility) {
 //        CharSubGroups(viewModel = viewModel)

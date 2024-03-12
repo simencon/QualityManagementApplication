@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4c3dfccf8bb23cbc9a938202651188c2",
+    "identityHash": "40900d073d26fedf9e225aeb376ed529",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4654,6 +4654,10 @@
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS select mof.id, mof.currentOperationId, mof.previousOperationId, pmo.operationOrder, pmo.operationAbbr, pmo.operationDesignation, pmo.equipment, \n        c.id as companyId, c.companyOrder, c.companyName, \n        d.id as depId, d.depOrder, d.depAbbr, \n        sd.id as subDepId, sd.subDepOrder, sd.subDepAbbr, \n        mc.id as channelId, mc.channelOrder, mc.channelAbbr, \n        ml.id as lineId, ml.lineOrder, ml.lineAbbr\n        from `14_14_manufacturing_operations_flow` as mof\n        inner join `14_manufacturing_operations` as pmo on mof.previousOperationId = pmo.id\n        inner join `13_manufacturing_lines` as ml on pmo.lineId = ml.id\n        inner join `12_manufacturing_channels` as mc on ml.chId = mc.id\n        inner join `11_sub_departments` as sd on mc.subDepId = sd.id\n        inner join `10_departments` as d on sd.depId = d.id\n        inner join `0_companies` as c on d.companyId = c.id\n        order by d.depOrder, sd.subDepOrder, mc.channelOrder, ml.lineOrder, pmo.operationOrder;"
       },
       {
+        "viewName": "itemKinds",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select ('p'||pk.id) as fId, pk.id as id, pk.projectId as pId, 0 as itemKindOrder, pk.productKindDesignation as itemKindDesignation, pk.comments as comments from `1_product_kinds` as pk\n        union all\n        select ('c'||ck.id) as fId, ck.id as id, ck.productKindId as pId, ck.componentKindOrder as itemKindOrder, ck.componentKindDescription as itemKindDesignation, null as comments from `3_component_kinds` as ck\n        union all\n        select ('s'||sk.id) as fId, sk.id as id, sk.componentKindId as pId, sk.componentStageOrder as itemKindOrder, sk.componentStageDescription as itemKindDesignation, null as comments from `5_component_stage_kinds` as sk"
+      },
+      {
         "viewName": "items",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.id as id, ('p'|| p.Id) as fId, p.keyId, p.productDesignation as itemDesignation FROM `2_products` AS p UNION ALL SELECT c.id as id, ('c'|| c.Id) as fId, c.keyId, c.componentDesignation as itemDesignation FROM `4_components` AS c UNION ALL SELECT s.id as id, ('s'|| s.Id) as fId, s.keyId, s.componentInStageDescription as itemDesignation FROM `6_components_in_stages` AS s;"
       },
@@ -4664,6 +4668,14 @@
       {
         "viewName": "item_versions",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT pv.id as id, ('p'|| pv.id) as fId, pv.productId as itemId, ('p'|| pv.productId) as fItemId, pv.versionDescription, pv.versionDate, pv.statusId, pv.isDefault FROM `9_products_versions` AS pv UNION ALL SELECT cv.id as id, ('c'|| cv.id) as fId, cv.componentId as itemId, ('c'|| cv.componentId) as fItemId, cv.versionDescription, cv.versionDate, cv.statusId, cv.isDefault FROM `10_components_versions` AS cv UNION ALL SELECT sv.id as id, ('s'|| sv.id) as fId, sv.componentInStageId as itemId, ('s'|| sv.componentInStageId) as fItemId, sv.versionDescription, sv.versionDate, sv.statusId, sv.isDefault FROM `11_component_in_stage_versions` AS sv;"
+      },
+      {
+        "viewName": "item_kind_characteristic",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select ('p'||cpk.id) as fId, cpk.id as id, cpk.charId as charId, ('p'||cpk.productKindId) as itemKindFId, cpk.productKindId as itemKindId from `1_7_characteristics_product_kinds` as cpk\n        union all\n        select ('c'||cck.id) as fId, cck.id as id, cck.charId as charId, ('c'||cck.componentKindId) as itemKindFId, cck.componentKindId as itemKindId from `3_7_characteristics_component_kinds` as cck\n        union all\n        select ('s'||csk.id) as fId, csk.id as id, csk.charId as charId, ('s'||csk.componentStageKindId) as itemKindFId, csk.componentStageKindId as itemKindId from `5_7_characteristic_component_stage_kinds` as csk"
+      },
+      {
+        "viewName": "characteristicWithParents",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription,\n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription\n        from `7_characteristics` as c\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder"
       },
       {
         "viewName": "items_tolerances",
@@ -4792,7 +4804,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c3dfccf8bb23cbc9a938202651188c2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '40900d073d26fedf9e225aeb376ed529')"
     ]
   }
 }

@@ -517,13 +517,13 @@ data class DomainComponentStageVersion(
 data class DomainItemKind(
     val fId: String,
     val id: ID,
-    val parentId: ID,
+    val pId: ID,
     val itemKindOrder: Int,
     val itemKindDesignation: String,
     val comments: String?
 ) : DomainBaseModel<DatabaseItemKind>() {
     override fun getRecordId() = fId
-    override fun getParentId() = parentId
+    override fun getParentId() = pId
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainItemKind::class, DatabaseItemKind::class).transform(this)
 }
