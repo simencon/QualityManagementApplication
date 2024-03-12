@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "40900d073d26fedf9e225aeb376ed529",
+    "identityHash": "91221e338f24d40dc034fe0e360fca73",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4675,7 +4675,7 @@
       },
       {
         "viewName": "characteristicWithParents",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription,\n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription\n        from `7_characteristics` as c\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime, \n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime\n        from `7_characteristics` as c\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder"
       },
       {
         "viewName": "items_tolerances",
@@ -4804,7 +4804,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '40900d073d26fedf9e225aeb376ed529')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '91221e338f24d40dc034fe0e360fca73')"
     ]
   }
 }

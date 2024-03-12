@@ -97,10 +97,13 @@ data class DomainCharacteristic(
         val groupDescription: String,
         val subGroupId: ID,
         val subGroupDescription: String,
+        val subGroupRelatedTime: Double,
         val charId: ID,
         val charOrder: Int,
         val charDesignation: String?,
-        val charDescription: String
+        val charDescription: String,
+        val sampleRelatedTime: Double,
+        val measurementRelatedTime: Double
     ) : DomainBaseModel<DatabaseCharacteristic.DatabaseCharacteristicWithParents>() {
         override fun getRecordId() = groupId
         override fun getParentId() = subGroupId

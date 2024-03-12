@@ -6,13 +6,13 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.Icon
@@ -42,9 +42,7 @@ fun CharGroups(
     viewModel: ProductKindCharacteristicsViewModel = hiltViewModel()
 ) {
     val items by viewModel.charGroups.collectAsStateWithLifecycle(listOf())
-
     val onClickDetailsLambda = remember<(ID) -> Unit> { { viewModel.setGroupsVisibility(dId = SelectedNumber(it)) } }
-    val onClickActionsLambda = remember<(ID) -> Unit> { { viewModel.setGroupsVisibility(aId = SelectedNumber(it)) } }
 
     val listState = rememberLazyListState()
 
@@ -53,9 +51,7 @@ fun CharGroups(
             CharGroupCard(
                 viewModel = viewModel,
                 charGroup = item,
-                onClickDetails = { onClickDetailsLambda(it) },
-                onClickActions = { onClickActionsLambda(it) },
-
+                onClickDetails = { onClickDetailsLambda(it) }
             )
         }
     }
@@ -65,15 +61,12 @@ fun CharGroups(
 fun CharGroupCard(
     viewModel: ProductKindCharacteristicsViewModel,
     charGroup: DomainCharGroup,
-    onClickDetails: (ID) -> Unit,
-    onClickActions: (ID) -> Unit,
+    onClickDetails: (ID) -> Unit
 ) {
     ItemCard(
         modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = charGroup,
-        onClickActions = onClickActions,
-        contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline),
-        actionButtonsImages = arrayOf(Icons.Filled.Delete, Icons.Filled.Edit),
+        contentColors = Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.outline)
     ) {
         CharGroup(
             viewModel = viewModel,
@@ -111,6 +104,7 @@ fun CharGroupDetails(
     charGroup: DomainCharGroup
 ) {
     if (charGroup.detailsVisibility) {
-//        CharSubGroups(viewModel = viewModel)
+        CharSubGroups(viewModel = viewModel)
+        Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
     }
 }
