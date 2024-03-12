@@ -105,6 +105,7 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
                                 id = subGroupId,
                                 charGroupId = groupId,
                                 ishElement = subGroupDescription,
+                                measurementGroupRelatedTime = subGroupRelatedTime,
                                 detailsVisibility = sgVisibility.first.num == subGroupId,
                                 isExpanded = sgVisibility.second.num == subGroupId
                             )
@@ -127,6 +128,8 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
                                 charOrder = charOrder,
                                 charDesignation = charDesignation,
                                 charDescription = charDescription,
+                                sampleRelatedTime = sampleRelatedTime,
+                                measurementRelatedTime = measurementRelatedTime,
                                 detailsVisibility = cVisibility.first.num == charId,
                                 isExpanded = cVisibility.second.num == charId
                             )
@@ -149,6 +152,10 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddCharacteristicClick(it: Pair<ID, ID>) {
+        TODO("Not yet implemented")
+    }
+
+    fun onDeleteCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
 }

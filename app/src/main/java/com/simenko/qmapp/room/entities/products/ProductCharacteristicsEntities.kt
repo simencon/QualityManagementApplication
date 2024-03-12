@@ -141,8 +141,8 @@ data class DatabaseCharacteristic (
         viewName = "characteristicWithParents",
         value = """
         select cg.id as groupId, cg.ishElement as groupDescription,
-        csg.id as subGroupId, csg.ishElement as subGroupDescription,
-        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription
+        csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime, 
+        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime
         from `7_characteristics` as c
         inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id
         inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id
@@ -154,10 +154,13 @@ data class DatabaseCharacteristic (
         val groupDescription: String,
         val subGroupId: ID,
         val subGroupDescription: String,
+        val subGroupRelatedTime: Double,
         val charId: ID,
         val charOrder: Int,
         val charDesignation: String?,
-        val charDescription: String
+        val charDescription: String,
+        val sampleRelatedTime: Double,
+        val measurementRelatedTime: Double
     ): DatabaseBaseModel<Any?, DomainCharacteristic.DomainCharacteristicWithParents> {
         override fun getRecordId() = charId
         override fun toNetworkModel() = null
