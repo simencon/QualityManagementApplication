@@ -5,6 +5,8 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import com.simenko.qmapp.room.entities.products.DatabaseCharacteristicItemKind
+import com.simenko.qmapp.room.entities.products.DatabaseItemTolerance
 import com.simenko.qmapp.room.entities.products.DatabaseProductKind
 import kotlinx.coroutines.flow.Flow
 
@@ -28,4 +30,7 @@ abstract class ProductKindDao : DaoBaseModel<DatabaseProductKind> {
     @Transaction
     @Query("select * from product_kinds_complete where projectId = :parentId")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseProductKind.DatabaseProductKindComplete>>
+    @Transaction
+    @Query("SELECT * FROM item_kind_characteristic where itemKindFId = :itemKindFId")
+    abstract fun getItemVersionTolerancesComplete(itemKindFId: String): Flow<List<DatabaseCharacteristicItemKind.DatabaseCharacteristicItemKindComplete>>
 }

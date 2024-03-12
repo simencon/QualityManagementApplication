@@ -95,6 +95,7 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseItemVersionComplete::class,
 
         DatabaseCharacteristicItemKind::class,
+        DatabaseCharacteristic.DatabaseCharacteristicWithParents::class,
         DatabaseItemTolerance::class,
         DatabaseMetrix.DatabaseMetricWithParents::class,
 

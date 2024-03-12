@@ -92,6 +92,22 @@ data class DomainCharacteristic(
 
     override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristic::class, DatabaseCharacteristic::class).transform(this)
 
+    data class DomainCharacteristicWithParents(
+        val groupId: ID,
+        val groupDescription: String,
+        val subGroupId: ID,
+        val subGroupDescription: String,
+        val charId: ID,
+        val charOrder: Int,
+        val charDesignation: String?,
+        val charDescription: String
+    ) : DomainBaseModel<DatabaseCharacteristic.DatabaseCharacteristicWithParents>() {
+        override fun getRecordId() = groupId
+        override fun getParentId() = subGroupId
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristicWithParents::class, DatabaseCharacteristic.DatabaseCharacteristicWithParents::class).transform(this)
+    }
+
     @Stable
     data class DomainCharacteristicComplete(
         val characteristic: DomainCharacteristic = DomainCharacteristic(),
@@ -186,11 +202,24 @@ data class DomainCharacteristicItemKind(
     val charId: ID,
     val itemKindFId: String,
     val itemKindId: ID
-): DomainBaseModel<DatabaseCharacteristicItemKind>(){
+) : DomainBaseModel<DatabaseCharacteristicItemKind>() {
     override fun getRecordId() = fId
     override fun getParentId() = NoRecord.num
     override fun setIsSelected(value: Boolean) {}
     override fun toDatabaseModel() = ObjectTransformer(DomainCharacteristicItemKind::class, DatabaseCharacteristicItemKind::class).transform(this)
+
+    data class DomainCharacteristicItemKindComplete(
+        val characteristicItemKind: DomainCharacteristicItemKind,
+        val characteristicWithParents: DomainCharacteristic.DomainCharacteristicWithParents
+    ) : DomainBaseModel<DatabaseCharacteristicItemKind.DatabaseCharacteristicItemKindComplete>() {
+        override fun getRecordId() = characteristicItemKind.fId
+        override fun getParentId() = NoRecord.num
+        override fun setIsSelected(value: Boolean) {}
+        override fun toDatabaseModel() = DatabaseCharacteristicItemKind.DatabaseCharacteristicItemKindComplete(
+            characteristicItemKind = this.characteristicItemKind.toDatabaseModel(),
+            characteristicWithParents = this.characteristicWithParents.toDatabaseModel()
+        )
+    }
 }
 
 @Stable
