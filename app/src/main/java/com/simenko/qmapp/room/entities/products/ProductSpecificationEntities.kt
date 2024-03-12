@@ -1090,6 +1090,29 @@ data class DatabaseComponentStageVersion(
 }
 
 @DatabaseView(
+    viewName = "itemKinds",
+    value = """
+        select ('p'||pk.id) as fId, pk.id as id, pk.projectId as parentId, 0 as itemKindOrder, pk.productKindDesignation as itemKindDesignation, pk.comments as comments from `1_product_kinds` as pk
+        union all
+        select ('c'||ck.id) as fId, ck.id as id, ck.productKindId as parentId, ck.componentKindOrder as itemKindOrder, ck.componentKindDescription as itemKindDesignation, null as comments from `3_component_kinds` as ck
+        union all
+        select ('s'||sk.id) as fId, sk.id as id, sk.componentKindId as parentId, sk.componentStageOrder as itemKindOrder, sk.componentStageDescription as itemKindDesignation, null as comments from `5_component_stage_kinds` as sk
+        """
+)
+data class DatabaseItemKind(
+    val fId: String,
+    val id: ID,
+    val parentId: ID,
+    val itemKindOrder: Int,
+    val itemKindDesignation: String,
+    val comments: String?
+): DatabaseBaseModel<Any?, DomainItemKind> {
+    override fun getRecordId() = fId
+    override fun toNetworkModel() =null
+    override fun toDomainModel() = ObjectTransformer(DatabaseItemKind::class, DomainItemKind::class).transform(this)
+}
+
+@DatabaseView(
     viewName = "items",
     value = "SELECT p.id as id, ('p'|| p.Id) as fId, p.keyId, p.productDesignation as itemDesignation FROM `2_products` AS p " +
             "UNION ALL " +

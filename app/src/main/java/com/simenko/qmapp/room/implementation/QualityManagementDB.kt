@@ -6,7 +6,6 @@ import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.room.implementation.dao.Converters
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
 import com.simenko.qmapp.room.implementation.dao.manufacturing.*
-import com.simenko.qmapp.room.implementation.dao.products.*
 import com.simenko.qmapp.room.implementation.dao.products.characteristics.*
 import com.simenko.qmapp.room.implementation.dao.products.manufacturing.*
 import com.simenko.qmapp.room.implementation.dao.products.specification.*
@@ -88,12 +87,14 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseManufacturingLine.DatabaseManufacturingLineWithParents::class,
         DatabaseOperationsFlow.DatabaseOperationsFlowComplete::class,
 
+        DatabaseItemKind::class,
         DatabaseItem::class,
         DatabaseItemToLine::class,
         DatabaseItemComplete::class,
         DatabaseItemVersion::class,
         DatabaseItemVersionComplete::class,
 
+        DatabaseCharacteristicItemKind::class,
         DatabaseItemTolerance::class,
         DatabaseMetrix.DatabaseMetricWithParents::class,
 
