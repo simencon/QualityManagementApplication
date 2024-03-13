@@ -1,4 +1,4 @@
-package com.simenko.qmapp.ui.main.products.kinds.characteristics
+package com.simenko.qmapp.ui.main.products.kinds.set.characteristics
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,18 +18,19 @@ import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.ui.common.InfoLine
 
 @Composable
-fun ProductKindCharacteristicsMain(
+fun ComponentKindCharacteristicsMain(
     modifier: Modifier = Modifier,
-    viewModel: ProductKindCharacteristicsViewModel = hiltViewModel()
+    viewModel: ComponentKindCharacteristicsViewModel = hiltViewModel()
 ) {
-    val productKind by viewModel.productKind.collectAsStateWithLifecycle()
+    val componentKind by viewModel.productKind.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
     Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product", body = productKind.productKind.productKindDesignation)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product", body = componentKind.productKind.productKind.productKindDesignation)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKindDescription)
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         CharGroups(viewModel = viewModel)
     }

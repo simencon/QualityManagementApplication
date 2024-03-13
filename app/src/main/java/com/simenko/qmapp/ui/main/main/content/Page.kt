@@ -68,7 +68,7 @@ enum class Page(
     PRODUCT_LINE_CHARACTERISTICS(
         link = Route.Main.Products.ProductLines.Characteristics.link,
         navIcon = Icons.Filled.ArrowBack,
-        title = "Characteristics",
+        title = "All characteristics",
         titlePlaceholderText = "Search by description",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
@@ -116,7 +116,7 @@ enum class Page(
     PRODUCT_KIND_CHARACTERISTICS(
         link = Route.Main.Products.ProductLines.ProductKinds.ProductKindCharacteristics.link,
         navIcon = Icons.Filled.ArrowBack,
-        title = "Product kind characteristics",
+        title = "Product characteristics",
         titlePlaceholderText = "Search by char. name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
@@ -176,7 +176,7 @@ enum class Page(
     COMPONENT_KIND_CHARACTERISTICS(
         link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.link,
         navIcon = Icons.Filled.ArrowBack,
-        title = "Component kind characteristics",
+        title = "Comp. characteristics",
         titlePlaceholderText = "Search by char. name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
