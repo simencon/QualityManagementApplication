@@ -1,15 +1,16 @@
-package com.simenko.qmapp.ui.main.products.kinds.characteristics
+package com.simenko.qmapp.ui.main.products.kinds.set.characteristics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.simenko.qmapp.di.CharacteristicIdParameter
-import com.simenko.qmapp.di.ProductKindIdParameter
+import com.simenko.qmapp.di.ComponentKindIdParameter
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.entities.products.DomainCharGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
 import com.simenko.qmapp.domain.entities.products.DomainCharacteristic
+import com.simenko.qmapp.domain.entities.products.DomainComponentKind
 import com.simenko.qmapp.domain.entities.products.DomainProductKind
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.Storage
@@ -30,20 +31,20 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProductKindCharacteristicsViewModel @Inject constructor(
+class ComponentKindCharacteristicsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val repository: ProductsRepository,
     val storage: Storage,
-    @ProductKindIdParameter private val productKindId: ID,
+    @ComponentKindIdParameter private val componentKindId: ID,
     @CharacteristicIdParameter private val characteristicId: ID
 ) : ViewModel() {
     private val _charGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _charSubGroupVisibility = MutableStateFlow(Pair(NoRecord, NoRecord))
     private val _characteristicVisibility = MutableStateFlow(Pair(SelectedNumber(characteristicId), NoRecord))
 
-    private val _productKind: MutableStateFlow<DomainProductKind.DomainProductKindComplete> = MutableStateFlow(DomainProductKind.DomainProductKindComplete())
-    private val _itemKindCharsComplete = repository.itemKindCharsComplete("p$productKindId")
+    private val _productKind: MutableStateFlow<DomainComponentKind.DomainComponentKindComplete> = MutableStateFlow(DomainComponentKind.DomainComponentKindComplete())
+    private val _itemKindCharsComplete = repository.itemKindCharsComplete("c$componentKindId")
 
     val productKind get() = _productKind.asStateFlow()
 
@@ -53,12 +54,12 @@ class ProductKindCharacteristicsViewModel @Inject constructor(
     val mainPageHandler: MainPageHandler
 
     init {
-        mainPageHandler = MainPageHandler.Builder(Page.PRODUCT_KIND_CHARACTERISTICS, mainPageState)
+        mainPageHandler = MainPageHandler.Builder(Page.COMPONENT_KIND_CHARACTERISTICS, mainPageState)
             .setOnNavMenuClickAction { appNavigator.navigateBack() }
-            .setOnFabClickAction { onAddCharacteristicClick(Pair(productKindId, NoRecord.num)) }
+            .setOnFabClickAction { onAddCharacteristicClick(Pair(componentKindId, NoRecord.num)) }
             .setOnPullRefreshAction { updateCharacteristicsData() }
             .build()
-        viewModelScope.launch(Dispatchers.IO) { _productKind.value = repository.productKind(productKindId) }
+        viewModelScope.launch(Dispatchers.IO) { _productKind.value = repository.componentKind(componentKindId) }
     }
 
     /**
