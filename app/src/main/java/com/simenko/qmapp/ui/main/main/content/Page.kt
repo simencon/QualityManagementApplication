@@ -188,8 +188,20 @@ enum class Page(
     COMPONENT_STAGE_KIND_KEYS(
         link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.link,
         navIcon = Icons.Filled.ArrowBack,
-        title = "Component stage designations",
+        title = "Comp. stage designations",
         titlePlaceholderText = "Search by designations",
+        keyboardType = KeyboardType.Text,
+        searchBtnIcon = Icons.Filled.Search,
+        topTabsContent = null,
+        fabIcon = Icons.Filled.Add,
+        actionBtnIcon = null,
+        actionMenuItems = null
+    ),
+    COMPONENT_STAGE_KIND_CHARACTERISTICS(
+        link = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindCharacteristics.link,
+        navIcon = Icons.Filled.ArrowBack,
+        title = "Comp. stage char.",
+        titlePlaceholderText = "Search by char. name",
         keyboardType = KeyboardType.Text,
         searchBtnIcon = Icons.Filled.Search,
         topTabsContent = null,
