@@ -5,6 +5,7 @@ import com.simenko.qmapp.domain.DomainBaseModel
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.ZeroDouble
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.room.entities.DatabaseResultTolerance
 import com.simenko.qmapp.room.entities.products.*
@@ -40,7 +41,7 @@ data class DomainCharGroup(
 }
 
 @Stable
-data class DomainCharSubGroup constructor(
+data class DomainCharSubGroup (
     var id: ID = NoRecord.num,
     val charGroupId: ID = NoRecord.num,
     var ishElement: String? = EmptyString.str,
@@ -149,10 +150,13 @@ data class DomainMetrix(
         val groupDescription: String = EmptyString.str,
         val subGroupId: ID = NoRecord.num,
         val subGroupDescription: String = EmptyString.str,
+        val subGroupRelatedTime: Double = ZeroDouble.double,
         val charId: ID = NoRecord.num,
         val charOrder: Int = ZeroValue.num.toInt(),
         val charDesignation: String? = EmptyString.str,
         val charDescription: String = EmptyString.str,
+        val sampleRelatedTime: Double = ZeroDouble.double,
+        val measurementRelatedTime: Double = ZeroDouble.double,
         val metricId: ID = NoRecord.num,
         val metricOrder: Int = ZeroValue.num.toInt(),
         val metricDesignation: String? = EmptyString.str,
