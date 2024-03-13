@@ -63,6 +63,7 @@ object NavRouteName {
     const val product_kind_characteristics = "product_kind_characteristics"
     const val product_specification = "product_specification"
     const val component_kind_keys = "component_kind_keys"
+    const val component_kind_characteristics = "product_kind_characteristics"
     const val component_stage_kind_keys = "component_kind_keys"
 
     const val product_list = "product_list"
@@ -600,6 +601,28 @@ sealed class Route(
                                     defaultValue = NoRecord.num
                                 },
                                 navArgument(NavArguments.componentKindKeyId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                }
+                            ),
+                            route = NavRouteName.product_specification
+                        )
+
+                        data object ComponentKindCharacteristics: Route(
+                            link = NavRouteName.component_kind_characteristics + "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.characteristicId)}",
+                            deepLinks = listOf(
+                                navDeepLink {
+                                    uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.component_kind_characteristics}" +
+                                            "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.characteristicId)}"
+                                    action = Intent.ACTION_VIEW
+                                }
+                            ),
+                            arguments = listOf(
+                                navArgument(NavArguments.componentKindId) {
+                                    type = NavType.LongType
+                                    defaultValue = NoRecord.num
+                                },
+                                navArgument(NavArguments.characteristicId) {
                                     type = NavType.LongType
                                     defaultValue = NoRecord.num
                                 }
