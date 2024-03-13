@@ -132,4 +132,8 @@ class ProductKindSpecificationViewModel @Inject constructor(
     fun onComponentKindCharacteristicsClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.withOpts(it.toString(), NoRecordStr.str))
     }
+
+    fun onComponentStageKindCharacteristicsClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindCharacteristics.withOpts(it.toString(), NoRecordStr.str))
+    }
 }

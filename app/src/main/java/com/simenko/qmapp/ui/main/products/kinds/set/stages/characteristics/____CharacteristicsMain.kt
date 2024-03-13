@@ -30,7 +30,8 @@ fun ComponentStageKindCharacteristicsMain(
         Spacer(modifier = Modifier.height(10.dp))
         InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = componentKind.componentKind.productKind.productLine.manufacturingProject.projectSubject ?: NoString.str)
         InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product", body = componentKind.componentKind.productKind.productKind.productKindDesignation)
-        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentStageKind.componentStageDescription)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component", body = componentKind.componentKind.componentKind.componentKindDescription)
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Component stage", body = componentKind.componentStageKind.componentStageDescription)
         HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
         CharGroups(viewModel = viewModel)
     }

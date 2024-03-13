@@ -150,7 +150,7 @@ fun Product(
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
                 Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.55f), titleWight = 0.35f, title = "Designation:", text = product.product.key.componentKey)
+                    HeaderWithTitle(modifier = Modifier.weight(0.55f), titleWight = 0.41f, title = "Designation:", text = product.product.key.componentKey)
                     StatusChangeBtn(
                         modifier = Modifier.weight(0.45f),
                         borderColor = borderColor,
