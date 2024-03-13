@@ -162,6 +162,7 @@ class VersionTolerancesViewModel @Inject constructor(
                                 id = subGroupId,
                                 charGroupId = groupId,
                                 ishElement = subGroupDescription,
+                                measurementGroupRelatedTime = subGroupRelatedTime,
                                 detailsVisibility = sgVisibility.first.num == subGroupId,
                                 isExpanded = sgVisibility.second.num == subGroupId
                             )
@@ -183,6 +184,8 @@ class VersionTolerancesViewModel @Inject constructor(
                                 charOrder = charOrder,
                                 charDesignation = charDesignation,
                                 charDescription = charDescription,
+                                sampleRelatedTime = sampleRelatedTime,
+                                measurementRelatedTime = measurementRelatedTime,
                                 detailsVisibility = cVisibility.first.num == charId,
                                 isExpanded = cVisibility.second.num == charId
                             )

@@ -7,10 +7,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.Relation
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.ID
-import com.simenko.qmapp.domain.NoRecord
-import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.*
 import com.simenko.qmapp.retrofit.entities.products.*
 import com.simenko.qmapp.room.contract.DatabaseBaseModel
@@ -28,7 +25,7 @@ import com.simenko.qmapp.utils.ObjectTransformer
         )
     ]
 )
-data class DatabaseCharGroup constructor(
+data class DatabaseCharGroup (
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
@@ -74,7 +71,7 @@ data class DatabaseCharGroup constructor(
         )
     ]
 )
-data class DatabaseCharSubGroup constructor(
+data class DatabaseCharSubGroup (
     @PrimaryKey(autoGenerate = true)
     val id: ID,
     @ColumnInfo(index = true)
@@ -219,8 +216,8 @@ data class DatabaseMetrix(
         viewName = "metricWithParents",
         value = """
         select cg.id as groupId, cg.ishElement as groupDescription,
-        csg.id as subGroupId, csg.ishElement as subGroupDescription,
-        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription,
+        csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime,
+        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime,
         m.id as metricId, m.metrixOrder as metricOrder, m.metrixDesignation as metricDesignation, m.metrixDescription as metricDescription, m.units as metricUnits
         from `8_metrixes` as m
         inner join `7_characteristics` as c on m.charId = c.id
@@ -234,10 +231,13 @@ data class DatabaseMetrix(
         val groupDescription: String,
         val subGroupId: ID,
         val subGroupDescription: String,
+        val subGroupRelatedTime: Double,
         val charId: ID,
         val charOrder: Int,
         val charDesignation: String?,
         val charDescription: String,
+        val sampleRelatedTime: Double,
+        val measurementRelatedTime: Double,
         val metricId: ID,
         val metricOrder: Int,
         val metricDesignation: String?,

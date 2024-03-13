@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "91221e338f24d40dc034fe0e360fca73",
+    "identityHash": "1ef2195e38b6c34b69a115ed61854136",
     "entities": [
       {
         "tableName": "user_roles",
@@ -4683,7 +4683,7 @@
       },
       {
         "viewName": "metricWithParents",
-        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription,\n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription,\n        m.id as metricId, m.metrixOrder as metricOrder, m.metrixDesignation as metricDesignation, m.metrixDescription as metricDescription, m.units as metricUnits\n        from `8_metrixes` as m\n        inner join `7_characteristics` as c on m.charId = c.id\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder, m.metrixOrder"
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS select cg.id as groupId, cg.ishElement as groupDescription,\n        csg.id as subGroupId, csg.ishElement as subGroupDescription, csg.measurementGroupRelatedTime as subGroupRelatedTime,\n        c.id as charId, c.charOrder as charOrder, c.charDesignation as charDesignation, c.charDescription as charDescription, c.sampleRelatedTime, c.measurementRelatedTime,\n        m.id as metricId, m.metrixOrder as metricOrder, m.metrixDesignation as metricDesignation, m.metrixDescription as metricDescription, m.units as metricUnits\n        from `8_metrixes` as m\n        inner join `7_characteristics` as c on m.charId = c.id\n        inner join `0_ish_sub_characteristics` as csg on c.ishSubCharId = csg.id\n        inner join `10_1_d_element_ish_model` as cg on csg.charGroupId = cg.id\n        order by cg.id, csg.id, c.charOrder, m.metrixOrder"
       },
       {
         "viewName": "keys_complete",
@@ -4804,7 +4804,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '91221e338f24d40dc034fe0e360fca73')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ef2195e38b6c34b69a115ed61854136')"
     ]
   }
 }
