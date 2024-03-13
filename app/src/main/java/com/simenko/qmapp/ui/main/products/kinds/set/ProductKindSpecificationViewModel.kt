@@ -63,6 +63,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     fun setComponentKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _componentKindsVisibility.value = _componentKindsVisibility.value.setVisibility(dId, aId)
     }
+
     fun setComponentStageKindsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _componentStageKindsVisibility.value = _componentStageKindsVisibility.value.setVisibility(dId, aId)
     }
@@ -92,6 +93,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     fun onDeleteComponentKindClick(it: ID) {
         TODO("Not yet implemented")
     }
+
     fun onDeleteComponentStageKindClick(it: ID) {
         TODO("Not yet implemented")
     }
@@ -106,6 +108,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     private fun onAddComponentKindClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
+
     fun onAddComponentStageKindClick(it: ID) {
         TODO("Not yet implemented")
     }
@@ -113,6 +116,7 @@ class ProductKindSpecificationViewModel @Inject constructor(
     fun onEditComponentKindClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
+
     fun onEditComponentStageKindClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
@@ -120,7 +124,12 @@ class ProductKindSpecificationViewModel @Inject constructor(
     fun onComponentKindKeysClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys.withOpts(it.toString(), NoRecordStr.str))
     }
+
     fun onComponentStageKindKeysClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys.withOpts(it.toString(), NoRecordStr.str))
+    }
+
+    fun onComponentKindCharacteristicsClick(it: ID) {
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics.withOpts(it.toString(), NoRecordStr.str))
     }
 }

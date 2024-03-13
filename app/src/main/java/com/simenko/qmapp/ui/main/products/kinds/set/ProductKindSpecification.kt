@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -61,6 +63,7 @@ fun ProductKindSpecification(
     val onClickDeleteLambda = remember<(ID) -> Unit> { { viewModel.onDeleteComponentKindClick(it) } }
     val onClickEditLambda = remember<(Pair<ID, ID>) -> Unit> { { viewModel.onEditComponentKindClick(it) } }
     val onClickKeysLambda = remember<(ID) -> Unit> { { viewModel.onComponentKindKeysClick(it) } }
+    val onClickCharacteristicsLambda = remember<(ID) -> Unit> { { viewModel.onComponentKindCharacteristicsClick(it) } }
 
     LaunchedEffect(Unit) { viewModel.mainPageHandler.setupMainPage(0, true) }
 
@@ -76,11 +79,12 @@ fun ProductKindSpecification(
                 ComponentKindCard(
                     viewModel = viewModel,
                     componentKind = componentKind,
-                    onClickActions = { onClickActionsLambda(it) },
-                    onClickDelete = { onClickDeleteLambda(it) },
-                    onClickEdit = { onClickEditLambda(it) },
-                    onClickDetails = { onClickDetailsLambda(it) },
-                    onClickKeys = { onClickKeysLambda(it) }
+                    onClickActions = onClickActionsLambda,
+                    onClickDelete = onClickDeleteLambda,
+                    onClickEdit = onClickEditLambda,
+                    onClickDetails = onClickDetailsLambda,
+                    onClickKeys = onClickKeysLambda,
+                    onClickCharacteristics = onClickCharacteristicsLambda
                 )
             }
         }
@@ -96,10 +100,11 @@ fun ComponentKindCard(
     onClickDelete: (ID) -> Unit,
     onClickEdit: (Pair<ID, ID>) -> Unit,
     onClickDetails: (ID) -> Unit,
-    onClickKeys: (ID) -> Unit
+    onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
 ) {
     ItemCard(
-        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE/2).dp, vertical = (DEFAULT_SPACE / 2).dp),
+        modifier = Modifier.padding(horizontal = (DEFAULT_SPACE / 2).dp, vertical = (DEFAULT_SPACE / 2).dp),
         item = componentKind,
         onClickActions = onClickActions,
         onClickDelete = onClickDelete,
@@ -110,8 +115,9 @@ fun ComponentKindCard(
         ComponentKind(
             viewModel = viewModel,
             componentKind = componentKind,
-            onClickDetails = { onClickDetails(it) },
-            onClickKeys = { onClickKeys(it) }
+            onClickDetails = onClickDetails,
+            onClickKeys = onClickKeys,
+            onClickCharacteristics = onClickCharacteristics
         )
     }
 }
@@ -121,23 +127,13 @@ fun ComponentKind(
     viewModel: ProductKindSpecificationViewModel,
     componentKind: DomainComponentKind.DomainComponentKindComplete,
     onClickDetails: (ID) -> Unit = {},
-    onClickKeys: (ID) -> Unit
+    onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
 ) {
-    val containerColor = if (componentKind.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
-
     Column(modifier = Modifier.animateContentSize(animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow))) {
         Row(modifier = Modifier.padding(all = DEFAULT_SPACE.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(0.90f)) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    HeaderWithTitle(modifier = Modifier.weight(0.5f), titleWight = 0.7f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
-                    StatusChangeBtn(modifier = Modifier.weight(0.5f), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show specification")
-                        }
-                    }
-                }
-
+                HeaderWithTitle(titleWight = 0.35f, title = "Component number:", text = componentKind.componentKind.componentKindOrder.toString())
                 Spacer(modifier = Modifier.height(DEFAULT_SPACE.dp))
                 HeaderWithTitle(titleFirst = false, titleWight = 0f, text = componentKind.componentKind.componentKindDescription)
             }
@@ -148,18 +144,39 @@ fun ComponentKind(
                 )
             }
         }
-        ComponentKindDetails(viewModel = viewModel, componentKind = componentKind)
+        ComponentKindDetails(viewModel = viewModel, componentKind = componentKind, onClickKeys = onClickKeys, onClickCharacteristics = onClickCharacteristics)
     }
 }
 
 @Composable
 fun ComponentKindDetails(
     viewModel: ProductKindSpecificationViewModel,
-    componentKind: DomainComponentKind.DomainComponentKindComplete
+    componentKind: DomainComponentKind.DomainComponentKindComplete,
+    onClickKeys: (ID) -> Unit,
+    onClickCharacteristics: (ID) -> Unit,
 ) {
     if (componentKind.detailsVisibility) {
-        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp)) {
+        val containerColor = if (componentKind.isExpanded) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.primaryContainer
+
+        Column(modifier = Modifier.padding(start = DEFAULT_SPACE.dp, top = 0.dp, end = DEFAULT_SPACE.dp, bottom = 0.dp), horizontalAlignment = Alignment.End) {
             HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+            Row(modifier = Modifier.fillMaxSize()) {
+                Spacer(modifier = Modifier.weight(0.30f))
+                Column(modifier = Modifier.weight(0.70f)) {
+                    StatusChangeBtn(modifier = Modifier.fillMaxSize(), containerColor = containerColor, onClick = { onClickKeys(componentKind.componentKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Designations", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show designations")
+                        }
+                    }
+                    StatusChangeBtn(modifier = Modifier.fillMaxSize(), containerColor = containerColor, onClick = { onClickCharacteristics(componentKind.componentKind.id) }) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Characteristics", style = MaterialTheme.typography.titleSmall.copy(fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Icon(imageVector = Icons.AutoMirrored.Filled.NavigateNext, contentDescription = "Show designations")
+                        }
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height((DEFAULT_SPACE / 2).dp))
         }
         ComponentStageKinds(viewModel = viewModel)

@@ -23,6 +23,8 @@ import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindChara
 import com.simenko.qmapp.ui.main.products.kinds.characteristics.ProductKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerances
 import com.simenko.qmapp.ui.main.products.kinds.list.versions.VersionTolerancesViewModel
+import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKindCharacteristicsMain
+import com.simenko.qmapp.ui.main.products.kinds.set.characteristics.ComponentKindCharacteristicsViewModel
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.composable
 import com.simenko.qmapp.ui.navigation.navigation
@@ -60,6 +62,10 @@ fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
         composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindKeys) {
             val viewModel: ComponentKindKeysViewModel = hiltViewModel()
             ComponentKindKeys(viewModel = viewModel)
+        }
+        composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentKindCharacteristics) {
+            val viewModel: ComponentKindCharacteristicsViewModel = hiltViewModel()
+            ComponentKindCharacteristicsMain(viewModel = viewModel)
         }
         composable(destination = Route.Main.Products.ProductLines.ProductKinds.ProductSpecification.ComponentStageKindKeys) {
             val viewModel: ComponentStageKindKeysViewModel = hiltViewModel()
