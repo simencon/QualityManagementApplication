@@ -193,7 +193,7 @@ fun Tolerance(
             keyboardNavigation = Pair(lslFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
             contentDescription = Triple(null, "LSL", "LSL"),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         )
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         RecordFieldItem(
@@ -215,7 +215,7 @@ fun Tolerance(
             keyboardNavigation = Pair(nominalFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
             contentDescription = Triple(null, "Nominal", "Nominal"),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         )
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
         RecordFieldItem(
@@ -237,7 +237,7 @@ fun Tolerance(
             keyboardNavigation = Pair(uslFR) { keyboardController?.hide() },
             keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
             contentDescription = Triple(null, "USL", "USL"),
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         )
         Spacer(modifier = Modifier.width(DEFAULT_SPACE.dp))
     }
