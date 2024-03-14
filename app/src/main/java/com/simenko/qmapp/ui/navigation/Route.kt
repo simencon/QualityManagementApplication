@@ -440,12 +440,12 @@ sealed class Route(
             ) {
                 data object Characteristics : Route(
                     link = NavRouteName.product_line_characteristics +
-                            "?${opt(NavArguments.productLineId)}&${NavArguments.charGroupId}&${NavArguments.charSubGroupId}" +
+                            "?${opt(NavArguments.productLineId)}&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}" +
                             "&${opt(NavArguments.characteristicId)}&${opt(NavArguments.metricId)}",
                     deepLinks = listOf(
                         navDeepLink {
                             uriPattern = "${NavArguments.domain}/${NavRouteName.product_lines}/${NavRouteName.product_line_characteristics}" +
-                                    "?${opt(NavArguments.productLineId)}&${NavArguments.charGroupId}&${NavArguments.charSubGroupId}" +
+                                    "?${opt(NavArguments.productLineId)}&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}" +
                                     "&${opt(NavArguments.characteristicId)}&${opt(NavArguments.metricId)}"
                             action = Intent.ACTION_VIEW
                         }

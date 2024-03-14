@@ -14,6 +14,7 @@ import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.storage.ScrollStates
 import com.simenko.qmapp.storage.Storage
@@ -26,6 +27,7 @@ import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +39,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,9 +85,11 @@ class CharacteristicsViewModel @Inject constructor(
     fun setGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _charGroupVisibility.value = _charGroupVisibility.value.setVisibility(dId, aId)
     }
+
     fun setCharSubGroupsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _charSubGroupVisibility.value = _charSubGroupVisibility.value.setVisibility(dId, aId)
     }
+
     fun setCharacteristicsVisibility(dId: SelectedNumber = NoRecord, aId: SelectedNumber = NoRecord) {
         _characteristicVisibility.value = _characteristicVisibility.value.setVisibility(dId, aId)
     }
@@ -185,12 +190,28 @@ class CharacteristicsViewModel @Inject constructor(
     fun onDeleteCharGroupClick(it: ID) {
         TODO("Not yet implemented")
     }
-    fun onDeleteCharSubGroupClick(it: ID) {
-        TODO("Not yet implemented")
+
+    fun onDeleteCharSubGroupClick(id: ID) = viewModelScope.launch {
+        mainPageHandler.updateLoadingState(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            repository.run {
+                deleteCharSubGroup(id).consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when (resource.status) {
+                            Status.LOADING -> mainPageHandler.updateLoadingState(Pair(true, null))
+                            Status.SUCCESS -> mainPageHandler.updateLoadingState(Pair(false, null))
+                            Status.ERROR -> mainPageHandler.updateLoadingState(Pair(true, resource.message))
+                        }
+                    }
+                }
+            }
+        }
     }
+
     fun onDeleteCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
+
     fun onDeleteMetricClick(it: ID) {
         TODO("Not yet implemented")
     }
@@ -205,12 +226,15 @@ class CharacteristicsViewModel @Inject constructor(
     private fun onAddCharGroupClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
+
     fun onAddCharSubGroupClick(it: ID) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
+
     fun onAddCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
     }
+
     fun onAddMetricClick(it: ID) {
         TODO("Not yet implemented")
     }
@@ -218,6 +242,7 @@ class CharacteristicsViewModel @Inject constructor(
     fun onEditCharGroupClick(it: Pair<ID, ID>) {
         TODO("Not yet implemented")
     }
+
     fun onEditCharSubGroupClick(it: Pair<ID, ID>) {
         appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }

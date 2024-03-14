@@ -1,5 +1,6 @@
 package com.simenko.qmapp.retrofit.implementation
 
+import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.other.Constants.CHARACTERISTICS
 import com.simenko.qmapp.other.Constants.CHARACTERISTICS_COMPONENT_KINDS
 import com.simenko.qmapp.other.Constants.CHARACTERISTICS_COMPONENT_STAGE_KINDS
@@ -36,7 +37,13 @@ import com.simenko.qmapp.other.Constants.PRODUCT_VERSIONS
 import com.simenko.qmapp.other.Constants.VERSION_STATUSES
 import com.simenko.qmapp.retrofit.entities.products.*
 import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface ProductsService {
     @GET(MANUFACTURING_PROJECTS)
@@ -45,10 +52,29 @@ interface ProductsService {
     suspend fun getKeys(): Response<List<NetworkKey>>
     @GET(PRODUCT_BASES)
     suspend fun getProductBases(): Response<List<NetworkProductBase>>
+
+
     @GET(CHARACTERISTICS_GROUPS)
     suspend fun getCharacteristicGroups(): Response<List<NetworkCharGroup>>
+    @POST(CHARACTERISTICS_GROUPS)
+    suspend fun insertCharacteristicGroup(@Body record: NetworkCharGroup): Response<NetworkCharGroup>
+    @DELETE("${CHARACTERISTICS_GROUPS}/{id}")
+    suspend fun deleteCharacteristicGroup(@Path("id") id: ID): Response<NetworkCharGroup>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("${CHARACTERISTICS_GROUPS}/{id}")
+    suspend fun editCharacteristicGroup(@Path("id") id: ID, @Body body: NetworkCharGroup): Response<NetworkCharGroup>
+
+
     @GET(CHARACTERISTICS_SUB_GROUPS)
     suspend fun getCharacteristicSubGroups(): Response<List<NetworkCharSubGroup>>
+    @POST(CHARACTERISTICS_SUB_GROUPS)
+    suspend fun insertCharacteristicSubGroup(@Body record: NetworkCharSubGroup): Response<NetworkCharSubGroup>
+    @DELETE("${CHARACTERISTICS_SUB_GROUPS}/{id}")
+    suspend fun deleteCharacteristicSubGroup(@Path("id") id: ID): Response<NetworkCharSubGroup>
+    @Headers(value = ["Content-Type: application/json"])
+    @PUT("${CHARACTERISTICS_SUB_GROUPS}/{id}")
+    suspend fun editCharacteristicSubGroup(@Path("id") id: ID, @Body body: NetworkCharSubGroup): Response<NetworkCharSubGroup>
+
     @GET(CHARACTERISTICS)
     suspend fun getCharacteristics(): Response<List<NetworkCharacteristic>>
     @GET(METRICS)

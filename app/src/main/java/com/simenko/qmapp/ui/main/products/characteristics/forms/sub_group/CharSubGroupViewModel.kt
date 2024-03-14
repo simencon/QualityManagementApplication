@@ -11,16 +11,20 @@ import com.simenko.qmapp.domain.FillInState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.NoString
 import com.simenko.qmapp.domain.entities.products.DomainCharSubGroup
+import com.simenko.qmapp.other.Status
 import com.simenko.qmapp.repository.ProductsRepository
 import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -102,14 +106,14 @@ class CharSubGroupViewModel @Inject constructor(
 
     fun setCharSubGroupMeasurementTime(value: String) {
         value.toDoubleOrNull()?.let { time ->
-            _charSubGroup.value = _charSubGroup.value.copy( charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = time))
+            _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = time))
             _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = false)
             _fillInState.value = FillInInitialState
         } ?: run {
             if (value.isNotEmpty() && value != NoString.str) {
                 _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = true)
             } else {
-                _charSubGroup.value = _charSubGroup.value.copy( charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = null))
+                _charSubGroup.value = _charSubGroup.value.copy(charSubGroup = _charSubGroup.value.charSubGroup.copy(measurementGroupRelatedTime = null))
                 _fillInErrors.value = _fillInErrors.value.copy(charSubGroupRelatedTimeError = false)
                 _fillInState.value = FillInInitialState
             }
@@ -143,7 +147,37 @@ class CharSubGroupViewModel @Inject constructor(
     }
 
     fun makeRecord() = viewModelScope.launch {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+        withContext(Dispatchers.IO) {
+            repository.run { if (charSubGroupId == NoRecord.num) insertCharSubGroup(_charSubGroup.value.charSubGroup) else updateCharSubGroup(_charSubGroup.value.charSubGroup) }
+                .consumeEach { event ->
+                    event.getContentIfNotHandled()?.let { resource ->
+                        when(resource.status) {
+                            Status.LOADING -> mainPageHandler?.updateLoadingState?.invoke(Pair(true, null))
+                            Status.SUCCESS -> navBackToRecord(resource.data?.id)
+                            Status.ERROR -> {
+                                mainPageHandler?.updateLoadingState?.invoke(Pair(true, resource.message))
+                                _fillInState.value = FillInInitialState
+                            }
+                        }
+                    }
+                }
+        }
+    }
 
+    private suspend fun navBackToRecord(id: ID?) {
+        mainPageHandler?.updateLoadingState?.invoke(Pair(false, null))
+        withContext(Dispatchers.Main) {
+            id?.let { appNavigator.tryNavigateTo(
+                route = Route.Main.Products.ProductLines.Characteristics.withOpts(
+                    _charSubGroup.value.charGroup.productLine.manufacturingProject.id.toString(),
+                    _charSubGroup.value.charGroup.charGroup.id.toString(),
+                    it.toString()
+                ),
+                popUpToRoute = Route.Main.Products.ProductLines.Characteristics.route,
+                inclusive = true
+            ) }
+        }
     }
 }
 
