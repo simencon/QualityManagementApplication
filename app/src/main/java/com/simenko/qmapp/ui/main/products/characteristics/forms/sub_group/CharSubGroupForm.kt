@@ -13,13 +13,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.SquareFoot
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,7 +40,9 @@ import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
 import com.simenko.qmapp.domain.FillInSuccessState
 import com.simenko.qmapp.domain.NoString
+import com.simenko.qmapp.other.Constants
 import com.simenko.qmapp.repository.UserError
+import com.simenko.qmapp.ui.common.InfoLine
 import com.simenko.qmapp.ui.common.RecordFieldItemWithMenu
 import com.simenko.qmapp.ui.common.RecordFieldItem
 import com.simenko.qmapp.utils.Rounder
@@ -63,7 +65,11 @@ fun CharacteristicSubGroupForm(
     val fillInState by viewModel.fillInState.collectAsStateWithLifecycle()
     var error by rememberSaveable { mutableStateOf(UserError.NO_ERROR.error) }
 
-    var time by remember { mutableStateOf(charSubGroup.charSubGroup.measurementGroupRelatedTime?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str) }
+    var time by rememberSaveable { mutableStateOf(NoString.str) }
+
+    LaunchedEffect(charSubGroup) {
+        time = charSubGroup.charSubGroup.measurementGroupRelatedTime?.let { Rounder.withToleranceStrCustom(it, 2) } ?: NoString.str
+    }
 
     LaunchedEffect(fillInState) {
         fillInState.let { state ->
@@ -81,61 +87,66 @@ fun CharacteristicSubGroupForm(
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    Column(
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .fillMaxSize()
-            .padding(all = 0.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
+    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Bottom) {
         Spacer(modifier = Modifier.height(10.dp))
-        RecordFieldItemWithMenu(
-            modifier = Modifier.width(320.dp),
-            options = charGroups,
-            isError = fillInErrors.charGroupError,
-            onDropdownMenuItemClick = { viewModel.setCharGroup(it) },
-            keyboardNavigation = Pair(groupFR) { keyboardController?.hide() },
-            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-            contentDescription = Triple(Icons.Outlined.SquareFoot, "Characteristic group", "Select group"),
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        RecordFieldItem(
-            modifier = Modifier.width(320.dp),
-            valueParam = Triple(charSubGroup.charSubGroup.ishElement ?: EmptyString.str, fillInErrors.charSubGroupDescriptionError) { viewModel.setCharSubGroupDescription(it) },
-            keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
-            keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
-            contentDescription = Triple(Icons.Outlined.Info, "Characteristic sub group description", "Enter description")
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        RecordFieldItem(
-            modifier = Modifier
-                .width(320.dp)
-                .onFocusChanged {
-                    if (it.isFocused) {
-                        if (time == NoString.str) time = EmptyString.str
-                    } else {
-                        if (time == EmptyString.str) time = NoString.str
-                    }
-                },
-            valueParam = Triple(time, fillInErrors.charSubGroupRelatedTimeError) {
-                viewModel.setCharSubGroupMeasurementTime(it)
-                time = it
-            },
-            keyboardNavigation = Pair(timeFR) { keyboardController?.hide() },
-            keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
-            contentDescription = Triple(Icons.Outlined.Timer, "Sub group related time", "Enter time"),
-            isMandatoryField = false
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        if (error != UserError.NO_ERROR.error)
-            Text(
-                modifier = Modifier
-                    .padding(all = 5.dp)
-                    .width(320.dp),
-                text = error,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
-                textAlign = TextAlign.Center
+        InfoLine(modifier = modifier.padding(start = Constants.DEFAULT_SPACE.dp), title = "Product line", body = charSubGroup.charGroup.productLine.manufacturingProject.projectSubject ?: NoString.str)
+        HorizontalDivider(modifier = Modifier.height(1.dp), color = MaterialTheme.colorScheme.secondary)
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxSize()
+                .padding(all = 0.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItemWithMenu(
+                modifier = Modifier.width(320.dp),
+                options = charGroups,
+                isError = fillInErrors.charGroupError,
+                onDropdownMenuItemClick = { viewModel.setCharGroup(it) },
+                keyboardNavigation = Pair(groupFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                contentDescription = Triple(Icons.Outlined.SquareFoot, "Characteristic group", "Select group"),
             )
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItem(
+                modifier = Modifier.width(320.dp),
+                valueParam = Triple(charSubGroup.charSubGroup.ishElement ?: EmptyString.str, fillInErrors.charSubGroupDescriptionError) { viewModel.setCharSubGroupDescription(it) },
+                keyboardNavigation = Pair(descriptionFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Ascii, ImeAction.Done),
+                contentDescription = Triple(Icons.Outlined.Info, "Char. sub group description", "Enter description")
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            RecordFieldItem(
+                modifier = Modifier
+                    .width(320.dp)
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            if (time == NoString.str) time = EmptyString.str
+                        } else {
+                            if (time == EmptyString.str) time = NoString.str
+                        }
+                    },
+                valueParam = Triple(time, fillInErrors.charSubGroupRelatedTimeError) {
+                    viewModel.setCharSubGroupMeasurementTime(it)
+                    time = it
+                },
+                keyboardNavigation = Pair(timeFR) { keyboardController?.hide() },
+                keyBoardTypeAction = Pair(KeyboardType.Number, ImeAction.Done),
+                contentDescription = Triple(Icons.Outlined.Timer, "Sub group related time (minutes)", "Enter time in minutes"),
+                isMandatoryField = false
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            if (error != UserError.NO_ERROR.error)
+                Text(
+                    modifier = Modifier
+                        .padding(all = 5.dp)
+                        .width(320.dp),
+                    text = error,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 14.sp, color = MaterialTheme.colorScheme.error),
+                    textAlign = TextAlign.Center
+                )
+        }
     }
 }

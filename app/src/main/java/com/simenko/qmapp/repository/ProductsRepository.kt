@@ -6,6 +6,10 @@ import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.domain.entities.products.DomainProductLine.DomainProductLineComplete
+import com.simenko.qmapp.other.Event
+import com.simenko.qmapp.other.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -24,7 +28,22 @@ class ProductsRepository @Inject constructor(
     suspend fun syncProductKeys() = crudeOperations.syncRecordsAll(database.productKeyDao) { service.getKeys() }
     suspend fun syncProductBases() = crudeOperations.syncRecordsAll(database.productBaseDao) { service.getProductBases() }
     suspend fun syncCharacteristicGroups() = crudeOperations.syncRecordsAll(database.characteristicGroupDao) { service.getCharacteristicGroups() }
+
+
     suspend fun syncCharacteristicSubGroups() = crudeOperations.syncRecordsAll(database.characteristicSubGroupDao) { service.getCharacteristicSubGroups() }
+    fun CoroutineScope.deleteCharSubGroup(charSubGroupId: ID): ReceiveChannel<Event<Resource<DomainCharSubGroup>>> = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.deleteCharacteristicSubGroup(charSubGroupId) }) { r -> database.characteristicSubGroupDao.deleteRecord(r) }
+    }
+
+    fun CoroutineScope.insertCharSubGroup(record: DomainCharSubGroup) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.insertCharacteristicSubGroup(record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicSubGroupDao.insertRecord(r) }
+    }
+
+    fun CoroutineScope.updateCharSubGroup(record: DomainCharSubGroup) = crudeOperations.run {
+        responseHandlerForSingleRecord({ service.editCharacteristicSubGroup(record.id, record.toDatabaseModel().toNetworkModel()) }) { r -> database.characteristicSubGroupDao.updateRecord(r) }
+    }
+
+
     suspend fun syncCharacteristics() = crudeOperations.syncRecordsAll(database.characteristicDao) { service.getCharacteristics() }
     suspend fun syncMetrics() = crudeOperations.syncRecordsAll(database.metricDao) { service.getMetrics() }
     suspend fun syncVersionStatuses() = crudeOperations.syncRecordsAll(database.versionStatusDao) { service.getVersionStatuses() }
