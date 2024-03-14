@@ -25,4 +25,8 @@ abstract class CharacteristicGroupDao: DaoBaseModel<DatabaseCharGroup> {
     @Transaction
     @Query("select * from characteristic_group_complete where productLineId = :parentId")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseCharGroup.DatabaseCharGroupComplete>>
+
+    @Transaction
+    @Query("select * from characteristic_group_complete as cg where cg.id = :id")
+    abstract fun getRecordCompleteById(id: ID): DatabaseCharGroup.DatabaseCharGroupComplete
 }

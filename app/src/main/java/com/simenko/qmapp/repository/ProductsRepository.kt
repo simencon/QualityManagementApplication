@@ -63,9 +63,13 @@ class ProductsRepository @Inject constructor(
     val charGroups: (ID) -> Flow<List<DomainCharGroup.DomainCharGroupComplete>> = { pId ->
         database.characteristicGroupDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val charGroupById: (ID) -> DomainCharGroup.DomainCharGroupComplete = { id -> database.characteristicGroupDao.getRecordCompleteById(id).toDomainModel() }
+
     val charSubGroups: (ID) -> Flow<List<DomainCharSubGroup.DomainCharSubGroupComplete>> = { pId ->
         database.characteristicSubGroupDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }
+    val charSubGroupById: (ID) -> DomainCharSubGroup.DomainCharSubGroupComplete = { id -> database.characteristicSubGroupDao.getRecordCompleteById(id).toDomainModel() }
+
     val characteristicsByParent: (ID) -> Flow<List<DomainCharacteristic.DomainCharacteristicComplete>> = { pId ->
         database.characteristicDao.getRecordsCompleteForUI(pId).map { list -> list.map { it.toDomainModel() } }
     }

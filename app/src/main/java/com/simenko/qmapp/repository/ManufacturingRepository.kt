@@ -150,7 +150,7 @@ class ManufacturingRepository @Inject constructor(
 
     val departments: Flow<List<DomainDepartment>> = database.departmentDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
     val departmentsComplete: (ID) -> Flow<List<DomainDepartmentComplete>> = { pId -> database.departmentDao.getRecordsComplete(pId).map { list -> list.map { it.toDomainModel() } } }
-    val departmentById: (ID) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).let { it.toDomainModel() } }
+    val departmentById: (ID) -> DomainDepartmentComplete = { id -> database.departmentDao.getRecordCompleteById(id).toDomainModel() }
 
     val subDepartments: (ID) -> Flow<List<DomainSubDepartment>> = { pId -> database.subDepartmentDao.getRecordsFlowForUI(pId).map { list -> list.map { it.toDomainModel() } } }
     val subDepartmentWithParentsById: (ID) -> DomainSubDepartment.DomainSubDepartmentWithParents = { database.subDepartmentDao.getRecordWithParentsById(it).toDomainModel() }
