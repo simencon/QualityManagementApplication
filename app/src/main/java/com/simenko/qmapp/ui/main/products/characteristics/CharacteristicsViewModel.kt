@@ -7,8 +7,10 @@ import com.simenko.qmapp.di.CharSubGroupIdParameter
 import com.simenko.qmapp.di.MetricIdParameter
 import com.simenko.qmapp.di.CharacteristicIdParameter
 import com.simenko.qmapp.di.ProductLineIdParameter
+import com.simenko.qmapp.domain.FalseStr
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.domain.NoRecord
+import com.simenko.qmapp.domain.NoRecordStr
 import com.simenko.qmapp.domain.SelectedNumber
 import com.simenko.qmapp.domain.ZeroValue
 import com.simenko.qmapp.domain.entities.products.DomainProductLine
@@ -19,6 +21,7 @@ import com.simenko.qmapp.ui.main.main.MainPageHandler
 import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.utils.InvestigationsUtils.setVisibility
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -203,7 +206,7 @@ class CharacteristicsViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
     fun onAddCharSubGroupClick(it: ID) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.withArgs(it.toString(), NoRecordStr.str))
     }
     fun onAddCharacteristicClick(it: ID) {
         TODO("Not yet implemented")
@@ -216,7 +219,7 @@ class CharacteristicsViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
     fun onEditCharSubGroupClick(it: Pair<ID, ID>) {
-        TODO("Not yet implemented")
+        appNavigator.tryNavigateTo(route = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit.withArgs(it.first.toString(), it.second.toString()))
     }
 
     fun onEditCharacteristicClick(it: Pair<ID, ID>) {

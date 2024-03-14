@@ -74,6 +74,7 @@ object NavRouteName {
     const val product_kind_add_edit = "product_kind_add_edit"
     const val component_kind_add_edit = "component_kind_add_edit"
     const val component_stage_kind_add_edit = "component_stage_kind_add_edit"
+    const val product_line_char_sub_group_add_edit = "product_line_char_sub_group_add_edit"
 
 
     const val all_investigations = "all_investigations"
@@ -472,7 +473,28 @@ sealed class Route(
                         }
                     ),
                     route = NavRouteName.product_lines
-                )
+                ) {
+                    data object CharSubGroupAddEdit: Route(
+                        link = "${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${arg(NavArguments.charSubGroupId)}",
+                        deepLinks = listOf(
+                            navDeepLink {
+                                uriPattern = "${NavArguments.domain}/${NavRouteName.product_line_characteristics}/${NavRouteName.product_line_char_sub_group_add_edit}${arg(NavArguments.charGroupId)}${arg(NavArguments.charSubGroupId)}"
+                                action = Intent.ACTION_VIEW
+                            }
+                        ),
+                        arguments = listOf(
+                            navArgument(NavArguments.charGroupId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            },
+                            navArgument(NavArguments.charSubGroupId) {
+                                type = NavType.LongType
+                                defaultValue = NoRecord.num
+                            }
+                        ),
+                        route = NavRouteName.product_line_characteristics
+                    )
+                }
 
                 data object ProductLineKeys : Route(
                     link = NavRouteName.product_line_keys + "?${opt(NavArguments.productLineId)}&${opt(NavArguments.productLineKeyId)}",
@@ -539,7 +561,7 @@ sealed class Route(
                         route = NavRouteName.product_kinds
                     )
 
-                    data object ProductKindCharacteristics: Route(
+                    data object ProductKindCharacteristics : Route(
                         link = NavRouteName.product_kind_characteristics + "?${opt(NavArguments.productKindId)}&${opt(NavArguments.characteristicId)}",
                         deepLinks = listOf(
                             navDeepLink {
@@ -609,7 +631,7 @@ sealed class Route(
                             route = NavRouteName.product_specification
                         )
 
-                        data object ComponentKindCharacteristics: Route(
+                        data object ComponentKindCharacteristics : Route(
                             link = NavRouteName.component_kind_characteristics + "?${opt(NavArguments.componentKindId)}&${opt(NavArguments.characteristicId)}",
                             deepLinks = listOf(
                                 navDeepLink {
@@ -654,7 +676,7 @@ sealed class Route(
                             route = NavRouteName.product_specification
                         )
 
-                        data object ComponentStageKindCharacteristics: Route(
+                        data object ComponentStageKindCharacteristics : Route(
                             link = NavRouteName.component_stage_kind_characteristics + "?${opt(NavArguments.componentStageKindId)}&${opt(NavArguments.characteristicId)}",
                             deepLinks = listOf(
                                 navDeepLink {
@@ -730,9 +752,9 @@ sealed class Route(
                             deepLinks = listOf(
                                 navDeepLink {
                                     uriPattern = NavArguments.domain +
-                                                "/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}/${NavRouteName.version_tolerances}" +
-                                                "?${opt(NavArguments.versionFId)}&${opt(NavArguments.versionEditMode)}" +
-                                                "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}"
+                                            "/${NavRouteName.product_lines}/${NavRouteName.product_kinds}/${NavRouteName.product_list}/${NavRouteName.version_tolerances}" +
+                                            "?${opt(NavArguments.versionFId)}&${opt(NavArguments.versionEditMode)}" +
+                                            "&${opt(NavArguments.charGroupId)}&${opt(NavArguments.charSubGroupId)}&${opt(NavArguments.characteristicId)}&${opt(NavArguments.toleranceId)}"
                                     action = Intent.ACTION_VIEW
                                 }
                             ),

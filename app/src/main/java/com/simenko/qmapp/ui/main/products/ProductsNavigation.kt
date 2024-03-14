@@ -5,6 +5,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsMain
 import com.simenko.qmapp.ui.main.products.characteristics.CharacteristicsViewModel
+import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharSubGroupViewModel
+import com.simenko.qmapp.ui.main.products.characteristics.forms.sub_group.CharacteristicSubGroupForm
 import com.simenko.qmapp.ui.main.products.kinds.ProductKinds
 import com.simenko.qmapp.ui.main.products.kinds.ProductKindsViewModel
 import com.simenko.qmapp.ui.main.products.kinds.designations.ProductKindKeys
@@ -44,6 +46,10 @@ fun NavGraphBuilder.productsNavigation(mainScreenPadding: PaddingValues) {
         composable(destination = Route.Main.Products.ProductLines.Characteristics) {
             val viewModel: CharacteristicsViewModel = hiltViewModel()
             CharacteristicsMain(mainScreenPadding = mainScreenPadding ,viewModel = viewModel)
+        }
+        composable(destination = Route.Main.Products.ProductLines.Characteristics.CharSubGroupAddEdit) {
+            val viewModel: CharSubGroupViewModel = hiltViewModel()
+            CharacteristicSubGroupForm(viewModel = viewModel)
         }
         composable(destination = Route.Main.Products.ProductLines.ProductKinds) {
             val viewModel: ProductKindsViewModel = hiltViewModel()

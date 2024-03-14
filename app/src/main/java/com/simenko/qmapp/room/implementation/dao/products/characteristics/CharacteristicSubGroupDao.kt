@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.simenko.qmapp.domain.ID
 import com.simenko.qmapp.room.contract.DaoBaseModel
+import com.simenko.qmapp.room.entities.products.DatabaseCharGroup
 import com.simenko.qmapp.room.entities.products.DatabaseCharSubGroup
 import kotlinx.coroutines.flow.Flow
 
@@ -25,4 +26,8 @@ abstract class CharacteristicSubGroupDao: DaoBaseModel<DatabaseCharSubGroup> {
     @Transaction
     @Query("select * from characteristic_sub_group_complete where charGroupId = :parentId")
     abstract fun getRecordsCompleteForUI(parentId: ID): Flow<List<DatabaseCharSubGroup.DatabaseCharSubGroupComplete>>
+
+    @Transaction
+    @Query("select * from characteristic_sub_group_complete as csg where csg.id = :id")
+    abstract fun getRecordCompleteById(id: ID): DatabaseCharSubGroup.DatabaseCharSubGroupComplete
 }
