@@ -10,7 +10,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.simenko.qmapp.R
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.other.Constants.SYNC_NOTIFICATION_CHANNEL_ID
 import com.simenko.qmapp.repository.InvestigationsRepository
@@ -26,13 +25,11 @@ import com.simenko.qmapp.works.WorkerKeys.LATEST_MILLIS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Objects
-import javax.inject.Named
 
 @HiltWorker
 class SyncEntitiesWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val workerParams: WorkerParameters,
-    @Named("rest_api_url") private val url: String,
     private val invRepository: InvestigationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat
 ) : CoroutineWorker(context, workerParams) {
@@ -42,30 +39,22 @@ class SyncEntitiesWorker @AssistedInject constructor(
         val latestMillis = inputData.getLong(LATEST_MILLIS, NoRecord.num)
         val excludeMillis = inputData.getLong(EXCLUDE_MILLIS, NoRecord.num)
 
-        runCatching {
-            if (url != EmptyString.str) {
-                invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.completeOrdersRange(), latestMillis, excludeMillis))
-            } else {
-                listOf()
+        return try {
+            invRepository.syncInvEntitiesByTimeRange(getPeriodToSync(invRepository.completeOrdersRange(), latestMillis, excludeMillis)).forEach {
+                makeNotification(it)
             }
-        }.also { result ->
-            result.getOrNull().also {
-                return if (it != null) {
-                    it.forEach { n -> makeNotification(n) }
-                    Result.success(
-                        Data.Builder()
-                            .putLong(LATEST_MILLIS, SyncPeriods.LAST_DAY.latestMillis)
-                            .putLong(EXCLUDE_MILLIS, SyncPeriods.LAST_DAY.excludeMillis)
-                            .build()
-                    )
-                } else {
-                    Result.failure(
-                        Data.Builder()
-                            .putString(ERROR_MSG, result.exceptionOrNull()?.message)
-                            .build()
-                    )
-                }
-            }
+            Result.success(
+                Data.Builder()
+                    .putLong(LATEST_MILLIS, SyncPeriods.LAST_DAY.latestMillis)
+                    .putLong(EXCLUDE_MILLIS, SyncPeriods.LAST_DAY.excludeMillis)
+                    .build()
+            )
+        } catch (e: Throwable) {
+            Result.failure(
+                Data.Builder()
+                    .putString(ERROR_MSG, e.message)
+                    .build()
+            )
         }
     }
 

@@ -11,7 +11,6 @@ import com.google.firebase.messaging.ktx.messaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
-import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.repository.UserRepository
@@ -21,6 +20,8 @@ import com.simenko.qmapp.retrofit.implementation.ManufacturingService
 import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
+import com.simenko.qmapp.retrofit.implementation.interceptors.AuthorizationInterceptor
+import com.simenko.qmapp.retrofit.implementation.interceptors.ErrorHandlerInterceptor
 import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -29,8 +30,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
@@ -60,14 +61,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideClient(@Named("firebase_token") token: String): OkHttpClient {
+    fun provideClient(
+        @Named("authorization_interceptor") authInterceptor: Interceptor,
+        @Named("error_handler_interceptor") errorHandlerInterceptor: Interceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val newRequest: Request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $token")
-                    .build()
-                chain.proceed(newRequest)
-            }
+            .addInterceptor(authInterceptor)
+            .addInterceptor(errorHandlerInterceptor)
             .readTimeout(360, TimeUnit.SECONDS)
             .connectTimeout(360, TimeUnit.SECONDS)
             .build()
@@ -75,17 +75,13 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient, @Named("rest_api_url") url: String): Retrofit = Retrofit
-            .Builder()
-            .baseUrl(if (url != EmptyString.str) "$url/" else DEFAULT_REST_API_URL)
-            .addConverterFactory(
-                MoshiConverterFactory.create(
-                    moshi
-                )
-            )
-            .addConverterFactory(PairConverterFactory())
-            .client(client)
-            .build()
+    fun provideRetrofitInstance(moshi: Moshi, client: OkHttpClient): Retrofit = Retrofit
+        .Builder()
+        .baseUrl(DEFAULT_REST_API_URL)
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .addConverterFactory(PairConverterFactory())
+        .client(client)
+        .build()
 
     @Singleton
     @Provides
@@ -145,17 +141,15 @@ object AppModule {
         return remoteConfig
     }
 
-    @Singleton
     @Provides
-    @Named("rest_api_url")
-    fun provideRestApiUrl(userRepository: UserRepository): String {
-        return userRepository.getRestApiUrl
+    @Named("authorization_interceptor")
+    fun provideAuthorizationInterceptor(userRepository: UserRepository): Interceptor {
+        return AuthorizationInterceptor(userRepository)
     }
 
-    @Singleton
     @Provides
-    @Named("firebase_token")
-    fun provideFirebaseToken(userRepository: UserRepository): String {
-        return userRepository.authToken
+    @Named("error_handler_interceptor")
+    fun provideErrorHandlerInterceptor(@ApplicationContext context: Context): Interceptor {
+        return ErrorHandlerInterceptor(context)
     }
 }

@@ -32,43 +32,32 @@ import com.simenko.qmapp.works.WorkerKeys.TITLE
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.util.Objects
-import javax.inject.Named
 
 @HiltWorker
 class NewNotificationWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val workerParams: WorkerParameters,
-    @Named("rest_api_url") private val url: String,
     private val systemRepository: SystemRepository,
     private val notificationManager: NotificationManagerCompat
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
-        runCatching {
-            if (url != EmptyString.str) {
-                systemRepository.syncUsers()
-                systemRepository.cacheNotificationData(inputData.getString(EMAIL)?: EmptyString.str)
-                true
-            } else {
-                false
-            }
-        }.also { result ->
-            result.getOrNull().also {
-                return if (it == true) {
-                    makeNotification(inputData)
-                    Result.success(
-                        Data.Builder()
-                            .putString(ACTION, inputData.getString(ACTION))
-                            .putString(EMAIL, inputData.getString(EMAIL))
-                            .build()
-                    )
-                } else {
-                    Result.failure(
-                        Data.Builder()
-                            .putString(ERROR_MSG, result.exceptionOrNull()?.message)
-                            .build()
-                    )
-                }
-            }
+        return try {
+            systemRepository.syncUsers()
+            systemRepository.cacheNotificationData(inputData.getString(EMAIL) ?: EmptyString.str)
+
+            makeNotification(inputData)
+            Result.success(
+                Data.Builder()
+                    .putString(ACTION, inputData.getString(ACTION))
+                    .putString(EMAIL, inputData.getString(EMAIL))
+                    .build()
+            )
+        } catch (e: Throwable) {
+            Result.failure(
+                Data.Builder()
+                    .putString(ERROR_MSG, e.message)
+                    .build()
+            )
         }
     }
 
