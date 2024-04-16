@@ -5,6 +5,7 @@ import com.simenko.qmapp.room.entities.*
 import com.simenko.qmapp.room.entities.products.*
 import com.simenko.qmapp.room.implementation.dao.Converters
 import com.simenko.qmapp.room.implementation.dao.investigaions.*
+import com.simenko.qmapp.room.implementation.dao.maintenace.NotificationRegisterDao
 import com.simenko.qmapp.room.implementation.dao.manufacturing.*
 import com.simenko.qmapp.room.implementation.dao.products.characteristics.*
 import com.simenko.qmapp.room.implementation.dao.products.manufacturing.*
@@ -79,7 +80,9 @@ import com.simenko.qmapp.room.implementation.dao.system.*
         DatabaseSubOrderTask::class,
         DatabaseSample::class,
         DatabaseResultsDecryption::class,
-        DatabaseResult::class
+        DatabaseResult::class,
+
+        NotificationRegisterEntity::class
     ],
     views = [
         DatabaseSubDepartment.DatabaseSubDepartmentWithParents::class,
@@ -210,4 +213,6 @@ abstract class QualityManagementDB : RoomDatabase() {
     abstract val taskDao: TaskDao
     abstract val subOrderDao: SubOrderDao
     abstract val orderDao: OrderDao
+
+    abstract val notificationRegisterDao: NotificationRegisterDao
 }

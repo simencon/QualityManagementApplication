@@ -85,7 +85,7 @@ data class DatabaseReason constructor(
 }
 
 @Entity(tableName = "0_orders_types")
-data class DatabaseOrdersType constructor(
+data class DatabaseOrdersType(
     @PrimaryKey(autoGenerate = true)
     var id: ID,
     var typeDescription: String? = null
@@ -197,7 +197,7 @@ data class DatabaseOrder constructor(
             "LEFT OUTER JOIN `14_8_results` AS r ON t.id = r.taskId " +
             "GROUP BY o.id;"
 )
-data class DatabaseOrderResult constructor(
+data class DatabaseOrderResult (
     val id: ID,
     val isOk: Boolean?,
     val good: Int?,
