@@ -99,12 +99,12 @@ object StringUtils {
         if (myDateTimeStr == null) return null
         mySimpleFormatters.forEach {
             try {
-                return it.parse(myDateTimeStr)?.time ?: NoRecord.num.toLong()
+                return it.parse(myDateTimeStr)?.time ?: NoRecord.num
             } catch (e: ParseException) {
                 Log.d(TAG, "getMillisecondsDate: e.message")
             }
         }
-        return NoRecord.num.toLong()
+        return NoRecord.num
     }
 
     val FormatForRestService = SelectedNumber(0)

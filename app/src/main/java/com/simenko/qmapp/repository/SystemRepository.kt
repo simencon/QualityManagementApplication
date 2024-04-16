@@ -1,9 +1,11 @@
 package com.simenko.qmapp.repository
 
+import com.simenko.qmapp.domain.NoRecord
 import com.simenko.qmapp.domain.entities.DomainUser
 import com.simenko.qmapp.domain.entities.DomainUserRole
 import com.simenko.qmapp.repository.contract.CrudeOperations
 import com.simenko.qmapp.retrofit.implementation.SystemService
+import com.simenko.qmapp.room.entities.NotificationRegisterEntity
 import com.simenko.qmapp.room.implementation.QualityManagementDB
 import com.simenko.qmapp.utils.UsersFilter
 import kotlinx.coroutines.CoroutineScope
@@ -54,4 +56,6 @@ class SystemRepository @Inject constructor(
     }
 
     val userRoles: Flow<List<DomainUserRole>> = database.userRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
+
+    fun cacheNotificationData(email: String) = database.notificationRegisterDao.insertRecord(NotificationRegisterEntity(email = email))
 }

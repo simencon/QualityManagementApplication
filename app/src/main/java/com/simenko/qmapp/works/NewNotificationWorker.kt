@@ -46,6 +46,7 @@ class NewNotificationWorker @AssistedInject constructor(
         runCatching {
             if (url != EmptyString.str) {
                 systemRepository.syncUsers()
+                systemRepository.cacheNotificationData(inputData.getString(EMAIL)?: EmptyString.str)
                 true
             } else {
                 false
