@@ -1,22 +1,3 @@
-﻿not standard doa functions
-
-abstract fun getRecordsFlowForUI(): Flow<List<DatabaseOrdersStatus>>
-
-abstract fun getRecordsByParentIdForUI(parentId: Int): Flow<List<DatabaseResultComplete>>
-abstract fun getRecordsByParentIdForUI(parentId: Int): Flow<List<DatabaseSampleComplete>>
-
-abstract fun getRecordsByTimeRangeForUI(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderTaskComplete>>
-abstract fun getRecordsByTimeRangeForUI(timeRange: Pair<Long, Long>): Flow<List<DatabaseSubOrderComplete>>
-
-
-abstract fun getRecordByIdComplete(subOrderId: Int): DatabaseSubOrderComplete
-
-
-abstract fun getLatestOrderDate(): Long?
-abstract fun getEarliestOrderDate(): Long?
-abstract fun getLatestOrderId(latestOrderDate: Long): Int?
-abstract fun ordersListByLastVisibleId(
-        lastVisibleCreateDate: Long,
-        safetyGap: Int = UI_SAFETY_GAP,
-        totalVisible: Int = UI_TOTAL_VISIBLE
-    ): Flow<List<DatabaseOrderComplete>>
+﻿Keystore password: 13050513
+Alias: QM_App
+Alias password: 13050513

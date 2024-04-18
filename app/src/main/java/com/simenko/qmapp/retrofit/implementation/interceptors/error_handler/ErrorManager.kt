@@ -1,6 +1,7 @@
 package com.simenko.qmapp.retrofit.implementation.interceptors.error_handler
 
 import android.app.Application
+import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.main.MainActivity
 import dagger.Provides
 
@@ -27,7 +28,7 @@ class ErrorManagerImpl(
         application.registerActivityLifecycleCallbacks(
             ActivityLifecycleCallbacksWrapper(
                 onActivityCreated = { activity, _ ->
-                    if (activity is MainActivity) {
+                    if (activity is BaseActivity) {
                         observeLiveData(activity)
                     }
                 },
@@ -39,7 +40,7 @@ class ErrorManagerImpl(
         endSessionLiveData.postValue(error)
     }
 
-    private fun observeLiveData(activity: MainActivity) {
+    private fun observeLiveData(activity: BaseActivity) {
         activity.observe(endSessionLiveData) { type ->
             when (type) {
                 is ErrorType.Error1 -> {
