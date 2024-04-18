@@ -36,6 +36,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.main.main.content.*
 import com.simenko.qmapp.ui.navigation.MainScreen
 import com.simenko.qmapp.ui.navigation.Route
@@ -56,7 +57,7 @@ fun createMainActivityIntent(context: Context, route: String = DrawerMenuItems.s
 }
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
 
     @Inject
     lateinit var workManager: WorkManager

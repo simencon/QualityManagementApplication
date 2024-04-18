@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.simenko.qmapp.R
+import com.simenko.qmapp.ui.BaseActivity
 import com.simenko.qmapp.ui.navigation.InitialScreen
 import com.simenko.qmapp.ui.theme.QMAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,7 +42,7 @@ fun createLoginActivityIntent(
 
 @OptIn(ExperimentalMaterialApi::class)
 @AndroidEntryPoint
-class UserActivity : ComponentActivity() {
+class UserActivity : BaseActivity() {
     private val userViewModel: UserViewModel by viewModels()
 
     @OptIn(ExperimentalMaterial3Api::class)

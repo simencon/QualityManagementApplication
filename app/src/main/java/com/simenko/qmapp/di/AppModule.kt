@@ -11,6 +11,7 @@ import com.google.firebase.messaging.ktx.messaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.simenko.qmapp.BaseApplication
 import com.simenko.qmapp.other.Constants.DATABASE_NAME
 import com.simenko.qmapp.other.Constants.DEFAULT_REST_API_URL
 import com.simenko.qmapp.repository.UserRepository
@@ -21,7 +22,9 @@ import com.simenko.qmapp.retrofit.implementation.ProductsService
 import com.simenko.qmapp.retrofit.implementation.SystemService
 import com.simenko.qmapp.retrofit.implementation.converters.PairConverterFactory
 import com.simenko.qmapp.retrofit.implementation.interceptors.AuthorizationInterceptor
-import com.simenko.qmapp.retrofit.implementation.interceptors.ErrorHandlerInterceptor
+import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorHandlerInterceptor
+import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorManager
+import com.simenko.qmapp.retrofit.implementation.interceptors.error_handler.ErrorManagerImpl
 import com.simenko.qmapp.room.implementation.*
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -141,15 +144,23 @@ object AppModule {
         return remoteConfig
     }
 
+    @Singleton
     @Provides
     @Named("authorization_interceptor")
     fun provideAuthorizationInterceptor(userRepository: UserRepository): Interceptor {
         return AuthorizationInterceptor(userRepository)
     }
 
+    @Singleton
+    @Provides
+    fun provideErrorHandlerManager(@ApplicationContext context: Context): ErrorManager {
+        return ErrorManagerImpl(context as BaseApplication)
+    }
+
+    @Singleton
     @Provides
     @Named("error_handler_interceptor")
-    fun provideErrorHandlerInterceptor(@ApplicationContext context: Context): Interceptor {
-        return ErrorHandlerInterceptor(context)
+    fun provideErrorHandlerInterceptor(errorManager: ErrorManager): Interceptor {
+        return ErrorHandlerInterceptor(errorManager)
     }
 }
