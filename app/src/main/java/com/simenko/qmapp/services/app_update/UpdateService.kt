@@ -2,28 +2,39 @@ package com.simenko.qmapp.services.app_update
 
 import android.app.Service
 import android.content.Intent
-import android.net.Uri
 import android.os.IBinder
-import android.util.Log
+import android.widget.Toast
 import com.simenko.qmapp.repository.SystemRepository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.time.Instant
 import javax.inject.Inject
 
 
-private const val TAG = "UpdateService"
+@AndroidEntryPoint
 class UpdateService : Service() {
+    private val job = SupervisorJob()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
+
     @Inject
     lateinit var systemRepository: SystemRepository
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand: has been updated")
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://music.youtube.com/"))
-        startActivity(browserIntent)
-        systemRepository.cacheNotificationData("this is SPARTA!!!!")
-        // Perform any necessary tasks when the app is updated
-        // For example, update database, refresh UI, etc.
+        Toast.makeText(this, "UpdateService started", Toast.LENGTH_LONG).show()
+        scope.launch(Dispatchers.IO) {
+            systemRepository.cacheNotificationData("this is SPARTA!!!!, ${Instant.now()}")
+        }
         return START_NOT_STICKY
     }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        job.cancel()
     }
 }
