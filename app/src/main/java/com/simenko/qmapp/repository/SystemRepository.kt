@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -57,5 +58,5 @@ class SystemRepository @Inject constructor(
 
     val userRoles: Flow<List<DomainUserRole>> = database.userRoleDao.getRecordsForUI().map { list -> list.map { it.toDomainModel() } }
 
-    fun cacheNotificationData(email: String) = database.notificationRegisterDao.insertRecord(NotificationRegisterEntity(email = email))
+    fun cacheNotificationData(email: String) = database.notificationRegisterDao.insertRecord(NotificationRegisterEntity(id = Instant.now().epochSecond.toInt(), email = email))
 }
