@@ -56,7 +56,7 @@ class UserViewModel @Inject constructor(
     /**
      * -----------------------------------------------------------------------------------------------------------------------------------------------
      * */
-    private val _isLoadingInProgress = MutableStateFlow(false)
+    private val _isLoadingInProgress = MutableStateFlow(true)
     val isLoadingInProgress: StateFlow<Boolean> get() = _isLoadingInProgress
     private val _isErrorMessage = MutableStateFlow<String?>(null)
     val isErrorMessage: StateFlow<String?> get() = _isErrorMessage

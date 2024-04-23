@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -58,9 +56,6 @@ fun createMainActivityIntent(context: Context, route: String = DrawerMenuItems.s
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
-
-    @Inject
-    lateinit var workManager: WorkManager
 
     @Inject
     lateinit var remoteConfig: FirebaseRemoteConfig
