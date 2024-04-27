@@ -51,6 +51,9 @@ class UserActivity : BaseActivity() {
 
         installSplashScreen().apply {
             setKeepOnScreenCondition { userViewModel.isLoadingInProgress.value }
+            setOnExitAnimationListener {
+
+            }
         }
 
         setContent {
