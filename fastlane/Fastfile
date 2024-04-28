@@ -23,8 +23,17 @@ platform :android do
 
   desc "Submit a new Beta Build to Crashlytics Beta"
   lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
+    # ...
+    gradle(
+      task: 'assemble',
+      build_type: 'Release'
+    )
+
+    firebase_app_distribution(
+      app: "1:284233264021:android:a5685f694f79ffc9ade49c",
+      testers: "romansemenyshyn@gmail.com"
+    )
+    # ...
   end
 
   desc "Deploy a new version to the Google Play"
