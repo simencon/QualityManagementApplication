@@ -14,13 +14,13 @@ android {
     signingConfigs {
         releaseConfig {
             keyAlias 'QM_App'
-            storeFile file('../keystore.jks')
+            storeFile file('../keystore/keystore.jks')
             keyPassword '13050513'
             storePassword '13050513'
         }
         debugConfig {
             keyAlias 'QM_App_Debug'
-            storeFile file('../keystore.jks')
+            storeFile file('../keystore/keystore.jks')
             keyPassword '13050513'
             storePassword '13050513'
         }
@@ -48,6 +48,12 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.releaseConfig
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        releaseDebug {
+            signingConfig signingConfigs.releaseConfig
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

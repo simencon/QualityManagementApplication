@@ -82,6 +82,7 @@ class UserViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     fun onStateIsNoState() {
+        updateLoadingState(Pair(false, null))
         appNavigator.tryNavigateTo(route = Route.LoggedOut.InitialScreen.link, popUpToRoute = Route.LoggedOut.InitialScreen.route, inclusive = true)
         updateCurrentUserState()
     }
