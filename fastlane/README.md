@@ -31,10 +31,10 @@ Runs all the tests
 
 Submit a new Beta Build to Crashlytics Beta
 
-### android playstore
+### android play_store_aab
 
 ```sh
-[bundle exec] fastlane android playstore
+[bundle exec] fastlane android play_store_aab
 ```
 
 Deploy a new version to the Google Play
