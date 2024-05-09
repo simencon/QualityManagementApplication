@@ -31,7 +31,8 @@ platform :android do
 
     firebase_app_distribution(
       app: "1:284233264021:android:a5685f694f79ffc9ade49c",
-      testers: "romansemenyshyn@gmail.com"
+      testers: "romansemenyshyn@gmail.com",
+      release_notes_file: "release_notes.txt"
     )
     # ...
   end
