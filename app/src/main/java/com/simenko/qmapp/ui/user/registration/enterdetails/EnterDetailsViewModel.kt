@@ -1,7 +1,8 @@
 package com.simenko.qmapp.ui.user.registration.enterdetails
 
 import androidx.lifecycle.ViewModel
-import com.simenko.qmapp.di.UserEditModeParameter
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.EmptyString
 import com.simenko.qmapp.domain.FillInErrorState
 import com.simenko.qmapp.domain.FillInInitialState
@@ -15,6 +16,7 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.AppNavigator
 import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,14 +29,17 @@ class EnterDetailsViewModel @Inject constructor(
     private val appNavigator: AppNavigator,
     private val mainPageState: MainPageState,
     private val userRepository: UserRepository,
-    @UserEditModeParameter private val userEditMode: Boolean
+    private val controller: NavHostController,
 ) : ViewModel() {
+    private val userEditMode: Boolean = controller.currentBackStackEntry?.toRoute<RouteCompose.Main.Settings.EditUserDetails>()?.userEditMode ?: false
+
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
     val mainPageHandler: MainPageHandler
+
     init {
-        mainPageHandler = MainPageHandler.Builder(if(userEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
+        mainPageHandler = MainPageHandler.Builder(if (userEditMode) Page.ACCOUNT_EDIT else Page.EMPTY_PAGE, mainPageState)
             .setOnNavMenuClickAction {
                 appNavigator.navigateTo(route = Route.Main.Settings.UserDetails.link, popUpToRoute = Route.Main.Settings.UserDetails.route, inclusive = true)
             }
@@ -42,6 +47,7 @@ class EnterDetailsViewModel @Inject constructor(
             .setOnPullRefreshAction { this.updateUserData() }
             .build()
     }
+
     /**
      * -----------------------------------------------------------------------------------------------------------------------------------------------
      * */

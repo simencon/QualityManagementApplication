@@ -2,41 +2,41 @@ package com.simenko.qmapp.ui.main.team
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
-import com.simenko.qmapp.ui.navigation.Route
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import com.simenko.qmapp.ui.main.team.employee.Employees
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeForm
 import com.simenko.qmapp.ui.main.team.forms.employee.EmployeeViewModel
 import com.simenko.qmapp.ui.main.team.forms.user.UserForm
 import com.simenko.qmapp.ui.main.team.forms.user.UserViewModel
 import com.simenko.qmapp.ui.main.team.user.Users
-import com.simenko.qmapp.ui.navigation.composable
-import com.simenko.qmapp.ui.navigation.navigation
+import com.simenko.qmapp.ui.navigation.RouteCompose
 
-fun NavGraphBuilder.teamNavigation() {
-    navigation(startDestination = Route.Main.Team.Employees) {
-        composable(destination = Route.Main.Team.Employees) {
+inline fun <reified T : Any> NavGraphBuilder.teamNavigation() {
+    navigation<T>(startDestination = RouteCompose.Main.Team.Users()) {
+        composable<RouteCompose.Main.Team.Employees> {
             val teamModel: TeamViewModel = hiltViewModel()
             Employees(viewModel = teamModel, onClickEdit = { id -> teamModel.onEmployeeAddEdictClick(id) })
         }
-        composable(destination = Route.Main.Team.EmployeeAddEdit) {
+        composable<RouteCompose.Main.Team.EmployeeAddEdit> {
             val employeeModel: EmployeeViewModel = hiltViewModel()
             EmployeeForm(viewModel = employeeModel)
         }
-        composable(destination = Route.Main.Team.Users) {
+        composable<RouteCompose.Main.Team.Users> {
             val teamModel: TeamViewModel = hiltViewModel()
             Users(viewModel = teamModel, isUsersPage = true)
         }
-        composable(destination = Route.Main.Team.Requests) {
+        composable<RouteCompose.Main.Team.Requests> {
             val teamModel: TeamViewModel = hiltViewModel()
             Users(viewModel = teamModel, isUsersPage = false)
         }
-        editUser(Route.Main.Team.AuthorizeUser)
-        editUser(Route.Main.Team.EditUser)
+        editUser<RouteCompose.Main.Team.AuthorizeUser>()
+        editUser<RouteCompose.Main.Team.EditUser>()
     }
 }
 
-private fun NavGraphBuilder.editUser(route: Route) {
-    composable(destination = route) {
+inline fun <reified T : Any> NavGraphBuilder.editUser() {
+    composable<T> {
         val userModel: UserViewModel = hiltViewModel()
         UserForm(viewModel = userModel)
     }

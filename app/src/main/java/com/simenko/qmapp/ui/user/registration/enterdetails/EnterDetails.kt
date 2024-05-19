@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.layout.ContentScale
@@ -53,7 +52,6 @@ import com.simenko.qmapp.repository.UserError
 import com.simenko.qmapp.ui.common.RecordActionTextBtn
 import com.simenko.qmapp.ui.common.RecordFieldItem
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EnterDetails(
     viewModel: EnterDetailsViewModel,
