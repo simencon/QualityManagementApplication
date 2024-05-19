@@ -120,18 +120,6 @@ annotation class VersionEditMode
 @Retention(AnnotationRetention.BINARY)
 annotation class ToleranceIdParameter
 
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class IsProcessControlOnlyParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class OrderIdParameter
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class SubOrderIdParameter
-
 @Module
 @InstallIn(ViewModelComponent::class)
 object ViewModelsModule {
@@ -292,22 +280,4 @@ object ViewModelsModule {
     @ViewModelScoped
     fun provideToleranceIdParameter(savedStateHandle: SavedStateHandle): ID =
         savedStateHandle[NavArguments.toleranceId] ?: NoRecord.num
-
-    @Provides
-    @IsProcessControlOnlyParameter
-    @ViewModelScoped
-    fun provideProcessControlOnlyParameter(savedStateHandle: SavedStateHandle): Boolean? =
-        savedStateHandle[NavArguments.isProcessControlOnly]
-
-    @Provides
-    @OrderIdParameter
-    @ViewModelScoped
-    fun provideOrderIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.orderId] ?: NoRecord.num
-
-    @Provides
-    @SubOrderIdParameter
-    @ViewModelScoped
-    fun provideSubOrderIdParameter(savedStateHandle: SavedStateHandle): ID =
-        savedStateHandle[NavArguments.subOrderId] ?: NoRecord.num
 }

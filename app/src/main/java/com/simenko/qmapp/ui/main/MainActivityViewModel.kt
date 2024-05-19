@@ -19,7 +19,7 @@ import com.simenko.qmapp.ui.main.main.setup.TopTabsSetup
 import com.simenko.qmapp.ui.main.main.content.Common
 import com.simenko.qmapp.ui.main.main.content.MenuItem
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.ui.navigation.subscribeNavigationEvents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -113,16 +113,16 @@ class MainActivityViewModel @Inject constructor(
      * Navigation ------------------------------------------------------------------------------------------------------------------------------------
      * */
     fun onDrawerMenuTeamSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.Team.link, popUpToRoute = Route.Main.Team.route, inclusive = true)
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.Team, popUpToRoute = RouteCompose.Main, inclusive = true)
     }
 
     fun onDrawerMenuCompanyStructureSelected() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 //                todo-me - companyId should be initially stored under user
-                val companyName = userRepository.user.company
-                val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
-                appNavigator.tryNavigateTo(route = Route.Main.CompanyStructure.withOpts(companyId), popUpToRoute = Route.Main.CompanyStructure.route, inclusive = true)
+                (manufacturingRepository.companyByName(userRepository.user.company)?.id ?: NoRecord.num).let {
+                    appNavigator.tryNavigateTo(route = RouteCompose.Main.CompanyStructure.StructureView(companyId = it), popUpToRoute = RouteCompose.Main, inclusive = true)
+                }
             }
         }
     }
@@ -131,23 +131,23 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
 //                todo-me - companyId should be initially stored under user
-                val companyName = userRepository.user.company
-                val companyId = (manufacturingRepository.companyByName(companyName)?.id ?: NoRecord.num).toString()
-                appNavigator.tryNavigateTo(route = Route.Main.Products.withOpts(companyId), popUpToRoute = Route.Main.Products.route, inclusive = true)
+                (manufacturingRepository.companyByName(userRepository.user.company)?.id ?: NoRecord.num).let {
+                    appNavigator.tryNavigateTo(route = RouteCompose.Main.ProductLines.ProductLinesList(companyId = it), popUpToRoute = RouteCompose.Main, inclusive = true)
+                }
             }
         }
     }
 
     fun onDrawerMenuInvSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.Inv.withOpts(), popUpToRoute = Route.Main.Inv.route, inclusive = true)
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.AllInvestigations, popUpToRoute = RouteCompose.Main, inclusive = true)
     }
 
     fun onDrawerMenuProcessControlSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.ProcessControl.withOpts(), popUpToRoute = Route.Main.ProcessControl.route, inclusive = true)
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProcessControl, popUpToRoute = RouteCompose.Main, inclusive = true)
     }
 
     fun onDrawerMenuSettingsSelected() {
-        appNavigator.tryNavigateTo(route = Route.Main.Settings.link, popUpToRoute = Route.Main.Settings.route, inclusive = true)
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.Settings, popUpToRoute = RouteCompose.Main.Settings, inclusive = true)
     }
 
     private fun refreshMasterDataFromRepository() = viewModelScope.launch {

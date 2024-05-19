@@ -22,7 +22,7 @@ import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetails
 import com.simenko.qmapp.ui.user.registration.enterdetails.EnterDetailsViewModel
 
 inline fun <reified T : Any> NavGraphBuilder.settingsNavigation() {
-    navigation<T>(startDestination = RouteCompose.Main.Settings.EditUserDetails(true)) {
+    navigation<T>(startDestination = RouteCompose.Main.Settings.UserDetails) {
         composable<RouteCompose.Main.Settings.UserDetails> {
             val settingsModel: SettingsViewModel = hiltViewModel()
             val context = LocalContext.current

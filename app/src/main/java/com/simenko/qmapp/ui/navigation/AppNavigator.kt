@@ -35,6 +35,14 @@ interface AppNavigator {
         inclusive: Boolean = false,
         isSingleTop: Boolean = false,
     )
+
+    fun tryNavigateTo(
+        route: RouteCompose,
+        popUpToRoute: RouteCompose? = null,
+        popUpToId: Int? = null,
+        inclusive: Boolean = false,
+        isSingleTop: Boolean = false,
+    )
 }
 
 sealed class NavigationIntent {
@@ -46,6 +54,14 @@ sealed class NavigationIntent {
     data class NavigateTo(
         val route: String,
         val popUpToRoute: String? = null,
+        val popUpToId: Int? = null,
+        val inclusive: Boolean = false,
+        val isSingleTop: Boolean = false,
+    ) : NavigationIntent()
+
+    data class NavigateToRoute(
+        val route: RouteCompose,
+        val popUpToRoute: RouteCompose? = null,
         val popUpToId: Int? = null,
         val inclusive: Boolean = false,
         val isSingleTop: Boolean = false,
@@ -65,6 +81,17 @@ fun Flow<NavigationIntent>.subscribeNavigationEvents(viewModelScope: CoroutineSc
                 }
 
                 is NavigationIntent.NavigateTo -> {
+                    navHostController.navigate(intent.route) {
+                        launchSingleTop = intent.isSingleTop
+                        if (intent.popUpToRoute != null) {
+                            popUpTo(intent.popUpToRoute) { inclusive = intent.inclusive }
+                        } else if (intent.popUpToId != null) {
+                            popUpTo(intent.popUpToId) { inclusive = intent.inclusive }
+                        }
+                    }
+                }
+
+                is NavigationIntent.NavigateToRoute -> {
                     navHostController.navigate(intent.route) {
                         launchSingleTop = intent.isSingleTop
                         if (intent.popUpToRoute != null) {

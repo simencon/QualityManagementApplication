@@ -1,9 +1,8 @@
 package com.simenko.qmapp.ui.main.investigations.forms
 
 import androidx.lifecycle.*
-import com.simenko.qmapp.di.IsProcessControlOnlyParameter
-import com.simenko.qmapp.di.OrderIdParameter
-import com.simenko.qmapp.di.SubOrderIdParameter
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.domain.entities.DomainManufacturingOperation.DomainManufacturingOperationComplete
@@ -18,6 +17,7 @@ import com.simenko.qmapp.ui.main.main.MainPageState
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.navigation.Route
 import com.simenko.qmapp.ui.navigation.AppNavigator
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.InvStatuses
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -41,10 +42,12 @@ class NewItemViewModel @Inject constructor(
     private val manufacturingRepository: ManufacturingRepository,
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
-    @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
-    @OrderIdParameter private val orderId: ID,
-    @SubOrderIdParameter private val subOrderId: ID
+    private val controller: NavHostController,
 ) : ViewModel() {
+    var isPcOnly by Delegates.notNull<Boolean>()
+    var orderId by Delegates.notNull<ID>()
+    var subOrderId by Delegates.notNull<ID>()
+
     /**
      * Main page setup -------------------------------------------------------------------------------------------------------------------------------
      * */
@@ -52,40 +55,48 @@ class NewItemViewModel @Inject constructor(
         private set
 
     init {
+        controller.currentBackStackEntry?.let {
+            if (it.destination.parent?.route == RouteCompose.Main.AllInvestigations::class.qualifiedName) {
+                val route = it.toRoute<RouteCompose.Main.AllInvestigations.AllInvestigationsList>()
+                isPcOnly = false
+                subOrderId = route.subOrderId
+                orderId = route.orderId
+            } else {
+                val route = it.toRoute<RouteCompose.Main.ProcessControl.ProcessControlList>()
+                isPcOnly = true
+                subOrderId = route.subOrderId
+                orderId = route.orderId
+            }
+        }
+
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 println("NewItemViewModel - init - isPcOnly: $isPcOnly")
                 println("NewItemViewModel - init - orderId: $orderId")
                 println("NewItemViewModel - init - subOrderId: $subOrderId")
-                val pageWithMakeAction =
-                    if (isPcOnly == null) {
-                        if (orderId == NoRecord.num) {
-                            Pair(Page.ADD_ORDER) { makeOrder(true) }
+                val pageWithMakeAction = if (isPcOnly) {
+                    if (subOrderId == NoRecord.num) {
+                        setNewOrderForProcessControl()
+                        Pair(Page.ADD_SUB_ORDER_SA) { makeOrderWithSubOrder(true) }
+                    } else {
+                        loadOrder(orderId)
+                        loadSubOrder(subOrderId)
+                        Pair(Page.EDIT_SUB_ORDER_SA) { makeOrderWithSubOrder(false) }
+                    }
+                } else {
+                    if (orderId == NoRecord.num) {
+                        Pair(Page.ADD_ORDER) { makeOrder(true) }
+                    } else {
+                        if (subOrderId == NoRecord.num) {
+                            loadOrder(orderId)
+                            Pair(Page.ADD_SUB_ORDER) { makeSubOrder(true) }
                         } else {
                             loadOrder(orderId)
-                            Pair(Page.EDIT_ORDER) { makeOrder(false) }
-                        }
-                    } else {
-                        if (isPcOnly == true) {
-                            if (subOrderId == NoRecord.num) {
-                                setNewOrderForProcessControl()
-                                Pair(Page.ADD_SUB_ORDER_SA) { makeOrderWithSubOrder(true) }
-                            } else {
-                                loadOrder(orderId)
-                                loadSubOrder(subOrderId)
-                                Pair(Page.EDIT_SUB_ORDER_SA) { makeOrderWithSubOrder(false) }
-                            }
-                        } else {
-                            if (subOrderId == NoRecord.num) {
-                                loadOrder(orderId)
-                                Pair(Page.ADD_SUB_ORDER) { makeSubOrder(true) }
-                            } else {
-                                loadOrder(orderId)
-                                loadSubOrder(subOrderId)
-                                Pair(Page.EDIT_SUB_ORDER) { makeSubOrder(false) }
-                            }
+                            loadSubOrder(subOrderId)
+                            Pair(Page.EDIT_SUB_ORDER) { makeSubOrder(false) }
                         }
                     }
+                }
                 mainPageHandler = MainPageHandler.Builder(pageWithMakeAction.first, mainPageState)
                     .setOnNavMenuClickAction { appNavigator.navigateBack() }
                     .setOnFabClickAction { pageWithMakeAction.second() }

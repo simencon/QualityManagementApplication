@@ -183,22 +183,22 @@ sealed interface RouteCompose {
         @Serializable
         data object AllInvestigations : RouteCompose {
             @Serializable
-            data class AllInvestigationsList(val isProcessControlOnly: Boolean = false, val orderId: ID, val subOrderId: ID) : RouteCompose
+            data class AllInvestigationsList(val orderId: ID = NoRecord.num, val subOrderId: ID = NoRecord.num) : RouteCompose
 
             @Serializable
             data class OrderAddEdit(val orderId: ID = NoRecord.num) : RouteCompose
 
             @Serializable
-            data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num, val isProcessControlOnly: Boolean = false) : RouteCompose
+            data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num) : RouteCompose
         }
 
         @Serializable
         data object ProcessControl : RouteCompose {
             @Serializable
-            data class ProcessControlList(val isProcessControlOnly: Boolean = true, val orderId: ID, val subOrderId: ID) : RouteCompose
+            data class ProcessControlList(val orderId: ID = NoRecord.num, val subOrderId: ID = NoRecord.num) : RouteCompose
 
             @Serializable
-            data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num, val isProcessControlOnly: Boolean = true) : RouteCompose
+            data class SubOrderAddEdit(val orderId: ID, val subOrderId: ID = NoRecord.num) : RouteCompose
         }
 
         @Serializable
@@ -208,7 +208,7 @@ sealed interface RouteCompose {
         }
 
         @Serializable
-        data object Settings {
+        data object Settings : RouteCompose {
             @Serializable
             data object UserDetails : RouteCompose
 

@@ -63,4 +63,16 @@ class AppNavigatorImpl @Inject constructor() : AppNavigator {
             )
         )
     }
+
+    override fun tryNavigateTo(route: RouteCompose, popUpToRoute: RouteCompose?, popUpToId: Int?, inclusive: Boolean, isSingleTop: Boolean) {
+        navigationChannel.trySend(
+            NavigationIntent.NavigateToRoute(
+                route = route,
+                popUpToRoute = popUpToRoute,
+                popUpToId = popUpToId,
+                inclusive = inclusive,
+                isSingleTop = isSingleTop
+            )
+        )
+    }
 }

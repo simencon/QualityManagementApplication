@@ -2,10 +2,9 @@ package com.simenko.qmapp.ui.main.investigations
 
 import android.content.Context
 import androidx.lifecycle.*
+import androidx.navigation.NavHostController
+import androidx.navigation.toRoute
 import com.simenko.qmapp.BaseApplication
-import com.simenko.qmapp.di.OrderIdParameter
-import com.simenko.qmapp.di.IsProcessControlOnlyParameter
-import com.simenko.qmapp.di.SubOrderIdParameter
 import com.simenko.qmapp.domain.*
 import com.simenko.qmapp.domain.entities.*
 import com.simenko.qmapp.other.Event
@@ -20,7 +19,7 @@ import com.simenko.qmapp.ui.main.main.content.InvestigationsActions
 import com.simenko.qmapp.ui.main.main.content.Page
 import com.simenko.qmapp.ui.main.main.content.ProcessControlActions
 import com.simenko.qmapp.ui.navigation.AppNavigator
-import com.simenko.qmapp.ui.navigation.Route
+import com.simenko.qmapp.ui.navigation.RouteCompose
 import com.simenko.qmapp.utils.BaseFilter
 import com.simenko.qmapp.utils.EmployeesFilter
 import com.simenko.qmapp.utils.InvStatuses
@@ -37,6 +36,7 @@ import kotlinx.coroutines.flow.*
 import java.io.IOException
 import java.time.Instant
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -47,10 +47,25 @@ class InvestigationsViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
     private val repository: InvestigationsRepository,
     @ApplicationContext context: Context,
-    @IsProcessControlOnlyParameter val isPcOnly: Boolean?,
-    @OrderIdParameter private val orderId: ID,
-    @SubOrderIdParameter private val subOrderId: ID
+    private val controller: NavHostController,
 ) : ViewModel() {
+    var isPcOnly by Delegates.notNull<Boolean>()
+    var subOrderId by Delegates.notNull<ID>()
+    val orderId: ID
+        get() = controller.currentBackStackEntry?.let {
+            if(it.destination.parent?.route == RouteCompose.Main.AllInvestigations::class.qualifiedName) {
+                val route = it.toRoute<RouteCompose.Main.AllInvestigations.AllInvestigationsList>()
+                isPcOnly = false
+                subOrderId = route.subOrderId
+                route.orderId
+            } else {
+                val route = it.toRoute<RouteCompose.Main.ProcessControl.ProcessControlList>()
+                isPcOnly = true
+                subOrderId = route.subOrderId
+                route.orderId
+            }
+        } ?: NoRecord.num // Not possible case here
+
     private val _isLoadingInProgress: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _createdRecord: MutableStateFlow<Pair<Event<ID>, Event<ID>>> = MutableStateFlow(Pair(Event(orderId), Event(subOrderId)))
     private val _lastVisibleItemKey = MutableStateFlow<Any>(0)
@@ -68,10 +83,10 @@ class InvestigationsViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             setLastVisibleItemKey(if (orderId == NoRecord.num) repository.latestLocalOrderId() else orderId)
-            mainPageHandler = MainPageHandler.Builder(if (isPcOnly == true) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
-                .setOnSearchClickAction { if (isPcOnly == true) setSubOrdersFilter(it) else setOrdersFilter(it) }
-                .setOnTabSelectAction { if (isPcOnly == true) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
-                .setOnFabClickAction { if (isPcOnly == true) onAddProcessControlClick() else onAddInvClick() }
+            mainPageHandler = MainPageHandler.Builder(if (isPcOnly) Page.PROCESS_CONTROL else Page.INVESTIGATIONS, mainPageState)
+                .setOnSearchClickAction { if (isPcOnly) setSubOrdersFilter(it) else setOrdersFilter(it) }
+                .setOnTabSelectAction { if (isPcOnly) setSubOrdersFilter(BaseFilter(statusId = it.num)) else setOrdersFilter(BaseFilter(statusId = it.num)) }
+                .setOnFabClickAction { if (isPcOnly) onAddProcessControlClick() else onAddInvClick() }
                 .setOnPullRefreshAction { uploadNewInvestigations() }
                 .setOnUpdateLoadingExtraAction { _isLoadingInProgress.value = it.first }
                 .setOnActionItemClickAction {
@@ -84,33 +99,33 @@ class InvestigationsViewModel @Inject constructor(
 
     private val tabIndexesMap = mapOf(Pair(FirstTabId.num, 0), Pair(SecondTabId.num, 1), Pair(ThirdTabId.num, 2), Pair(FourthTabId.num, 3))
     val selectedTabIndex
-        get() = if (isPcOnly == true) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
+        get() = if (isPcOnly) tabIndexesMap[_currentSubOrdersFilter.value.statusId] ?: NoRecord.num.toInt() else tabIndexesMap[_currentOrdersFilter.value.statusId] ?: NoRecord.num.toInt()
 
     /**
      * Navigation -------------------------------------------------------------------------------------------------------------------------------
      * */
     private fun onAddInvClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(NoRecordStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.AllInvestigations.OrderAddEdit(NoRecord.num))
     }
 
     fun onEditInvClick(orderId: ID) {
-        appNavigator.tryNavigateTo(route = Route.Main.OrderAddEdit.withArgs(orderId.toString()))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.AllInvestigations.OrderAddEdit(orderId))
     }
 
     fun onAddSubOrderClick(orderId: ID) {
-        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(orderId.toString(), NoRecordStr.str, FalseStr.str))
+        appNavigator.tryNavigateTo(RouteCompose.Main.AllInvestigations.SubOrderAddEdit(orderId = orderId, subOrderId = NoRecord.num))
     }
 
     fun onEditSubOrderClick(record: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), FalseStr.str))
+        appNavigator.tryNavigateTo(RouteCompose.Main.AllInvestigations.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
     }
 
     private fun onAddProcessControlClick() {
-        appNavigator.tryNavigateTo(route = Route.Main.SubOrderAddEdit.withArgs(NoRecordStr.str, NoRecordStr.str, TrueStr.str))
+        appNavigator.tryNavigateTo(route = RouteCompose.Main.ProcessControl.SubOrderAddEdit(orderId = NoRecord.num, subOrderId = NoRecord.num))
     }
 
     fun onEditProcessControlClick(record: Pair<ID, ID>) {
-        appNavigator.tryNavigateTo(Route.Main.SubOrderAddEdit.withArgs(record.first.toString(), record.second.toString(), TrueStr.str))
+        appNavigator.tryNavigateTo(RouteCompose.Main.ProcessControl.SubOrderAddEdit(orderId = record.first, subOrderId = record.second))
     }
 
     private val _isStatusUpdateDialogVisible = MutableLiveData(false)
